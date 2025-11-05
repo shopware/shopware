@@ -1,0 +1,49 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Migration\Core\V6_7;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Migration\V6_7\Migration1762356839AddCommentToStateMachineHistory;
+
+/**
+ * @internal
+ */
+#[CoversClass(Migration1762356839AddCommentToStateMachineHistory::class)]
+class Migration1762356839AddCommentToStateMachineHistoryTest extends TestCase
+{
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testCreationTimestamp(): void
+    {
+        $migration = new Migration1762356839AddCommentToStateMachineHistory();
+        static::assertSame(1762356839, $migration->getCreationTimestamp());
+    }
+
+    public function testMigration(): void
+    {
+        $this->rollback();
+        $migration = new Migration1762356839AddCommentToStateMachineHistory();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $existingColumns = $this->connection->createSchemaManager()->listTableColumns('state_machine_history');
+        static::assertArrayHasKey('comment', $existingColumns);
+    }
+
+    private function rollback(): void
+    {
+        $existingColumns = $this->connection->createSchemaManager()->listTableColumns('state_machine_history');
+
+        if (\array_key_exists('comment', $existingColumns)) {
+            $this->connection->executeStatement('ALTER TABLE `state_machine_history` DROP COLUMN `comment`;');
+        }
+    }
+}

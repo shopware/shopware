@@ -8,4 +8,9 @@ export default function initializeMediaModal(): void {
     Shopware.ExtensionAPI.handle('uiMediaModalOpen', (modalConfig) => {
         Shopware.Store.get('mediaModal').openModal(modalConfig);
     });
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    Shopware.ExtensionAPI.handle('uiMediaModalOpenSaveMedia', (saveModalConfig) => {
+        Shopware.Store.get('mediaModal').openSaveModal(saveModalConfig);
+    });
 }

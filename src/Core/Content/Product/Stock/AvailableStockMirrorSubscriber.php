@@ -43,11 +43,7 @@ class AvailableStockMirrorSubscriber
                 return true;
             }
 
-            if ($command->hasField('stock')) {
-                return true;
-            }
-
-            return false;
+            return $command->hasField('stock');
         });
     }
 }

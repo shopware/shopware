@@ -1,27 +1,24 @@
-@import "~scss/variables";
-
 .sw-first-run-wizard-welcome {
-    width: 100%;
-    align-self: flex-start;
-    margin-top: 100px;
-
     .center {
         text-align: center;
     }
 
     .headline-welcome {
-        font-size: 32px;
-        font-weight: normal;
+        margin-top: var(--scale-size-20);
+        margin-bottom: var(--scale-size-8);
+        font-family: var(--font-family-headings);
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--font-line-height-3xl);
+        color: var(--color-text-primary-default);
         text-align: center;
-        letter-spacing: 0.2px;
-        line-height: 45px;
     }
 
     .text-welcome {
-        font-size: $font-size-xs;
-        font-weight: normal;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-regular);
+        margin: 0 auto var(--scale-size-30);
+        width: 34.5rem;
         text-align: center;
-        letter-spacing: 0.1px;
-        margin: 0 auto 30px;
     }
 }

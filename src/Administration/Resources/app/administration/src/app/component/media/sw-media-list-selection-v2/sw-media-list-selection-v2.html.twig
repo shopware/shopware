@@ -13,6 +13,7 @@
         :upload-tag="uploadId"
         variant="regular"
         :default-folder="defaultFolderName"
+        :disabled="disabled"
         @media-upload-sidebar-open="onMediaUploadButtonOpenSidebar"
     />
     {% endblock %}
@@ -28,9 +29,10 @@
         <sw-media-list-selection-item-v2
             v-for="(mediaItem, i) in mediaItems"
             :key="mediaItem?.url"
-            v-draggable="{ dragGroup: 'media-items', data: mediaItem, onDragEnter: onDeboundDragDrop }"
-            v-droppable="{ dragGroup: 'media-items', data: mediaItem }"
+            v-draggable="{ disabled, dragGroup: 'media-items', data: mediaItem, onDragEnter: onDeboundDragDrop }"
+            v-droppable="{ disabled, dragGroup: 'media-items', data: mediaItem }"
             :item="mediaItem"
+            :disabled="disabled"
             @item-remove="removeItem(mediaItem, i)"
         />
         {% endblock %}

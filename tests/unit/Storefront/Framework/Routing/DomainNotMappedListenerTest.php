@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Framework\Routing\DomainNotMappedListener;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,7 +47,7 @@ class DomainNotMappedListenerTest extends TestCase
             $this->createMock(HttpKernelInterface::class),
             new Request(),
             0,
-            new SalesChannelMappingException('test')
+            StorefrontFrameworkException::salesChannelMappingException('test')
         );
 
         $listener($event);

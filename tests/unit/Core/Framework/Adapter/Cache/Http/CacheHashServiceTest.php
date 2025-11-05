@@ -271,7 +271,7 @@ class CacheHashServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0: Response, 1: array<string, string|null>}>
+     * @return iterable<string, array{0: Request, 1: array<string, string|null>}>
      */
     public static function languageAndCurrencyHeaderProvider(): iterable
     {

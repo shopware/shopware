@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -107,7 +107,7 @@ class RequestTransformer implements RequestTransformerInterface
         if ($salesChannel === null) {
             // this class and therefore the "isSalesChannelRequired" method is currently not extendable
             // which can cause problems when adding custom paths
-            throw new SalesChannelMappingException($request->getUri());
+            throw StorefrontFrameworkException::salesChannelMappingException($request->getUri());
         }
 
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();

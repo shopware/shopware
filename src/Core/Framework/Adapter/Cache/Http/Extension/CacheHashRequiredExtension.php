@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @extends Extension<bool>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final class CacheHashRequiredExtension extends Extension

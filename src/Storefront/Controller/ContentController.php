@@ -39,7 +39,7 @@ class ContentController extends StorefrontController
     {
         $pathInfo = $request->getPathInfo();
         $response = $this->contentRoute->load($pathInfo, $request, $context);
-        $contentPage = $response->getDecomposedContentPage();
+        $contentPage = $response->getContentPage();
 
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', [
             'contentPage' => $contentPage,

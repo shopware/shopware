@@ -312,13 +312,22 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
         </service>
 
+        <!-- Content Route - Returns full ContentPage for Storefront rendering -->
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader"/>
+            <argument type="tagged_iterator" tag="content_system.context_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>
+
+        <!-- Content Decomposed Route - Returns DecomposedContentPage for API consumption -->
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentDecomposedRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader"/>
             <argument type="tagged_iterator" tag="content_system.context_factory"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentDecomposedRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentDecomposedRoute"/>
 
         <!-- Storefront Controller -->
         <service id="Shopware\Storefront\Controller\ContentController" public="true">

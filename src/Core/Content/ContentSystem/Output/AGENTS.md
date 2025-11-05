@@ -6,8 +6,10 @@
 
 - `SubTreeExtractor` - Extracts element sub-tree for partial rendering
 - `RenderingSpecification` - Rendering configuration (layout ID, placeholders, target element)
-- `ContentPage` (Struct/) - Full content response structure
-- `DecomposedContentPage` (Struct/) - Partial rendering response
+- `ContentPage` (Struct/) - Full format response (elements with embedded properties)
+- `DecomposedContentPage` (Struct/) - Decomposed format response (skeletons + data + assignments)
+
+**Terminology clarification for LLMs:** DecomposedContentPage is NOT about partial rendering (that's `?elementId` parameter). It's about response format - decomposed format separates element structure from property data for deduplication.
 
 ## Constraints
 
@@ -57,8 +59,11 @@ See `ContentRouteLoader::applyPartialRendering()` - iterates roots, returns firs
 - **Pipeline**: After hydration, before response serialization
 - **Input**: Fully hydrated ContentElement tree
 - **Output**: Transformed ContentElement tree (or subtree)
-- **Query param**: `?elementId=xyz` for partial rendering
+- **Query param**: `?elementId=xyz` for partial rendering (NOT related to DecomposedContentPage)
+- **Response formats**:
+  - `ContentPage`: Full format (`/store-api/content/{path}`)
+  - `DecomposedContentPage`: Decomposed format (`/store-api/content-decomposed/{path}`)
 - **Operations**: Read-only extraction/filtering, no mutations
 - **No database**: All data already loaded during hydration
 - **Extension**: Future tagged service pattern (similar to Refinery)
-- **Common use**: AJAX updates, lazy loading, reduced payloads
+- **Common use**: AJAX updates (partial), deduplication (decomposed format)

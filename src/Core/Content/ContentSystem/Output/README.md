@@ -15,6 +15,14 @@ Routing → Resolution → Layout → Refinement → Hydration → **Output** �
 
 Output operates on fully hydrated ContentElement trees. Unlike Layout/Refinery (pre-hydration) or Hydration (data loading), Output works with populated trees and prepares them for response serialization.
 
+## Response Format Transformation
+
+ContentPage provides lazy transformation to DecomposedContentPage via `getDecomposedContentPage()`:
+- **ContentPage**: Full element trees with properties embedded
+- **DecomposedContentPage**: Skeletons + deduplicated data + assignments
+
+ContentDecomposedRoute uses this transformation, ContentRoute returns ContentPage directly.
+
 ## Partial Rendering
 
 Extract specific element and descendants from full tree, discard ancestors and siblings. Used when client needs portion of page (AJAX updates, lazy loading).

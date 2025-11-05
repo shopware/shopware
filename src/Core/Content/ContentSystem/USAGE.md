@@ -67,7 +67,13 @@ graph LR
 
 Products, Categories, and Landing Pages can render directly using ContentSystem layouts without URL routing. Recommended for standard product/category/landing pages.
 
-**Endpoint:** `/store-api/content/{path}`
+**Endpoints:**
+
+Two endpoints available with different response formats:
+- `/store-api/content/{path}` - Returns full element trees (simpler integration)
+- `/store-api/content-decomposed/{path}` - Returns decomposed format with deduplicated data (optimized payloads)
+
+Both endpoints support the same path patterns and functionality. Choose based on your client integration needs.
 
 **Supported path patterns:**
 - `product/{productId}` - Product detail pages

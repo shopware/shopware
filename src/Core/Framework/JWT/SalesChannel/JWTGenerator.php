@@ -64,9 +64,7 @@ abstract class JWTGenerator
         $claims = $jwt->claims()->all();
         $this->validator->validate($claims, $this->getConstraints());
 
-        $struct = new ($structClass)();
-
-        return $struct->assign($claims);
+        return new ($structClass)($claims);
     }
 
     /**
@@ -96,7 +94,7 @@ abstract class JWTGenerator
             }
 
             if ($key === RegisteredClaims::AUDIENCE) {
-                $builder = $builder->permittedFor($value);
+                $builder = $builder->permittedFor(...$value);
                 continue;
             }
 

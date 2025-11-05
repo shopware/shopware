@@ -38,7 +38,7 @@ class JWTGeneratorTest extends TestCase
         $jwtStructClass = (new class extends JWTStruct {
             public string $foo;
 
-            public string $nullValue;
+            public ?string $nullValue;
         })::class;
 
         $generator = new class($config, $dataValidator, $jwtStructClass) extends JWTGenerator {
@@ -59,9 +59,8 @@ class JWTGeneratorTest extends TestCase
             }
         };
 
-        $jwt = new $jwtStructClass();
-        $jwt->assign([
-            RegisteredClaims::AUDIENCE => 'audA',
+        $jwt = new $jwtStructClass([
+            RegisteredClaims::AUDIENCE => ['audA'],
             RegisteredClaims::SUBJECT => 'subject-1',
             RegisteredClaims::ISSUER => 'issuer-1',
             RegisteredClaims::ID => 'id-123',
@@ -114,8 +113,7 @@ class JWTGeneratorTest extends TestCase
             }
         };
 
-        $jwt = new $jwtStructClass();
-        $jwt->assign([]); // no explicit dates -> use defaults
+        $jwt = new $jwtStructClass([]); // no explicit dates -> use defaults
 
         $tokenString = $generator->encode($jwt);
         $token = $config->parser()->parse($tokenString);

@@ -38,7 +38,7 @@ test('Shop administrator should be able to create product variants.', { tag: '@P
     ShopAdmin.expects(validateVariants).toBeTruthy();
 });
 
-test('Customer should be able to see a new property displayed on the product detail page', { tag: ['@Product', '@Storefront'] }, async ({
+test.only('Customer should be able to see a new property displayed on the product detail page', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,
@@ -70,11 +70,8 @@ test('Customer should be able to see a new property displayed on the product det
         await CheckVisibilityInHome(variantProductColor.at(0).name)();
         await ShopCustomer.goesTo(StorefrontProductDetail.url(variantProductColor.at(0)));
         await ShopCustomer.expects(StorefrontProductDetail.addToCartButton).toBeVisible();
-        await ShopCustomer.expects(StorefrontProductDetail.productDetailConfiguratorGroupTitle).toHaveText(
-            `Select ${color.name}`
-        );
-        await ShopCustomer.expects(StorefrontProductDetail.productDetailConfiguratorOptionInputs).toHaveCount(
-            variantProductColor.length
-        );
+        await ShopCustomer.expects(StorefrontProductDetail.propertyRadioGroup(color.name)).toBeVisible();
+        await ShopCustomer.expects(StorefrontProductDetail.propertyRadioGroup(color.name).getByRole('radio'))
+            .toHaveCount(variantProductColor.length);
     });
 });

@@ -228,10 +228,10 @@ class EntityForeignKeyResolver
 
         $primaryKeys = $association->getReferenceDefinition()->getPrimaryKeys()->filter(function (Field $field) {
             if ($field instanceof ReferenceVersionField || $field instanceof VersionField) {
-                return null;
+                return false;
             }
 
-            return $field;
+            return true;
         });
 
         foreach ($primaryKeys as $field) {

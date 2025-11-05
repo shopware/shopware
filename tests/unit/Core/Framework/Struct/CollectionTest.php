@@ -239,8 +239,10 @@ class CollectionTest extends TestCase
 
 /**
  * @internal
+ * 
+ * @template TElement
  *
- * @extends Collection<string|ProductEntity|CategoryEntity>
+ * @extends Collection<TElement>
  */
 class TestCollection extends Collection
 {

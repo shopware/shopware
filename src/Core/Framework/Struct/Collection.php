@@ -97,6 +97,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
+     * @template T of TElement
+     * @param \Closure(T): mixed $closure
+     *
      * @return array<array-key, mixed>
      */
     public function map(\Closure $closure): array
@@ -105,6 +108,8 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
+     * @template T of TElement
+     * @param \Closure(mixed|null, T): mixed $closure
      * @param mixed|null $initial
      *
      * @return mixed|null
@@ -115,6 +120,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
+     * @template T of TElement
+     * @param \Closure(T): mixed $closure
+     *
      * @return array<array-key, mixed>
      */
     public function fmap(\Closure $closure): array
@@ -128,7 +136,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param class-string $class
+     * @param class-string<TElement> $class
      */
     public function filterInstance(string $class): static
     {
@@ -137,6 +145,10 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         });
     }
 
+    /**
+     * @template T of TElement
+     * @param \Closure(T): bool $closure
+     */
     public function filter(\Closure $closure): static
     {
         return $this->createNew(array_filter($this->elements, $closure));
@@ -169,6 +181,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
+     * @template T of TElement
+     * @param \Closure(T): bool $closure
+     *
      * @return TElement|null
      */
     public function firstWhere(\Closure $closure)

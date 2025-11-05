@@ -99,7 +99,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         );
 
         try {
-            /** @var list<string> $newMatches */
             $newMatches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
         } catch (UnmappedFieldException) {
             // invalid filter, remove all mappings

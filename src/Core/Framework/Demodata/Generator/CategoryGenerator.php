@@ -197,7 +197,6 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $criteria->addFilter(new EqualsFilter('type', 'product_list'));
         $criteria->setLimit(500);
 
-        /** @var list<string> $ids */
         $ids = $this->cmsPageRepository->searchIds($criteria, $getContext)->getIds();
 
         return $ids;

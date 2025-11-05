@@ -38,7 +38,7 @@ class EntityDefinitionQueryHelper
 
     public static function escape(string $string): string
     {
-        if (mb_strpos($string, '`') !== false) {
+        if (str_contains($string, '`')) {
             throw DataAbstractionLayerException::invalidIdentifier($string);
         }
 
@@ -560,6 +560,9 @@ class EntityDefinitionQueryHelper
         return $chain;
     }
 
+    /**
+     * @param Criteria<string|array<string, string>> $criteria
+     */
     public function addIdCondition(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
     {
         $primaryKeys = $criteria->getIds();
@@ -572,7 +575,7 @@ class EntityDefinitionQueryHelper
         if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
             $primaryKeyField = $definition->getPrimaryKeys()->first();
             if ($primaryKeyField instanceof IdField || $primaryKeyField instanceof FkField) {
-                $primaryKeys = array_map(function ($id) {
+                $primaryKeys = array_map(static function ($id) {
                     if (\is_array($id)) {
                         $shiftedId = array_shift($id);
                         \assert(\is_string($shiftedId));

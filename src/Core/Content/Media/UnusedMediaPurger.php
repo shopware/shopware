@@ -66,7 +66,6 @@ class UnusedMediaPurger
         if ($offset !== null) {
             $criteria->setOffset($offset);
 
-            /** @var list<string> $ids */
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
             $ids = $this->dispatchEvent($ids);
@@ -159,7 +158,6 @@ class UnusedMediaPurger
         $criteria = new Criteria($mediaIds);
         $criteria->addFilter($rangeFilter);
 
-        /** @var list<string> $ids */
         $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
         return $ids;
@@ -179,14 +177,12 @@ class UnusedMediaPurger
         if ($offset !== null) {
             $criteria->setOffset($offset);
 
-            /** @var list<string> $ids */
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
             return yield $this->dispatchEvent($ids);
         }
 
         while (!empty($ids = $this->mediaRepo->searchIds($criteria, $context)->getIds())) {
-            /** @var non-empty-list<string> $ids */
             $unusedIds = $this->dispatchEvent($ids);
 
             yield $unusedIds;

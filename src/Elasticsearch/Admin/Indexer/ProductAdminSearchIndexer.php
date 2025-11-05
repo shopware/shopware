@@ -56,12 +56,14 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'manufacturerNumber',
         ]);
 
-        $translations = $event->getPrimaryKeysWithPropertyChange(ProductTranslationDefinition::ENTITY_NAME, [
+        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
+        $multiplePrimaryKeyWrittenEvent = $event;
+        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTranslationDefinition::ENTITY_NAME, [
             'name',
             'customSearchKeywords',
         ]);
 
-        $tags = $event->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
+        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 
@@ -71,7 +73,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return array_unique($productIds);
+        return array_values(array_unique($productIds));
     }
 
     public function getName(): string

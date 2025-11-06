@@ -56,13 +56,13 @@ abstract class JWTGenerator
             throw JWTException::invalidJwt('JWT is not an unencrypted token');
         }
 
-        if (!$this->configuration->validator()->validate($jwt, ...$this->getValidationConstraints())) {
+        if (!$this->configuration->validator()->validate($jwt, ...$this->getTokenValidationConstraints())) {
             throw JWTException::invalidJwt('JWT validation failed');
         }
 
         $structClass = $this->getJWTStructClass();
         $claims = $jwt->claims()->all();
-        $this->validator->validate($claims, $this->getConstraints());
+        $this->validator->validate($claims, $this->getStructConstraints());
 
         return new ($structClass)($claims);
     }
@@ -115,9 +115,12 @@ abstract class JWTGenerator
     }
 
     /**
+     * allows modifying Lcobucci validation constraints,
+     * e.g. if tokens are signed in a certain way, e.g. JWKS (or not at all) or need to adhere to other format standards
+     *
      * @return array<Constraint>
      */
-    protected function getValidationConstraints(): array
+    protected function getTokenValidationConstraints(): array
     {
         return $this->configuration->validationConstraints();
     }
@@ -130,7 +133,11 @@ abstract class JWTGenerator
         return 3600;
     }
 
-    protected function getConstraints(): DataValidationDefinition
+    /**
+     * validates the payload of the decoded JWT
+     * may be extended by subclass if they add additional claims to the payload or require a specific format
+     */
+    protected function getStructConstraints(): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('jwt.' . $this->getJWTStructClass());
         $definition->add(RegisteredClaims::AUDIENCE, new Type('string'));

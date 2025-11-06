@@ -102,9 +102,9 @@ class ImitateCustomerTokenGenerator extends JWTGenerator
         return ImitateCustomerToken::class;
     }
 
-    protected function getConstraints(): DataValidationDefinition
+    protected function getStructConstraints(): DataValidationDefinition
     {
-        $definition = parent::getConstraints();
+        $definition = parent::getStructConstraints();
         $definition->add(RegisteredClaims::ISSUER, new NotBlank(), new NotNull());
 
         return $definition;

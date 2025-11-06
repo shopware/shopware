@@ -15,14 +15,14 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "@types/node": "^20.6.5",
-    "@types/uuid": "^9.0.2",
-    "@typescript-eslint/eslint-plugin": "^6.7.2",
-    "@typescript-eslint/parser": "^6.7.2",
-    "dotenv": "^16.3.1",
-    "eslint": "^8.49.0",
-    "eslint-plugin-playwright": "^1.6.2",
-    "typescript": "^5.2.2"
+    "@types/node": "20.6.5",
+    "@types/uuid": "9.0.2",
+    "@typescript-eslint/eslint-plugin": "6.7.2",
+    "@typescript-eslint/parser": "6.7.2",
+    "dotenv": "16.6.1",
+    "eslint": "8.49.0",
+    "eslint-plugin-playwright": "1.6.2",
+    "typescript": "5.9.3"
   },
   "dependencies": {
     "@currents/playwright": "1.16.0",

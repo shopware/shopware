@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -231,12 +232,14 @@ abstract class StorefrontController extends AbstractController
                     $parameters['%' . $key . '%'] = $value;
                 }
 
-                if ($error->getRoute() instanceof ErrorRoute) {
-                    $parameters['%url%'] = $this->generateUrl(
-                        $error->getRoute()->getKey(),
-                        $error->getRoute()->getParams()
-                    );
-                }
+                Feature::callSilentIfInactive('v6.8.0.0', function () use (&$parameters, $error): void {
+                    if ($error->getRoute() instanceof ErrorRoute) {
+                        $parameters['%url%'] = $this->generateUrl(
+                            $error->getRoute()->getKey(),
+                            $error->getRoute()->getParams()
+                        );
+                    }
+                });
 
                 $translatedMessage = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
                 $error->setTranslatedMessage($translatedMessage);

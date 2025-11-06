@@ -31,6 +31,8 @@ jobs:
       - name: Rufus
         uses: shopware/github-actions/downstream@main
         if: steps.sts.outputs.token
+        env:
+            NEW_LOGIC: 1
         with:
           repo: shopware/rufus
           workflow: .github/workflows/downstream.yml
@@ -39,7 +41,7 @@ jobs:
           token: ${{ steps.sts.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
-  
+
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
@@ -53,6 +55,8 @@ jobs:
       - name: Commercial
         uses: shopware/github-actions/downstream@main
         if: steps.sts.outputs.token
+        env:
+            NEW_LOGIC: 1
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream

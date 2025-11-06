@@ -1,4 +1,35 @@
 # 6.8.0.0
+## Introduced in 6.7.4.0
+
+## Removed SystemConfig exceptions
+
+The exceptions
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`,
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
+were removed.
+Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
+
+## Deprecated SystemConfigService tracing methods
+
+The methods `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` and `\Shopware\Core\System\SystemConfig\SystemConfigService::getTrace()` were removed.
+The tracing is not needed anymore since the cache rework for 6.7.0.0.
+
+## Filterable price definitions now require an explicit interface
+
+Previously, a price definition was treated as filterable when it implemented a `getFilter()` method. From now on, price definitions must explicitly implement the
+`Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
+
+## Symfony validator is not used to validate the honeypot captcha
+
+The Symfony validator is not used to check the validity of the honeypot captcha, so if it was used to change the validity of the honeypot captcha, overwrite the `isValid` method of the honeypot captcha directly.
+
+## `CmsPageLoadedEvent::$result` now requires `CmsPageCollection` type
+
+The `$result` property of `Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent` now enforces the `Shopware\Core\Content\Cms\CmsPageCollection` type instead of the generic `Shopware\Core\Framework\DataAbstractionLayer\EntityCollection`.
+
+The event constructor now requires `CmsPageCollection` explicitly, and `CmsPageLoadedEvent::getResult()` return type has changed from `EntityCollection` to `CmsPageCollection`.
+
 ## Introduced in 6.7.3.0
 ## Removal of deprecated controller variables
 The following will be removed in Shopware 6.8.0:

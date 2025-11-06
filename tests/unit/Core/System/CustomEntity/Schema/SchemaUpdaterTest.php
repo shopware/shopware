@@ -187,6 +187,94 @@ class SchemaUpdaterTest extends TestCase
     }
 
     /**
+     * @param list<array{name: string, fields: string}> $entities
+     * @param array<string, list<string>> $notExpectedSchema
+     * @param array<string, list<string>> $expectedNonExistTableNames
+     */
+    #[DataProvider('associationWithIgnoreMissingReferencePairsProvider')]
+    public function testAssociationsWithIgnoreMissingReference(array $entities, array $notExpectedSchema, array $expectedNonExistTableNames): void
+    {
+        $schema = new Schema();
+
+        $updater = new SchemaUpdater();
+        $updater->applyCustomEntities($schema, $entities);
+
+        /** @var string $nonExistTableName */
+        foreach ($expectedNonExistTableNames as $nonExistTableName) {
+            // the reference table should not be created if the ignoreMissingReference attribute is true
+            static::assertFalse($schema->hasTable($nonExistTableName), \sprintf('Table %s do exists, but it should not be created', $nonExistTableName));
+        }
+
+        foreach ($notExpectedSchema as $tableName => $columns) {
+            static::assertTrue($schema->hasTable($tableName), \sprintf('Table %s do not exists', $tableName));
+
+            $table = $schema->getTable($tableName);
+
+            foreach ($columns as $column) {
+                static::assertFalse(
+                    $table->hasColumn($column),
+                    \sprintf('Column %s found in table %s: %s', $column, $table->getName(), \print_r($table->getColumns(), true))
+                );
+            }
+        }
+    }
+
+    public static function associationWithIgnoreMissingReferencePairsProvider(): \Generator
+    {
+        yield 'testOneToOneWithIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"one-to-one","ignoreMissingReference":true}]',
+                ],
+            ],
+            'notExpectedSchema' => [
+                'custom_entity_left' => ['right_id'],
+            ],
+            'expectedNonExistTableNames' => ['custom_entity_right'],
+        ];
+
+        yield 'testOneToManyWithIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"one-to-many","ignoreMissingReference":true}]',
+                ],
+            ],
+            'notExpectedSchema' => [
+                'custom_entity_left' => [], // no reference table, so no reference table columns should be added
+            ],
+            'expectedNonExistTableNames' => ['custom_entity_right'],
+        ];
+
+        yield 'testManyToOneWithIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"many-to-one","ignoreMissingReference":true}]',
+                ],
+            ],
+            'notExpectedSchema' => [
+                'custom_entity_left' => ['right_id'],
+            ],
+            'expectedNonExistTableNames' => ['custom_entity_right'],
+        ];
+
+        yield 'testManyToManyWithIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"many-to-many","ignoreMissingReference":true}]',
+                ],
+            ],
+            'notExpectedSchema' => [
+                'custom_entity_left' => [], // no reference table, so no reference table columns should be added
+            ],
+            'expectedNonExistTableNames' => ['custom_entity_right', 'custom_entity_left_rights'],
+        ];
+    }
+
+    /**
      * @param list<string> $columns
      */
     private function assertColumns(Schema $schema, string $table, array $columns): void

@@ -9,8 +9,6 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 /**
  * @internal only for use by the app-system
- *
- * @phpstan-consistent-constructor
  */
 #[Package('framework')]
 abstract class XmlElement extends Struct
@@ -33,7 +31,7 @@ abstract class XmlElement extends Struct
 
     public static function fromXml(\DOMElement $element): static
     {
-        /** @phpstan-ignore new.staticInAbstractClassStaticMethod (the usage of "new static" is explicitly wanted) */
+        /** @phpstan-ignore new.static,new.staticInAbstractClassStaticMethod (the usage of "new static" is explicitly wanted) */
         return new static(static::parse($element));
     }
 
@@ -42,7 +40,7 @@ abstract class XmlElement extends Struct
      */
     public static function fromArray(array $data): static
     {
-        /** @phpstan-ignore new.staticInAbstractClassStaticMethod (the usage of "new static" is explicitly wanted) */
+        /** @phpstan-ignore new.static,new.staticInAbstractClassStaticMethod (the usage of "new static" is explicitly wanted) */
         return new static($data);
     }
 

@@ -26,7 +26,7 @@ class SalesChannelExceptionTest extends TestCase
     }
 
     /**
-     * @return array<string, array{exception: ShopwareHttpException|SalesChannelException, statusCode: int, errorCode: string, message: string}>
+     * @return iterable<string, array{exception: ShopwareHttpException|SalesChannelException, statusCode: int, errorCode: string, message: string}>
      */
     public static function exceptionDataProvider(): iterable
     {

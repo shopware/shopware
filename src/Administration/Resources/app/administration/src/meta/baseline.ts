@@ -42,7 +42,6 @@ const missingTests = [
     'src/app/component/form/field-base/sw-base-field/index.js',
     'src/app/component/form/field-base/sw-block-field/index.js',
     'src/app/component/form/field-base/sw-contextual-field/index.js',
-    'src/app/component/form/select/base/sw-select-result-list/index.js',
     'src/app/component/form/select/entity/sw-entity-tag-select/index.js',
     'src/app/component/form/sw-boolean-radio-group/index.js',
     'src/app/component/form/sw-compact-colorpicker/index.js',

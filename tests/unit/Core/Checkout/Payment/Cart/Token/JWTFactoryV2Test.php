@@ -10,6 +10,7 @@ use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
@@ -29,12 +30,14 @@ class JWTFactoryV2Test extends TestCase
 {
     private JWTFactoryV2 $tokenFactory;
 
+    private Connection&MockObject $connection;
+
     protected function setUp(): void
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration = $configuration->withValidationConstraints(new NoopConstraint());
-        $connection = $this->createMock(Connection::class);
-        $this->tokenFactory = new JWTFactoryV2($configuration, $connection);
+        $this->connection = $this->createMock(Connection::class);
+        $this->tokenFactory = new JWTFactoryV2($configuration, $this->connection);
     }
 
     #[DataProvider('dataProviderExpiration')]
@@ -42,14 +45,27 @@ class JWTFactoryV2Test extends TestCase
     {
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, $expiration);
+        $time = time();
         $token = $this->tokenFactory->generateToken($tokenStruct);
         static::assertNotEmpty($token);
+
+        if ($expired) {
+            $this->expectException(PaymentException::class);
+        } else {
+            $this->connection
+                ->expects($this->once())
+                ->method('fetchAssociative')
+                ->willReturn(
+                    ['token' => $token, 'consumed' => '0']
+                );
+        }
+
         $tokenStruct = $this->tokenFactory->parseToken($token);
 
         static::assertSame($transaction->getId(), $tokenStruct->getTransactionId());
         static::assertSame($transaction->getPaymentMethodId(), $tokenStruct->getPaymentMethodId());
         static::assertSame($token, $tokenStruct->getToken());
-        static::assertEqualsWithDelta(time() + $expiration, $tokenStruct->getExpires(), 1);
+        static::assertEqualsWithDelta($time + $expiration, $tokenStruct->getExpires(), 1);
         static::assertSame($expired, $tokenStruct->isExpired());
     }
 
@@ -110,12 +126,11 @@ class JWTFactoryV2Test extends TestCase
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration = $configuration->withValidationConstraints(new NoopConstraint());
-        $connection = $this->createMock(Connection::class);
-        $connection
+        $this->connection
             ->method('fetchOne')
             ->willReturn(false);
 
-        $tokenFactory = new JWTFactoryV2($configuration, $connection);
+        $tokenFactory = new JWTFactoryV2($configuration, $this->connection);
 
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);

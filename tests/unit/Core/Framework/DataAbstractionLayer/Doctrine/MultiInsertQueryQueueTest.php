@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
  * @internal
@@ -42,7 +41,7 @@ class MultiInsertQueryQueueTest extends TestCase
             $queue->addInsert($insert['table'], $insert['data'], $insert['types'] ?? null);
         }
 
-        $prepareQueries = ReflectionHelper::getMethod(MultiInsertQueryQueue::class, 'prepareQueries');
+        $prepareQueries = new \ReflectionMethod(MultiInsertQueryQueue::class, 'prepareQueries');
         $generatedQueries = $prepareQueries->invoke($queue);
 
         static::assertIsArray($generatedQueries);
@@ -221,7 +220,7 @@ class MultiInsertQueryQueueTest extends TestCase
             ['id' => 2, 'name' => 'test2', 'description' => 'test2'],
         ]);
 
-        $prepareQueries = ReflectionHelper::getMethod(MultiInsertQueryQueue::class, 'prepareQueries');
+        $prepareQueries = new \ReflectionMethod(MultiInsertQueryQueue::class, 'prepareQueries');
         $generatedQueries = $prepareQueries->invoke($queue);
 
         static::assertIsArray($generatedQueries);
@@ -248,7 +247,7 @@ class MultiInsertQueryQueueTest extends TestCase
         $queue->addUpdateFieldOnDuplicateKey('table1', 'non_existing_field');
         $queue->addUpdateFieldOnDuplicateKey('table1', 'description');
 
-        $prepareQueries = ReflectionHelper::getMethod(MultiInsertQueryQueue::class, 'prepareQueries');
+        $prepareQueries = new \ReflectionMethod(MultiInsertQueryQueue::class, 'prepareQueries');
         $generatedQueries = $prepareQueries->invoke($queue);
         static::assertIsArray($generatedQueries);
         static::assertCount(1, $generatedQueries);

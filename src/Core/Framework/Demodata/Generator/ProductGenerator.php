@@ -184,10 +184,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $variants = [];
         foreach ($combinations as $options) {
             $price = $this->faker->randomFloat(2, 1, 1000);
-            $tax = $taxes->get(array_rand($taxes->getIds()));
-            if (!$tax instanceof TaxEntity) {
-                continue;
-            }
+            $tax = $this->getRandomTax($taxes);
             $taxRate = 1 + ($tax->getTaxRate() / 100);
 
             $id = Uuid::randomHex();
@@ -281,8 +278,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     ): array {
         $price = $this->faker->randomFloat(2, 1, 1000);
         $purchasePrice = $this->faker->randomFloat(2, 1, 1000);
-        $tax = $taxes->get(array_rand($taxes->getIds()));
-        \assert($tax instanceof TaxEntity);
+        $tax = $this->getRandomTax($taxes);
         $taxRate = 1 + ($tax->getTaxRate() / 100);
 
         return [
@@ -459,5 +455,20 @@ class ProductGenerator implements DemodataGeneratorInterface
         $id = $this->connection->fetchOne('SELECT LOWER(HEX(delivery_time_id)) FROM delivery_time_translation WHERE `name` = "Instant download" LIMIT 1');
 
         return \is_string($id) ? $id : null;
+    }
+
+    private function getRandomTax(TaxCollection $taxes): TaxEntity
+    {
+        $taxIds = $taxes->getIds();
+        if ($taxIds === []) {
+            throw DemodataException::wrongExecutionOrder();
+        }
+
+        $tax = $taxes->get(array_rand($taxIds));
+        if (!$tax instanceof TaxEntity) {
+            throw DemodataException::wrongExecutionOrder();
+        }
+
+        return $tax;
     }
 }

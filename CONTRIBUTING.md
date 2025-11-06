@@ -119,6 +119,10 @@ To run the Storefront Watcher you will need to set an additional `PROXY_URL` env
 ```bash
 docker compose run --rm -p 9998:9998 -p 9999:9999 -e PROXY_URL=http://localhost web composer watch:storefront
 ```
+and for the admin watcher accordingly:
+```bash
+docker compose run --rm -p 5173:5173 -e PROXY_URL=http://localhost web composer watch:admin
+```
 
 ## Command Overview
 

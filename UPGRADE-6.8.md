@@ -485,6 +485,12 @@ which means the `salesChannel` property of the `BaseSalesChannelContext` no long
 The `Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator` has been refactored to use JWT tokens for imitating customers instead of a custom solution.
 Previous additional request parameters are not required anymore and part of the token.
 
+## Removal of ErrorRoutes
+
+`Shopware\Core\Checkout\Cart\Error\ErrorRoute` is specific to the standard Storefront and therefore should not be in the Core package.
+At the same time, the Storefront does not properly use this class.
+Therefore, the class, and the `route` property of `Shopware\Core\Checkout\Cart\Error\CartError` have been removed.
+
 </details>
 
 # Administration

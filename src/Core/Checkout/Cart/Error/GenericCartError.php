@@ -55,11 +55,6 @@ class GenericCartError extends Error
         return $this->parameters;
     }
 
-    public function getRoute(): ?ErrorRoute
-    {
-        return null;
-    }
-
     public function isPersistent(): bool
     {
         return $this->persistent;

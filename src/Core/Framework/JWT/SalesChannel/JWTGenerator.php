@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Symfony\Component\Clock\DatePoint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
@@ -72,7 +73,7 @@ abstract class JWTGenerator
      */
     protected function buildToken(JWTStruct $jwt): Builder
     {
-        $now = new \DateTimeImmutable('@' . time());
+        $now = new DatePoint();
 
         $builder = $this->configuration->builder()
             ->issuedAt($jwt->iat ?? $now)

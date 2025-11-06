@@ -14,9 +14,6 @@ use Symfony\Component\Validator\ConstraintValidator;
 #[Package('framework')]
 class RouteNotBlockedValidator extends ConstraintValidator
 {
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly RouteBlocklistService $blocklistService
     ) {

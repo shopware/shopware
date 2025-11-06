@@ -1151,20 +1151,20 @@ export default {
                                     error.response.data.errors.forEach((apiError) => {
                                         const messageKey = `global.error-codes.${apiError.detail}`;
                                         const params = apiError.meta?.parameters || {};
-                                        const translated = this.$tc(messageKey, 1, params);
+                                        const translated = this.$t(messageKey, 1, params);
 
                                         const message =
                                             translated !== messageKey
                                                 ? translated
                                                 : apiError.detail ||
                                                   apiError.title ||
-                                                  this.$tc('global.notification.unspecifiedSaveErrorMessage');
+                                                  this.$t('global.notification.unspecifiedSaveErrorMessage');
 
                                         this.createNotificationError({ message });
                                     });
                                 } else {
                                     const message =
-                                        error.message || this.$tc('global.notification.unspecifiedSaveErrorMessage');
+                                        error.message || this.$t('global.notification.unspecifiedSaveErrorMessage');
                                     this.createNotificationError({ message });
                                 }
 

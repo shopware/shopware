@@ -16,9 +16,6 @@ class RouteBlocklistService
     private const CACHE_KEY = 'routing_blocked_routes';
     private const CACHE_TTL = 3600;
 
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly RouterInterface $router,
         private readonly CacheInterface $cache

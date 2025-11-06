@@ -233,6 +233,7 @@ jobs:
           php-version: 8.4
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          keep-composer-tools: true
 
       - name: Start Webserver
         run: symfony server:start -d

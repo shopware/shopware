@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 class Random
 {
     /**
+     * @param int<1, max> $length
+     *
      * @return non-empty-string
      */
     public static function getBytes(int $length): string
@@ -41,6 +43,8 @@ class Random
     }
 
     /**
+     * @param int<1, max> $length
+     *
      * @return non-empty-string
      */
     public static function getString(int $length, ?string $charlist = null): string
@@ -51,10 +55,11 @@ class Random
 
         // charlist is empty or not provided
         if (empty($charlist)) {
-            $numBytes = ceil($length * 0.75);
-            $bytes = static::getBytes((int) $numBytes);
+            /** @var int<1, max> $numBytes */
+            $numBytes = (int) ceil($length * 0.75);
+            $bytes = static::getBytes($numBytes);
 
-            /** @var non-empty-string $result phpstan does not understand that length is >= 1 */
+            /** @var non-empty-string $result phpstan does not understand that base64_encode already returns a non-empty-string */
             $result = mb_substr(rtrim(base64_encode($bytes), '='), 0, $length, '8bit');
 
             return $result;
@@ -71,13 +76,15 @@ class Random
             $pos = static::getInteger(0, $listLen - 1);
             $result .= $charlist[$pos];
         }
-        /** @var non-empty-string $result phpstan does not understand that length is >= 1 */
 
+        /** @var non-empty-string $result phpstan does not understand that it has been filled by the loop */
         return $result;
     }
 
     /**
      * @see https://tools.ietf.org/html/rfc4648
+     *
+     * @param int<1, max> $length
      *
      * @return non-empty-string
      */
@@ -90,6 +97,8 @@ class Random
     }
 
     /**
+     * @param int<1, max> $length
+     *
      * @return non-empty-string
      */
     public static function getAlphanumericString(int $length): string

@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Struct\VariablesAccessTrait;
 #[Package('checkout')]
 class JWTStruct implements ExtendableInterface
 {
-    use VariablesAccessTrait;
     use ExtendableTrait;
+    use VariablesAccessTrait;
 
     /**
      * Issuer of the JWT

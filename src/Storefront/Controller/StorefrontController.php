@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Address\Error\AddressErrorInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
@@ -240,6 +241,10 @@ abstract class StorefrontController extends AbstractController
                         );
                     }
                 });
+
+                if ($error instanceof AddressErrorInterface && $error->getAddressId() !== null) {
+                    $parameters['%url%'] = $this->generateUrl('frontend.account.address.edit.page', ['addressId' => $error->getAddressId()]);
+                }
 
                 $translatedMessage = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
                 $error->setTranslatedMessage($translatedMessage);

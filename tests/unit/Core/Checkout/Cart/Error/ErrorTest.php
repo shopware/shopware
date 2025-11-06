@@ -101,11 +101,11 @@ class ErrorTest extends TestCase
      */
     public static function serializationDataProvider(): iterable
     {
-        yield AddressValidationError::class => [new AddressValidationError(true, new ConstraintViolationList())];
-        yield BillingAddressBlockedError::class => [new BillingAddressBlockedError('foo')];
+        yield AddressValidationError::class => [new AddressValidationError(true, new ConstraintViolationList(), 'address-id-123')];
+        yield BillingAddressBlockedError::class => [new BillingAddressBlockedError('foo', 'address-id-123')];
         yield BillingAddressCountryRegionMissingError::class => [new BillingAddressCountryRegionMissingError(self::createCustomerAddress())];
         yield BillingAddressSalutationMissingError::class => [new BillingAddressSalutationMissingError(self::createCustomerAddress())];
-        yield ShippingAddressBlockedError::class => [new ShippingAddressBlockedError('foo')];
+        yield ShippingAddressBlockedError::class => [new ShippingAddressBlockedError('foo', 'address-id-123')];
         yield ShippingAddressCountryRegionMissingError::class => [new ShippingAddressCountryRegionMissingError(self::createCustomerAddress())];
         yield ShippingAddressSalutationMissingError::class => [new ShippingAddressSalutationMissingError(self::createCustomerAddress())];
         yield GenericCartError::class => [new GenericCartError('foo', 'bar', [], Error::LEVEL_ERROR, false, false, false)];

@@ -12,8 +12,9 @@ class BillingAddressCountryRegionMissingError extends CountryRegionMissingError
 {
     protected const KEY = parent::KEY . '-billing-address';
 
-    public function __construct(CustomerAddressEntity $address)
-    {
+    public function __construct(
+        private readonly CustomerAddressEntity $address
+    ) {
         $this->message = \sprintf(
             'A country region needs to be defined for the billing address "%s %s, %s %s".',
             $address->getFirstName(),
@@ -46,5 +47,10 @@ class BillingAddressCountryRegionMissingError extends CountryRegionMissingError
             'frontend.account.address.edit.page',
             $this->parameters
         );
+    }
+
+    public function getAddressId(): ?string
+    {
+        return $this->address->getId();
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
@@ -37,6 +38,7 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Error\SyntaxError;
@@ -555,6 +557,48 @@ class StorefrontControllerTest extends TestCase
         static::assertCount(1, $flashes['danger']);
 
         static::assertSame('A very nasty error', $flashes['danger'][0]);
+    }
+
+    public function testAddressError(): void
+    {
+        $error = new AddressValidationError(
+            true,
+            new ConstraintViolationList(),
+            'address-id-123',
+        );
+
+        $cart = new Cart('foo');
+        $cart->addErrors($error);
+
+        $request = new Request();
+        $session = new Session(new TestSessionStorage());
+
+        $request->setSession($session);
+
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator
+            ->expects($this->once())
+            ->method('trans')
+            ->with('checkout.billing-address-invalid', ['%url%' => 'errorUrl', '%isBillingAddress%' => true, '%violations%' => $error->getViolations()])
+            ->willReturn('A very nasty error');
+
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('generate')
+            ->with('frontend.account.address.edit.page', ['addressId' => 'address-id-123'])
+            ->willReturn('errorUrl');
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $stack);
+        $container->set('translator', $translator);
+        $container->set('router', $router);
+
+        $this->controller->setContainer($container);
+        $this->controller->testAddCartErrors($cart);
     }
 
     public function testRenderView(): void

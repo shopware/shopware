@@ -12,8 +12,9 @@ class ShippingAddressSalutationMissingError extends SalutationMissingError
 {
     protected const KEY = parent::KEY . '-shipping-address';
 
-    public function __construct(CustomerAddressEntity $address)
-    {
+    public function __construct(
+        private readonly CustomerAddressEntity $address
+    ) {
         $this->message = \sprintf(
             'A salutation needs to be defined for the shipping address "%s %s, %s %s".',
             $address->getFirstName(),
@@ -46,5 +47,10 @@ class ShippingAddressSalutationMissingError extends SalutationMissingError
             'frontend.account.address.edit.page',
             $this->parameters
         );
+    }
+
+    public function getAddressId(): ?string
+    {
+        return $this->address->getId();
     }
 }

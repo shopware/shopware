@@ -16,7 +16,7 @@ class BillingAddressBlockedError extends Error implements AddressErrorInterface
      */
     public function __construct(
         protected readonly string $name,
-        protected readonly ?string $addressId,
+        protected readonly ?string $addressId = null,
     ) {
         if (!$addressId) {
             Feature::triggerDeprecationOrThrow(

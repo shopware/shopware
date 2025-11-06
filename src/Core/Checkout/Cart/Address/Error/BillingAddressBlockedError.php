@@ -12,7 +12,7 @@ class BillingAddressBlockedError extends Error implements AddressErrorInterface
     private const KEY = 'billing-address-blocked';
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $addressId will be required
+     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $addressId will be required and non-nullable
      */
     public function __construct(
         protected readonly string $name,

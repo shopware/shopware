@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -40,7 +41,8 @@ class MailSender extends AbstractMailSender
         private readonly int $maxContentLength,
         private readonly LoggerInterface $logger,
         private readonly int $messageMaxKiBSize,
-        private readonly ?MessageBusInterface $messageBus = null,
+        private readonly ?MessageBusInterface $messageBus,
+        private readonly bool $disableDeliveryInStagingMode,
     ) {
     }
 
@@ -51,7 +53,7 @@ class MailSender extends AbstractMailSender
 
     public function send(Email $email): void
     {
-        $disabled = $this->configService->get(self::DISABLE_MAIL_DELIVERY);
+        $disabled = ($this->configService->getBool(SetupStagingEvent::CONFIG_FLAG) && $this->disableDeliveryInStagingMode) || $this->configService->get(self::DISABLE_MAIL_DELIVERY);
 
         if ($disabled) {
             $receiver = array_map(fn ($address) => $address->getAddress(), $email->getTo());

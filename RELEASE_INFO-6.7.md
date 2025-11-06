@@ -10,6 +10,8 @@
 
 ## Storefront
 
+* Removed the flags in the language selection and the corresponding CSS classes. (PR #13380)
+
 ## App System
 
 ## Hosting & Configuration

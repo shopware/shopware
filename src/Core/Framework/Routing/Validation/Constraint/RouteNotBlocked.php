@@ -18,21 +18,21 @@ class RouteNotBlocked extends Constraint
         self::ROUTE_BLOCKED => 'FRAMEWORK__ROUTE_BLOCKED',
     ];
 
-    public string $message = 'FRAMEWORK__ROUTE_BLOCKED_MESSAGE';
+    protected string $message = 'FRAMEWORK__ROUTE_BLOCKED_MESSAGE';
 
     /**
      * @param array<string, mixed>|null $options
      */
     public function __construct(
         ?array $options = null,
-        ?string $message = null,
         ?array $groups = null,
         mixed $payload = null
     ) {
         parent::__construct($options, $groups, $payload);
+    }
 
-        if ($message !== null) {
-            $this->message = $message;
-        }
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 }

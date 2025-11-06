@@ -117,7 +117,7 @@ class RouteNotBlockedValidatorTest extends TestCase
         $context = $this->createMock(ExecutionContextInterface::class);
         $context->expects($this->once())
             ->method('buildViolation')
-            ->with($constraint->message)
+            ->with($constraint->getMessage())
             ->willReturn($violationBuilder);
 
         $validator = new RouteNotBlockedValidator($blocklistService);

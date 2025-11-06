@@ -40,10 +40,9 @@ class RouteNotBlockedValidator extends ConstraintValidator
             return;
         }
 
-        // Extract the first segment that is blocked
         $normalizedPath = '/' . trim($value, '/');
 
-        $this->context->buildViolation($constraint->message)
+        $this->context->buildViolation($constraint->getMessage())
             ->setParameter('{{ path }}', $this->formatValue($value))
             ->setParameter('{{ blockedSegment }}', $this->formatValue($normalizedPath))
             ->setCode(RouteNotBlocked::ROUTE_BLOCKED)

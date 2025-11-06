@@ -53,9 +53,7 @@ export default {
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             if (this.searchTerm && this.searchTerm.length > 0) {
-                criteria.addFilter(
-                    Criteria.contains('technicalName', this.searchTerm),
-                );
+                criteria.addFilter(Criteria.contains('technicalName', this.searchTerm));
             }
 
             return criteria;

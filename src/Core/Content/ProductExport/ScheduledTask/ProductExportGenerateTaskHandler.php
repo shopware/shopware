@@ -47,9 +47,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $salesChannelIds = $this->fetchSalesChannelIds();
-
-        foreach ($salesChannelIds as $salesChannelId) {
+        foreach ($this->fetchSalesChannelIds() as $salesChannelId) {
             $productExports = $this->fetchProductExports($salesChannelId);
 
             if ($productExports->count() === 0) {
@@ -71,7 +69,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function fetchSalesChannelIds(): array
     {
@@ -80,7 +78,6 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
             ->addFilter(new EqualsFilter('active', true));
 
-        /** @var list<string> */
         return $this->salesChannelRepository
             ->searchIds($criteria, Context::createCLIContext())
             ->getIds();

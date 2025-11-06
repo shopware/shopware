@@ -158,9 +158,7 @@ class UnusedMediaPurger
         $criteria = new Criteria($mediaIds);
         $criteria->addFilter($rangeFilter);
 
-        $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
-
-        return $ids;
+        return $this->mediaRepo->searchIds($criteria, $context)->getIds();
     }
 
     /**

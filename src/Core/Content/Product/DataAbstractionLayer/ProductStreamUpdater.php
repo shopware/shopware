@@ -213,9 +213,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             }
 
             foreach ($matches->getIds() as $id) {
-                if (!\is_string($id)) {
-                    continue;
-                }
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,

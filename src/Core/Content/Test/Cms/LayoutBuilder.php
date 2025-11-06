@@ -48,7 +48,7 @@ class LayoutBuilder
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, mixed>
      */
     public function build(): array
     {
@@ -61,26 +61,6 @@ class LayoutBuilder
         $data['sections'] = array_values($data['sections']);
 
         return array_filter($data);
-    }
-
-    /**
-     * @param string[] $keys
-     */
-    public function productThreeColumnBlock(array $keys, string $section = 'main'): LayoutBuilder
-    {
-        $this->section($section);
-
-        $this->sections[$section]['blocks'][] = [
-            'position' => $this->blockPosition($section),
-            'type' => 'product-three-column',
-            'slots' => [
-                array_merge(['slot' => 'left'], $this->productBox($keys[0])),
-                array_merge(['slot' => 'center'], $this->productBox($keys[1])),
-                array_merge(['slot' => 'right'], $this->productBox($keys[2])),
-            ],
-        ];
-
-        return $this;
     }
 
     public function listing(string $section = 'main'): LayoutBuilder
@@ -131,7 +111,7 @@ class LayoutBuilder
     }
 
     /**
-     * @param string[] $keys
+     * @param list<string> $keys
      */
     public function imageSlider(array $keys, string $section = 'main'): self
     {
@@ -171,7 +151,7 @@ class LayoutBuilder
     }
 
     /**
-     * @param string[] $keys
+     * @param list<string> $keys
      */
     public function imageGallery(array $keys, string $section = 'main'): self
     {
@@ -211,88 +191,15 @@ class LayoutBuilder
     }
 
     /**
-     * @param string[] $keys
-     */
-    public function productSlider(array $keys, string $section = 'main'): self
-    {
-        $this->section($section);
-
-        $this->sections[$section]['blocks'][] = array_merge(
-            [
-                'type' => 'product-slider',
-                'position' => $this->blockPosition($section),
-                'sectionPosition' => 'main',
-                'backgroundMediaMode' => 'cover',
-                'slots' => [
-                    [
-                        'type' => 'product-slider',
-                        'slot' => 'productSlider',
-                        'config' => [
-                            'products' => [
-                                'source' => 'static',
-                                'value' => array_values($this->ids->getList($keys)),
-                            ],
-                            'title' => ['source' => 'static', 'value' => ''],
-                            'displayMode' => ['source' => 'static', 'value' => 'standard'],
-                            'boxLayout' => ['source' => 'static', 'value' => 'standard'],
-                            'navigation' => ['source' => 'static', 'value' => true],
-                            'rotate' => ['source' => 'static', 'value' => false],
-                            'border' => ['source' => 'static', 'value' => false],
-                            'elMinWidth' => ['source' => 'static', 'value' => '300px'],
-                            'verticalAlign' => ['source' => 'static', 'value' => null],
-                            'productStreamSorting' => ['source' => 'static', 'value' => 'name:ASC'],
-                            'productStreamLimit' => ['source' => 'static', 'value' => 10],
-                        ],
-                    ],
-                ],
-            ],
-            self::margin(20, 20, 20, 20)
-        );
-
-        return $this;
-    }
-
-    public function productStreamSlider(string $stream, string $section = 'main'): self
-    {
-        $this->section($section);
-
-        $this->sections[$section]['blocks'][] = array_merge(
-            [
-                'type' => 'product-slider',
-                'position' => $this->blockPosition($section),
-                'sectionPosition' => 'main',
-                'backgroundMediaMode' => 'cover',
-                'slots' => [
-                    [
-                        'type' => 'product-slider',
-                        'slot' => 'productSlider',
-                        'config' => [
-                            'products' => [
-                                'source' => 'product_stream',
-                                'value' => $this->ids->get($stream),
-                            ],
-                            'title' => ['source' => 'static', 'value' => ''],
-                            'displayMode' => ['source' => 'static', 'value' => 'standard'],
-                            'boxLayout' => ['source' => 'static', 'value' => 'standard'],
-                            'navigation' => ['source' => 'static', 'value' => true],
-                            'rotate' => ['source' => 'static', 'value' => false],
-                            'border' => ['source' => 'static', 'value' => false],
-                            'elMinWidth' => ['source' => 'static', 'value' => '300px'],
-                            'verticalAlign' => ['source' => 'static', 'value' => null],
-                            'productStreamSorting' => ['source' => 'static', 'value' => 'name:ASC'],
-                            'productStreamLimit' => ['source' => 'static', 'value' => 10],
-                        ],
-                    ],
-                ],
-            ],
-            self::margin(20, 20, 20, 20)
-        );
-
-        return $this;
-    }
-
-    /**
-     * @return mixed[]
+     * @return array{
+     *     type: string,
+     *     config: array{
+     *         product: array{source: string, value: string},
+     *         boxLayout: array{source: string, value: string},
+     *         displayMode: array{source: string, value: string},
+     *         verticalAlign: array{source: string, value: null}
+     *     }
+     * }
      */
     public function productBox(string $key, string $boxLayout = 'standard', string $displayMode = 'standard'): array
     {
@@ -401,7 +308,7 @@ class LayoutBuilder
     }
 
     /**
-     * @return string[]
+     * @return array{marginTop: string, marginRight: string, marginBottom: string, marginLeft: string}
      */
     private static function margin(int $top, int $right, int $bottom, int $left): array
     {

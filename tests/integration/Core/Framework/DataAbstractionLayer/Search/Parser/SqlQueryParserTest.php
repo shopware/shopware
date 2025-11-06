@@ -233,27 +233,23 @@ class SqlQueryParserTest extends TestCase
 
         // empty array
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', []));
-        /** @var list<string> $foundIds */
         $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         static::assertCount(0, array_intersect($foundIds, $testIds));
 
         // string scenario
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', ['specialLink2']));
-        /** @var list<string> $foundIds */
         $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         static::assertCount(1, array_intersect($foundIds, $testIds));
         static::assertContains($testIds['specialLink2'], $foundIds);
 
         // null scenario
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', [null]));
-        /** @var list<string> $foundIds */
         $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         static::assertCount(1, array_intersect($foundIds, $testIds));
         static::assertContains($testIds['nullLink'], $foundIds);
 
         // combined scenario
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('link', [null, 'specialLink1']));
-        /** @var list<string> $foundIds */
         $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         static::assertCount(2, array_intersect($foundIds, $testIds));
         static::assertContains($testIds['nullLink'], $foundIds);
@@ -261,7 +257,7 @@ class SqlQueryParserTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     private function createManufacturer(array $parameters = []): string
     {

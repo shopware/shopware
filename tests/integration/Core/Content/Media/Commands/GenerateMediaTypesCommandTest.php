@@ -35,7 +35,7 @@ class GenerateMediaTypesCommandTest extends TestCase
     private Context $context;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $initialMediaIds;
 

@@ -48,10 +48,17 @@ export default {
         },
 
         profileCriteria() {
-            return new Criteria(1, 25)
-                .setTerm(this.searchTerm)
+            const criteria = new Criteria(1, 25)
                 .addAssociation('importExportLogs')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            if (this.searchTerm && this.searchTerm.length > 0) {
+                criteria.addFilter(
+                    Criteria.contains('technicalName', this.searchTerm),
+                );
+            }
+
+            return criteria;
         },
 
         profilesColumns() {

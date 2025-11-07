@@ -239,7 +239,7 @@ class CollectionTest extends TestCase
 
 /**
  * @internal
- * 
+ *
  * @template TElement
  *
  * @extends Collection<TElement>

@@ -98,6 +98,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     /**
      * @template T of TElement
+     *
      * @param \Closure(T): mixed $closure
      *
      * @return array<array-key, mixed>
@@ -109,6 +110,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     /**
      * @template T of TElement
+     *
      * @param \Closure(mixed|null, T): mixed $closure
      * @param mixed|null $initial
      *
@@ -121,6 +123,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     /**
      * @template T of TElement
+     *
      * @param \Closure(T): mixed $closure
      *
      * @return array<array-key, mixed>
@@ -147,6 +150,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     /**
      * @template T of TElement
+     *
      * @param \Closure(T): bool $closure
      */
     public function filter(\Closure $closure): static
@@ -182,6 +186,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     /**
      * @template T of TElement
+     *
      * @param \Closure(T): bool $closure
      *
      * @return TElement|null

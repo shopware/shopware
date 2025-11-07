@@ -50,7 +50,7 @@ class EntityForeignKeyResolver
      *      "order_customer" => [
      *          "cace68bdbca140b6ac43a083fb19f82b",
      *          "50330f5531ed485fbd72ba016b20ea2a",
-     *      ]
+     *      ],
      *      "order_address" => [
      *          "29d6334b01e64be28c89a5f1757fd661",
      *          "484ef1124595434fa9b14d6d2cc1e9f8",
@@ -81,7 +81,7 @@ class EntityForeignKeyResolver
      *      "order_customer" => [
      *          "cace68bdbca140b6ac43a083fb19f82b",
      *          "50330f5531ed485fbd72ba016b20ea2a",
-     *      ]
+     *      ],
      *      "order_address" => [
      *          "29d6334b01e64be28c89a5f1757fd661",
      *          "484ef1124595434fa9b14d6d2cc1e9f8",
@@ -126,11 +126,11 @@ class EntityForeignKeyResolver
      * Returns a list of all entities and their primary keys which will be deleted by the mysql server
      * Example:
      *  [
-     *      "order_customer" => array:2 [
+     *      "order_customer" => [
      *          "cace68bdbca140b6ac43a083fb19f82b",
      *          "50330f5531ed485fbd72ba016b20ea2a",
-     *      ]
-     *      "order_address" => array:4 [
+     *      ],
+     *      "order_address" => [
      *          "29d6334b01e64be28c89a5f1757fd661",
      *          "484ef1124595434fa9b14d6d2cc1e9f8",
      *          "601133b1173f4ca3aeda5ef64ad38355",
@@ -273,17 +273,15 @@ class EntityForeignKeyResolver
 
         // create flat list for single primary key entities
         if ($primaryKeys->count() === 1) {
-            /** @var Field $pk */
-            $pk = $primaryKeys->first();
-            $property = $pk->getPropertyName();
+            $property = $primaryKeys->first()?->getPropertyName();
+            \assert(\is_string($property));
             $affected = array_column($affected, $property);
 
             // prevent infinite loop when entity points to itself
             if ($root === $association->getReferenceDefinition()) {
                 $flatIds = array_column($ids, $property);
 
-                /** @var list<string> $affected */
-                $affected = array_diff($affected, $flatIds);
+                $affected = array_values(array_diff($affected, $flatIds));
             }
         }
 

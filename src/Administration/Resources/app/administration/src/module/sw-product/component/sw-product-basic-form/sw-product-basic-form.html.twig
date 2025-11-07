@@ -94,7 +94,7 @@
             />
             <mt-text-editor
                 v-else
-                :key="isInherited && feature.isActive('METEOR_TEXT_EDITOR')"
+                :key="'meteor-' + isInherited"
                 :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
                 :error="productDescriptionError"
                 :disabled="isInherited || !allowEdit"

@@ -57,7 +57,8 @@
 
                         <mt-text-editor
                             v-else
-                            :key="isInherited"
+                            :key="isInherited + '-meteor'"
+                            :disabled="isInherited"
                             :model-value="element.config.content.value"
                             :custom-buttons="customTextEditorButtons"
                             @update:model-value="onInput"

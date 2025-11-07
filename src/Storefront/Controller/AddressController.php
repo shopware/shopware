@@ -124,7 +124,7 @@ class AddressController extends StorefrontController
         return $this->redirectToRoute('frontend.account.address.page');
     }
 
-    #[Route(path: '/account/address/switch', name: 'frontend.account.address.switch-default', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
+    #[Route(path: '/account/address/switch', name: 'frontend.account.address.switch-default', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true,  '_loginRequiredAllowGuest' => true], methods: ['POST'])]
     public function checkoutSwitchDefaultAddress(Request $request, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         match ($data->get('type')) {

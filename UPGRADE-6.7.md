@@ -1,3 +1,75 @@
+# 6.7.4.0
+
+## Plugin config default values
+
+The default values for plugin config fields are now parsed according to the type of the field.
+This means default values for `checkbox` and `bool` fields are parsed as boolean values, `int` fields are parsed as integer values, and `float` fields are parsed as float values.
+Everything else is parsed as string values. With this the default values are now consistent based on the type of the field and the type does not depend on the actual value.
+This makes it more consistent as otherwise the types could change when they are configured in the Administration.
+
+## Deprecated SystemConfig exceptions
+
+The exceptions 
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`, 
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and 
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
+are now deprecated and will be removed in v6.8.0.0.
+Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
+
+## Deprecated SystemConfigService tracing methods
+
+The methods `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` and `\Shopware\Core\System\SystemConfig\SystemConfigService::getTrace()` are deprecated and will be removed.
+The tracing is not needed anymore since the cache rework for 6.7.0.0. For now the methods are still available, but they do nothing.
+
+## Add the correct interface to filterable price definitions
+
+If a price definition should be filterable, explicitly implement the `Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
+
+## Vimeo and YouTube Cookie Consent Separation
+
+With this change, Vimeo and YouTube videos now use separate cookie consent entries and load immediately when cookies are accepted, improving user experience and GDPR compliance.
+
+## Cookie offcanvas links in dynamically loaded content
+
+Links to open the cookie offcanvas that are loaded dynamically (e.g., within the navigation offcanvas) now work correctly. 
+The `CookieConfiguration` plugin now uses event delegation instead of direct event listeners.
+
+If you have extended the `CookieConfiguration` plugin and override `_registerEvents()`, you may need to update your 
+implementation to use event delegation as well.
+
+# 6.7.3.1
+## Opensearch 3.x compatibility
+
+OpenSearch 3.x introduced a breaking change that disallows defining index mapping fields with empty array `properties`. For e.g: 
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "customFields": {
+        "type": "object",
+        "properties": []
+      }
+    }
+  }
+}
+```
+
+So instead of defining a index mapping with empty `properties`, we should omit `properties` entirely or define it with empty object `{}`:
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "customFields": {
+        "type": "object",
+        "properties": {} // or can be omitted entirely
+      }
+    }
+  }
+}
+```
+
 # 6.7.3.0
 ## Migration from controller variables to activeRoute
 Replace `controllerName` and `controllerAction` with `activeRoute`:
@@ -154,7 +226,7 @@ SHOPWARE_SKIP_WEBINSTALLER=enabled
 This allows Shopware to run without requiring write access to create the `install.lock` file in the project root or the `.htaccess` file in the public directory.
 
 # Country-agnostic language layer is now implemented
-With this release, we have fully implemented the country-agnostic language layer as described in the [ADR](https://developer.shopware.com/docs/resources/references/adr/2025-09-01-adding-a-country-agnostic-language-layer.md). Therefore, a new best practice has been established for providing translations in Shopware. We recommend to rename your translation files to use the country-agnostic language codes (e.g., `en` instead of `en-GB`). This change will also require to rename the `base_file` column in the `snippet_set` table accordingly. Although its use is not recommended, the old, specific snippet naming (e.g., `en-GB`) will continue to work for backward compatibility.
+With this release, we have fully implemented the country-agnostic language layer as described in the [ADR](https://developer.shopware.com/docs/resources/references/adr/2025-09-01-adding-a-country-agnostic-language-layer.html). Therefore, a new best practice has been established for providing translations in Shopware. We recommend to rename your translation files to use the country-agnostic language codes (e.g., `en` instead of `en-GB`). This change will also require to rename the `base_file` column in the `snippet_set` table accordingly. Although its use is not recommended, the old, specific snippet naming (e.g., `en-GB`) will continue to work for backward compatibility.
 
 ## Snippet Validation command
 The command `snippets:validate` has been renamed to `translation:validate`. Please refrain from using the old command name as it will be removed in the next major version.

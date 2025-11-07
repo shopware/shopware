@@ -103,6 +103,9 @@
       "labelTabItemLibrary": "Media Library",
       "labelTabItemUpload": "Upload files",
       "labelButtonSaveSelection": "Add media"
+    },
+    "sw-media-save-modal": {
+      "titleModal": "Save in media"
     }
   },
   "sw-privileges": {

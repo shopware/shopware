@@ -11,6 +11,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoadedHook;
@@ -63,7 +64,7 @@ class NavigationController extends StorefrontController
 
     #[Route(
         path: '/navigation/{navigationId}',
-        name: 'frontend.navigation.page',
+        name: NavigationPageSeoUrlRoute::ROUTE_NAME,
         options: ['seo' => true],
         defaults: ['_httpCache' => true],
         methods: ['GET'],

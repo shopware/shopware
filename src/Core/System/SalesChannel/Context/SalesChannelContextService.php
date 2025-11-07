@@ -86,7 +86,9 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 $session[self::LANGUAGE_ID] = $parameters->getLanguageId();
             }
 
-            if ($parameters->getCurrencyId() !== null && !\array_key_exists(self::CURRENCY_ID, $session)) {
+            if ($parameters->getOverwriteCurrencyId() !== null) {
+                $session[self::CURRENCY_ID] = $parameters->getOverwriteCurrencyId();
+            } elseif ($parameters->getCurrencyId() !== null && !\array_key_exists(self::CURRENCY_ID, $session)) {
                 $session[self::CURRENCY_ID] = $parameters->getCurrencyId();
             }
 

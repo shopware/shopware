@@ -6,11 +6,14 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
+use Shopware\Administration\Snippet\AppLifecycleSubscriber;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
@@ -34,6 +37,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
@@ -45,21 +49,29 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem as Io;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @phpstan-type AppEntities list<array{id: string, path: string, name?: string, configurable?: bool, allowDisable?: bool}>
  */
 #[CoversClass(AppLifecycle::class)]
+#[CoversClass(AppLifecycleSubscriber::class)]
 class AppLifecycleTest extends TestCase
 {
+    use EventDispatcherBehaviour;
+
     private Io $io;
+
+    private EventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
         $this->io = new Io();
         $this->io->mkdir(__DIR__ . '/../_fixtures/Resources/app/administration/snippet');
+        $this->eventDispatcher = new EventDispatcher();
     }
 
     protected function tearDown(): void
@@ -75,10 +87,10 @@ class AppLifecycleTest extends TestCase
         $appRepository = $this->createMock(EntityRepository::class);
         $appRepository->expects($this->never())->method('upsert');
 
-        /** @var StaticEntityRepository<LanguageCollection> */
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
-        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, null, new StaticSourceResolver());
+        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, new StaticSourceResolver());
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is not compatible with this Shopware version');
@@ -93,10 +105,10 @@ class AppLifecycleTest extends TestCase
         $appRepository = $this->createMock(EntityRepository::class);
         $appRepository->expects($this->never())->method('upsert');
 
-        /** @var StaticEntityRepository<LanguageCollection> */
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
-        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, null, new StaticSourceResolver());
+        $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, new StaticSourceResolver());
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('App test is not compatible with this Shopware version');
@@ -105,13 +117,8 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallSavesSnippetsGiven(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> */
-        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
-            [
-                'id' => Uuid::randomHex(),
-                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
-            ],
-        ])]);
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
 
         $appEntities = [
             [],
@@ -140,17 +147,21 @@ class AppLifecycleTest extends TestCase
             __DIR__ . '/../_fixtures/Resources/app/administration/snippet/en-GB.json',
             (string) json_encode([
                 'snippetKey' => 'snippetTranslation',
-            ])
+            ], \JSON_THROW_ON_ERROR)
         );
 
+        $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml');
         $appRepository = $this->getAppRepositoryMock($appEntities);
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getAppAdministrationSnippetPersisterMock($appEntities[2], [
-                'en-GB' => '{"snippetKey":"snippetTranslation"}',
-            ]),
-            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
+            $sourceResolver,
+        );
+
+        $this->registerSubscriber(
+            $sourceResolver,
+            $appEntities[2],
+            expectedSnippets: ['en-GB' => '{"snippetKey":"snippetTranslation"}'],
         );
 
         $appLifecycle->install($manifest, new AppInstallParameters(activate: false), Context::createDefaultContext());
@@ -161,13 +172,8 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallSavesNoSnippetsGiven(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> */
-        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
-            [
-                'id' => Uuid::randomHex(),
-                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
-            ],
-        ])]);
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
 
         $appEntities = [
             [],
@@ -192,13 +198,15 @@ class AppLifecycleTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
 
+        $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml');
         $appRepository = $this->getAppRepositoryMock($appEntities);
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getAppAdministrationSnippetPersisterMock($appEntities[2]),
-            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
+            $sourceResolver,
         );
+
+        $this->registerSubscriber($sourceResolver, $appEntities[2]);
 
         $appLifecycle->install($manifest, new AppInstallParameters(false), Context::createDefaultContext());
 
@@ -208,13 +216,8 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateSavesNoSnippetsGiven(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> */
-        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
-            [
-                'id' => Uuid::randomHex(),
-                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
-            ],
-        ])]);
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
 
         $appEntities = [
             [
@@ -238,12 +241,14 @@ class AppLifecycleTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
         $appRepository = $this->getAppRepositoryMock($appEntities);
+        $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml');
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getAppAdministrationSnippetPersisterMock($appEntities[1]),
-            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
+            $sourceResolver
         );
+
+        $this->registerSubscriber($sourceResolver, $appEntities[1], AppUpdatedEvent::class);
 
         $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
 
@@ -253,13 +258,8 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateSavesSnippets(): void
     {
-        /** @var StaticEntityRepository<LanguageCollection> */
-        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
-            [
-                'id' => Uuid::randomHex(),
-                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
-            ],
-        ])]);
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
 
         $appEntities = [
             [
@@ -285,19 +285,24 @@ class AppLifecycleTest extends TestCase
             __DIR__ . '/../_fixtures/Resources/app/administration/snippet/en-GB.json',
             (string) json_encode([
                 'snippetKey' => 'snippetTranslation',
-            ])
+            ], \JSON_THROW_ON_ERROR)
         );
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
 
         $appRepository = $this->getAppRepositoryMock($appEntities);
+        $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml');
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getAppAdministrationSnippetPersisterMock($appEntities[1], [
-                'en-GB' => '{"snippetKey":"snippetTranslation"}',
-            ]),
-            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
+            $sourceResolver,
+        );
+
+        $this->registerSubscriber(
+            $sourceResolver,
+            $appEntities[1],
+            AppUpdatedEvent::class,
+            ['en-GB' => '{"snippetKey":"snippetTranslation"}']
         );
 
         $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
@@ -310,13 +315,8 @@ class AppLifecycleTest extends TestCase
     {
         $this->io->rename(__DIR__ . '/../_fixtures/Resources/config', __DIR__ . '/../_fixtures/Resources/noconfighere');
 
-        /** @var StaticEntityRepository<LanguageCollection> */
-        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection([
-            [
-                'id' => Uuid::randomHex(),
-                'translationCode' => $this->getLocaleEntity(['code' => 'en-GB']),
-            ],
-        ])]);
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
 
         $appId = Uuid::randomHex();
 
@@ -342,7 +342,6 @@ class AppLifecycleTest extends TestCase
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            null,
             $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
         );
 
@@ -362,7 +361,6 @@ class AppLifecycleTest extends TestCase
     private function getAppLifecycle(
         EntityRepository $appRepository,
         EntityRepository $languageRepository,
-        ?AppAdministrationSnippetPersister $appAdministrationSnippetPersisterMock,
         StaticSourceResolver $appSourceResolver
     ): AppLifecycle {
         /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepo */
@@ -380,7 +378,7 @@ class AppLifecycleTest extends TestCase
             $this->createMock(TaxProviderPersister::class),
             $this->createMock(RuleConditionPersister::class),
             $this->createMock(CmsBlockPersister::class),
-            $this->createMock(EventDispatcherInterface::class),
+            $this->eventDispatcher,
             $this->createMock(AppRegistrationService::class),
             $this->createMock(AppStateService::class),
             $languageRepository,
@@ -393,7 +391,6 @@ class AppLifecycleTest extends TestCase
             __DIR__,
             $this->createMock(Connection::class),
             $this->createMock(FlowActionPersister::class),
-            $appAdministrationSnippetPersisterMock,
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(CustomEntityLifecycleService::class),
             '6.5.0.0',
@@ -406,45 +403,35 @@ class AppLifecycleTest extends TestCase
         );
     }
 
-    /**
-     * @param array<int, array<string, mixed>> $languageEntities
-     */
-    private function getLanguageCollection(array $languageEntities = []): LanguageCollection
+    private function getLanguageCollection(): LanguageCollection
     {
-        $entities = [];
+        $languageEntity = new LanguageEntity();
+        $languageEntity->assign([
+            'id' => Uuid::randomHex(),
+            'translationCode' => $this->getLocaleEntity(),
+        ]);
 
-        foreach ($languageEntities as $entity) {
-            $languageEntity = new LanguageEntity();
-            $languageEntity->assign($entity);
-
-            $entities[] = $languageEntity;
-        }
-
-        return new LanguageCollection($entities);
+        return new LanguageCollection([$languageEntity]);
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function getLocaleEntity(array $data = []): LocaleEntity
+    private function getLocaleEntity(): LocaleEntity
     {
         $localeEntity = new LocaleEntity();
-
-        $localeEntity->assign($data);
+        $localeEntity->assign(['code' => 'en-GB']);
 
         return $localeEntity;
     }
 
     /**
-     * @param array<int, array<int, array<string, mixed>>> $appEntities
+     * @param list<AppEntities> $appEntities
      *
      * @return StaticEntityRepository<AppCollection>
      */
     private function getAppRepositoryMock(array $appEntities): StaticEntityRepository
     {
         $searchResults = [];
-        foreach ($appEntities as $entity) {
-            $searchResults[] = $this->getAppCollection($entity);
+        foreach ($appEntities as $entities) {
+            $searchResults[] = $this->getAppCollection($entities);
         }
 
         /** @var StaticEntityRepository<AppCollection> $repo */
@@ -454,7 +441,7 @@ class AppLifecycleTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string, mixed>> $appEntities
+     * @param AppEntities $appEntities
      */
     private function getAppCollection(array $appEntities): AppCollection
     {
@@ -472,21 +459,29 @@ class AppLifecycleTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string, mixed>> $appEntities
+     * @param AppEntities $appEntities
+     * @param class-string<AppInstalledEvent|AppUpdatedEvent> $event
      * @param array<string, string> $expectedSnippets
      */
-    private function getAppAdministrationSnippetPersisterMock(array $appEntities, array $expectedSnippets = []): AppAdministrationSnippetPersister
-    {
-        $appEntities = $this->getAppCollection($appEntities)->first();
+    private function registerSubscriber(
+        StaticSourceResolver $sourceResolver,
+        array $appEntities,
+        string $event = AppInstalledEvent::class,
+        array $expectedSnippets = []
+    ): void {
+        $appEntityCollection = $this->getAppCollection($appEntities)->first();
 
         $persister = $this->createMock(AppAdministrationSnippetPersister::class);
-
         $persister
             ->expects($this->once())
             ->method('updateSnippets')
-            ->with($appEntities, $expectedSnippets, Context::createDefaultContext());
+            ->with($appEntityCollection, $expectedSnippets, Context::createDefaultContext());
 
-        return $persister;
+        $this->addEventListener(
+            $this->eventDispatcher,
+            $event,
+            (new AppLifecycleSubscriber($sourceResolver, $persister))->onAppUpdate(...),
+        );
     }
 
     private function getSourceResolver(string $manifestPath): StaticSourceResolver

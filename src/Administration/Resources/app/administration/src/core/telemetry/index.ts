@@ -1,38 +1,30 @@
 /**
  * @sw-package framework
  */
-import { type Ref, ref } from 'vue';
+import { watch, ref, type Ref } from 'vue';
 import type { RouteLocation, Router } from 'vue-router';
 import { TelemetryEvent, type EventTypes, type EventPayload, type ElementQuery, type Config } from './types';
 import AnchorTags from './ElementQueries/anchor-tags';
 import ProductAnalyticsTag from './ElementQueries/product-analytics-tag';
 import TaggedButtons from './ElementQueries/tagged-buttons';
+
 /**
  * @private
  */
 export class Telemetry {
-    readonly #eventTarget: EventTarget;
-
     readonly #elementQueries: ElementQuery[];
 
-    #initialized: Ref<boolean>;
+    #initialized: boolean;
 
-    private debug = false;
+    #debug: Ref<boolean>;
 
     // for debugging in the browser only
-    private observedNodes: Node[] = [];
+    observedNodes: Node[] = [];
 
     constructor(config: Config) {
-        this.#eventTarget = new EventTarget();
-        this.#initialized = ref(false);
+        this.#initialized = false;
         this.#elementQueries = config.queries;
-
-        this.#eventTarget.addEventListener('telemetry', (event) => {
-            if (this.debug) {
-                // eslint-disable-next-line no-console
-                console.log('telemetry event dispatched:', event);
-            }
-        });
+        this.#debug = ref(false);
     }
 
     initialize() {
@@ -46,33 +38,22 @@ export class Telemetry {
 
         this.initializeObservables();
         this.initializePageChanges();
+        this.initializeUserChanges();
+        this.initializeDebugListener();
 
-        this.#initialized.value = true;
+        this.#initialized = true;
     }
 
     get isInitialized() {
-        return this.#initialized.value;
+        return this.#initialized;
     }
 
-    addListener(callback: EventListenerOrEventListenerObject) {
-        this.#eventTarget.addEventListener('telemetry', callback);
-    }
-
-    removeListener(callback: EventListenerOrEventListenerObject) {
-        this.#eventTarget.removeEventListener('telemetry', callback);
+    set debug(value: boolean) {
+        this.#debug.value = value;
     }
 
     track(eventData: EventPayload<'programmatic'>) {
         this.dispatchEvent('programmatic', eventData);
-    }
-
-    identify(userId: string, deviceId: string, locale: string, permissions: string[]) {
-        this.dispatchEvent('identify', {
-            userId,
-            locale,
-            deviceId,
-            permissions,
-        });
     }
 
     private initializePageChanges(): void {
@@ -84,8 +65,31 @@ export class Telemetry {
                 if (!this.isInitialized) {
                     return;
                 }
+
+                if (to.name === from.name) {
+                    return;
+                }
+
                 this.dispatchEvent('page_change', { from, to });
             });
+        });
+    }
+
+    private initializeUserChanges(): void {
+        const loginService = Shopware.Service('loginService');
+
+        loginService.addOnLoginListener(() => {
+            const currentUser = Shopware.Store.get('session').currentUser;
+
+            this.dispatchEvent('identify', {
+                userId: currentUser?.id || null,
+                locale: null,
+                isAdmin: currentUser?.admin || null,
+            });
+        });
+
+        loginService.addOnLogoutListener(() => {
+            this.dispatchEvent('reset', {});
         });
     }
 
@@ -109,7 +113,7 @@ export class Telemetry {
     }
 
     private observeNode(el: Element): void {
-        if (this.debug) {
+        if (this.#debug.value) {
             this.observedNodes.push(el);
         }
 
@@ -133,11 +137,26 @@ export class Telemetry {
             return;
         }
 
-        this.#eventTarget.dispatchEvent(new TelemetryEvent<N>(eventType, eventData));
+        Shopware.Utils.EventBus.emit('telemetry', new TelemetryEvent<N>(eventType, eventData));
     }
 
     private isHTMLElement(target: EventTarget | null): target is HTMLElement {
         return target !== null && target instanceof HTMLElement;
+    }
+
+    private initializeDebugListener(): void {
+        const debugListener = (event: TelemetryEvent<EventTypes>): void => {
+            // eslint-disable-next-line no-console
+            console.debug('TelemetryEvent', event);
+        };
+
+        watch(this.#debug, (newValue) => {
+            if (newValue) {
+                Shopware.Utils.EventBus.on('telemetry', debugListener);
+            } else {
+                Shopware.Utils.EventBus.off('telemetry', debugListener);
+            }
+        });
     }
 }
 

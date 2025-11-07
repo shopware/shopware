@@ -122,6 +122,7 @@ class StornoRendererTest extends TestCase
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
             [
+                'documentComment' => '<script></script>This is a cancellation invoice.',
                 'custom' => [
                     'invoiceNumber' => '1001',
                 ],
@@ -245,7 +246,7 @@ class StornoRendererTest extends TestCase
         static::assertArrayHasKey($orderId, $errors);
         static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
         static::assertSame(
-            "Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: $orderId",
+            "Unable to generate document. Can not generate cancellation invoice document because no invoice document exists. OrderId: $orderId",
             $errors[$orderId]->getMessage()
         );
     }

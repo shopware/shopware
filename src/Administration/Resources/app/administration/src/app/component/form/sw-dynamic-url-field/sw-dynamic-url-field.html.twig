@@ -8,6 +8,7 @@
             :label="$tc('sw-text-editor-toolbar.link.labelType')"
             required
             :options="linkCategoryOptions"
+            :disabled="disabled"
             @update:model-value="onSelectFieldChange"
         />
         {% endblock %}
@@ -20,6 +21,7 @@
             v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
+            :disabled="disabled"
         />
         {% endblock %}
 
@@ -30,6 +32,7 @@
             v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
+            :disabled="disabled"
         />
         {% endblock %}
 
@@ -39,6 +42,7 @@
             v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
+            :disabled="disabled"
         />
         {% endblock %}
 
@@ -53,6 +57,7 @@
             :criteria="entityFilter"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderProduct')"
+            :disabled="disabled"
             show-clearable-button
         />
         {% endblock %}
@@ -64,6 +69,7 @@
             :criteria="entityFilter"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderCategory')"
             :categories-collection="categoryCollection"
+            :disabled="disabled"
             single-select
             @selection-add="replaceCategorySelection"
             @selection-remove="removeCategorySelection"
@@ -76,6 +82,7 @@
             v-model:value="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :criteria="entityFilter"
+            :disabled="disabled"
             single-select
         />
         {% endblock %}
@@ -89,7 +96,7 @@
         variant="critical"
         ghost
         size="small"
-        :disabled="!linkTarget"
+        :disabled="disabled || !linkTarget"
         @click="removeLink"
     >
         {{ $tc('global.default.remove') }}

@@ -26,34 +26,42 @@
         {% endblock %}
     </template>
 
-    <template
-        #content="{ active }"
-    >
+    <template #content="{ active }">
         {% block sw_cms_el_text_config_content %}
         <sw-container
             v-if="active === 'content'"
             class="sw-cms-el-config-text__tab-content"
         >
-            <sw-cms-mapping-field
-                v-model:config="element.config.content"
+            <sw-cms-inherit-wrapper
+                field="content"
+                :element="element"
                 :label="$tc('sw-cms.elements.text.config.label.content')"
-                value-types="string"
             >
-                <sw-text-editor
-                    :value="element.config.content.value"
-                    :allow-inline-data-mapping="true"
-                    :sanitize-info-warn="true"
-                    enable-transparent-background
-                    @update:value="onInput"
-                    @blur="onBlur"
-                />
+                <template #default="{ isInherited }">
+                    <sw-cms-mapping-field
+                        v-model:config="element.config.content"
+                        value-types="string"
+                        :disabled="isInherited"
+                    >
+                        <sw-text-editor
+                            :key="isInherited"
+                            :value="element.config.content.value"
+                            :disabled="isInherited"
+                            :allow-inline-data-mapping="true"
+                            :sanitize-info-warn="true"
+                            enable-transparent-background
+                            @update:value="onInput"
+                            @blur="onBlur"
+                        />
 
-                <template #preview="{ demoValue }">
-                    <div class="sw-cms-el-config-text__mapping-preview">
-                        <div v-html="$sanitize(demoValue)"></div>
-                    </div>
+                        <template #preview="{ demoValue }">
+                            <div class="sw-cms-el-config-text__mapping-preview">
+                                <div v-html="$sanitize(demoValue)"></div>
+                            </div>
+                        </template>
+                    </sw-cms-mapping-field>
                 </template>
-            </sw-cms-mapping-field>
+            </sw-cms-inherit-wrapper>
         </sw-container>
         {% endblock %}
 
@@ -63,12 +71,20 @@
             class="sw-cms-el-config-text__tab-settings"
         >
             {% block sw_cms_el_text_config_settings_vertical_align %}
-            <mt-select
-                v-model="element.config.verticalAlign.value"
-                :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-                :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-                :options="alignmentOptions"
-            />
+            <sw-cms-inherit-wrapper
+                field="verticalAlign"
+                :element="element"
+                :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
+            >
+                <template #default="{ isInherited }">
+                    <mt-select
+                        v-model:model-value="element.config.verticalAlign.value"
+                        :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                        :options="alignmentOptions"
+                        :disabled="isInherited"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
             {% endblock %}
         </sw-container>
         {% endblock %}

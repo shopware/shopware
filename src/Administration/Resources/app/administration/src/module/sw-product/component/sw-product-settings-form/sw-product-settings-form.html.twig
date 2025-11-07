@@ -11,11 +11,11 @@
             class="sw-product-settings-form__release-date"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.releaseDate"
-            :label="$tc('sw-product.settingsForm.labelReleaseDate')"
         >
             <template #content="props">
 
                 <mt-datepicker
+                    :label="$tc('sw-product.settingsForm.labelReleaseDate')"
                     date-type="datetime"
                     :disabled="props.isInherited || !allowEdit"
                     :error="productReleaseDateError"

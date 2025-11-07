@@ -70,7 +70,7 @@ export default Component.wrapComponentConfig({
 
     methods: {
         createdComponent(): void {
-            this.initElementConfig(this.elementData.name);
+            this.initElementConfig();
             this.updatePublishData();
         },
 

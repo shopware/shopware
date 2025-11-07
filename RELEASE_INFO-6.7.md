@@ -6,6 +6,11 @@
 
 ## Core
 
+### Removal of old `changelog` handling
+As we changed how we process and generate changelogs the "old" changelog files are no longer needed.
+Therefore, we removed all the internal code used to generate and validate them. 
+The whole `Shopware\Core\Framework\Changelog` namespace was removed. The code is not needed anymore, you should adjust the `RELEASE_INFO` and `UPGRADE` files manually instead.
+
 ## Administration
 
 ## Storefront

@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal
  *
- * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}
+ * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool, ignoreMissingReference?: bool}
  */
 #[Package('framework')]
 class SchemaUpdater
@@ -357,6 +357,9 @@ class SchemaUpdater
             : $schema->createTable($name);
     }
 
+    /**
+     * @param CustomEntityField $field
+     */
     private function skipAssociationCreation(Schema $schema, array $field): bool
     {
         $referenceName = $field['reference'];
@@ -365,10 +368,9 @@ class SchemaUpdater
         if (!$schema->hasTable($referenceName)) {
             if ($ignoreMissingReference) {
                 return true;
-            } else {
-                // throw exception right away if the reference table does not exist and the ignoreMissingReference attribute is false
-                throw CustomEntityException::referenceTableNotFound($referenceName);
             }
+            // throw exception right away if the reference table does not exist and the ignoreMissingReference attribute is false
+            throw CustomEntityException::referenceTableNotFound($referenceName);
         }
 
         return false;

@@ -15,7 +15,6 @@ jobs:
       matrix:
         redis:
           - redis:8.2-alpine
-          - eqalpha/keydb:latest
           - valkey/valkey:8.0
           - valkey/valkey:9.0
     services:

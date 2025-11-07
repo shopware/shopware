@@ -2,27 +2,22 @@
 
 namespace Shopware\Core\Content\Seo\Exception;
 
+use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('inventory')]
-class SeoUrlRouteNotFoundException extends ShopwareHttpException
+class SeoUrlRouteNotFoundException extends SeoException
 {
-    final public const ERROR_CODE = 'FRAMEWORK__SEO_URL_ROUTE_NOT_FOUND';
+    final public const ERROR_CODE = 'CONTENT__SEO_URL_ROUTE_NOT_FOUND';
 
     public function __construct(string $routeName)
     {
-        parent::__construct('seo url route"{{ routeName }}" not found.', ['routeName' => $routeName]);
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_NOT_FOUND;
-    }
-
-    public function getErrorCode(): string
-    {
-        return self::ERROR_CODE;
+        parent::__construct(
+            Response::HTTP_NOT_FOUND,
+            self::ERROR_CODE,
+            self::$couldNotFindMessage,
+            ['entity' => 'SEO URL route', 'field' => 'name', 'value' => $routeName]
+        );
     }
 }

@@ -812,7 +812,8 @@
           "length": "Length:",
           "releaseDate": "Release date:",
           "description": "Description:",
-          "referencePrice": "Content:"
+          "referencePrice": "Content:",
+          "packUnit": "Pack unit:"
         },
         "customField": {
           "true": "Yes",

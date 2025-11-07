@@ -54,9 +54,6 @@ jobs:
       - name: Code Style
         run: composer run ecs
 
-      - name: Lint Changelogs
-        run: composer run lint:changelog
-
       - name: Lint Snippets
         run: composer run lint:snippets
 

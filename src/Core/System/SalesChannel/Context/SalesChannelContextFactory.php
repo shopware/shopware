@@ -66,26 +66,23 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         // we split the context generation to allow caching of the base context
         $base = $this->baseSalesChannelContextFactory->create($salesChannelId, $options);
 
-        // customer
         $customer = null;
         if (\is_string($options[SalesChannelContextService::CUSTOMER_ID] ?? null)) {
             // load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $base->getContext());
         }
 
-        $shippingLocation = $base->getShippingLocation();
-        if ($customer) {
+        if ($customer !== null) {
             $activeShippingAddress = $customer->getActiveShippingAddress();
             \assert($activeShippingAddress !== null);
             $shippingLocation = ShippingLocation::createFromAddress($activeShippingAddress);
-        }
 
-        $customerGroup = $base->getCurrentCustomerGroup();
-
-        if ($customer) {
             $criteria = new Criteria([$customer->getGroupId()]);
             $criteria->setTitle('context-factory::customer-group');
-            $customerGroup = $this->customerGroupRepository->search($criteria, $base->getContext())->getEntities()->first() ?? $customerGroup;
+            $customerGroup = $this->customerGroupRepository->search($criteria, $base->getContext())->getEntities()->first() ?? $base->getCurrentCustomerGroup();
+        } else {
+            $shippingLocation = $base->getShippingLocation();
+            $customerGroup = $base->getCurrentCustomerGroup();
         }
 
         // loads tax rules based on active customer and delivery address
@@ -214,12 +211,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria->addFilter(new EqualsFilter('active', 1));
         $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
 
-        $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities()->get($id);
-        if (!$paymentMethod) {
-            return $context->getPaymentMethod();
-        }
-
-        return $paymentMethod;
+        return $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities()->get($id) ?? $context->getPaymentMethod();
     }
 
     /**
@@ -302,7 +294,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             ->getEntities()
             ->first();
 
-        if ($countryConfig) {
+        if ($countryConfig !== null) {
             return [$countryConfig->getItemRounding(), $countryConfig->getTotalRounding()];
         }
 

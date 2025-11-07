@@ -195,7 +195,7 @@ describe('Administration meta tests', () => {
 
             expect(
                 newBlocks,
-                `New blocks have been added. Please run 'generate-blocks-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
+                `New blocks have been added. Please run 'composer admin:generate-blocks-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
             ).toHaveLength(0);
         });
     });

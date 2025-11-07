@@ -103,8 +103,8 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
     });
 
     describe('resize functionality', () => {
-        const PAGE_WIDTH = 1920;
-        const MAIN_CONTENT_MIN_SIZE = 1400;
+        const PAGE_WIDTH = 2600;
+        const MAIN_CONTENT_MIN_SIZE = 1300;
 
         beforeEach(() => {
             window.innerWidth = PAGE_WIDTH;
@@ -140,12 +140,12 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$forceUpdate();
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('480px');
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('545px');
             expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sw-sidebar-width');
         });
 
         it('should reset the width when sidebar was collapsed through the button', async () => {
-            mockLocalStorage.getItem.mockReturnValue('600');
+            mockLocalStorage.getItem.mockReturnValue('700');
 
             const wrapper = await createWrapper();
 
@@ -156,15 +156,14 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             });
             Shopware.Store.get('sidebar').sidebars[0].active = true;
             await wrapper.vm.$nextTick();
-
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('600px');
+            await dragSidebarToWidth(wrapper, 700);
 
             await wrapper.find('.sw-sidebar-renderer__button-collapse').trigger('click');
             await wrapper.vm.$nextTick();
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('480px');
-            expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', '480');
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe('545px');
+            expect(mockLocalStorage.setItem).toHaveBeenCalledWith('sw-sidebar-width', '545');
         });
 
         it('should not render handle when resizing is not allowed', async () => {
@@ -253,12 +252,12 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
 
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
 
-            await dragSidebarToWidth(wrapper, 1000);
+            await dragSidebarToWidth(wrapper, 1200);
             await wrapper.vm.$nextTick();
 
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${PAGE_WIDTH - MAIN_CONTENT_MIN_SIZE}px`);
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`${PAGE_WIDTH - 1000}px`);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`${PAGE_WIDTH - 1200}px`);
         });
 
         it('should handle window resizing', async () => {
@@ -284,7 +283,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$nextTick();
 
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${PAGE_WIDTH - MAIN_CONTENT_MIN_SIZE}px`);
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`480px`);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`545px`);
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(false);
             expect(window.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function));
             expect(eventListener).toBeDefined();
@@ -294,7 +293,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             await wrapper.vm.$nextTick();
 
             expect(wrapper.vm.sidebarDisplayOptions.availableWidth).toBe(`${1400 - MAIN_CONTENT_MIN_SIZE}px`);
-            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`480px`);
+            expect(wrapper.vm.sidebarDisplayOptions.currentWidth).toBe(`545px`);
             expect(wrapper.vm.sidebarDisplayOptions.isOverlayMode).toBe(true);
 
             // Restore original method

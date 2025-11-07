@@ -6,10 +6,6 @@
 
 Hardcoded CSS language flags in `src/Storefront/Resources/app/storefront/src/scss/component/_flags.scss` were removed.
 
-If your theme or plugin relies on these CSS classes to display country flags in the language selector, the flags will no longer display after upgrading to 6.8.0.0.
-
-New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added and can be used to implement custom flag solutions.
-
 ## Introduced in 6.7.4.0
 
 ## Removed SystemConfig exceptions

@@ -343,7 +343,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $this->repository->create(array_values($data), $this->context);
 
         $criteria = new Criteria();
-        // $criteria->setTerm('technical');
+        $criteria->setTerm('technical');
 
         $result = $this->repository->search($criteria, $this->context)->getEntities();
 

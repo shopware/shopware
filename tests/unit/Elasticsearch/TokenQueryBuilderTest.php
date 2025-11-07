@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
@@ -41,6 +42,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[CoversClass(TokenQueryBuilder::class)]
+#[Package('inventory')]
 class TokenQueryBuilderTest extends TestCase
 {
     private const SECOND_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20c';
@@ -397,12 +399,12 @@ class TokenQueryBuilderTest extends TestCase
             'expected' => self::disMax([
                 self::disMax([
                     self::term($prefixCfLang1 . 'evolvesText', 'foo', 1),
-                    self::match($prefixCfLang1 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                    self::match($prefixCfLang1 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
                     self::prefix($prefixCfLang1 . 'evolvesText', 'foo', 0.4),
                 ], 500),
                 self::disMax([
                     self::term($prefixCfLang2 . 'evolvesText', 'foo', 1),
-                    self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                    self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
                     self::prefix($prefixCfLang2 . 'evolvesText', 'foo', 0.4),
                 ], 400),
             ]),
@@ -501,22 +503,16 @@ class TokenQueryBuilderTest extends TestCase
         $payload = [
             'query' => $query,
             'boost' => (float) $boost,
+            'fuzziness' => $fuzziness,
             'operator' => $operator,
             'fuzzy_transpositions' => true,
+            'max_expansions' => $maxExpansions,
             'prefix_length' => 1,
         ];
 
-        if ($fuzziness !== null) {
-            $payload['fuzziness'] = $fuzziness;
-        }
-
-        if ($maxExpansions !== null) {
-            $payload['max_expansions'] = $maxExpansions;
-        }
-
         return [
             'match' => [
-                $field => $payload,
+                $field => array_filter($payload, static fn ($value) => $value !== null),
             ],
         ];
     }

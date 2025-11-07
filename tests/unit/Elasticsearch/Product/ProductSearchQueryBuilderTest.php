@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractToke
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
@@ -46,6 +47,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 #[CoversClass(AbstractProductSearchQueryBuilder::class)]
 #[CoversClass(ProductSearchQueryBuilder::class)]
+#[Package('inventory')]
 class ProductSearchQueryBuilderTest extends TestCase
 {
     private const SECOND_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20c';
@@ -561,22 +563,16 @@ class ProductSearchQueryBuilderTest extends TestCase
         $payload = [
             'query' => $query,
             'boost' => (float) $boost,
+            'fuzziness' => $fuzziness,
             'operator' => $operator,
             'fuzzy_transpositions' => true,
+            'max_expansions' => $maxExpansions,
             'prefix_length' => 1,
         ];
 
-        if ($fuzziness !== null) {
-            $payload['fuzziness'] = $fuzziness;
-        }
-
-        if ($maxExpansions !== null) {
-            $payload['max_expansions'] = $maxExpansions;
-        }
-
         return [
             'match' => [
-                $field => $payload,
+                $field => array_filter($payload, static fn ($value) => $value !== null),
             ],
         ];
     }

@@ -15,8 +15,9 @@ The whole `Shopware\Core\Framework\Changelog` namespace was removed. The code is
 
 ## Storefront
 
-### Language selector now displays language with territory instead of flags
-The language selector in the storefront will display the language name with its territory in the dropdown menu (e.g. "Deutsch (Deutschland)", "English (United Kingdom)"). The CSS for flag icons is deprecated and will be removed with Shopware 6.8.0.0.
+### Language selector will displays language with territory instead of flags
+The language selector in the storefront will display the language name with its territory in the dropdown menu (e.g. "Deutsch (Deutschland)", "English (United Kingdom)") with the next major version.
+The CSS for flag icons is deprecated and will be removed with Shopware 6.8.0.0.
 
 New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added to allow custom flag implementations.
 

@@ -76,8 +76,8 @@ class Random
             $pos = static::getInteger(0, $listLen - 1);
             $result .= $charlist[$pos];
         }
+        \assert($result !== '');
 
-        /** @var non-empty-string $result phpstan does not understand that it has been filled by the loop */
         return $result;
     }
 

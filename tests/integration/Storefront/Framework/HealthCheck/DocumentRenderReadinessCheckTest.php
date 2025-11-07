@@ -6,15 +6,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
-use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
-use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -27,7 +24,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\SystemCheck\DocumentRenderReadinessCheck;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
-use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 
 /**
  * @internal
@@ -38,8 +34,8 @@ class DocumentRenderReadinessCheckTest extends TestCase
 {
     use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
-    use KernelTestBehaviour;
     use DocumentTrait;
+    use KernelTestBehaviour;
 
     private Context $context;
 
@@ -119,5 +115,4 @@ class DocumentRenderReadinessCheckTest extends TestCase
 
         static::assertNotNull($result);
     }
-
 }

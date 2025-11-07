@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Framework\SystemCheck;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
-use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
@@ -20,12 +20,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
-use Shopware\Core\Checkout\Order\OrderStates;
 
 /**
  * @internal
@@ -44,9 +39,6 @@ class DocumentRenderReadinessCheck extends BaseCheck
     ];
 
     /**
-     * @param SalesChannelDomainUtil $util
-     * @param Connection $connection
-     * @param DocumentConfigLoader $documentConfigLoader
      * @param iterable<AbstractDocumentRenderer> $documentRenderers
      */
     public function __construct(
@@ -99,9 +91,9 @@ class DocumentRenderReadinessCheck extends BaseCheck
         foreach ($this->documentRenderers as $renderer) {
             $documentType = $renderer->supports();
 
-            if (!in_array($documentType, self::TESTABLE_DOCUMENT_TYPES, true)) {
+            if (!\in_array($documentType, self::TESTABLE_DOCUMENT_TYPES, true)) {
                 $result[Status::OK->name] = Status::OK;
-                $extra = [
+                $extra[] = [
                     'documentType' => $documentType,
                     'status' => Status::SKIPPED->name,
                     'message' => 'This document type is not covered by this check.',
@@ -113,7 +105,7 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
             if ($orderData === null) {
                 $result[Status::OK->name] = Status::OK;
-                $extra = [
+                $extra[] = [
                     'documentType' => $documentType,
                     'status' => Status::SKIPPED->name,
                     'message' => 'No order with document of this type found.',
@@ -125,7 +117,7 @@ class DocumentRenderReadinessCheck extends BaseCheck
             $fileTypes = $this->resolveFileTypes($documentType, $orderData['sales_channel_id'], $context);
             if (empty($fileTypes)) {
                 $result[Status::FAILURE->name] = Status::OK;
-                $extra = [
+                $extra[] = [
                     'documentType' => $documentType,
                     'status' => Status::SKIPPED->name,
                     'message' => 'No file types configured for document type ' . $documentType . '; skipping.',
@@ -154,9 +146,9 @@ class DocumentRenderReadinessCheck extends BaseCheck
                     $error = $processedTemplate->getErrors()[$orderData['order_id']] ?? null;
                     $success = $processedTemplate->getSuccess()[$orderData['order_id']] ?? null;
 
-                    if($error) {
+                    if ($error) {
                         $result[Status::FAILURE->name] = Status::FAILURE;
-                        $extra = [
+                        $extra[] = [
                             'documentType' => $documentType,
                             'fileType' => $fileType,
                             'status' => Status::FAILURE->name,
@@ -168,27 +160,26 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
                     if ($success === null) {
                         $result[Status::FAILURE->name] = Status::FAILURE;
-                        $extra = [
+                        $extra[] = [
                             'documentType' => $documentType,
                             'fileType' => $fileType,
                             'status' => Status::FAILURE->name,
-                            'message' => 'Rendering failed without exception (no success result).'
+                            'message' => 'Rendering failed without exception (no success result).',
                         ];
 
                         continue;
                     }
 
                     $result[Status::OK->name] = Status::OK;
-                    $extra = [
+                    $extra[] = [
                         'documentType' => $documentType,
                         'fileType' => $fileType,
                         'status' => Status::OK->name,
-                        'message' => 'Rendering successful.'
+                        'message' => 'Rendering successful.',
                     ];
-
                 } catch (\Throwable $e) {
                     $result[Status::FAILURE->name] = Status::FAILURE;
-                    $extra = [
+                    $extra[] = [
                         'documentType' => $documentType,
                         'fileType' => $fileType,
                         'status' => Status::FAILURE->name,
@@ -250,11 +241,11 @@ class DocumentRenderReadinessCheck extends BaseCheck
      */
     private function resolveFileTypes(string $documentType, string $salesChannelId, Context $context): array
     {
-        if ($documentType === ZugferdRenderer::TYPE){
+        if ($documentType === ZugferdRenderer::TYPE) {
             return ['xml'];
         }
 
-        if ($documentType === ZugferdEmbeddedRenderer::TYPE){
+        if ($documentType === ZugferdEmbeddedRenderer::TYPE) {
             return [PdfRenderer::FILE_EXTENSION];
         }
 

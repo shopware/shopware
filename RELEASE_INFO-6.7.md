@@ -5,15 +5,18 @@
 ## API
 
 ## Core
+* Added `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` to parse `robots.txt` files with error tracking and extensibility events.
+* The constructor of `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` is now deprecated for string parameters. Use a `ParsedRobots` object instead. This will be removed in v6.8.0.
 
 ### Removal of old `changelog` handling
 As we changed how we process and generate changelogs the "old" changelog files are no longer needed.
-Therefore, we removed all the internal code used to generate and validate them. 
+Therefore, we removed all the internal code used to generate and validate them.
 The whole `Shopware\Core\Framework\Changelog` namespace was removed. The code is not needed anymore, you should adjust the `RELEASE_INFO` and `UPGRADE` files manually instead.
 
 ## Administration
 
 ## Storefront
+* The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard. For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
 
 ## App System
 

@@ -129,7 +129,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        customFormat(date: Date|string): string|Date|null {
+        customFormat(date: Date | string): string | Date | null {
             if (typeof date === 'string') {
                 return this.handleStringFormat(date);
             }
@@ -145,7 +145,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         // Extract the format pattern from Intl.DateTimeFormat
-        getLocaleDatePattern(): { parts: Array<{ type: string; value: string }>, separators: RegExp } {
+        getLocaleDatePattern(): { parts: Array<{ type: string; value: string }>; separators: RegExp } {
             const currentLocale = Shopware.Store.get('session').currentLocale || 'en-US';
             const formatter = new Intl.DateTimeFormat(currentLocale, this.formatterOptions);
 
@@ -155,8 +155,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             // Extract separator pattern
             const separatorChars = parts
-                .filter(part => part.type === 'literal')
-                .map(part => part.value.replace(/\s+/g, '\\s*'))
+                .filter((part) => part.type === 'literal')
+                .map((part) => part.value.replace(/\s+/g, '\\s*'))
                 .join('|');
 
             const separators = new RegExp(separatorChars || '[\\s,./:-]+', 'g');
@@ -179,12 +179,12 @@ export default Shopware.Component.wrapComponentConfig({
             // Format a known AM time (1 AM)
             const amDate = new Date(2024, 0, 1, 1, 0, 0);
             const amParts = amFormatter.formatToParts(amDate);
-            const amPeriod = amParts.find(part => part.type === 'dayPeriod')?.value || 'AM';
+            const amPeriod = amParts.find((part) => part.type === 'dayPeriod')?.value || 'AM';
 
             // Format a known PM time (1 PM)
             const pmDate = new Date(2024, 0, 1, 13, 0, 0);
             const pmParts = pmFormatter.formatToParts(pmDate);
-            const pmPeriod = pmParts.find(part => part.type === 'dayPeriod')?.value || 'PM';
+            const pmPeriod = pmParts.find((part) => part.type === 'dayPeriod')?.value || 'PM';
 
             return { am: amPeriod, pm: pmPeriod };
         },
@@ -192,7 +192,7 @@ export default Shopware.Component.wrapComponentConfig({
         // Parse date string according to pattern
         parseDateString(
             dateString: string,
-            pattern: { parts: Array<{ type: string; value: string }>, separators: RegExp },
+            pattern: { parts: Array<{ type: string; value: string }>; separators: RegExp },
         ): {
             year?: number;
             month?: number;
@@ -206,10 +206,10 @@ export default Shopware.Component.wrapComponentConfig({
                 const normalizedInput = dateString.trim();
 
                 // Split by separators to get the individual values
-                const values = normalizedInput.split(pattern.separators).filter(v => v.length > 0);
+                const values = normalizedInput.split(pattern.separators).filter((v) => v.length > 0);
 
                 // Get only the non-literal parts (the actual date/time components)
-                const dateParts = pattern.parts.filter(part => part.type !== 'literal');
+                const dateParts = pattern.parts.filter((part) => part.type !== 'literal');
 
                 if (values.length < dateParts.length) {
                     return null;

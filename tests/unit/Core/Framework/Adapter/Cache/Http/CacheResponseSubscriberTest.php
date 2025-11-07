@@ -49,11 +49,7 @@ class CacheResponseSubscriberTest extends TestCase
 
     private CacheResponseSubscriber $subscriber;
 
-    private RequestStack $requestStack;
-
     private CartService&MockObject $cartService;
-
-    private SalesChannelContextService&MockObject $contextService;
 
     private CacheHashService&MockObject $cacheHashService;
 
@@ -61,8 +57,6 @@ class CacheResponseSubscriberTest extends TestCase
     {
         $this->eventDispatcher = new EventDispatcher();
         $this->cartService = $this->createMock(CartService::class);
-        $this->requestStack = new RequestStack();
-        $this->contextService = $this->createMock(SalesChannelContextService::class);
         $this->cacheHashService = $this->createMock(CacheHashService::class);
 
         $this->subscriber = new CacheResponseSubscriber(
@@ -70,10 +64,8 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver($this->eventDispatcher),
-            $this->requestStack,
             '5',
             '6',
-            $this->contextService,
             $this->cacheHashService
         );
     }
@@ -85,9 +77,6 @@ class CacheResponseSubscriberTest extends TestCase
                 ['setResponseCache', -1500],
                 ['setResponseCacheHeader', 1500],
             ],
-            CustomerLoginEvent::class => 'onCustomerLogin',
-            CustomerLogoutEvent::class => 'onCustomerLogout',
-            SalesChannelContextSwitchEvent::class => 'onContextSwitched',
         ];
 
         static::assertSame($expected, CacheResponseSubscriber::getSubscribedEvents());
@@ -101,10 +90,8 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             false,
             new MaintenanceModeResolver($this->eventDispatcher),
-            $this->requestStack,
             null,
             null,
-            $this->contextService,
             $this->createMock(CacheHashService::class)
         );
 
@@ -147,10 +134,8 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             false,
             new MaintenanceModeResolver($this->eventDispatcher),
-            $this->requestStack,
             null,
             null,
-            $this->contextService,
             $this->createMock(CacheHashService::class)
         );
 
@@ -201,7 +186,6 @@ class CacheResponseSubscriberTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, $active);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode($whitelist, \JSON_THROW_ON_ERROR));
         $request->server->set('REMOTE_ADDR', self::IP);
-        $this->requestStack->push($request);
 
         static::assertSame(self::IP, $request->getClientIp());
 
@@ -223,46 +207,6 @@ class CacheResponseSubscriberTest extends TestCase
         }
 
         $this->subscriber->setResponseCache($event);
-    }
-
-    public function testOnCustomerLogin(): void
-    {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-
-        $request = new Request();
-        $this->requestStack->push($request);
-
-        $event = new CustomerLoginEvent($salesChannelContext, new CustomerEntity(), 'token');
-        $this->subscriber->onCustomerLogin($event);
-
-        static::assertSame($salesChannelContext, $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
-    }
-
-    public function testOnContextSwitched(): void
-    {
-        $updatedContext = $this->createMock(SalesChannelContext::class);
-
-        $this->contextService->expects($this->once())
-            ->method('get')
-            ->with(new SalesChannelContextServiceParameters(
-                'test-sales-channel',
-                'test-token',
-            ))
-            ->willReturn($updatedContext);
-
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')
-            ->willReturn('test-sales-channel');
-        $salesChannelContext->method('getToken')
-            ->willReturn('test-token');
-
-        $request = new Request();
-        $this->requestStack->push($request);
-
-        $event = new SalesChannelContextSwitchEvent($salesChannelContext, new RequestDataBag());
-        $this->subscriber->onContextSwitched($event);
-
-        static::assertSame($updatedContext, $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
     }
 
     /**
@@ -337,11 +281,11 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     #[DataProvider('notCacheableRequestProvider')]
-    public function testNotCacheablePages(Request $request): void
+    public function testNotCacheablePages(Request $request, bool $cacheHashExpected): void
     {
         $response = new Response();
 
-        $this->cacheHashService->expects($this->never())
+        $this->cacheHashService->expects($cacheHashExpected ? $this->once() : $this->never())
             ->method('applyCacheHash');
 
         $this->subscriber->setResponseCache(new ResponseEvent(
@@ -356,7 +300,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<int, Request>>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
     public static function notCacheableRequestProvider(): iterable
     {
@@ -366,8 +310,8 @@ class CacheResponseSubscriberTest extends TestCase
         $postRequest = new Request([], [], [PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext]);
         $postRequest->setMethod(Request::METHOD_POST);
 
-        yield 'admin request' => [new Request([], [], ['_route' => 'admin.dashboard.index'])];
-        yield 'post request' => [$postRequest];
+        yield 'admin request' => [new Request([], [], ['_route' => 'admin.dashboard.index']), false];
+        yield 'post request' => [$postRequest, true];
     }
 
     #[DataProvider('cookiesUntouchedProvider')]
@@ -458,63 +402,6 @@ class CacheResponseSubscriberTest extends TestCase
         ));
 
         static::assertSame('public, s-maxage=100, stale-if-error=6, stale-while-revalidate=5', $response->headers->get('cache-control'));
-    }
-
-    /**
-     * @return iterable<string, array{
-     *     requestMethod: string,
-     * }>
-     */
-    public static function providerSetResponseCacheOnLogin(): iterable
-    {
-        yield 'Set cache on login via post' => [
-            'requestMethod' => Request::METHOD_POST,
-        ];
-
-        yield 'Set cache on login via get' => [
-            'requestMethod' => Request::METHOD_GET,
-        ];
-    }
-
-    #[DataProvider('providerSetResponseCacheOnLogin')]
-    public function testSetResponseCacheOnLogin(
-        string $requestMethod,
-    ): void {
-        $request = new Request();
-        $request->setMethod($requestMethod);
-
-        $this->requestStack->push($request);
-
-        $salesChannelContext = static::createStub(SalesChannelContext::class);
-
-        $this->subscriber->onCustomerLogin(
-            new CustomerLoginEvent(
-                $salesChannelContext,
-                new CustomerEntity(),
-                'test'
-            )
-        );
-
-        static::assertSame($salesChannelContext, $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
-    }
-
-    public function testRequestContextGetsUpdatedWhileLogout(): void
-    {
-        $customer = new CustomerEntity();
-        $context = Generator::generateSalesChannelContext();
-        $context->assign(['customer' => $customer]);
-        $event = new CustomerLogoutEvent($context, $customer);
-
-        $request = new Request();
-
-        $this->requestStack->push($request);
-
-        $this->subscriber->onCustomerLogout($event);
-
-        $requestContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        static::assertInstanceOf(SalesChannelContext::class, $requestContext);
-        static::assertNull($requestContext->getCustomer());
-        static::assertNull($requestContext->getCustomerId());
     }
 
     private function createResponseEvent(Request $request, Response $response): ResponseEvent

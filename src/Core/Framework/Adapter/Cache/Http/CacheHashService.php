@@ -50,6 +50,15 @@ class CacheHashService
             );
         }
 
+        $newVaryArray = array_merge($response->getVary(), [
+            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
+            PlatformRequest::HEADER_CURRENCY_ID,
+            PlatformRequest::HEADER_LANGUAGE_ID,
+        ]);
+        $newVaryArray = array_unique(array_map(fn (string $v) => \trim($v), $newVaryArray));
+
+        $response->setVary($newVaryArray);
+
         $isCacheHashRequired = $this->extensions->publish(
             CacheHashRequiredExtension::NAME,
             new CacheHashRequiredExtension($request, $context, $cart),
@@ -75,11 +84,6 @@ class CacheHashService
         }
 
         $response->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
-        $response->headers->set('vary', implode(',', [
-            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-            PlatformRequest::HEADER_CURRENCY_ID,
-            PlatformRequest::HEADER_LANGUAGE_ID,
-        ]));
     }
 
     private function buildCacheHash(Request $request, SalesChannelContext $context): string
@@ -99,6 +103,7 @@ class CacheHashService
             HttpCacheCookieEvent::RULE_IDS => $ruleIds,
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
+            HttpCacheCookieEvent::LANGUAGE_ID => $context->getLanguageId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
             HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
         ];

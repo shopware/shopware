@@ -4,35 +4,27 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterface
+class CacheResponseSubscriber implements EventSubscriberInterface
 {
-    private bool $contextWasChanged = false;
-
     /**
      * @internal
      */
@@ -41,10 +33,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterfac
         private readonly int $defaultTtl,
         private readonly bool $httpCacheEnabled,
         private readonly MaintenanceModeResolver $maintenanceResolver,
-        private readonly RequestStack $requestStack,
         private readonly ?string $staleWhileRevalidate,
         private readonly ?string $staleIfError,
-        private readonly SalesChannelContextService $contextService,
         private readonly CacheHashService $cacheHashService,
     ) {
     }
@@ -59,15 +49,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterfac
                 ['setResponseCache', -1500],
                 ['setResponseCacheHeader', 1500],
             ],
-            CustomerLoginEvent::class => 'onCustomerLogin',
-            CustomerLogoutEvent::class => 'onCustomerLogout',
-            SalesChannelContextSwitchEvent::class => 'onContextSwitched',
         ];
-    }
-
-    public function reset(): void
-    {
-        $this->contextWasChanged = false;
     }
 
     public function setResponseCache(ResponseEvent $event): void
@@ -116,13 +98,14 @@ class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterfac
             $states = $this->updateSystemState($cart, $context, $request, $response);
         }
 
-        // We need to allow it on login and context switch route, otherwise the state is wrong on the first request afterwards
-        if (!($this->contextWasChanged || $request->isMethod(Request::METHOD_GET))
+        // Cache-hash needs to be applied to every request, especially when POST-requests mutate the context,
+        // so the cache-hash needs to be updated
+        $this->cacheHashService->applyCacheHash($request, $context, $cart, $response);
+
+        if (!$request->isMethod(Request::METHOD_GET)
         ) {
             return;
         }
-
-        $this->cacheHashService->applyCacheHash($request, $context, $cart, $response);
 
         /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
         $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
@@ -177,49 +160,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface, ResetInterfac
         }
 
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
-    }
-
-    public function onCustomerLogin(CustomerLoginEvent $event): void
-    {
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
-            return;
-        }
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $event->getSalesChannelContext());
-        $this->contextWasChanged = true;
-    }
-
-    public function onCustomerLogout(CustomerLogoutEvent $event): void
-    {
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
-            return;
-        }
-
-        $context = clone $event->getSalesChannelContext();
-        $context->assign(['customer' => null]);
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $this->contextWasChanged = true;
-    }
-
-    public function onContextSwitched(SalesChannelContextSwitchEvent $event): void
-    {
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
-            return;
-        }
-
-        $updatedContext = $this->contextService->get(
-            new SalesChannelContextServiceParameters(
-                $event->getSalesChannelContext()->getSalesChannelId(),
-                $event->getSalesChannelContext()->getToken()
-            )
-        );
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $updatedContext);
-        $this->contextWasChanged = true;
     }
 
     /**

@@ -14,6 +14,8 @@ jobs:
       fail-fast: false
       matrix:
         redis:
+          - redis:7.2-alpine
+          - redis:7-alpine
           - redis:8.2-alpine
           - valkey/valkey:8.0
           - valkey/valkey:9.0

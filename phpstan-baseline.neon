@@ -121,72 +121,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Aggregate/ImportExportLog/ImportExportLogEntity.php
 
 		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/AbstractEntitySerializer.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 2
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/ToOneSerializer.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\PrimaryKeyResolver\:\:getValueFromPath\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\PrimaryKeyResolver\:\:getValueFromPath\(\) has parameter \$keyPath with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\PrimaryKeyResolver\:\:handleManyToManyAssociations\(\) has parameter \$record with no value type specified in iterable type iterable\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\PrimaryKeyResolver\:\:handleManyToManyAssociations\(\) return type has no value type specified in iterable type iterable\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\PrimaryKeyResolver\:\:handleTranslationsAssociation\(\) has parameter \$updateByFieldPath with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\PrimaryKeyResolver\:\:resolvePrimaryKey\(\) has parameter \$record with no value type specified in iterable type iterable\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\PrimaryKeyResolver\:\:resolvePrimaryKey\(\) return type has no value type specified in iterable type iterable\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\PrimaryKeyResolver\:\:resolvePrimaryKeyFromUpdatedBy\(\) has parameter \$record with no value type specified in iterable type iterable\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php
-
-		-
-			message: '#^Method Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\PrimaryKeyResolver\:\:resolvePrimaryKeyFromUpdatedBy\(\) return type has no value type specified in iterable type iterable\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php
-
-		-
 			message: '#^Method Shopware\\Core\\Content\\ImportExport\\Event\\ImportExportBeforeExportRecordEvent\:\:__construct\(\) has parameter \$originalRecord with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -835,12 +769,6 @@ parameters:
 			path: src/Core/Content/Seo/SeoUrlTemplate/TemplateGroup.php
 
 		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 2
-			path: src/Core/Content/Seo/SeoUrlUpdater.php
-
-		-
 			message: '#^Method Shopware\\Core\\Content\\Sitemap\\Provider\\CustomUrlProvider\:\:isAvailableForSalesChannel\(\) has parameter \$url with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1069,166 +997,10 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/EntityTranslationDefinition.php
 
 		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityWriteResult.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityDeletedEvent\:\:__construct\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityDeletedEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityDeletedEvent\:\:__construct\(\) has parameter \$writeResult with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityDeletedEvent.php
-
-		-
 			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityLoadedContainerEvent\:\:__construct\(\) has parameter \$events with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:__construct\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:createEvents\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:createEvents\(\) has parameter \$identifiers with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:createWithDeletedEvents\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:createWithDeletedEvents\(\) has parameter \$identifiers with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:createWithWrittenEvents\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:createWithWrittenEvents\(\) has parameter \$identifiers with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:findPrimaryKeys\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:getDeletedPrimaryKeys\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:getErrors\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:getList\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:getPrimaryKeys\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:getPrimaryKeysWithPayload\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:getPrimaryKeysWithPayloadIgnoringFields\(\) has parameter \$ignoredFields with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:getPrimaryKeysWithPayloadIgnoringFields\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:getPrimaryKeysWithPropertyChange\(\) has parameter \$properties with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenContainerEvent\:\:getPrimaryKeysWithPropertyChange\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenContainerEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenEvent\:\:__construct\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenEvent\:\:getErrors\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenEvent\:\:getIds\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenEvent.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenEvent\:\:getPayloads\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenEvent.php
-
-		-
-			message: '#^Property Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenEvent\:\:\$ids type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenEvent.php
-
-		-
-			message: '#^Property Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityWrittenEvent\:\:\$payloads type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Event/EntityWrittenEvent.php
 
 		-
 			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Exception\\SearchRequestException\:\:__construct\(\) has parameter \$exceptions with no value type specified in iterable type array\.$#'
@@ -1477,12 +1249,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/MultiFilter.php
 
 		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php
-
-		-
 			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Version\\Aggregate\\VersionCommitData\\VersionCommitDataCollection\:\:filterByEntityPrimary\(\) has parameter \$primary with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1499,12 +1265,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/CloneBehavior.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
 
 		-
 			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\PrimaryKeyBag\:\:add\(\) has parameter \$primaryKey with no value type specified in iterable type array\.$#'
@@ -1559,12 +1319,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/PrimaryKeyBag.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\RestrictDeleteViolation\:\:getRestrictions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/Validation/RestrictDeleteViolation.php
 
 		-
 			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\Validator\:\:addConstraint\(\) has parameter \$propertyValue with no type specified\.$#'

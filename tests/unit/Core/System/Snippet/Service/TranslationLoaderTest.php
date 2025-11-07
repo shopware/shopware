@@ -310,11 +310,13 @@ class TranslationLoaderTest extends TestCase
 
     private function getSearchResult(string $entity): IdSearchResult
     {
+        $id = $this->ids->get($entity);
+
         return new IdSearchResult(
             1,
-            [[
-                'data' => $this->ids->get($entity),
-                'primaryKey' => $this->ids->get($entity),
+            [$id => [
+                'data' => [],
+                'primaryKey' => $id,
             ]],
             new Criteria(),
             $this->context

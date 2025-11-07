@@ -50,7 +50,7 @@ class FilterCollection extends Collection
 
     public function filtered(): FilterCollection
     {
-        return $this->filter(fn (Filter $filter) => $filter->isFiltered() ? $filter : null);
+        return $this->filter(fn (Filter $filter) => $filter->isFiltered());
     }
 
     /**

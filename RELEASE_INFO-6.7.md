@@ -56,6 +56,21 @@ To add descriptions to fields in your custom entity definitions, use the `setDes
     ->setDescription('Customer group determining pricing and permissions')
 ```
 
+### Allow overwriting Doctrine wrapperClass on Primary/Replica setups
+
+It's now possible to overwrite the `wrapperClass` of the `Doctrine\DBAL\Connection` instance.
+This is useful if you want to use e.g. `Doctrine MySQL Comeback` to automatically reconnect if the MySQL connection is lost.
+
+```bash
+composer require facile-it/doctrine-mysql-come-back ^3.0
+```
+
+Then specify the `wrapperClass` in the `.env` file:
+
+```
+DATABASE_URL=mysql://root:root@database/shopware?driverOptions[x_reconnect_attempts]=5&wrapperClass=Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection
+```
+
 ### Robots.txt parsing
 
 A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.

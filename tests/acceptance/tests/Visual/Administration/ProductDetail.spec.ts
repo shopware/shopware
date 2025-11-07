@@ -1,12 +1,14 @@
-import { test, setViewport, replaceElements, assertScreenshot } from '@fixtures/AcceptanceTest';
+import {
+    test,
+    setViewport,
+    replaceElements,
+    assertScreenshot,
+    getCurrencyCodeFromLocale,
+    getLocale,
+} from '@fixtures/AcceptanceTest';
 
-test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
-    ShopAdmin,
-    TestDataService,
-    AdminProductDetail,
-    }) => {
-
-    const currency = await TestDataService.getCurrency('EUR');
+test('Visual: Product Detail Page', { tag: '@Visual' }, async ({ ShopAdmin, TestDataService, AdminProductDetail }) => {
+    const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale(getLocale()));
 
     const product = await TestDataService.createBasicProduct({
         name: 'Test Product',
@@ -28,9 +30,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await setViewport(AdminProductDetail.page, {
             requestURL: 'api/search/category',
         });
-        await replaceElements(AdminProductDetail.page, [
-            AdminProductDetail.productHeadline,
-        ]);
+        await replaceElements(AdminProductDetail.page, [AdminProductDetail.productHeadline]);
         await assertScreenshot(AdminProductDetail.page, 'Product-Detail-General-Tab.png');
     });
 
@@ -39,9 +39,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await setViewport(AdminProductDetail.page, {
             requestURL: 'api/search-ids/property-group-option',
         });
-        await replaceElements(AdminProductDetail.page, [
-            AdminProductDetail.productHeadline,
-        ]);
+        await replaceElements(AdminProductDetail.page, [AdminProductDetail.productHeadline]);
         await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Specifications-Tab.png');
     });
 
@@ -50,9 +48,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await setViewport(AdminProductDetail.page, {
             requestURL: 'api/app-system/action-button/product/detail',
         });
-        await replaceElements(AdminProductDetail.page, [
-            AdminProductDetail.productHeadline,
-        ]);
+        await replaceElements(AdminProductDetail.page, [AdminProductDetail.productHeadline]);
         await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Advanced-Pricing-Tab.png');
     });
 
@@ -61,9 +57,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await setViewport(AdminProductDetail.page, {
             requestURL: 'api/search/product',
         });
-        await replaceElements(AdminProductDetail.page, [
-            AdminProductDetail.productHeadline,
-        ]);
+        await replaceElements(AdminProductDetail.page, [AdminProductDetail.productHeadline]);
         await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Variants-Tab.png');
     });
 
@@ -72,9 +66,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await setViewport(AdminProductDetail.page, {
             requestURL: 'api/app-system/action-button/product/detail',
         });
-        await replaceElements(AdminProductDetail.page, [
-            AdminProductDetail.productHeadline,
-        ]);
+        await replaceElements(AdminProductDetail.page, [AdminProductDetail.productHeadline]);
         await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Layout-Tab.png');
     });
 
@@ -83,9 +75,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await setViewport(AdminProductDetail.page, {
             requestURL: 'api/search/sales-channel',
         });
-        await replaceElements(AdminProductDetail.page, [
-            AdminProductDetail.productHeadline,
-        ]);
+        await replaceElements(AdminProductDetail.page, [AdminProductDetail.productHeadline]);
         await assertScreenshot(AdminProductDetail.page, 'Product-Detail-SEO-Tab.png');
     });
 
@@ -94,9 +84,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await setViewport(AdminProductDetail.page, {
             requestURL: 'api/app-system/action-button/product/detail',
         });
-        await replaceElements(AdminProductDetail.page, [
-            AdminProductDetail.productHeadline,
-        ]);
+        await replaceElements(AdminProductDetail.page, [AdminProductDetail.productHeadline]);
         await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Cross-Selling-Tab.png');
     });
 
@@ -105,9 +93,7 @@ test('Visual: Product Detail Page', { tag: '@Visual' }, async ({
         await setViewport(AdminProductDetail.page, {
             requestURL: 'api/app-system/action-button/product/detail',
         });
-        await replaceElements(AdminProductDetail.page, [
-            AdminProductDetail.productHeadline,
-        ]);
+        await replaceElements(AdminProductDetail.page, [AdminProductDetail.productHeadline]);
         await assertScreenshot(AdminProductDetail.page, 'Product-Detail-Reviews-Tab.png');
     });
 });

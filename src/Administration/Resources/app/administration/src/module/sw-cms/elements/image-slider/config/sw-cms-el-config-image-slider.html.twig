@@ -36,16 +36,26 @@
                 class="sw-cms-el-config-image-slider__tab-content"
             >
                 {% block sw_cms_element_image_slider_config_media_selection %}
-                <sw-media-list-selection-v2
-                    :entity-media-items="mediaItems"
-                    :entity="entity"
-                    :upload-tag="uploadTag"
-                    :default-folder-name="defaultFolderName"
-                    @upload-finish="onImageUpload"
-                    @item-remove="onItemRemove"
-                    @open-sidebar="onOpenMediaModal"
-                    @item-sort="onItemSort"
-                />
+                <sw-cms-inherit-wrapper
+                    field="sliderItems"
+                    :element="element"
+                    :label="$t('sw-cms.elements.imageSlider.config.label.sliderItems')"
+                    @inheritance:restore="initSliderItems"
+                >
+                    <template #default="{ isInherited }">
+                        <sw-media-list-selection-v2
+                            :entity-media-items="mediaItems"
+                            :entity="entity"
+                            :upload-tag="uploadTag"
+                            :default-folder-name="defaultFolderName"
+                            :disabled="isInherited"
+                            @upload-finish="onImageUpload"
+                            @item-remove="onItemRemove"
+                            @open-sidebar="onOpenMediaModal"
+                            @item-sort="onItemSort"
+                        />
+                    </template>
+                </sw-cms-inherit-wrapper>
                 {% endblock %}
 
                 {% block sw_cms_element_image_slider_config_media_modal %}
@@ -69,50 +79,70 @@
                 class="sw-cms-el-config-image-slider__tab-settings"
             >
                 <div class="sw-cms-el-config-image-slider__settings-options">
-
                     {% block sw_cms_element_image_slider_config_settings_display_mode %}
                     {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_display_mode` instead. #}
                     {% block sw_cms_element_image_gallery_config_settings_display_mode %}
                     <div class="sw-cms-el-config-image-slider__setting-option">
-
                         {% block sw_cms_element_image_slider_config_settings_display_mode_select %}
                         {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_display_mode_select` instead. #}
                         {% block sw_cms_element_image_gallery_config_settings_display_mode_select %}
-                        <mt-select
-                            v-model="element.config.displayMode.value"
-                            class="sw-cms-el-config-image-slider__setting-display-mode"
+                        <sw-cms-inherit-wrapper
+                            field="displayMode"
+                            :element="element"
                             :label="$t('sw-cms.elements.general.config.label.displayMode')"
-                            :help-text="$t('sw-cms.elements.imageSlider.config.helpText.displayMode')"
-                            :options="displayModeValueOptions"
-                            @update:model-value="onChangeDisplayMode"
-                        />
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-select
+                                    v-model="element.config.displayMode.value"
+                                    class="sw-cms-el-config-image-slider__setting-display-mode"
+                                    :help-text="$t('sw-cms.elements.imageSlider.config.helpText.displayMode')"
+                                    :options="displayModeValueOptions"
+                                    :disabled="isInherited"
+                                    @update:model-value="onChangeDisplayMode"
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
                         {% endblock %}
                         {% endblock %}
 
                         {% block sw_cms_element_image_slider_config_settings_min_height %}
                         {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_min_height` instead. #}
                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
-                        <mt-text-field
-                            v-model="element.config.minHeight.value"
+                        <sw-cms-inherit-wrapper
+                            field="minHeight"
+                            :element="element"
                             :label="$t('sw-cms.elements.image.config.label.minHeight')"
-                            :placeholder="$t('sw-cms.elements.image.config.label.minHeight')"
-                            :help-text="$t('sw-cms.elements.image.config.label.minHeightHelpText')"
-                            :disabled="element.config.displayMode.value !== 'cover'"
-                            @update:model-value="onChangeMinHeight"
-                        />
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-text-field
+                                    v-model="element.config.minHeight.value"
+                                    :placeholder="$t('sw-cms.elements.image.config.label.minHeight')"
+                                    :help-text="$t('sw-cms.elements.image.config.label.minHeightHelpText')"
+                                    :disabled="isInherited || element.config.displayMode.value !== 'cover'"
+                                    @update:model-value="onChangeMinHeight"
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
                         {% endblock %}
                         {% endblock %}
 
                         {% block sw_cms_element_image_slider_config_settings_vertical_align %}
                         {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_vertical_align` instead. #}
                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
-                        <mt-select
-                            v-model="element.config.verticalAlign.value"
+                        <sw-cms-inherit-wrapper
+                            field="verticalAlign"
+                            :element="element"
                             :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
-                            :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
-                            :disabled="element.config.displayMode.value === 'cover'"
-                            :options="verticalAlignValueOptions"
-                        />
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-select
+                                    v-model="element.config.verticalAlign.value"
+                                    :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                                    :disabled="isInherited || element.config.displayMode.value === 'cover'"
+                                    :options="verticalAlignValueOptions"
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
                         {% endblock %}
                         {% endblock %}
                     </div>
@@ -123,23 +153,39 @@
                     <div class="sw-cms-el-config-image-slider__setting-navigations sw-cms-el-config-image-slider__setting-option">
                         <div class="sw-cms-el-config-image-slider__settings-navigation">
                             {% block sw_cms_element_image_slider_config_settings_navigation_arrow_position %}
-                            <mt-select
-                                v-model="element.config.navigationArrows.value"
+                            <sw-cms-inherit-wrapper
+                                field="navigationArrows"
+                                :element="element"
                                 :label="$t('sw-cms.elements.imageSlider.config.label.navigationArrows')"
-                                :options="navigationArrowsValueOptions"
-                                @update:model-value="emitUpdateEl"
-                            />
+                            >
+                                <template #default="{ isInherited }">
+                                    <mt-select
+                                        v-model="element.config.navigationArrows.value"
+                                        :options="navigationArrowsValueOptions"
+                                        :disabled="isInherited"
+                                        @update:model-value="emitUpdateEl"
+                                    />
+                                </template>
+                            </sw-cms-inherit-wrapper>
                             {% endblock %}
                         </div>
 
                         <div class="sw-cms-el-config-image-slider__settings-navigation">
                             {% block sw_cms_element_image_slider_config_settings_navigation_dots_position %}
-                            <mt-select
-                                v-model="element.config.navigationDots.value"
+                            <sw-cms-inherit-wrapper
+                                field="navigationDots"
+                                :element="element"
                                 :label="$t('sw-cms.elements.imageSlider.config.label.navigationDots')"
-                                :options="navigationDotsValueOptions"
-                                @update:model-value="emitUpdateEl"
-                            />
+                            >
+                                <template #default="{ isInherited }">
+                                    <mt-select
+                                        v-model="element.config.navigationDots.value"
+                                        :options="navigationDotsValueOptions"
+                                        :disabled="isInherited"
+                                        @update:model-value="emitUpdateEl"
+                                    />
+                                </template>
+                            </sw-cms-inherit-wrapper>
                             {% endblock %}
                         </div>
                     </div>
@@ -147,16 +193,24 @@
 
                     <div class="sw-cms-el-config-image-slider__setting-speed">
                         {% block sw_cms_element_image_slider_config_settings_speed %}
-                        <mt-number-field
-                            v-model="element.config.speed.value"
-                            class="sw-cms-el-config-image-slider__setting-speed-slide"
-                            number-type="int"
-                            :min="0"
-                            :max="3600000"
+                        <sw-cms-inherit-wrapper
+                            field="speed"
+                            :element="element"
                             :label="$t('sw-cms.elements.general.config.label.speed')"
-                            :placeholder="$t('sw-cms.elements.general.config.label.speed')"
-                            :help-text="$t('sw-cms.elements.general.config.helpText.speed')"
-                        />
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-number-field
+                                    v-model="element.config.speed.value"
+                                    class="sw-cms-el-config-image-slider__setting-speed-slide"
+                                    number-type="int"
+                                    :min="0"
+                                    :max="3600000"
+                                    :placeholder="$t('sw-cms.elements.general.config.label.speed')"
+                                    :help-text="$t('sw-cms.elements.general.config.helpText.speed')"
+                                    :disabled="isInherited"
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
                         {% endblock %}
                     </div>
 
@@ -172,32 +226,81 @@
                         <div class="sw-cms-el-config-image-slider__setting-auto-slide-container sw-cms-el-config-image-slider__setting-option">
                             <div class="sw-cms-el-config-image-slider__setting-auto-slide-switch">
                                 {% block sw_cms_element_image_slider_config_settings_auto_slide %}
-                                <mt-switch
-                                    v-model="element.config.autoSlide.value"
-                                    class="sw-cms-el-config-image-slider__setting-auto-slide"
-                                    :label="$t('sw-cms.elements.general.config.label.autoSlide')"
-                                    bordered
-                                    @update:model-value="onChangeAutoSlide"
-                                />
+                                <sw-cms-inherit-wrapper
+                                    field="autoSlide"
+                                    :element="element"
+                                >
+                                    <template #default="{ isInherited }">
+                                        <mt-switch
+                                            v-model="element.config.autoSlide.value"
+                                            class="sw-cms-el-config-image-slider__setting-auto-slide"
+                                            :label="$t('sw-cms.elements.general.config.label.autoSlide')"
+                                            :disabled="isInherited"
+                                            @update:model-value="onChangeAutoSlide"
+                                        />
+                                    </template>
+                                </sw-cms-inherit-wrapper>
                                 {% endblock %}
                             </div>
 
                             <div class="sw-cms-el-config-image-slider__setting-auto-slide-delay">
                                 {% block sw_cms_element_image_slider_config_settings_autoplay_timeout %}
-                                <mt-number-field
-                                    v-model="element.config.autoplayTimeout.value"
-                                    class="sw-cms-el-config-image-slider__setting-delay-slide"
-                                    number-type="int"
-                                    :min="0"
-                                    :max="3600000"
+                                <sw-cms-inherit-wrapper
+                                    field="autoplayTimeout"
+                                    :element="element"
                                     :label="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
-                                    :placeholder="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
-                                    :help-text="$t('sw-cms.elements.general.config.helpText.autoplayTimeout')"
-                                />
+                                >
+                                    <template #default="{ isInherited }">
+                                        <mt-number-field
+                                            v-model:model-value="element.config.autoplayTimeout.value"
+                                            class="sw-cms-el-config-image-slider__setting-delay-slide"
+                                            number-type="int"
+                                            :min="0"
+                                            :max="3600000"
+                                            :placeholder="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
+                                            :help-text="$t('sw-cms.elements.general.config.helpText.autoplayTimeout')"
+                                            :disabled="isInherited"
+                                        />
+                                    </template>
+                                </sw-cms-inherit-wrapper>
                                 {% endblock %}
                             </div>
                         </div>
                     </mt-banner>
+
+                    <sw-cms-inherit-wrapper
+                        field="isDecorative"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                class="sw-cms-el-config-image-slider__settings-is-decorative"
+                                :model-value="element.config.isDecorative.value"
+                                :label="$t('sw-cms.elements.image.config.label.isDecorative')"
+                                :help-text="$t('sw-cms.elements.image.config.label.isDecorativeHelpText')"
+                                :disabled="isInherited"
+                                @update:model-value="onChangeIsDecorative"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+
+                    {% block sw_cms_element_image_slider_config_settings_use_fetch_priority_on_first_item %}
+                    <sw-cms-inherit-wrapper
+                        field="useFetchPriorityOnFirstItem"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                class="sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item"
+                                :model-value="element.config.useFetchPriorityOnFirstItem.value"
+                                :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
+                                :help-text="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItemHelpText')"
+                                :disabled="isInherited"
+                                @update:model-value="onChangeUseFetchPriorityOnFirstItem"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+                    {% endblock %}
 
                     {% block sw_cms_element_image_slider_config_settings_links %}
                     <div class="sw-cms-el-config-image-slider__settings-links sw-cms-el-config-image-slider__setting-option">
@@ -206,7 +309,6 @@
                             :key="index"
                             class="sw-cms-el-config-image-slider__settings-link"
                         >
-
                             {% block sw_cms_element_image_slider_config_settings_link_url %}
                             <sw-container
                                 :key="sliderItem.mediaId"
@@ -223,8 +325,8 @@
                                     v-model="sliderItem.url"
                                     class="sw-cms-el-config-image-slider__settings-link-input"
                                     :name="sliderItem.mediaUrl"
-                                    :label="$t('sw-cms.elements.image.config.label.linkTo')"
                                     :placeholder="$t('sw-cms.elements.image.config.placeholder.enterUrl')"
+                                    :label="$t('sw-cms.elements.image.config.label.linkTo')"
                                 />
                             </sw-container>
                             {% endblock %}
@@ -234,13 +336,12 @@
                                 v-model="sliderItem.ariaLabel"
                                 class="sw-cms-el-config-image-slider__settings-link-aria-label"
                                 :name="sliderItem.ariaLabel"
-                                :label="$t('sw-cms.elements.image.config.label.ariaLabel')"
                                 :help-text="$t('sw-cms.elements.image.config.label.ariaLabelHelpText')"
+                                :label="$t('sw-cms.elements.image.config.label.ariaLabel')"
                             />
                             {% endblock %}
 
                             {% block sw_cms_element_image_slider_config_settings_link_target %}
-
                             <mt-switch
                                 v-model="sliderItem.newTab"
                                 class="sw-cms-el-config-image-slider__settings-link-tab"
@@ -251,27 +352,6 @@
                             {% endblock %}
                         </div>
                     </div>
-                    {% endblock %}
-
-                    <mt-switch
-                        class="sw-cms-el-config-image-slider__settings-is-decorative"
-                        :model-value="element.config.isDecorative.value"
-                        :label="$t('sw-cms.elements.image.config.label.isDecorative')"
-                        :help-text="$t('sw-cms.elements.image.config.label.isDecorativeHelpText')"
-                        bordered
-                        @update:model-value="onChangeIsDecorative"
-                    />
-
-                    {% block sw_cms_element_image_slider_config_settings_use_fetch_priority_on_first_item %}
-
-                    <mt-switch
-                        class="sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item"
-                        :model-value="element.config.useFetchPriorityOnFirstItem.value"
-                        :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
-                        :help-text="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItemHelpText')"
-                        bordered
-                        @update:model-value="onChangeUseFetchPriorityOnFirstItem"
-                    />
                     {% endblock %}
                 </div>
             </sw-container>

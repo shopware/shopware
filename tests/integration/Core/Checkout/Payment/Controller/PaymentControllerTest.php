@@ -149,6 +149,24 @@ class PaymentControllerTest extends TestCase
         static::assertTrue($response->isRedirection());
     }
 
+    public function testCallTwice(): void
+    {
+        Feature::skipTestIfInActive('REPEATED_PAYMENT_FINALIZE', $this);
+
+        $transaction = $this->createValidOrderTransaction();
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
+        $token = $this->tokenFactory->generateToken($tokenStruct);
+
+        $client = $this->getBrowser();
+        $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
+        $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
+
+        $response = $client->getResponse();
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertStringContainsString('testFinishUrl', $response->getTargetUrl());
+        static::assertTrue($response->isRedirection());
+    }
+
     private function getBrowser(): KernelBrowser
     {
         return KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);

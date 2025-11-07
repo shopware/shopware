@@ -38,22 +38,34 @@ class FingerprintGenerator
 
         foreach ($this->fingerprints as $fingerprint) {
             $storedStamp = $fingerprints[$fingerprint->getIdentifier()] ?? null;
-            $expectedStamp = $fingerprint->getStamp();
 
-            if ($storedStamp === $expectedStamp) {
-                $matchingFingerprints[$fingerprint->getIdentifier()] = new FingerprintMatch(
+            if ($fingerprint instanceof FingerprintCustomCompare) {
+                $score = $fingerprint->compare($storedStamp);
+
+                if ($score === 0) {
+                    $matchingFingerprints[$fingerprint->getIdentifier()] = FingerprintMatch::fromFingerprint($fingerprint);
+                    continue;
+                }
+
+                $mismatchingFingerprints[$fingerprint->getIdentifier()] = new FingerprintMismatch(
                     $fingerprint->getIdentifier(),
+                    $storedStamp,
                     $fingerprint->getStamp(),
-                    $fingerprint->getScore()
+                    $score,
                 );
 
+                continue;
+            }
+
+            if ($storedStamp === $fingerprint->getStamp()) {
+                $matchingFingerprints[$fingerprint->getIdentifier()] = FingerprintMatch::fromFingerprint($fingerprint);
                 continue;
             }
 
             $mismatchingFingerprints[$fingerprint->getIdentifier()] = new FingerprintMismatch(
                 $fingerprint->getIdentifier(),
                 $storedStamp,
-                $expectedStamp,
+                $fingerprint->getStamp(),
                 $fingerprint->getScore(),
             );
         }

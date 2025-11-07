@@ -1,5 +1,6 @@
-import { test } from '@fixtures/AcceptanceTest';
+import { test, getLocale, getCurrencySymbolFromLocale } from '@fixtures/AcceptanceTest';
 
+const currencyIcon = getCurrencySymbolFromLocale(getLocale());
 test(
     'As a customer, I want to perform a checkout process with 19% tax rate with 2 same products.',
     { tag: ['@Checkout', '@Storefront'] },
@@ -27,7 +28,7 @@ test(
             await ShopCustomer.goesTo(StorefrontProductDetail.url(productWithTaxRate19));
             await ShopCustomer.attemptsTo(AddProductToCart(productWithTaxRate19, '2'));
             await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
-            await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice).toHaveText('€3.19');
+            await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice).toHaveText(`${currencyIcon}3.19`);
         });
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
@@ -40,14 +41,14 @@ test(
             TestDataService.addCreatedRecord('order', orderId);
             orderNumber = await StorefrontCheckoutFinish.getOrderNumber();
 
-            await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice).toHaveText('€3.19');
+            await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice).toHaveText(`${currencyIcon}3.19`);
         });
 
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
             await orderLocators.orderDetailButton.click();
-            await ShopCustomer.expects(orderLocators.taxPrice).toHaveText('€3.19');
+            await ShopCustomer.expects(orderLocators.taxPrice).toHaveText(`${currencyIcon}3.19`);
         });
     }
 );
@@ -82,7 +83,7 @@ test(
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product2WithTaxRate7));
             await ShopCustomer.attemptsTo(AddProductToCart(product2WithTaxRate7));
             await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
-            await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice).toHaveText('€1.30');
+            await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice).toHaveText(`${currencyIcon}1.30`);
         });
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
@@ -95,14 +96,14 @@ test(
             TestDataService.addCreatedRecord('order', orderId);
             orderNumber = await StorefrontCheckoutFinish.getOrderNumber();
 
-            await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice).toHaveText('€1.30');
+            await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice).toHaveText(`${currencyIcon}1.30`);
         });
 
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
             await orderLocators.orderDetailButton.click();
-            await ShopCustomer.expects(orderLocators.taxPrice).toHaveText('€1.30');
+            await ShopCustomer.expects(orderLocators.taxPrice).toHaveText(`${currencyIcon}1.30`);
         });
     }
 );
@@ -138,8 +139,8 @@ test(
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product1WithTaxRate7));
             await ShopCustomer.attemptsTo(AddProductToCart(product1WithTaxRate7, '2'));
             await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
-            await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice.nth(0)).toHaveText('€3.19');
-            await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice.nth(1)).toHaveText('€1.31');
+            await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice.nth(0)).toHaveText(`${currencyIcon}3.19`);
+            await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice.nth(1)).toHaveText(`${currencyIcon}1.31`);
         });
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
@@ -152,16 +153,16 @@ test(
             TestDataService.addCreatedRecord('order', orderId);
             orderNumber = await StorefrontCheckoutFinish.getOrderNumber();
 
-            await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice.nth(0)).toHaveText('€3.19');
-            await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice.nth(1)).toHaveText('€1.31');
+            await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice.nth(0)).toHaveText(`${currencyIcon}3.19`);
+            await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice.nth(1)).toHaveText(`${currencyIcon}1.31`);
         });
 
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
             await orderLocators.orderDetailButton.click();
-            await ShopCustomer.expects(orderLocators.taxPrice.nth(0)).toHaveText('€3.19');
-            await ShopCustomer.expects(orderLocators.taxPrice.nth(1)).toHaveText('€1.31');
+            await ShopCustomer.expects(orderLocators.taxPrice.nth(0)).toHaveText(`${currencyIcon}3.19`);
+            await ShopCustomer.expects(orderLocators.taxPrice.nth(1)).toHaveText(`${currencyIcon}1.31`);
         });
     }
 );
@@ -193,7 +194,7 @@ test(
             await ShopCustomer.goesTo(StorefrontProductDetail.url(productWithTaxRate0));
             await ShopCustomer.attemptsTo(AddProductToCart(productWithTaxRate0));
             await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
-            await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice).toHaveText('€0.00');
+            await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice).toHaveText(`${currencyIcon}0.00`);
         });
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
@@ -206,14 +207,14 @@ test(
             TestDataService.addCreatedRecord('order', orderId);
             orderNumber = await StorefrontCheckoutFinish.getOrderNumber();
 
-            await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice).toHaveText('€0.00');
+            await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice).toHaveText(`${currencyIcon}0.00`);
         });
 
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
             await orderLocators.orderDetailButton.click();
-            await ShopCustomer.expects(orderLocators.taxPrice).toHaveText('€0.00');
+            await ShopCustomer.expects(orderLocators.taxPrice).toHaveText(`${currencyIcon}0.00`);
         });
     }
 );

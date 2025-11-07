@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
-use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -172,7 +172,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
     private function throwExceptionFailedParsingVariants(string $variantsString): void
     {
-        throw new ProcessingException(\sprintf(
+        throw ImportExportException::processingError(\sprintf(
             'Failed parsing variants from string "%s", valid format is: "size: L, XL, | color: Green, White"',
             $variantsString
         ));

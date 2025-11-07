@@ -187,18 +187,9 @@ class SchemaUpdater
 
                     break;
                 case 'many-to-many':
-                    // get reference name for foreign key building
-                    $referenceName = $field['reference'];
-
-                    $ignoreMissingReference = $field['ignoreMissingReference'] ?? false;
-                    if ($ignoreMissingReference) {
-                        /**
-                         * Check if reference table exists
-                         * If not, skip the creation of the many-to-many association
-                         */
-                        if (!$schema->hasTable($referenceName)) {
-                            continue 2;
-                        }
+                    $skipAssociationCreation = $this->skipAssociationCreation($schema, $field);
+                    if ($skipAssociationCreation) {
+                        continue 2;
                     }
 
                     // build mapping table name: `custom_entity_blog_products`
@@ -208,6 +199,8 @@ class SchemaUpdater
                     if ($schema->hasTable($mappingName)) {
                         continue 2;
                     }
+
+                    $referenceName = $field['reference'];
 
                     $mapping = $schema->createTable($mappingName);
 
@@ -260,15 +253,9 @@ class SchemaUpdater
                     break;
                 case 'many-to-one':
                 case 'one-to-one':
-                    $ignoreMissingReference = $field['ignoreMissingReference'] ?? false;
-                    if ($ignoreMissingReference) {
-                        /**
-                         * Check if reference table exists
-                         * If not, skip the creation of the many-to-one or one-to-one association
-                         */
-                        if (!$schema->hasTable($field['reference'])) {
-                            continue 2;
-                        }
+                    $skipAssociationCreation = $this->skipAssociationCreation($schema, $field);
+                    if ($skipAssociationCreation) {
+                        continue 2;
                     }
 
                     // first add foreign key column to custom entity table: `top_seller_id`
@@ -299,26 +286,12 @@ class SchemaUpdater
                     break;
 
                 case 'one-to-many':
-                    $reference = null;
-                    $referenceName = $field['reference'];
-
-                    // if field has attribute ignore-missing-reference is true, skip create table
-                    $ignoreMissingReference = $field['ignoreMissingReference'] ?? false;
-
-                    if (!$ignoreMissingReference) {
-                        // for one-to-many association, we don't need to add some columns in the custom entity table
-                        $reference = $this->createTable($schema, $referenceName);
-                    }
-
-                    /**
-                     * Check if reference table exists
-                     * If not, skip the creation of the one-to-many association
-                     */
-                    if (!$schema->hasTable($referenceName)) {
+                    $skipAssociationCreation = $this->skipAssociationCreation($schema, $field);
+                    if ($skipAssociationCreation) {
                         continue 2;
                     }
 
-                    $reference = $reference ?? $schema->getTable($referenceName);
+                    $reference = $schema->getTable($field['reference']);
 
                     $foreignKey = $table->getName() . '_' . self::id($field['name']);
                     if ($reference->hasColumn($foreignKey)) {
@@ -382,5 +355,22 @@ class SchemaUpdater
         return $schema->hasTable($name)
             ? $schema->getTable($name)
             : $schema->createTable($name);
+    }
+
+    private function skipAssociationCreation(Schema $schema, array $field): bool
+    {
+        $referenceName = $field['reference'];
+        $ignoreMissingReference = $field['ignoreMissingReference'] ?? false;
+
+        if (!$schema->hasTable($referenceName)) {
+            if ($ignoreMissingReference) {
+                return true;
+            } else {
+                // throw exception right away if the reference table does not exist and the ignoreMissingReference attribute is false
+                throw CustomEntityException::referenceTableNotFound($referenceName);
+            }
+        }
+
+        return false;
     }
 }

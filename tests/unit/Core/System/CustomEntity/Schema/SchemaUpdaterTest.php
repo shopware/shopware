@@ -10,6 +10,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
 
 /**
@@ -271,6 +272,58 @@ class SchemaUpdaterTest extends TestCase
                 'custom_entity_left' => [], // no reference table, so no reference table columns should be added
             ],
             'expectedNonExistTableNames' => ['custom_entity_right', 'custom_entity_left_rights'],
+        ];
+    }
+
+    /**
+     * @param list<array{name: string, fields: string}> $entities
+     */
+    #[DataProvider('associationWithoutIgnoreMissingReferenceProvider')]
+    public function testAssociationWithoutIgnoreMissingReference(array $entities): void
+    {
+        $schema = new Schema();
+        $updater = new SchemaUpdater();
+        $this->expectException(CustomEntityException::class);
+        $this->expectExceptionMessageMatches('/Reference table "custom_entity_right" not found/');
+        $updater->applyCustomEntities($schema, $entities);
+    }
+
+    public static function associationWithoutIgnoreMissingReferenceProvider(): \Generator
+    {
+        yield 'testOneToManyWithoutIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"one-to-many"}]',
+                ],
+            ],
+        ];
+
+        yield 'testManyToManyWithoutIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"many-to-many"}]',
+                ],
+            ],
+        ];
+
+        yield 'testManyToOneWithoutIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"many-to-one"}]',
+                ],
+            ],
+        ];
+
+        yield 'testOneToOneWithoutIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"one-to-one"}]',
+                ],
+            ],
         ];
     }
 

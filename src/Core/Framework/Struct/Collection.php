@@ -136,7 +136,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param class-string<TElement> $class
+     * @param class-string $class
      */
     public function filterInstance(string $class): static
     {

@@ -1,4 +1,4 @@
-import { getLanguageData, getSnippetSetId, test } from '@fixtures/AcceptanceTest';
+import { formatPrice, getLanguageData, getSnippetSetId, test } from '@fixtures/AcceptanceTest';
 
 test(
     'Shop customers should be able to view products in different languages.',

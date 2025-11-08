@@ -57,12 +57,14 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityWrittenEvent<array<string, string>> $event
+     */
     public function newSalesChannelAddedToCustomerGroup(EntityWrittenEvent $event): void
     {
         $ids = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
-            /** @var array<string, string> $pk */
             $pk = $writeResult->getPrimaryKey();
             $ids[] = $pk['customerGroupId'];
         }
@@ -74,13 +76,15 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $this->createUrls($ids, $event->getContext());
     }
 
+    /**
+     * @param EntityWrittenEvent<array<string, string>> $event
+     */
     public function updatedCustomerGroup(EntityWrittenEvent $event): void
     {
         $ids = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
             if ($writeResult->hasPayload('registrationTitle')) {
-                /** @var array<string, string> $pk */
                 $pk = $writeResult->getPrimaryKey();
                 $ids[] = $pk['customerGroupId'];
             }
@@ -93,12 +97,14 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $this->createUrls($ids, $event->getContext());
     }
 
+    /**
+     * @param EntityDeletedEvent<array<string, string>> $event
+     */
     public function deleteCustomerGroup(EntityDeletedEvent $event): void
     {
         $ids = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
-            /** @var array<string, string> $pk */
             $pk = $writeResult->getPrimaryKey();
             $ids[] = $pk['customerGroupId'];
         }
@@ -111,14 +117,13 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             ->addFilter(new EqualsAnyFilter('foreignKey', $ids))
             ->addFilter(new EqualsFilter('routeName', self::ROUTE_NAME));
 
-        /** @var list<string> $ids */
         $ids = $this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds();
 
         if (\count($ids) === 0) {
             return;
         }
 
-        $this->seoUrlRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), $event->getContext());
+        $this->seoUrlRepository->delete(array_map(static fn (string $id) => ['id' => $id], $ids), $event->getContext());
     }
 
     /**

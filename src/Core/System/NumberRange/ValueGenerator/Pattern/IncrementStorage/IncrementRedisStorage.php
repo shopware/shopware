@@ -97,7 +97,6 @@ class IncrementRedisStorage extends AbstractIncrementStorage
         $numberRangeIds = $this->getNumberRangeIds();
         $states = [];
 
-        /** @var string $id */
         foreach ($numberRangeIds as $id) {
             $state = $this->redis->get($this->getKey($id));
 
@@ -134,9 +133,6 @@ class IncrementRedisStorage extends AbstractIncrementStorage
      */
     private function getNumberRangeIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
-
-        return $ids;
+        return $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
     }
 }

@@ -53,7 +53,7 @@ class SeoUrlGenerator
     }
 
     /**
-     * @param array<string|array<string, string>> $ids
+     * @param list<string|array<string, string>> $ids
      *
      * @return iterable<SeoUrlEntity>
      */

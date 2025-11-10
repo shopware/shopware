@@ -53,6 +53,9 @@ If the token has already been consumed, the user will be redirected directly to 
 To support this behavior, a new `consumed` flag has been added to the payment token struct, which indicates if the token has already been processed.
 Payment tokens are no longer deleted immediately after use. A new scheduled task automatically removes expired tokens to keep the `payment_token` table clean.
 
+### Added sanitized HTML tag support for app snippets
+Added sanitized HTML tag support for app snippets. App developers can now use HTML tags for better formatting within their snippets. The sanitizing uses the `basic` set of allowed HTML tags from the `html_sanitizer` config, ensuring that security-related tags such as `script` are automatically removed.
+
 ## Administration
 
 ## Storefront

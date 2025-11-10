@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
-use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event dispatched after robots.txt content has been parsed.
@@ -17,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * - Transform directives based on custom logic
  */
 #[Package('framework')]
-class RobotsDirectiveParsingEvent extends Event implements ShopwareEvent
+class RobotsDirectiveParsingEvent implements ShopwareEvent
 {
     public function __construct(
         public readonly string $text,

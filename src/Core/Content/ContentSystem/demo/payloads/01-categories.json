@@ -1,0 +1,85 @@
+{
+  "write-categories": {
+    "entity": "category",
+    "action": "upsert",
+    "payload": [
+      {
+        "id": "2c25e419fa844b5cb34b0dbe9858556c",
+        "name": "Laptops & Computers",
+        "active": true,
+        "visible": true,
+        "type": "page",
+        "displayNestedProducts": true
+      },
+      {
+        "id": "d58f8abbe47a4102984b326c0c01fd6e",
+        "name": "Gaming Laptops",
+        "parentId": "2c25e419fa844b5cb34b0dbe9858556c",
+        "active": true,
+        "visible": true,
+        "type": "page",
+        "displayNestedProducts": true
+      },
+      {
+        "id": "dc230bee74a44bbfb450e454af59efd3",
+        "name": "Business Laptops",
+        "parentId": "2c25e419fa844b5cb34b0dbe9858556c",
+        "active": true,
+        "visible": true,
+        "type": "page",
+        "displayNestedProducts": true
+      },
+      {
+        "id": "1ea2a275f49745738b8357626060d743",
+        "name": "Audio & Sound",
+        "active": true,
+        "visible": true,
+        "type": "page",
+        "displayNestedProducts": true
+      },
+      {
+        "id": "7df6f939ae8949eb8b238b9a6fd2f5aa",
+        "name": "Headphones & Earbuds",
+        "parentId": "1ea2a275f49745738b8357626060d743",
+        "active": true,
+        "visible": true,
+        "type": "page",
+        "displayNestedProducts": true
+      },
+      {
+        "id": "a45c51742e5a40539188687066e04ed2",
+        "name": "Speakers & Sound Systems",
+        "parentId": "1ea2a275f49745738b8357626060d743",
+        "active": true,
+        "visible": true,
+        "type": "page",
+        "displayNestedProducts": true
+      },
+      {
+        "id": "0199b55509087207b86f6d01e3cc3f3c",
+        "name": "Electronics",
+        "active": true,
+        "visible": true,
+        "type": "page",
+        "displayNestedProducts": true
+      },
+      {
+        "id": "0199b95509187207b86f6d01e3cc4f4c",
+        "name": "Premium Electronics",
+        "parentId": "0199b55509087207b86f6d01e3cc3f3c",
+        "active": true,
+        "visible": true,
+        "type": "page",
+        "displayNestedProducts": true
+      },
+      {
+        "id": "0199b95509287207b86f6d01e3cc5f5c",
+        "name": "Accessories",
+        "active": true,
+        "visible": true,
+        "type": "page",
+        "displayNestedProducts": true
+      }
+    ]
+  }
+}

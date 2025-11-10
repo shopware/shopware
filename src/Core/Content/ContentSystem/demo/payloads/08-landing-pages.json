@@ -1,0 +1,53 @@
+{
+  "write-landing-pages": {
+    "entity": "landing_page",
+    "action": "upsert",
+    "payload": [
+      {
+        "id": "71f4547dd685483b965b27f125af3946",
+        "name": "Summer Sale 2025",
+        "url": "summer-sale-2025",
+        "metaTitle": "Summer Sale 2025 - Up to 50% Off Tech Products | TechStore",
+        "metaDescription": "Don't miss our biggest sale of the year! Save up to 50% on laptops, gaming gear, and electronics. Limited time offer - Shop now!",
+        "keywords": "summer sale, tech discount, laptop deals, gaming sale",
+        "active": true,
+        "cmsPageId": null,
+        "salesChannels": [
+          {
+            "id": "{{salesChannelId}}"
+          }
+        ]
+      },
+      {
+        "id": "e417aa51760d4edda10fee3b4f5e4741",
+        "name": "Why Choose TechStore",
+        "url": "why-choose-us",
+        "metaTitle": "Why Choose TechStore - Your Trusted Technology Partner",
+        "metaDescription": "Discover why thousands of customers trust TechStore for their technology needs. Fast shipping, authentic products, and expert support.",
+        "keywords": "about techstore, why choose us, trusted retailer, tech support",
+        "active": true,
+        "cmsPageId": null,
+        "salesChannels": [
+          {
+            "id": "{{salesChannelId}}"
+          }
+        ]
+      },
+      {
+        "id": "b860edda280a4407bd585bf4b45f2ed8",
+        "name": "Smart Home Hub Pro Launch",
+        "url": "smart-home-hub-launch",
+        "metaTitle": "Smart Home Hub Pro - Revolutionary Home Automation Coming Q2 2025",
+        "metaDescription": "Pre-order the Smart Home Hub Pro - the ultimate home automation hub with AI, 10,000+ integrations, and bank-grade security. Launching April 2025.",
+        "keywords": "smart home hub, home automation, IoT hub, pre-order",
+        "active": true,
+        "cmsPageId": null,
+        "salesChannels": [
+          {
+            "id": "{{salesChannelId}}"
+          }
+        ]
+      }
+    ]
+  }
+}

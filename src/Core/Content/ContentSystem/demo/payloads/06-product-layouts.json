@@ -1,0 +1,52 @@
+{
+  "write-product-content-layouts": {
+    "entity": "product_content_layout",
+    "action": "upsert",
+    "payload": [
+      {
+        "id": "0199b96001fe70ec851e971788686801",
+        "productId": "0199b95007fe70ec851e971788386243",
+        "salesChannelId": null,
+        "contentLayoutId": "0199b95101fe70ec851e971788686501",
+        "parameterBindings": {
+          "productId": {
+            "placeholder": "product_id"
+          }
+        }
+      },
+      {
+        "id": "0199b96002fe70ec851e971788686802",
+        "productId": "0199b95009fe70ec851e971788586445",
+        "salesChannelId": "{{salesChannelId}}",
+        "contentLayoutId": "0199b95103fe70ec851e971788686503",
+        "parameterBindings": {
+          "productId": {
+            "placeholder": "product_id"
+          }
+        }
+      },
+      {
+        "id": "0199b96003fe70ec851e971788686803",
+        "productId": "a111c9a04b0d421e9e4a8968da01fce4",
+        "salesChannelId": null,
+        "contentLayoutId": "0199b95102fe70ec851e971788686502",
+        "parameterBindings": {
+          "productId": {
+            "placeholder": "product_id"
+          }
+        }
+      },
+      {
+        "id": "0199b96004fe70ec851e971788686804",
+        "productId": "0199b95008fe70ec851e971788486344",
+        "salesChannelId": "{{salesChannelId}}",
+        "contentLayoutId": "0199b95104fe70ec851e971788686504",
+        "parameterBindings": {
+          "productId": {
+            "placeholder": "product_id"
+          }
+        }
+      }
+    ]
+  }
+}

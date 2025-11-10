@@ -1,58 +1,40 @@
 # 6.8.0.0
-## Introduced in 6.7.4.0
 
-## Removed SystemConfig exceptions
+# Changed Functionality
 
-The exceptions
-* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`,
-* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and
-* `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
-were removed.
-Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
+<details>
 
-## Deprecated SystemConfigService tracing methods
+## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 
-The methods `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` and `\Shopware\Core\System\SystemConfig\SystemConfigService::getTrace()` were removed.
-The tracing is not needed anymore since the cache rework for 6.7.0.0.
+Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
+This prevents rounding errors when calculating taxes for percentage prices.
 
-## Filterable price definitions now require an explicit interface
+## Payment: Removal of Payment Method "Debit Payment"
 
-Previously, a price definition was treated as filterable when it implemented a `getFilter()` method. From now on, price definitions must explicitly implement the
-`Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
+The payment method `DebitPayment` has been removed as it did not fulfill its purpose.
+If the payment method is and was not used, it will be removed.
+Otherwise, the payment method will be disabled.
 
-## Symfony validator is not used to validate the honeypot captcha
+## Use orders primary delivery and primary transaction
 
-The Symfony validator is not used to check the validity of the honeypot captcha, so if it was used to change the validity of the honeypot captcha, overwrite the `isValid` method of the honeypot captcha directly.
+For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`.
+If an extension modifies or adds new deliveries or transactions, this should be taken into account.
+To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
 
-## `CmsPageLoadedEvent::$result` now requires `CmsPageCollection` type
+</details>
 
-The `$result` property of `Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent` now enforces the `Shopware\Core\Content\Cms\CmsPageCollection` type instead of the generic `Shopware\Core\Framework\DataAbstractionLayer\EntityCollection`.
+# API
 
-The event constructor now requires `CmsPageCollection` explicitly, and `CmsPageLoadedEvent::getResult()` return type has changed from `EntityCollection` to `CmsPageCollection`.
+# Core
 
-## Introduced in 6.7.3.0
-## Removal of deprecated controller variables
-The following will be removed in Shopware 6.8.0:
-* Twig variables `controllerName` and `controllerAction`
-* CSS classes `is-ctl-*` and `is-act-*`
-* JavaScript window properties `window.controllerName` and `window.actionName`
-## Removal of "sw-empty-state"
-* The old `sw-empty-state` component will be removed in the next major version. Please use the new `mt-empty-state` component instead.
+<details>
 
-Before:
-```html
-<sw-empty-state title="short title" subline="longer subline" />
-```
-After:
-```html
-<mt-empty-state title="short title" description="longer description"/>
-```
-## Removal of properties in `ResolveRemoteThumbnailUrlExtension`
+## Multiple payment finalize calls allowed
+Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.
+If the token has already been consumed, the user is redirected to the finish page without triggering a PaymentException.
+To support this behavior, a new `consumed` flag has been added to the payment token struct, which indicates if the token has already been processed.
+Since tokens are no longer deleted after use, a new scheduled task runs daily to remove all expired tokens and keep the system clean.
 
-The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` were removed. Set the values directly into the `mediaEntity` property.
-## Removal of `hasChildren` variable
-
-The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates. In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
 ## Removal of `$options` parameter in custom validator's constraints
 
 The `$options` of all Shopware's custom validator constraint are removed, if you use one of them, please use named argument instead
@@ -77,301 +59,6 @@ Affected constraints are:
 \Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists
 \Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists
 ```
-## Removal of `app:url-change:resolve` command alias
-* Use `app:shop-id:change` instead of `app:url-change:resolve`
-## Refactor of providing cookies
-
-The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.
-Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to register new cookie groups and cookie entries.
-The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
-Use `name` and `description` instead.
-## Removal of `ZugferdDocument::getPrice()`
-The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` was removed, replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
-## Removed `TaskScheduler::getNextExecutionTime()`
-The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler::getNextExecutionTime()` method was not used anymore and was removed.
-
-## Snippet Validation command
-The command `snippets:validate` has been renamed to `translation:validate`.
-
-## SnippetValidator
-The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only. Use on own risk as it may change without prior notice.
-
-## Introduced in 6.7.2.0
-
-## Removal of `EntityDefinition` constructor
-
-The constructor of the `EntityDefinition` has been removed, therefore the call of child classes to it need to be removed as well, i.e:
-```diff
- <?php declare(strict_types=1);
-
- namespace MyCustomEntity\Content\Entity;
-
- use Shopware\Core\Content\Media\MediaDefinition;
- use Shopware\Core\Content\Product\ProductDefinition;
- use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-
- class MyCustomEntity extends EntityDefinition
- {
-     // snip
-
-     public function __construct(private readonly array $meta = [])
-     {
--        parent::__construct();
-         // ...
-     }
-
-     // snip
- }
-```
-
-## Updated By Field is cleared on API updates
-
-Now the `UpdatedBy` field will be cleared when an object is updated via the API.
-This change ensures that the `UpdatedBy` field reflects the user who last modified the object through the API, rather than retaining the previous value.
-
-## Remove FK delete exception handler
-
-All foreign key checks are now handled directly by the DAL, therefore the following exception handler did not any effect anymore and are removed:
-* `OrderExceptionHandler`
-* `NewsletterExceptionHandler`
-* `LanguageExceptionHandler`
-* `SalesChannelExceptionHandler`
-* `ThemeExceptionHandler`
-This also means that the following exceptions are not thrown anymore and were removed as well:
-* `LanguageOfOrderDeleteException`
-* `LanguageOfNewsletterDeleteException`
-* `LanguageForeignKeyDeleteException`
-* `ThemeException::themeMediaStillInUse`
-* `SalesChannelException::salesChannelDomainInUse`
-
-## Tax Calculation for percentage discounts / surcharges, e.g. promotions
-
-Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
-This prevents rounding errors when calculating taxes for percentage prices.
-
-## Removal of `CartBehavior::isRecalculation`
-
-`CartBehavior::isRecalculation` was removed.
-Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
-Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
-
-## Removal of `NavigationRoute::buildName()`
-
-The method `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute::buildName()` was removed, navigation routes are now only tagged with `NavigationRoute::ALL`.
-
-## Introduced in 6.7.1.2
-
-## Remove method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
-
-The method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was removed as it's no longer used because it only returns the first entity found, which can lead to inconsistencies when multiple items share the same entity and identifier.
-A new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` was introduced which returns all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
-If you use the method `get` in your code, you have to use the `getAll` method instead.
-
-Before
-
-```php
-$url = 'https://example.com/cross-selling/product-123';
-// Only a single entity is retrieved
-$entity = $data->get($definition, $url->getForeignKey());
-$seoUrls = $entity->getSeoUrls();
-$seoUrls->add($url);
-```
-
-After
-
-```php
-$url = 'https://example.com/cross-selling/product-123';
-$entities = $data->getAll($definition, $url->getForeignKey());
-
-// Now you have to loop through all entities to add the SEO URL
-foreach ($entities as $entity) {
-    $seoUrls = $entity->getSeoUrls();
-    $seoUrls->add($url);
-}
-```
-
-## Introduced in 6.7.1.0
-
-## Use orders primary delivery and primary transaction
-
-For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`.
-If an extension modifies or adds new deliveries or transactions, this should be taken into account.
-To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
-
-* Replace delivery accesses like `order.deliveries.first()` or `order.deliveries[0]` with `order.primaryOrderDelivery`
-* Replace transaction accesses like `order.transactions.last()` or `order.transactions[length - 1]` with `order.primaryOrderDelivery`
-
-## Payment: Removal of Payment Method "Debit Payment"
-
-The payment method `DebitPayment` has been removed as it did not fulfill its purpose.
-If the payment method is and was not used, it will be removed.
-Otherwise, the payment method will be disabled.
-
-## Remove route `widgets.account.order.detail`:
-
-* Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
-
-## Removal of $tc function:
-
-* The `$tc` function will be completely removed
-* All translation calls should use `$t` instead
-
-
-## Introduced in 6.7.0.0
-
-## Settings Menu Structure was changed
-
-The menu structure on the settings page has changed from tab structure to a grid structure. The new structure groups settings into different categories for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
-
-The new settings groups are:
-* General
-* Customer
-* Automation
-* Localization
-* Content
-* Commerce
-* System
-* Account
-* Extensions
-
-As a result blocks have been removed in `sw-settings-index.html.twig`:
-* `sw_settings_content_tab_shop`
-* `sw_settings_content_tab_system`
-* `sw_settings_content_tab_plugins`
-* `sw_settings_content_card`
-* `sw_settings_content_header`
-* `sw_settings_content_card_content`
-
-New blocks have been added in `sw-settings-index.html.twig`:
-* `sw_settings_content_card_content_grid`
-* `sw_settings_content_card_view`
-* `sw_settings_content_card_view_header`
-
-## Removed translation of import/export profile label
-
-The translation of the import/export profile label has been removed.
-Profiles are now identified and displayed only by their technical name.
-
-### Core
-- The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
-    - `getLabel()`
-    - `setLabel()`
-    - `getTranslations()`
-    - `setTranslations()`
-- The following classes have been removed:
-    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
-    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
-    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
-- `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
-- `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
-
-### Administration
-- The following Twig blocks have been removed:
-    - `sw_import_export_edit_profile_general_container_name` (`sw-import-export-edit-profile-general.html.twig`)
-    - `sw_import_export_view_profile_profiles_listing_column_label` (`sw-import-export-view-profiles.html.twig`)
-    - `sw_import_export_language_switch` (`sw-import-export.html.twig`)
-
-## ApiClient confidential flag
-
-* You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.
-* You must pass the `confidential` parameter as the third parameter of the constructor.
-* You must pass the `name` parameter as the fourth parameter of the constructor.
-
-## Removed configuration of Filesystem visibility in config array
-
-The visibility of filesystems cannot be configured in the config array anymore. Instead, it should be set on the same level as `type`. For example, instead of:
-
-```yaml
-filesystems:
-  my_filesystem:
-    type: local
-    config:
-      visibility: public
-```
-
-You should now use:
-
-```yaml
-filesystems:
-  my_filesystem:
-    type: local
-    visibility: public
-```
-
-## Storefront
-
-### Deprecated DomAccess Helper
-
-We deprecated DomAccess Helper, because it does not add much value compared to native browser APIs and to reduce Shopware specific code complexity. You simply replace its usage with the corresponding native methods. Here are some RegEx to help you:
-
-#### hasAttribute()
-
-**RegEx**: `DomAccess\.hasAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
-**Replacement**: `$1.hasAttribute($2)`
-
-#### getAttribute()
-
-**RegEx**: `DomAccess\.getAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
-**Replacement**: `$1.getAttribute($2)`
-
-#### getDataAttribute()
-
-**RegEx**: `DomAccess\.getDataAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
-**Replacement**: `$1.getAttribute($2)`
-
-#### querySelector()
-
-**RegEx**: ``DomAccess\.querySelector\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``
-**Replacement**: `$1.querySelector($2)`
-
-#### querySelectorAll()
-
-**RegEx**: ``DomAccess\.querySelectorAll\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``
-**Replacement**: `$1.querySelectorAll($2)`
-
-#### getFocusableElements()
-
-This method was moved to FocusHandler Helper. Use this instead.
-
-```JavaScript
-const focusableElements = window.focusHandler.getFocusableElements();
-```
-
-#### getFirstFocusableElement()
-
-This method was moved to FocusHandler Helper. Use this instead.
-
-```JavaScript
-const firstFocusableEl = window.focusHandler.getFirstFocusableElement();
-```
-
-#### getLastFocusableElement()
-
-This method was moved to FocusHandler Helper. Use this instead.
-
-```JavaScript
-const lastFocusableEl = window.focusHandler.getLastFocusableElement();
-```
-
-### Remove route `widgets.account.order.detail`
-
-Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
-
-### Removed `@Storefront/storefront/component/checkout/cart-alerts.html.twig`
-
-Remove all references to `@Storefront/storefront/component/checkout/cart-alerts.html.twig` and use `@Storefront/storefront/utilities/alert.html.twig` instead.
-
-**NOTE:** All the breaking changes described here can be already opted in by activating the `v6.8.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
-
-# Changed Functionality
-
-<details></details>
-
-# API
-
-# Core
-
-<details>
 
 ## Removal of `StoreApiRouteCacheKeyEvent` and `StoreApiRouteCacheTagsEvent` and all it's child classes
 
@@ -436,13 +123,13 @@ It allows filtering of `RuleIdAware` objects in either arrays or collections.
 Currently, there are multiple order deliveries and multiple order transactions per order. If only one, the "primary", order delivery and order transaction is displayed and used in the administration, there is now an easy way in version 6.8 using the `primaryOrderDelivery` and `primaryOrderTransaction`. All existing orders will be updated with a migration so that they also have the primary values.
 From now on, the `OrderTransactionStatusRule::match` will always use the `primaryOrderTransaction` instead of the most recently successful transaction.
 
-## Use `primaryOrderDelivery`
+### Use `primaryOrderDelivery`
 
-Get the first order delivery with `primaryOrderDelivery` so you should replace methods like `deliveries.first()` or `deliveries[0]`
+Get the first order delivery with `order.primaryOrderDelivery` so you should replace methods like `order.deliveries.first()` or `order.deliveries[0]`
 
-## Use `primaryOrderTransaction`
+### Use `primaryOrderTransaction`
 
-Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
+Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
 ## Only rules relevant for product prices are considered in the `sw-cache-hash`
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
@@ -475,15 +162,183 @@ The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas
 * For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.
 * Changed twig filter `encodeMediaUrl` in `Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php` will now return the URL in its already encoded form and is basically the same as `$media->getUrl()` with some extra checks.
 
+## Removal of properties in `ResolveRemoteThumbnailUrlExtension`
+
+The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` were removed. Set the values directly into the `mediaEntity` property.
+
 ## Improved fetching of language information for SalesChannelContext
 
 The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` now uses the language repository directly to fetch language information.
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
-which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object.
+which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object. 
 
-## Changed Imitate Customer logic to JWT tokens
-The `Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator` has been refactored to use JWT tokens for imitating customers instead of a custom solution.
-Previous additional request parameters are not required anymore and part of the token.
+## Removal of `ZugferdDocument::getPrice()`
+The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` was removed, replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
+## Removed `TaskScheduler::getNextExecutionTime()`
+The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler::getNextExecutionTime()` method was not used anymore and was removed.
+
+## SnippetValidator
+The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only. Use on own risk as it may change without prior notice.
+
+## Removal of `EntityDefinition` constructor
+
+The constructor of the `EntityDefinition` has been removed, therefore the call of child classes to it need to be removed as well, i.e:
+```diff
+ <?php declare(strict_types=1);
+
+ namespace MyCustomEntity\Content\Entity;
+
+ use Shopware\Core\Content\Media\MediaDefinition;
+ use Shopware\Core\Content\Product\ProductDefinition;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+
+ class MyCustomEntity extends EntityDefinition
+ {
+     // snip
+
+     public function __construct(private readonly array $meta = [])
+     {
+-        parent::__construct();
+         // ...
+     }
+
+     // snip
+ }
+```
+
+## Updated By Field is cleared on API updates
+
+Now the `UpdatedBy` field will be cleared when an object is updated via the API.
+This change ensures that the `UpdatedBy` field reflects the user who last modified the object through the API, rather than retaining the previous value.
+
+## Remove FK delete exception handler
+
+All foreign key checks are now handled directly by the DAL, therefore the following exception handler did not any effect anymore and are removed:
+* `OrderExceptionHandler`
+* `NewsletterExceptionHandler`
+* `LanguageExceptionHandler`
+* `SalesChannelExceptionHandler`
+* `ThemeExceptionHandler`
+  This also means that the following exceptions are not thrown anymore and were removed as well:
+* `LanguageOfOrderDeleteException`
+* `LanguageOfNewsletterDeleteException`
+* `LanguageForeignKeyDeleteException`
+* `ThemeException::themeMediaStillInUse`
+* `SalesChannelException::salesChannelDomainInUse`
+
+## Removal of `CartBehavior::isRecalculation`
+
+`CartBehavior::isRecalculation` was removed.
+Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
+Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
+
+## Removal of `NavigationRoute::buildName()`
+
+The method `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute::buildName()` was removed, navigation routes are now only tagged with `NavigationRoute::ALL`.
+
+## Remove method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
+
+The method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was removed as it's no longer used because it only returns the first entity found, which can lead to inconsistencies when multiple items share the same entity and identifier.
+A new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` was introduced which returns all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
+If you use the method `get` in your code, you have to use the `getAll` method instead.
+
+Before
+
+```php
+$url = 'https://example.com/cross-selling/product-123';
+// Only a single entity is retrieved
+$entity = $data->get($definition, $url->getForeignKey());
+$seoUrls = $entity->getSeoUrls();
+$seoUrls->add($url);
+```
+
+After
+
+```php
+$url = 'https://example.com/cross-selling/product-123';
+$entities = $data->getAll($definition, $url->getForeignKey());
+
+// Now you have to loop through all entities to add the SEO URL
+foreach ($entities as $entity) {
+    $seoUrls = $entity->getSeoUrls();
+    $seoUrls->add($url);
+}
+```
+
+## Removed translation of import/export profile label
+
+The translation of the import/export profile label has been removed.  
+Profiles are now identified and displayed only by their technical name.
+- The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
+  - `getLabel()`
+  - `setLabel()`
+  - `getTranslations()`
+  - `setTranslations()`
+- The following classes have been removed:
+  - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
+  - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
+  - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
+- `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
+- `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
+
+## ApiClient confidential flag
+
+* You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.
+* You must pass the `confidential` parameter as the third parameter of the constructor.
+* You must pass the `name` parameter as the fourth parameter of the constructor.
+
+## Removed SystemConfig exceptions
+
+The exceptions
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`,
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
+were removed.
+Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
+
+## Deprecated SystemConfigService tracing methods
+
+The methods `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` and `\Shopware\Core\System\SystemConfig\SystemConfigService::getTrace()` were removed.
+The tracing is not needed anymore since the cache rework for 6.7.0.0.
+
+## Filterable price definitions now require an explicit interface
+
+Previously, a price definition was treated as filterable when it implemented a `getFilter()` method. From now on, price definitions must explicitly implement the
+`Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
+
+## Symfony validator is not used to validate the honeypot captcha
+
+The Symfony validator is not used to check the validity of the honeypot captcha, so if it was used to change the validity of the honeypot captcha, overwrite the `isValid` method of the honeypot captcha directly.
+
+## `CmsPageLoadedEvent::$result` now requires `CmsPageCollection` type
+
+The `$result` property of `Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent` now enforces the `Shopware\Core\Content\Cms\CmsPageCollection` type instead of the generic `Shopware\Core\Framework\DataAbstractionLayer\EntityCollection`.
+
+The event constructor now requires `CmsPageCollection` explicitly, and `CmsPageLoadedEvent::getResult()` return type has changed from `EntityCollection` to `CmsPageCollection`.
+
+## Removal of `\Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper`
+
+Refection has significantly improved in particular since PHP 8.1, therefore the `Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper` was removed, see below for the explicit replacements:
+
+```diff
+- $property = ReflectionHelper->getProperty(MyClass::class, 'myProperty');
++ $property = \ReflectionProperty(MyClass::class, 'myProperty');
+```
+
+```diff
+- $method = ReflectionHelper->getMethod(MyClass::class, 'myMethod');
++ $method = \ReflectionMethod(MyClass::class, 'myMethod');
+```
+
+```diff
+- $propertyValue = ReflectionHelper->getPropertyValue($object, 'myProperty');
++ $propertyValue = \ReflectionProperty(MyClass::class, 'myProperty')->getValue($object);
+```
+
+```diff
+- $fileName = ReflectionHelper->getFileName(MyClass::class);
++ $fileName = \ReflectionClass(MyClass::class)->getFileName();
+```
 
 </details>
 
@@ -491,6 +346,33 @@ Previous additional request parameters are not required anymore and part of the 
 
 <details>
 
+## Removal of "sw-empty-state"
+* The old `sw-empty-state` component will be removed in the next major version. Please use the new `mt-empty-state` component instead.
+
+Before:
+```html
+<sw-empty-state title="short title" subline="longer subline" />
+```
+After:
+```html
+<mt-empty-state title="short title" description="longer description"/>
+```
+
+## Removal of $tc function:
+
+* The `$tc` function will be completely removed
+* All translation calls should use `$t` instead
+
+## Removed translation of import/export profile label
+
+The translation of the import/export profile label has been removed.
+Profiles are now identified and displayed only by their technical name.
+
+- The following Twig blocks have been removed:
+  - `sw_import_export_edit_profile_general_container_name` (`sw-import-export-edit-profile-general.html.twig`)
+  - `sw_import_export_view_profile_profiles_listing_column_label` (`sw-import-export-view-profiles.html.twig`)
+  - `sw_import_export_language_switch` (`sw-import-export.html.twig`)
+  
 ## Removed admin notification entity + related classes
 
 You should update your code to reference the new classes:
@@ -523,6 +405,86 @@ The following snippet keys have been removed:
 # Storefront
 
 <details>
+
+## Deprecated DomAccess Helper
+
+We deprecated DomAccess Helper, because it does not add much value compared to native browser APIs and to reduce Shopware specific code complexity. You simply replace its usage with the corresponding native methods. Here are some RegEx to help you:
+
+### hasAttribute()
+
+**RegEx**: `DomAccess\.hasAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
+**Replacement**: `$1.hasAttribute($2)`
+
+### getAttribute()
+
+**RegEx**: `DomAccess\.getAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
+**Replacement**: `$1.getAttribute($2)`
+
+### getDataAttribute()
+
+**RegEx**: `DomAccess\.getDataAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
+**Replacement**: `$1.getAttribute($2)`
+
+### querySelector()
+
+**RegEx**: ``DomAccess\.querySelector\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``
+**Replacement**: `$1.querySelector($2)`
+
+### querySelectorAll()
+
+**RegEx**: ``DomAccess\.querySelectorAll\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``
+**Replacement**: `$1.querySelectorAll($2)`
+
+### getFocusableElements()
+
+This method was moved to FocusHandler Helper. Use this instead.
+
+```JavaScript
+const focusableElements = window.focusHandler.getFocusableElements();
+```
+
+### getFirstFocusableElement()
+
+This method was moved to FocusHandler Helper. Use this instead.
+
+```JavaScript
+const firstFocusableEl = window.focusHandler.getFirstFocusableElement();
+```
+
+### getLastFocusableElement()
+
+This method was moved to FocusHandler Helper. Use this instead.
+
+```JavaScript
+const lastFocusableEl = window.focusHandler.getLastFocusableElement();
+```
+
+## Remove route `widgets.account.order.detail`
+
+Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
+
+## Removed `@Storefront/storefront/component/checkout/cart-alerts.html.twig`
+
+Remove all references to `@Storefront/storefront/component/checkout/cart-alerts.html.twig` and use `@Storefront/storefront/utilities/alert.html.twig` instead.
+
+**NOTE:** All the breaking changes described here can be already opted in by activating the `v6.8.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
+
+## Removal of deprecated controller variables
+The following will be removed in Shopware 6.8.0:
+* Twig variables `controllerName` and `controllerAction`
+* CSS classes `is-ctl-*` and `is-act-*`
+* JavaScript window properties `window.controllerName` and `window.actionName`
+
+## Removal of `hasChildren` variable in `item-link.html.twig`
+
+The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates. In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
+
+## Refactor of providing cookies
+
+The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.
+Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to register new cookie groups and cookie entries.
+The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
+Use `name` and `description` instead.
 
 ## Removed theme.json translations
 
@@ -586,6 +548,34 @@ The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id
 The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are removed.
 Unused theme files are deleted by using the `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask` scheduled task.
 
+## Remove route `widgets.account.order.detail`:
+
+* Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
+
+### Removed `page_checkout_cart_add_product*` blocks from `@Storefront/storefront/page/checkout/cart/index.html.twig`
+
+The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are removed, use the new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` instead.
+
+Instead of overwriting any of the `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig`,
+extend the new `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` file using the same blocks.
+
+Change:
+```
+{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+
+{% block page_checkout_cart_add_product %}
+    {# Your content #}
+{% endblock %}
+```
+to:
+```
+{% sw_extends '@Storefront/storefront/component/checkout/add-product-by-number.html.twig' %}
+
+{% block page_checkout_cart_add_product %}
+    {# Your content #}
+{% endblock %}
+```
+
 </details>
 
 # App System
@@ -624,6 +614,33 @@ The `CountryStateController` route `/country/country-state-data` now supports on
 # Hosting & Configuration
 
 <details>
+
+## Removed configuration of Filesystem visibility in config array
+
+The visibility of filesystems cannot be configured in the config array anymore. Instead, it should be set on the same level as `type`. For example, instead of:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    config:
+      visibility: public
+```
+
+You should now use:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    visibility: public
+```
+
+## Snippet Validation command
+The command `snippets:validate` has been renamed to `translation:validate`.
+
+## Removal of `app:url-change:resolve` command alias
+Use `app:shop-id:change` instead of `app:url-change:resolve`
 
 ## Removed Store-API Route caching configuration
 

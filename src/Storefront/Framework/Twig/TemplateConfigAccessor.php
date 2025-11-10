@@ -8,6 +8,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 
 #[Package('framework')]
 class TemplateConfigAccessor
@@ -19,7 +20,8 @@ class TemplateConfigAccessor
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
         private readonly ThemeScripts $themeScripts,
-        private readonly TwigComponentRenderEventListener $twigComponentRenderEventListener
+        private readonly TwigComponentRenderEventListener $twigComponentRenderEventListener,
+        private readonly TwigComponentHelper $twigComponentHelper
     ) {
     }
 
@@ -97,6 +99,26 @@ class TemplateConfigAccessor
         }
 
         return $scripts;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function mountedComponentStyles(): array
+    {
+        $styles = [];
+        $mountedComponents = $this->twigComponentRenderEventListener->getMountedComponents();
+        $components = $this->twigComponentHelper->getComponents();
+
+        foreach($mountedComponents as $mountedComponentName) {
+            $component = $components->get($mountedComponentName);
+
+            if ($component !== null && $component->getStylePath() !== null) {
+                $styles[] = 'css/components/'.str_replace(':', '/', $mountedComponentName).'.css';
+            }
+        }
+
+        return $styles;
     }
 
     /**

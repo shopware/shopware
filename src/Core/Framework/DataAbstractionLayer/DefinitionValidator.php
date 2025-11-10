@@ -999,7 +999,7 @@ class DefinitionValidator
         // Check if they match
         if ($databasePrimaryKeys !== $definitionPkColumns) {
             $violations[] = \sprintf(
-                'Primary key mismatch in entity "%s": Database has PRIMARY KEY (%s), but entity definition has PrimaryKey flags on (%s). This causes entity hydration to fail silently. Ensure PrimaryKey flags match the database schema exactly.',
+                'Primary key mismatch in entity "%s": Table has PRIMARY KEY (%s), but entity definition has PrimaryKey flags on (%s). This causes entity hydration to fail silently. Ensure PrimaryKey flags match the database schema exactly.',
                 $definition->getEntityName(),
                 implode(', ', $databasePrimaryKeys),
                 implode(', ', $definitionPkColumns)

@@ -57,7 +57,6 @@ After:
 ## Removal of properties in `ResolveRemoteThumbnailUrlExtension`
 
 The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` were removed. Set the values directly into the `mediaEntity` property.
-
 ## Removal of `hasChildren` variable
 
 The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates. In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
@@ -121,11 +120,13 @@ The constructor of the `EntityDefinition` has been removed, therefore the call o
  class MyCustomEntity extends EntityDefinition
  {
      // snip
+
      public function __construct(private readonly array $meta = [])
      {
 -        parent::__construct();
          // ...
      }
+
      // snip
  }
 ```
@@ -611,7 +612,7 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
         'ids': [ mediaId ]
     } %}
 
-    {% return services.repository.search('media', criteria).first %}
+     {% return services.repository.search('media', criteria).first %}
 - {% endmacro %}
 + {% end_sw_macro_function %}
 

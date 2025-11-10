@@ -16,7 +16,7 @@ jobs:
       - id: sts
         if: ${{ !github.event.act }}
         continue-on-error: true
-        uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # 1.0.2
+        uses: octo-sts/action@d6c70ad3b9ac85df6da6b9749014d7283987cfec # 1.0.3
         with:
           scope: shopware
           identity: Reminder

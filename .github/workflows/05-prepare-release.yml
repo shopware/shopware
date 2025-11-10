@@ -36,7 +36,7 @@ jobs:
           coverage: none
           extensions: gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # 4
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # 4
         with:
           node-version: 22
 
@@ -44,7 +44,7 @@ jobs:
         run: |
           composer setup
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # 4
         with:
           name: context
           include-hidden-files: true
@@ -100,11 +100,11 @@ jobs:
       GIT_COMMITTER_NAME: "shopwareBot"
       DEBUG: ${{ github.event.act && '1' || '' }}
     steps:
-      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # 4
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # 4
         with:
           name: context
 
-      - uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # 1.0.2
+      - uses: octo-sts/action@d6c70ad3b9ac85df6da6b9749014d7283987cfec # 1.0.3
         id: sts-shopware-split
         with:
           scope: shopware

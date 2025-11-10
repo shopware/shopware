@@ -283,7 +283,7 @@ class SchemaUpdaterTest extends TestCase
         $schema = new Schema();
         $updater = new SchemaUpdater();
         $this->expectException(CustomEntityException::class);
-        $this->expectExceptionMessageMatches('/Reference table "custom_entity_right" not found/');
+        $this->expectExceptionMessageMatches('/Association reference table "custom_entity_right" not found/');
         $updater->applyCustomEntities($schema, $entities);
     }
 

@@ -406,6 +406,10 @@ The following snippet keys have been removed:
 
 <details>
 
+## Removal of hardcoded language flags
+
+Hardcoded CSS language flags in `src/Storefront/Resources/app/storefront/src/scss/component/_flags.scss` were removed.
+
 ## Deprecated DomAccess Helper
 
 We deprecated DomAccess Helper, because it does not add much value compared to native browser APIs and to reduce Shopware specific code complexity. You simply replace its usage with the corresponding native methods. Here are some RegEx to help you:

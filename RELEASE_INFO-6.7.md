@@ -57,12 +57,9 @@ Payment tokens are no longer deleted immediately after use. A new scheduled task
 
 ## Storefront
 
-### Language selector will display language with territory instead of flags
+### Language selector twig blocks
+New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added to the language selector to allow custom flag implementations.
 
-The language selector in the storefront will display the language name with its territory in the dropdown menu (e.g. "Deutsch (Deutschland)", "English (United Kingdom)") from the next major version on.
-The CSS for flag icons is deprecated and will then be removed.
-
-New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added to allow custom flag implementations.
 ### Added specific `add-product-by-number` template
 
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.

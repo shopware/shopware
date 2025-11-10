@@ -3,6 +3,12 @@
  */
 import { mount } from '@vue/test-utils';
 
+Shopware.Utils.debounce = function debounce(fn) {
+    return function execFunction(...args) {
+        fn.apply(this, args);
+    };
+};
+
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal-mapping', () => {
     let wrapper;
 
@@ -374,5 +380,39 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         ];
 
         expect(actualEventData).toEqual(expectedEventData);
+    });
+
+    it('should filter mappings when searching', async () => {
+        wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
+
+        let visibleMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(visibleMappings).toHaveLength(3);
+
+        const searchInput = wrapper.find('.sw-simple-search-field input');
+        await searchInput.setValue('product');
+
+        visibleMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(visibleMappings).toHaveLength(1);
+
+        const visibleKey = visibleMappings[0].find('sw-import-export-entity-path-select-stub').attributes('value');
+        expect(visibleKey).toBe('productNumber');
+    });
+
+    it('should show all mappings again when clearing search', async () => {
+        wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
+
+        const searchInput = wrapper.find('.sw-simple-search-field input');
+
+        await searchInput.setValue('product');
+
+        let visibleMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(visibleMappings).toHaveLength(1);
+
+        await searchInput.setValue('');
+
+        visibleMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(visibleMappings).toHaveLength(3);
     });
 });

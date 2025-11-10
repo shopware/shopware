@@ -1,6 +1,55 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.4.0
+*  [#12145 - Add custom action in media sidebar](./changelog/release-6-7-4-0/2025-09-03-add-custom-action-in-media-sidebar.md)
+*  [#12165 - Fix vite bundling for Symfony bundles](./changelog/release-6-7-4-0/2025-10-22-fix-vite-bundling-for-symfony-bundles.md)
+*  [#12233 - Allow granular inheritance for slot_config overrides](./changelog/release-6-7-4-0/2025-09-17-allow-granular-inheritance-for-slot_config-overrides.md)
+*  [#12349 - Fix plugin config default values](./changelog/release-6-7-4-0/2025-10-08-fix-plugin-config-default-values.md)
+*  [#12498 - Update health check API](./changelog/release-6-7-4-0/2025-10-15-update-health-check-api.md)
+*  [#12672 - Improve error output of app loader in CI environment](./changelog/release-6-7-4-0/2025-09-24-improve-error-output-of-app-loader.md)
+*  [#12723 - Remove not needed shipping detail admin SCSS](./changelog/release-6-7-4-0/2025-09-27-remove-not-needed-shipping-detail-admin-scss.md) @aragon999
+*  [#12724 - Properly define the padding of the admin modal](./changelog/release-6-7-4-0/2025-09-27-properly-define-the-padding-of-the-admin-modal.md) @aragon999
+*  [#12755 - Do not use the Symfony validator to validate the honeypot captcha](./changelog/release-6-7-4-0/2025-10-14-do-not-use-the-symfony-validator-to-validate-the-honeypot-captcha.md) @aragon999
+*  [#12756 - Fix Cache Cookie Handling to prevent cache poisoning](./changelog/release-6-7-4-0/2025-10-14-fix-cache-cookie-handling.md)
+*  [#12808 - Add gitignore when creating a plugin](./changelog/release-6-7-4-0/2025-10-02-add-gitignore-when-creating-plugin.md) @wannevancamp
+*  [#12832 - Fix deletion and sorting of log events listing in the administration](./changelog/release-6-7-4-0/2025-10-06-fix-log-event-listing.md)
+*  [#12833 - Fix proper display of the administrator switch in the user create](./changelog/release-6-7-4-0/2025-10-04-fix-proper-display-of-the-administrator-switch-in-the-user-create.md) @wannevancamp
+*  [#12834 - Fix media search navigation](./changelog/release-6-7-4-0/2025-08-20-fix-media-search-navigation.md)
+*  [#12835 - Replace latest sw-switch-field component with bool input](./changelog/release-6-7-4-0/2025-10-04-replace-latest-sw-switch-field-component-with-bool-input.md) @wannevancamp
+*  [#12836 - Fix SalesChannelContext::state to reset to previous state](./changelog/release-6-7-4-0/2025-10-05-fix-sales-channel-context-stateful-change.md) @JoshuaBehrens
+*  [#12837 - Add more Twig blocks to product box to reduce amount of code to be copied over](./changelog/release-6-7-4-0/2025-10-05-add-blocks-to-reduce-code-you-need-to-copy.md) @JoshuaBehrens
+*  [#12839 - Add option for FormAutoSubmit to trigger form validation](./changelog/release-6-7-4-0/2025-10-05-form-auto-submit-with-validation.md) @JoshuaBehrens
+*  [#12865 - Add aria-label to CMS image link](./changelog/release-6-7-4-0/2025-10-06-add-aria-label-to-cms-image-link.md) @lacknere
+*  [#12869 - Improve shipping and payment cart blocking errors](./changelog/release-6-7-4-0/2025-10-06-improve-shipping-and-payment-cart-blocking-errors.md) @gecolay
+*  [#12892 - Improved error handling when a sales channel cannot be deleted because it is still assigned to other entities](./changelog/release-6-7-4-0/2025-10-08-improved-error-handling-when-a-sales-channel-cannot-be-deleted-because-it-is-still-assigned-to-other-entities.md)
+*  [#12925 - Add product available sorting criteria option](./changelog/release-6-7-4-0/2025-10-08-add-product-available-sorting-criteria-option.md) @lacknere
+*  [#12932 - Only consider filterable discount packages](./changelog/release-6-7-4-0/2025-10-08-only-consider-filterable-discount-packages.md) @aragon999
+*  [#12947 - Improve SCSS color validation](./changelog/release-6-7-4-0/2025-10-14-improve-scss-color-validation.md)
+*  [#12986 - Fix sidebar width persistence issue when collapsed through button](./changelog/release-6-7-4-0/2025-10-13-fix-sidebar-width-persistence.md)
+*  [#13007 - Add message queue message size limit config option](./changelog/release-6-7-4-0/2025-10-14-add-message-queue-message-size-limit-config-option.md) @gecolay
+*  [#13011 - Add admin notification transformers](./changelog/release-6-7-4-0/2025-10-15-add-admin-notification-transformers.md)
+*  [#13070 - Add possibility to set `fetchpriority="high"` on cms image elements](./changelog/release-6-7-4-0/2025-10-17-add-possibility-to-set-fetchpriority-high-on-cms-image-elements.md) @aragon999
+*  [#13082 - Add events when fetching entities for the sitemap](./changelog/release-6-7-4-0/2025-10-20-add-events-when-fetching-entities-for-the-sitemap.md) @aragon999
+*  [#13087 - Fix IAP decoding with old OpenSSL versions](./changelog/release-6-7-4-0/2025-10-20-fix-iap-decoding-with-old-openssl-versions.md)
+*  [#13091 - Replace `$result` type with native `CmsPageCollection` type in the `CmsPageLoadedEvent`](./changelog/release-6-7-4-0/2025-10-20-replace-result-type-with-native-cmspagecollection-type-in-the-cmspageloadedevent.md) @aragon999
+*  [#13094 - Fixed 3D light intensity](./changelog/release-6-7-4-0/2025-10-22-fixed-3d-light-intensity.md)
+*  [#13146 - Fix webhook cleanup for queued webhook event logs](./changelog/release-6-7-4-0/2025-10-23-fix-webhook-cleanup-for-queued-messages.md)
+*  [#13156 - Fix flaky storefront test for active route parameters](./changelog/release-6-7-4-0/2025-01-31-fix-flaky-storefront-test-active-route-parameters.md)
+*  [#13161 - Respect the `COMPOSER_PLUGIN_LOADER` environment variable in the `bin/shopware` cli command](./changelog/release-6-7-4-0/2025-10-23-respect-the-composer_plugin_loader-environment-variable-in-the-bin-shopware-cli-command.md) @aragon999
+*  [#13177 - Only display last search index date](./changelog/release-6-7-4-0/2025-10-24-only-display-last-search-index-date.md)
+*  [12292 - Fix issue with loading seo url preview](./changelog/release-6-7-4-0/2025-10-09-fix-issue-with-loading-seo-url-preview.md)
+*  [12411 - Load product streams over opensearch](./changelog/release-6-7-4-0/2025-09-15-load-product-streams-over-opensearch.md)
+*  [12783 - Search result should include products when parent product number matches](./changelog/release-6-7-4-0/2025-10-01-search-result-should-include-products-when-parent-product-number-matches.md)
+*  [12805 - Clearance sale (stock handling) is ignored as soon as a product is in the cart](./changelog/release-6-7-4-0/2025-10-09-clearance-sale-stock-handling-is-ignored-as-soon-as-a-product-is-in-the-cart.md)
+*  [13127 - Fix cookie offcanvas link not working when opened from navigation offcanvas](./changelog/release-6-7-4-0/2025-10-23-fix-cookie-offcanvas-link-from-navigation.md)
+*  [4307 - Fix Google Consent Mode v2 default and update implementation](./changelog/release-6-7-4-0/2025-10-23-fix-google-consent-mode-v2-default-update.md)
+*  [9451 - Google reCAPTCHA loading only if cookie accepted](./changelog/release-6-7-4-0/2025-05-26-google-recaptcha-loading-only-if-cookie-accepted.md)
+*  [9451 - Interactive offcanvas cookies](./changelog/release-6-7-4-0/2025-09-25-interactive-offcanvas-cookies.md)
+*  [https://github.com/shopware/shopware/issues/12823 - Fix session locking during kernel reboot on plugin state change](./changelog/release-6-7-4-0/2025-10-21-fix-session-locking-during-kernel-reboot-on-plugin-state-change.md)
+*  [https://github.com/shopware/shopware/issues/6409 - Separate Vimeo and YouTube cookie consent](./changelog/release-6-7-4-0/2025-10-21-separate-vimeo-youtube-cookies.md)
+*  [https://github.com/shopware/shopware/pull/13079 - Fix CacheClearer global locking](./changelog/release-6-7-4-0/2025-10-21-fix-cacheclearer-global-locking.md)
+
 ## 6.7.3.1
 *  [GHSA-m895-2hj3-8cg9](https://github.com/shopware/shopware/security/advisories/GHSA-m895-2hj3-8cg9) - fix: Reading media entities by aggregating fields individually bypasses MediaVisibilityRestrictionSubscriber
 *  [GHSA-27c9-vp3w-6ww8](https://github.com/shopware/shopware/security/advisories/GHSA-27c9-vp3w-6ww8) - fix: Exposure of sensitive user information via CSV export mapping

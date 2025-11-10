@@ -139,7 +139,7 @@ class Translator extends AbstractTranslator
 
     public static function tag(?string $id): string
     {
-        return \sprintf('translator-%s', $id);
+        return \sprintf('translator-%s', (string) $id);
     }
 
     /**

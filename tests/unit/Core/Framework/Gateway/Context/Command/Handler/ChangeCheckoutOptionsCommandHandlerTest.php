@@ -33,7 +33,7 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
 
         $shippingMethodResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'shippingMethodId', 'data' => []]],
+            ['shippingMethodId' => ['primaryKey' => 'shippingMethodId', 'data' => []]],
             $expectedCriteria,
             $context->getContext()
         );
@@ -93,7 +93,7 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
 
         $paymentMethodResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'paymentMethodId', 'data' => []]],
+            ['paymentMethodId' => ['primaryKey' => 'paymentMethodId', 'data' => []]],
             $expectedCriteria,
             $context->getContext()
         );

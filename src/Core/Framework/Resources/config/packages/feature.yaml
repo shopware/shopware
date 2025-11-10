@@ -61,3 +61,8 @@ shopware:
         major: true
         toggleable: true
         description: "Enable new Storefront component system."
+      - name: REPEATED_PAYMENT_FINALIZE
+        default: false
+        major: true
+        toggleable: true
+        description: "This allows repeated calls to the /payment/finalize-transaction endpoint with the same token without throwing a 'token expired' exception."

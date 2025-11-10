@@ -1,3 +1,4 @@
+import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 
@@ -98,6 +99,14 @@ export default {
             return Shopware.Store.get('actionButtons').buttons.filter((button) => {
                 return button.entity === 'media' && button.view === 'item';
             });
+        },
+
+        isPlayable() {
+            return isPlayableMediaFormat(this.item.mimeType);
+        },
+
+        showUnsupportedFormatWarning() {
+            return shouldShowUnsupportedFormatWarning(this.item.mimeType);
         },
     },
 

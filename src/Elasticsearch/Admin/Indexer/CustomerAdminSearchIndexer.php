@@ -83,7 +83,9 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             $ids = array_merge($customerIds, $event->getPrimaryKeys($this->getEntity()));
         }
 
-        $tags = $event->getPrimaryKeysWithPropertyChange(CustomerTagDefinition::ENTITY_NAME, [
+        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping definitions have multiple primary keys */
+        $multiplePrimaryKeyWrittenEvent = $event;
+        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(CustomerTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 

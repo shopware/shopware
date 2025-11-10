@@ -2,9 +2,12 @@
  * @sw-package discovery
  */
 
-import header from './header.xml.twig';
-import body from './body.xml.twig';
-import footer from './footer.xml.twig';
+// eslint-disable-next-line import/no-unresolved
+import header from './header.xml.twig?raw';
+// eslint-disable-next-line import/no-unresolved
+import body from './body.xml.twig?raw';
+// eslint-disable-next-line import/no-unresolved
+import footer from './footer.xml.twig?raw';
 
 Shopware.Service('exportTemplateService').registerProductExportTemplate({
     name: 'google-product-search-de',

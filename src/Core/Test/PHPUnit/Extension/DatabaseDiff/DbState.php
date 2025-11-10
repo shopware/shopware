@@ -31,7 +31,7 @@ class DbState
 
         $stateResult = [];
         foreach ($tables as $nested) {
-            $tableName = (string) end($nested);
+            $tableName = (string) array_last($nested);
 
             $count = $this->connection->fetchOne('SELECT COUNT(*) FROM `' . $tableName . '`');
 

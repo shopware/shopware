@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -112,7 +111,7 @@ class ThemeCompilerTest extends TestCase
             'sw-border-color' => '#bcc1c7',
         ];
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'formatVariables')->invoke($this->themeCompiler, $variables);
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'formatVariables'))->invoke($this->themeCompiler, $variables);
 
         $expected = [
             '$sw-color-brand-primary: #008490;',
@@ -199,7 +198,7 @@ class ThemeCompilerTest extends TestCase
             ],
         ];
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
             $this->themeCompiler,
             $mockConfig,
             'themeId',
@@ -252,7 +251,7 @@ PHP_EOL;
             ],
         ];
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
             $this->themeCompiler,
             $mockConfig,
             'themeId',
@@ -293,7 +292,7 @@ PHP_EOL;
             ],
         ];
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
             $this->themeCompiler,
             $mockConfig,
             'themeId',
@@ -334,7 +333,7 @@ $sw-asset-theme-url: \'http://localhost\';
             ],
         ];
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
             $this->themeCompiler,
             $mockConfig,
             'themeId',
@@ -548,7 +547,7 @@ PHP_EOL;
         $sysConfService->set('SimplePlugin.config.simplePluginBackgroundcolor', '#fff');
         $sysConfService->set('SwagNoThemeCustomCss.config.noThemeCustomCssBackGroundcolor', '#aaa');
 
-        $compileStyles = ReflectionHelper::getMethod(ThemeCompiler::class, 'compileStyles');
+        $compileStyles = new \ReflectionMethod(ThemeCompiler::class, 'compileStyles');
         try {
             $actual = $compileStyles->invoke(
                 $this->themeCompiler,
@@ -622,7 +621,7 @@ Example:
 }
 PHP_EOL;
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'compileStyles')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'compileStyles'))->invoke(
             $this->themeCompiler,
             $featureMixin . $testScss,
             new StorefrontPluginConfiguration('test'),
@@ -659,7 +658,7 @@ PHP_EOL;
 }
 PHP_EOL;
 
-        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'compileStyles')->invoke(
+        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'compileStyles'))->invoke(
             $this->themeCompiler,
             $testScss,
             new StorefrontPluginConfiguration('test'),

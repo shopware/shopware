@@ -87,7 +87,7 @@ class CurrencyRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: string, 2: list<string>}>
+     * @return iterable<string, array{0: string, 1: string, 2: list<string>}>
      */
     public static function matchCurrencyRuleDataProvider(): iterable
     {
@@ -129,7 +129,7 @@ class CurrencyRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: string, 2: list<string>}>
+     * @return iterable<string, array{0: string, 1: string, 2: list<string>}>
      */
     public static function noMatchCurrencyRuleDataProvider(): iterable
     {

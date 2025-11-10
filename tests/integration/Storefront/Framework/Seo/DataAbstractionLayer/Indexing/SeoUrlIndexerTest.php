@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
@@ -648,12 +649,11 @@ class SeoUrlIndexerTest extends TestCase
 
     public function testIndexWithEmptySeoUrlTemplate(): void
     {
+        /** @var EntityRepository<SeoUrlTemplateCollection> $templateRepository */
         $templateRepository = static::getContainer()->get('seo_url_template.repository');
 
-        /** @var string[] $ids */
         $ids = $templateRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
-        /** @var TemplateCollection $templates */
         $templates = $templateRepository->search(new Criteria($ids), Context::createDefaultContext())->getEntities();
 
         foreach ($templates as $template) {

@@ -27,7 +27,6 @@ use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
@@ -160,7 +159,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
 
         /** @var MigrationSource $migrationSource */
-        $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');
+        $migrationSource = (new \ReflectionProperty(MigrationCollection::class, 'migrationSource'))->getValue($migrationCollection);
 
         $dbMigrations = $connection
             ->fetchAllAssociative(

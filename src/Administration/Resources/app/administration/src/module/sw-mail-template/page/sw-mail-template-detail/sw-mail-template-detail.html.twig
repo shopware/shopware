@@ -1,6 +1,5 @@
 {% block sw_mail_template_detail %}
 <sw-page class="sw-mail-template-detail">
-
     {% block sw_mail_template_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="mailTemplate">
@@ -98,6 +97,7 @@
                     {% block sw_mail_template_basic_form_description_field %}
                     <mt-textarea
                         v-model="mailTemplate.description"
+                        class="sw-mail-template-detail__description-field"
                         name="sw-field--mailTemplate-description"
                         :label="$tc('sw-mail-template.detail.basic.labelDescription')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
@@ -118,11 +118,10 @@
                         class="sw-mail-template-detail-options__container"
                     >
                         <div class="sw-mail-template-detail__options-info-wrapper">
-
                             {% block sw_mail_template_options_form_subject_field %}
-
                             <mt-text-field
                                 v-model="mailTemplate.subject"
+                                class="sw-mail-template-detail__subject-field"
                                 name="sw-field--mailTemplate-subject"
                                 required
                                 :label="$tc('sw-mail-template.detail.options.labelSubject')"
@@ -134,9 +133,9 @@
                         </div>
 
                         {% block sw_mail_template_options_form_sender_name_field %}
-
                         <mt-text-field
                             v-model="mailTemplate.senderName"
+                            class="sw-mail-template-detail__sender-name-field"
                             name="sw-field--mailTemplate-senderName"
                             :label="$tc('sw-mail-template.detail.options.labelSenderName')"
                             :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
@@ -211,15 +210,14 @@
 
                         <template #bulk>
                             {% block sw_mail_template_detail_attachments_info_grid_bulk %}
-                            <a
-                                class="link link-danger"
-                                role="link"
-                                tabindex="0"
+                            <mt-link
+                                as="button"
+                                variant="critical"
                                 @click="onDeleteSelectedMedia"
                                 @keydown.enter="onDeleteSelectedMedia"
                             >
                                 {{ $tc('global.default.delete') }}
-                            </a>
+                            </mt-link>
                             {% endblock %}
                         </template>
                     </sw-data-grid>
@@ -237,6 +235,7 @@
                         ref="plainEditor"
                         :key="`${mailTemplate.mailTemplateTypeId}plain`"
                         v-model:value="mailTemplate.contentPlain"
+                        class="sw-mail-template-detail__plain-editor"
                         name="content_plain"
                         completion-mode="entity"
                         :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
@@ -254,6 +253,7 @@
                         ref="htmlEditor"
                         :key="`${mailTemplate.mailTemplateTypeId}html`"
                         v-model:value="mailTemplate.contentHtml"
+                        class="sw-mail-template-detail__html-editor"
                         name="content_html"
                         completion-mode="entity"
                         :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
@@ -384,7 +384,7 @@
                         >
                             {% block sw_mail_template_available_variables_tree_items_item %}
                             <sw-tree-item
-                                v-for="(item, index) in treeItems"
+                                v-for="(item) in treeItems"
                                 :key="item.id"
                                 :item="item"
                                 :disable-context-menu="disableContextMenu"
@@ -449,7 +449,6 @@
                 </template>
             </sw-sidebar-media-item>
             {% endblock %}
-
             {% endblock %}
         </sw-sidebar>
     </template>

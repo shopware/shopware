@@ -77,6 +77,13 @@ class EntityRepository
         return Profiler::trace($criteria->getTitle(), fn () => $this->_aggregate($criteria, $context), 'repository');
     }
 
+    /**
+     * @template IDStructure of string|array<string, string> = string
+     *
+     * @param Criteria<IDStructure> $criteria
+     *
+     * @return IdSearchResult<IDStructure>
+     */
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         if (!$criteria->getTitle()) {

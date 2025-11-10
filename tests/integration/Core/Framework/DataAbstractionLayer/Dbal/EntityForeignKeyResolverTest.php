@@ -91,6 +91,7 @@ class EntityForeignKeyResolverTest extends TestCase
         $deletedProduct = $deletedEvent->getPrimaryKeys('product');
         $deletedCategories = $deletedEvent->getDeletedPrimaryKeys('category');
         $deletedCategoriesRo = $deletedEvent->getPrimaryKeys('product_category_tree');
+        static::assertContainsOnlyArray($deletedCategoriesRo);
 
         static::assertSame($productId, $deletedProduct[0]);
         static::assertEmpty($deletedCategories, print_r($deletedCategories, true));

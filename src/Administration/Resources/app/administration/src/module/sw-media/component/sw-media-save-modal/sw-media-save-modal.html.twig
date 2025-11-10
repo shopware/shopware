@@ -1,0 +1,79 @@
+{% block sw_media_modal_v2 %}
+<sw-modal
+    ref="swMediaModal"
+    class="sw-media-save-modal"
+    variant="full"
+    :title="$tc('sw-media.sw-media-save-modal.titleModal')"
+    :closable="!isLoading"
+    @modal-close="onEmitModalClosed"
+>
+    {% block sw_media_save_modal_content %}
+    <div class="sw-media-save-modal__content">
+        {% block sw_media_save_modal_navigation_and_search %}
+        <div class="sw-media-save-modal__breadcrumbs-and-search">
+
+            {% block sw_media_save_modal_folder_breadcrumbs %}
+            <sw-media-breadcrumbs
+                v-model:current-folder-id="folderId"
+                :small="compact"
+                :disabled="isLoading"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_media_save_modal_media_library %}
+        <sw-media-library
+            ref="mediaLibrary"
+            :selection="[]"
+            :folder-id="folderId"
+            :compact="compact"
+            :disabled="isLoading"
+            allow-create-folder
+            :allow-multi-select="false"
+            @media-folder-change="folderId = $event"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_media_save_modal_modal_footer %}
+    <template #modal-footer>
+        {% block sw_media_save_modal_input_file_name %}
+        <mt-text-field
+            v-model="fileName"
+            class="sw-media-save-modal__input-file-name"
+            size="small"
+            :disabled="isLoading"
+        >
+            <template #suffix>
+                .{{ fileType.toLowerCase() }}
+            </template>
+        </mt-text-field>
+        {% endblock %}
+
+        {% block sw_media_save_modal_button_cancel %}
+        <mt-button
+            variant="secondary"
+            class="sw-media-save-modal__button-cancel"
+            :disabled="isLoading"
+            @click="onEmitModalClosed"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_media_save_modal_button_save %}
+        <mt-button
+            variant="primary"
+            class="sw-media-save-modal__button-save"
+            :is-loading="isLoading"
+            @click="onSaveMedia"
+        >
+            {{ $tc('global.default.save') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

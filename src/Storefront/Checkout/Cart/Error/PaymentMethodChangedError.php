@@ -35,7 +35,7 @@ class PaymentMethodChangedError extends Error
             '%s payment is not available for your current cart, the payment was changed to %s. Reason: %s',
             $oldPaymentMethodName,
             $newPaymentMethodName,
-            $reason,
+            $reason ?? 'No reason provided.',
         );
 
         parent::__construct($this->message);
@@ -65,6 +65,8 @@ class PaymentMethodChangedError extends Error
     public function getId(): string
     {
         if (Feature::isActive('v6.8.0.0')) {
+            \assert($this->oldPaymentMethodId !== null && $this->newPaymentMethodId !== null);
+
             return \sprintf('%s-%s-%s', self::KEY, $this->oldPaymentMethodId, $this->newPaymentMethodId);
         }
 

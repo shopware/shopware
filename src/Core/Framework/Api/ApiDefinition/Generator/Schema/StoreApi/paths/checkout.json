@@ -105,6 +105,9 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
                     }
                 },
                 "security": [

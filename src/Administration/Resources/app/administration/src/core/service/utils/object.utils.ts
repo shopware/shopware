@@ -4,6 +4,8 @@ import objectCopy from 'lodash/cloneDeep';
 import objectGet from 'lodash/get';
 import objectSet from 'lodash/set';
 import objectPick from 'lodash/pick';
+import objectUnset from 'lodash/unset';
+import objectHas from 'lodash/has';
 import type from 'src/core/service/utils/types.utils';
 
 /**
@@ -23,6 +25,8 @@ export default {
     get: objectGet,
     set: objectSet,
     pick: objectPick,
+    unset: objectUnset,
+    has: objectHas,
 };
 
 /**
@@ -45,6 +49,12 @@ export const set = objectSet;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const pick = objectPick;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export const unset = objectUnset;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export const has = objectHas;
 
 /**
  * Shorthand method for `Object.prototype.hasOwnProperty`

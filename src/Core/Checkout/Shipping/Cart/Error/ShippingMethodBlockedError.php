@@ -31,7 +31,7 @@ class ShippingMethodBlockedError extends Error
         $this->message = \sprintf(
             'Shipping method %s not available. Reason: %s',
             $name,
-            $reason,
+            $reason ?? 'No reason provided.',
         );
 
         parent::__construct($this->message);
@@ -80,6 +80,8 @@ class ShippingMethodBlockedError extends Error
     public function getId(): string
     {
         if (Feature::isActive('v6.8.0.0')) {
+            \assert($this->id !== null);
+
             return \sprintf('%s-%s', self::KEY, $this->id);
         }
 

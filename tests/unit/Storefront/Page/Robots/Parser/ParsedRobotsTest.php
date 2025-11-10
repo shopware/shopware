@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 use Shopware\Storefront\Page\Robots\Parser\ParseIssue;
 use Shopware\Storefront\Page\Robots\Parser\ParseIssueSeverity;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
+use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 
 /**
  * @internal
@@ -14,6 +17,22 @@ use Shopware\Storefront\Page\Robots\Parser\ParseIssueSeverity;
 #[CoversClass(ParsedRobots::class)]
 class ParsedRobotsTest extends TestCase
 {
+    public function testHasUserAgentBlocks(): void
+    {
+        // Empty parsed result has no user agent blocks
+        $emptyParsed = new ParsedRobots([], [], []);
+        static::assertFalse($emptyParsed->hasUserAgentBlocks());
+
+        // Parsed result with user agent blocks
+        $userAgentBlocks = [
+            new RobotsUserAgentBlock('Googlebot', [
+                new RobotsDirective(RobotsDirectiveType::DISALLOW, '/admin/'),
+            ]),
+        ];
+        $parsedWithBlocks = new ParsedRobots($userAgentBlocks, [], []);
+        static::assertTrue($parsedWithBlocks->hasUserAgentBlocks());
+    }
+
     public function testIssueFiltering(): void
     {
         // Test with no issues

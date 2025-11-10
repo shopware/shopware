@@ -73,7 +73,7 @@ class CustomEntityException extends HttpException
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::CUSTOM_ENTITY_ASSOCIATION_REFERENCE_TABLE_NOT_FOUND,
+            self::ASSOCIATION_REFERENCE_TABLE_NOT_FOUND,
             'Association reference table "{{ referenceName }}" not found',
             ['referenceName' => $referenceName]
         );

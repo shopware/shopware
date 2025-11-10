@@ -25,10 +25,6 @@ class RouteNotBlockedValidator extends ConstraintValidator
             throw RoutingException::unexpectedType($constraint, RouteNotBlockedValidator::class);
         }
 
-        if ($value === null || $value === '') {
-            return;
-        }
-
         if (!\is_string($value)) {
             $this->context->buildViolation(RouteNotBlocked::INVALID_TYPE_MESSAGE)
                 ->addViolation();
@@ -43,8 +39,8 @@ class RouteNotBlockedValidator extends ConstraintValidator
         $normalizedPath = '/' . trim($value, '/');
 
         $this->context->buildViolation($constraint->getMessage())
-            ->setParameter('{{ path }}', $this->formatValue($value))
-            ->setParameter('{{ blockedSegment }}', $this->formatValue($normalizedPath))
+            ->setParameter('path', $this->formatValue($value))
+            ->setParameter('blockedSegment', $this->formatValue($normalizedPath))
             ->setCode(RouteNotBlocked::ROUTE_BLOCKED)
             ->addViolation();
     }

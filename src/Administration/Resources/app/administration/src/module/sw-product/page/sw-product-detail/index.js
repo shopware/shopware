@@ -1151,7 +1151,7 @@ export default {
                                     error.response.data.errors.forEach((apiError) => {
                                         const messageKey = `global.error-codes.${apiError.detail}`;
                                         const params = apiError.meta?.parameters || {};
-                                        const translated = this.$t(messageKey, 1, params);
+                                        const translated = this.$t(messageKey, params);
 
                                         const message =
                                             translated !== messageKey

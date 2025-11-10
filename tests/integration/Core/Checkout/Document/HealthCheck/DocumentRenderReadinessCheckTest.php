@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Storefront\Framework\HealthCheck;
+namespace Shopware\Tests\Integration\Core\Checkout\Document\HealthCheck;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Framework\SystemCheck\DocumentRenderReadinessCheck;
+use Shopware\Core\Checkout\Document\SystemCheck\DocumentRenderReadinessCheck;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 
 /**

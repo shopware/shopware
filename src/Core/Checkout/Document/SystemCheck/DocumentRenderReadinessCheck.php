@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Framework\SystemCheck;
+namespace Shopware\Core\Checkout\Document\SystemCheck;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
@@ -42,20 +42,10 @@ class DocumentRenderReadinessCheck extends BaseCheck
      * @param iterable<AbstractDocumentRenderer> $documentRenderers
      */
     public function __construct(
-        private readonly SalesChannelDomainUtil $util,
         private readonly Connection $connection,
         private readonly DocumentConfigLoader $documentConfigLoader,
         private readonly iterable $documentRenderers,
     ) {
-    }
-
-    public function run(): Result
-    {
-        return $this->util->runAsSalesChannelRequest(
-            fn () => $this->util->runWhileTrustingAllHosts(
-                fn () => $this->doRun()
-            )
-        );
     }
 
     public function category(): Category
@@ -73,12 +63,12 @@ class DocumentRenderReadinessCheck extends BaseCheck
         return SystemCheckExecutionContext::readiness();
     }
 
-    private function doRun(): Result
+    public function run(): Result
     {
         $orderCount = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM `order`');
 
         if ($orderCount === 0) {
-            return $this->util->createEmptyResult(
+            return $this->createEmptyResult(
                 $this->name(),
                 'No orders found; document previews are skipped.'
             );
@@ -93,11 +83,12 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
             if (!\in_array($documentType, self::TESTABLE_DOCUMENT_TYPES, true)) {
                 $result[Status::OK->name] = Status::OK;
-                $extra[] = [
-                    'documentType' => $documentType,
-                    'status' => Status::SKIPPED->name,
-                    'message' => 'This document type is not covered by this check.',
-                ];
+
+                $extra[] = $this->createExtraEntry(
+                    $documentType,
+                    Status::SKIPPED->name,
+                    'This document type is not covered by this check.',
+                );
                 continue;
             }
 
@@ -105,11 +96,12 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
             if ($orderData === null) {
                 $result[Status::OK->name] = Status::OK;
-                $extra[] = [
-                    'documentType' => $documentType,
-                    'status' => Status::SKIPPED->name,
-                    'message' => 'No order with document of this type found.',
-                ];
+
+                $extra[] = $this->createExtraEntry(
+                    $documentType,
+                    Status::SKIPPED->name,
+                    'No order with document of this type found.',
+                );
 
                 continue;
             }
@@ -117,11 +109,12 @@ class DocumentRenderReadinessCheck extends BaseCheck
             $fileTypes = $this->resolveFileTypes($documentType, $orderData['sales_channel_id'], $context);
             if (empty($fileTypes)) {
                 $result[Status::FAILURE->name] = Status::OK;
-                $extra[] = [
-                    'documentType' => $documentType,
-                    'status' => Status::SKIPPED->name,
-                    'message' => 'No file types configured for document type ' . $documentType . '; skipping.',
-                ];
+
+                $extra[] = $this->createExtraEntry(
+                    $documentType,
+                    Status::SKIPPED->name,
+                    'No file types configured for document type ' . $documentType . '; skipping.',
+                );
 
                 continue;
             }
@@ -148,43 +141,47 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
                     if ($error) {
                         $result[Status::FAILURE->name] = Status::FAILURE;
-                        $extra[] = [
-                            'documentType' => $documentType,
-                            'fileType' => $fileType,
-                            'status' => Status::FAILURE->name,
-                            'message' => 'Rendering failed with errors: ' . $error->getMessage(),
-                        ];
+
+                        $extra[] = $this->createExtraEntry(
+                            $documentType,
+                            Status::FAILURE->name,
+                            'Rendering failed with errors: ' . $error->getMessage(),
+                            $fileType,
+                        );
 
                         continue;
                     }
 
                     if ($success === null) {
                         $result[Status::FAILURE->name] = Status::FAILURE;
-                        $extra[] = [
-                            'documentType' => $documentType,
-                            'fileType' => $fileType,
-                            'status' => Status::FAILURE->name,
-                            'message' => 'Rendering failed without exception (no success result).',
-                        ];
+
+                        $extra[] = $this->createExtraEntry(
+                            $documentType,
+                            Status::FAILURE->name,
+                            'Rendering failed without exception (no success result).',
+                            $fileType,
+                        );
 
                         continue;
                     }
 
                     $result[Status::OK->name] = Status::OK;
-                    $extra[] = [
-                        'documentType' => $documentType,
-                        'fileType' => $fileType,
-                        'status' => Status::OK->name,
-                        'message' => 'Rendering successful.',
-                    ];
+
+                    $extra[] = $this->createExtraEntry(
+                        $documentType,
+                        Status::OK->name,
+                        'Rendering successful.',
+                        $fileType,
+                    );
                 } catch (\Throwable $e) {
                     $result[Status::FAILURE->name] = Status::FAILURE;
-                    $extra[] = [
-                        'documentType' => $documentType,
-                        'fileType' => $fileType,
-                        'status' => Status::FAILURE->name,
-                        'message' => 'Rendering failed with exception: ' . $e->getMessage(),
-                    ];
+
+                    $extra[] = $this->createExtraEntry(
+                        $documentType,
+                        Status::FAILURE->name,
+                        'Rendering failed with exception: ' . $e->getMessage(),
+                        $fileType,
+                    );
 
                     continue;
                 }
@@ -200,6 +197,28 @@ class DocumentRenderReadinessCheck extends BaseCheck
             $finalStatus === Status::OK,
             $extra
         );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function createExtraEntry(
+        string $documentType,
+        string $statusName,
+        string $message,
+        ?string $fileType = null
+    ):array {
+        $extraEntry = [
+            'documentType' => $documentType,
+            'status' => $statusName,
+            'message' => $message,
+        ];
+
+        if ($fileType !== null) {
+            $extraEntry['fileType'] = $fileType;
+        }
+
+        return $extraEntry;
     }
 
     /**
@@ -252,5 +271,19 @@ class DocumentRenderReadinessCheck extends BaseCheck
         return $this->documentConfigLoader
             ->load($documentType, $salesChannelId, $context)
             ->getFileTypes();
+    }
+
+    private function createEmptyResult(
+        string $name,
+        string $message
+    ): Result
+    {
+        return new Result(
+            $name,
+            Status::SKIPPED,
+            $message,
+            true,
+            []
+        );
     }
 }

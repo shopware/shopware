@@ -20,7 +20,6 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 
 /**
  * @internal
@@ -56,11 +55,6 @@ class DocumentRenderReadinessCheck extends BaseCheck
     public function name(): string
     {
         return 'DocumentRenderReadinessCheck';
-    }
-
-    protected function allowedSystemCheckExecutionContexts(): array
-    {
-        return SystemCheckExecutionContext::readiness();
     }
 
     public function run(): Result
@@ -199,6 +193,11 @@ class DocumentRenderReadinessCheck extends BaseCheck
         );
     }
 
+    protected function allowedSystemCheckExecutionContexts(): array
+    {
+        return SystemCheckExecutionContext::readiness();
+    }
+
     /**
      * @return array<string, string>
      */
@@ -207,7 +206,7 @@ class DocumentRenderReadinessCheck extends BaseCheck
         string $statusName,
         string $message,
         ?string $fileType = null
-    ):array {
+    ): array {
         $extraEntry = [
             'documentType' => $documentType,
             'status' => $statusName,
@@ -276,8 +275,7 @@ class DocumentRenderReadinessCheck extends BaseCheck
     private function createEmptyResult(
         string $name,
         string $message
-    ): Result
-    {
+    ): Result {
         return new Result(
             $name,
             Status::SKIPPED,

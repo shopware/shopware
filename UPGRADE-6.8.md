@@ -50,7 +50,7 @@ After:
 ## Removal of properties in `ResolveRemoteThumbnailUrlExtension`
 
 The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` were removed. Set the values directly into the `mediaEntity` property.
-## Removal of `hasChildren` variable 
+## Removal of `hasChildren` variable
 
 The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates. In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
 ## Removal of `$options` parameter in custom validator's constraints
@@ -113,13 +113,13 @@ The constructor of the `EntityDefinition` has been removed, therefore the call o
  class MyCustomEntity extends EntityDefinition
  {
      // snip
- 
+
      public function __construct(private readonly array $meta = [])
      {
 -        parent::__construct();
          // ...
      }
- 
+
      // snip
  }
 ```
@@ -180,7 +180,7 @@ $seoUrls->add($url);
 After
 
 ```php
-$url = 'https://example.com/cross-selling/product-123'; 
+$url = 'https://example.com/cross-selling/product-123';
 $entities = $data->getAll($definition, $url->getForeignKey());
 
 // Now you have to loop through all entities to add the SEO URL
@@ -249,7 +249,7 @@ New blocks have been added in `sw-settings-index.html.twig`:
 
 ## Removed translation of import/export profile label
 
-The translation of the import/export profile label has been removed.  
+The translation of the import/export profile label has been removed.
 Profiles are now identified and displayed only by their technical name.
 
 ### Core
@@ -306,27 +306,27 @@ We deprecated DomAccess Helper, because it does not add much value compared to n
 
 #### hasAttribute()
 
-**RegEx**: `DomAccess\.hasAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
+**RegEx**: `DomAccess\.hasAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
 **Replacement**: `$1.hasAttribute($2)`
 
 #### getAttribute()
 
-**RegEx**: `DomAccess\.getAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
+**RegEx**: `DomAccess\.getAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
 **Replacement**: `$1.getAttribute($2)`
 
 #### getDataAttribute()
 
-**RegEx**: `DomAccess\.getDataAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
+**RegEx**: `DomAccess\.getDataAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
 **Replacement**: `$1.getAttribute($2)`
 
 #### querySelector()
 
-**RegEx**: ``DomAccess\.querySelector\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
+**RegEx**: ``DomAccess\.querySelector\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``
 **Replacement**: `$1.querySelector($2)`
 
 #### querySelectorAll()
 
-**RegEx**: ``DomAccess\.querySelectorAll\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
+**RegEx**: ``DomAccess\.querySelectorAll\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``
 **Replacement**: `$1.querySelectorAll($2)`
 
 #### getFocusableElements()
@@ -479,7 +479,11 @@ The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas
 
 The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` now uses the language repository directly to fetch language information.
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
-which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object. 
+which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object.
+
+## Changed Imitate Customer logic to JWT tokens
+The `Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator` has been refactored to use JWT tokens for imitating customers instead of a custom solution.
+Previous additional request parameters are not required anymore and part of the token.
 
 </details>
 
@@ -549,7 +553,7 @@ Examples:
 
 Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed. Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
 
-## Removed `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` 
+## Removed `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields`
 
 The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been removed. Use the new `ThemeConfigurationService::getPlainThemeConfiguration` and `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods instead. The new methods return the same data as the old ones, excluding the deprecated fields.
 
@@ -600,7 +604,7 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
     {% set criteria = {
         'ids': [ mediaId ]
     } %}
-    
+
      {% return services.repository.search('media', criteria).first %}
 - {% endmacro %}
 + {% end_sw_macro_function %}

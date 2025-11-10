@@ -214,9 +214,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $criteria->setTerm($term);
 
         $criteria->setTitle('product-detail-route::find-best-variant-by-term');
-        $variantId = $this->productRepository->searchIds($criteria, $context);
 
-        return $variantId->firstId();
+        return $this->productRepository->searchIds($criteria, $context)->firstId();
     }
 
     private function createCriteria(string $pageId, Request $request): Criteria

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -16,8 +17,15 @@ abstract class NestedEvent extends Event implements ShopwareEvent
         return null;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public function getFlatEventList(): NestedEventCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
         $events = [$this];
 
         if (!$nestedEvents = $this->getEvents()) {

@@ -12,7 +12,7 @@ use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
  *     string,
  *     string,
  *     array<string, string>,
- *     array<string>
+ *     list<string>
  * }
  *
  * @internal

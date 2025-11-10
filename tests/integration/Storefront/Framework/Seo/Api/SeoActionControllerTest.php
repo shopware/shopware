@@ -8,8 +8,10 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
+use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -240,7 +242,12 @@ class SeoActionControllerTest extends TestCase
         static::assertArrayHasKey('errors', $result);
         static::assertSame(404, $response->getStatusCode());
 
-        static::assertSame(SeoUrlRouteNotFoundException::ERROR_CODE, $result['errors'][0]['code']);
+        $expectedErrorCode = SeoException::SEO_URL_ROUTE_NOT_FOUND;
+        if (!Feature::isActive('v6.8.0.0')) {
+            $expectedErrorCode = SeoUrlRouteNotFoundException::ERROR_CODE;
+        }
+
+        static::assertSame($expectedErrorCode, $result['errors'][0]['code']);
     }
 
     public function testUpdateDefaultCanonical(): void

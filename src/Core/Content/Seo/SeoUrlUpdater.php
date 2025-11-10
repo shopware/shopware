@@ -39,7 +39,7 @@ class SeoUrlUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(string $routeName, array $ids): void
     {
@@ -50,7 +50,7 @@ class SeoUrlUpdater
 
         $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
         if ($route === null) {
-            throw new \RuntimeException(\sprintf('Route by name %s not found', $routeName));
+            throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
         $context = Context::createDefaultContext();
@@ -120,7 +120,7 @@ class SeoUrlUpdater
         );
 
         if (!\array_key_exists('', $salesChannelTemplates)) {
-            throw new \RuntimeException('Default templates not configured');
+            throw SeoException::invalidTemplate('Default templates not configured');
         }
 
         $default = (string) $salesChannelTemplates[''];

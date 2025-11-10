@@ -44,7 +44,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     private Context $context;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $initialMediaIds;
 
@@ -59,7 +59,6 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->thumbnailCommand = static::getContainer()->get(GenerateThumbnailsCommand::class);
 
-        /** @var array<string> $ids */
         $ids = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
         $this->initialMediaIds = $ids;
     }

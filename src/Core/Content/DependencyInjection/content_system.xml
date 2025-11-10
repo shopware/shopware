@@ -57,6 +57,20 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
+        <!-- Layout Loading -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader">
+            <argument type="service" id="content_layout.repository"/>
+        </service>
+
+        <!-- Layout Scaffolding -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\ScaffoldingProcessor">
+            <argument type="tagged_iterator" tag="content_system.layout_scaffolder" default-priority-method="getPriority"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootScaffolder">
+            <tag name="content_system.layout_scaffolder"/>
+        </service>
+
         <!-- Layout Refinement Services -->
         <service id="Shopware\Core\Content\ContentSystem\Layout\Refinery\Refiner\PlaceholderResolutionRefiner">
             <tag name="content_system.layout_refiner" priority="0"/>
@@ -67,7 +81,6 @@
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder">
-            <argument type="service" id="content_layout.repository"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Refinery\LayoutRefinery"/>
         </service>
 
@@ -307,6 +320,8 @@
 
         <!-- Store-API Route -->
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader" public="true">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\ScaffoldingProcessor"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>

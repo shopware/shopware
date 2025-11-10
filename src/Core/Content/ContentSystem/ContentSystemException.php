@@ -46,6 +46,7 @@ class ContentSystemException extends HttpException
     public const REDISTRIBUTE_DOTTED_PATH = 'CONTENT_SYSTEM__REDISTRIBUTE_DOTTED_PATH';
     public const REDISTRIBUTE_CONFLICT = 'CONTENT_SYSTEM__REDISTRIBUTE_CONFLICT';
     public const CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE = 'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE';
+    public const PAGE_CONTEXT_EXTRACTION_FAILED = 'CONTENT_SYSTEM__PAGE_CONTEXT_EXTRACTION_FAILED';
 
     public static function contentNotFound(string $pathInfo): self
     {
@@ -375,6 +376,17 @@ class ContentSystemException extends HttpException
             self::CONTEXT_PATH_NOT_RESOLVABLE,
             $message,
             ['fullPath' => $fullPath, 'elementId' => $elementId, 'reason' => $reason]
+        );
+    }
+
+    public static function pageContextExtractionFailed(string $layoutId, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PAGE_CONTEXT_EXTRACTION_FAILED,
+            'Failed to extract actual roots from page context virtual root for layout "{{ layoutId }}": {{ reason }}',
+            ['layoutId' => $layoutId, 'reason' => $reason],
+            $previous
         );
     }
 }

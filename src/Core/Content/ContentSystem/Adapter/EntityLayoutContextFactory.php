@@ -88,8 +88,11 @@ class EntityLayoutContextFactory implements RenderingSpecificationFactoryInterfa
 
         $targetElementId = $this->requestParameterExtractor->extractTargetElementId($request);
 
+        $dataRequirements = $this->definition->getPageDataRequirements($context);
+
         return new RenderingSpecification(
             layoutId: $layoutId,
+            dataRequirements: $dataRequirements,
             placeholderValues: $placeholderValues,
             targetElementId: $targetElementId
         );

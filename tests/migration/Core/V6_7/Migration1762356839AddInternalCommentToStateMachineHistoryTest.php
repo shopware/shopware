@@ -6,13 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_7\Migration1762356839AddCommentToStateMachineHistory;
+use Shopware\Core\Migration\V6_7\Migration1762356839AddInternalCommentToStateMachineHistory;
 
 /**
  * @internal
  */
-#[CoversClass(Migration1762356839AddCommentToStateMachineHistory::class)]
-class Migration1762356839AddCommentToStateMachineHistoryTest extends TestCase
+#[CoversClass(Migration1762356839AddInternalCommentToStateMachineHistory::class)]
+class Migration1762356839AddInternalCommentToStateMachineHistoryTest extends TestCase
 {
     private Connection $connection;
 
@@ -23,27 +23,27 @@ class Migration1762356839AddCommentToStateMachineHistoryTest extends TestCase
 
     public function testCreationTimestamp(): void
     {
-        $migration = new Migration1762356839AddCommentToStateMachineHistory();
+        $migration = new Migration1762356839AddInternalCommentToStateMachineHistory();
         static::assertSame(1762356839, $migration->getCreationTimestamp());
     }
 
     public function testMigration(): void
     {
         $this->rollback();
-        $migration = new Migration1762356839AddCommentToStateMachineHistory();
+        $migration = new Migration1762356839AddInternalCommentToStateMachineHistory();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
         $existingColumns = $this->connection->createSchemaManager()->listTableColumns('state_machine_history');
-        static::assertArrayHasKey('comment', $existingColumns);
+        static::assertArrayHasKey('internal_comment', $existingColumns);
     }
 
     private function rollback(): void
     {
         $existingColumns = $this->connection->createSchemaManager()->listTableColumns('state_machine_history');
 
-        if (\array_key_exists('comment', $existingColumns)) {
-            $this->connection->executeStatement('ALTER TABLE `state_machine_history` DROP COLUMN `comment`;');
+        if (\array_key_exists('internal_comment', $existingColumns)) {
+            $this->connection->executeStatement('ALTER TABLE `state_machine_history` DROP COLUMN `internal_comment`;');
         }
     }
 }

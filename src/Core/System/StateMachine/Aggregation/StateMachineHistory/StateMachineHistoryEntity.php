@@ -43,7 +43,7 @@ class StateMachineHistoryEntity extends Entity
 
     protected string $transitionActionName;
 
-    protected ?string $comment = null;
+    protected ?string $internalComment = null;
 
     public function getTransitionActionName(): string
     {
@@ -185,13 +185,13 @@ class StateMachineHistoryEntity extends Entity
         $this->integration = $integration;
     }
 
-    public function getComment(): ?string
+    public function getInternalComment(): ?string
     {
-        return $this->comment;
+        return $this->internalComment;
     }
 
-    public function setComment(?string $comment): void
+    public function setInternalComment(?string $internalComment): void
     {
-        $this->comment = $comment;
+        $this->internalComment = $internalComment;
     }
 }

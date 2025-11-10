@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * @internal
  */
 #[Package('checkout')]
-class Migration1762356839AddCommentToStateMachineHistory extends MigrationStep
+class Migration1762356839AddInternalCommentToStateMachineHistory extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -19,8 +19,8 @@ class Migration1762356839AddCommentToStateMachineHistory extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'state_machine_history', 'comment')) {
-            $this->addColumn($connection, 'state_machine_history', 'comment', 'text');
+        if (!$this->columnExists($connection, 'state_machine_history', 'internal_comment')) {
+            $this->addColumn($connection, 'state_machine_history', 'internal_comment', 'text');
         }
     }
 }

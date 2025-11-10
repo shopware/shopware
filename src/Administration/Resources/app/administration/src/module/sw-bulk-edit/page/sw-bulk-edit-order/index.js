@@ -124,6 +124,13 @@ export default {
                     },
                 },
                 {
+                    name: 'transitionInternalComment',
+                    config: {
+                        hidden: true,
+                        changeLabel: this.$tc('sw-bulk-edit.order.status.transitionInternalComment.label'),
+                    },
+                },
+                {
                     name: 'statusMails',
                     labelHelpText: this.$tc('sw-bulk-edit.order.status.statusMails.helpText'),
                     config: {
@@ -470,6 +477,7 @@ export default {
                             }
 
                             payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
+                            payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged;
                             payload.value = this.order?.[key];
                             data.statusData.push(payload);
                         } else if (key !== 'documents' && key !== 'statusMails') {

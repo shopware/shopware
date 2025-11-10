@@ -132,6 +132,8 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             $actionName = $toPlace;
         }
 
+        $data->set('internalComment', 'Flow-Action');
+
         switch ($machine) {
             case self::ORDER:
                 $this->orderService->orderStateTransition($orderId, $actionName, $data, $context);

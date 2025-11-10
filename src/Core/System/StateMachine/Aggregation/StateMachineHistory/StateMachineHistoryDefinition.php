@@ -63,7 +63,7 @@ class StateMachineHistoryDefinition extends EntityDefinition
             (new StringField('action_name', 'transitionActionName'))->setDescription('Unique name of transition action.'),
             (new FkField('user_id', 'userId', UserDefinition::class))->setDescription('Unique identity of user.'),
             new FkField('integration_id', 'integrationId', IntegrationDefinition::class),
-            new LongTextField('comment', 'comment'),
+            new LongTextField('internal_comment', 'internalComment'),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
             new ManyToOneAssociationField('integration', 'integration_id', IntegrationDefinition::class, 'id', false),

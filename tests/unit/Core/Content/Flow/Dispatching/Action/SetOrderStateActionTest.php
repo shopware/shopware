@@ -88,7 +88,7 @@ class SetOrderStateActionTest extends TestCase
         if ($expected['order']) {
             $this->orderService->expects($this->once())
                 ->method('orderStateTransition')
-                ->with($orderId, $expected['order'], new ParameterBag());
+                ->with($orderId, $expected['order'], new ParameterBag(['internalComment' => SetOrderStateAction::INTERNAL_TRANSITION_COMMENT]));
         } else {
             $this->orderService->expects($this->never())
                 ->method('orderStateTransition');
@@ -97,7 +97,7 @@ class SetOrderStateActionTest extends TestCase
         if ($expected['orderDelivery']) {
             $this->orderService->expects($this->once())
                 ->method('orderDeliveryStateTransition')
-                ->with($ids->get('orderDeliveryId'), $expected['orderDelivery'], new ParameterBag());
+                ->with($ids->get('orderDeliveryId'), $expected['orderDelivery'], new ParameterBag(['internalComment' => SetOrderStateAction::INTERNAL_TRANSITION_COMMENT]));
         } else {
             $this->orderService->expects($this->never())
                 ->method('orderDeliveryStateTransition');
@@ -106,7 +106,7 @@ class SetOrderStateActionTest extends TestCase
         if ($expected['orderTransaction']) {
             $this->orderService->expects($this->once())
                 ->method('orderTransactionStateTransition')
-                ->with($ids->get('orderTransactionId'), $expected['orderTransaction'], new ParameterBag());
+                ->with($ids->get('orderTransactionId'), $expected['orderTransaction'], new ParameterBag(['internalComment' => SetOrderStateAction::INTERNAL_TRANSITION_COMMENT]));
         } else {
             $this->orderService->expects($this->never())
                 ->method('orderTransactionStateTransition');

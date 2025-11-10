@@ -27,6 +27,8 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
 {
     final public const FORCE_TRANSITION = 'force_transition';
 
+    final public const INTERNAL_TRANSITION_COMMENT = 'Flow-Action';
+
     private const ORDER = 'order';
 
     private const ORDER_DELIVERY = 'order_delivery';
@@ -132,7 +134,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction, Transac
             $actionName = $toPlace;
         }
 
-        $data->set('internalComment', 'Flow-Action');
+        $data->set('internalComment', self::INTERNAL_TRANSITION_COMMENT);
 
         switch ($machine) {
             case self::ORDER:

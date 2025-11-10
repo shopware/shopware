@@ -398,18 +398,26 @@ export default {
 
             switch (this.currentStateType) {
                 case 'order_transaction':
-                    transition = this.orderStateMachineService.transitionOrderTransactionState(this.transaction.id, this.currentActionName, {
-                        documentIds: docIds,
-                        sendMail,
-                        internalComment,
-                    });
+                    transition = this.orderStateMachineService.transitionOrderTransactionState(
+                        this.transaction.id,
+                        this.currentActionName,
+                        {
+                            documentIds: docIds,
+                            sendMail,
+                            internalComment,
+                        },
+                    );
                     break;
                 case 'order_delivery':
-                    transition = this.orderStateMachineService.transitionOrderDeliveryState(this.delivery.id, this.currentActionName, {
-                        documentIds: docIds,
-                        sendMail,
-                        internalComment,
-                    });
+                    transition = this.orderStateMachineService.transitionOrderDeliveryState(
+                        this.delivery.id,
+                        this.currentActionName,
+                        {
+                            documentIds: docIds,
+                            sendMail,
+                            internalComment,
+                        },
+                    );
                     break;
                 case 'order':
                     transition = this.orderStateMachineService.transitionOrderState(this.order.id, this.currentActionName, {

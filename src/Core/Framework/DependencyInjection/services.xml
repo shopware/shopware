@@ -234,7 +234,6 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Routing\Validation\RouteBlocklistService">
             <argument type="service" id="router"/>
-            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlockedValidator">

@@ -8,11 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @internal
@@ -20,48 +21,12 @@ use Symfony\Contracts\Cache\ItemInterface;
 #[CoversClass(RouteBlocklistService::class)]
 class RouteBlocklistServiceTest extends TestCase
 {
-    public function testGetBlockedRoutePathsReturnsStorefrontRoutes(): void
-    {
-        $router = $this->createRouterWithRoutes();
-        $cache = $this->createCacheMock();
-
-        $service = new RouteBlocklistService($router, $cache);
-        $blockedPaths = $service->getBlockedRoutePaths();
-
-        static::assertSame([
-            '/account',
-            '/api/test',
-            '/checkout/cart',
-            '/maintenance',
-            '/search',
-            '/wishlist',
-        ], $blockedPaths);
-    }
-
-    public function testGetBlockedRoutePathsUsesCache(): void
-    {
-        $router = $this->createRouterWithRoutes();
-        $cache = $this->createMock(CacheInterface::class);
-
-        $cache->expects($this->once())
-            ->method('get')
-            ->willReturnCallback(function (string $key, callable $callback): array {
-                $item = $this->createMock(ItemInterface::class);
-
-                return $callback($item);
-            });
-
-        $service = new RouteBlocklistService($router, $cache);
-        $service->getBlockedRoutePaths();
-    }
-
     #[DataProvider('pathBlockedDataProvider')]
     public function testIsPathBlocked(string $seoPathInfo, bool $expectedBlocked): void
     {
         $router = $this->createRouterWithRoutes();
-        $cache = $this->createCacheMock();
 
-        $service = new RouteBlocklistService($router, $cache);
+        $service = new RouteBlocklistService($router);
         $isBlocked = $service->isPathBlocked($seoPathInfo);
 
         static::assertSame($expectedBlocked, $isBlocked);
@@ -77,83 +42,103 @@ class RouteBlocklistServiceTest extends TestCase
             'maintenance with slash blocked' => ['/maintenance', true],
             'maintenance with trailing slash blocked' => ['maintenance/', true],
             'maintenance sub-path not blocked' => ['maintenance/singlepage/123', false],
-            'account route blocked' => ['account', true],
-            'account sub-path not blocked' => ['account/profile', false],
-            'checkout sub-path blocked' => ['checkout/cart', true],
-            'search route blocked' => ['search', true],
-            'wishlist route blocked' => ['wishlist', true],
             'custom category allowed' => ['my-custom-category', false],
             'products category allowed' => ['products', false],
             'empty string not allowed' => ['', true],
             'nested custom path allowed' => ['custom/nested/path', false],
+            'in use by other methods not allowed' => ['api/test', true],
         ];
     }
 
-    public function testClearCacheDeletesCachedData(): void
+    public function testHttpMethodIsResetAfterIsPathBlocked(): void
     {
         $router = $this->createRouterWithRoutes();
-        $cache = $this->createMock(CacheInterface::class);
+        $service = new RouteBlocklistService($router);
 
-        $cache->expects($this->once())
-            ->method('delete')
-            ->with('routing_blocked_routes')
-            ->willReturn(true);
+        $context = $router->getContext();
+        $context->setMethod('POST');
+        $originalMethod = $context->getMethod();
 
-        $service = new RouteBlocklistService($router, $cache);
-        $service->clearCache();
+        $service->isPathBlocked('maintenance');
+        static::assertSame($originalMethod, $context->getMethod());
+
+        $service->isPathBlocked('non-existent-route');
+        static::assertSame($originalMethod, $context->getMethod());
+
+        $routes = $router->getRouteCollection();
+        $routes->add('frontend.post.only', new Route(
+            path: '/post-only',
+            defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]],
+            methods: ['POST']
+        ));
+        $service->isPathBlocked('post-only');
+        static::assertSame($originalMethod, $context->getMethod());
     }
 
     private function createRouterWithRoutes(): RouterInterface
     {
-        $router = $this->createMock(RouterInterface::class);
         $routes = new RouteCollection();
 
-        // Add storefront routes
         $routes->add('frontend.maintenance.page', new Route(
             path: '/maintenance',
             defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]
         ));
 
-        $routes->add('frontend.account.home', new Route(
-            path: '/account',
-            defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]
-        ));
-
-        $routes->add('frontend.checkout.cart', new Route(
-            path: '/checkout/cart',
-            defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]
-        ));
-
-        $routes->add('frontend.search.page', new Route(
-            path: '/search',
-            defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]
-        ));
-
-        $routes->add('frontend.wishlist.page', new Route(
-            path: '/wishlist',
-            defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]
-        ));
-
-        // Add non-storefront route
         $routes->add('api.test', new Route(
             path: '/api/test',
-            defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']]
+            defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']],
+            methods: ['POST', 'PATCH']
         ));
 
-        $router->method('getRouteCollection')->willReturn($routes);
+        $context = new RequestContext();
 
-        return $router;
+        return new TestRouter($routes, $context);
+    }
+}
+
+/**
+ * @internal
+ */
+class TestRouter implements RouterInterface
+{
+    public function __construct(
+        private RouteCollection $routes,
+        private RequestContext $context
+    ) {
     }
 
-    private function createCacheMock(): CacheInterface
+    /**
+     * @return array<string, mixed>
+     */
+    public function match(string $pathinfo): array
     {
-        $cache = $this->createMock(CacheInterface::class);
-        $cache->method('get')->willReturnCallback(function (string $key, callable $callback): array {
-            $item = $this->createMock(ItemInterface::class);
+        $matcher = new UrlMatcher($this->routes, $this->context);
 
-            return $callback($item);
-        });
+        return $matcher->match($pathinfo);
+    }
 
-        return $cache;
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH): string
+    {
+        $generator = new UrlGenerator($this->routes, $this->context);
+
+        return $generator->generate($name, $parameters, $referenceType);
+    }
+
+    public function getRouteCollection(): RouteCollection
+    {
+        return $this->routes;
+    }
+
+    public function setContext(RequestContext $context): void
+    {
+        $this->context = $context;
+    }
+
+    public function getContext(): RequestContext
+    {
+        return $this->context;
     }
 }

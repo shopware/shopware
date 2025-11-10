@@ -141,6 +141,9 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             $customer && empty($context->getPermissions()) ? $customer->getId() : null
         );
 
+        // Language was switched - Check new Domain with old context
+        $changeUrl = $this->checkNewDomain($parameters, $context);
+
         // Update the context with the new data, to have it up2date for the remainder of the request
         $context = $this->contextService->get(
             new SalesChannelContextServiceParameters(
@@ -148,9 +151,6 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
                 $context->getToken()
             )
         );
-
-        // Language was switched - Check new Domain
-        $changeUrl = $this->checkNewDomain($parameters, $context);
 
         $event = new SalesChannelContextSwitchEvent($context, $data);
         $this->eventDispatcher->dispatch($event);

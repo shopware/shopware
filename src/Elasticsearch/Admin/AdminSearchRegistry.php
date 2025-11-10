@@ -157,7 +157,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         foreach ($this->indexer as $indexer) {
             $ids = $indexer->getUpdatedIds($event);
             $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
-            $ids = array_diff($ids, $deletedIds);
+            $ids = array_values(array_diff($ids, $deletedIds));
 
             if (empty($ids) && empty($deletedIds)) {
                 continue;

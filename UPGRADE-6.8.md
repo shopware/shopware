@@ -192,13 +192,13 @@ The constructor of the `EntityDefinition` has been removed, therefore the call o
  class MyCustomEntity extends EntityDefinition
  {
      // snip
- 
+
      public function __construct(private readonly array $meta = [])
      {
 -        parent::__construct();
          // ...
      }
- 
+
      // snip
  }
 ```
@@ -252,7 +252,7 @@ $seoUrls->add($url);
 After
 
 ```php
-$url = 'https://example.com/cross-selling/product-123'; 
+$url = 'https://example.com/cross-selling/product-123';
 $entities = $data->getAll($definition, $url->getForeignKey());
 
 // Now you have to loop through all entities to add the SEO URL
@@ -283,6 +283,35 @@ Profiles are now identified and displayed only by their technical name.
 * You must explicitly pass a boolean value to the `confidential` parameter  of `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient`.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
+
+## Removed SystemConfig exceptions
+
+The exceptions
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`,
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
+were removed.
+Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
+
+## Deprecated SystemConfigService tracing methods
+
+The methods `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` and `\Shopware\Core\System\SystemConfig\SystemConfigService::getTrace()` were removed.
+The tracing is not needed anymore since the cache rework for 6.7.0.0.
+
+## Filterable price definitions now require an explicit interface
+
+Previously, a price definition was treated as filterable when it implemented a `getFilter()` method. From now on, price definitions must explicitly implement the
+`Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
+
+## Symfony validator is not used to validate the honeypot captcha
+
+The Symfony validator is not used to check the validity of the honeypot captcha, so if it was used to change the validity of the honeypot captcha, overwrite the `isValid` method of the honeypot captcha directly.
+
+## `CmsPageLoadedEvent::$result` now requires `CmsPageCollection` type
+
+The `$result` property of `Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent` now enforces the `Shopware\Core\Content\Cms\CmsPageCollection` type instead of the generic `Shopware\Core\Framework\DataAbstractionLayer\EntityCollection`.
+
+The event constructor now requires `CmsPageCollection` explicitly, and `CmsPageLoadedEvent::getResult()` return type has changed from `EntityCollection` to `CmsPageCollection`.
 
 </details>
 
@@ -337,7 +366,7 @@ New blocks have been added in `sw-settings-index.html.twig`:
 
 ## Removed translation of import/export profile label
 
-The translation of the import/export profile label has been removed.  
+The translation of the import/export profile label has been removed.
 Profiles are now identified and displayed only by their technical name.
 
 - The following Twig blocks have been removed:
@@ -384,27 +413,27 @@ We deprecated DomAccess Helper, because it does not add much value compared to n
 
 ### hasAttribute()
 
-**RegEx**: `DomAccess\.hasAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
+**RegEx**: `DomAccess\.hasAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
 **Replacement**: `$1.hasAttribute($2)`
 
 ### getAttribute()
 
-**RegEx**: `DomAccess\.getAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
+**RegEx**: `DomAccess\.getAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
 **Replacement**: `$1.getAttribute($2)`
 
 ### getDataAttribute()
 
-**RegEx**: `DomAccess\.getDataAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`  
+**RegEx**: `DomAccess\.getDataAttribute\(\s*([^,]+)\s*,\s*([^,)]+)(?:,\s*[^)]+)?\)`
 **Replacement**: `$1.getAttribute($2)`
 
 ### querySelector()
 
-**RegEx**: ``DomAccess\.querySelector\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
+**RegEx**: ``DomAccess\.querySelector\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``
 **Replacement**: `$1.querySelector($2)`
 
 ### querySelectorAll()
 
-**RegEx**: ``DomAccess\.querySelectorAll\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``  
+**RegEx**: ``DomAccess\.querySelectorAll\(\s*([^,]+)\s*,\s*((?:`[^`]*`|'[^']*'|"[^"]*")|[^,)]+)(?:,\s*[^)]+)?\)``
 **Replacement**: `$1.querySelectorAll($2)`
 
 ### getFocusableElements()
@@ -487,7 +516,7 @@ Examples:
 
 Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed. Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
 
-## Removed `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` 
+## Removed `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields`
 
 The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been removed. Use the new `ThemeConfigurationService::getPlainThemeConfiguration` and `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods instead. The new methods return the same data as the old ones, excluding the deprecated fields.
 
@@ -542,7 +571,7 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
     {% set criteria = {
         'ids': [ mediaId ]
     } %}
-    
+
      {% return services.repository.search('media', criteria).first %}
 - {% endmacro %}
 + {% end_sw_macro_function %}

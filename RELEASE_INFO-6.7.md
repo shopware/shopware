@@ -1,10 +1,16 @@
 # 6.7.5.0 (upcoming)
 
 ## Features
+- Added new `Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator` and `Shopware\Core\Framework\JWT\Struct\JWTStruct` to build general structure for encoding and decoding JWT
 
 ## API
 
 ## Core
+
+### Removal of old `changelog` handling
+As we changed how we process and generate changelogs the "old" changelog files are no longer needed.
+Therefore, we removed all the internal code used to generate and validate them. 
+The whole `Shopware\Core\Framework\Changelog` namespace was removed. The code is not needed anymore, you should adjust the `RELEASE_INFO` and `UPGRADE` files manually instead.
 
 ## Administration
 

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
+use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Random;
@@ -172,7 +174,16 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelId = $data->getString(self::SALES_CHANNEL_ID);
         $customerId = $data->getString(self::CUSTOMER_ID);
 
-        $token = $this->imitateCustomerTokenGenerator->generate($salesChannelId, $customerId, $userId);
+        if (Feature::isActive('v6.8.0.0')) {
+            $token = new ImitateCustomerToken();
+            $token->salesChannelId = $salesChannelId;
+            $token->customerId = $customerId;
+            $token->iss = $userId;
+
+            $token = $this->imitateCustomerTokenGenerator->encode($token);
+        } else {
+            $token = Feature::silent('v6.8.0.0', fn () => $this->imitateCustomerTokenGenerator->generate($salesChannelId, $customerId, $userId));
+        }
 
         return new JsonResponse([
             'token' => $token,

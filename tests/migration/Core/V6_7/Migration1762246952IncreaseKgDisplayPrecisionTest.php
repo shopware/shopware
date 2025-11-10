@@ -10,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Migration\V6_7\Migration1742199549MeasurementSystemTable;
 use Shopware\Core\Migration\V6_7\Migration1742199550MeasurementDisplayUnitTable;
 use Shopware\Core\Migration\V6_7\Migration1762246952IncreaseKgDisplayPrecision;
 
@@ -27,8 +28,8 @@ class Migration1762246952IncreaseKgDisplayPrecisionTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-        $migration = new Migration1742199550MeasurementDisplayUnitTable();
-        $migration->update($this->connection);
+        (new Migration1742199549MeasurementSystemTable())->update($this->connection);
+        (new Migration1742199550MeasurementDisplayUnitTable())->update($this->connection);
     }
 
     protected function tearDown(): void

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\ConnectionException;
 use Shopware\Core\Framework\Api\ApiException;
-use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
@@ -40,7 +39,6 @@ class SyncController extends AbstractController
 
     /**
      * @throws ConnectionException
-     * @throws InvalidSyncOperationException
      */
     #[Route(path: '/api/_action/sync', name: 'api.action.sync', methods: ['POST'])]
     public function sync(Request $request, Context $context): JsonResponse

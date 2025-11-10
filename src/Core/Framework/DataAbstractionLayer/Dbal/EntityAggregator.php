@@ -181,7 +181,8 @@ class EntityAggregator implements EntityAggregatorInterface
             $scoreQuery = new QueryBuilder($this->connection);
 
             $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCriteria, $context, $paths);
-            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->map(fn (StorageAware $f) => $f->getStorageName());
+            // @phpstan-ignore argument.type (Phpstan can't correctly infer the type in the map function, as the StorageAware is an interface not directly implemented by the Field class)
+            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->filterInstance(StorageAware::class)->map(fn (StorageAware $f) => $f->getStorageName());
 
             $join = '';
             foreach ($pks as $pk) {

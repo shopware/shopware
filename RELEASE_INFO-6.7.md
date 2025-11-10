@@ -12,6 +12,58 @@ Now, tax rules are applied **correctly** based on customer type.
 
 ## Core
 
+### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
+The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
+You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` (only the HTTP-Cache related breaks) feature flag.
+
+Due to the rework of the contained rules in the cache hash, this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
+
+You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+If your extension is too dynamic you can restore the old behaviour by manually creating a cache key listener in your plugin:
+```php
+class HttpCacheKeyListener implements EventSubscriberInterface
+{
+    public function __construct(
+        private readonly CartService $cartService
+    ) {
+    }
+    
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            HttpCacheCookieEvent::class => 'onCacheCookie',
+        ];
+    }
+
+    public function onCacheCookie(HttpCacheCookieEvent $event): void
+    {
+        // disable cache for logged in customers
+        if ($event->context->getCustomer() !== null) {
+            $event->isCacheable = false;
+        }
+
+        // disable cache for filled carts
+        $cart = $this->cartService->getCart($event->context->getToken(), $event->context);
+        if ($cart->getLineItems()->count() > 0) {
+            $event->isCacheable = false;
+        }
+    }
+}
+```
+**Note:** Keep in mind that this has severe performance implications and should only be used if absolutely necessary.
+
+For this the following classes and constants were deprecated:
+* `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was deprecated:
+* `shopware.cache.invalidation.http_cache`
+
 ### new JWT helper
 Added new `Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator` and `Shopware\Core\Framework\JWT\Struct\JWTStruct` to build general structure for encoding and decoding JWT.
 

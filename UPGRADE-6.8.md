@@ -57,6 +57,7 @@ After:
 ## Removal of properties in `ResolveRemoteThumbnailUrlExtension`
 
 The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` were removed. Set the values directly into the `mediaEntity` property.
+
 ## Removal of `hasChildren` variable
 
 The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates. In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
@@ -120,13 +121,11 @@ The constructor of the `EntityDefinition` has been removed, therefore the call o
  class MyCustomEntity extends EntityDefinition
  {
      // snip
-
      public function __construct(private readonly array $meta = [])
      {
 -        parent::__construct();
          // ...
      }
-
      // snip
  }
 ```
@@ -488,6 +487,10 @@ The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` 
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
 which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object.
 
+## Changed Imitate Customer logic to JWT tokens
+The `Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator` has been refactored to use JWT tokens for imitating customers instead of a custom solution.
+Previous additional request parameters are not required anymore and part of the token.
+
 </details>
 
 # Administration
@@ -608,7 +611,7 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
         'ids': [ mediaId ]
     } %}
 
-     {% return services.repository.search('media', criteria).first %}
+    {% return services.repository.search('media', criteria).first %}
 - {% endmacro %}
 + {% end_sw_macro_function %}
 

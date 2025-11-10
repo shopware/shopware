@@ -112,7 +112,6 @@ class CacheHashServiceTest extends TestCase
             }
 
             static::assertSame($cookie->getValue(), $response->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE));
-            static::assertTrue($response->headers->has('vary'));
         } else {
             $cookies = $response->headers->getCookies();
             static::assertNotEmpty($cookies, 'the client cookie should be cleared');
@@ -122,8 +121,10 @@ class CacheHashServiceTest extends TestCase
             }
 
             static::assertNull($response->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE));
-            static::assertFalse($response->headers->has('vary'));
         }
+
+        // vary header needs to be always set and the same on every request
+        static::assertTrue($response->headers->has('vary'));
     }
 
     /**

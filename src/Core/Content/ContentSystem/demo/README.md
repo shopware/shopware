@@ -4,8 +4,11 @@ Demo data and Postman scripts for testing the ContentSystem.
 
 ## Files
 
-- `sync-api-demo-payload.json` - Demo data with products, categories, landing pages, layouts, and routes
+- `sync-api-demo-payload.json` - Built demo payload (generated from `payloads/` directory via `./build-payload.sh`)
 - `sync-api-demo-post-pre-script.js` - Postman pre-request script for authentication and ID resolution
+- `payloads/` - Source files split by entity type (categories, products, content-layouts, routes, etc.)
+
+**Rebuild after modifying source files**: `./build-payload.sh` (supports `--skip FILE` for selective builds)
 
 ## Usage in Postman
 
@@ -25,7 +28,7 @@ Demo data and Postman scripts for testing the ContentSystem.
 
 Run the request. The pre-request script will:
 - Authenticate as admin
-- Fetch required IDs (sales channel, tax, payment method, etc.)
+- Fetch required IDs (sales channel, tax)
 - Replace placeholders in payload automatically
 
 ## Placeholder Variables
@@ -34,7 +37,3 @@ The payload uses these placeholders (auto-populated by pre-request script):
 
 - `{{salesChannelId}}` - Storefront sales channel
 - `{{taxId}}` - Tax with 19% rate
-- `{{paymentMethodId}}` - First active payment method
-- `{{shippingMethodId}}` - First active shipping method
-- `{{countryId}}` - First active country
-- `{{snippetSetId}}` - English (GB) snippet set

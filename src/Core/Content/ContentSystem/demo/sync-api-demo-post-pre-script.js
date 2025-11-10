@@ -123,28 +123,16 @@ getAdminToken()
     .then(() => {
         return Promise.all([
             getSalesChannelId(),
-            getFirstId('payment-method', [{ type: 'equals', field: 'active', value: true }]),
-            getFirstId('shipping-method', [{ type: 'equals', field: 'active', value: true }]),
-            getFirstId('country', [{ type: 'equals', field: 'active', value: true }]),
-            getFirstId('snippet-set', [{ type: 'equals', field: 'iso', value: 'en-GB' }]),
             getFirstId('tax', [{ type: 'equals', field: 'taxRate', value: 19 }])
         ]);
     })
-    .then(([salesChannelId, paymentId, shippingId, countryId, snippetSetId, taxId]) => {
+    .then(([salesChannelId, taxId]) => {
         // Store IDs as collection variables
         pm.collectionVariables.set('salesChannelId', salesChannelId);
-        pm.collectionVariables.set('paymentMethodId', paymentId);
-        pm.collectionVariables.set('shippingMethodId', shippingId);
-        pm.collectionVariables.set('countryId', countryId);
-        pm.collectionVariables.set('snippetSetId', snippetSetId);
         pm.collectionVariables.set('taxId', taxId);
 
         console.log('✓ All IDs fetched successfully');
         console.log('Sales Channel:', salesChannelId);
-        console.log('Payment Method:', paymentId);
-        console.log('Shipping Method:', shippingId);
-        console.log('Country:', countryId);
-        console.log('Snippet Set:', snippetSetId);
         console.log('Tax:', taxId);
     })
     .catch(err => {

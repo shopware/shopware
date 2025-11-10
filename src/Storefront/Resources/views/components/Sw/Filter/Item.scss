@@ -73,7 +73,7 @@
     }
 
     &.show {
-        border-bottom-color: $body-bg;
+        border-bottom-color: var(--bs-body-bg);
         z-index: 1001;
 
         .icon-default-arrow-head-up {

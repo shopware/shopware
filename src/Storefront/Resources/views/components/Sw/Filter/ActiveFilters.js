@@ -31,9 +31,9 @@ class ActiveFilters extends ShopwareComponent {
     }
 
     handleFilterChange({ paramName, value, label, option }) {
-        if (value === null || 
-            value === undefined || 
-            value === '' || 
+        if (value === null ||
+            value === undefined ||
+            value === '' ||
             value === false ||
             value.length === 0) {
             this.removeActiveFilterLabel({ paramName, label, option });
@@ -45,9 +45,9 @@ class ActiveFilters extends ShopwareComponent {
     }
 
     handleFilterInit({ paramName, value, label, option }) {
-        if (value === null || 
-            value === undefined || 
-            value === '' || 
+        if (value === null ||
+            value === undefined ||
+            value === '' ||
             value === false ||
             value.length === 0) {
             return;
@@ -68,9 +68,9 @@ class ActiveFilters extends ShopwareComponent {
             }
             filter.label = label;
         } else {
-            filter = { 
+            filter = {
                 paramName,
-                label, 
+                label,
                 option,
                 el: this.createActiveFilterEl({ paramName, label, option })
             };
@@ -112,7 +112,7 @@ class ActiveFilters extends ShopwareComponent {
     createActiveFilterEl({ paramName, label, option }) {
         const element = document.createElement('button');
 
-        element.classList.add('sw-active-filter__item');
+        element.classList.add('sw-active-filter__item', 'btn');
         element.setAttribute('data-filter', paramName);
         if (option) {
             element.setAttribute('data-option', option);

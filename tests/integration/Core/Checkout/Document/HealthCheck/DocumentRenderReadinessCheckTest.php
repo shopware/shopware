@@ -24,6 +24,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
+use function PHPUnit\Framework\assertSame;
 
 /**
  * @internal
@@ -85,6 +86,9 @@ class DocumentRenderReadinessCheckTest extends TestCase
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
 
+        $sql = 'SELECT count(*) FROM `document`';
+        static::assertSame(0, (int) $this->connection->fetchOne($sql));
+
         $this->generateDocument(InvoiceRenderer::TYPE, $orderId);
         $this->generateDocument(DeliveryNoteRenderer::TYPE, $orderId);
         $this->generateDocument(ZugferdRenderer::TYPE, $orderId);
@@ -92,6 +96,8 @@ class DocumentRenderReadinessCheckTest extends TestCase
 
         $healthCheck = $this->createCheck();
         $healthCheckResult = $healthCheck->run();
+
+        static::assertSame(4, (int) $this->connection->fetchOne($sql));
 
         static::assertTrue($healthCheckResult->healthy);
         static::assertSame(Status::OK, $healthCheckResult->status);

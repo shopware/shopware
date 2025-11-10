@@ -82,6 +82,11 @@ Now an exception will be thrown if the referenced table does not exist, instead 
 
 To allow the schema updater to skip creating associations if the referenced table does not exist, improving flexibility and robustness during schema updates, a new optional attribute `ignore-missing-reference` was added to association types (`one-to-one`, `one-to-many`, `many-to-one`, `many-to-many`).
 
+Example usage:
+```xml
+<one-to-many name="custom_entity" reference="quote_comment" ignore-missing-reference="true" store-api-aware="false" on-delete="set-null" />
+```
+
 ## Administration
 
 ## Storefront

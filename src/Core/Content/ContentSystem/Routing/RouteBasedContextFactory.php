@@ -58,8 +58,12 @@ class RouteBasedContextFactory implements RenderingSpecificationFactoryInterface
 
         $targetElementId = $this->requestParameterExtractor->extractTargetElementId($request);
 
+        // Routes lack entity definitions for page-level data requirements
+        $dataRequirements = [];
+
         return new RenderingSpecification(
             layoutId: $layoutId,
+            dataRequirements: $dataRequirements,
             placeholderValues: $placeholderValues,
             targetElementId: $targetElementId
         );

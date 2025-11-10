@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Adapter\Entity;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * Contract for EntityDefinitions of entities that can be adapted to ContentSystem.
@@ -38,4 +39,17 @@ interface ContentLayoutAssignableDefinitionInterface
      * Used with Symfony's UrlMatcher to extract entity ID from path.
      */
     public function getContentLayoutRoutePattern(): string;
+
+    /**
+     * Returns page-level data requirements for this entity type.
+     *
+     * These requirements are loaded once per page and distributed to all
+     * root elements via virtual root pattern during hydration.
+     *
+     * Entity definitions can return context-aware requirements based on
+     * sales channel, customer group, or other contextual information.
+     *
+     * @return array<\Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement>
+     */
+    public function getPageDataRequirements(SalesChannelContext $context): array;
 }

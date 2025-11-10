@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 #[Package('discovery')]
@@ -63,6 +64,13 @@ class CategoryContentLayoutDefinition extends EntityDefinition implements Conten
     public function getContentLayoutRoutePattern(): string
     {
         return $this->getMetadataDeriver()->deriveRoutePattern($this->getContentLayoutEntityIdField());
+    }
+
+    public function getPageDataRequirements(SalesChannelContext $context): array
+    {
+        // Category pages currently have no page-level data requirements
+        // This can be extended to add navigation, footer, or other global requirements
+        return [];
     }
 
     protected function defineFields(): FieldCollection

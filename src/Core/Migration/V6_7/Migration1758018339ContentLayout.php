@@ -38,6 +38,6 @@ class Migration1758018339ContentLayout extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
+        // No destructive changes needed
     }
 }

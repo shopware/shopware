@@ -60,7 +60,7 @@ class AddressValidatorTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -93,7 +93,7 @@ class AddressValidatorTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -119,7 +119,7 @@ class AddressValidatorTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -167,11 +167,11 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::generateSalesChannelContext(country: $country, countryState: $countryState, customer: $customer);
+        $context = Generator::generateSalesChannelContext(customer: $customer, country: $country, countryState: $countryState);
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -222,11 +222,11 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::generateSalesChannelContext(country: $country, countryState: $countryState, customer: $customer);
+        $context = Generator::generateSalesChannelContext(customer: $customer, country: $country, countryState: $countryState);
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -279,11 +279,11 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::generateSalesChannelContext(country: $country, countryState: $countryState, customer: $customer);
+        $context = Generator::generateSalesChannelContext(customer: $customer, country: $country, countryState: $countryState);
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );

@@ -38,7 +38,6 @@ class PaymentMethodStateService
         $criteria->addFilter(new EqualsFilter('appPaymentMethod.appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', $currentActiveState));
 
-        /** @var list<string> $templates */
         $templates = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);

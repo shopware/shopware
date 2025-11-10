@@ -185,10 +185,10 @@ class SyncServiceTest extends TestCase
             ->willReturn($criteria);
 
         $data = [
-            ['primaryKey' => ['productId' => 'product-1', 'categoryId' => 'category-1'], 'data' => []],
-            ['primaryKey' => ['productId' => 'product-1', 'categoryId' => 'category-2'], 'data' => []],
-            ['primaryKey' => ['productId' => 'product-2', 'categoryId' => 'category-1'], 'data' => []],
-            ['primaryKey' => ['productId' => 'product-2', 'categoryId' => 'category-2'], 'data' => []],
+            'product-1-category-1' => ['primaryKey' => ['productId' => 'product-1', 'categoryId' => 'category-1'], 'data' => []],
+            'product-1-category-2' => ['primaryKey' => ['productId' => 'product-1', 'categoryId' => 'category-2'], 'data' => []],
+            'product-2-category-1' => ['primaryKey' => ['productId' => 'product-2', 'categoryId' => 'category-1'], 'data' => []],
+            'product-2-category-2' => ['primaryKey' => ['productId' => 'product-2', 'categoryId' => 'category-2'], 'data' => []],
         ];
 
         $ids = new IdSearchResult(4, $data, new Criteria(), Context::createDefaultContext());

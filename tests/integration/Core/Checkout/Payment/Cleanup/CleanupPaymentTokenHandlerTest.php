@@ -22,13 +22,19 @@ class CleanupPaymentTokenHandlerTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $now = new \DateTimeImmutable();
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
                 INSERT INTO payment_token (token, expires)
                 VALUES
-                    ('token-1', '{$now->modify('-10 minutes')->format(Defaults::STORAGE_DATE_TIME_FORMAT)}'),
-                    ('token-2', '{$now->modify('-15 minutes')->format(Defaults::STORAGE_DATE_TIME_FORMAT)}'),
-                    ('token-3', '{$now->modify('+30 minutes')->format(Defaults::STORAGE_DATE_TIME_FORMAT)}')
+                    ('token-1', '%s'),
+                    ('token-2', '%s'),
+                    ('token-3', '%s')
             SQL;
+        $sql = \sprintf(
+            $sql,
+            $now->modify('-10 minutes')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $now->modify('-15 minutes')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $now->modify('+30 minutes')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        );
 
         $connection->executeStatement($sql);
 

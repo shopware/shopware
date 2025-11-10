@@ -7,7 +7,7 @@
 
 ## Core
 * Added `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` to parse `robots.txt` files with error tracking and extensibility events.
-* The constructor of `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` is now deprecated for string parameters. Use a `ParsedRobots` object instead. This will be removed in v6.8.0.
+* The constructor of `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` is now deprecated for string parameters and support for this will be removed with the next major version. Use a `ParsedRobots` object instead.
 
 ### Removal of old `changelog` handling
 As we changed how we process and generate changelogs the "old" changelog files are no longer needed.

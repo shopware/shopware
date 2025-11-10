@@ -21,9 +21,6 @@ For user interfaces that display only one delivery & transaction, there is now a
 If an extension modifies or adds new deliveries or transactions, this should be taken into account.
 To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
 
-* Replace delivery accesses like `order.deliveries.first()` or `order.deliveries[0]` with `order.primaryOrderDelivery`
-* Replace transaction accesses like `order.transactions.last()` or `order.transactions[length - 1]` with `order.primaryOrderDelivery`
-
 </details>
 
 # API
@@ -31,6 +28,12 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 # Core
 
 <details>
+
+## Multiple payment finalize calls allowed
+Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.
+If the token has already been consumed, the user is redirected to the finish page without triggering a PaymentException.
+To support this behavior, a new `consumed` flag has been added to the payment token struct, which indicates if the token has already been processed.
+Since tokens are no longer deleted after use, a new scheduled task runs daily to remove all expired tokens and keep the system clean.
 
 ## Removal of `$options` parameter in custom validator's constraints
 
@@ -120,13 +123,13 @@ It allows filtering of `RuleIdAware` objects in either arrays or collections.
 Currently, there are multiple order deliveries and multiple order transactions per order. If only one, the "primary", order delivery and order transaction is displayed and used in the administration, there is now an easy way in version 6.8 using the `primaryOrderDelivery` and `primaryOrderTransaction`. All existing orders will be updated with a migration so that they also have the primary values.
 From now on, the `OrderTransactionStatusRule::match` will always use the `primaryOrderTransaction` instead of the most recently successful transaction.
 
-## Use `primaryOrderDelivery`
+### Use `primaryOrderDelivery`
 
-Get the first order delivery with `primaryOrderDelivery` so you should replace methods like `deliveries.first()` or `deliveries[0]`
+Get the first order delivery with `order.primaryOrderDelivery` so you should replace methods like `order.deliveries.first()` or `order.deliveries[0]`
 
-## Use `primaryOrderTransaction`
+### Use `primaryOrderTransaction`
 
-Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
+Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
 ## Only rules relevant for product prices are considered in the `sw-cache-hash`
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
@@ -313,6 +316,30 @@ The `$result` property of `Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent` 
 
 The event constructor now requires `CmsPageCollection` explicitly, and `CmsPageLoadedEvent::getResult()` return type has changed from `EntityCollection` to `CmsPageCollection`.
 
+## Removal of `\Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper`
+
+Refection has significantly improved in particular since PHP 8.1, therefore the `Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper` was removed, see below for the explicit replacements:
+
+```diff
+- $property = ReflectionHelper->getProperty(MyClass::class, 'myProperty');
++ $property = \ReflectionProperty(MyClass::class, 'myProperty');
+```
+
+```diff
+- $method = ReflectionHelper->getMethod(MyClass::class, 'myMethod');
++ $method = \ReflectionMethod(MyClass::class, 'myMethod');
+```
+
+```diff
+- $propertyValue = ReflectionHelper->getPropertyValue($object, 'myProperty');
++ $propertyValue = \ReflectionProperty(MyClass::class, 'myProperty')->getValue($object);
+```
+
+```diff
+- $fileName = ReflectionHelper->getFileName(MyClass::class);
++ $fileName = \ReflectionClass(MyClass::class)->getFileName();
+```
+
 </details>
 
 # Administration
@@ -335,34 +362,6 @@ After:
 
 * The `$tc` function will be completely removed
 * All translation calls should use `$t` instead
-
-## Settings Menu Structure was changed
-
-The menu structure on the settings page has changed from tab structure to a grid structure. The new structure groups settings into different categories for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
-
-The new settings groups are:
-* General
-* Customer
-* Automation
-* Localization
-* Content
-* Commerce
-* System
-* Account
-* Extensions
-
-As a result blocks have been removed in `sw-settings-index.html.twig`:
-* `sw_settings_content_tab_shop`
-* `sw_settings_content_tab_system`
-* `sw_settings_content_tab_plugins`
-* `sw_settings_content_card`
-* `sw_settings_content_header`
-* `sw_settings_content_card_content`
-
-New blocks have been added in `sw-settings-index.html.twig`:
-* `sw_settings_content_card_content_grid`
-* `sw_settings_content_card_view`
-* `sw_settings_content_card_view_header`
 
 ## Removed translation of import/export profile label
 
@@ -552,6 +551,30 @@ Unused theme files are deleted by using the `\Shopware\Storefront\Theme\Schedule
 ## Remove route `widgets.account.order.detail`:
 
 * Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
+
+### Removed `page_checkout_cart_add_product*` blocks from `@Storefront/storefront/page/checkout/cart/index.html.twig`
+
+The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are removed, use the new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` instead.
+
+Instead of overwriting any of the `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig`,
+extend the new `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` file using the same blocks.
+
+Change:
+```
+{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+
+{% block page_checkout_cart_add_product %}
+    {# Your content #}
+{% endblock %}
+```
+to:
+```
+{% sw_extends '@Storefront/storefront/component/checkout/add-product-by-number.html.twig' %}
+
+{% block page_checkout_cart_add_product %}
+    {# Your content #}
+{% endblock %}
+```
 
 </details>
 

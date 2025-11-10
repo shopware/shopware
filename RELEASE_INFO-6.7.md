@@ -1,31 +1,144 @@
 # 6.7.5.0 (upcoming)
 
 ## Features
-- Added new `Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator` and `Shopware\Core\Framework\JWT\Struct\JWTStruct` to build general structure for encoding and decoding JWT
+
+### Tax Calculation Logic
+The tax-free detection logic if the cart changed to handle B2B and B2C customers separately.
+Previously, enabling "Tax-free for B2C" in the country settings also affected B2B customers.
+Now, tax rules are applied **correctly** based on customer type.
+
 
 ## API
 
 ## Core
+
+### new JWT helper
+Added new `Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator` and `Shopware\Core\Framework\JWT\Struct\JWTStruct` to build general structure for encoding and decoding JWT.
+
+### Added PHP 8.5 polyfill
+The new dependency `symfony/polyfill-php85` was added, to make it possible to already use PHP 8.5 features, like `array_first` and `array_last`
 
 ### Removal of old `changelog` handling
 As we changed how we process and generate changelogs the "old" changelog files are no longer needed.
 Therefore, we removed all the internal code used to generate and validate them. 
 The whole `Shopware\Core\Framework\Changelog` namespace was removed. The code is not needed anymore, you should adjust the `RELEASE_INFO` and `UPGRADE` files manually instead.
 
+### Deprecated the `\Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper`
+
+Refection has significantly improved in particular since PHP 8.1, therefore the `Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper` was deprecated and will be removed in the next major release. See below for the explicit replacements:
+
+```diff
+- $property = ReflectionHelper->getProperty(MyClass::class, 'myProperty');
++ $property = \ReflectionProperty(MyClass::class, 'myProperty');
+```
+
+```diff
+- $method = ReflectionHelper->getMethod(MyClass::class, 'myMethod');
++ $method = \ReflectionMethod(MyClass::class, 'myMethod');
+```
+
+```diff
+- $propertyValue = ReflectionHelper->getPropertyValue($object, 'myProperty');
++ $propertyValue = \ReflectionProperty(MyClass::class, 'myProperty')->getValue($object);
+```
+
+```diff
+- $fileName = ReflectionHelper->getFileName(MyClass::class);
++ $fileName = \ReflectionClass(MyClass::class)->getFileName();
+```
+
+### Multiple payment finalize calls allowed
+With the feature flag `REPEATED_PAYMENT_FINALIZE`, the `/payment-finalize` endpoint can now be called multiple times using the same payment token. This behaviour will be the default in the next major release.
+If the token has already been consumed, the user will be redirected directly to the finish page instead of triggering a PaymentException.
+To support this behavior, a new `consumed` flag has been added to the payment token struct, which indicates if the token has already been processed.
+Payment tokens are no longer deleted immediately after use. A new scheduled task automatically removes expired tokens to keep the `payment_token` table clean.
+
 ## Administration
 
 ## Storefront
+
+### Added specific `add-product-by-number` template
+
+The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.
+
+Instead of overwriting any of the `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig`,
+extend the new `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` file using the same blocks.
+
+Change:
+```
+{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+
+{% block page_checkout_cart_add_product %}
+    {# Your content #}
+{% endblock %}
+```
+to:
+```
+{% sw_extends '@Storefront/storefront/component/checkout/add-product-by-number.html.twig' %}
+
+{% block page_checkout_cart_add_product %}
+    {# Your content #}
+{% endblock %}
+```
 
 ## App System
 
 ## Hosting & Configuration
 
+### Sales Channel Replace URL Command
+A new `sales-channel:replace:url` command was added to replace the url of a sales channel.
+```bash
+bin/console sales-channel:replace:url <previous_url> <new_url>
+```
+
+### Staging configuration
+The disabled delivery check in `MailSender` now checks for the Staging Mode `core.staging`, the `shopware.staging.mailing.disable_delivery` configuration and the config setting `shopware.mailing.disable_delivery`. Regardless of Mode the config setting `shopware.mailing.disable_delivery` always allows to disable mail delivery.
+
 ## Critical fixes
 
+### Product weight precision
+The database column `product.weight` now uses `DECIMAL(15,6)` instead of `DECIMAL(10,3)` to keep gram-based measurements accurate when values are stored in kilograms.
 
 # 6.7.4.0
 
-## Improvements
+### Plugin config default values
+
+The default values for plugin config fields are now parsed according to the type of the field.
+This means default values for `checkbox` and `bool` fields are parsed as boolean values, `int` fields are parsed as integer values, and `float` fields are parsed as float values.
+Everything else is parsed as string values. With this the default values are now consistent based on the type of the field and the type does not depend on the actual value.
+This makes it more consistent as otherwise the types could change when they are configured in the Administration.
+
+### Deprecated SystemConfig exceptions
+
+The exceptions
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`,
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
+  are now deprecated and will be removed in v6.8.0.0.
+  Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
+
+### Deprecated SystemConfigService tracing methods
+
+The methods `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` and `\Shopware\Core\System\SystemConfig\SystemConfigService::getTrace()` are deprecated and will be removed.
+The tracing is not needed anymore since the cache rework for 6.7.0.0. For now the methods are still available, but they do nothing.
+
+### Add the correct interface to filterable price definitions
+
+If a price definition should be filterable, explicitly implement the `Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
+
+## Storefront
+
+### Vimeo and YouTube Cookie Consent Separation
+
+With this change, Vimeo and YouTube videos now use separate cookie consent entries and load immediately when cookies are accepted, improving user experience and GDPR compliance.
+
+### Cookie offcanvas links in dynamically loaded content
+
+Links to open the cookie offcanvas that are loaded dynamically (e.g., within the navigation offcanvas) now work correctly.
+The `CookieConfiguration` plugin now uses event delegation instead of direct event listeners.
+
+If you have extended the `CookieConfiguration` plugin and override `_registerEvents()`, you may need to update your
+implementation to use event delegation as well.
 
 # 6.7.3.0
 

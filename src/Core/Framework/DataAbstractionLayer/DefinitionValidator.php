@@ -975,7 +975,11 @@ class DefinitionValidator
         }
 
         // Get primary key columns from database
-        $databasePrimaryKeys = $table->getPrimaryKey()?->getColumns() ?? [];
+        $primaryKeyConstraint = $table->getPrimaryKeyConstraint();
+        $databasePrimaryKeys = $primaryKeyConstraint ? array_map(
+            fn ($identifier) => $identifier->toString(),
+            $primaryKeyConstraint->getColumnNames()
+        ) : [];
 
         // Get primary key fields from entity definition
         $definitionPrimaryKeys = $definition->getPrimaryKeys();

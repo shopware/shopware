@@ -20,6 +20,7 @@ class CopyBatch
         }
 
         foreach ($files as $batchInput) {
+            //            sleep(5);
             $handle = $batchInput->getSourceFile();
             if (\is_string($handle)) {
                 $handle = fopen($handle, 'r');

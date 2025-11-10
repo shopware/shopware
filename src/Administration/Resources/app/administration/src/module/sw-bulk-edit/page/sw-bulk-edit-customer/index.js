@@ -149,6 +149,9 @@ export default {
     },
 
     methods: {
+        test() {
+            console.log("asdfasdfasdf");
+        },
         createdComponent() {
             this.setRouteMetaModule();
             if (!Shopware.Store.get('context').isSystemDefaultLanguage) {

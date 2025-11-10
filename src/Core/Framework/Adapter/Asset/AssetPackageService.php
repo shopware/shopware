@@ -18,8 +18,12 @@ class AssetPackageService
     /**
      * @param array<string, string> $bundleMap
      */
-    public static function create(array $bundleMap, AssetPackage $package, VersionStrategyInterface $versionStrategy, mixed ...$args): Packages
-    {
+    public static function create(
+        array $bundleMap,
+        AssetPackage $package,
+        VersionStrategyInterface $versionStrategy,
+        mixed ...$args
+    ): Packages {
         $packages = new Packages(...$args);
 
         if (!EnvironmentHelper::hasVariable('APP_URL')) {

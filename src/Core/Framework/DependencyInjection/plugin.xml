@@ -195,6 +195,8 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="parameter_bag"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <!-- Requirement -->

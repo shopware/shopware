@@ -2,32 +2,36 @@
 
 namespace Shopware\Administration\Framework\Twig;
 
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use Pentatrion\ViteBundle\Service\FileAccessor;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Bundle as ShopwareBundle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Symfony\Component\Asset\PackageInterface as AssetPackage;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
+/**
+ * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
+ */
 #[Package('framework')]
 class ViteFileAccessorDecorator extends FileAccessor
 {
-    private readonly string $assetPath;
+    private const ONE_DAY_CACHING_TIME = 86400;
 
-    /**
-     * @var array<string, array<string, array<string, mixed>>>
-     */
-    private array $content = [];
+    private readonly string $assetPath;
 
     /**
      * @internal
      */
     public function __construct(
-        array $configs,
+        private readonly array $configs,
         private readonly AssetPackage $package,
-        private readonly KernelInterface $kernel,
-        private readonly Filesystem $filesystem,
+        private readonly FilesystemOperator $assetFilesystem,
+        private readonly TagAwareCacheInterface $cache,
+        private readonly LoggerInterface $logger,
     ) {
         $this->assetPath = $this->package->getUrl('');
 
@@ -36,14 +40,7 @@ class ViteFileAccessorDecorator extends FileAccessor
 
     public function hasFile(string $configName, string $fileType): bool
     {
-        try {
-            $bundle = $this->getBundleForConfig($configName);
-        } catch (\InvalidArgumentException) {
-            // we can't find a bundle with that name
-            return false;
-        }
-
-        return $this->filesystem->exists($bundle->getPath() . $this->getRelativeFileLocation($fileType));
+        return $this->assetFilesystem->fileExists($this->getFileLocation($configName, $fileType));
     }
 
     /**
@@ -51,13 +48,7 @@ class ViteFileAccessorDecorator extends FileAccessor
      */
     public function getData(string $configName, string $fileType): array
     {
-        $bundle = $this->getBundleForConfig($configName);
-        // plain symfony bundles don't bring JS assets
-        if (!$bundle instanceof ShopwareBundle) {
-            return [];
-        }
-
-        return $this->getContent($fileType, $bundle);
+        return $this->getContent($fileType, $configName);
     }
 
     /**
@@ -65,21 +56,12 @@ class ViteFileAccessorDecorator extends FileAccessor
      */
     public function getBundleData(ShopwareBundle $bundle): array
     {
-        return $this->getContent(self::ENTRYPOINTS, $bundle);
-    }
-
-    private function getRelativeFileLocation(string $fileType): string
-    {
-        return '/Resources/public/administration/.vite/' . self::FILES[$fileType];
-    }
-
-    private function getBundleForConfig(string $configName): BundleInterface
-    {
-        if ($configName === '_default') {
-            $configName = 'Administration';
+        $configName = $this->getTechnicalBundleName($bundle);
+        if ($configName === 'administration') {
+            $configName = '_default';
         }
 
-        return $this->kernel->getBundle($configName);
+        return $this->getContent(self::ENTRYPOINTS, $configName);
     }
 
     private function getTechnicalBundleName(ShopwareBundle $bundle): string
@@ -90,30 +72,32 @@ class ViteFileAccessorDecorator extends FileAccessor
     /**
      * @return array<string, mixed>
      */
-    private function getContent(string $fileType, ShopwareBundle $bundle): array
+    private function getContent(string $fileType, string $configName): array
     {
         // Depending on how many script tags are rendered, this method is called multiple times
         // Cache the content to avoid reading the file multiple times
-        if (!isset($this->content[$bundle->getName()][$fileType])) {
-            $viteEntryPointsPath = $bundle->getPath() . $this->getRelativeFileLocation($fileType);
+        $cacheKey = \sprintf('%s-%s', $configName, $fileType);
 
-            if (!$this->filesystem->exists($viteEntryPointsPath)) {
-                return $this->content[$bundle->getName()][$fileType] = [];
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($fileType, $configName): array {
+            $item->expiresAfter(self::ONE_DAY_CACHING_TIME);
+            $item->tag(AssetService::CACHE_TAG);
+
+            $fileLocation = $this->getFileLocation($configName, $fileType);
+            try {
+                $contentRaw = $this->assetFilesystem->read($fileLocation);
+            } catch (FilesystemException $e) {
+                $this->logger->notice(\sprintf('Could not read asset. Reason: %s', $e->getMessage()), ['exception' => $e]);
+
+                return [];
             }
 
-            $content = json_decode(
-                $this->filesystem->readFile($viteEntryPointsPath),
-                true,
-                flags: \JSON_THROW_ON_ERROR
-            );
+            $content = json_decode($contentRaw, true, flags: \JSON_THROW_ON_ERROR);
 
             // Replace the base generated by Vite with the symfony asset path
             $content['base'] = $this->assetPath;
 
-            $technicalBundleName = $this->getTechnicalBundleName($bundle);
-
             // Get all entrypoints for the administration
-            foreach ($content['entryPoints'][$technicalBundleName] ?? [] as $key => $entrypoint) {
+            foreach ($content['entryPoints'][$configName] ?? [] as $key => $entrypoint) {
                 // The entry points also contain configuration, for example "legacy" and a boolean value
                 if (!\is_array($entrypoint)) {
                     continue;
@@ -121,13 +105,24 @@ class ViteFileAccessorDecorator extends FileAccessor
 
                 // Prepend the asset path to the every entry point
                 foreach ($entrypoint as $index => $entry) {
-                    $content['entryPoints'][$technicalBundleName][$key][$index] = \sprintf('%s%s', $this->assetPath, $entry);
+                    $content['entryPoints'][$configName][$key][$index] = \sprintf('%s%s', $this->assetPath, $entry);
                 }
             }
 
-            $this->content[$bundle->getName()][$fileType] = $content;
+            return $content;
+        });
+    }
+
+    private function getFileLocation(string $configName, string $fileType): string
+    {
+        if (!isset(self::FILES[$fileType])) {
+            return '';
         }
 
-        return $this->content[$bundle->getName()][$fileType];
+        if (isset($this->configs[$configName]['base'])) {
+            return \sprintf('%s.vite/%s', $this->configs[$configName]['base'], self::FILES[$fileType]);
+        }
+
+        return \sprintf('/bundles/%s/administration/.vite/%s', $configName, self::FILES[$fileType]);
     }
 }

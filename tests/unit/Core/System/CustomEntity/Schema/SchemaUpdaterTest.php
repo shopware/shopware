@@ -190,7 +190,7 @@ class SchemaUpdaterTest extends TestCase
     /**
      * @param list<array{name: string, fields: string}> $entities
      * @param array<string, list<string>> $notExpectedSchema
-     * @param array<string, list<string>> $expectedNonExistTableNames
+     * @param list<string> $expectedNonExistTableNames
      */
     #[DataProvider('associationWithIgnoreMissingReferencePairsProvider')]
     public function testAssociationsWithIgnoreMissingReference(array $entities, array $notExpectedSchema, array $expectedNonExistTableNames): void
@@ -200,7 +200,6 @@ class SchemaUpdaterTest extends TestCase
         $updater = new SchemaUpdater();
         $updater->applyCustomEntities($schema, $entities);
 
-        /** @var string $nonExistTableName */
         foreach ($expectedNonExistTableNames as $nonExistTableName) {
             // the reference table should not be created if the ignoreMissingReference attribute is true
             static::assertFalse($schema->hasTable($nonExistTableName), \sprintf('Table %s do exists, but it should not be created', $nonExistTableName));

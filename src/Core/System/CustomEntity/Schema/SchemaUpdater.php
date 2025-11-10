@@ -370,7 +370,7 @@ class SchemaUpdater
                 return true;
             }
             // throw exception right away if the reference table does not exist and the ignoreMissingReference attribute is false
-            throw CustomEntityException::referenceTableNotFound($referenceName);
+            throw CustomEntityException::associationReferenceTableNotFound($referenceName);
         }
 
         return false;

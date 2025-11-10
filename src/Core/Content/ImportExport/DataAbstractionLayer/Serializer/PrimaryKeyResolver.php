@@ -31,6 +31,11 @@ class PrimaryKeyResolver
     ) {
     }
 
+    /**
+     * @param iterable<string, mixed> $record
+     *
+     * @return iterable<string, mixed>
+     */
     public function resolvePrimaryKeyFromUpdatedBy(Config $config, ?EntityDefinition $definition, iterable $record): iterable
     {
         if (!$definition) {
@@ -47,6 +52,11 @@ class PrimaryKeyResolver
         );
     }
 
+    /**
+     * @param iterable<string, mixed> $record
+     *
+     * @return iterable<string, mixed>
+     */
     private function resolvePrimaryKey(Config $config, EntityDefinition $definition, iterable $record, Context $context): iterable
     {
         $updatedBy = $config->getUpdateBy()->get($definition->getEntityName());
@@ -115,6 +125,9 @@ class PrimaryKeyResolver
     }
 
     /**
+     * @param array<string, mixed> $data
+     * @param list<string> $keyPath
+     *
      * @return mixed|null
      */
     private function getValueFromPath(array $data, array $keyPath)
@@ -132,6 +145,9 @@ class PrimaryKeyResolver
         return $this->getValueFromPath($data[$key], $keyPath);
     }
 
+    /**
+     * @param list<string> $updateByFieldPath
+     */
     private function handleTranslationsAssociation(
         EntityDefinition $definition,
         array $updateByFieldPath,
@@ -173,6 +189,11 @@ class PrimaryKeyResolver
         return implode('.', $updateByFieldPath);
     }
 
+    /**
+     * @param iterable<string, mixed> $record
+     *
+     * @return iterable<string, mixed>
+     */
     private function handleManyToManyAssociations(Config $config, EntityDefinition $definition, iterable $record, Context $context): iterable
     {
         foreach ($definition->getFields() as $field) {
@@ -217,7 +238,6 @@ class PrimaryKeyResolver
 
             $repository = $this->definitionInstanceRegistry->getRepository($manyToManyDefinition->getEntityName());
 
-            /** @var list<string> $ids */
             $ids = $repository->searchIds($criteria, $context)->getIds();
 
             $record[$field->getPropertyName()] = implode('|', $ids);

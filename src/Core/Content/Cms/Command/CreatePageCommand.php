@@ -137,7 +137,6 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $productIds */
             $productIds = $this->productRepository->searchIds($criteria, $context)->getIds();
             if ($productIds === []) {
                 throw CmsException::pageCreationFailure('No products found');
@@ -154,7 +153,6 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $categoryIds */
             $categoryIds = $this->categoryRepository->searchIds($criteria, $context)->getIds();
             if ($categoryIds === []) {
                 throw CmsException::pageCreationFailure('No categories found');
@@ -171,7 +169,6 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $mediaIds */
             $mediaIds = $this->mediaRepository->searchIds($criteria, $context)->getIds();
             if ($mediaIds === []) {
                 throw CmsException::pageCreationFailure('No medias found');

@@ -1,6 +1,7 @@
 # 6.7.5.0 (upcoming)
 
 ## Features
+- Added new `Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator` and `Shopware\Core\Framework\JWT\Struct\JWTStruct` to build general structure for encoding and decoding JWT
 
 ## API
 

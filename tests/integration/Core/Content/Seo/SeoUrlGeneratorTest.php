@@ -249,7 +249,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $productIds = $ids->getList(['parent', 'redProduct', 'greenProduct']);
+        $productIds = array_values($ids->getList(['parent', 'redProduct', 'greenProduct']));
         $template = '{{ product.translated.name|lower }}{% if product.options %}{% for var in product.options|sort((a,b)=> a.position <=> b.position) %}-{{ var.name }}{% endfor %}{% endif %}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
@@ -275,7 +275,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $productIds = $ids->getList(['product']);
+        $productIds = array_values($ids->getList(['product']));
         $template = '{% if product.categories %}{% for var in product.categories %}{{ var.translated.name }}-{% endfor %}{% endif %}{{ product.manufacturer.translated.name }}-{{ product.translated.name|lower }}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
@@ -299,7 +299,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $productIds = $ids->getList(['product']);
+        $productIds = array_values($ids->getList(['product']));
         $template = '{{ product.translated.name|lastBigLetter }}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
@@ -454,7 +454,7 @@ class SeoUrlGeneratorTest extends TestCase
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<string>
      */
     private function getCategoryIds(int $count): array
     {

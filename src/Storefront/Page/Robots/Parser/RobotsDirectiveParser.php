@@ -146,7 +146,7 @@ class RobotsDirectiveParser
     }
 
     /**
-     * @deprecated tag:v6.8.0.0 - reason:becomes-obsolete - will be removed, as string parsing is deprecated
+     * @deprecated tag:v6.8.0 - reason:becomes-obsolete - will be removed, as string parsing is deprecated
      */
     public static function parseDirectiveFromString(string $line): ?RobotsDirective
     {

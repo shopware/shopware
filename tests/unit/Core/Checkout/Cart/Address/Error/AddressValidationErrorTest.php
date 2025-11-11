@@ -18,7 +18,7 @@ class AddressValidationErrorTest extends TestCase
     public function testAPI(): void
     {
         $violations = new ConstraintViolationList();
-        $error = new AddressValidationError(true, $violations);
+        $error = new AddressValidationError(true, $violations, 'address-id-123');
 
         static::assertSame('billing-address-invalid', $error->getId());
         static::assertTrue($error->isBillingAddress());

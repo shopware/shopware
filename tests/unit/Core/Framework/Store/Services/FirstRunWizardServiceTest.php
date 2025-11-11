@@ -193,6 +193,8 @@ class FirstRunWizardServiceTest extends TestCase
 
         $source = $this->context->getSource();
         static::assertInstanceOf(AdminApiSource::class, $source);
+        $userId = $source->getUserId();
+        static::assertNotNull($userId);
 
         $userConfigRepository = $this->createMock(EntityRepository::class);
         $userConfigRepository->expects($this->once())
@@ -200,7 +202,7 @@ class FirstRunWizardServiceTest extends TestCase
             ->willReturn(
                 new IdSearchResult(
                     1,
-                    [['primaryKey' => $source->getUserId(), 'data' => []]],
+                    [$userId => ['primaryKey' => $userId, 'data' => []]],
                     new Criteria(),
                     $this->context,
                 ),

@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\Json;
 
 /**
+ * @template IDStructure of string|array<string, string> = string
+ *
  * @final
  */
 #[Package('framework')]
@@ -87,7 +89,7 @@ class Criteria extends Struct implements \Stringable
     protected array $associations = [];
 
     /**
-     * @var array<string>|array<int, array<string>>
+     * @var array<IDStructure>
      */
     protected array $ids = [];
 
@@ -113,7 +115,7 @@ class Criteria extends Struct implements \Stringable
     protected array $fields = [];
 
     /**
-     * @param array<string>|array<array<string, string>>|null $ids
+     * @param array<IDStructure>|null $ids
      */
     public function __construct(?array $ids = null, protected int $nestingLevel = 0)
     {
@@ -136,7 +138,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return array<string>|array<array<string, string>>
+     * @return array<IDStructure>
      */
     public function getIds(): array
     {
@@ -467,7 +469,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param array<string>|array<array<string, string>> $ids
+     * @param array<IDStructure> $ids
      */
     public function setIds(array $ids): self
     {

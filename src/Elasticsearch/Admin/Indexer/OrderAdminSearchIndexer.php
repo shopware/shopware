@@ -83,7 +83,9 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             $ids = array_merge($ids, $event->getPrimaryKeys($this->getEntity()));
         }
 
-        $tags = $event->getPrimaryKeysWithPropertyChange(OrderTagDefinition::ENTITY_NAME, ['tagId']);
+        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping definitions have multiple primary keys */
+        $multiplePrimaryKeyWrittenEvent = $event;
+        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(OrderTagDefinition::ENTITY_NAME, ['tagId']);
 
         foreach ($tags as $pks) {
             if (isset($pks['orderId'])) {

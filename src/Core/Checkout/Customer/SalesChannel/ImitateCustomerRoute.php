@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
+use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -28,7 +31,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ImitateCustomerRoute extends AbstractImitateCustomerRoute
 {
     final public const TOKEN = 'token';
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, will be sourced from JWT
+     */
     final public const CUSTOMER_ID = 'customerId';
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, will be sourced from JWT
+     */
     final public const USER_ID = 'userId';
 
     /**
@@ -49,32 +60,43 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-name-change - The parameter `$requestDataBag` will be renamed to `$data` to align with abstract route
+     */
     #[Route(path: '/store-api/account/login/imitate-customer', name: 'store-api.account.imitate-customer-login', methods: ['POST'])]
     public function imitateCustomerLogin(RequestDataBag $requestDataBag, SalesChannelContext $context): ContextTokenResponse
     {
-        $this->validateRequestDataFields($requestDataBag, $context->getContext());
+        $tokenString = $requestDataBag->getString(self::TOKEN);
 
-        $customerId = $requestDataBag->getString(self::CUSTOMER_ID);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->validateRequestDataFields($requestDataBag, $context->getContext());
 
-        if ($context->getCustomerId() === $customerId) {
-            return new ContextTokenResponse($context->getToken());
+            $token = new ImitateCustomerToken();
+            $token->customerId = $requestDataBag->getString(self::CUSTOMER_ID);
+            $token->iss = $requestDataBag->getString(self::USER_ID);
+
+            Feature::silent('v6.8.0.0', fn () => $this->imitateCustomerTokenGenerator->validate($tokenString, $context->getSalesChannelId(), $token->customerId, $token->iss));
+        } else {
+            $token = $this->imitateCustomerTokenGenerator->decode($tokenString);
+
+            if ($token->salesChannelId !== $context->getSalesChannelId()) {
+                throw CustomerException::invalidImitationToken($tokenString);
+            }
         }
 
-        $token = $requestDataBag->getString(self::TOKEN);
-        $userId = $requestDataBag->getString(self::USER_ID);
-
-        $this->imitateCustomerTokenGenerator->validate($token, $context->getSalesChannelId(), $customerId, $userId);
-
-        $context->setImitatingUserId($userId);
+        if ($context->getCustomerId() === $token->customerId) {
+            return new ContextTokenResponse($context->getToken());
+        }
 
         if ($context->getCustomer()) {
             $newTokenResponse = $this->logoutRoute->logout($context, new RequestDataBag());
 
             $context = $this->salesChannelContextFactory->create($newTokenResponse->getToken(), $context->getSalesChannelId());
-            $context->setImitatingUserId($userId);
         }
 
-        $newToken = $this->accountService->loginById($customerId, $context);
+        $context->setImitatingUserId($token->iss);
+
+        $newToken = $this->accountService->loginById($token->customerId, $context);
 
         return new ContextTokenResponse($newToken);
     }

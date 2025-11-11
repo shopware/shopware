@@ -137,15 +137,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupSubscriber">
-            <argument type="service" id="customer_group.repository"/>
-            <argument type="service" id="seo_url.repository"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
-            <argument type="service" id="slugify"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerChangePasswordSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>

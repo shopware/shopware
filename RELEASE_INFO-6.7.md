@@ -72,7 +72,7 @@ The new dependency `symfony/polyfill-php85` was added, to make it possible to al
 
 ### Removal of old `changelog` handling
 As we changed how we process and generate changelogs the "old" changelog files are no longer needed.
-Therefore, we removed all the internal code used to generate and validate them. 
+Therefore, we removed all the internal code used to generate and validate them.
 The whole `Shopware\Core\Framework\Changelog` namespace was removed. The code is not needed anymore, you should adjust the `RELEASE_INFO` and `UPGRADE` files manually instead.
 
 ### Deprecated the `\Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper`
@@ -108,6 +108,9 @@ Payment tokens are no longer deleted immediately after use. A new scheduled task
 ## Administration
 
 ## Storefront
+
+### Language selector twig blocks
+New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added to the language selector to allow custom flag implementations.
 
 ### Added specific `add-product-by-number` template
 

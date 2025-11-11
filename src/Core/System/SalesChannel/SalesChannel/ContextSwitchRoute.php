@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
@@ -44,7 +45,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         private readonly DataValidator $validator,
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly SalesChannelContextService $contextService,
+        private readonly SalesChannelContextServiceInterface $contextService,
     ) {
     }
 

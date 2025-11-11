@@ -170,7 +170,7 @@ The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Me
 
 The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` now uses the language repository directly to fetch language information.
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
-which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object. 
+which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object.
 
 ## Removal of `ZugferdDocument::getPrice()`
 The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` was removed, replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
@@ -267,7 +267,7 @@ foreach ($entities as $entity) {
 
 ## Removed translation of import/export profile label
 
-The translation of the import/export profile label has been removed.  
+The translation of the import/export profile label has been removed.
 Profiles are now identified and displayed only by their technical name.
 - The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
   - `getLabel()`
@@ -340,6 +340,12 @@ Refection has significantly improved in particular since PHP 8.1, therefore the 
 + $fileName = \ReflectionClass(MyClass::class)->getFileName();
 ```
 
+## Removal of ErrorRoutes
+
+`Shopware\Core\Checkout\Cart\Error\ErrorRoute` is specific to the standard Storefront and therefore should not be in the Core package.
+At the same time, the Storefront does not properly use this class.
+Therefore, the class, and the `route` property of `Shopware\Core\Checkout\Cart\Error\CartError` have been removed.
+
 </details>
 
 # Administration
@@ -372,7 +378,7 @@ Profiles are now identified and displayed only by their technical name.
   - `sw_import_export_edit_profile_general_container_name` (`sw-import-export-edit-profile-general.html.twig`)
   - `sw_import_export_view_profile_profiles_listing_column_label` (`sw-import-export-view-profiles.html.twig`)
   - `sw_import_export_language_switch` (`sw-import-export.html.twig`)
-  
+
 ## Removed admin notification entity + related classes
 
 You should update your code to reference the new classes:
@@ -405,6 +411,10 @@ The following snippet keys have been removed:
 # Storefront
 
 <details>
+
+## Removal of hardcoded language flags
+
+Hardcoded CSS language flags in `src/Storefront/Resources/app/storefront/src/scss/component/_flags.scss` were removed.
 
 ## Deprecated DomAccess Helper
 
@@ -614,6 +624,10 @@ The `CountryStateController` route `/country/country-state-data` now supports on
 # Hosting & Configuration
 
 <details>
+
+## Dropped support for OpenSearch 1.x
+
+OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported. Please update OpenSearch to the latest supported Version.
 
 ## Removed configuration of Filesystem visibility in config array
 

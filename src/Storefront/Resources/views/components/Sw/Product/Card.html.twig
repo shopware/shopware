@@ -9,7 +9,7 @@
 {% set horizontal = (layout == 'horizontal') %}
 
 {% set cardCVA = cva({
-    base: 'product-card card h-100',
+    base: 'sw-product-card card h-100',
     variants: {
         layout: {
             default: 'is--layout-default',
@@ -26,9 +26,9 @@
 
 <div class="{{ cardCVA.apply({ layout, mediaDisplay }, attributes.render('class')) }}">
 
-    <div class="product-card__inner d-flex h-100">
+    <div class="sw-product-card__inner d-flex h-100">
 
-        <div {{ attributes.nested('header').defaults({ class: 'product-card-header position-relative overflow-hidden' }) }}>
+        <div {{ attributes.nested('header').defaults({ class: 'sw-product-card__header position-relative overflow-hidden' }) }}>
 
             <twig:Slot name="header-top"></twig:Slot>
 
@@ -38,7 +38,7 @@
                         {{ ...attributes.nested('media').defaults({
                             media: product.cover.media,
                             height: mediaHeight,
-                            class: 'card-img-top product-card-media object-fit-contain',
+                            class: 'card-img-top sw-product-card__media object-fit-contain',
                             sizes: '800px',
                             loading: 'lazy'
                         }) }}
@@ -57,16 +57,16 @@
 
         <div class="sw-product-card__content d-flex flex-fill flex-column">
 
-            <div {{ attributes.nested('body').defaults({ class: 'product-card-body card-body' }) }}>
+            <div {{ attributes.nested('body').defaults({ class: 'sw-product-card__body card-body' }) }}>
 
                 <twig:Slot name="body-top"></twig:Slot>
 
                 {% block title %}
                     <twig:Slot name="title">
-                        <h2 {{ attributes.nested('title').defaults({ class: 'product-card-title card-title fw-semibold' }) }}>
+                        <h2 {{ attributes.nested('title').defaults({ class: 'sw-product-card__title card-title fw-semibold' }) }}>
                             <a
                                 {{ attributes.nested('title-link').defaults({
-                                    class: 'product-card-title-link stretched-link',
+                                    class: 'sw-product-card__title-link stretched-link',
                                     href: defaultRoute,
                                     style: "--sw-product-card-media-height: #{mediaHeight}px",
                                 }) }}
@@ -85,7 +85,9 @@
 
                 {% if not displayParent %}
                     <twig:Slot name="variants">
-                        <twig:Sw:Product:Variants :variants="product.variation" />
+                        {% if product.variation is not null %}
+                            <twig:Sw:Product:Variants :variants="product.variation" />
+                        {% endif %}
                     </twig:Slot>
                 {% endif %}
 
@@ -96,7 +98,7 @@
                 <twig:Slot name="body-bottom"></twig:Slot>
             </div>
 
-            <div {{ attributes.nested('footer').defaults({ class: 'product-card-footer card-footer border-0 pt-0' }) }}>
+            <div {{ attributes.nested('footer').defaults({ class: 'sw-product-card__footer card-footer border-0 pt-0' }) }}>
 
                 <twig:Slot name="footer-top"></twig:Slot>
 

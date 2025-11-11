@@ -44,9 +44,9 @@ class ProductListing extends ShopwareComponent {
         }
 
         // Delete the filter parameter if it is empty.
-        if (value === null || 
-            value === undefined || 
-            value === '' || 
+        if (value === null ||
+            value === undefined ||
+            value === '' ||
             value === false ||
             value.length === 0) {
             delete this.activeParams[paramName];
@@ -121,7 +121,7 @@ class ProductListing extends ShopwareComponent {
 
     changeLayout(layout) {
         const grid = this.el.querySelector('.product-listing__grid');
-        const productCards = grid.querySelectorAll('.product-card');
+        const productCards = grid.querySelectorAll('.sw-product-card');
         const gridClasses = this.options.layoutGridClasses;
         const layoutClasses = Object.keys(this.options.layoutGridClasses).map(layout => `is--layout-${layout}`);
 

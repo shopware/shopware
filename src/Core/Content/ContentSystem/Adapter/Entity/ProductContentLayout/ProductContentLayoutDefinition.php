@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayou
 
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
 use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingsField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -68,9 +70,23 @@ class ProductContentLayoutDefinition extends EntityDefinition implements Content
 
     public function getPageDataRequirements(SalesChannelContext $context): array
     {
-        // Product pages currently have no page-level data requirements
-        // This can be extended to add navigation, footer, or other global requirements
-        return [];
+        return [
+            new DataRequirement(
+                key: 'product',
+                source: 'entity',
+                config: new EntityLoaderConfig(
+                    entity: 'product',
+                    property: 'productId',
+                    associations: [
+                        'manufacturer.media',
+                        'options.group',
+                        'properties.group',
+                        'mainCategories.category',
+                        'media.media',
+                    ]
+                )
+            ),
+        ];
     }
 
     protected function defineFields(): FieldCollection

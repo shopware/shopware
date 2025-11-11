@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentL
 
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
 use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingsField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -68,9 +70,17 @@ class LandingPageContentLayoutDefinition extends EntityDefinition implements Con
 
     public function getPageDataRequirements(SalesChannelContext $context): array
     {
-        // Landing page pages currently have no page-level data requirements
-        // This can be extended to add navigation, footer, or other global requirements
-        return [];
+        return [
+            new DataRequirement(
+                key: 'landing_page',
+                source: 'entity',
+                config: new EntityLoaderConfig(
+                    entity: 'landing_page',
+                    property: 'landingPageId',
+                    associations: []
+                )
+            ),
+        ];
     }
 
     protected function defineFields(): FieldCollection

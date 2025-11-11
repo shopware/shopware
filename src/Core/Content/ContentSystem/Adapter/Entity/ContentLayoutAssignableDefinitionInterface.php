@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Adapter\Entity;
 
+use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -49,7 +50,7 @@ interface ContentLayoutAssignableDefinitionInterface
      * Entity definitions can return context-aware requirements based on
      * sales channel, customer group, or other contextual information.
      *
-     * @return array<\Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement>
+     * @return array<DataRequirement>
      */
     public function getPageDataRequirements(SalesChannelContext $context): array;
 }

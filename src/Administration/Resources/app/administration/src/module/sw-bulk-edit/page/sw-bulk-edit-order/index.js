@@ -481,7 +481,9 @@ export default {
                             }
 
                             payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
-                            payload.internalComment = this.bulkEditData?.transitionInternalComment?.value || null;
+                            payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged
+                                ? this.bulkEditData?.transitionInternalComment?.value || null
+                                : null;
                             payload.value = this.order?.[key];
                             data.statusData.push(payload);
                         } else if (key !== 'documents' && key !== 'statusMails') {

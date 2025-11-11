@@ -344,11 +344,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-renderer').exists()).toBeTruthy();
     });
 
-    it('should disable status mails and documents by default', async () => {
+    it('should disable transitionInternalComment, status mails and documents by default', async () => {
         wrapper = await createWrapper();
 
         await flushPromises();
 
+        expect(
+            wrapper
+                .find('.sw-bulk-edit-change-field-transitionInternalComment .mt-field--checkbox__container input')
+                .attributes().disabled,
+        ).toBeDefined();
         expect(
             wrapper.find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input').attributes()
                 .disabled,
@@ -358,7 +363,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         ).toBeDefined();
     });
 
-    it('should enable status mails when one of the status fields has changed', async () => {
+    it('should enable transitionInternalComment and status mails when one of the status fields has changed', async () => {
         wrapper = await createWrapper();
 
         await flushPromises();
@@ -375,6 +380,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
+        expect(
+            wrapper
+                .find('.sw-bulk-edit-change-field-transitionInternalComment .mt-field--checkbox__container input')
+                .attributes().disabled,
+        ).toBeUndefined();
         expect(
             wrapper.find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input').attributes()
                 .disabled,
@@ -714,6 +724,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 orderDeliveries: {
                     isChanged: false,
                 },
+                transitionInternalComment: {
+                    isChanged: false,
+                },
                 statusMails: {
                     isChanged: false,
                 },
@@ -734,6 +747,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     isChanged: false,
                 },
                 orderDeliveries: {
+                    isChanged: false,
+                },
+                transitionInternalComment: {
                     isChanged: false,
                 },
                 statusMails: {
@@ -759,6 +775,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 },
                 orderDeliveries: {
                     isChanged: true,
+                },
+                transitionInternalComment: {
+                    isChanged: false,
                 },
                 statusMails: {
                     isChanged: false,

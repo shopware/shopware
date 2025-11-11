@@ -471,7 +471,8 @@
         "user": "Changed By",
         "transaction": "Payment",
         "delivery": "Shipping",
-        "order": "Order"
+        "order": "Order",
+        "internalComment": "Internal comment"
       }
     },
     "newCustomerModal": {

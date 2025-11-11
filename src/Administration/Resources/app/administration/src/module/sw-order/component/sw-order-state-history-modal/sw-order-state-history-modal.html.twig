@@ -71,6 +71,17 @@
         </template>
         {% endblock %}
 
+        {% block sw_order_state_history_modal_content_columns_internal_comment %}
+        <template #column-internalComment="{ item }">
+            <sw-icon
+                v-if="item.internalComment"
+                name="regular-comment"
+                size="20px"
+                v-tooltip="item.internalComment"
+            />
+        </template>
+        {% endblock %}
+
         <template #pagination>
             <sw-pagination
                 :page="page"

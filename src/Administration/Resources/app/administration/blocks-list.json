@@ -4122,6 +4122,7 @@
  "sw_order_state_history_modal_content_columns_created_at",
  "sw_order_state_history_modal_content_columns_delivery_state",
  "sw_order_state_history_modal_content_columns_entity",
+ "sw_order_state_history_modal_content_columns_internal_comment",
  "sw_order_state_history_modal_content_columns_order_state",
  "sw_order_state_history_modal_content_columns_transaction_state",
  "sw_order_state_history_modal_content_columns_user",

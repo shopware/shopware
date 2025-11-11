@@ -777,7 +777,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     it('should restrict fields on including orders without delivery', async () => {
         wrapper = await createWrapper();
 
-        expect(wrapper.vm.statusFormFields).toHaveLength(5);
+        expect(wrapper.vm.statusFormFields).toHaveLength(6);
         expect(wrapper.vm.statusFormFields[1].name).toBe('orderDeliveries');
 
         await wrapper.vm.$router.push({
@@ -787,7 +787,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.statusFormFields).toHaveLength(4);
+        expect(wrapper.vm.statusFormFields).toHaveLength(5);
         expect(wrapper.vm.statusFormFields[1].name).not.toBe('orderDeliveries');
     });
 

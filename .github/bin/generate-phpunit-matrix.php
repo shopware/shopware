@@ -45,6 +45,7 @@ if ($nightly) {
         'db' => 'mysql:8.0',
         'opensearch' => ['opensearchproject/opensearch:2'],
     ];
+    /** @deprecated tag:v6.8.0 - Support for OpenSearch 1 will be removed in v6.8.0 (update the docs as well!) */
     $matrix['matrix']['include'][] = [
         'test' => ['path' => '{Administration,Elasticsearch}'],
         'php' => '8.4',

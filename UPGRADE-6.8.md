@@ -22,6 +22,8 @@ The `$result` property of `Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent` 
 
 The event constructor now requires `CmsPageCollection` explicitly, and `CmsPageLoadedEvent::getResult()` return type has changed from `EntityCollection` to `CmsPageCollection`.
 
+The `Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute` now deletes customer recovery links after a customer has changed their email address.
+
 ## Introduced in 6.7.3.0
 ## Removal of deprecated controller variables
 The following will be removed in Shopware 6.8.0:

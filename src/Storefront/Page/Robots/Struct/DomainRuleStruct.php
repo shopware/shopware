@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
+use Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser;
 
 #[Package('framework')]
 class DomainRuleStruct extends Struct
@@ -68,18 +69,16 @@ class DomainRuleStruct extends Struct
 
     private function initializeFromParsed(ParsedRobots $parsed): void
     {
-        // Collect orphaned path directives
-        foreach ($parsed->orphanedPathDirectives as $directive) {
+        $allDirectives = array_merge(
+            $parsed->orphanedPathDirectives,
+            ...array_map(fn (RobotsUserAgentBlock $block) => $block->getPathDirectives(), $parsed->userAgentBlocks)
+        );
+
+        foreach ($allDirectives as $directive) {
             $directiveWithPath = $directive->withBasePath($this->basePath);
             $this->directives[] = $directiveWithPath;
-            $this->rules[] = ['type' => $directiveWithPath->type->value, 'path' => $directiveWithPath->value];
-        }
 
-        // Collect path directives from user-agent blocks
-        foreach ($parsed->userAgentBlocks as $block) {
-            foreach ($block->getPathDirectives() as $directive) {
-                $directiveWithPath = $directive->withBasePath($this->basePath);
-                $this->directives[] = $directiveWithPath;
+            if (!Feature::isActive('v6.8.0.0')) {
                 $this->rules[] = ['type' => $directiveWithPath->type->value, 'path' => $directiveWithPath->value];
             }
         }
@@ -87,24 +86,21 @@ class DomainRuleStruct extends Struct
 
     private function parseRulesFromString(string $rules): void
     {
-        $rules = explode("\n", $rules);
+        $lines = explode("\n", $rules);
 
-        foreach ($rules as $rule) {
-            $rule = explode(':', $rule, 2);
+        foreach ($lines as $line) {
+            $directive = RobotsDirectiveParser::parseDirectiveFromString($line);
 
-            $ruleType = mb_strtolower($rule[0] ?? '');
-            $directiveType = RobotsDirectiveType::tryFromInsensitive($ruleType);
-
-            // Only allow path-based directives in legacy format
-            if ($directiveType === null || !$directiveType->isPathBased()) {
+            if ($directive === null) {
                 continue;
             }
 
-            $path = $this->basePath . '/' . ltrim(trim($rule[1] ?? ''), '/');
-            $normalizedPath = '/' . ltrim($path, '/');
+            $directiveWithPath = $directive->withBasePath($this->basePath);
+            $this->directives[] = $directiveWithPath;
 
-            $this->rules[] = ['type' => $directiveType->value, 'path' => $normalizedPath];
-            $this->directives[] = new RobotsDirective($directiveType, $normalizedPath);
+            if (!Feature::isActive('v6.8.0.0')) {
+                $this->rules[] = ['type' => $directiveWithPath->type->value, 'path' => $directiveWithPath->value];
+            }
         }
     }
 }

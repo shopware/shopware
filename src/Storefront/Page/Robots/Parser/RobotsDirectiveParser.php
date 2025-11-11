@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Robots\Parser;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Robots\Event\RobotsDirectiveParsingEvent;
 use Shopware\Storefront\Page\Robots\Event\RobotsUnknownDirectiveEvent;
@@ -142,5 +143,27 @@ class RobotsDirectiveParser
         $this->eventDispatcher->dispatch($parsingEvent);
 
         return $parsingEvent->parsedResult;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0.0 - reason:becomes-obsolete - will be removed, as string parsing is deprecated
+     */
+    public static function parseDirectiveFromString(string $line): ?RobotsDirective
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'will be removed, as string parsing is deprecated')
+        );
+
+        $parts = explode(':', $line, 2);
+
+        $directiveType = mb_strtolower($parts[0] ?? '');
+        $directiveTypeEnum = RobotsDirectiveType::tryFromInsensitive($directiveType);
+
+        if ($directiveTypeEnum === null || !$directiveTypeEnum->isPathBased()) {
+            return null;
+        }
+
+        return new RobotsDirective($directiveTypeEnum, trim($parts[1] ?? ''));
     }
 }

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\SystemCheck\DocumentRenderReadinessCheck;
 use Shopware\Core\Framework\Context;
@@ -110,18 +111,19 @@ class DocumentRenderReadinessCheckTest extends TestCase
 
     private function generateDocument(string $documentType, string $orderId): void
     {
-        var_dump('Generating document: ' . $documentType);
-        $operation = new DocumentGenerateOperation($orderId);
+        $operation = new DocumentGenerateOperation(
+            $orderId,
+            PdfRenderer::FILE_EXTENSION,
+            [
+                'companyName' => 'Test Company'
+            ]
+        );
 
         $result = $this->documentGenerator->generate(
             $documentType,
             [$orderId => $operation],
             Context::createDefaultContext()
-            //        )->getSuccess()->first();
-        );
-        //        var_dump($result);
-        var_dump('errors:', $result->getErrors());
-        var_dump('errors:', $result->getSuccess()->first());
+        )->getSuccess()->first();
 
         static::assertNotNull($result->getSuccess()->first());
     }

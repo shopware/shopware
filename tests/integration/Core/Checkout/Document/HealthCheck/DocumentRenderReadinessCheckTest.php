@@ -117,11 +117,10 @@ class DocumentRenderReadinessCheckTest extends TestCase
             $documentType,
             [$orderId => $operation],
             Context::createDefaultContext()
-//        )->getSuccess()->first();
+            //        )->getSuccess()->first();
         );
-//        var_dump($result);
+        //        var_dump($result);
         var_dump($result->getErrors());
-
 
         static::assertNotNull($result->getSuccess()->first());
     }

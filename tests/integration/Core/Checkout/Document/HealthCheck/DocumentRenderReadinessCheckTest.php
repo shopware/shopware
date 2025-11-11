@@ -115,7 +115,7 @@ class DocumentRenderReadinessCheckTest extends TestCase
             $orderId,
             PdfRenderer::FILE_EXTENSION,
             [
-                'companyName' => 'Test Company'
+                'companyName' => 'Test Company',
             ]
         );
 
@@ -125,6 +125,6 @@ class DocumentRenderReadinessCheckTest extends TestCase
             Context::createDefaultContext()
         )->getSuccess()->first();
 
-        static::assertNotNull($result->getSuccess()->first());
+        static::assertNotNull($result);
     }
 }

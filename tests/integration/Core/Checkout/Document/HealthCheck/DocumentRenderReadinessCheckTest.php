@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\HealthCheck;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
@@ -81,7 +83,8 @@ class DocumentRenderReadinessCheckTest extends TestCase
         static::assertSame('No orders found; document previews are skipped.', $result->message);
     }
 
-    public function testAllDocumentsRenderedSuccessfully(): void
+    #[DataProvider('documentTypeProvider')]
+    public function testAllDocumentsRenderedSuccessfully(string $documentType): void
     {
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
@@ -89,19 +92,32 @@ class DocumentRenderReadinessCheckTest extends TestCase
         $sql = 'SELECT count(*) FROM `document`';
         static::assertSame(0, (int) $this->connection->fetchOne($sql));
 
-        $this->generateDocument(InvoiceRenderer::TYPE, $orderId);
-        $this->generateDocument(DeliveryNoteRenderer::TYPE, $orderId);
-        $this->generateDocument(ZugferdRenderer::TYPE, $orderId);
-        $this->generateDocument(ZugferdEmbeddedRenderer::TYPE, $orderId);
+        $this->generateDocument($documentType, $orderId);
 
         $healthCheck = $this->createCheck();
         $healthCheckResult = $healthCheck->run();
 
-        static::assertSame(4, (int) $this->connection->fetchOne($sql));
+        static::assertSame(1, (int) $this->connection->fetchOne($sql));
 
         static::assertTrue($healthCheckResult->healthy);
         static::assertSame(Status::OK, $healthCheckResult->status);
         static::assertSame('All documents rendered successfully.', $healthCheckResult->message);
+    }
+
+    public static function documentTypeProvider(): \Generator
+    {
+        yield 'invoice' => [
+            'documentType' => InvoiceRenderer::TYPE,
+        ];
+        yield 'delivery note' => [
+            'documentType' => DeliveryNoteRenderer::TYPE,
+        ];
+        yield 'zugferd ' => [
+            'documentType' => ZugferdRenderer::TYPE,
+        ];
+        yield 'zugferd embedded' => [
+            'documentType' => ZugferdEmbeddedRenderer::TYPE,
+        ];
     }
 
     private function createCheck(): DocumentRenderReadinessCheck

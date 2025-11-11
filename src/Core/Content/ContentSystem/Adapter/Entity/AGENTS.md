@@ -28,7 +28,7 @@ $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::DESCENDIN
 $criteria->setLimit(1);
 ```
 
-See `EntityLayoutFinder::findLayoutAssignment()`.
+See `EntityLayoutResolver::resolve()` in `Adapter/FactoryHelper/`.
 
 ## Unique Constraints
 

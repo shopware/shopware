@@ -31,13 +31,16 @@ Both endpoints accept optional query parameters:
 
 ## Pipeline Orchestration
 
-Both routes delegate to context factories via Chain of Responsibility pattern to create RenderingSpecification. ContentRouteLoader then orchestrates three phases:
+Both routes delegate to context factories via Chain of Responsibility pattern to create RenderingSpecification. ContentRouteLoader then orchestrates six phases:
 
 1. **Factory Selection**: Iterate context factories in DI priority order, first non-null RenderingSpecification wins
-2. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
-3. **Hydration**: ContentElementHydrator loads data + resolves context
+2. **Load**: LayoutLoader loads ContentLayoutEntity from repository
+3. **Scaffold**: ScaffoldingProcessor wraps layout structure
+4. **Refinement**: RefinedLayoutBuilder refines layout, LayoutRefinery applies refiners
+5. **Hydration**: ContentElementHydrator loads data + resolves context
+6. **Dismantle**: ScaffoldingProcessor unwraps scaffolding to restore original structure
 
-If `elementId` query parameter is present, SubTreeExtractor performs partial rendering after hydration.
+If `elementId` query parameter is present, partial rendering happens in two phases: PartialRenderingRefiner prunes before hydration, SubTreeExtractor extracts after dismantle.
 
 **Response Format Difference:**
 - ContentRoute returns `ContentPage` directly (full element trees)

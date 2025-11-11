@@ -5,9 +5,9 @@
 ## Source Code References
 
 - `RenderingSpecificationFactoryInterface` - Factory contract (root ContentSystem/)
-- `ProductContextFactory` - Product entity factory
-- `CategoryContextFactory` - Category entity factory
-- `LandingPageContextFactory` - Landing page entity factory
+- `ProductContentLayoutContextFactory` - Product entity factory
+- `CategoryContentLayoutContextFactory` - Category entity factory
+- `LandingPageContentLayoutContextFactory` - Landing page entity factory
 - `LayoutSearchHelper` - Shared query logic
 - `RouteBasedContextFactory` - Route-based factory (Routing/)
 

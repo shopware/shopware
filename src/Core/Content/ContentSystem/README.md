@@ -10,12 +10,15 @@ Traditional URL-based content routing. Routes stored in DB (not container config
 
 **Endpoint:** `/store-api/content/{path}`
 
-Five-phase pipeline:
+Eight-phase pipeline:
 1. **Route Matching**: URL → matched content route
 2. **Entity Resolution**: URL parameters → entity IDs
 3. **Layout Resolution**: Route + context → content layout
-4. **Refinement**: Layout + resolved data → refined layout
-5. **Hydration**: Refined layout + data requirements → populated content tree
+4. **Load**: Layout ID → ContentLayoutEntity
+5. **Scaffold**: Wrap layout structure for rendering
+6. **Refinement**: Layout + resolved data → refined layout
+7. **Hydration**: Refined layout + data requirements → populated content tree
+8. **Dismantle**: Unwrap scaffolding to restore original structure
 
 ### Entity-Based Rendering (NEW)
 
@@ -24,14 +27,17 @@ Adapts CMS-capable entities to ContentSystem rendering. Products, Categories, an
 **Endpoint:** `/store-api/content/{path}`
 
 **Supported path patterns:**
-- `product/{productId}` - Direct product rendering (handled by ProductContextFactory)
-- `category/{categoryId}` - Direct category rendering (handled by CategoryContextFactory)
-- `landing-page/{landingPageId}` - Direct landing page rendering (handled by LandingPageContextFactory)
+- `product/{productId}` - Direct product rendering (handled by ProductContentLayoutContextFactory)
+- `category/{categoryId}` - Direct category rendering (handled by CategoryContentLayoutContextFactory)
+- `landing-page/{landingPageId}` - Direct landing page rendering (handled by LandingPageContentLayoutContextFactory)
 
-Three-phase pipeline:
-1. **Layout Resolution**: Entity ID + sales channel → content layout (via `LayoutSearchHelper` with entity-specific factories)
-2. **Refinement**: Layout + placeholder values → refined layout
-3. **Hydration**: Refined layout + data requirements → populated content tree
+Six-phase pipeline:
+1. **Layout Resolution**: Entity ID + sales channel → content layout assignment
+2. **Load**: Layout ID → ContentLayoutEntity
+3. **Scaffold**: Wrap layout structure for rendering
+4. **Refinement**: Layout + placeholder values → refined layout
+5. **Hydration**: Refined layout + data requirements → populated content tree
+6. **Dismantle**: Unwrap scaffolding to restore original structure
 
 **Key Difference:** No routing infrastructure needed. Direct entity → layout → rendered content.
 
@@ -45,19 +51,21 @@ Can't use Symfony's standard route registration because routes are runtime data.
 
 ```
 URL → ContentRouter → EntityIdResolver → LayoutResolver → RouteBasedContextFactory
-  → RenderingSpecification → RefinedLayoutBuilder → ContentElementHydrator → Response
+  → RenderingSpecification → LayoutLoader → ScaffoldingProcessor → RefinedLayoutBuilder
+  → ContentElementHydrator → ScaffoldingProcessor → Response
 ```
 
-Routes contain URL patterns (`/product/{seoUrl}`) with parameter bindings that map placeholders to entities. EntityIdResolver queries entities based on these bindings. LayoutResolver determines which content layout to use via priority-based assignment matching. RouteBasedContextFactory dissolves routing concepts into RenderingSpecification. Layout is refined and hydrated with data before rendering.
+Routes contain URL patterns (`/product/{seoUrl}`) with parameter bindings that map placeholders to entities. EntityIdResolver queries entities based on these bindings. LayoutResolver determines which content layout to use via priority-based assignment matching. RouteBasedContextFactory dissolves routing concepts into RenderingSpecification. Layout is loaded, scaffolded, refined, hydrated, and dismantled before rendering.
 
 ### Entity-Based Flow
 
 ```
-Entity ID → ProductContextFactory/CategoryContextFactory/LandingPageContextFactory → LayoutSearchHelper
-  → RenderingSpecification → RefinedLayoutBuilder → ContentElementHydrator → Response
+Entity ID → ProductContentLayoutContextFactory/CategoryContentLayoutContextFactory/LandingPageContentLayoutContextFactory
+  → RenderingSpecification → LayoutLoader → ScaffoldingProcessor → RefinedLayoutBuilder
+  → ContentElementHydrator → ScaffoldingProcessor → Response
 ```
 
-Direct entity-to-layout lookup. ProductContextFactory/CategoryContextFactory/LandingPageContextFactory use LayoutSearchHelper to query `product_content_layout`, `category_content_layout`, or `landing_page_content_layout` table with sales channel fallback (specific → global). Factory creates RenderingSpecification with entity ID as placeholder. Same rendering pipeline as route-based, but no routing infrastructure involved.
+Direct entity-to-layout lookup. Entity-specific factories query assignment tables (`product_content_layout`, `category_content_layout`, `landing_page_content_layout`) with sales channel fallback (specific → global). Factory creates RenderingSpecification with entity ID as placeholder. Same rendering pipeline as route-based, but no routing infrastructure involved.
 
 ## Key Classes
 
@@ -68,14 +76,16 @@ Direct entity-to-layout lookup. ProductContextFactory/CategoryContextFactory/Lan
 - `RouteBasedContextFactory` - Creates specification from routing (Routing/)
 
 ### Entity-Based (NEW)
-- `ProductContextFactory` - Product ID + sales channel → specification (Adapter/)
-- `CategoryContextFactory` - Category ID + sales channel → specification (Adapter/)
-- `LandingPageContextFactory` - Landing page ID + sales channel → specification (Adapter/)
-- `LayoutSearchHelper` - Shared query logic with sales channel fallback (Adapter/)
+- `ProductContentLayoutContextFactory` - Product ID + sales channel → specification (Adapter/)
+- `CategoryContentLayoutContextFactory` - Category ID + sales channel → specification (Adapter/)
+- `LandingPageContentLayoutContextFactory` - Landing page ID + sales channel → specification (Adapter/)
+- `EntityLayoutResolver` - Shared layout resolution logic (Adapter/FactoryHelper/)
 
 ### Shared Rendering Pipeline
 - `RenderingSpecification` - Complete rendering specification (layout ID + placeholders + target element)
 - `PlaceholderValues` - Immutable map of placeholder values
+- `LayoutLoader` - Loads ContentLayoutEntity from repository (Layout/Loader/)
+- `ScaffoldingProcessor` - Orchestrates scaffolder execution (Layout/Scaffolding/)
 - `ContentElement` - Tree structure with slots, data requirements, context (Layout/Element/)
 - `LayoutRefinery` - Single-pass refinement, no recursive placeholders (Layout/Refinery/)
 - `ContentElementHydrator` - Loads data + resolves context (Hydration/)
@@ -95,7 +105,7 @@ The rendering pipeline (refinement → hydration → output) is completely indep
 ## Subdirectories
 
 - Routing/: URL matching, entity resolution, layout resolution (for route-based rendering)
-- Layout/: Element tree structure, type system, refinement
+- Layout/: Element tree structure, type system, refinement, scaffolding
 - Hydration/: Data loading, context distribution
 - SalesChannel/: Store API endpoints
 - Adapter/: Entity adaptation for CMS-capable entities (Product, Category, Landing Page)

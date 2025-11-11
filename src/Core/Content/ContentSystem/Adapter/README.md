@@ -31,10 +31,11 @@ LayoutSearchHelper queries with priority: sales channel specific → global.
 
 ## Key Classes
 
-- `ProductContextFactory` - Creates RenderingSpecification for product paths
-- `CategoryContextFactory` - Creates RenderingSpecification for category paths
-- `LandingPageContextFactory` - Creates RenderingSpecification for landing page paths
-- `LayoutSearchHelper` - Shared query logic with sales channel fallback
+- `ProductContentLayoutContextFactory` - Creates RenderingSpecification for product paths
+- `CategoryContentLayoutContextFactory` - Creates RenderingSpecification for category paths
+- `LandingPageContentLayoutContextFactory` - Creates RenderingSpecification for landing page paths
+- `EntityLayoutResolver` (FactoryHelper/) - Shared layout resolution and placeholder processing
+- `EntityLayoutContextFactory` (FactoryHelper/) - Shared entity-to-specification transformation
 
 ## Implementation
 
@@ -44,4 +45,5 @@ RouteBasedContextFactory (Routing/) handles all non-entity paths as catch-all.
 
 ## Subdirectories
 
-None currently. All classes in Adapter/ root.
+- FactoryHelper/: Shared logic for entity layout resolution and context factory processing
+- Entity/: Entity definition interfaces and implementations for content layout assignable entities

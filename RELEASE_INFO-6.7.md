@@ -29,6 +29,10 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 #...
 ```
 
+### Fixed mixed struct/scalar array encoding
+
+The `StructEncoder` now correctly handles arrays containing a mix of `Struct` objects and scalar values. Previously, the encoder would fail when scalar values appeared at the beginning or were interspersed with Struct instances in an array. The encoding logic now properly iterates through arrays and encodes only Struct objects while preserving scalar values.
+
 ## Core
 
 ### new JWT helper

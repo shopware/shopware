@@ -11,8 +11,10 @@ Now, tax rules are applied **correctly** based on customer type.
 ## API
 
 ## Core
-* Added `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` to parse `robots.txt` files with error tracking and extensibility events.
-* The constructor of `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` is now deprecated for string parameters and support for this will be removed with the next major version. Use a `ParsedRobots` object instead.
+
+### Robots.txt parsing
+A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.
+As part of this change, the constructor for `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` is now deprecated for string parameters. You should use the new parser to create a `ParsedRobots` object to pass to the constructor instead.
 
 ### new JWT helper
 Added new `Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator` and `Shopware\Core\Framework\JWT\Struct\JWTStruct` to build general structure for encoding and decoding JWT.

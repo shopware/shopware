@@ -625,6 +625,10 @@ The `CountryStateController` route `/country/country-state-data` now supports on
 
 <details>
 
+## Dropped support for OpenSearch 1.x
+
+OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported. Please update OpenSearch to the latest supported Version.
+
 ## Removed configuration of Filesystem visibility in config array
 
 The visibility of filesystems cannot be configured in the config array anymore. Instead, it should be set on the same level as `type`. For example, instead of:

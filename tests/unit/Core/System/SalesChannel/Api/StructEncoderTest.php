@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -292,6 +294,154 @@ class StructEncoderTest extends TestCase
         ];
 
         static::assertSame($expected, $encoded);
+    }
+
+    /**
+     * @param list<mixed> $mixedArray
+     * @param array<string, mixed> $expected
+     */
+    #[DataProvider('mixedArrayProvider')]
+    #[TestDox('Encodes mixed Struct/non-Struct arrays correctly')]
+    public function testMixedArrayEncoding(array $mixedArray, ResponseFields $responseFields, array $expected): void
+    {
+        $struct = new ArrayStruct(['items' => $mixedArray], 'test_struct');
+
+        $structEncoder = $this->createStructEncoder();
+
+        $encoded = $structEncoder->encode($struct, $responseFields);
+
+        static::assertSame($expected, $encoded);
+    }
+
+    /**
+     * @return \Generator<string, array{array<int|string, mixed>, ResponseFields, array<string, mixed>}>
+     */
+    public static function mixedArrayProvider(): \Generator
+    {
+        $manufacturer1 = (new ProductManufacturerEntity())->assign(['name' => 'Test Manufacturer']);
+        $manufacturer1->internalSetEntityData('product_manufacturer', new FieldVisibility([]));
+
+        yield 'struct at position 0' => [
+            [
+                $manufacturer1,
+                'text value',
+                42,
+            ],
+            new ResponseFields([]),
+            [
+                'apiAlias' => 'test_struct',
+                'items' => [
+                    [
+                        'versionId' => null,
+                        'translated' => [],
+                        'createdAt' => null,
+                        'updatedAt' => null,
+                        'mediaId' => null,
+                        'name' => 'Test Manufacturer',
+                        'link' => null,
+                        'description' => null,
+                        'media' => null,
+                        'translations' => null,
+                        'products' => null,
+                        'customFields' => null,
+                        'apiAlias' => 'product_manufacturer',
+                    ],
+                    'text value',
+                    42,
+                ],
+            ],
+        ];
+
+        $manufacturer2 = (new ProductManufacturerEntity())->assign(['name' => 'Test Manufacturer']);
+        $manufacturer2->internalSetEntityData('product_manufacturer', new FieldVisibility([]));
+
+        yield 'scalar at position 0' => [
+            [
+                'text value',
+                42,
+                $manufacturer2,
+            ],
+            new ResponseFields([]),
+            [
+                'apiAlias' => 'test_struct',
+                'items' => [
+                    'text value',
+                    42,
+                    [
+                        'versionId' => null,
+                        'translated' => [],
+                        'createdAt' => null,
+                        'updatedAt' => null,
+                        'mediaId' => null,
+                        'name' => 'Test Manufacturer',
+                        'link' => null,
+                        'description' => null,
+                        'media' => null,
+                        'translations' => null,
+                        'products' => null,
+                        'customFields' => null,
+                        'apiAlias' => 'product_manufacturer',
+                    ],
+                ],
+            ],
+        ];
+
+        $manufacturer3 = (new ProductManufacturerEntity())->assign(['name' => 'Test Manufacturer']);
+        $manufacturer3->internalSetEntityData('product_manufacturer', new FieldVisibility([]));
+
+        yield 'restricted fields' => [
+            [
+                $manufacturer3,
+                'text value',
+                42,
+            ],
+            new ResponseFields(['test_struct' => ['items'], 'product_manufacturer' => ['name']]),
+            [
+                'items' => [
+                    [
+                        'name' => 'Test Manufacturer',
+                        'apiAlias' => 'product_manufacturer',
+                    ],
+                    'text value',
+                    42,
+                ],
+                'apiAlias' => 'test_struct',
+            ],
+        ];
+
+        $manufacturer4 = (new ProductManufacturerEntity())->assign(['name' => 'Test Manufacturer']);
+        $manufacturer4->internalSetEntityData('product_manufacturer', new FieldVisibility([]));
+
+        yield 'associative array' => [
+            [
+                'manufacturer' => $manufacturer4,
+                'string-element' => 'text value',
+                'int-element' => 42,
+            ],
+            new ResponseFields([]),
+            [
+                'apiAlias' => 'test_struct',
+                'items' => [
+                    'manufacturer' => [
+                        'versionId' => null,
+                        'translated' => [],
+                        'createdAt' => null,
+                        'updatedAt' => null,
+                        'mediaId' => null,
+                        'name' => 'Test Manufacturer',
+                        'link' => null,
+                        'description' => null,
+                        'media' => null,
+                        'translations' => null,
+                        'products' => null,
+                        'customFields' => null,
+                        'apiAlias' => 'product_manufacturer',
+                    ],
+                    'string-element' => 'text value',
+                    'int-element' => 42,
+                ],
+            ],
+        ];
     }
 
     /**

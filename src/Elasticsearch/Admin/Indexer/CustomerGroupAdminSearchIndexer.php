@@ -53,6 +53,9 @@ final class CustomerGroupAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
+    /**
+     * @param EntityWrittenContainerEvent<covariant array<string, string>> $event Translation definitions have multiple primary keys
+     */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
         $ids = [];

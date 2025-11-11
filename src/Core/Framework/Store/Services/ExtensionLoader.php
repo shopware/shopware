@@ -49,6 +49,8 @@ class ExtensionLoader
 
     /**
      * @param ?EntityRepository<ThemeCollection> $themeRepository
+     *
+     * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
      */
     public function __construct(
         private readonly ?EntityRepository $themeRepository,
@@ -170,10 +172,12 @@ class ExtensionLoader
     {
         $isTheme = false;
 
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         if (interface_exists(ThemeInterface::class) && class_exists($plugin->getBaseClass())) {
             $implementedInterfaces = class_implements($plugin->getBaseClass());
 
             if (\is_array($implementedInterfaces)) {
+                /** @phpstan-ignore phpat.restrictNamespacesInCore */
                 $isTheme = \array_key_exists(ThemeInterface::class, $implementedInterfaces);
             }
         }

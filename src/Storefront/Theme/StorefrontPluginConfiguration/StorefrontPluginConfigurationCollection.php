@@ -36,7 +36,7 @@ class StorefrontPluginConfigurationCollection extends Collection
 
     public function getThemes(): StorefrontPluginConfigurationCollection
     {
-        return $this->filter(fn (StorefrontPluginConfiguration $configuration) => $configuration->getIsTheme());
+        return $this->filter(fn (StorefrontPluginConfiguration $configuration) => $configuration->getIsTheme() === true);
     }
 
     public function getNoneThemes(): StorefrontPluginConfigurationCollection

@@ -51,7 +51,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -2134,7 +2133,7 @@ class VersioningTest extends TestCase
         $repository = static::getContainer()->get('payment_method.repository');
 
         $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop = new \ReflectionProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [

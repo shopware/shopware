@@ -117,20 +117,18 @@ class RefreshIndexCommandTest extends TestCase
         return $id;
     }
 
-    /**
-     * @return array<string, string>|string
-     */
-    private function getRootCategoryId()
+    private function getRootCategoryId(): string
     {
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('category.parentId', null));
         $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
 
-        $categories = $this->categoryRepository
+        $firstCategoryId = $this->categoryRepository
             ->searchIds($criteria, Context::createDefaultContext())
-            ->getIds();
+            ->firstId();
+        static::assertNotNull($firstCategoryId);
 
-        return $categories[0];
+        return $firstCategoryId;
     }
 }

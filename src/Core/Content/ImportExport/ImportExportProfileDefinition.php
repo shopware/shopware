@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -39,9 +40,9 @@ class ImportExportProfileDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('technical_name', 'technicalName'))->addFlags(new Required()),
+            (new StringField('technical_name', 'technicalName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('label'))->addFlags(new Required()),
             new StringField('type', 'type'),
             new BoolField('system_default', 'systemDefault'),
@@ -55,7 +56,5 @@ class ImportExportProfileDefinition extends EntityDefinition
             (new OneToManyAssociationField('importExportLogs', ImportExportLogDefinition::class, 'profile_id'))->addFlags(new SetNullOnDelete()),
             (new TranslationsAssociationField(ImportExportProfileTranslationDefinition::class, 'import_export_profile_id'))->addFlags(new Required()),
         ]);
-
-        return $fields;
     }
 }

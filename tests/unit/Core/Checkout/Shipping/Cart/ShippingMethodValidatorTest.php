@@ -162,7 +162,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(ShippingMethodBlockedError::class, $errors->first());
-        static::assertSame('shipping-method-blocked-Express', $errors->first()->getId());
+        static::assertSame('shipping-method-blocked-1', $errors->first()->getId());
     }
 
     public function testValidateWithMultiDeliveries(): void
@@ -203,7 +203,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(ShippingMethodBlockedError::class, $errors->first());
-        static::assertSame('shipping-method-blocked-Express', $errors->first()->getId());
+        static::assertSame('shipping-method-blocked-1', $errors->first()->getId());
     }
 
     private function generateDeliveryTimeDummy(): DeliveryTimeEntity

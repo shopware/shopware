@@ -14,7 +14,6 @@ use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -55,7 +54,7 @@ class NavigationLoaderTest extends TestCase
         $categories = $this->createSimpleTree();
 
         /** @var Tree $tree */
-        $tree = ReflectionHelper::getMethod(NavigationLoader::class, 'getTree')->invoke($loader, '1', new CategoryCollection($categories), \array_shift($categories));
+        $tree = (new \ReflectionMethod(NavigationLoader::class, 'getTree'))->invoke($loader, '1', new CategoryCollection($categories), \array_shift($categories));
 
         $treeItems = $tree->getTree();
 

@@ -1,15 +1,9 @@
-@import "~scss/variables";
-
 .sw-first-run-wizard-mailer-local {
-    width: 100%;
-
-    .sw-settings-mailer-local {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-column-gap: 30px;
+    h2 {
+        margin-bottom: var(--scale-size-8);
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
     }
-}
-
-.sw-first-run-wizard-modal .sw-first-run-wizard-modal-content .sw-first-run-wizard-modal-content__page {
-    align-items: start;
 }

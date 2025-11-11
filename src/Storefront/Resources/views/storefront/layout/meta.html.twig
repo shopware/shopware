@@ -150,10 +150,11 @@
             <script>
                 window.activeNavigationId = '{{ shopware.navigation.id }}';
                 window.activeRoute = '{{ activeRoute }}';
-                window.activeRouteParameters = '{{ app.request.attributes.get('_route_params')|json_encode|escape('js') }}';
+                window.activeRouteParameters = '{{ (app.request.attributes.get('_route_params') ?? {})|json_encode|escape('js') }}';
                 window.router = {
                     'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
                     'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
+                    'frontend.cookie.groups': '{{ path('frontend.cookie.groups') }}',
                     'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
                     'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
                     'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',

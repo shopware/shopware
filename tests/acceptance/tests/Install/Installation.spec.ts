@@ -30,7 +30,7 @@ test('Install a new Shopware instance.', { tag: '@Install' }, async ({ InstallPa
     await page.locator('#shop-configuration div').filter({ hasText: 'Almost done. You just need to make some few basic settings in your shop, Shopwar' }).click();
 
     await page.getByLabel('Shop email address:').fill('mustermann@example.com');
-    await page.locator('label').filter({ hasText: 'Pound sterling (UK)' }).click();
+    await page.locator('#config_shop_currency').selectOption('GBP');
 
     await page.getByLabel('Admin email:').fill('admin@example.com');
 

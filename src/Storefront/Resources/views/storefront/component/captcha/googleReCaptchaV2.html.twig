@@ -11,8 +11,9 @@
             type="text"
             class="d-none grecaptcha-v2-input"
             name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER') }}"
-            data-validation="required"
-            data-validate-hidden="true">
+            data-validation="grecaptcha,required"
+            data-validate-hidden="true"
+            aria-describedby="grecaptcha-feedback-container">
 
         <div class="grecaptcha-v2-container"></div>
 
@@ -25,5 +26,7 @@
                 </div>
             {% endif %}
         {% endif %}
+
+        <div id="grecaptcha-feedback-container" class="form-field-feedback" style="display: none;"></div>
     </div>
 {% endblock %}

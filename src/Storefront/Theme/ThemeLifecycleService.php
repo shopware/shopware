@@ -119,9 +119,9 @@ class ThemeLifecycleService
         }
 
         $parentThemes = $this->getParentThemes($configuration, $themeData['id']);
+        /** @var Criteria<array<string, string>> $parentCriteria */
         $parentCriteria = new Criteria();
         $parentCriteria->addFilter(new EqualsFilter('childId', $themeData['id']));
-        /** @var list<array<string, string>> $toDeleteIds */
         $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getIds();
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
@@ -198,10 +198,7 @@ class ThemeLifecycleService
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'theme'));
         $criteria->setLimit(1);
 
-        /** @var list<string> $defaultFolderIds */
-        $defaultFolderIds = $this->mediaFolderRepository->searchIds($criteria, $context)->getIds();
-
-        return \count($defaultFolderIds) === 1 ? $defaultFolderIds[0] : null;
+        return $this->mediaFolderRepository->searchIds($criteria, $context)->firstId();
     }
 
     /**

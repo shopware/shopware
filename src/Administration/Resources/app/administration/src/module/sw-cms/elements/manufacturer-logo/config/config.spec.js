@@ -47,6 +47,10 @@ const defaultProps = {
                 source: 'static',
                 value: false,
             },
+            fetchPriorityHigh: {
+                source: 'static',
+                value: false,
+            },
         },
         data: {
             media: '',
@@ -84,6 +88,16 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
                     'mt-switch': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
+                    'sw-container': true,
                 },
                 provide: {
                     repositoryFactory: {

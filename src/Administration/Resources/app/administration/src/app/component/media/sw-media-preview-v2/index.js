@@ -1,3 +1,4 @@
+import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-preview-v2.html.twig';
 import './sw-media-preview-v2.scss';
 
@@ -29,19 +30,6 @@ export default {
     emits: [
         'click',
         'media-preview-play',
-    ],
-
-    playableVideoFormats: [
-        'video/mp4',
-        'video/ogg',
-        'video/webm',
-    ],
-
-    playableAudioFormats: [
-        'audio/mp3',
-        'audio/mpeg',
-        'audio/ogg',
-        'audio/wav',
     ],
 
     placeholderThumbnailsBasePath: '/administration/administration/static/img/media-preview/',
@@ -187,11 +175,11 @@ export default {
         },
 
         isPlayable() {
-            if (this.$options.playableVideoFormats.includes(this.mimeType)) {
-                return true;
-            }
+            return isPlayableMediaFormat(this.mimeType);
+        },
 
-            return this.$options.playableAudioFormats.includes(this.mimeType);
+        showUnsupportedFormatWarning() {
+            return shouldShowUnsupportedFormatWarning(this.mimeType);
         },
 
         isIcon() {

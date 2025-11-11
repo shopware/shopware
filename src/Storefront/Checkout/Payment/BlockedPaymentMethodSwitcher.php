@@ -2,15 +2,14 @@
 
 namespace Shopware\Storefront\Checkout\Payment;
 
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
@@ -56,25 +55,43 @@ class BlockedPaymentMethodSwitcher
 
     private function getPaymentMethodToChangeTo(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ?PaymentMethodEntity
     {
-        $blockedPaymentMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getName() : null);
-
         $request = new Request(['onlyAvailable' => true]);
-        $defaultPaymentMethod = $this->paymentMethodRoute->load(
-            $request,
-            $salesChannelContext,
-            new Criteria([$salesChannelContext->getSalesChannel()->getPaymentMethodId()])
-        )->getPaymentMethods()->first();
+        $criteria = (new Criteria([$salesChannelContext->getSalesChannel()->getPaymentMethodId()]))
+            ->setLimit(1);
 
-        if ($defaultPaymentMethod !== null && !\in_array($defaultPaymentMethod->getName(), $blockedPaymentMethodNames, true)) {
-            return $defaultPaymentMethod;
+        if (Feature::isActive('v6.8.0.0')) {
+            $blockedPaymentMethodIds = $errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getPaymentMethodId() : null);
+
+            $defaultPaymentMethod = $this->paymentMethodRoute->load(
+                $request,
+                $salesChannelContext,
+                $criteria,
+            )->getPaymentMethods()->first();
+
+            if ($defaultPaymentMethod !== null && !\in_array($defaultPaymentMethod->getId(), $blockedPaymentMethodIds, true)) {
+                return $defaultPaymentMethod;
+            }
+
+            $criteria = (new Criteria())
+                ->addFilter(new NotEqualsAnyFilter('id', $blockedPaymentMethodIds))
+                ->setLimit(1);
+        } else {
+            $blockedPaymentMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getName() : null);
+
+            $defaultPaymentMethod = $this->paymentMethodRoute->load(
+                $request,
+                $salesChannelContext,
+                $criteria,
+            )->getPaymentMethods()->first();
+
+            if ($defaultPaymentMethod !== null && !\in_array($defaultPaymentMethod->getName(), $blockedPaymentMethodNames, true)) {
+                return $defaultPaymentMethod;
+            }
+
+            $criteria = (new Criteria())
+                ->addFilter(new NotEqualsAnyFilter('name', $blockedPaymentMethodNames))
+                ->setLimit(1);
         }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new NandFilter([
-                new EqualsAnyFilter('name', $blockedPaymentMethodNames),
-            ])
-        );
 
         return $this->paymentMethodRoute->load(
             $request,
@@ -98,8 +115,11 @@ class BlockedPaymentMethodSwitcher
             // Exchange cart blocked warning with notice
             $cartErrors->remove($error->getId());
             $cartErrors->add(new PaymentMethodChangedError(
-                $error->getName(),
-                $newPaymentMethodName
+                oldPaymentMethodId: $error->getPaymentMethodId(),
+                oldPaymentMethodName: $error->getName(),
+                newPaymentMethodId: $paymentMethod->getId(),
+                newPaymentMethodName: $newPaymentMethodName,
+                reason: $error->getReason(),
             ));
         }
     }

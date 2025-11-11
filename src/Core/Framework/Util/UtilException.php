@@ -19,6 +19,8 @@ class UtilException extends HttpException
     public const FILESYSTEM_FILE_NOT_FOUND = 'UTIL__FILESYSTEM_FILE_NOT_FOUND';
     public const COULD_NOT_HASH_FILE = 'UTIL__COULD_NOT_HASH_FILE';
     public const OPERATOR_NOT_SUPPORTED = 'UTIL__OPERATOR_NOT_SUPPORTED';
+    public const LENGTH_MUST_BE_GREATER_THAN_ZERO = 'UTIL__LENGTH_MUST_BE_GREATER_THAN_ZERO';
+    public const MIN_MUST_NOT_BE_GREATER_THAN_MAX = 'UTIL__MIN_MUST_NOT_BE_GREATER_THAN_MAX';
 
     public static function invalidJson(\JsonException $e): self
     {
@@ -72,6 +74,24 @@ class UtilException extends HttpException
             self::COULD_NOT_HASH_FILE,
             'Could not generate hash for  "{{ file }}"',
             ['file' => $file]
+        );
+    }
+
+    public static function lengthMustBeGreaterThanZero(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LENGTH_MUST_BE_GREATER_THAN_ZERO,
+            'Length should be greater than 0'
+        );
+    }
+
+    public static function minMustNotBeGreaterThanMax(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MIN_MUST_NOT_BE_GREATER_THAN_MAX,
+            'The min parameter must be lower than or equal to max parameter'
         );
     }
 

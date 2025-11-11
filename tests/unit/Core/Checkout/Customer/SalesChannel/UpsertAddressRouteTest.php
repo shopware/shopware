@@ -125,7 +125,7 @@ class UpsertAddressRouteTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $salutationId, 'primaryKey' => $salutationId]],
+            [$salutationId => ['data' => [], 'primaryKey' => $salutationId]],
             new Criteria(),
             Context::createDefaultContext(),
         );

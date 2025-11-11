@@ -18,30 +18,24 @@ type AnalyticsEvents = {
         [key: string]: TrackableType;
     };
     identify: {
-        userId: string;
-        deviceId: string;
-        locale: string;
-        permissions: string[];
+        userId: string | null;
+        locale: string | null;
+        isAdmin: boolean | null;
     };
+    reset: object;
 };
 
 type EventTypes = keyof AnalyticsEvents;
 type EventPayload<N extends EventTypes> = AnalyticsEvents[N];
-type EventData<N extends EventTypes> = {
-    eventType: N;
-    eventData: EventPayload<N>;
-    timestamp: Date;
-};
 
-class TelemetryEvent<N extends EventTypes> extends CustomEvent<EventData<N>> {
-    constructor(eventType: N, eventData: AnalyticsEvents[N]) {
-        super('telemetry', {
-            detail: {
-                eventType,
-                eventData,
-                timestamp: new Date(),
-            },
-        });
+class TelemetryEvent<N extends EventTypes> {
+    public readonly timestamp: Date;
+
+    constructor(
+        public readonly eventType: N,
+        public readonly eventData: AnalyticsEvents[N],
+    ) {
+        this.timestamp = new Date();
     }
 }
 

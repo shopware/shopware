@@ -1,6 +1,6 @@
 --- /dev/null
 +++ ../src/DetectChanges/BCBreak/MethodBased/MethodParameterAdded.php
-@@ -30,6 +30,12 @@
+@@ -30,6 +30,14 @@
              array_map(static fn (ReflectionParameter $param) => $param->getName(), $fromMethod->getParameters()),
          );
  
@@ -11,7 +11,7 @@
 +                return $param !== null && !$param->isOptional();
 +            });
 +        }
-
++
          return Changes::fromList(
              ...array_map(
                  static fn (string $paramName): Change => Change::added(

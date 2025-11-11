@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Composer\Semver\VersionParser;
 use Doctrine\DBAL\Connection;
-use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -103,7 +102,6 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly string $projectDir,
         private readonly Connection $connection,
         private readonly FlowActionPersister $flowBuilderActionPersister,
-        private readonly ?AppAdministrationSnippetPersister $appAdministrationSnippetPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
@@ -319,12 +317,6 @@ class AppLifecycle extends AbstractAppLifecycle
         ];
         $this->updateMetadata($updatePayload, $context);
 
-        // updates the snippets if the administration bundle is available
-        if ($this->appAdministrationSnippetPersister !== null) {
-            $snippets = $this->getSnippets($app);
-            $this->appAdministrationSnippetPersister->updateSnippets($app, $snippets, $context);
-        }
-
         return $app;
     }
 
@@ -359,25 +351,6 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         return Action::createFromXmlFile($fs->path('Resources/flow.xml'));
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function getSnippets(AppEntity $app): array
-    {
-        $fs = $this->sourceResolver->filesystemForApp($app);
-
-        if (!$fs->has('Resources/app/administration/snippet')) {
-            return [];
-        }
-
-        $snippets = [];
-        foreach ($fs->findFiles('*.json', 'Resources/app/administration/snippet') as $file) {
-            $snippets[$file->getFilenameWithoutExtension()] = $file->getContents();
-        }
-
-        return $snippets;
     }
 
     /**

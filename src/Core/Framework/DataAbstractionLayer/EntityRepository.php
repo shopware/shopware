@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeEntityAggregationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
@@ -76,6 +77,13 @@ class EntityRepository
         return Profiler::trace($criteria->getTitle(), fn () => $this->_aggregate($criteria, $context), 'repository');
     }
 
+    /**
+     * @template IDStructure of string|array<string, string> = string
+     *
+     * @param Criteria<IDStructure> $criteria
+     *
+     * @return IdSearchResult<IDStructure>
+     */
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         if (!$criteria->getTitle()) {
@@ -155,7 +163,7 @@ class EntityRepository
         ReplicaConnection::ensurePrimary();
 
         if (!$this->definition->isVersionAware()) {
-            throw DataAbstractionLayerException::entityNotVersionable($this->definition->getEntityName());
+            throw DataAbstractionLayerException::entityNotVersionAware($this->definition->getEntityName());
         }
 
         return $this->versionManager->createVersion($this->definition, $id, WriteContext::createFromContext($context), $name, $versionId);
@@ -166,7 +174,7 @@ class EntityRepository
         ReplicaConnection::ensurePrimary();
 
         if (!$this->definition->isVersionAware()) {
-            throw DataAbstractionLayerException::entityNotVersionable($this->definition->getEntityName());
+            throw DataAbstractionLayerException::entityNotVersionAware($this->definition->getEntityName());
         }
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
@@ -177,7 +185,7 @@ class EntityRepository
 
         $newId ??= Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
-            throw DataAbstractionLayerException::invalidUuid($newId);
+            throw DataAbstractionLayerException::invalidEntityUuidException($newId);
         }
 
         $affected = $this->versionManager->clone(
@@ -281,6 +289,8 @@ class EntityRepository
     private function _aggregate(Criteria $criteria, Context $context): AggregationResultCollection
     {
         $criteria = clone $criteria;
+
+        $this->eventDispatcher->dispatch(new BeforeEntityAggregationEvent($criteria, $this->definition, $context));
 
         $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 

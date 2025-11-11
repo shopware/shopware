@@ -200,6 +200,10 @@ export default {
         },
 
         updateElementData(media = null) {
+            if (!this.element.data) {
+                this.element.data = {};
+            }
+
             this.element.data.previewMediaId = media === null ? null : media.id;
             this.element.data.previewMedia = media;
         },

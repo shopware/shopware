@@ -49,26 +49,45 @@
                     name="card-element"
                     v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card }"
                 >
+                    <template v-if="isMeteorComponent(element)">
+                        <sw-inherit-wrapper
+                            v-model:value="actualConfigData[currentSalesChannelId][element.name]"
+                            v-bind="getInheritWrapperBind(element)"
+                            :has-parent="isNotDefaultSalesChannel"
+                            :inherited-value="getInheritedValue(element)"
+                            :class="'sw-system-config--field-' + kebabCase(element.name)"
+                        >
+                            <template #content="props">
+                                <sw-form-field-renderer
+                                    v-if="props"
+                                    v-bind="getMeteorElementBind(element, props)"
+                                    v-on="getMeteorElementEventsHandler(element, props)"
+                                />
+                            </template>
+                        </sw-inherit-wrapper>
+                    </template>
+                    <template v-else>
                     {% block sw_system_config_content_card_field %}
-                    <sw-inherit-wrapper
-                        v-model:value="actualConfigData[currentSalesChannelId][element.name]"
-                        v-bind="getInheritWrapperBind(element)"
-                        :has-parent="isNotDefaultSalesChannel"
-                        :inherited-value="getInheritedValue(element)"
-                        :class="'sw-system-config--field-' + kebabCase(getElementBind(element).name)"
-                    >
-                        <template #content="props">
-                            <sw-form-field-renderer
-                                v-bind="getElementBind(element, props)"
-                                :key="props.isInheritField + props.isInherited"
-                                :disabled="props.isInherited"
-                                :value="props.currentValue"
-                                :error="getFieldError(element.name)"
-                                @update:value="props.updateCurrentValue"
-                            />
-                        </template>
-                    </sw-inherit-wrapper>
+                        <sw-inherit-wrapper
+                            v-model:value="actualConfigData[currentSalesChannelId][element.name]"
+                            v-bind="getInheritWrapperBind(element)"
+                            :has-parent="isNotDefaultSalesChannel"
+                            :inherited-value="getInheritedValue(element)"
+                            :class="'sw-system-config--field-' + kebabCase(getElementBind(element).name)"
+                        >
+                            <template #content="props">
+                                <sw-form-field-renderer
+                                    v-bind="getElementBind(element, props)"
+                                    :key="props.isInheritField + props.isInherited"
+                                    :disabled="props.isInherited"
+                                    :value="props.currentValue"
+                                    :error="getFieldError(element.name)"
+                                    @update:value="props.updateCurrentValue"
+                                />
+                            </template>
+                        </sw-inherit-wrapper>
                     {% endblock %}
+                    </template>
                 </slot>
             </template>
             <slot name="card-element-last"></slot>

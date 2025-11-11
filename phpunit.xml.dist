@@ -128,7 +128,6 @@
             <directory>tests/integration/Core/Framework/Adapter</directory>
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
-            <directory>tests/integration/Core/Framework/Changelog</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
         </testsuite>
 
@@ -142,6 +141,7 @@
             <directory>tests/integration/Core/Framework/Log</directory>
             <directory>tests/integration/Core/Framework/MessageQueue</directory>
             <directory>tests/integration/Core/Framework/Migration</directory>
+            <directory>tests/integration/Core/Framework/Notification</directory>
         </testsuite>
 
         <testsuite name="core-framework-batch3">

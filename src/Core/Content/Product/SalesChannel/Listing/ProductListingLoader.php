@@ -76,7 +76,6 @@ class ProductListingLoader
 
         $aggregations = $this->productRepository->aggregate($clone, $context);
 
-        /** @var list<string> $ids */
         $ids = $idResult->getIds();
         // no products found, no need to continue
         if (empty($ids)) {
@@ -123,11 +122,7 @@ class ProductListingLoader
             return true;
         }
 
-        if (\in_array('optionIds', $fields, true)) {
-            return true;
-        }
-
-        return false;
+        return \in_array('optionIds', $fields, true);
     }
 
     private function addGrouping(Criteria $criteria): void

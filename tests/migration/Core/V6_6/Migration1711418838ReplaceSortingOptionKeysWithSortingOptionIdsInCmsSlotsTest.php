@@ -40,8 +40,9 @@ class Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlotsT
         $slots = $this->connection->fetchAllAssociative(<<<'SQL'
             SELECT cms_slot_id, cms_slot_version_id, language_id, config
             FROM cms_slot_translation
-            WHERE JSON_CONTAINS_PATH(config, 'one', '$.defaultSorting')
-                OR JSON_CONTAINS_PATH(config, 'one', '$.availableSortings');
+            WHERE JSON_UNQUOTE(JSON_EXTRACT(config, '$.defaultSorting.value')) != ''
+                OR JSON_EXTRACT(config, '$.availableSortings.value') IS NOT NULL
+                AND JSON_LENGTH(JSON_EXTRACT(config, '$.availableSortings.value')) > 0;
         SQL);
 
         // First slot

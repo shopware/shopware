@@ -2,7 +2,6 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
-use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -19,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration']])]
 #[Package('inventory')]
 final readonly class AdminSearchController
 {

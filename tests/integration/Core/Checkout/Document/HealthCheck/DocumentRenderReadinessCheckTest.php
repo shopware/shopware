@@ -81,6 +81,21 @@ class DocumentRenderReadinessCheckTest extends TestCase
         static::assertSame('No orders found; document previews are skipped.', $result->message);
     }
 
+    public function testSkipWhenTestableDocumentsExist(): void
+    {
+        $this->connection->executeStatement('DELETE FROM `document`');
+
+        $cart = $this->generateDemoCart(1);
+        $this->persistCart($cart);
+
+        $healthCheck = $this->createCheck();
+        $result = $healthCheck->run();
+
+        static::assertTrue($result->healthy);
+        static::assertSame(Status::SKIPPED, $result->status);
+        static::assertSame('No testable documents found; document previews are skipped.', $result->message);
+    }
+
     #[DataProvider('documentTypeProvider')]
     public function testDocumentsRenderedSuccessfully(string $documentType): void
     {
@@ -116,6 +131,19 @@ class DocumentRenderReadinessCheckTest extends TestCase
         yield 'zugferd embedded' => [
             'documentType' => ZugferdEmbeddedRenderer::TYPE,
         ];
+    }
+
+    public function testCheckShouldBeSkippedBecauseOfMissingPreconditions(): void
+    {
+        // Delete all orders to trigger the skip condition
+        $this->connection->executeStatement('DELETE FROM `order`');
+
+        $healthCheck = $this->createCheck();
+        $result = $healthCheck->run();
+
+        static::assertTrue($result->healthy);
+        static::assertSame(Status::SKIPPED, $result->status);
+        static::assertSame('No orders found; document previews are skipped.', $result->message);
     }
 
     private function createCheck(): DocumentRenderReadinessCheck

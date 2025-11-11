@@ -10,10 +10,10 @@ Post-hydration content transformation before response. Extracts sub-trees and pr
 ## Pipeline Position
 
 ```
-Routing → Resolution → Layout → Refinement → Hydration → **Output** → Response
+Routing → Resolution → Load → Scaffold → Refinement → Hydration → Dismantle → **Output** → Response
 ```
 
-Output operates on fully hydrated ContentElement trees. Unlike Layout/Refinery (pre-hydration) or Hydration (data loading), Output works with populated trees and prepares them for response serialization.
+Output operates on fully hydrated, dismantled ContentElement trees. Unlike Layout/Refinery (pre-hydration) or Hydration (data loading), Output works with populated trees after scaffolding removal and prepares them for response serialization.
 
 ## Response Format Transformation
 
@@ -25,7 +25,7 @@ ContentDecomposedRoute uses this transformation, ContentRoute returns ContentPag
 
 ## Partial Rendering
 
-Extract specific element and descendants from full tree, discard ancestors and siblings. Used when client needs portion of page (AJAX updates, lazy loading).
+Extract specific element and descendants from full tree, discard ancestors and siblings. Used when client needs portion of page (AJAX updates, lazy loading). Two-phase process: PartialRenderingRefiner prunes pre-hydration to keep context path, SubTreeExtractor extracts post-dismantle.
 
 Request via `?elementId=hero` parameter:
 

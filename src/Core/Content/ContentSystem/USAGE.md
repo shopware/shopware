@@ -113,16 +113,67 @@ Resolution priority: **sales channel specific** → **global** (null `salesChann
 
 Example: Product with global layout and B2B-specific layout. B2B channel uses specific assignment, all other channels use global.
 
+### Parameter Bindings
+
+Entity-based endpoints map URL segments to placeholders by default: `product/{productId}` → `{{productId}}`, `category/{categoryId}` → `{{categoryId}}`, `landing-page/{landingPageId}` → `{{landingPageId}}`. Parameter bindings allow customizing these placeholder names to match your layout's expectations without modifying the layout itself.
+
+**Example:** Remap `productId` → `product_id` to reuse a layout expecting `{{product_id}}` instead of `{{productId}}`. This enables layout reusability across route-based and entity-based rendering with different naming conventions.
+
+Bindings are configured at the system level per entity type. Contact your developer to customize bindings for your entity endpoints.
+
 ### When to Use
 
 Use entity-based for standard product/category/landing pages with sales channel-specific layouts. Use route-based for custom URLs, SEO paths, or complex routing logic.
 
+### Automatic Data Loading
+
+Entity-based rendering automatically loads the main entity before rendering your layout—no `data_requirements` declaration needed. The entity ID is available via placeholders, and the entity object is loaded with pre-configured associations and available via context to your layout's root elements.
+
+**Auto-loaded entities and associations:**
+
+| Endpoint | Entity | Context Key | Pre-loaded Associations |
+|----------|--------|-------------|------------------------|
+| `/store-api/content/product/{productId}` | ProductEntity | `product` | `manufacturer.media`, `options.group`, `properties.group`, `mainCategories.category`, `media.media` |
+| `/store-api/content/category/{categoryId}` | CategoryEntity | `category` | `media`, `translations` |
+| `/store-api/content/landing-page/{landingPageId}` | LandingPageEntity | `landing_page` | (none) |
+
+**Usage example:**
+
+```json
+{
+  "id": "product-page",
+  "type": "Sw:Grid",
+  "accepts_context": {
+    "product": {
+      "type": "single",
+      "required": true,
+      "redistribute": true
+    }
+  },
+  "slots": {
+    "default": [
+      {
+        "id": "product-title",
+        "type": "Sw:Product:Title",
+        "accepts_context": {
+          "product": {"type": "single", "required": true}
+        }
+      }
+    ]
+  }
+}
+```
+
+Root elements accept the auto-loaded entity via context and redistribute to children using `redistribute: true`. Deeper descendants require redistribution at each container level (see [Context Redistribution](#context-redistribution)). Declare `data_requirements` only for additional data beyond what's automatically loaded (e.g., cross-sell products, reviews).
+
 ### Placeholders
 
-Available placeholders:
+Default placeholders available in entity-based rendering:
 - `{{productId}}` - Product UUID (product endpoint)
 - `{{categoryId}}` - Category UUID (category endpoint)
 - `{{landingPageId}}` - Landing page UUID (landing-page endpoint)
+
+These placeholder names can be customized via parameter bindings (see [Parameter Bindings](#parameter-bindings) above) to match your layout's naming conventions.
 
 Use these in element properties and data requirements like route-based placeholders. See [Example: Product Detail Page](#example-product-detail-page) for usage.
 

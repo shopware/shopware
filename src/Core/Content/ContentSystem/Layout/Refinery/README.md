@@ -15,7 +15,7 @@ Performance. Multiple passes would require repeated tree traversal. Layout trees
 - `LayoutRefinery` - Orchestrates refinement, calls refiners sequentially
 - `LayoutRefinerInterface` - Refiner contract
 - `RefinedLayout` - Output containing refined element tree + metadata
-- `RefinedLayoutBuilder` - Builds RefinedLayout from ContentLayoutEntity
+- `RefinedLayoutBuilder` - Refines ContentLayoutEntity into RefinedLayout
 
 ## Refiner Chain
 
@@ -32,7 +32,7 @@ Two built-in refiners:
 
 **PlaceholderResolutionRefiner** (priority 0): Calls `ContentElement::replacePlaceholders(RenderingSpecification)` recursively.
 
-**PartialRenderingRefiner** (priority 200): Pre-hydration tree pruning when `?elementId` parameter present. Keeps only path to target element and its descendants.
+**PartialRenderingRefiner** (priority 200): Pre-hydration tree pruning when `?elementId` parameter present. Keeps only path to target element and its descendants. Post-hydration extraction handled by SubTreeExtractor (Output/).
 
 All other refiners are extension-provided.
 

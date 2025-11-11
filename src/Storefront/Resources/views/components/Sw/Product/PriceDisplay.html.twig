@@ -22,22 +22,22 @@
         {% set hasDifferentPrice = totalVariants|filter(variant => variant.default != null)|length > 0 %}
     {% endif %}
 
-    <div class="product-card-price mb-3 card-text">
+    <div class="sw-product-price-display mb-3 card-text">
 
         {% if referencePrice is not null %}
-            <p class="product-card-price-unit">
+            <p class="sw-product-price-display__reference-price">
                 {# Price is based on the purchase unit #}
                 {% if referencePrice.unitName %}
-                    <span class="product-card-price-unit-label">
+                    <span class="sw-product-price-display__purchase-unit-label">
                         {{ 'listing.boxUnitLabel'|trans|sw_sanitize }}
                     </span>
-                    <span class="product-card-price-unit-content">
+                    <span class="sw-product-price-display__purchase-unit">
                         {{ referencePrice.purchaseUnit }} {{ referencePrice.unitName }}
                     </span>
                 {% endif %}
 
                 {# Item price is based on a reference unit #}
-                <span class="product-card-price-unit-reference">
+                <span class="sw-product-price-display__reference-price-unit">
                     ({{ referencePrice.price|currency }} / {{ referencePrice.referenceUnit }} {{ referencePrice.unitName }})
                 </span>
             </p>
@@ -52,8 +52,8 @@
             Example: "Variants from $120.00"
         #}
         {% if cheapest.unitPrice != real.unitPrice and cheapest.variantId != product.id %}
-            <div class="product-card-price-cheapest mb-1 fs-6{% if isListPrice and isRegulationPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}{% if isRegulationPrice and not displayFrom and displayFromVariants %} with-regulation-price{% endif %}{% if displayFrom and isRegulationPrice %} with-from-price{% endif %}">
-                {{ 'listing.cheapestPriceLabel'|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}</span>
+            <div class="sw-product-price-display__cheapest mb-1 fs-6{% if isListPrice and isRegulationPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}{% if isRegulationPrice and not displayFrom and displayFromVariants %} with-regulation-price{% endif %}{% if displayFrom and isRegulationPrice %} with-from-price{% endif %}">
+                {{ 'listing.cheapestPriceLabel'|trans|sw_sanitize }}<span class="sw-product-price-display__cheapest-price"> {{ cheapest.unitPrice|currency }}</span>
             </div>
         {% endif %}
 
@@ -62,7 +62,7 @@
             Example with regular price: "Regular price:"
             Example with list price: "Sale price:"
         #}
-        <span class="visually-hidden product-price-label">
+        <span class="visually-hidden sw-product-price-display__label">
             {% if isListPrice and not displayFrom and not displayFromVariants %}
                 {{ 'listing.listPriceLabel'|trans|sw_sanitize }}
             {% else %}
@@ -84,15 +84,15 @@
             Example: $150.00"
             Example with list price: €400.00 <s>€500.00</s> (20% saved)"
         #}
-        <span class="product-card-price-display d-inline-block mb-1">
+        <span class="sw-product-price-display__price d-inline-block mb-1">
             <span class="fw-bold {% if isListPrice and not displayFrom and not displayFromVariants %} text-danger{% endif %}">
                 {{ price.unitPrice|currency }}
             </span>
 
             {% if isListPrice and not displayFrom and not displayFromVariants %}
                 <span class="visually-hidden">{{ 'listing.regularPriceLabel'|trans|sw_sanitize }}</span>
-                <s data-bs-tooltip="true" title="pommes" class="fs-6">{{ price.listPrice.price|currency }}</s>
-{#                <span class="fs-6">{{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>#}
+                <s class="fs-6">{{ price.listPrice.price|currency }}</s>
+                <span class="fs-6">{{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
             {% endif %}
         </span>
 
@@ -101,23 +101,22 @@
             Example: "previously €300.00"
         #}
         {% if isRegulationPrice %}
-            <div class="regulation-price fs-6 text-light-emphasis mb-1">
+            <div class="sw-product-price-display__regulation-price fs-6 text-light-emphasis mb-1">
                 {{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}
             </div>
         {% endif %}
 
-        <div>
-            <button class="fs-6 btn btn-link-inline"
-                    type="button"
-                    data-ajax-modal="true"
-                    data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
-                {% if context.taxState == 'gross' %}
-                    {{ 'general.grossTaxInformationShort'|trans|sw_sanitize }}
-                {% else %}
-                    {{ 'general.netTaxInformationShort'|trans|sw_sanitize }}
-                {% endif %}
-            </button>
-        </div>
+        <a class="fs-6 d-block"
+           href="#"
+           role="button"
+           data-ajax-modal="true"
+           data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+            {% if context.taxState == 'gross' %}
+                {{ 'general.grossTaxInformationShort'|trans|sw_sanitize }}
+            {% else %}
+                {{ 'general.netTaxInformationShort'|trans|sw_sanitize }}
+            {% endif %}
+        </a>
 
     </div>
 {% endblock %}

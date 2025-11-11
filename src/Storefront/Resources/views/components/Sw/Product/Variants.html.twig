@@ -3,9 +3,9 @@
     variants,
 %}
 
-<div class="product-card-product-variants fs-6 d-flex flex-wrap text-light-emphasis">
+<div class="sw-product-variants fs-6 d-flex flex-wrap text-light-emphasis">
     {%- for variant in variants -%}
-        <span class="me-1">
+        <span class="sw-product-variants__variant me-1">
             {{ variant.group }}: {{ variant.option }}{% if variants|last != variant %},{% endif %}
         </span>
     {%- endfor -%}

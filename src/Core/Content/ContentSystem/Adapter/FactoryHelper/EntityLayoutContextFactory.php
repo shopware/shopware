@@ -8,7 +8,7 @@ use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignmentIn
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutCollection;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor;
+use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
@@ -35,7 +35,7 @@ class EntityLayoutContextFactory
 {
     public function __construct(
         private readonly EntityLayoutResolver $layoutResolver,
-        private readonly RequestParameterExtractor $requestParameterExtractor
+        private readonly RequestDataExtractor $requestDataExtractor
     ) {
     }
 
@@ -61,7 +61,10 @@ class EntityLayoutContextFactory
 
         $dataRequirements = $this->transformDataRequirements($layoutData->assignment, $context, $definition);
 
-        $targetElementId = $this->requestParameterExtractor->extractTargetElementId($request);
+        $params = $this->requestDataExtractor->extractData($request, null);
+        $targetElementId = isset($params['elementId']) && \is_string($params['elementId']) && $params['elementId'] !== ''
+            ? $params['elementId']
+            : null;
 
         return new RenderingSpecification(
             layoutId: $layoutData->assignment->getContentLayoutId(),

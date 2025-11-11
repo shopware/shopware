@@ -229,11 +229,11 @@
         <service id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver"/>
         <service id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor"/>
         </service>
 
         <!-- Helper Services -->
-        <service id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
+        <service id="Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor"/>
         <service id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
 
         <!-- Context Factories -->

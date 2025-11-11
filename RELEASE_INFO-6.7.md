@@ -58,9 +58,13 @@ Payment tokens are no longer deleted immediately after use. A new scheduled task
 ## Administration
 
 ## Storefront
-* The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard. For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
+
+### Robots.txt configuration
+
+The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard. For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
 
 ### Language selector twig blocks
+
 New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added to the language selector to allow custom flag implementations.
 
 ### Added specific `add-product-by-number` template

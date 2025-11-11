@@ -3,6 +3,7 @@
 ## Removal of string parameter in `DomainRuleStruct` constructor
 
 The deprecated string parameter in the `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` constructor was removed.
+If your plugin or theme instantiates `DomainRuleStruct` with a string parameter, it will no longer work.
 Use `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser::parse()` to create a `ParsedRobots` object instead.
 
 ```php
@@ -538,7 +539,8 @@ All foreign key checks are now handled directly by the DAL, therefore the follow
 * `LanguageExceptionHandler`
 * `SalesChannelExceptionHandler`
 * `ThemeExceptionHandler`
-  This also means that the following exceptions are not thrown anymore and were removed as well:
+
+This also means that the following exceptions are not thrown anymore and were removed as well:
 * `LanguageOfOrderDeleteException`
 * `LanguageOfNewsletterDeleteException`
 * `LanguageForeignKeyDeleteException`

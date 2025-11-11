@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
-use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\SystemCheck\DocumentRenderReadinessCheck;
 use Shopware\Core\Framework\Context;
@@ -83,7 +82,7 @@ class DocumentRenderReadinessCheckTest extends TestCase
     }
 
     #[DataProvider('documentTypeProvider')]
-    public function testAllDocumentsRenderedSuccessfully(string $documentType): void
+    public function testDocumentsRenderedSuccessfully(string $documentType): void
     {
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
@@ -126,13 +125,7 @@ class DocumentRenderReadinessCheckTest extends TestCase
 
     private function generateDocument(string $documentType, string $orderId): void
     {
-        $operation = new DocumentGenerateOperation(
-            $orderId,
-            PdfRenderer::FILE_EXTENSION,
-            [
-                'companyName' => 'Test Company',
-            ]
-        );
+        $operation = new DocumentGenerateOperation($orderId);
 
         $result = $this->documentGenerator->generate(
             $documentType,

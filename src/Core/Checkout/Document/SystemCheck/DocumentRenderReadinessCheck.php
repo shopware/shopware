@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\SystemCheck;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
@@ -59,13 +60,10 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
     public function run(): Result
     {
-        $orderCount = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM `order`');
+        $emptyResult = $this->checkPreconditions();
 
-        if ($orderCount === 0) {
-            return $this->createEmptyResult(
-                $this->name(),
-                'No orders found; document previews are skipped.'
-            );
+        if ($emptyResult !== null) {
+            return $emptyResult;
         }
 
         $context = Context::createDefaultContext();
@@ -102,7 +100,7 @@ class DocumentRenderReadinessCheck extends BaseCheck
 
             $fileTypes = $this->resolveFileTypes($documentType, $orderData['sales_channel_id'], $context);
             if (empty($fileTypes)) {
-                $result[Status::FAILURE->name] = Status::OK;
+                $result[Status::OK->name] = Status::OK;
 
                 $extra[] = $this->createExtraEntry(
                     $documentType,
@@ -196,6 +194,44 @@ class DocumentRenderReadinessCheck extends BaseCheck
     protected function allowedSystemCheckExecutionContexts(): array
     {
         return SystemCheckExecutionContext::readiness();
+    }
+
+    private function checkPreconditions(): ?Result
+    {
+        // Check 1: Verify orders exist
+        $orderCount = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM `order`');
+
+        if ($orderCount === 0) {
+            return $this->createEmptyResult(
+                $this->name(),
+                'No orders found; document previews are skipped.'
+            );
+        }
+
+        // Check 2: Verify testable documents exist
+        $sql = '
+            SELECT
+                COUNT(*)
+            FROM `document` AS d
+                INNER JOIN `document_type` AS dt ON d.document_type_id = dt.id
+            WHERE
+                dt.technical_name IN (:documentTypes)
+        ';
+
+        $documentCount = (int) $this->connection->fetchOne(
+            $sql,
+            ['documentTypes' => self::TESTABLE_DOCUMENT_TYPES],
+            ['documentTypes' => ArrayParameterType::STRING]
+        );
+
+        if ($documentCount === 0) {
+            return $this->createEmptyResult(
+                $this->name(),
+                'No testable documents found; document previews are skipped.'
+            );
+        }
+
+        return null;
     }
 
     /**

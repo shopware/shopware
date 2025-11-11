@@ -7,6 +7,9 @@ The tax-free detection logic if the cart changed to handle B2B and B2C customers
 Previously, enabling "Tax-free for B2C" in the country settings also affected B2B customers.
 Now, tax rules are applied **correctly** based on customer type.
 
+### Robots.txt configuration
+The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard.
+For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
 
 ## API
 
@@ -61,16 +64,10 @@ Payment tokens are no longer deleted immediately after use. A new scheduled task
 
 ## Storefront
 
-### Robots.txt configuration
-
-The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard. For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
-
 ### Language selector twig blocks
-
 New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added to the language selector to allow custom flag implementations.
 
 ### Added specific `add-product-by-number` template
-
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.
 
 Instead of overwriting any of the `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig`,

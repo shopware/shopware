@@ -110,14 +110,19 @@ class DocumentRenderReadinessCheckTest extends TestCase
 
     private function generateDocument(string $documentType, string $orderId): void
     {
+        var_dump('Generating document: ' . $documentType);
         $operation = new DocumentGenerateOperation($orderId);
 
         $result = $this->documentGenerator->generate(
             $documentType,
             [$orderId => $operation],
             Context::createDefaultContext()
-        )->getSuccess()->first();
+            //        )->getSuccess()->first();
+        );
+        //        var_dump($result);
+        var_dump('errors:', $result->getErrors());
+        var_dump('errors:', $result->getSuccess()->first());
 
-        static::assertNotNull($result);
+        static::assertNotNull($result->getSuccess()->first());
     }
 }

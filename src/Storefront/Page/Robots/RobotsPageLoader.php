@@ -77,42 +77,11 @@ class RobotsPageLoader
     }
 
     /**
-     * Selects domains by hostname, preferring HTTPS over HTTP for the same hostname.
-     *
-     * @param non-empty-string $hostname
-     *
-     * @return array<string, SalesChannelDomainEntity> Array keyed by domain hostname with selected domain entities
-     */
-    private function selectDomainsByHostname(SalesChannelDomainCollection $domains, string $hostname): array
-    {
-        $selectedDomains = [];
-        \assert($hostname !== '');
-
-        foreach ($domains as $domain) {
-            $domainUrl = $domain->getUrl();
-
-            $domainPath = explode($hostname, $domainUrl, 2);
-            $domainHostname = trim($domainPath[1] ?? '');
-
-            $existingDomain = $selectedDomains[$domainHostname] ?? null;
-            $isHttps = str_starts_with($domainUrl, 'https://');
-
-            if ($existingDomain === null) {
-                $selectedDomains[$domainHostname] = $domain;
-            } elseif ($isHttps && !str_starts_with($existingDomain->getUrl(), 'https://')) {
-                $selectedDomains[$domainHostname] = $domain;
-            }
-        }
-
-        return $selectedDomains;
-    }
-
-    /**
      * Collects and separates global User-agent blocks from domain-specific path rules.
      *
      * @param non-empty-string $hostname
      *
-     * @return array{0: RobotsUserAgentBlock[], 1: DomainRuleCollection}
+     * @return array{0: list<RobotsUserAgentBlock>, 1: DomainRuleCollection}
      */
     private function collectRules(string $hostname, SalesChannelDomainCollection $domains, Context $context): array
     {
@@ -183,5 +152,36 @@ class RobotsPageLoader
         }
 
         return $sitemaps;
+    }
+
+    /**
+     * Selects domains by hostname, preferring HTTPS over HTTP for the same hostname.
+     *
+     * @param non-empty-string $hostname
+     *
+     * @return array<string, SalesChannelDomainEntity> Array keyed by domain hostname with selected domain entities
+     */
+    private function selectDomainsByHostname(SalesChannelDomainCollection $domains, string $hostname): array
+    {
+        $selectedDomains = [];
+        \assert($hostname !== '');
+
+        foreach ($domains as $domain) {
+            $domainUrl = $domain->getUrl();
+
+            $domainPath = explode($hostname, $domainUrl, 2);
+            $domainHostname = trim($domainPath[1] ?? '');
+
+            $existingDomain = $selectedDomains[$domainHostname] ?? null;
+            $isHttps = str_starts_with($domainUrl, 'https://');
+
+            if ($existingDomain === null) {
+                $selectedDomains[$domainHostname] = $domain;
+            } elseif ($isHttps && !str_starts_with($existingDomain->getUrl(), 'https://')) {
+                $selectedDomains[$domainHostname] = $domain;
+            }
+        }
+
+        return $selectedDomains;
     }
 }

@@ -21,7 +21,7 @@ class RobotsPage extends Struct
     protected array $sitemaps;
 
     /**
-     * @var RobotsUserAgentBlock[]
+     * @var list<RobotsUserAgentBlock>
      */
     protected array $globalUserAgentBlocks = [];
 
@@ -52,7 +52,7 @@ class RobotsPage extends Struct
     }
 
     /**
-     * @return RobotsUserAgentBlock[]
+     * @return list<RobotsUserAgentBlock>
      */
     public function getGlobalUserAgentBlocks(): array
     {
@@ -60,7 +60,7 @@ class RobotsPage extends Struct
     }
 
     /**
-     * @param RobotsUserAgentBlock[] $blocks
+     * @param list<RobotsUserAgentBlock> $blocks
      */
     public function setGlobalUserAgentBlocks(array $blocks): void
     {

@@ -68,7 +68,7 @@ class DomainRuleStruct extends Struct
 
     private function initializeFromParsed(ParsedRobots $parsed): void
     {
-        // Collect orphaned path directives (for backward compatibility)
+        // Collect orphaned path directives
         foreach ($parsed->orphanedPathDirectives as $directive) {
             $directiveWithPath = $directive->withBasePath($this->basePath);
             $this->directives[] = $directiveWithPath;

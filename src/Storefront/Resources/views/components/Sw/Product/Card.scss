@@ -33,23 +33,6 @@
     }
 }
 
-// Loading indicator
-.product-card-loading-indicator {
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.has-element-loader {
-    .sw-product-card > :not(.product-card-loading-indicator) {
-        visibility: hidden;
-        pointer-events: none;
-    }
-
-    .product-card-loading-indicator {
-        visibility: visible;
-    }
-}
-
 .sw-product-card.is--layout-default {
     .sw-product-card__inner {
         flex-direction: column;

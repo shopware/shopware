@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ContentSystem\Routing\Field;
+namespace Shopware\Core\Content\ContentSystem\Adapter\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\Log\Package;
@@ -9,17 +9,17 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class CriteriaFilterField extends JsonField
+class ParameterBindingsField extends JsonField
 {
     public function __construct(
         string $storageName,
-        string $propertyName
+        string $propertyName,
     ) {
         parent::__construct($storageName, $propertyName);
     }
 
     protected function getSerializerClass(): string
     {
-        return CriteriaFilterFieldSerializer::class;
+        return ParameterBindingsFieldSerializer::class;
     }
 }

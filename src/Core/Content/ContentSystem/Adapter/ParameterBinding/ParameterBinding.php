@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ContentSystem\Routing\IdResolution;
+namespace Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding;
 
 use Shopware\Core\Framework\Log\Package;
 

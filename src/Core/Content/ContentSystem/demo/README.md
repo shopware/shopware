@@ -6,7 +6,7 @@ Demo data and Postman scripts for testing the ContentSystem.
 
 - `sync-api-demo-payload.json` - Built demo payload (generated from `payloads/` directory via `./build-payload.sh`)
 - `sync-api-demo-post-pre-script.js` - Postman pre-request script for authentication and ID resolution
-- `payloads/` - Source files split by entity type (categories, products, content-layouts, routes, etc.)
+- `payloads/` - Source files split by entity type (categories, products, content-layouts, etc.)
 
 **Rebuild after modifying source files**: `./build-payload.sh` (supports `--skip FILE` for selective builds)
 

@@ -1,23 +1,21 @@
 # Content System - User Guide
 
-This document is a configuration guide for shop operators and layout designers. It explains how to use the Content System through declarative JSON configurations. The guide covers routes, layouts, content elements, data loading, and context sharing.
+This document is a configuration guide for shop operators and layout designers. It explains how to use the Content System through declarative JSON configurations. The guide covers layouts, content elements, data loading, and context sharing.
 
 ## Table of Contents
 
 1. [Overview](#overview)
 2. [Entity-Based Rendering](#entity-based-rendering)
 3. [Content Elements](#content-elements)
-4. [Routing](#routing)
-5. [Data Loading](#data-loading)
-6. [Context System](#context-system)
-7. [Example: Product Detail Page](#example-product-detail-page)
+4. [Data Loading](#data-loading)
+5. [Context System](#context-system)
+6. [Example: Product Detail Page](#example-product-detail-page)
 
 ## Overview
 
 The Content System enables dynamic, data-driven layouts for your shop. Core capabilities include:
 
-- Dynamic routing with URL patterns that resolve to entities
-- Direct entity rendering for Products, Categories, and Landing Pages (no routing needed)
+- Direct entity rendering for Products, Categories, and Landing Pages
 - Reusable layout templates with nested content elements
 - Declarative data loading from the shop system
 - Context sharing between parent and child elements
@@ -35,37 +33,22 @@ The Content System enables dynamic, data-driven layouts for your shop. Core capa
 
 **Context** - Mechanism for parent elements to share data with descendants. Providers expose data, consumers receive it without explicit passing through intermediate elements.
 
-**Routes** - URL patterns stored in the database that map URLs to layouts. Merchants create these through the admin UI, not code.
-
 ### Data Flow
 
 ```mermaid
 graph LR
-    A["URL:<br/>/product/SW10234"] --> B["Route Matching:<br/>Pattern match"]
-    B --> C["Parameter Resolution:<br/>Resolve to UUID"]
+    A["Layout Loading:<br/>Load layout"] --> B["Placeholder Replacement:<br/>{{productId}}"]
+    B --> C["Data Loading:<br/>Load entities"]
+    C --> D["Context Distribution:<br/>Share data"]
+    D --> E["Rendering:<br/>Display layout"]
 
-    classDef routing fill:#e1f5ff,stroke:#01579b,stroke-width:2px
-    class A,B,C routing
-```
-```mermaid
-graph LR
-    D["Layout Resolution:<br/>Static or cascade"] --> E["Placeholder Replacement:<br/>{{product_id}}"]
-
-    classDef layout fill:#fff9e1,stroke:#f57f17,stroke-width:2px
-    class D,E layout
-```
-```mermaid
-graph LR
-    F["Data Loading:<br/>Load entities"] --> G["Context Distribution:<br/>Share data"]
-    G --> H["Rendering:<br/>Display layout"]
-
-    classDef hydration fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    class F,G,H hydration
+    classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    class A,B,C,D,E process
 ```
 
 ## Entity-Based Rendering
 
-Products, Categories, and Landing Pages can render directly using ContentSystem layouts without URL routing. Recommended for standard product/category/landing pages.
+Products, Categories, and Landing Pages can render directly using ContentSystem layouts. This is the primary method for rendering entity-based pages.
 
 **Endpoints:**
 
@@ -117,13 +100,9 @@ Example: Product with global layout and B2B-specific layout. B2B channel uses sp
 
 Entity-based endpoints map URL segments to placeholders by default: `product/{productId}` → `{{productId}}`, `category/{categoryId}` → `{{categoryId}}`, `landing-page/{landingPageId}` → `{{landingPageId}}`. Parameter bindings allow customizing these placeholder names to match your layout's expectations without modifying the layout itself.
 
-**Example:** Remap `productId` → `product_id` to reuse a layout expecting `{{product_id}}` instead of `{{productId}}`. This enables layout reusability across route-based and entity-based rendering with different naming conventions.
+**Example:** Remap `productId` → `product_id` to reuse a layout expecting `{{product_id}}` instead of `{{productId}}`. This enables layout reusability with different naming conventions.
 
 Bindings are configured at the system level per entity type. Contact your developer to customize bindings for your entity endpoints.
-
-### When to Use
-
-Use entity-based for standard product/category/landing pages with sales channel-specific layouts. Use route-based for custom URLs, SEO paths, or complex routing logic.
 
 ### Automatic Data Loading
 
@@ -175,7 +154,7 @@ Default placeholders available in entity-based rendering:
 
 These placeholder names can be customized via parameter bindings (see [Parameter Bindings](#parameter-bindings) above) to match your layout's naming conventions.
 
-Use these in element properties and data requirements like route-based placeholders. See [Example: Product Detail Page](#example-product-detail-page) for usage.
+Use these in element properties and data requirements. See [Example: Product Detail Page](#example-product-detail-page) for usage.
 
 ## Content Elements
 
@@ -205,7 +184,7 @@ Each content element follows this structure:
 }
 ```
 
-Placeholders from routes (like `{{product_id}}`) must be assigned to properties before data loaders can use them:
+Placeholders (like `{{productId}}`) must be assigned to properties before data loaders can use them:
 
 ```json
 "properties": {
@@ -306,323 +285,6 @@ Containers can be nested for complex layouts:
   }
 }
 ```
-
-## Routing
-
-Routes map URLs to content layouts using database-stored patterns.
-
-### URL Patterns
-
-Routes use Symfony-style URL patterns with placeholders:
-
-```json
-[
-  "/product/{productNumber}",
-  "/category/{slug}",
-  "/category/{slug}/page/{page}",
-  "/product/{productNumber}/review/{reviewId}"
-]
-```
-
-Placeholders extract values from URLs and either:
-1. Resolve entities from the database
-2. Pass values directly to the layout
-
-### Parameter Binding
-
-Parameter binding defines how URL parameters are processed.
-
-#### Resolution Parameters
-
-Resolution parameters query the database to find entity IDs.
-
-```json
-{
-  "id": "0199b95201fe70ec851e971788686601",
-  "name": "Product Detail Route",
-  "urlPattern": "/product/{productNumber}",
-  "parameterBindings": {
-    "productNumber": {
-      "placeholder": "product_id",
-      "resolution": {
-        "entity": "product",
-        "match_field": "productNumber",
-        "constraints": [
-          {"type": "equals", "field": "active", "value": true}
-        ]
-      }
-    }
-  },
-  "layoutId": null,
-  "layoutCascade": [
-    {"entity": "product"},
-    {"entity": "category", "via": "categories"},
-    {"entity": null}
-  ],
-  "priority": 100,
-  "active": true,
-  "salesChannels": [
-    {"id": "{{salesChannelId}}"}
-  ]
-}
-```
-
-Fields:
-- `urlPattern` - URL pattern with placeholders (camelCase)
-- `parameterBindings` - Parameter configuration (camelCase)
-- `placeholder` - Name used in layouts (e.g., `{{product_id}}`)
-- `resolution` - Entity lookup configuration
-- `match_field` - Entity field to query
-- `constraints` - Array of criteria filter objects (same as Admin API)
-- `layoutId` - Static layout UUID or null
-- `layoutCascade` - Dynamic lookup array or null
-- `priority` - Route matching priority (higher checked first)
-- `active` - Whether route is enabled
-- `salesChannels` - Array of sales channel objects
-
-Process:
-1. URL: `/product/SW10234`
-2. Extract parameter: `productNumber` = "SW10234"
-3. Query database: `SELECT id FROM product WHERE productNumber = 'SW10234' AND active = true`
-4. Result: `product_id` = "019456789abc..."
-5. Placeholder `{{product_id}}` available in layout
-
-#### Constraints
-
-Constraints filter entity resolution using Shopware's standard filter format (same as Admin API). Each constraint is a filter object with `type`, `field`, and `value` or `parameters`. Multiple constraints combine with AND logic.
-
-**Equals Filter** - Exact match:
-```json
-"constraints": [
-  {"type": "equals", "field": "active", "value": true}
-]
-```
-
-**Range Filter** - Numeric/date ranges:
-```json
-"constraints": [
-  {"type": "range", "field": "stock", "parameters": {"gte": 10, "lte": 100}}
-]
-```
-
-**Multiple Constraints** - Combined with AND:
-```json
-"constraints": [
-  {"type": "equals", "field": "active", "value": true},
-  {"type": "range", "field": "stock", "parameters": {"gte": 10}},
-  {"type": "contains", "field": "name", "value": "Premium"}
-]
-```
-
-**Multi Filter** - Nested conditions:
-```json
-"constraints": [
-  {
-    "type": "multi",
-    "operator": "OR",
-    "queries": [
-      {"type": "equals", "field": "stock", "value": 0},
-      {"type": "equals", "field": "isCloseout", "value": true}
-    ]
-  }
-]
-```
-
-Available filter types: `equals`, `equalsAny`, `contains`, `range`, `prefix`, `suffix`, `not`, `multi` (with `AND`/`OR` operators).
-
-For complete filter reference, see [Shopware Filters Documentation](https://developer.shopware.com/docs/resources/references/core-reference/dal-reference/filters-reference.html).
-
-#### Passthrough Parameters
-
-Passthrough parameters use the URL value directly without database lookup. No `resolution` field means passthrough.
-
-```json
-{
-  "id": "0199b95202fe70ec851e971788686602",
-  "name": "Category Listing Route",
-  "urlPattern": "/listing/{categoryId}",
-  "parameterBindings": {
-    "categoryId": {
-      "placeholder": "category_id"
-    }
-  },
-  "layoutId": "0199b95105fe70ec851e971788686505",
-  "layoutCascade": null,
-  "priority": 50,
-  "active": true,
-  "salesChannels": [
-    {"id": "{{salesChannelId}}"}
-  ]
-}
-```
-
-Process:
-1. URL: `/listing/electronics`
-2. Extract parameter: `categoryId` = "electronics"
-3. Placeholder `{{category_id}}` = "electronics" (no database query)
-
-### Layout Assignment
-
-Layout assignment determines which content layout a route uses. Both `layoutId` and `layoutCascade` must be present—set the unused one to `null`.
-
-#### Static Assignment
-
-Route uses a fixed layout. Set `layoutId` to UUID, `layoutCascade` to `null`:
-
-```json
-{
-  "id": "0199b95202fe70ec851e971788686602",
-  "name": "Category Listing Route",
-  "urlPattern": "/listing/{categoryId}",
-  "parameterBindings": {
-    "categoryId": {"placeholder": "category_id"}
-  },
-  "layoutId": "0199b95105fe70ec851e971788686505",
-  "layoutCascade": null,
-  "priority": 50,
-  "active": true,
-  "salesChannels": [{"id": "{{salesChannelId}}"}]
-}
-```
-
-Use when all URLs for this route use the same layout (e.g., contact page, terms page).
-
-#### Dynamic Assignment (Cascade)
-
-Route looks up layout based on entity and sales channel. Set `layoutId` to `null`, `layoutCascade` to array. Steps execute in order, first match wins.
-
-```json
-{
-  "id": "0199b95201fe70ec851e971788686601",
-  "name": "Product Detail Route",
-  "urlPattern": "/product/{productNumber}",
-  "parameterBindings": {
-    "productNumber": {
-      "placeholder": "product_id",
-      "resolution": {
-        "entity": "product",
-        "match_field": "productNumber"
-      }
-    }
-  },
-  "layoutId": null,
-  "layoutCascade": [
-    {"entity": "product"},
-    {"entity": "category", "via": "categories"},
-    {"entity": null}
-  ],
-  "priority": 100,
-  "active": true,
-  "salesChannels": [{"id": "{{salesChannelId}}"}]
-}
-```
-
-Cascade steps:
-1. `{"entity": "product"}` - Direct entity match (layout assigned to resolved product ID)
-2. `{"entity": "category", "via": "categories"}` - Association fallback (inherits from product's categories)
-3. `{"entity": null}` - Default fallback (guaranteed fallback for sales channel)
-
-Fields:
-- `entity` - Entity type to match (or `null` for default)
-- `via` - Association path for fallback lookups
-
-Order rule: Most specific first, default last (specific → associations → default).
-
-### Cascade Assignment Lookup
-
-Cascade steps query the `content_layout_assignment` table. Assignments define which layout to use for which entity/sales channel combination.
-
-Assignment structure:
-```json
-{
-  "id": "<uuid>",
-  "entityType": "product|category|null",
-  "entityId": "<entity-uuid>|null",
-  "salesChannelId": "<sales-channel-uuid>",
-  "layoutId": "<layout-uuid>"
-}
-```
-
-Example assignments (database records):
-```json
-[
-  {
-    "id": "0199b95301fe70ec851e971788686701",
-    "entityType": null,
-    "entityId": null,
-    "salesChannelId": "{{salesChannelId}}",
-    "layoutId": "0199b95101fe70ec851e971788686501"
-  },
-  {
-    "id": "0199b95302fe70ec851e971788686702",
-    "entityType": "category",
-    "entityId": "0199b95509187207b86f6d01e3cc4f4c",
-    "salesChannelId": "{{salesChannelId}}",
-    "layoutId": "0199b95104fe70ec851e971788686504"
-  },
-  {
-    "id": "0199b95303fe70ec851e971788686703",
-    "entityType": "product",
-    "entityId": "0199b95009fe70ec851e971788586445",
-    "salesChannelId": "{{salesChannelId}}",
-    "layoutId": "0199b95103fe70ec851e971788686503"
-  }
-]
-```
-
-Query logic:
-- `{"entity": "product"}` → `WHERE entityType='product' AND entityId=<resolved_product_id> AND salesChannelId=<context>`
-- `{"entity": "category", "via": "categories"}` → Load product.categories, `WHERE entityType='category' AND entityId IN <category_ids>`
-- `{"entity": null}` → `WHERE entityType IS NULL AND entityId IS NULL AND salesChannelId=<context>`
-
-First match wins, returns `layoutId` from matched assignment.
-
-Example: Route resolves product `0199b95009fe70ec851e971788586445`
-1. Step 1 queries product assignments → Finds assignment #3 → Returns layout `0199b95103fe70ec851e971788686503`
-2. Steps 2-3 never execute (first match wins)
-
-### Combined Example: Category with Pagination
-
-Route combining resolution and passthrough parameters:
-
-```json
-{
-  "id": "0199b95203fe70ec851e971788686603",
-  "name": "Category with Pagination Route",
-  "urlPattern": "/category/{slug}/page/{page}",
-  "parameterBindings": {
-    "slug": {
-      "placeholder": "category_id",
-      "resolution": {
-        "entity": "category",
-        "match_field": "slug"
-      }
-    },
-    "page": {
-      "placeholder": "page"
-    }
-  },
-  "layoutId": null,
-  "layoutCascade": [
-    {"entity": "category"},
-    {"entity": null}
-  ],
-  "priority": 75,
-  "active": true,
-  "salesChannels": [
-    {"id": "{{salesChannelId}}"}
-  ]
-}
-```
-
-URL: `/category/electronics/page/2`
-Result: `category_id` = UUID (from database), `page` = "2" (direct value)
-Placeholders available: `{{category_id}}`, `{{page}}`
-
-### Common Entity/Field Pairs
-
-- Product: `"entity": "product"`, `"match_field": "seoPathInfo"` or `"productNumber"`
-- Category: `"entity": "category"`, `"match_field": "slug"` or `"name"`
 
 ## Data Loading
 
@@ -1165,39 +827,7 @@ Process:
 
 ## Example: Product Detail Page
 
-Combined example showing routing, data loading, and context distribution.
-
-**Route Configuration:**
-```json
-{
-  "id": "0199b95201fe70ec851e971788686601",
-  "name": "Product Detail Route",
-  "urlPattern": "/product/{productNumber}",
-  "parameterBindings": {
-    "productNumber": {
-      "placeholder": "product_id",
-      "resolution": {
-        "entity": "product",
-        "match_field": "productNumber",
-        "constraints": [
-          {"type": "equals", "field": "active", "value": true}
-        ]
-      }
-    }
-  },
-  "layoutId": null,
-  "layoutCascade": [
-    {"entity": "product"},
-    {"entity": "category", "via": "categories"},
-    {"entity": null}
-  ],
-  "priority": 100,
-  "active": true,
-  "salesChannels": [
-    {"id": "{{salesChannelId}}"}
-  ]
-}
-```
+Combined example showing entity-based rendering, data loading, and context distribution.
 
 **Layout Configuration:**
 ```json
@@ -1205,7 +835,7 @@ Combined example showing routing, data loading, and context distribution.
   "id": "product-detail-page",
   "type": "Sw:Grid",
   "properties": {
-    "product": "{{product_id}}",
+    "product": "{{productId}}",
     "columns": "1",
     "gap": 32
   },

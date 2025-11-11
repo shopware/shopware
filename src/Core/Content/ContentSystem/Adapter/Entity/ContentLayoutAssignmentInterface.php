@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Adapter\Entity;
 
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterBinding;
+use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Framework\Log\Package;
 
 /**

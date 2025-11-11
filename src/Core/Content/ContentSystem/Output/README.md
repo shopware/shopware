@@ -10,7 +10,7 @@ Post-hydration content transformation before response. Extracts sub-trees and pr
 ## Pipeline Position
 
 ```
-Routing → Resolution → Load → Scaffold → Refinement → Hydration → Dismantle → **Output** → Response
+Entity ID → Load → Scaffold → Refinement → Hydration → Dismantle → **Output** → Response
 ```
 
 Output operates on fully hydrated, dismantled ContentElement trees. Unlike Layout/Refinery (pre-hydration) or Hydration (data loading), Output works with populated trees after scaffolding removal and prepares them for response serialization.

@@ -7,17 +7,16 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
+use Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterField;
+use Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterListField;
+use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingField;
+use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsField;
+use Shopware\Core\Content\ContentSystem\Adapter\Field\ResolutionConfigField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContextConsumersField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\DataRequirementsField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ElementSlotsField;
-use Shopware\Core\Content\ContentSystem\Routing\Field\CriteriaFilterField;
-use Shopware\Core\Content\ContentSystem\Routing\Field\CriteriaFilterListField;
-use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingField;
-use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingsField;
-use Shopware\Core\Content\ContentSystem\Routing\Field\ResolutionConfigField;
-use Shopware\Core\Content\ContentSystem\Routing\Field\UrlPatternField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
@@ -132,7 +131,6 @@ class SchemaBuilder
         CheapestPriceField::class => Types::JSON,
         MeasurementUnitsField::class => Types::JSON,
 
-        UrlPatternField::class => Types::STRING,
         ContentElementField::class => Types::JSON,
         DataRequirementsField::class => Types::JSON,
         ElementSlotsField::class => Types::JSON,

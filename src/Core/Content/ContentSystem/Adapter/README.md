@@ -41,8 +41,6 @@ LayoutSearchHelper queries with priority: sales channel specific → global.
 
 Factories implement RenderingSpecificationFactoryInterface. ContentRoute tries factories in DI priority order (Chain of Responsibility). Entity factories check path prefix, query layout assignment, return RenderingSpecification or null.
 
-RouteBasedContextFactory (Routing/) handles all non-entity paths as catch-all.
-
 ## Subdirectories
 
 - FactoryHelper/: Shared logic for entity layout resolution and context factory processing

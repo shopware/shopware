@@ -126,7 +126,7 @@ export default {
                 {
                     name: 'transitionInternalComment',
                     config: {
-                        hidden: true,
+                        componentName: 'sw-textarea-field',
                         changeLabel: this.$tc('sw-bulk-edit.order.status.transitionInternalComment.label'),
                     },
                 },
@@ -237,9 +237,12 @@ export default {
         isStatusSelected() {
             if (!this.isStatusSelected) {
                 this.bulkEditData.statusMails.isChanged = false;
+                this.bulkEditData.transitionInternalComment.isChanged = false;
+                this.bulkEditData.transitionInternalComment.value = null;
             }
 
             this.bulkEditData.statusMails.disabled = !this.isStatusSelected;
+            this.bulkEditData.transitionInternalComment.disabled = !this.isStatusSelected;
         },
 
         isStatusMailsSelected() {
@@ -309,6 +312,7 @@ export default {
             };
 
             this.bulkEditData.statusMails.disabled = true;
+            this.bulkEditData.transitionInternalComment.disabled = true;
             this.bulkEditData.documents.disabled = true;
 
             this.order.documents = {
@@ -477,7 +481,7 @@ export default {
                             }
 
                             payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
-                            payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged;
+                            payload.internalComment = this.bulkEditData?.transitionInternalComment?.value || null;
                             payload.value = this.order?.[key];
                             data.statusData.push(payload);
                         } else if (key !== 'documents' && key !== 'statusMails') {

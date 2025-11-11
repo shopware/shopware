@@ -25,6 +25,10 @@ class RouteNotBlockedValidator extends ConstraintValidator
             throw RoutingException::unexpectedType($constraint, RouteNotBlockedValidator::class);
         }
 
+        if ($value === null || $value === '') {
+            return;
+        }
+
         if (!\is_string($value)) {
             $this->context->buildViolation(RouteNotBlocked::INVALID_TYPE_MESSAGE)
                 ->addViolation();

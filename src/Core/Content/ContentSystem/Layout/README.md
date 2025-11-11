@@ -55,5 +55,5 @@ Each field has corresponding serializer. These aren't architectural modules - th
 - Loader/: ContentLayoutEntity loading from repository
 - Scaffolding/: Pre/post-hydration layout wrapping
 - Refinery/: Layout refinement (single-pass constraint!)
-- Entity/: DAL definitions (ContentLayoutDefinition, ContentLayoutAssignmentDefinition)
+- Entity/: DAL definitions (ContentLayoutDefinition)
 - Field/: Custom DAL field types and serializers

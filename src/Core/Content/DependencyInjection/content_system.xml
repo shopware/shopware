@@ -9,14 +9,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Entity\ContentRouteDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutAssignmentDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
         <service id="Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutDefinition">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
             <tag name="shopware.entity.definition"/>
@@ -30,31 +22,6 @@
         <service id="Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
             <tag name="shopware.entity.definition"/>
-        </service>
-
-        <!-- Routing Services -->
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Router\RouteCollectionBuilder">
-            <argument type="service" id="content_route.repository"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouteMatcher"/>
-
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\RouteCollectionBuilder"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouteMatcher"/>
-        </service>
-
-        <!-- Resolver Services -->
-        <service id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterExtractor"/>
-
-        <service id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterExtractor"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver">
-            <argument type="service" id="content_layout_assignment.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <!-- Layout Loading -->
@@ -121,44 +88,37 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Field\CriteriaFilterFieldSerializer">
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterFieldSerializer">
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Field\CriteriaFilterListFieldSerializer">
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterListFieldSerializer">
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Field\CriteriaFilterFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterFieldSerializer"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Field\ResolutionConfigFieldSerializer">
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\Field\ResolutionConfigFieldSerializer">
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Field\CriteriaFilterFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterFieldSerializer"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingFieldSerializer">
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingFieldSerializer">
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Field\ResolutionConfigFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Field\ResolutionConfigFieldSerializer"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingsFieldSerializer">
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsFieldSerializer">
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingFieldSerializer"/>
-            <tag name="shopware.field_serializer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ContentSystem\Routing\Field\UrlPatternFieldSerializer">
-            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingFieldSerializer"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
@@ -297,15 +257,6 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
             <tag name="content_system.context_factory" priority="100"/>
-        </service>
-
-        <!-- Route-based Context Factory - Fallback with lowest priority -->
-        <service id="Shopware\Core\Content\ContentSystem\Routing\RouteBasedContextFactory">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\LayoutResolution\LayoutResolver"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
-            <tag name="content_system.context_factory" priority="0"/>
         </service>
 
         <!-- Store-API Route -->

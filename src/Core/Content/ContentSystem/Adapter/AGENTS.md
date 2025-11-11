@@ -9,7 +9,6 @@
 - `CategoryContentLayoutContextFactory` - Category entity factory
 - `LandingPageContentLayoutContextFactory` - Landing page entity factory
 - `LayoutSearchHelper` - Shared query logic
-- `RouteBasedContextFactory` - Route-based factory (Routing/)
 
 ## Constraints
 
@@ -35,12 +34,12 @@ Returns first match (channel-specific), second match (global), or null.
 
 ### DI Priority Requirement
 
-RouteBasedContextFactory must have lowest priority (0). It's catch-all - handles all paths not matched by entity factories. Higher priority entity factories run first.
+Entity factories should have priority 100. Higher priority factories run first in the Chain of Responsibility pattern.
 
 ## Quick Reference
 
 - **Pattern**: Return null to pass, RenderingSpecification to claim
-- **Priority**: Higher runs first, RouteBasedContextFactory at 0
+- **Priority**: Higher runs first (entity factories at 100)
 - **Database**: Single query with sales channel fallback (specific → global)
 - **Exceptions**: Throw only when factory should handle but fails
 - **Extension**: Implement interface, tag with DI priority > 0

@@ -16,9 +16,9 @@
 
 ### Three-Phase Pipeline Orchestration
 
-Both routes use Chain of Responsibility for factory selection. ContentRouteLoader then orchestrates these phases sequentially:
+Both endpoints use Chain of Responsibility for factory selection. ContentRouteLoader then orchestrates these phases sequentially:
 
-1. **Factory Selection**: Iterate context factories (ProductContextFactory, CategoryContextFactory, RouteBasedContextFactory, etc.) in DI priority order until one returns RenderingSpecification
+1. **Factory Selection**: Iterate context factories (ProductContentLayoutContextFactory, CategoryContentLayoutContextFactory, LandingPageContentLayoutContextFactory) in DI priority order until one returns RenderingSpecification
 2. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
 3. **Hydration**: ContentElementHydrator loads data + resolves context
 

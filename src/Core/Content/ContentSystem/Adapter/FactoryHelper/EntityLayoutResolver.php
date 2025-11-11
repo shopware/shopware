@@ -7,9 +7,9 @@ use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDe
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutCollection;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutCollection;
+use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterBinding;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;

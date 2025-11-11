@@ -3,11 +3,11 @@
 namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout;
 
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
+use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsField;
 use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
-use Shopware\Core\Content\ContentSystem\Routing\Field\ParameterBindingsField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;

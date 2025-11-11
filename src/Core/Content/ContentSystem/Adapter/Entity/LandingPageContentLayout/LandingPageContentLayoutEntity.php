@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout;
 
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
+use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutEntity;
-use Shopware\Core\Content\ContentSystem\Routing\IdResolution\ParameterBinding;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;

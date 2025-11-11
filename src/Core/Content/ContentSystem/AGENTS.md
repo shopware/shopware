@@ -4,10 +4,7 @@
 
 ## Source Code References
 
-- **Routing**: `Routing/Router/ContentRouter`
-- **Entity Resolution**: `Routing/IdResolution/EntityIdResolver`
-- **Layout Resolution**: `Routing/LayoutResolution/LayoutResolver`
-- **Context Factories**: `Routing/RouteBasedContextFactory`, `Adapter/ProductContentLayoutContextFactory`, `Adapter/CategoryContentLayoutContextFactory`, `Adapter/LandingPageContentLayoutContextFactory`
+- **Context Factories**: `Adapter/ProductContentLayoutContextFactory`, `Adapter/CategoryContentLayoutContextFactory`, `Adapter/LandingPageContentLayoutContextFactory`
 - **Layout Search**: `Adapter/LayoutSearchHelper`
 - **Specification**: `RenderingSpecification`, `PlaceholderValues`
 - **Refinement**: `Layout/Refinery/RefinedLayoutBuilder`, `Layout/Refinery/LayoutRefinery`
@@ -16,7 +13,7 @@
 
 ## Quick Reference
 
-- **Pipeline**: Routing → Resolution → Layout → Refinement → Hydration
+- **Pipeline**: Entity ID → Layout → Refinement → Hydration → Response
 - **Main exception class**: `ContentSystemException`
 - **ID generation**: `Uuid::randomHex()`
 - **Package**: `#[Package('discovery')]`

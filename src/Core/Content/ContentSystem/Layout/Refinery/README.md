@@ -91,7 +91,7 @@ class CustomRefiner implements LayoutRefinerInterface
 ```
 
 Common use cases:
-- Route-specific overrides (shown above)
+- Entity-specific overrides (shown above)
 - Calculated properties (compute values from resolved data)
 - Conditional transformations (add/remove elements based on context)
 - A/B testing (modify layout based on customer segment)

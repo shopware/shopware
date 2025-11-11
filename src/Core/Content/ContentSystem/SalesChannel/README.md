@@ -54,19 +54,19 @@ Both response types contain:
 
 ## HTTP Cache
 
-Both routes decorated with `_httpCache: true`. Response cached based on sales channel, URL, customer group. Invalidation happens when:
-- Content routes modified
+Both endpoints decorated with `_httpCache: true`. Response cached based on sales channel, URL, customer group. Invalidation happens when:
 - Content layouts modified
 - Assigned entities modified
+- Entity assignments modified
 
 Cache tags propagated from entity queries during hydration.
 
 ## Error Handling
 
 Returns 404 if:
-- No route matches URL
-- Entity resolution finds no entity
-- Layout resolution finds no layout
+- No context factory accepts the path
+- Entity not found
+- Layout assignment not found for entity
 
 ContentSystemException thrown with specific error codes.
 

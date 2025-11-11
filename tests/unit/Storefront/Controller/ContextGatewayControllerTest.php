@@ -148,7 +148,7 @@ class ContextGatewayControllerTest extends TestCase
     {
         $storage = new TestSessionStorage();
         $storage->clear(); // ensure a clean state since storage is a stub shared between tests
-        $session = new Session();
+        $session = new Session($storage);
         $request = new Request();
         $request->setSession($session);
 

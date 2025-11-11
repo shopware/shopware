@@ -18,7 +18,7 @@ class DomainRuleStruct extends Struct
     private array $rules = [];
 
     /**
-     * @var RobotsDirective[]
+     * @var list<RobotsDirective>
      */
     private array $directives = [];
 
@@ -54,7 +54,7 @@ class DomainRuleStruct extends Struct
     }
 
     /**
-     * @return RobotsDirective[]
+     * @return list<RobotsDirective>
      */
     public function getDirectives(): array
     {

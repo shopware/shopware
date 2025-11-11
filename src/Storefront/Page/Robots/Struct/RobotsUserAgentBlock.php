@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Util\Hasher;
 class RobotsUserAgentBlock
 {
     /**
-     * @param RobotsDirective[] $directives
+     * @param list<RobotsDirective> $directives
      */
     public function __construct(
         public readonly string $userAgent,
@@ -18,25 +18,25 @@ class RobotsUserAgentBlock
     }
 
     /**
-     * @return RobotsDirective[]
+     * @return list<RobotsDirective>
      */
     public function getPathDirectives(): array
     {
-        return array_filter(
+        return array_values(array_filter(
             $this->directives,
             static fn (RobotsDirective $directive) => $directive->isPathBased()
-        );
+        ));
     }
 
     /**
-     * @return RobotsDirective[]
+     * @return list<RobotsDirective>
      */
     public function getNonPathDirectives(): array
     {
-        return array_filter(
+        return array_values(array_filter(
             $this->directives,
             static fn (RobotsDirective $directive) => !$directive->isPathBased()
-        );
+        ));
     }
 
     public function render(): string

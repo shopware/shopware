@@ -265,51 +265,41 @@
         <!-- Output Services (Post-Hydration Processing) -->
         <service id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
 
-        <!-- Query Placeholder Binder for Entity Adapters -->
-        <service id="Shopware\Core\Content\ContentSystem\Adapter\QueryPlaceholderBinder">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-        </service>
-
-        <!-- Entity Layout Builder -->
-        <service id="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutBuilder">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\QueryPlaceholderBinder"/>
+        <!-- Entity Layout Services -->
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver"/>
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
         </service>
 
         <!-- Helper Services -->
         <service id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
         <service id="Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver"/>
 
-        <!-- Context Factories (Chain of Responsibility with Generator pattern) -->
-        <!-- Entity Adapters (in Adapter/) - Higher priority -->
-        <!-- Single generic factory instantiated with different configurations -->
-        <service id="Shopware\Core\Content\ContentSystem\Adapter\ProductContextFactory"
-                 class="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutContextFactory">
+        <!-- Context Factories -->
+        <!-- Entity Adapters - Higher priority -->
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\ProductContentLayoutContextFactory">
             <argument type="service" id="product_content_layout.repository"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutDefinition"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutBuilder"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
             <tag name="content_system.context_factory" priority="100"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Adapter\CategoryContextFactory"
-                 class="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutContextFactory">
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\CategoryContentLayoutContextFactory">
             <argument type="service" id="category_content_layout.repository"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutDefinition"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutBuilder"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
-            <tag name="content_system.context_factory" priority="90"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
+            <tag name="content_system.context_factory" priority="100"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Adapter\LandingPageContextFactory"
-                 class="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutContextFactory">
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\LandingPageContentLayoutContextFactory">
             <argument type="service" id="landing_page_content_layout.repository"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutDefinition"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\EntityLayoutBuilder"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestParameterExtractor"/>
-            <tag name="content_system.context_factory" priority="80"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory"/>
+            <tag name="content_system.context_factory" priority="100"/>
         </service>
 
-        <!-- Route-based Context Factory (in Routing/) - Fallback with lowest priority -->
+        <!-- Route-based Context Factory - Fallback with lowest priority -->
         <service id="Shopware\Core\Content\ContentSystem\Routing\RouteBasedContextFactory">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\Router\ContentRouter"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Routing\IdResolution\EntityIdResolver"/>

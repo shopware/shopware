@@ -186,7 +186,9 @@
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password",
       "tooltipRestoreInheritance": "Restore inheritance",
-      "tooltipRemoveInheritance": "Remove inheritance"
+      "tooltipRemoveInheritance": "Remove inheritance",
+      "ariaLinkInheritance": "Link inheritance",
+      "ariaUnlinkInheritance": "Unlink inheritance"
     },
     "sw-field-copyable": {
       "tooltip": {

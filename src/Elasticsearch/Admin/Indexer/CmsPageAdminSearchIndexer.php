@@ -52,6 +52,9 @@ final class CmsPageAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator(CmsPageDefinition::ENTITY_NAME, null, $this->indexingBatchSize);
     }
 
+    /**
+     * @param EntityWrittenContainerEvent<covariant array<string, string>> $event Translation definitions have multiple primary keys
+     */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
         $ids = [];

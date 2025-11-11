@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Page\Robots\Parser;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore Simple DTO with no business logic
+ */
 #[Package('framework')]
 class ParseIssue
 {

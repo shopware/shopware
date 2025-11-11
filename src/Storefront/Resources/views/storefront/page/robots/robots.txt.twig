@@ -38,11 +38,11 @@
 
             {% if page.globalUserAgentBlocks|length > 0 %}
                 {% block robots_txt_content_global_user_agent_blocks %}
-                    {% for block in page.globalUserAgentBlocks %}
+                    {% for globalUserAgentBlock in page.globalUserAgentBlocks %}
                         {% block robots_txt_content_global_user_agent_block %}
-                            User-agent: {{ block.userAgent }}
-                            {% for directive in block.directives %}
-                                {{ directive.type.value }}: {{ directive.value }}
+                            User-agent: {{ globalUserAgentBlock.userAgent }}
+                            {% for globalUserAgentBlockDirective in globalUserAgentBlock.directives %}
+                                {{ globalUserAgentBlockDirective.type.value }}: {{ globalUserAgentBlockDirective.value }}
                             {% endfor %}
                         {% endblock %}
                     {% endfor %}

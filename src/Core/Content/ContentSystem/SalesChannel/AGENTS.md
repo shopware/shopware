@@ -40,10 +40,10 @@ See `ContentRoute::load()` and `ContentDecomposedRoute::load()` for factory iter
 
 Both wildcards: `{path}` matches any URL pattern
 
-### Query Parameters
+### Request Parameters
 
-Both endpoints support:
-- `?elementId=xyz`: Request specific element subtree only
+Both endpoints accept optional parameters via query string or POST body (query takes precedence):
+- `elementId`: Request specific element subtree only
 
 ## Quick Reference
 

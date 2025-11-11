@@ -156,6 +156,38 @@ These placeholder names can be customized via parameter bindings (see [Parameter
 
 Use these in element properties and data requirements. See [Example: Product Detail Page](#example-product-detail-page) for usage.
 
+### Additional Parameters
+
+Beyond URL path segments, you can pass additional parameters to your layouts via query string or request body. These parameters become available as placeholders throughout your layout.
+
+**Query string example:**
+```
+/store-api/content/product/abc123?page=2&limit=24
+```
+
+Makes `{{page}}` and `{{limit}}` available as placeholders:
+
+```json
+{
+  "id": "product-listing",
+  "type": "Sw:Product:Listing",
+  "properties": {
+    "page": "{{page}}",
+    "limit": "{{limit}}"
+  }
+}
+```
+
+**Common use cases:**
+- Pagination parameters (`page`, `limit`)
+- Filter values (`category`, `brand`, `priceRange`)
+- Display preferences (`view`, `sort`)
+- Feature flags (`showReviews`, `hidePrice`)
+
+**Request body:** POST requests work the same way - parameters in the request body become placeholders. Query string parameters take precedence if the same parameter appears in both locations.
+
+**Parameter bindings:** Additional parameters are also affected by parameter bindings (see [Parameter Bindings](#parameter-bindings)). If configured, the system maps parameter names to different placeholder names.
+
 ## Content Elements
 
 ### Structure

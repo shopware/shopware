@@ -7,8 +7,8 @@ use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDe
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignmentInterface;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\LandingPageContentLayoutCollection;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutCollection;
-use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,6 +27,10 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class EntityLayoutResolver
 {
+    public function __construct(private readonly RequestDataExtractor $requestDataExtractor)
+    {
+    }
+
     /**
      * Resolves layout assignment and builds placeholder values for entity-based rendering.
      *
@@ -62,11 +66,6 @@ class EntityLayoutResolver
         );
     }
 
-    /**
-     * Builds placeholder values from entity ID and query parameters.
-     *
-     * Applies parameter bindings to both sources before merging.
-     */
     private function buildPlaceholderValues(
         ContentLayoutAssignmentInterface $assignment,
         string $entityIdField,
@@ -79,8 +78,7 @@ class EntityLayoutResolver
             $entityIdPlaceholder = $bindings[$entityIdField]->placeholder ?? $entityIdField;
         }
 
-        $queryParameters = $request->query->all();
-        $processedParameters = $this->processQueryParameters($bindings, $queryParameters);
+        $processedParameters = $this->requestDataExtractor->extractData($request, $bindings);
 
         return PlaceholderValues::from(array_merge(
             [$entityIdPlaceholder => $entityId],
@@ -114,34 +112,5 @@ class EntityLayoutResolver
         $result = $repository->search($criteria, $context->getContext());
 
         return $result->first();
-    }
-
-    /**
-     * Maps query parameter names to placeholder names.
-     *
-     * Parameters pass through unchanged if no bindings configured.
-     *
-     * @param array<string, ParameterBinding>|null $bindings
-     * @param array<string, mixed> $queryParameters
-     *
-     * @return array<string, mixed>
-     */
-    private function processQueryParameters(?array $bindings, array $queryParameters): array
-    {
-        if ($bindings === null || $bindings === []) {
-            return $queryParameters;
-        }
-
-        $result = [];
-        foreach ($bindings as $paramName => $binding) {
-            if (!isset($queryParameters[$paramName])) {
-                continue;
-            }
-
-            $placeholder = $binding->placeholder ?? $paramName;
-            $result[$placeholder] = $queryParameters[$paramName];
-        }
-
-        return $result;
     }
 }

@@ -24,9 +24,9 @@ Two endpoints share pipeline but differ in response format:
 - Returns `DecomposedContentPage` with skeletons + deduplicated data + assignments
 - Optimized for deduplication, requires client reconstruction
 
-## Query Parameters
+## Request Parameters
 
-Both endpoints accept optional query parameters:
+Both endpoints accept optional parameters via query string or POST body (query takes precedence):
 - `elementId`: String - Request only specific element and its descendants (partial rendering)
 
 ## Pipeline Orchestration

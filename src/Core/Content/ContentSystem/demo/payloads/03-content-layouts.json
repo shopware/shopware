@@ -1360,6 +1360,129 @@
           }
         ],
         "schema": {}
+      },
+      {
+        "id": "daf166acd4bd45caa657c579f523d743",
+        "name": "Homepage Two-Column Grid with Listing",
+        "version": "1.0.0",
+        "layout": [
+          {
+            "id": "homepage-grid-container",
+            "type": "Sw:Grid:Container",
+            "properties": {
+              "columns": "2",
+              "columnsLg": "1",
+              "gap": "24",
+              "align": "start",
+              "alignContent": "start",
+              "justify": "stretch",
+              "justifyContent": "stretch"
+            },
+            "slots": {
+              "column-1": [
+                {
+                  "id": "media-column",
+                  "type": "Sw:Grid:Column",
+                  "properties": {
+                    "start": null,
+                    "span": null
+                  },
+                  "slots": {
+                    "content": [
+                      {
+                        "id": "hero-image",
+                        "type": "Sw:Media:Image",
+                        "properties": {
+                          "mediaUrl": "https://www.shopware.com/media/pages/products/shopping-experiences/inspire-connect-riseup-mood.webp",
+                          "alt": "Hero Image",
+                          "title": "Welcome"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "column-2": [
+                {
+                  "id": "text-column",
+                  "type": "Sw:Grid:Column",
+                  "properties": {
+                    "start": null,
+                    "span": null
+                  },
+                  "slots": {
+                    "default": [
+                      {
+                        "id": "welcome-text",
+                        "type": "Sw:Content:Text",
+                        "properties": {
+                          "text": "<h1>Lorem ipsum dolor sit amet.</h1><p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>"
+                        }
+                      },
+                      {
+                        "id": "alert-box",
+                        "type": "Sw:Alert",
+                        "properties": {
+                          "text": "Hello World"
+                        },
+                        "slots": {
+                          "content": [
+                            {
+                              "id": "alert-content",
+                              "type": "Sw:Content:Text",
+                              "properties": {
+                                "text": "Hello World"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "homepage-product-listing",
+            "type": "Sw:Product:Listing",
+            "properties": {
+              "categoryId": "{{category_id}}",
+              "limit": 24
+            },
+            "data_requirements": {
+              "listing": {
+                "key": "listing",
+                "source": "product_listing",
+                "config": {}
+              }
+            },
+            "provides_context": {
+              "products": {
+                "type": "collection",
+                "distribution": "iterator",
+                "consumer_alias": "product"
+              }
+            },
+            "slots": {
+              "filters-panel": [
+                {
+                  "id": "homepage-filter-panel",
+                  "type": "Sw:Filter:Panel",
+                  "properties": {},
+                  "accepts_context": {
+                    "listing": {
+                      "type": "single",
+                      "required": false
+                    }
+                  }
+                }
+              ],
+              "product-card": []
+            }
+          }
+        ],
+        "schema": {}
       }
     ]
   }

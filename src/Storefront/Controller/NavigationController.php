@@ -5,10 +5,11 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -45,6 +46,7 @@ class NavigationController extends StorefrontController
         private readonly FooterPageletLoaderInterface $footerLoader,
         private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
+        private readonly AbstractContentRoute $contentRoute,
     ) {
     }
 
@@ -61,17 +63,20 @@ class NavigationController extends StorefrontController
 
         $this->hook(new NavigationPageLoadedHook($page, $context));
 
-        // TODO: Remove this once the new cms structure is fully implemented.
         if (Feature::isActive('STOREFRONT_COMPONENTS')) {
-            $elements = $page->getCmsPage()->getAllElements();
-            $listing = $elements[4];
-            $listingData = $listing->getData()->getListing();
+            $category = $page->getCategory();
+            \assert($category !== null);
 
-            $cmsPage = $this->getNewCmsStructure($listingData);
+            $categoryId = $category->getId();
+            $path = '/category/' . $categoryId;
+
+            $contentPageResponse = $this->contentRoute->load($path, $request, $context);
+            $contentPage = $contentPageResponse->getContentPage();
 
             return $this->renderStorefront(
                 '@Storefront/storefront/page/content/index.html.twig',
-                ['page' => $page, 'cmsPage' => $cmsPage]);
+                ['page' => $page, 'cmsPage' => $contentPage]
+            );
         }
 
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
@@ -166,10 +171,14 @@ class NavigationController extends StorefrontController
     }
 
     /**
-     * TODO: Remove after final CMS structure is implemented.
+     * @deprecated Will be removed after real Content System integration is tested
+     *
+     * Temporary mock for STOREFRONT_COMPONENTS feature flag development.
+     * This method creates a hardcoded ContentElement tree structure for demonstration purposes only.
+     * The real implementation now uses ContentRoute to load database-backed content layouts.
      */
-    private static function getNewCmsStructure($listingData) {
-
+    private static function getNewCmsStructure($listingData)
+    {
         $media = new MediaEntity();
         $media->setId('123');
         $media->setMimeType('image/webp');
@@ -213,9 +222,9 @@ class NavigationController extends StorefrontController
                                             'properties' => [
                                                 'media' => $media,
                                             ],
-                                        ]
+                                        ],
                                     ],
-                                ]
+                                ],
                             ],
                         ],
                         'column-2' => [
@@ -249,21 +258,21 @@ class NavigationController extends StorefrontController
                                                         'properties' => [
                                                             'text' => 'Hello World',
                                                         ],
-                                                    ]
-                                                ]
-                                            ]
-                                        ]
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
                                     ],
-                                ]
-                            ]
-                        ]
+                                ],
+                            ],
+                        ],
                     ],
                 ],
                 [
                     'id' => '123',
                     'component' => 'Sw:Product:Listing',
                     'properties' => [
-                        'listing' => $listingData
+                        'listing' => $listingData,
                     ],
                     'slots' => [
                         'filters-panel' => [
@@ -287,13 +296,13 @@ class NavigationController extends StorefrontController
                                     //         ]
                                     //     ]
                                     // ]
-                                ]
-                            ]
+                                ],
+                            ],
                         ],
-                        'product-card' => []
-                    ]
-                ]
-            ]
+                        'product-card' => [],
+                    ],
+                ],
+            ],
         ];
     }
 }

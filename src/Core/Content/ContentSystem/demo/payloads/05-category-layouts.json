@@ -46,6 +46,17 @@
             "placeholder": "category_id"
           }
         }
+      },
+      {
+        "id": "4d716614e5dc417b8b5e26f6ad4b3bfb",
+        "categoryId": "{{navigationCategoryId}}",
+        "salesChannelId": null,
+        "contentLayoutId": "daf166acd4bd45caa657c579f523d743",
+        "parameterBindings": {
+          "categoryId": {
+            "placeholder": "category_id"
+          }
+        }
       }
     ]
   }

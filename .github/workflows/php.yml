@@ -123,8 +123,6 @@ jobs:
 
   openapi-lint:
     runs-on: ubuntu-24.04
-    permissions:
-      id-token: write
     env:
       APP_ENV: prod
       APP_URL: http://localhost:8000
@@ -168,10 +166,12 @@ jobs:
           retention-days: 1
 
       - name: Run OpenAPI Snapshot Action
-        uses: patzick/explore-openapi-snapshot@7ea174b327803e6d4b5cfe98c3044edf011a874b # v2.0.0
+        uses: patzick/explore-openapi-snapshot@5cb94b58322d077f45dc4a6829e8bd5d76b9c7cc # v1.0.0
         with:
           schema-file: "./api-types/storeApiSchema.json"
-          project: "shopware/store-api"
+          project: "shopware-store-api"
+          auth-token: ${{ secrets.EXPLORE_OPENAPI_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate StoreAPI schema
         run: |

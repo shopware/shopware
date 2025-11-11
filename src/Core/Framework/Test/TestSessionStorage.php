@@ -20,11 +20,11 @@ class TestSessionStorage implements SessionStorageInterface
     /**
      * @var array<string, SessionBagInterface>
      */
-    private array $data = [];
+    private static array $data = [];
 
-    private string $id = 'test-id';
+    private static string $id = 'test-id';
 
-    private string $name = PlatformRequest::FALLBACK_SESSION_NAME;
+    private static string $name = PlatformRequest::FALLBACK_SESSION_NAME;
 
     public function start(): bool
     {
@@ -38,22 +38,22 @@ class TestSessionStorage implements SessionStorageInterface
 
     public function getId(): string
     {
-        return $this->id;
+        return self::$id;
     }
 
     public function setId(string $id): void
     {
-        $this->id = $id;
+        self::$id = $id;
     }
 
     public function getName(): string
     {
-        return $this->name;
+        return self::$name;
     }
 
     public function setName(string $name): void
     {
-        $this->name = $name;
+        self::$name = $name;
     }
 
     public function regenerate(bool $destroy = false, ?int $lifetime = null): bool
@@ -73,19 +73,19 @@ class TestSessionStorage implements SessionStorageInterface
 
     public function clear(): void
     {
-        foreach ($this->data as $bag) {
+        foreach (self::$data as $bag) {
             $bag->clear();
         }
     }
 
     public function getBag(string $name): SessionBagInterface
     {
-        return $this->data[$name] ?? new FlashBag();
+        return self::$data[$name] ?? new FlashBag();
     }
 
     public function registerBag(SessionBagInterface $bag): void
     {
-        if (isset($this->data[$bag->getName()])) {
+        if (isset(self::$data[$bag->getName()])) {
             /**
              * This early return protects multiple session objects to overwrite each others already filled bag
              *
@@ -94,7 +94,7 @@ class TestSessionStorage implements SessionStorageInterface
              *
              * To fix this behaviour we reference the new passed session bag data to the existing one in the sesion
              */
-            $oldBag = $this->data[$bag->getName()];
+            $oldBag = self::$data[$bag->getName()];
             if ($oldBag instanceof SessionBagProxy) {
                 $oldBagInner = $oldBag->getBag();
             } else {
@@ -128,7 +128,7 @@ class TestSessionStorage implements SessionStorageInterface
             return;
         }
 
-        $this->data[$bag->getName()] = $bag;
+        self::$data[$bag->getName()] = $bag;
     }
 
     public function getMetadataBag(): MetadataBag

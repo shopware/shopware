@@ -146,8 +146,11 @@ class ContextGatewayControllerTest extends TestCase
 
     private function createStubContainerWithFlashBag(): ContainerInterface
     {
+        $storage = new TestSessionStorage();
+        $storage->clear(); // ensure a clean state since storage is a stub shared between tests
+
         $request = new Request();
-        $request->setSession(new Session(new TestSessionStorage()));
+        $request->setSession(new Session($storage));
 
         $requestStack = new RequestStack([$request]);
 

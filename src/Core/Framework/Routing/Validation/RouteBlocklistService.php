@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Routing\Validation;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
@@ -34,7 +35,7 @@ readonly class RouteBlocklistService
             // Resource not found means the route is completely unused
             return false;
         } catch (MethodNotAllowedException) {
-            // Method not allowed means the route exists for other methods, e.g. as POST in the API
+            // Method not allowed means the route exists for other methods, e.g., as POST in the API
             return true;
         } finally {
             $this->router->getContext()->setMethod($originalMethod);

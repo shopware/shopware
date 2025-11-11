@@ -7,6 +7,8 @@ use Symfony\Component\Validator\Constraint;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore The class only has a simple getter, there's no real logic to test
  */
 #[Package('framework')]
 class RouteNotBlocked extends Constraint

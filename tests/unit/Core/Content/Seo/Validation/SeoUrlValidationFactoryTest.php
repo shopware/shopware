@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Seo\Validation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -23,88 +22,69 @@ use Symfony\Component\Validator\Constraints\Type;
 #[CoversClass(SeoUrlValidationFactory::class)]
 class SeoUrlValidationFactoryTest extends TestCase
 {
-    #[DataProvider('buildValidationDataProvider')]
-    public function testBuildValidation(?SeoUrlRouteConfig $config, \Closure $expectsClosure): void
+    public function testConstraintsWithRouteConfig(): void
     {
         $factory = new SeoUrlValidationFactory();
         $context = Context::createDefaultContext();
+
+        $config = new SeoUrlRouteConfig(
+            new CategoryDefinition(),
+            'test.route',
+            'test/{{ id }}'
+        );
 
         $definition = $factory->buildValidation($context, $config);
 
         static::assertSame('seo_url.create', $definition->getName());
 
-        $expectsClosure($definition);
+        $foreignKeyConstraints = $definition->getProperty('foreignKey');
+
+        static::assertCount(2, $foreignKeyConstraints);
+        static::assertInstanceOf(NotBlank::class, $foreignKeyConstraints[0]);
+        static::assertInstanceOf(EntityExists::class, $foreignKeyConstraints[1]);
+
+        $this->assertCommonConstraintsExist($definition);
     }
 
-    public static function buildValidationDataProvider(): \Generator
+    public function testConstraintsWithoutRouteConfig(): void
     {
-        yield 'with route config' => [
-            new SeoUrlRouteConfig(
-                new CategoryDefinition(),
-                'test.route',
-                'test/{{ id }}'
-            ),
-            function (DataValidationDefinition $definition): void {
-                $properties = $definition->getProperties();
+        $factory = new SeoUrlValidationFactory();
+        $context = Context::createDefaultContext();
 
-                static::assertArrayHasKey('foreignKey', $properties);
-                static::assertCount(2, $properties['foreignKey']);
-                static::assertInstanceOf(NotBlank::class, $properties['foreignKey'][0]);
-                static::assertInstanceOf(EntityExists::class, $properties['foreignKey'][1]);
+        $definition = $factory->buildValidation($context, null);
+        static::assertSame('seo_url.create', $definition->getName());
 
-                static::assertArrayHasKey('routeName', $properties);
-                static::assertCount(2, $properties['routeName']);
-                static::assertInstanceOf(NotBlank::class, $properties['routeName'][0]);
-                static::assertInstanceOf(Type::class, $properties['routeName'][1]);
+        $foreignKeyConstraints = $definition->getProperty('foreignKey');
 
-                static::assertArrayHasKey('pathInfo', $properties);
-                static::assertCount(2, $properties['pathInfo']);
-                static::assertInstanceOf(NotBlank::class, $properties['pathInfo'][0]);
-                static::assertInstanceOf(Type::class, $properties['pathInfo'][1]);
+        static::assertCount(1, $foreignKeyConstraints);
+        static::assertInstanceOf(NotBlank::class, $foreignKeyConstraints[0]);
 
-                static::assertArrayHasKey('seoPathInfo', $properties);
-                static::assertCount(3, $properties['seoPathInfo']);
-                static::assertInstanceOf(NotBlank::class, $properties['seoPathInfo'][0]);
-                static::assertInstanceOf(Type::class, $properties['seoPathInfo'][1]);
-                static::assertInstanceOf(RouteNotBlocked::class, $properties['seoPathInfo'][2]);
+        $this->assertCommonConstraintsExist($definition);
+    }
 
-                static::assertArrayHasKey('salesChannelId', $properties);
-                static::assertCount(2, $properties['salesChannelId']);
-                static::assertInstanceOf(NotBlank::class, $properties['salesChannelId'][0]);
-                static::assertInstanceOf(EntityExists::class, $properties['salesChannelId'][1]);
-            },
-        ];
+    private function assertCommonConstraintsExist(DataValidationDefinition $definition): void
+    {
+        $properties = $definition->getProperties();
 
-        yield 'without route config' => [
-            null,
-            function (DataValidationDefinition $definition): void {
-                $properties = $definition->getProperties();
+        static::assertArrayHasKey('routeName', $properties);
+        static::assertCount(2, $properties['routeName']);
+        static::assertInstanceOf(NotBlank::class, $properties['routeName'][0]);
+        static::assertInstanceOf(Type::class, $properties['routeName'][1]);
 
-                static::assertArrayHasKey('foreignKey', $properties);
-                static::assertCount(1, $properties['foreignKey']);
-                static::assertInstanceOf(NotBlank::class, $properties['foreignKey'][0]);
+        static::assertArrayHasKey('pathInfo', $properties);
+        static::assertCount(2, $properties['pathInfo']);
+        static::assertInstanceOf(NotBlank::class, $properties['pathInfo'][0]);
+        static::assertInstanceOf(Type::class, $properties['pathInfo'][1]);
 
-                static::assertArrayHasKey('routeName', $properties);
-                static::assertCount(2, $properties['routeName']);
-                static::assertInstanceOf(NotBlank::class, $properties['routeName'][0]);
-                static::assertInstanceOf(Type::class, $properties['routeName'][1]);
+        static::assertArrayHasKey('seoPathInfo', $properties);
+        static::assertCount(3, $properties['seoPathInfo']);
+        static::assertInstanceOf(NotBlank::class, $properties['seoPathInfo'][0]);
+        static::assertInstanceOf(Type::class, $properties['seoPathInfo'][1]);
+        static::assertInstanceOf(RouteNotBlocked::class, $properties['seoPathInfo'][2]);
 
-                static::assertArrayHasKey('pathInfo', $properties);
-                static::assertCount(2, $properties['pathInfo']);
-                static::assertInstanceOf(NotBlank::class, $properties['pathInfo'][0]);
-                static::assertInstanceOf(Type::class, $properties['pathInfo'][1]);
-
-                static::assertArrayHasKey('seoPathInfo', $properties);
-                static::assertCount(3, $properties['seoPathInfo']);
-                static::assertInstanceOf(NotBlank::class, $properties['seoPathInfo'][0]);
-                static::assertInstanceOf(Type::class, $properties['seoPathInfo'][1]);
-                static::assertInstanceOf(RouteNotBlocked::class, $properties['seoPathInfo'][2]);
-
-                static::assertArrayHasKey('salesChannelId', $properties);
-                static::assertCount(2, $properties['salesChannelId']);
-                static::assertInstanceOf(NotBlank::class, $properties['salesChannelId'][0]);
-                static::assertInstanceOf(EntityExists::class, $properties['salesChannelId'][1]);
-            },
-        ];
+        static::assertArrayHasKey('salesChannelId', $properties);
+        static::assertCount(2, $properties['salesChannelId']);
+        static::assertInstanceOf(NotBlank::class, $properties['salesChannelId'][0]);
+        static::assertInstanceOf(EntityExists::class, $properties['salesChannelId'][1]);
     }
 }

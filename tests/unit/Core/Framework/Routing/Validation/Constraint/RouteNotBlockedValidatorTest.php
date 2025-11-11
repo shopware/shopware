@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\Routing\Validation\Constraint;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlocked;
@@ -33,8 +32,7 @@ class RouteNotBlockedValidatorTest extends TestCase
         $validator->validate('test', $wrongConstraint);
     }
 
-    #[DataProvider('nullOrEmptyValueDataProvider')]
-    public function testValidateAllowsNullOrEmptyValue(mixed $value): void
+    public function testValidateAllowsEmptyValue(): void
     {
         $blocklistService = $this->createMock(RouteBlocklistService::class);
         $blocklistService->expects($this->never())->method('isPathBlocked');
@@ -46,13 +44,22 @@ class RouteNotBlockedValidatorTest extends TestCase
         $context->expects($this->never())->method('buildViolation');
         $validator->initialize($context);
 
-        $validator->validate($value, $constraint);
+        $validator->validate('', $constraint);
     }
 
-    public static function nullOrEmptyValueDataProvider(): \Generator
+    public function testValidateAllowsNullValue(): void
     {
-        yield 'null value' => [null];
-        yield 'empty string' => [''];
+        $blocklistService = $this->createMock(RouteBlocklistService::class);
+        $blocklistService->expects($this->never())->method('isPathBlocked');
+
+        $constraint = new RouteNotBlocked();
+        $validator = new RouteNotBlockedValidator($blocklistService);
+
+        $context = $this->createMock(ExecutionContextInterface::class);
+        $context->expects($this->never())->method('buildViolation');
+        $validator->initialize($context);
+
+        $validator->validate(null, $constraint);
     }
 
     public function testValidateAddsViolationForNonStringValue(): void

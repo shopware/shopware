@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
@@ -56,7 +57,7 @@ class RouteBlocklistServiceTest extends TestCase
         $service = new RouteBlocklistService($router);
 
         $context = $router->getContext();
-        $context->setMethod('POST');
+        $context->setMethod(Request::METHOD_POST);
         $originalMethod = $context->getMethod();
 
         $service->isPathBlocked('maintenance');
@@ -69,7 +70,7 @@ class RouteBlocklistServiceTest extends TestCase
         $routes->add('frontend.post.only', new Route(
             path: '/post-only',
             defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]],
-            methods: ['POST']
+            methods: [Request::METHOD_POST]
         ));
         $service->isPathBlocked('post-only');
         static::assertSame($originalMethod, $context->getMethod());
@@ -87,7 +88,7 @@ class RouteBlocklistServiceTest extends TestCase
         $routes->add('api.test', new Route(
             path: '/api/test',
             defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']],
-            methods: ['POST', 'PATCH']
+            methods: [Request::METHOD_POST, Request::METHOD_PATCH]
         ));
 
         $context = new RequestContext();

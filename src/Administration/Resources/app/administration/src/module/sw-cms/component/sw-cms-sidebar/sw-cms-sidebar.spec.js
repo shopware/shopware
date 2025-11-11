@@ -885,4 +885,26 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(wrapper.vm.$refs.itemConfigSidebar.isActive).toBeTruthy();
         expect(wrapper.vm.selectedSection.id).toBe('2222');
     });
+
+    it('should emit page-save when aborting block drop', async () => {
+        const wrapper = await createWrapper();
+
+        // Prepare drag data: block being dragged from section index 0
+        const dragData = {
+            block: getBlockData(0, 'dropAbortBlock'),
+            sectionIndex: 0,
+        };
+
+        // Prepare drop data: abort drop into a different section index
+        const dropData = {
+            block: getBlockData(0, 'dropAbortBlock'),
+            sectionIndex: 1,
+            dropIndex: 0,
+            section: null,
+            sectionPosition: '',
+        };
+
+        wrapper.vm.onBlockDropAbort(dragData, dropData);
+        expect(wrapper.emitted('page-save')).toBeTruthy();
+    });
 });

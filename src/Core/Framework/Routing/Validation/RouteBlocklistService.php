@@ -28,7 +28,7 @@ readonly class RouteBlocklistService
 
         $originalMethod = $this->router->getContext()->getMethod();
         try {
-            $this->router->getContext()->setMethod('GET');
+            $this->router->getContext()->setMethod(Request::METHOD_GET);
             $this->router->match($normalizedPath);
         } catch (ResourceNotFoundException) {
             // Resource not found means the route is completely unused

@@ -109,8 +109,8 @@
         <a class="fs-6 d-block"
            href="#"
            role="button"
-           data-ajax-modal="true"
-           data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+           data-bs-toggle="modal"
+           data-bs-target="#listing-price-tax-info-modal">
             {% if context.taxState == 'gross' %}
                 {{ 'general.grossTaxInformationShort'|trans|sw_sanitize }}
             {% else %}

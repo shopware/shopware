@@ -16,11 +16,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
@@ -51,7 +46,11 @@ class DefinitionValidatorTest extends TestCase
             $pkConstraint = null;
             if (!empty($dbPrimaryKeys)) {
                 $pkColumns = array_map(
-                    static fn (string $col) => new UnqualifiedName(Identifier::unquoted($col)),
+                    static function (string $col): UnqualifiedName {
+                        \assert($col !== '');
+
+                        return new UnqualifiedName(Identifier::unquoted($col));
+                    },
                     $dbPrimaryKeys
                 );
                 $pkConstraint = new PrimaryKeyConstraint(null, $pkColumns, false);

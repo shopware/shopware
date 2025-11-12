@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\Validation\DefinitionValidatorTestDefinition;
 
 /**
  * @internal
@@ -30,7 +31,7 @@ class DefinitionValidatorTest extends TestCase
     #[DataProvider('primaryKeyConsistencyProvider')]
     public function testPrimaryKeyConsistency(?array $dbPrimaryKeys, array $expectedMessages): void
     {
-        $definition = new \Shopware\Core\Framework\DataAbstractionLayer\Validation\DefinitionValidatorTestDefinition();
+        $definition = new DefinitionValidatorTestDefinition();
 
         $connection = $this->createMock(Connection::class);
         $schemaManager = $this->createMock(AbstractSchemaManager::class);

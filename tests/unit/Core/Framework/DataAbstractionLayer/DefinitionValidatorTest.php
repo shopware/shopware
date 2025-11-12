@@ -155,6 +155,8 @@ class DefinitionValidatorTest extends TestCase
         $columns = [
             new Column('id', Type::getType(Types::BINARY)),
             new Column('foo', Type::getType(Types::INTEGER)),
+            new Column('created_at', Type::getType(Types::DATETIME_MUTABLE)),
+            new Column('updated_at', Type::getType(Types::DATETIME_MUTABLE)),
         ];
         $schemaManager->method('listTableColumns')->willReturn($columns);
         $table->method('getPrimaryKeyConstraint')->willReturn($pkConstraint);

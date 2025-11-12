@@ -16,6 +16,10 @@ ContentElement contains:
 - `dataRequirements`: What data to load (indexed by key)
 - `contextDefinitions`: Providers and consumers for context distribution
 
+### Property Storage
+
+Properties internally split into `structProperties` (Struct objects) and `nonStructProperties` (scalar/array/non-struct objects values). This separation prevents StructEncoder crashes when serializing mixed arrays containing both Struct objects and primitives. The split is transparent to consumers via `jsonSerialize()` which merges both maps. External API unchanged: `getProperty()`, `setProperty()`, `getProperties()` work identically regardless of value type. Direct access to `structProperties`/`nonStructProperties` bypasses the routing logic and breaks the pattern (e.g., `assign()` from `AssignArrayTrait` would corrupt the split by writing directly to base properties).
+
 ### Slot Structure
 
 Slots are stored as `array<string, SlotContent>` - each slot has a name and can hold multiple elements (not just one). Common misconception: one element per slot. Reality: SlotContent is a collection.

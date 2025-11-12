@@ -49,7 +49,7 @@ class ProductKeywordDictionaryDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new PrimaryKey(), new ApiAware(), new Required()),
 
             (new StringField('keyword', 'keyword'))->addFlags(new ApiAware(), new Required()),
             (new StringField('reversed', 'reversed'))->addFlags(new Computed()),

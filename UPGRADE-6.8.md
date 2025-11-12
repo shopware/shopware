@@ -317,8 +317,6 @@ The `$result` property of `Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent` 
 
 The event constructor now requires `CmsPageCollection` explicitly, and `CmsPageLoadedEvent::getResult()` return type has changed from `EntityCollection` to `CmsPageCollection`.
 
-The `Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute` now deletes customer recovery links after a customer has changed their email address.
-
 ## Removal of `\Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper`
 
 Refection has significantly improved in particular since PHP 8.1, therefore the `Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper` was removed, see below for the explicit replacements:

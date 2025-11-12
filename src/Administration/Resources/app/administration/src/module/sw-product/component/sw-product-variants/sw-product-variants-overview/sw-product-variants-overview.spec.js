@@ -54,7 +54,11 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         global: {
             provide: {
                 repositoryFactory: repositoryFactoryMock,
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
                 configService: {
                     getConfig: () =>
                         Promise.resolve({
@@ -232,11 +236,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 },
             },
         });
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an disabled generate variants button', async () => {

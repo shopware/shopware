@@ -2,12 +2,12 @@
 <div class="sw-promotion-v2-cart-condition-form">
 
     {% block sw_promotion_v2_cart_condition_form_rules_field %}
-    <sw-promotion-v2-rule-select
+    <sw-select-rule-create
         v-if="promotion"
-        v-model:collection="promotion.cartRules"
+        v-model:rules="promotion.cartRules"
         class="sw-promotion-v2-cart-condition-form__rule-select-cart"
         :local-mode="promotion.isNew()"
-        :criteria="ruleFilter"
+        :rule-filter="ruleFilter"
         :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
         :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
         :rule-scope="['checkout', 'global', 'lineItem']"
@@ -120,12 +120,12 @@
             >
 
                 {% block sw_promotion_v2_cart_condition_setgroup_rules_field %}
-                <sw-promotion-v2-rule-select
-                    v-model:collection="group.setGroupRules"
+                <sw-select-rule-create
+                    v-model:rules="group.setGroupRules"
                     class="sw-promotion-v2-cart-condition-form__setgroup-rules"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
                     :placeholder="$tc('sw-promotion-v2.detail.conditions.setgroups.placeholder')"
-                    :criteria="ruleFilter"
+                    :rule-filter="ruleFilter"
                     :rule-scope="['checkout', 'global', 'lineItem']"
                     :disabled="isEditingDisabled"
                     rule-aware-group-key="promotionSetGroups"

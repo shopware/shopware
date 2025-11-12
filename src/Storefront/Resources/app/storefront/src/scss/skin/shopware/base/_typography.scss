@@ -58,3 +58,22 @@ ul,
 dl {
     margin-bottom: $paragraph-margin-bottom;
 }
+
+blockquote {
+    font-size: $font-size-lg;
+    font-style: italic;
+    line-height: 24px;
+    margin-top: 16px;
+    margin-left: 20px;
+    position: relative;
+
+    &::before {
+        content: '"';
+        font-size: 40px;
+        line-height: 16px;
+        color: $cms-element-text-quotes-color;
+        position: absolute;
+        top: 10px;
+        left: -24px;
+    }
+}

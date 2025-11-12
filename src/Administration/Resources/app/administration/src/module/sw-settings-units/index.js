@@ -17,7 +17,7 @@ Module.register('sw-settings-units', {
     title: 'sw-settings-units.general.mainMenuItemGeneral',
     description: 'Units section in the settings module',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'units',
 
@@ -58,7 +58,7 @@ Module.register('sw-settings-units', {
     settingsItem: {
         group: 'general',
         to: 'sw.settings.units.index',
-        icon: 'regular-balance-scale',
+        icon: 'regular-box',
         privilege: 'scale_unit.viewer',
     },
 });

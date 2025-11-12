@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -38,15 +39,30 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 {
     final public const CUSTOM_PRICE = 'customPrice';
 
-    final public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES}
+     */
+    final public const ALLOW_PRODUCT_PRICE_OVERWRITES = CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES;
 
-    final public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES}
+     */
+    final public const ALLOW_PRODUCT_LABEL_OVERWRITES = CheckoutPermissions::ALLOW_PRODUCT_LABEL_OVERWRITES;
 
-    final public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_PRODUCT_RECALCULATION}
+     */
+    final public const SKIP_PRODUCT_RECALCULATION = CheckoutPermissions::SKIP_PRODUCT_RECALCULATION;
 
-    final public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION}
+     */
+    final public const SKIP_PRODUCT_STOCK_VALIDATION = CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION;
 
-    final public const KEEP_INACTIVE_PRODUCT = 'keepInactiveProduct';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::KEEP_INACTIVE_PRODUCT}
+     */
+    final public const KEEP_INACTIVE_PRODUCT = CheckoutPermissions::KEEP_INACTIVE_PRODUCT;
 
     /**
      * @internal
@@ -105,7 +121,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
             foreach ($lineItems as $match) {
                 // enrich all products in original cart
-                $this->enrich($context, $match['item'], $data, $behavior);
+                $this->enrich($match['item'], $data, $behavior);
 
                 // remove "parent" products which should never be displayed in storefront
                 $this->validateParents($match['item'], $data, $match['scope']);
@@ -280,7 +296,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
     }
 
-    private function enrich(SalesChannelContext $context, LineItem $lineItem, CartDataCollection $data, CartBehavior $behavior): void
+    private function enrich(LineItem $lineItem, CartDataCollection $data, CartBehavior $behavior): void
     {
         $id = $lineItem->getReferencedId();
 
@@ -329,7 +345,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         // Check if the price has to be updated
         if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {
             $lineItem->setPriceDefinition(
-                $this->getPriceDefinition($product, $context, $lineItem->getQuantity())
+                $this->getPriceDefinition($product, $lineItem->getQuantity())
             );
         }
 
@@ -379,15 +395,15 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $lineItem->replacePayload($payload, ['purchasePrices' => true]);
     }
 
-    private function getPriceDefinition(SalesChannelProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
+    private function getPriceDefinition(SalesChannelProductEntity $product, int $quantity): QuantityPriceDefinition
     {
         if ($product->getCalculatedPrices()->count() === 0) {
             return $this->buildPriceDefinition($product->getCalculatedPrice(), $quantity);
         }
 
-        // keep loop reference to $price variable to get last quantity price in case of "null"
         $price = $product->getCalculatedPrice();
-        foreach ($product->getCalculatedPrices() as $price) {
+        foreach ($product->getCalculatedPrices() as $calculatedPrice) {
+            $price = $calculatedPrice;
             if ($quantity <= $price->getQuantity()) {
                 break;
             }

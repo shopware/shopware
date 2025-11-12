@@ -154,7 +154,6 @@ class MultiInsertQueryQueue
      */
     private function prepareColumns(array $rows): array
     {
-        /** @var array<string, int> $columns */
         $columns = [];
         foreach ($rows as $row) {
             foreach (array_keys($row['data']) as $column) {

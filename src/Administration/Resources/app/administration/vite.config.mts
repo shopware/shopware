@@ -11,7 +11,11 @@ import * as path from 'path';
 import * as fs from 'fs';
 import symfonyPlugin from 'vite-plugin-symfony';
 import colors from 'picocolors';
-import { loadExtensions } from './build/vite-plugins/utils';
+import {
+    getMainViteServerConfig,
+    isInsideDockerContainer,
+    loadExtensions,
+} from './build/vite-plugins/utils';
 import TwigPlugin from './build/vite-plugins/twigjs-plugin';
 import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
@@ -21,9 +25,13 @@ console.log(colors.yellow('# Compiling Administration with Vite configuration'))
 process.env = { ...process.env, ...loadEnv('', process.cwd()) };
 process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '/../../../../../');
 
+process.env.SERVICE_REGISTRY_URL = process.env.SERVICE_REGISTRY_URL ?? 'https://registry.services.shopware.io';
+
 if (!process.env.APP_URL) {
     console.log(colors.yellowBright('APP_URL is not defined. Dev-Mode will not work.'));
 }
+
+const viteExtensionServerMapping = getMainViteServerConfig();
 
 const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
 let featureFlags = {};
@@ -37,7 +45,7 @@ export default defineConfig(({ command }) => {
     const isDev = !isProd;
     const base = isProd ? '/bundles/administration/administration' : undefined;
     const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
-    const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
+    const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
 
     if (isProd) {
         console.log(colors.yellow('# Production mode activated 🚀'));
@@ -65,18 +73,16 @@ export default defineConfig(({ command }) => {
         server: {
             open: openBrowserForWatch,
             host: process.env.HOST ? process.env.HOST : 'localhost',
-            port: Number(process.env.ADMIN_PORT) || 5173,
+            port: viteExtensionServerMapping.port,
             proxy: {
                 '/api': {
                     target: process.env.APP_URL,
                     changeOrigin: true,
                     secure: false,
                 },
+                ...viteExtensionServerMapping.proxy,
             },
-            // DDEV_PRIMARY_URL is initialised in ddev environment only
-            origin: process.env.DDEV_PRIMARY_URL
-                ? `${process.env.DDEV_PRIMARY_URL.replace(/:\d+$/, "")}:` + (Number(process.env.ADMIN_PORT) || 5173)
-                : undefined,
+            allowedHosts: true,
         },
 
         // IIFE to return different plugins for dev and  prod
@@ -118,6 +124,7 @@ export default defineConfig(({ command }) => {
                         inject: {
                             data: {
                                 featureFlags: JSON.stringify(featureFlags),
+                                serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
                             },
                         },
                     }),
@@ -208,6 +215,7 @@ export default defineConfig(({ command }) => {
                     entryFileNames: 'assets/[name]-[hash].js',
                 },
             },
+            chunkSizeWarningLimit: 5000,
         },
     };
 });

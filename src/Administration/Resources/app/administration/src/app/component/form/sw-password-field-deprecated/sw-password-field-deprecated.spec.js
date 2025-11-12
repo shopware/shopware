@@ -36,13 +36,6 @@ async function createWrapper({ provide, ...additionalOptions } = {}) {
 }
 
 describe('components/form/sw-password-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('Should display placeholder as text', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[CoversClass(AddCustomerTagAction::class)]
 class AddCustomerTagActionTest extends TestCase
 {
+    /** @var MockObject&EntityRepository<CustomerCollection> */
     private MockObject&EntityRepository $repository;
 
     private AddCustomerTagAction $action;

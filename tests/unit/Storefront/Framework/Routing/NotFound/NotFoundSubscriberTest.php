@@ -96,7 +96,7 @@ class NotFoundSubscriberTest extends TestCase
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $response = new Response();
         $response->headers->setCookie(new Cookie('extension-cookie', '1'));
-        $response->headers->setCookie(new Cookie('session-', '1'));
+        $response->headers->setCookie(new Cookie(PlatformRequest::FALLBACK_SESSION_NAME, '1'));
         $httpKernel
             ->expects($this->once())
             ->method('handle')

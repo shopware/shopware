@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -10,31 +11,41 @@ use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('fundamentals@framework')]
 class UserController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<UserCollection> $userRepository
+     * @param EntityRepository<EntityCollection<Entity>> $userRoleRepository
+     * @param EntityRepository<AclRoleCollection> $roleRepository
+     * @param EntityRepository<UserAccessKeyCollection> $keyRepository
      */
     public function __construct(
         private readonly EntityRepository $userRepository,
         private readonly EntityRepository $userRoleRepository,
         private readonly EntityRepository $roleRepository,
         private readonly EntityRepository $keyRepository,
-        private readonly UserDefinition $userDefinition
+        private readonly UserDefinition $userDefinition,
+        private readonly SsoService $ssoService,
     ) {
     }
 
@@ -52,7 +63,7 @@ class UserController extends AbstractController
         $criteria = new Criteria([$userId]);
         $criteria->addAssociations(['aclRoles', 'avatarMedia']);
 
-        $user = $this->userRepository->search($criteria, $context)->first();
+        $user = $this->userRepository->search($criteria, $context)->getEntities()->first();
         if (!$user) {
             throw OAuthServerException::invalidCredentials();
         }
@@ -106,12 +117,11 @@ class UserController extends AbstractController
     {
         $this->validateScope($request);
 
-        /** @var AdminApiSource $source */
         $source = $context->getSource();
 
-        if (
-            !$source->isAllowed('user:update')
-            && $source->getUserId() !== $userId
+        if ((!$source instanceof AdminApiSource)
+            || (!$source->isAllowed('user:update')
+            && $source->getUserId() !== $userId)
         ) {
             throw new PermissionDeniedException();
         }
@@ -141,30 +151,22 @@ class UserController extends AbstractController
         $this->validateScope($request);
 
         $data = $request->request->all();
-
-        /** @var AdminApiSource $source */
-        $source = $context->getSource();
-
         if (!isset($data['id'])) {
             $data['id'] = null;
         }
         $data['id'] = $userId ?: $data['id'];
 
-        if (
-            !$source->isAllowed('user:update')
-            && $source->getUserId() !== $data['id']
+        $source = $context->getSource();
+        if ((!$source instanceof AdminApiSource)
+            || (!$source->isAllowed('user:update')
+            && $source->getUserId() !== $data['id'])
         ) {
             throw new PermissionDeniedException();
         }
 
-        /** @var EntityWrittenContainerEvent $events */
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->userRepository->upsert([$data], $context));
-
-        /** @var EntityWrittenEvent $event */
-        $event = $events->getEventByEntityName(UserDefinition::ENTITY_NAME);
-
-        $eventIds = $event->getIds();
-        $entityId = array_pop($eventIds);
+        $eventIds = $events->getEventByEntityName(UserDefinition::ENTITY_NAME)?->getIds() ?? [];
+        $entityId = array_last($eventIds);
 
         return $factory->createRedirectResponse($this->userRepository->getDefinition(), $entityId, $request, $context);
     }
@@ -186,14 +188,10 @@ class UserController extends AbstractController
             $data['id'] = $roleId ?? null;
         }
 
-        /** @var EntityWrittenContainerEvent $events */
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->roleRepository->upsert([$data], $context));
-
-        /** @var EntityWrittenEvent $event */
-        $event = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME);
-
-        $eventIds = $event->getIds();
-        $entityId = array_pop($eventIds);
+        $eventIds = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME)?->getIds() ?? [];
+        $entityId = array_last($eventIds);
+        \assert($entityId !== null);
 
         return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $entityId, $request, $context);
     }
@@ -235,15 +233,19 @@ class UserController extends AbstractController
             return;
         }
 
-        if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
+        if ($this->ssoService->isSso()) {
+            return;
+        }
+
+        if (!$this->hasScope($request)) {
             throw ApiException::invalidScopeAccessToken(UserVerifiedScope::IDENTIFIER);
         }
     }
 
-    private function hasScope(Request $request, string $scopeIdentifier): bool
+    private function hasScope(Request $request): bool
     {
         $scopes = array_flip($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES));
 
-        return isset($scopes[$scopeIdentifier]);
+        return isset($scopes[UserVerifiedScope::IDENTIFIER]);
     }
 }

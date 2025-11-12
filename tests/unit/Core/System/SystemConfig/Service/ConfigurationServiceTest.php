@@ -280,13 +280,16 @@ class ConfigurationServiceTest extends TestCase
         $configReader = $this->createMock(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
+        /** @var StaticEntityRepository<AppCollection> */
+        $repository = new StaticEntityRepository([new AppCollection()]);
+
         $service = new ConfigurationService(
             [
                 new SwagExampleTest(true, ''),
             ],
             $configReader,
             $this->createMock(AppConfigReader::class),
-            new StaticEntityRepository([new AppCollection()]),
+            $repository,
             new StaticSystemConfigService(['SwagExampleTest.email' => 'foo'])
         );
 

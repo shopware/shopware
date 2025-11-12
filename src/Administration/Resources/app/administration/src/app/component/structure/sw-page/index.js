@@ -153,6 +153,9 @@ export default {
             return `${this.sidebarOffset + this.scrollbarOffset}px`;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 -- There's no replacement
+         */
         headerStyles() {
             return {
                 'border-bottom-color': this.pageColor,
@@ -172,10 +175,6 @@ export default {
             return {
                 'grid-row': rowNumber,
             };
-        },
-
-        sidebars() {
-            return Shopware.Store.get('sidebar').sidebars;
         },
     },
 
@@ -253,10 +252,6 @@ export default {
             if (this.previousPath) {
                 this.previousRoute = this.$router.resolve({ path: this.previousPath }).name;
             }
-        },
-
-        setActiveSidebar(locationId) {
-            Shopware.Store.get('sidebar').setActiveSidebar(locationId);
         },
     },
 };

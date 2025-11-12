@@ -5,23 +5,33 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], isSso = { isSso: false }, saveFunction = () => Promise.resolve({})) {
     return mount(await wrapTestComponent('sw-profile-index', { sync: true }), {
         global: {
             stubs: {
                 'sw-page': {
-                    template: '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>',
+                    template: `
+                        <div>
+                            <slot name="smart-bar-header"></slot>
+                            <slot name="smart-bar-actions"></slot>
+                            <slot name="content"></slot>
+                        </div>
+                            `,
+                },
+                'sw-card-view': {
+                    template: `<div class="sw-card-view"><slot></slot></div>`,
+                },
+                'router-view': {
+                    template: `<div><slot></slot></div>`,
                 },
                 'sw-search-bar': true,
                 'sw-notification-center': true,
                 'sw-language-switch': true,
                 'sw-button-process': true,
-                'sw-card-view': true,
                 'sw-language-info': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-skeleton': true,
-                'router-view': true,
                 'sw-verify-user-modal': true,
                 'sw-media-modal-v2': true,
             },
@@ -48,6 +58,7 @@ async function createWrapper(privileges = []) {
                                 Promise.resolve({
                                     id: '87923',
                                     localeId: '1337',
+                                    email: 'foo@bar.baz',
                                 }),
                             search: () => Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0)),
                             getSyncChangeset: () => ({
@@ -59,7 +70,7 @@ async function createWrapper(privileges = []) {
                 loginService: {},
                 userService: {
                     getUser: () => Promise.resolve({ data: { id: '87923' } }),
-                    updateUser: () => Promise.resolve({}),
+                    updateUser: saveFunction,
                 },
                 mediaDefaultFolderService: {},
                 searchPreferencesService: {
@@ -74,6 +85,9 @@ async function createWrapper(privileges = []) {
                 },
                 searchRankingService: {
                     clearCacheUserSearchConfiguration: () => {},
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
                 },
                 userConfigService: {
                     upsert: () => {
@@ -81,6 +95,11 @@ async function createWrapper(privileges = []) {
                     },
                     search: () => {
                         return Promise.resolve();
+                    },
+                },
+                ssoSettingsService: {
+                    isSso: () => {
+                        return Promise.resolve(isSso);
                     },
                 },
             },
@@ -99,13 +118,6 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
                 setLocaleWithId: jest.fn(),
             };
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to save own user', async () => {
@@ -224,5 +236,52 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         expect(wrapper.vm.user.avatarId).toBe(mediaId);
         expect(wrapper.vm.avatarMediaItem.id).toBe(mediaId);
+    });
+
+    it('should show the password confirm modal', async () => {
+        const updateFunction = jest.fn(() => Promise.resolve({}));
+        const wrapper = await createWrapper(['user.update_profile'], { isSso: false }, updateFunction);
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-profile__save-action');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        const passwordConfirmModal = wrapper.find('sw-verify-user-modal-stub');
+
+        expect(passwordConfirmModal.exists()).toBeTruthy();
+        expect(updateFunction).not.toHaveBeenCalled();
+    });
+
+    it('should update the user', async () => {
+        const updateFunction = jest.fn(() => Promise.resolve({}));
+        const wrapper = await createWrapper(['user.update_profile'], { isSso: true }, updateFunction);
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-profile__save-action');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(updateFunction).toHaveBeenCalled();
+    });
+
+    it('should save minSearchTermLength and userSearchPreferences', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.$route = {
+            name: 'sw.profile.index.searchPreferences',
+        };
+
+        wrapper.vm.saveMinSearchTermLength = jest.fn(() => Promise.resolve());
+        wrapper.vm.saveUserSearchPreferences = jest.fn(() => Promise.resolve());
+
+        wrapper.vm.onSave();
+
+        expect(wrapper.vm.saveMinSearchTermLength).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.saveUserSearchPreferences).toHaveBeenCalledTimes(1);
+
+        wrapper.vm.saveMinSearchTermLength.mockRestore();
+        wrapper.vm.saveUserSearchPreferences.mockRestore();
     });
 });

@@ -34,17 +34,14 @@ class SwBlockReferenceExpression extends AbstractExpression
     {
         if ($this->getAttribute('is_defined_test')) {
             $this->compileTemplateCall($compiler, 'hasBlock');
+        } elseif ($this->getAttribute('output')) {
+            $compiler->addDebugInfo($this);
+            $compiler->write('yield from ');
+            $this
+                ->compileTemplateCall($compiler, 'yieldBlock')
+                ->raw(";\n");
         } else {
-            if ($this->getAttribute('output')) {
-                $compiler->addDebugInfo($this);
-
-                $compiler->write('yield from ');
-                $this
-                    ->compileTemplateCall($compiler, 'yieldBlock')
-                    ->raw(";\n");
-            } else {
-                $this->compileTemplateCall($compiler, 'renderBlock');
-            }
+            $this->compileTemplateCall($compiler, 'renderBlock');
         }
     }
 
@@ -60,9 +57,8 @@ class SwBlockReferenceExpression extends AbstractExpression
                     ->write('$includeTemplate = $finder->find(')
                         ->subcompile($this->getNode('template'))
                     ->raw(");\n\n")
-                    ->write('return $this->loadTemplate(')
+                    ->write('return $this->load(')
                         ->raw('$includeTemplate ?? null, ')
-                        ->repr($this->getTemplateName())->raw(', ')
                         ->repr($this->getTemplateLine())
                     ->raw(");\n")
                 ->outdent()

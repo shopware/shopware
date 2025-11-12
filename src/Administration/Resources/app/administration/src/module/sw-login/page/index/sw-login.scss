@@ -141,6 +141,11 @@ $sw-login-error-animation-duration: 0.15s;
         }
     }
 
+    .sw-login__sso-button {
+        margin-top: 32px;
+        text-align: left;
+    }
+
     .sw-login__image {
         display: flex;
         flex-direction: row;

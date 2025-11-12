@@ -131,10 +131,12 @@ class ThemeLifecycleHandlerTest extends TestCase
         $themeRepository = static::getContainer()->get('theme.repository');
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'ThemeWithMultiInheritance'));
+        $criteria->addFilter(new EqualsFilter('technicalName', $installConfig->getTechnicalName()));
         $criteria->addAssociation('parentThemes');
-        /** @var ThemeEntity $theme */
-        $theme = $themeRepository->search($criteria, $context)->first();
+
+        $themeEntity = $themeRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(ThemeEntity::class, $themeEntity);
+        static::assertSame($installConfig->getTechnicalName(), $themeEntity->getTechnicalName());
     }
 
     public function testHandleThemeInstallOrUpdateWillRecompileOnlyTouchedTheme(): void

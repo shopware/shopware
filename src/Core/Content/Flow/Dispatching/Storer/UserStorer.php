@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\UserAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -19,6 +20,8 @@ class UserStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<UserRecoveryCollection> $userRecoveryRepository
      */
     public function __construct(
         private readonly EntityRepository $userRecoveryRepository,
@@ -73,10 +76,9 @@ class UserStorer extends FlowStorer
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        $user = $this->userRecoveryRepository->search($criteria, $context)->get($id);
+        $user = $this->userRecoveryRepository->search($criteria, $context)->getEntities()->get($id);
 
         if ($user) {
-            /** @var UserRecoveryEntity $user */
             return $user;
         }
 

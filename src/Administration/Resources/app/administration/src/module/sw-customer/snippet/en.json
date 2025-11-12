@@ -1,0 +1,312 @@
+{
+  "sw-customer": {
+    "error": {
+      "COMPANY_IS_REQUIRED": "The field company is required for commercial customers.",
+      "passwordDoNotMatch": "Your inputs for the new password and password confirmation do not match."
+    },
+    "notification": {
+      "requiredFields": "Please fill in all required fields."
+    },
+    "general": {
+      "mainMenuItemGeneral": "Customers",
+      "mainMenuItemList": "Overview",
+      "mainMenuItemAdd": "Add customer",
+      "descriptionTextModule": "Manage customers here.",
+      "placeholderSearchBar": "Search customers...",
+      "newCustomer": "New Customer",
+      "tooltipLanguageSwitch": "Language selection deactivated, since there are no translatable fields."
+    },
+    "customerGroupRegistration": {
+      "alert": "Access to customer group \"{name}\" requested.",
+      "accept": "Accept",
+      "acceptMessage": "Customer group has been changed",
+      "decline": "Decline",
+      "declineMessage": "Request has been declined",
+      "errorMessage": "Cannot process request",
+      "notification": {
+        "title": "Merchant status request",
+        "message": "Customer \"{name}\" requests access to customer group \"{groupName}\".",
+        "openCustomer": "Open customer"
+      }
+    },
+    "card": {
+      "buttonImitateCustomer": "Log in as customer",
+      "tooltipImitateCustomerGuest": "Guest customers cannot be imitated.",
+      "tooltipImitateCustomerInactive": "Inactive customers cannot be imitated.",
+      "tooltipImitateCustomerInactiveSalesChannel": "The customers Sales Channel is not active.",
+      "tooltipImitateCustomerNoDomain": "The Sales Channel of the customer has no domain configured.",
+      "tooltipImitateCustomerNoStorefront": "The Sales Channel of the customer is not of type Storefront.",
+      "placeholderTitle": "Title",
+      "placeholderFirstName": "First name",
+      "placeholderLastName": "Last name",
+      "placeholderCompany": "Company",
+      "placeholderEmail": "Email address",
+      "placeholderNewPassword": "Enter new password...",
+      "placeholderNewPasswordConfirm": "Re-enter new password...",
+      "labelSalutation": "Salutation",
+      "labelTitle": "Title",
+      "labelFirstName": "First name",
+      "labelLastName": "Last name",
+      "labelCompany": "Company",
+      "labelEmail": "Email",
+      "labelTags": "Tags",
+      "labelGuest": "Guest account",
+      "labelVatId": "VAT Reg.No.",
+      "placeholderVatId": "Enter VAT Reg.No..."
+    },
+    "list": {
+      "textCustomers": "Customers",
+      "textCustomersTotal": "No customer | One customer | {count} customers",
+      "buttonAddCustomer": "Add customer",
+      "columnCompany": "Company",
+      "columnCustomerNumber": "Customer number",
+      "columnName": "Name",
+      "columnGroup": "Customer group",
+      "columnGroupRequested": "Request",
+      "columnNameGuestLabel": "Guest account",
+      "labelCreatedByAdmin": "Created by admin",
+      "columnFirstName": "First name",
+      "columnLastName": "Last name",
+      "columnStreet": "Street",
+      "columnZip": "Postal code",
+      "columnCity": "City",
+      "columnEmail": "Email address",
+      "columnLastLogin": "Last login",
+      "columnActions": "Action(s)",
+      "columnAffiliateCode": "Affiliate code",
+      "columnCampaignCode": "Campaign code",
+      "columnBoundSalesChannel": "Sales Channel",
+      "columnActive": "Active",
+      "columnCreatedAt": "Created at",
+      "emptyBoundSalesChannel": "All",
+      "contextMenuView": "View",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuEdit": "Edit",
+      "messageEmpty": "No customers yet",
+      "textDeleteConfirm": "Are you sure you want to delete the customer \"{name}\"?",
+      "buttonDelete": "Delete",
+      "titleSidebarItemRefresh": "Refresh",
+      "titleSidebarItemFilter": "Filter",
+      "titleSidebarItemFilterAffiliateCode": "Affiliate code",
+      "titleSidebarItemFilterCampaignCode": "Campaign code",
+      "titleSidebarItemFilterRequestedGroup": "Show only customer group requests"
+    },
+    "baseForm": {
+      "labelSalutation": "Salutation",
+      "labelTitle": "Title",
+      "labelFirstName": "First name",
+      "labelLastName": "Last name",
+      "labelEmail": "Email address",
+      "labelPhoneNumber": "Phone number",
+      "labelCompany": "Company",
+      "labelCustomerGroup": "Customer group",
+      "labelSalesChannel": "Sales Channel",
+      "labelPaymentMethod": "Payment method",
+      "labelCustomerNumber": "Customer number",
+      "labelBirthday": "Date of birth",
+      "labelPassword": "Password",
+      "placeholderPassword": "Enter password...",
+      "helpTextPassword": "After saving the customer the password can only be changed directly by the customer.",
+      "placeholderSalutation": "Select salutation...",
+      "placeholderTitle": "Enter title...",
+      "placeholderFirstName": "Enter first name...",
+      "placeholderLastName": "Enter last name...",
+      "placeholderEmail": "Enter email address...",
+      "placeholderCustomerNumber": "Enter customer number...",
+      "placeholderCustomerGroup": "Select a customer group...",
+      "placeholderSalesChannel": "Select a Sales Channel...",
+      "placeholderPaymentMethod": "Select a payment method...",
+      "labelTags": "Tags",
+      "placeholderTags": "Select tags..."
+    },
+    "baseInfo": {
+      "contactEmail": "Email address",
+      "labelCustomerNumber": "Customer number",
+      "labelCustomerGroup": "Customer group",
+      "labelBirthday": "Date of birth",
+      "labelLastLogin": "Last login",
+      "labelLanguage": "Language",
+      "labelOrders": "Number of orders",
+      "labelTurnover": "Turnover",
+      "labelDefaultPayment": "Default payment method",
+      "labelActive": "Account status",
+      "labelConfirmed": "Email address status",
+      "labelAffiliateCode": "Affiliate code",
+      "labelCampaignCode": "Campaign code",
+      "labelCompany": "Company",
+      "labelVatId": "VAT Reg.No.",
+      "contentActive": "Active | Inactive",
+      "contentConfirmed": "Confirmed | Unconfirmed",
+      "emptyTextLogin": "No login yet",
+      "emptyTextBirthday": "No information",
+      "labelBoundSalesChannel": "Sales Channel",
+      "emptyBoundSalesChannel": "All",
+      "helpTextBoundSalesChannel": "This customer can log in to the following Sales Channels",
+      "placeholderCustomerAffiliateCode": "Enter an affiliate code...",
+      "placeholderCustomerCampaignCode": "Enter a campaign code..."
+    },
+    "detailBase": {
+      "labelAccountCard": "Account",
+      "labelAddressesCard": "Addresses",
+      "labelOrderCard": "Orders",
+      "titleDefaultShippingAddress": "Default shipping address",
+      "titleDefaultBillingAddress": "Default billing address",
+      "buttonAddAddress": "Add address",
+      "buttonTitleEditAddress": "Edit address",
+      "buttonSave": "Save",
+      "buttonEdit": "Edit customer",
+      "buttonChangePassword": "Change password",
+      "labelAccountActiveField": "Account is active"
+    },
+    "detailAddresses": {
+      "buttonAddAddress": "Add address",
+      "buttonClose": "Close",
+      "buttonDelete": "Delete",
+      "buttonSelect": "Select",
+      "buttonSaveAndSelect": "Save and select",
+      "modalTitleAddress": "Address",
+      "modalTitleAddAddress": "Add address",
+      "modalTitleEditAddress": "Edit address",
+      "textDeleteAddressConfirm": "Are you sure you want to delete this address?",
+      "columnDefaultShippingAddress": "Default shipping address",
+      "columnDefaultBillingAddress": "Default billing address",
+      "columnCompany": "Company",
+      "columnFirstName": "First name",
+      "columnLastName": "Last name",
+      "columnStreet": "Street",
+      "columnZipCode": "Postal code",
+      "columnCity": "City",
+      "columnActions": "Actions",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuDefaultShippingAddress": "Set as default delivery address",
+      "contextMenuDefaultBillingAddress": "Set as default billing address"
+    },
+    "detailOrder": {
+      "searchbarPlaceholder": "Search orders",
+      "columnNumber": "Order number",
+      "columnAmount": "Order value",
+      "columnOrderState": "Order status",
+      "columnOrderDate": "Order date",
+      "columnContextOpenOrder": "Open order",
+      "emptyTitle": "No orders yet",
+      "emptySearchTitle": "No search result",
+      "emptySubline": "Manage your customers' orders here",
+      "buttonCreateOrder": "Add order",
+      "ordersTitle": "Orders"
+    },
+    "imitateCustomerModal": {
+      "modalTitle": "Log in as {firstname} {lastname}",
+      "modalDescription": "Choose the Sales Channel in which you would like to log in as {firstname} {lastname}.",
+      "modalInfo": "Please remember to {logout} after you have finished your work.",
+      "modalInfoLogout": "log out",
+      "modalInfoNoDomains": "No active domain found. Please check your Sales Channel settings.",
+      "labelCancel": "Close"
+    },
+    "addressForm": {
+      "labelCompany": "Company",
+      "labelDepartment": "Department",
+      "labelSalutation": "Salutation",
+      "labelTitle": "Title",
+      "labelFirstName": "First name",
+      "labelLastName": "Last name",
+      "labelZipcode": "Postal code",
+      "labelStreet": "Street",
+      "labelCity": "City",
+      "labelCountry": "Country",
+      "labelState": "State",
+      "labelAdditionalAddressLine1": "Additional address line 1",
+      "labelAdditionalAddressLine2": "Additional address line 2",
+      "labelPhoneNumber": "Phone number",
+      "labelVatId": "VAT Reg.No.",
+      "labelSameBillingAddress": "Same as billing address",
+      "placeholderCompany": "Enter company...",
+      "placeholderDepartment": "Enter department...",
+      "placeholderSalutation": "Select salutation...",
+      "placeholderTitle": "Enter title...",
+      "placeholderFirstName": "Enter first name...",
+      "placeholderLastName": "Enter last name...",
+      "placeholderZipcode": "Enter postal code...",
+      "placeholderStreet": "Enter street...",
+      "placeholderCity": "Enter city...",
+      "placeholderCountry": "Select country...",
+      "placeholderState": "Select state...",
+      "placeholderAdditionalAddressLine1": "Enter a first address line...",
+      "placeholderAdditionalAddressLine2": "Enter a second address line...",
+      "placeholderPhoneNumber": "Enter phone number...",
+      "placeholderVatId": "Enter VAT Reg.No..."
+    },
+    "detail": {
+      "buttonSave": "Save",
+      "buttonEdit": "Edit",
+      "tabGeneral": "General",
+      "tabAddresses": "Addresses",
+      "messageSaveError": "Customer could not be saved.",
+      "messageSaveSuccess": "Customer \"{name}\" has been saved.",
+      "notificationPasswordErrorMessage": "The submitted passwords do not match.",
+      "notificationImitateCustomerErrorMessage": "There was an error logging in as a customer. Please make sure that opening popups windows are allowed.",
+      "labelCreatedByAdmin": "Created by admin"
+    },
+    "filter": {
+      "customerNumber": {
+        "label": "Customer number",
+        "placeholder": "Enter customer number..."
+      },
+      "salutation": {
+        "label": "Salutation",
+        "placeholder": "Select salutation..."
+      },
+      "status": {
+        "label": "Status",
+        "placeholder": "Select status..."
+      },
+      "customerGroup": {
+        "label": "Customer group",
+        "placeholder": "Select customer group..."
+      },
+      "billingCountry": {
+        "label": "Billing country",
+        "placeholder": "Select billing countries..."
+      },
+      "shippingCountry": {
+        "label": "Shipping country",
+        "placeholder": "Select shipping countries..."
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "Select tags..."
+      },
+      "affiliateCode": {
+        "label": "Affiliate code",
+        "placeholder": "Enter affiliate code..."
+      },
+      "campaignCode": {
+        "label": "Campaign code",
+        "placeholder": "Enter campaign code..."
+      },
+      "customerGroupRequest": {
+        "label": "Customer group requests",
+        "placeholder": "Select request status...",
+        "textHasCriteria": "Open customer groups requests",
+        "textNoCriteria": "No customer group requests"
+      },
+      "messageEmptyTitle": "Nothing found",
+      "messageEmptySubline": "Edit your filters to find results."
+    },
+    "customerType": {
+      "labelAccountType": "Customer type",
+      "placeholderAccountType": "Select customer type...",
+      "labelPrivate": "Private",
+      "labelBusiness": "Commercial"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "customer": {
+        "label": "Customers"
+      }
+    }
+  }
+}

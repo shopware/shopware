@@ -5,12 +5,17 @@ jest.mock('src/plugin/spatial/utils/spatial-dive-load-util');
 jest.mock('src/plugin/spatial/utils/spatial-zoom-gallery-slider-render-util');
 
 const mockDive = {
-    engine: {
-        start: jest.fn(),
-    }
+    start: jest.fn(),
+    stop: jest.fn(),
 };
-window.DIVEClass = {
+window.DIVEQuickViewPlugin = {
     QuickView: jest.fn().mockResolvedValue(mockDive)
+};
+
+const options = {
+    sliderPosition: "1",
+    lightIntensity: "100",
+    modelUrl: "http://test/file.glb",
 };
 
 /**
@@ -18,17 +23,30 @@ window.DIVEClass = {
  */
 describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
     let spatialZoomGallerySliderViewerPlugin;
-    let targetElement;
+    let mockElement;
 
     beforeEach(() => {
-        targetElement = document.createElement('div');
+        mockElement = document.createElement('div');
         jest.useFakeTimers();
 
-        spatialZoomGallerySliderViewerPlugin = new SpatialZoomGallerySliderViewerPlugin(targetElement, {
-            sliderPosition: 1,
-            lightIntensity: "100",
-            modelUrl: "http://test/file.glb",
+        document.body.innerHTML = `
+            <div class="zoom-modal-wrapper">
+                <div class="zoom-modal">
+                    <canvas id="canvasEl"></canvas>
+                </div>
+            </div>
+        `;
+
+        const modal = document.querySelector('.zoom-modal');
+        modal.show = jest.fn(() => {
+            modal.dispatchEvent(new Event('shown.bs.modal', { bubbles: true }));
         });
+
+        modal.hide = jest.fn(() => {
+            modal.dispatchEvent(new Event('hidden.bs.modal', { bubbles: true }));
+        });
+
+        spatialZoomGallerySliderViewerPlugin = new SpatialZoomGallerySliderViewerPlugin(mockElement, options);
 
         jest.clearAllMocks();
     });
@@ -55,9 +73,10 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
     test('initViewer with defined spatial model url will load model', async () => {
         spatialZoomGallerySliderViewerPlugin.initViewer();
 
-        process.nextTick(() =>
-            expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1)
-        );
+        process.nextTick(() => {
+            expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement, displayFloor: true, lightIntensity: Number(options.lightIntensity) / 100 });
+            expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1);
+        });
     });
 
     test('initViewer with incorrect uploaded model from url will disable slider canvas', async () => {
@@ -79,11 +98,31 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
         // Setup nested parent elements to match el.parentElement.parentElement
         const parent = document.createElement('div');
         const grandParent = document.createElement('div');
-        parent.appendChild(targetElement);
+        parent.appendChild(mockElement);
         grandParent.appendChild(parent);
         // Call initViewer
         await spatialZoomGallerySliderViewerPlugin.initViewer();
         // Assert the disabled class is added to the grand parent element
         expect(grandParent.classList.contains('gallery-slider-canvas-disabled')).toBe(true);
+    });
+
+    test('should start and stop rendering when showing and hiding the modal', async () => {
+        await spatialZoomGallerySliderViewerPlugin.initViewer();
+
+        spatialZoomGallerySliderViewerPlugin.dive = mockDive;
+
+        const modalWrapper = document.querySelector('.zoom-modal-wrapper');
+        const modal = modalWrapper?.querySelector('.zoom-modal');
+        modal.show();
+
+        await process.nextTick(() => {});
+
+        expect(mockDive.start).toHaveBeenCalled();
+
+        modal.hide();
+
+        await process.nextTick(() => {});
+
+        expect(mockDive.stop).toHaveBeenCalled();
     });
 });

@@ -1,49 +1,44 @@
-@import "~scss/variables";
-
-$sw-condition-and-container-background-even: $color-white;
-$sw-condition-and-container-background-odd: $color-gray-100;
-
 .sw-condition-and-container {
-    padding: 24px;
+    padding: var(--scale-size-24);
 
     &.container-condition-level__is--even {
-        background-color: $sw-condition-and-container-background-even;
-        border: 1px solid $color-gray-400;
-        border-radius: 4px;
+        background-color: var(--color-elevation-surface-default);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-card);
 
         &.is--disabled {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-tertiary-default);
         }
     }
 
     &.container-condition-level__is--odd {
-        background-color: $sw-condition-and-container-background-odd;
-        border: 1px solid $color-gray-500;
-        border-radius: 4px;
+        background-color: var(--color-elevation-surface-sunken);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-card);
 
         &.is--disabled {
-            background-color: $color-gray-50;
+            background-color: var(--color-background-tertiary-default);
         }
     }
 
     .sw-condition-and-container__condition-content {
-        padding: 32px 32px 16px;
+        padding: var(--scale-size-32) var(--scale-size-32) var(--scale-size-16);
     }
 
     .condition-content__spacer--and {
-        padding: 8px 0;
+        padding: var(--scale-size-8) 0;
         margin-left: 0;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
         text-transform: uppercase;
     }
 
     .sw-condition-and-container__actions {
         display: flex;
-        margin-top: 16px;
+        margin-top: var(--scale-size-16);
 
         .sw-condition-and-container__actions--and {
-            margin-right: 8px;
+            margin-right: var(--scale-size-8);
         }
 
         :last-child {

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
+use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 
 /**
  * @internal
@@ -18,6 +18,9 @@ class BannerService
 {
     public const USER_CONFIG_KEY_HIDE_CONSENT_BANNER = 'core.usageData.hideConsentBanner';
 
+    /**
+     * @param EntityRepository<UserConfigCollection> $userConfigRepository
+     */
     public function __construct(private readonly EntityRepository $userConfigRepository)
     {
     }
@@ -46,8 +49,7 @@ class BannerService
         $criteria->addFilter(new EqualsFilter('key', self::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
         $criteria->addFilter(new EqualsFilter('userId', $userId));
 
-        /** @var UserConfigEntity|null $userConfig */
-        $userConfig = $this->userConfigRepository->search($criteria, $context)->first();
+        $userConfig = $this->userConfigRepository->search($criteria, $context)->getEntities()->first();
         if ($userConfig === null) {
             return false;
         }
@@ -69,8 +71,7 @@ class BannerService
 
         $updates = [];
 
-        /** @var UserConfigEntity $userConfig */
-        foreach ($userConfigs->getElements() as $userConfig) {
+        foreach ($userConfigs->getEntities() as $userConfig) {
             $updates[] = [
                 'id' => $userConfig->getId(),
                 'userId' => $userConfig->getUserId(),

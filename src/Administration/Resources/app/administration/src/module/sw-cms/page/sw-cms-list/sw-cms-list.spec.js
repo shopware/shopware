@@ -4,7 +4,6 @@
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/app/component/base/sw-empty-state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const defaultCategoryId = 'default-category-id';
@@ -72,7 +71,6 @@ async function createWrapper(
                     'sw-data-grid-skeleton': true,
                     'sw-loader': true,
                     'sw-skeleton': true,
-                    'sw-empty-state': true,
                     'sw-sorting-select': true,
                     'sw-modal': {
                         template: `
@@ -105,9 +103,16 @@ async function createWrapper(
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-provide': true,
+                    'sw-time-ago': true,
                 },
                 mocks: {
-                    $route: { query: '' },
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
                     ...mocks,
                 },
                 provide: {
@@ -135,6 +140,9 @@ async function createWrapper(
                         },
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
+                        },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
                         },
                     },
                     systemConfigApiService: {
@@ -205,13 +213,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the right list of pageTypes for the filters', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -246,6 +247,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -256,6 +258,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -266,6 +269,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -308,6 +312,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -318,6 +323,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -328,6 +334,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -375,6 +382,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -437,6 +445,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                         sections: [],
                         categories: [],
                         products: [],
+                        landingPages: [],
                         translated: {
                             name: 'CMS Page 1',
                         },
@@ -463,6 +472,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -493,6 +503,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -514,6 +525,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -545,6 +557,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -586,6 +599,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -626,6 +640,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -666,6 +681,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -703,6 +719,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -735,6 +752,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -767,6 +785,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -799,6 +818,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -825,6 +845,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 sections: [],
                 categories: [],
                 products: [{ id: 'abc' }],
+                landingPages: [],
                 translated: {
                     name: 'CMS Page 1',
                 },
@@ -867,6 +888,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -928,11 +950,23 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             };
         });
 
+        const expectedLandingPages = [
+            'LandingPage 1',
+            'LandingPage 2',
+            'LandingPage 3',
+        ];
+        const landingPageObjects = expectedLandingPages.map((landingPage) => {
+            return {
+                name: landingPage,
+            };
+        });
+
         const mockPage = {
             id: '1',
             sections: [],
             categories: categoryObjects,
             products: [],
+            landingPages: [],
             translated: {
                 name: 'CMS Page 1',
             },
@@ -958,6 +992,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             message: 'Category 1, Category 3, Category 2, Product 1, Product 2, Product 3',
             disabled: false,
         });
+
+        mockPage.landingPages = landingPageObjects;
+
+        expect(wrapper.vm.getPages(mockPage)).toStrictEqual([
+            ...expectedCategories,
+            ...expectedProducts,
+            ...expectedLandingPages,
+        ]);
+        expect(wrapper.vm.getPagesTooltip(mockPage)).toStrictEqual({
+            width: 300,
+            message:
+                'Category 1, Category 3, Category 2, Product 1, Product 2, Product 3, LandingPage 1, LandingPage 2, LandingPage 3',
+            disabled: false,
+        });
     });
 
     it('should indicate layouts already assigned to pages', async () => {
@@ -971,6 +1019,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -980,6 +1029,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -1099,11 +1149,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
@@ -1125,6 +1173,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     name: 'CMS Page 1',
                     translated: {
                         name: 'CMS Page 1',

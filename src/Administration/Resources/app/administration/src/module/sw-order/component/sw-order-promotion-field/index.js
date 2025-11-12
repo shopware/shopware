@@ -28,6 +28,10 @@ export default {
             from: 'swOrderDetailOnSaveAndReload',
             default: null,
         },
+        swOrderDetailOnSaveAndRecalculate: {
+            from: 'swOrderDetailOnSaveAndRecalculate',
+            default: null,
+        },
         swOrderDetailHandleCartErrors: {
             from: 'swOrderDetailHandleCartErrors',
             default: null,
@@ -51,6 +55,7 @@ export default {
         'loading-change',
         'reload-entity-data',
         'save-and-reload',
+        'save-and-recalculate',
     ],
 
     mixins: [
@@ -97,7 +102,20 @@ export default {
         },
 
         manualPromotions() {
-            return this.order.lineItems.filter((item) => item.type === 'promotion' && item.referencedId !== null);
+            const promotionIds = [];
+            return this.order.lineItems.filter((item) => {
+                if (item.type !== 'promotion' || item.referencedId === null) {
+                    return false;
+                }
+
+                if (promotionIds.includes(item.referencedId)) {
+                    return false;
+                }
+
+                promotionIds.push(item.referencedId);
+
+                return true;
+            });
         },
 
         /**
@@ -107,9 +125,6 @@ export default {
             return this.order.lineItems.filter((item) => item.type === 'promotion' && item.referencedId === null);
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed without replacement
-         */
         promotionCodeTags: {
             get() {
                 return this.manualPromotions.map((item) => item.payload);
@@ -234,6 +249,14 @@ export default {
                 await this.swOrderDetailOnSaveAndReload(afterSaveFn);
             } else {
                 this.$emit('save-and-reload', afterSaveFn);
+            }
+        },
+
+        async saveAndRecalculate() {
+            if (this.swOrderDetailOnSaveAndRecalculate) {
+                await this.swOrderDetailOnSaveAndRecalculate();
+            } else {
+                this.$emit('save-and-recalculate');
             }
         },
 
@@ -417,16 +440,11 @@ export default {
                 true,
             ]);
 
-            const lineItem = this.order.lineItems.find((item) => {
-                return item.type === 'promotion' && item.payload.code === removedItem.code;
-            });
+            this.order.lineItems = this.order.lineItems.filter(
+                (item) => item.type !== 'promotion' || item.promotionId !== removedItem.promotionId,
+            );
 
-            await this.saveAndReload();
-
-            return this.orderLineItemRepository
-                .delete(lineItem.id, this.versionContext)
-                .then(this.emitEntityData.bind(this))
-                .catch(this.handleError.bind(this));
+            await this.saveAndRecalculate();
         },
 
         dismissPromotionUpdates() {

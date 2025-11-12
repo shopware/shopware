@@ -1,0 +1,263 @@
+{
+  "sw-category": {
+    "general": {
+      "mainMenuItemIndex": "Kategorien",
+      "mainMenuItemList": "Übersicht",
+      "descriptionTextModule": "Verwaltung von Kategorien.",
+      "headlineCategories": "Kategorien",
+      "placeholderSearchBar": "Durchsuche alle Kategorien ...",
+      "buttonCreate": "Kategorie erstellen",
+      "buttonSafeCategory": "Speichern",
+      "descriptionLabel": "Beschreibung",
+      "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
+      "useAsLogo": "Als Anzeigebild verwenden",
+      "treeHeadline": "Kategorien",
+      "treeHeadSelected": "{count} ausgewählt",
+      "emptyStateHeadline": "Keine Kategorie ausgewählt",
+      "errorNavigationEntryPoint": "Diese Kategorie ist als {entryPointLabel} in mind. einem Verkaufskanal definiert und kann deshalb nicht gelöscht werden.",
+      "errorNavigationEntryPointMultiple": "Eine oder mehrere Kategorien sind als Hauptnavigation in mind. einem Verkaufskanal definiert und können deshalb nicht gelöscht werden.",
+      "actions": {
+        "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden.",
+        "createSub": "Neue Subkategorie",
+        "createBefore": "Neue Kategorie davor",
+        "createAfter": "Neue Kategorie danach"
+      }
+    },
+    "view": {
+      "general": "Allgemein",
+      "cms": "Layout",
+      "products": "Produkte",
+      "customEntity": "Individuelle Entitäten",
+      "seo": "SEO",
+      "columnInfoHeader": "Fußzeilen-Element",
+      "columnInfo": "Diese Kategorie wird in der Fußzeile verwendet und bildet eine eigene Spalte. Der Kategoriename wird als Spaltenüberschrift angezeigt. Alle Kategorien der direkt untergeordneten Ebene werden als Zeilen unterhalb der Spaltenüberschrift dargestellt."
+    },
+    "base": {
+      "general": {
+        "categoryNameLabel": "Name",
+        "headlineInformationCard": "Allgemein",
+        "isCategoryActiveLabel": "Aktiv",
+        "useAsLink": "Als Link verwenden",
+        "labelCategoryTags": "Tags",
+        "labelCategoryTagsPlaceholder": "Gib einzelne Tags ein ...",
+        "types": {
+          "title": "Kategorietyp",
+          "page": "Seite / Liste",
+          "folder": "Strukturelement / Einstiegspunkt",
+          "customEntity": "Individuelle Entitäten",
+          "link": "Link",
+          "linkUnavailable": "Link (nicht wählbar, wenn Kategorie als Einstiegspunkt zugewiesen ist)",
+          "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung.",
+          "helpText": {
+            "page": "Eine Seite / Liste hat zugehörige Produkte und kann direkt mit dem zugeordneten Layout aufgerufen werden.",
+            "folder": "Ein Strukturelement / Einstiegspunkt wird nur in der Struktur angezeigt sofern Unterkategorien vorhanden sind und ist nicht direkt zugänglich, es sei denn, es ist als Einstiegspunkt eines Verkaufskanals zugeordnet.",
+            "link": "Ein Link ermöglicht den Verweis auf ein Produkt, eine andere Kategorie, eine Landingpage oder eine externe Seite."
+          }
+        }
+      },
+      "entry-point-card": {
+        "cardTitle": "Navigation",
+        "labelEntryPoint": "Einstiegspunkt",
+        "placeholderEntryPoint": "Einstiegspunkt auswählen ...",
+        "existingNavigationDescription": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:",
+        "labelSalesChannelsAdd": "Verkaufskanalzuweisung",
+        "placeholderSalesChannels": "Verkaufskanäle hinzufügen ...",
+        "buttonConfigureHome": "Startseite konfigurieren",
+        "types": {
+          "labelMainNavigation": "Hauptnavigation",
+          "helpTextMainNavigation": "Der Einstiegspunkt für die Hauptnavigation ist ein Pflichtfeld für Verkaufskanäle. Wenn Sie diese Kategorie als Einstiegspunkt für die Hauptnavigation einem oder mehreren Verkaufskanälen zuordnen, können Sie diese Zuordnung nur am Verkaufskanal selbst ändern.",
+          "labelFooterNavigation": "Footernavigation",
+          "helpTextFooterNavigation": "Wenn Sie diese Kategorie als Einstiegspunkt für die Footernavigation zu einem oder mehreren Verkaufskanälen zuweisen, werden die Kategorien auf der nächsten Ebene zu Spalten. So können Sie Ihre Footernavigation in mehrere Bereiche unterteilen.",
+          "labelServiceNavigation": "Footer-Service-Navigation",
+          "helpTextServiceNavigation": "Wenn Sie diese Kategorie als Einstiegspunkt für die Servicenavigation zu einem oder mehreren Verkaufskanälen zuweisen, werden die Kategorien der nächsten Ebene als zweite Navigation im Fußbereich angezeigt."
+        }
+      },
+      "entry-point-modal": {
+        "modalTitle": "Startseite konfigurieren",
+        "salesChannelSelection": "Verkaufskanal",
+        "showInMainNavigation": "In der Hauptnavigation anzeigen",
+        "mainNavigationName": "Anzeigename",
+        "mainNavigationNamePlaceholder": "Alternativen Home-Seitennamen eingeben ...",
+        "mainNavigationNameHelpText": "Standardmäßig wird diese Kategorie als \"Home\" angezeigt. Gib einen alternativen Anzeigenamen ein, falls die Standardkonfiguration nicht zu Deinem aktuellen Verkaufskanal passt.",
+        "layoutHeadline": "Layout",
+        "seoSettingsHeadline": "SEO-Einstellungen",
+        "metaTitleLabel": "Meta-Titel",
+        "metaTitlePlaceholder": "Meta-Titel eingeben ...",
+        "metaDescriptionLabel": "Meta-Beschreibung",
+        "metaDescriptionPlaceholder": "Meta-Beschreibung eingeben ...",
+        "seoKeywordsLabel": "SEO-Schlüsselwörter",
+        "seoKeywordsPlaceholder": "Gib ein oder mehrere Schlüsselwörter ein ..."
+      },
+      "seo": {
+        "title": "SEO",
+        "labelMetaTitle": "Meta-Titel",
+        "labelMetaDescription": "Beschreibung",
+        "labelKeywords": "Schlüsselwörter",
+        "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
+        "placeholderMetaDescription": "Gib eine Beschreibung ein ...",
+        "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ..."
+      },
+      "menu": {
+        "title": "Menü-Einstellungen",
+        "visible": "In der Navigation ausblenden",
+        "imageLabel": "Anzeigebild",
+        "descriptionLabel": "Beschreibung",
+        "descriptionPlaceholder": "Gib eine Beschreibung ein ..."
+      },
+      "customEntity": {
+        "cardTitle": "Eintragszuweisung",
+        "assignment": {
+          "label": "Eintragstyp",
+          "helpText": "Hier muss der Eintragstyp ausgewählt werden."
+        },
+        "instanceAssignment": {
+          "title": "Titel",
+          "label": "Einträge",
+          "placeholder": "Einträge auswählen ...",
+          "emptyState": {
+            "title": "Keine Einträge ausgewählt"
+          }
+        }
+      },
+      "cms": {
+        "title": "Layout-Zuweisung",
+        "changeLayout": "Layout ändern",
+        "changeLayoutEmpty": "Layout zuweisen",
+        "editInPagebuilder": "Im Designer bearbeiten",
+        "editInPagebuilderEmpty": "Neues Layout erstellen",
+        "editContent": "Inhalte bearbeiten",
+        "defaultTitle": "Standard-Layout",
+        "defaultDesc": "Kategorieseite"
+      },
+      "link": {
+        "title": "Benutzerdefinierter Link",
+        "mainTypeLabel": "Linktyp",
+        "mainTypePlaceholder": "Linktyp wählen ...",
+        "internalTypeLabel": "Entität",
+        "internalTypePlaceholder": "Entität wählen ...",
+        "categoryPlaceholder": "Kategorie wählen ...",
+        "productPlaceholder": "Produkt wählen ...",
+        "landingPagePlaceholder": "Landingpage wählen ...",
+        "example": "Beispiel:",
+        "internalExampleText": "/meine-kategorie",
+        "externalDesc": "Um externe Links zu setzen, füge die komplette Webadresse ein:",
+        "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein, der auf die Domain folgt:",
+        "linkLabel": "Linkziel",
+        "linkNewTabLabel": "In neuem Tab öffnen",
+        "categoryHelpText": "Interne Links zu Kategorien unterstützen die folgenden Typen: {types}.",
+        "type": {
+          "internal": "Intern",
+          "external": "Extern"
+        },
+        "linkHasProtocol": "Mit Protokoll"
+      },
+      "products": {
+        "productAssignmentHeadline": "Produkt-Zuweisung",
+        "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen ...",
+        "productAssignmentLabel": "Produkte",
+        "productAssignmentEmptyStateDescription": "Keine Produkte zugewiesen",
+        "productStreamAssignmentEmptyStateDescription": "Keine dynamische Produktgruppe zugewiesen",
+        "columnNameLabel": "Name",
+        "columnManufacturerLabel": "Hersteller",
+        "productAssignmentTypeLabel": "Typ",
+        "productAssignmentTypeManualLabel": "Manuelle Auswahl",
+        "productAssignmentTypeStreamLabel": "Dynamische Produktgruppe",
+        "productAssignmentTypeStreamPlaceholder": "Durchsuche dynamische Produktgruppen ...",
+        "alertManualAssignedProductsOnAssignmentTypeStream": "Es sind noch manuell zugewiesene Produkte in dieser Kategorie. Diese Produkte sind in dieser Kategorie nicht sichtbar, können jedoch in übergeordneten Kategorien sichtbar sein.",
+        "dynamicProductGroupDetailLinkText": "Dynamische Produktgruppe Details",
+        "dynamicProductGroupInvalidMessage": "Die ausgewählte dynamische Produktgruppe ist nicht gültig. Bitte überprüfe die Details der dynamischen Produktgruppe.",
+        "dynamicProductGroupHelpText": {
+          "label": "Produkte gehören einer dynamischen Produktgruppe an, wenn sie den definierten Bedingungen der Produktgruppe entsprechen. Die Bedingungen kannst Du im Modul {link} selbst definieren.",
+          "linkText": "Dynamische Produktgruppen",
+          "videoUrl": "https://www.youtube.com/watch?v=T3-OOqAVsXY",
+          "videoLink": "Sieh dir dazu ein kurzes Video an"
+        }
+      }
+    },
+    "modal": {
+      "textDeleteConfirm": "Möchtest Du die Kategorie \"{name}\" wirklich löschen?",
+      "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht.",
+      "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Kategorien wirklich löschen?"
+    },
+    "entry-point-overwrite-modal": {
+      "textBefore": "Du hast dem folgenden Verkaufskanal bereits einen Einstiegspunkt zugewiesen: | Du hast den folgenden Verkaufskanälen bereits Einstiegspunkte zugewiesen:",
+      "textAfter": "Soll diese Zuweisung überschrieben werden? | Sollen diese Zuweisungen überschrieben werden?"
+    }
+  },
+  "sw-landing-page": {
+    "view": {
+      "general": "Allgemein",
+      "cms": "Layout"
+    },
+    "general": {
+      "placeholderSearchBar": "Durchsuche alle Landingpages ...",
+      "treeHeadSelected": "{count} ausgewählt",
+      "buttonCreate": "Landingpage hinzufügen",
+      "treeHeadline": "Landingpages",
+      "actions": {
+        "actionsDisabledInLanguage": "Landingpages können nur in der Standardsprache erstellt werden."
+      }
+    },
+    "base": {
+      "general": {
+        "labelName": "Name",
+        "headlineInformationCard": "Allgemein",
+        "isActiveLabel": "Aktiv",
+        "labelTags": "Tags",
+        "labelTagsPlaceholder": "Gib einzelne Tags ein ..."
+      },
+      "seo": {
+        "title": "SEO",
+        "titleGeneralInformation": "Allgemeine Information",
+        "titleSocialMedia": "Social Media",
+        "labelSalesChannel": "Verkaufskanäle",
+        "labelMetaTitle": "Meta-Titel",
+        "labelSocialMediaTitle": "Titel",
+        "labelMetaDescription": "Meta-Beschreibung",
+        "labelSocialMediaDescription": "Beschreibung",
+        "labelKeywords": "SEO-Schlüsselwörter",
+        "labelUrl": "SEO-URL",
+        "labelPreviewImage": "Vorschaubild",
+        "placeholderSalesChannel": "Wähle einen Verkaufskanal aus ...",
+        "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
+        "placeholderSocialMediaTitle": "Gib einen Social-Media-Titel ein ...",
+        "placeholderMetaDescription": "Gib eine Meta-Beschreibung ein ...",
+        "placeholderSocialMediaDescription": "Gib eine Social-Media-Beschreibung an ...",
+        "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ...",
+        "placeholderUrl": "Gib eine URL an ...",
+        "socialMediaPreview": "Social-Media-Vorschau",
+        "searchResultPreview": "Suchergebnisvorschau",
+        "helpTextMetaTitle": "Meta-Titel sollten nicht länger als 70 Zeichen sein. Überschüssiger Text wird von Google abgeschnitten und der Titel wird nicht vollständig im SERP-Snippet angezeigt.",
+        "helpTextMetaDescription": "Die mögliche Länge bei Meta-Beschreibungen bei Google liegt bei etwa 175 Zeichen und wird nach Pixelbreite beschnitten. Es ist aber empfehlenswert eine Länge von etwa 150 Zeichen anzustreben, damit die Beschreibung im SERP-Snippet nicht abgeschnitten wird. Shopware erlaubt eine maximale Länge von 255 Zeichen.",
+        "notification": {
+          "noLayoutAssigned": "Für diese Landingpage wurde kein Layout festgelegt. Ohne Layout ist die Landingpage über SEO nicht erreichbar."
+        }
+      },
+      "cms": {
+        "title": "Layout-Zuweisung",
+        "changeLayout": "Layout ändern",
+        "changeLayoutEmpty": "Layout zuweisen",
+        "editInPagebuilder": "Im Designer bearbeiten",
+        "editInPagebuilderEmpty": "Neues Layout erstellen",
+        "editContent": "Inhalte bearbeiten",
+        "defaultTitle": "Standard-Layout",
+        "defaultDesc": "Kategorieseite",
+        "cmsLayoutModalHeadline": "Landingpage"
+      }
+    },
+    "modal": {
+      "textDeleteConfirm": "Möchtest Du die Landingpage \"{name}\" wirklich löschen?",
+      "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Landingpages wirklich löschen?"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "category": {
+        "label": "Kategorien"
+      },
+      "landing_page": {
+        "label": "Landingpages"
+      }
+    }
+  }
+}

@@ -126,9 +126,10 @@ class RedisCartPersisterTest extends TestCase
     public static function dataProviderInvalidData(): iterable
     {
         yield 'not existing' => [null, CartTokenNotFoundException::class];
-        yield 'invalid serialize' => ['abc', CartTokenNotFoundException::class];
+        yield 'invalid serialize' => ['O:32:"Shopware\Core\Checkout\Cart\Cart":1:{s:5:"price";N;}', CartTokenNotFoundException::class];
         yield 'not cart serialize' => [\serialize(new \ArrayObject()), CartTokenNotFoundException::class];
         yield 'valid outer object, but invalid content' => [\serialize(['compressed' => false, 'content' => \serialize(new \ArrayObject())]), CartTokenNotFoundException::class];
+        yield 'valid outer object, but content with type error' => [\serialize(['compressed' => false, 'content' => []]), CartTokenNotFoundException::class];
         yield 'valid outer object, but not cart' => [serialize(['compressed' => false, 'content' => serialize(['cart' => ''])]), CartException::class];
     }
 

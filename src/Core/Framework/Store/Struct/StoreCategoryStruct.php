@@ -14,7 +14,7 @@ class StoreCategoryStruct extends StoreStruct
 
     protected string $name;
 
-    protected ?int $parent;
+    protected ?int $parent = null;
 
     /**
      * @var array<string, mixed>

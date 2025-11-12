@@ -82,7 +82,7 @@ class UpdateSubscriber implements EventSubscriberInterface
 
                 try {
                     $alreadyCompiled += $this->themeService->compileThemeById($theme->getId(), $context);
-                } catch (ThemeCompileException $e) {
+                } catch (ThemeCompileException) {
                     $failedThemes[] = $theme->getName();
                     $alreadyCompiled[] = $theme->getId();
                 }

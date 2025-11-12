@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\StoreSessionExpiredException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -30,7 +32,7 @@ class StoreSessionExpiredMiddleware implements MiddlewareInterface
     ) {
     }
 
-    public function __invoke(ResponseInterface $response): ResponseInterface
+    public function __invoke(ResponseInterface $response, RequestInterface $request): ResponseInterface
     {
         if ($response->getStatusCode() !== 401) {
             return $response;
@@ -45,12 +47,24 @@ class StoreSessionExpiredMiddleware implements MiddlewareInterface
             return $response;
         }
 
-        $this->logoutUser();
+        if ($token = $request->getHeaderLine(StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER)) {
+            $this->logoutUserByToken($token);
+        } else {
+            $this->logoutUserByContext();
+        }
 
         throw new StoreSessionExpiredException();
     }
 
-    private function logoutUser(): void
+    private function logoutUserByToken(string $token): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE user SET store_token = NULL WHERE store_token = :token',
+            ['token' => $token]
+        );
+    }
+
+    private function logoutUserByContext(): void
     {
         $request = $this->requestStack->getCurrentRequest();
         if (!$request instanceof Request) {

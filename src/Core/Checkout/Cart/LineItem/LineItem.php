@@ -120,6 +120,7 @@ class LineItem extends Struct
         $self = new self($lineItem->id, $lineItem->type, $lineItem->getReferencedId(), $lineItem->quantity);
 
         foreach (get_object_vars($lineItem) as $property => $value) {
+            // @phpstan-ignore property.dynamicName (We have to use dynamic properties here to copy over all properties)
             $self->$property = $value;
         }
 

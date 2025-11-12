@@ -39,7 +39,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         private readonly RequestStack $requestStack,
         private readonly RouterInterface $router,
         private readonly MaintenanceModeResolver $maintenanceModeResolver,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -86,7 +86,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $session = $mainRequest->getSession();
 
         if (!$session->isStarted()) {
-            $session->setName('session-');
             $session->start();
             $session->set('sessionId', $session->getId());
         }
@@ -183,22 +182,28 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function preventPageLoadingFromXmlHttpRequest(ControllerEvent $event): void
     {
-        if (!$event->getRequest()->isXmlHttpRequest()) {
+        $request = $event->getRequest();
+
+        if (!$request->isXmlHttpRequest()) {
             return;
         }
 
-        $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+        $scope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if (!\in_array(StorefrontRouteScope::ID, $scope, true)) {
             return;
         }
 
-        $isAllowed = $event->getRequest()->attributes->getBoolean('XmlHttpRequest');
+        $isAllowed = $request->attributes->getBoolean('XmlHttpRequest');
         if ($isAllowed) {
             return;
         }
 
-        throw RoutingException::accessDeniedForXmlHttpRequest();
+        $route = $request->attributes->get('_route');
+        $url = $request->getUri();
+        $referer = $request->headers->get('referer');
+
+        throw RoutingException::accessDeniedForXmlHttpRequest($route, $url, $referer);
     }
 
     // used to switch session token - when the context token expired

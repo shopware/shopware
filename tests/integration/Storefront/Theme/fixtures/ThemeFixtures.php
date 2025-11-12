@@ -259,48 +259,48 @@ class ThemeFixtures
             'tabs' => [
                 'default' => [
                     'label' => '',
-                    'labelSnippetKey' => 'sw-theme.storefront.default.label',
+                    'labelSnippetKey' => 'default.label',
                     'blocks' => [
                         'themeColors' => [
                             'label' => 'themeColors',
-                            'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.label',
+                            'labelSnippetKey' => 'default.themeColors.label',
                             'sections' => [
                                 'default' => [
                                     'label' => '',
-                                    'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.default.label',
+                                    'labelSnippetKey' => 'default.themeColors.default.label',
                                     'fields' => [
                                         'sw-color-brand-primary' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-color-brand-primary.label',
+                                            'labelSnippetKey' => 'default.themeColors.default.sw-color-brand-primary.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-color-brand-primary.helpText',
+                                            'helpTextSnippetKey' => 'default.themeColors.default.sw-color-brand-primary.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-brand-secondary' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-color-brand-secondary.label',
+                                            'labelSnippetKey' => 'default.themeColors.default.sw-color-brand-secondary.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-color-brand-secondary.helpText',
+                                            'helpTextSnippetKey' => 'default.themeColors.default.sw-color-brand-secondary.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-border-color' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-border-color.label',
+                                            'labelSnippetKey' => 'default.themeColors.default.sw-border-color.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-border-color.helpText',
+                                            'helpTextSnippetKey' => 'default.themeColors.default.sw-border-color.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-background-color' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-background-color.label',
+                                            'labelSnippetKey' => 'default.themeColors.default.sw-background-color.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.themeColors.default.sw-background-color.helpText',
+                                            'helpTextSnippetKey' => 'default.themeColors.default.sw-background-color.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
@@ -311,44 +311,44 @@ class ThemeFixtures
                         ],
                         'statusColors' => [
                             'label' => 'statusColors',
-                            'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.label',
+                            'labelSnippetKey' => 'default.statusColors.label',
                             'sections' => [
                                 'default' => [
                                     'label' => '',
-                                    'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.default.label',
+                                    'labelSnippetKey' => 'default.statusColors.default.label',
                                     'fields' => [
                                         'sw-color-success' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-success.label',
+                                            'labelSnippetKey' => 'default.statusColors.default.sw-color-success.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-success.helpText',
+                                            'helpTextSnippetKey' => 'default.statusColors.default.sw-color-success.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-info' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-info.label',
+                                            'labelSnippetKey' => 'default.statusColors.default.sw-color-info.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-info.helpText',
+                                            'helpTextSnippetKey' => 'default.statusColors.default.sw-color-info.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-warning' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-warning.label',
+                                            'labelSnippetKey' => 'default.statusColors.default.sw-color-warning.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-warning.helpText',
+                                            'helpTextSnippetKey' => 'default.statusColors.default.sw-color-warning.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-danger' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-danger.label',
+                                            'labelSnippetKey' => 'default.statusColors.default.sw-color-danger.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.statusColors.default.sw-color-danger.helpText',
+                                            'helpTextSnippetKey' => 'default.statusColors.default.sw-color-danger.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
@@ -359,44 +359,44 @@ class ThemeFixtures
                         ],
                         'typography' => [
                             'label' => 'typography',
-                            'labelSnippetKey' => 'sw-theme.storefront.default.typography.label',
+                            'labelSnippetKey' => 'default.typography.label',
                             'sections' => [
                                 'default' => [
                                     'label' => '',
-                                    'labelSnippetKey' => 'sw-theme.storefront.default.typography.default.label',
+                                    'labelSnippetKey' => 'default.typography.default.label',
                                     'fields' => [
                                         'sw-font-family-base' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-font-family-base.label',
+                                            'labelSnippetKey' => 'default.typography.default.sw-font-family-base.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-font-family-base.helpText',
+                                            'helpTextSnippetKey' => 'default.typography.default.sw-font-family-base.helpText',
                                             'type' => 'fontFamily',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-text-color' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-text-color.label',
+                                            'labelSnippetKey' => 'default.typography.default.sw-text-color.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-text-color.helpText',
+                                            'helpTextSnippetKey' => 'default.typography.default.sw-text-color.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-font-family-headline' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-font-family-headline.label',
+                                            'labelSnippetKey' => 'default.typography.default.sw-font-family-headline.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-font-family-headline.helpText',
+                                            'helpTextSnippetKey' => 'default.typography.default.sw-font-family-headline.helpText',
                                             'type' => 'fontFamily',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-headline-color' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-headline-color.label',
+                                            'labelSnippetKey' => 'default.typography.default.sw-headline-color.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.typography.default.sw-headline-color.helpText',
+                                            'helpTextSnippetKey' => 'default.typography.default.sw-headline-color.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
@@ -407,35 +407,35 @@ class ThemeFixtures
                         ],
                         'eCommerce' => [
                             'label' => 'eCommerce',
-                            'labelSnippetKey' => 'sw-theme.storefront.default.eCommerce.label',
+                            'labelSnippetKey' => 'default.eCommerce.label',
                             'sections' => [
                                 'default' => [
                                     'label' => '',
-                                    'labelSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.label',
+                                    'labelSnippetKey' => 'default.eCommerce.default.label',
                                     'fields' => [
                                         'sw-color-price' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-price.label',
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-color-price.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-price.helpText',
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-color-price.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-buy-button' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-buy-button.label',
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-color-buy-button.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-buy-button.helpText',
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-color-buy-button.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-color-buy-button-text' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-buy-button-text.label',
+                                            'labelSnippetKey' => 'default.eCommerce.default.sw-color-buy-button-text.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.eCommerce.default.sw-color-buy-button-text.helpText',
+                                            'helpTextSnippetKey' => 'default.eCommerce.default.sw-color-buy-button-text.helpText',
                                             'type' => 'color',
                                             'custom' => null,
                                             'fullWidth' => null,
@@ -446,53 +446,53 @@ class ThemeFixtures
                         ],
                         'media' => [
                             'label' => 'media',
-                            'labelSnippetKey' => 'sw-theme.storefront.default.media.label',
+                            'labelSnippetKey' => 'default.media.label',
                             'sections' => [
                                 'default' => [
                                     'label' => '',
-                                    'labelSnippetKey' => 'sw-theme.storefront.default.media.default.label',
+                                    'labelSnippetKey' => 'default.media.default.label',
                                     'fields' => [
                                         'sw-logo-desktop' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-desktop.label',
+                                            'labelSnippetKey' => 'default.media.default.sw-logo-desktop.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-desktop.helpText',
+                                            'helpTextSnippetKey' => 'default.media.default.sw-logo-desktop.helpText',
                                             'type' => 'media',
                                             'custom' => null,
                                             'fullWidth' => true,
                                         ],
                                         'sw-logo-tablet' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-tablet.label',
+                                            'labelSnippetKey' => 'default.media.default.sw-logo-tablet.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-tablet.helpText',
+                                            'helpTextSnippetKey' => 'default.media.default.sw-logo-tablet.helpText',
                                             'type' => 'media',
                                             'custom' => null,
                                             'fullWidth' => true,
                                         ],
                                         'sw-logo-mobile' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-mobile.label',
+                                            'labelSnippetKey' => 'default.media.default.sw-logo-mobile.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-mobile.helpText',
+                                            'helpTextSnippetKey' => 'default.media.default.sw-logo-mobile.helpText',
                                             'type' => 'media',
                                             'custom' => null,
                                             'fullWidth' => true,
                                         ],
                                         'sw-logo-share' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-share.label',
+                                            'labelSnippetKey' => 'default.media.default.sw-logo-share.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-share.helpText',
+                                            'helpTextSnippetKey' => 'default.media.default.sw-logo-share.helpText',
                                             'type' => 'media',
                                             'custom' => null,
                                             'fullWidth' => null,
                                         ],
                                         'sw-logo-favicon' => [
                                             'label' => null,
-                                            'labelSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-favicon.label',
+                                            'labelSnippetKey' => 'default.media.default.sw-logo-favicon.label',
                                             'helpText' => null,
-                                            'helpTextSnippetKey' => 'sw-theme.storefront.default.media.default.sw-logo-favicon.helpText',
+                                            'helpTextSnippetKey' => 'default.media.default.sw-logo-favicon.helpText',
                                             'type' => 'media',
                                             'custom' => null,
                                             'fullWidth' => null,
@@ -504,6 +504,8 @@ class ThemeFixtures
                     ],
                 ],
             ],
+            'themeTechnicalName' => 'Storefront',
+            'configInheritance' => [],
         ];
     }
 
@@ -512,7 +514,7 @@ class ThemeFixtures
      */
     public static function getThemeInheritedConfig(string $faviconId, string $demostoreLogoId): array
     {
-        $config = [
+        return [
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
@@ -895,9 +897,6 @@ class ThemeFixtures
                     'fullWidth' => null,
                 ],
             ],
-        ];
-
-        $config += [
             'currentFields' => [
                 'sw-color-brand-primary' => [
                     'value' => '#ff00ff',
@@ -1062,9 +1061,8 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
             ],
+            'configInheritance' => self::getConfigInheritance(),
         ];
-
-        return $config;
     }
 
     /**
@@ -1072,7 +1070,7 @@ class ThemeFixtures
      */
     public static function getThemeInheritedBlankConfig(string $faviconId, string $demostoreLogoId): array
     {
-        $config = [
+        return [
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
@@ -1455,9 +1453,6 @@ class ThemeFixtures
                     'fullWidth' => null,
                 ],
             ],
-        ];
-
-        $config += [
             'currentFields' => [
                 'sw-color-brand-primary' => [
                     'value' => '#ff00ff',
@@ -1622,9 +1617,8 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
             ],
+            'configInheritance' => self::getConfigInheritance(),
         ];
-
-        return $config;
     }
 
     /**
@@ -2179,6 +2173,17 @@ class ThemeFixtures
                     'isInherited' => false,
                 ],
             ],
+            'configInheritance' => [],
+        ];
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private static function getConfigInheritance(): array
+    {
+        return [
+            0 => '@Storefront',
         ];
     }
 }

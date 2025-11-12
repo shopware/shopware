@@ -29,26 +29,16 @@ async function createWrapper() {
 
 describe('src/app/mixin/salutation.mixin.ts', () => {
     let wrapper;
-    let originalFilterGetByName;
 
     beforeEach(async () => {
-        if (originalFilterGetByName) {
-            Object.defineProperty(Shopware.Filter, 'getByName', {
-                value: jest.fn(() => {
-                    return jest.fn(() => 'Salutation filter result');
-                }),
-            });
-        } else {
-            originalFilterGetByName = Shopware.Filter.getByName;
-        }
+        jest.spyOn(Shopware.Filter, 'getByName').mockImplementation(() => jest.fn(() => 'Salutation filter result'));
 
         wrapper = await createWrapper();
-
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should compute correct salutationFilter value', () => {

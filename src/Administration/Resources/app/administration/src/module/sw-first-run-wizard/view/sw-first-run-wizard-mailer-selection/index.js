@@ -30,7 +30,8 @@ export default {
         },
 
         buttonConfig() {
-            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement =
+                Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
             const nextRoute = disabledExtensionManagement ? 'shopware.account' : 'paypal.info';
 
             return [

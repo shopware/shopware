@@ -3,6 +3,11 @@
 namespace Shopware\Core\Content\Cms\Command;
 
 use Faker\Factory;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\CmsException;
+use Shopware\Core\Content\Cms\CmsPageCollection;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,20 +24,26 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CreatePageCommand extends Command
 {
     /**
-     * @var array<string>
+     * @var non-empty-list<string>
      */
     private array $products;
 
     /**
-     * @var array<string>
+     * @var non-empty-list<string>
      */
     private array $categories;
 
     /**
-     * @var array<string>
+     * @var non-empty-list<string>
      */
     private array $media;
 
+    /**
+     * @param EntityRepository<CmsPageCollection> $cmsPageRepository
+     * @param EntityRepository<ProductCollection> $productRepository
+     * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     */
     public function __construct(
         private readonly EntityRepository $cmsPageRepository,
         private readonly EntityRepository $productRepository,
@@ -110,7 +121,7 @@ class CreatePageCommand extends Command
             return;
         }
 
-        $keys = array_map(fn ($id) => ['id' => $id], $pages->getIds());
+        $keys = array_map(static fn ($id) => ['id' => $id], $pages->getIds());
 
         $this->cmsPageRepository->delete($keys, $context);
     }
@@ -126,8 +137,10 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $productIds */
             $productIds = $this->productRepository->searchIds($criteria, $context)->getIds();
+            if ($productIds === []) {
+                throw CmsException::pageCreationFailure('No products found');
+            }
             $this->products = $productIds;
         }
 
@@ -140,8 +153,10 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $categoryIds */
             $categoryIds = $this->categoryRepository->searchIds($criteria, $context)->getIds();
+            if ($categoryIds === []) {
+                throw CmsException::pageCreationFailure('No categories found');
+            }
             $this->categories = $categoryIds;
         }
 
@@ -154,8 +169,10 @@ class CreatePageCommand extends Command
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $mediaIds */
             $mediaIds = $this->mediaRepository->searchIds($criteria, $context)->getIds();
+            if ($mediaIds === []) {
+                throw CmsException::pageCreationFailure('No medias found');
+            }
             $this->media = $mediaIds;
         }
 

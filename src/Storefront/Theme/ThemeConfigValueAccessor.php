@@ -2,10 +2,9 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
 class ThemeConfigValueAccessor
@@ -20,7 +19,7 @@ class ThemeConfigValueAccessor
      */
     public function __construct(
         private readonly AbstractResolvedConfigLoader $themeConfigLoader,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -60,9 +59,7 @@ class ThemeConfigValueAccessor
             return $this->themeConfig[$key] = $this->flatten($themeConfig, null);
         }
 
-        $this->dispatcher->dispatch(new AddCacheTagEvent(
-            ThemeConfigCacheInvalidator::buildCacheTag($themeId)
-        ));
+        $this->cacheTagCollector->addTag(ThemeConfigCacheInvalidator::buildCacheTag($themeId));
 
         $themeConfig = array_merge(
             $themeConfig,

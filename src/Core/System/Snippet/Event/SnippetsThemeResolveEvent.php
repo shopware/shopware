@@ -24,7 +24,7 @@ class SnippetsThemeResolveEvent extends Event
     private array $unusedThemes = [];
 
     public function __construct(
-        private ?string $salesChannelId = null
+        private readonly ?string $salesChannelId = null,
     ) {
     }
 

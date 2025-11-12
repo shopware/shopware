@@ -29,10 +29,6 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should get document types once component created', async () => {
         wrapper.vm.getDocumentTypes = jest.fn(() => Promise.resolve());
 

@@ -1,5 +1,5 @@
-import { test as base, Page } from '@playwright/test';
 import type { FixtureTypes } from '@fixtures/AcceptanceTest';
+import { test as base, type Page } from '@playwright/test';
 import { playAudit } from 'playwright-lighthouse';
 
 type ValidateLighthouseScoreType = (

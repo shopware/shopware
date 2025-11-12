@@ -40,10 +40,11 @@ export default class AjaxOffCanvas extends OffCanvas {
      * @param {number} delay
      */
     static setContent(url, data, callback, closable, delay) {
-        super.setContent(`<div class="offcanvas-body">${LoadingIndicator.getTemplate()}</div>`, closable, delay);
+        // Do not pass `closable` into setContent; only delay is relevant here
+        super.setContent(`<div class="offcanvas-body">${LoadingIndicator.getTemplate()}</div>`, delay);
 
         const cb = (response) => {
-            super.setContent(response, closable, delay);
+            super.setContent(response, delay);
             // if a callback function is being injected execute it after opening the OffCanvas
             if (typeof callback === 'function') {
                 callback(response);

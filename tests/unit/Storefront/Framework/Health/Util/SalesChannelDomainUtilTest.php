@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Health\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\SalesChannelRequest;
@@ -168,7 +169,8 @@ class SalesChannelDomainUtilTest extends TestCase
         return new SalesChannelDomainUtil(
             $this->router,
             $this->requestStack,
-            $this->kernel
+            $this->kernel,
+            new NullLogger(),
         );
     }
 }

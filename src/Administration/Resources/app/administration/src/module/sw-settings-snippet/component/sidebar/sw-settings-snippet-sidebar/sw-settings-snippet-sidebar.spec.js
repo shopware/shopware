@@ -37,10 +37,6 @@ describe('sw-settings-snippet-sidebar', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain a computed property, called: activeFilterNumber', async () => {
         await wrapper.setProps({
             filterSettings: null,

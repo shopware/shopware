@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Newsletter\ScheduledTask;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -14,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
  * @internal
@@ -27,7 +27,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
     public function testGetExpiredNewsletterRecipientCriteria(): void
     {
         $taskHandler = $this->getTaskHandler();
-        $method = ReflectionHelper::getMethod(NewsletterRecipientTaskHandler::class, 'getExpiredNewsletterRecipientCriteria');
+        $method = new \ReflectionMethod(NewsletterRecipientTaskHandler::class, 'getExpiredNewsletterRecipientCriteria');
 
         /** @var Criteria $criteria */
         $criteria = $method->invoke($taskHandler);
@@ -53,7 +53,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $taskHandler = $this->getTaskHandler();
         $taskHandler->run();
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<NewsletterRecipientCollection> */
         $repository = static::getContainer()->get('newsletter_recipient.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
 

@@ -135,6 +135,10 @@ class ErrorResponseFactory
             if ($isResource) {
                 $array[$key] = \sprintf('<%s>', get_resource_type($value));
             }
+
+            if ($value instanceof \UnitEnum) {
+                $array[$key] = $value::class;
+            }
         }
 
         return $array;

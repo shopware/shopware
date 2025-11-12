@@ -84,13 +84,6 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
 }
 
 describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to save the tax provider', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

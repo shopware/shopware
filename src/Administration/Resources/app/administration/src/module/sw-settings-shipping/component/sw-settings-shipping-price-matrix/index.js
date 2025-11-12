@@ -147,7 +147,7 @@ export default {
                 return {
                     property: `price-${currency.isoCode}`,
                     label: label,
-                    visible: index === 0,
+                    visible: index === 0 || (currency.salesChannels && currency.salesChannels.length > 0),
                     allowResize: true,
                     primary: !!currency.isSystemDefault,
                     rawData: false,

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -26,6 +27,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationEntity;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
@@ -66,6 +68,8 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private ThemeFilesystemResolver $themeFilesystemResolver;
 
+    private ThemeRuntimeConfigService&MockObject $themeRuntimeConfigService;
+
     protected function setUp(): void
     {
         $kernel = $this->createMock(Kernel::class);
@@ -88,7 +92,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $this->connection = static::getContainer()->get(Connection::class);
 
-        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
 
         $this->themeLifecycleService = new ThemeLifecycleService(
             static::getContainer()->get(StorefrontPluginRegistry::class),
@@ -103,10 +107,26 @@ class ThemeLifecycleServiceTest extends TestCase
             static::getContainer()->get('theme_child.repository'),
             $this->connection,
             static::getContainer()->get(StorefrontPluginConfigurationFactory::class),
-            $themeRuntimeConfigService,
+            $this->themeRuntimeConfigService,
         );
 
         $this->context = Context::createDefaultContext();
+    }
+
+    public function testRefreshThemesCorrectConfigurationCollection(): void
+    {
+        $pluginRegistry = static::getContainer()->get(StorefrontPluginRegistry::class);
+        $pluginConfigurationCollection = $pluginRegistry->getConfigurations();
+        $bundle = $this->getThemeConfig();
+        $themeConfigurations = new StorefrontPluginConfigurationCollection([$bundle]);
+
+        foreach ($themeConfigurations as $themeConfiguration) {
+            $this->themeRuntimeConfigService->expects($this->once())
+                ->method('refreshRuntimeConfig')
+                ->with(static::anything(), $themeConfiguration, $this->context, false, $pluginConfigurationCollection);
+        }
+
+        $this->themeLifecycleService->refreshThemes($this->context, $themeConfigurations);
     }
 
     public function testItRegistersANewThemeCorrectly(): void

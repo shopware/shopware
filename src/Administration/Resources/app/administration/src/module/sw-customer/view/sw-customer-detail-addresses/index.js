@@ -243,7 +243,7 @@ export default {
             let isValid = true;
 
             requiredAddressFields.forEach((field) => {
-                if (ignoreFields.indexOf(field) !== -1 || required(address[field])) {
+                if (ignoreFields.includes(field) || required(address[field])) {
                     return;
                 }
 

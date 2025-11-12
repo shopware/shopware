@@ -14,14 +14,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class AccountOrderDetailPageLoadedEvent extends PageLoadedEvent
 {
-    protected AccountOrderDetailPage $page;
-
     public function __construct(
-        AccountOrderDetailPage $page,
+        protected AccountOrderDetailPage $page,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 
@@ -29,7 +26,7 @@ class AccountOrderDetailPageLoadedEvent extends PageLoadedEvent
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         return $this->page;

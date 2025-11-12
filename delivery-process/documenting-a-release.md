@@ -2,14 +2,7 @@
 
 This guide walks you through how to properly document changes in Shopware releases. The goal is to make sure all developer-facing updates and important upgrade changes are logged clearly, structured well, and easy to find.
 
-## Why This Process Exists
-
-We’re moving away from inconsistent and manual-heavy documentation. With this new workflow:
-
-1. Developers must document every notable change directly in the PR.
-2. Compliance is automatically enforced, while DevRel and TDMs curate key entries for clarity.
-3. We maintain one single source of truth (SSOT) in GitHub and
-4. Reduce redundancy and align with internal delivery workflows.
+- Related doc: [Changelog and Release Info Process](../adr/2025-10-28-changelog-release-info-process.md)
 
 ## Why This Process Exists
 To have a structured and automated workflow:
@@ -20,12 +13,21 @@ To have a structured and automated workflow:
 4. Documentation is centralized in GitHub as a Single Source of Truth (SSOT).
 
 ## Where to Document Changes
+
+### Changelog (auto-generated)
+
+The complete raw changelog for each release is generated automatically from GitHub when a tag is created.  
+It includes every merged PR and commit and is published on the GitHub **Releases** page.  
+This changelog is **not curated** and complements the human-maintained `RELEASE_INFO` and `UPGRADE` files.  
+It’s primarily for internal engineers, support, and partners.  
+
 Every PR that introduces a significant change must update one or both of these files:
 
 - RELEASE_INFO.md: Tracks new features, API updates, and general improvements.
 - UPGRADE.md: Covers breaking changes, migration steps, and any required developer action.
 
-Developers should manually edit the RELEASE_INFO.md and UPGRADE.md files directly. The changelog:generate command is deprecated and will be removed.
+Developers must edit the version-scoped files RELEASE_INFO-6.x.md and UPGRADE-6.x.md directly in the repository.
+The legacy bin/console changelog:create command and /changelog/_unreleased folder are deprecated and scheduled for removal.
 
 ## How Do I Know Where to Add My Change?
 A simple rule of thumb:

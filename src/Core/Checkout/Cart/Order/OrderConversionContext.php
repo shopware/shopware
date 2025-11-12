@@ -27,6 +27,8 @@ class OrderConversionContext extends Struct
 
     protected bool $includePersistentData = true;
 
+    protected bool $includeOrderNumber = true;
+
     public function shouldIncludeCustomer(): bool
     {
         return $this->includeCustomer;
@@ -113,6 +115,18 @@ class OrderConversionContext extends Struct
     {
         $this->includePersistentData = $includePersistentData;
         $this->includeOrderDate = $includePersistentData;
+
+        return $this;
+    }
+
+    public function shouldIncludeOrderNumber(): bool
+    {
+        return $this->includeOrderNumber;
+    }
+
+    public function setIncludeOrderNumber(bool $includeOrderNumber): OrderConversionContext
+    {
+        $this->includeOrderNumber = $includeOrderNumber;
 
         return $this;
     }

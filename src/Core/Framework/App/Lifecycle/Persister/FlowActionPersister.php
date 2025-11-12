@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Source\SourceResolver;
@@ -17,6 +18,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class FlowActionPersister
 {
+    /**
+     * @param EntityRepository<AppFlowActionCollection> $flowActionsRepository
+     */
     public function __construct(
         private readonly EntityRepository $flowActionsRepository,
         private readonly SourceResolver $sourceResolver,

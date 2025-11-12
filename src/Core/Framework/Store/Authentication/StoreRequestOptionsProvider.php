@@ -23,8 +23,8 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     final public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
     final public const CONFIG_KEY_STORE_SHOP_SECRET = 'core.store.shopSecret';
 
-    private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
-    private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
+    final public const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
+    final public const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
 
     /**
      * @param EntityRepository<UserCollection> $userRepository

@@ -53,11 +53,6 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         );
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the header titles', async () => {
         const wrapper = await createWrapper();
 

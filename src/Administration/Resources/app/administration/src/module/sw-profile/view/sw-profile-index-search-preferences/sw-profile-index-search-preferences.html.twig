@@ -14,11 +14,36 @@
         </mt-banner>
     </mt-card>
 
+    {% block sw_profile_index_search_preferences_search_behavior %}
+    <mt-card
+        class="sw-profile-index-search-preferences-search-behavior"
+        position-identifier="sw-profile-index-search-preferences-search-behavior"
+        :title="$tc('sw-profile.tabSearchPreferences.cardSearchBehavior.title')"
+        :subtitle="$tc('sw-profile.tabSearchPreferences.cardSearchBehavior.subtitle')"
+        :is-loading="isLoading"
+    >
+        <sw-container
+            columns="1fr 1fr"
+            gap="0 32px"
+        >
+            <mt-number-field
+                v-model="minSearchTermLength"
+                :label="$tc('sw-profile.tabSearchPreferences.cardSearchBehavior.labelMinSearchTermLength')"
+                :min="1"
+                :max="10"
+                :step="1"
+                :disabled="isLoading"
+            />
+        </sw-container>
+    </mt-card>
+    {% endblock %}
+
     {% block sw_profile_index_search_preferences_searchable_elements %}
     <mt-card
         class="sw-profile-index-search-preferences-searchable-elements"
         position-identifier="sw-profile-index-search-preferences"
-        :title="$tc('sw-profile.tabSearchPreferences.cardSearchableElements.title')"
+        :title="$tc('sw-profile.tabSearchPreferences.cardSearchContent.title')"
+        :subtitle="$tc('sw-profile.tabSearchPreferences.cardSearchContent.subtitle')"
         :is-loading="isLoading"
     >
         {% block sw_profile_index_search_preferences_searchable_elements_content %}
@@ -28,8 +53,6 @@
             gap="24px"
         >
             {% block sw_profile_index_search_preferences_searchable_elements_header %}
-            <p>{{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.description') }}</p>
-
             <sw-container
                 columns="auto auto auto 1fr"
                 gap="8px"
@@ -40,7 +63,7 @@
                     variant="secondary"
                     @click="onSelect(true)"
                 >
-                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonSelect') }}
+                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchContent.buttonSelect') }}
                 </mt-button>
                 {% endblock %}
 
@@ -50,7 +73,7 @@
                     variant="secondary"
                     @click="onSelect(false)"
                 >
-                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonDeselect') }}
+                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchContent.buttonDeselect') }}
                 </mt-button>
                 {% endblock %}
 
@@ -60,7 +83,7 @@
                     variant="secondary"
                     @click="onReset"
                 >
-                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonReset') }}
+                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchContent.buttonReset') }}
                 </mt-button>
                 {% endblock %}
             </sw-container>

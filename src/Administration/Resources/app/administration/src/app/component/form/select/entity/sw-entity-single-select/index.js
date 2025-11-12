@@ -172,6 +172,11 @@ export default {
             required: false,
             default: 'default',
         },
+        popoverClasses: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
     },
 
     data() {

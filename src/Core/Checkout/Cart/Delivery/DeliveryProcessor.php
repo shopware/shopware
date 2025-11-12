@@ -8,10 +8,14 @@ use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,9 +25,15 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 {
     final public const MANUAL_SHIPPING_COSTS = 'manualShippingCosts';
 
-    final public const SKIP_DELIVERY_PRICE_RECALCULATION = 'skipDeliveryPriceRecalculation';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION}
+     */
+    final public const SKIP_DELIVERY_PRICE_RECALCULATION = CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION;
 
-    final public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_DELIVERY_TAX_RECALCULATION}
+     */
+    final public const SKIP_DELIVERY_TAX_RECALCULATION = CheckoutPermissions::SKIP_DELIVERY_TAX_RECALCULATION;
 
     /**
      * @internal
@@ -46,6 +56,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     {
         Profiler::trace('cart::delivery::collect', function () use ($data, $original, $context): void {
             $default = $context->getShippingMethod()->getId();
+            $ids = [];
 
             if (!$data->has(self::buildKey($default))) {
                 $ids = [$default];
@@ -93,7 +104,14 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
                     return $delivery->getShippingCosts()->getTotalPrice() >= 0;
                 });
 
-                $firstDelivery = $deliveries->first();
+                $firstDelivery = $original->getDeliveries()->getPrimaryDelivery(
+                    $original->getExtensionOfType(OrderConverter::ORIGINAL_PRIMARY_ORDER_DELIVERY, IdStruct::class)?->getId()
+                );
+
+                if (!Feature::isActive('v6.8.0.0')) {
+                    $firstDelivery = $deliveries->first();
+                }
+
                 if ($firstDelivery === null) {
                     return;
                 }

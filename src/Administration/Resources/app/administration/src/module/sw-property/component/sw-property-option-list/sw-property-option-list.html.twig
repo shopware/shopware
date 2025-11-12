@@ -131,12 +131,11 @@
         </sw-one-to-many-grid>
 
         {% block sw_settings_country_state_list_empty %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="showEmptyState"
-            :absolute="false"
-            :title="$tc('sw-property.detail.messageOptionsEmpty')"
-            :subline="$tc('sw-property.detail.messageOptionsEmptySubline')"
-            auto-height
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-property.detail.messageOptionsEmpty')"
+            :description="$tc('sw-property.detail.messageOptionsEmptySubline')"
         />
         {% endblock %}
     </template>

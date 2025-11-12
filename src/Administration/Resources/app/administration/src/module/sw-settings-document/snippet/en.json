@@ -1,0 +1,90 @@
+{
+  "sw-settings-document": {
+    "general": {
+      "mainMenuItemGeneral": "Documents",
+      "description": "Document configuration section in the settings module",
+      "placeholderSearchBar": "Search all documents..."
+    },
+    "list": {
+      "textHeadline": "Documents",
+      "textDeleteConfirm": "Are you sure you want to delete the document \"{name}\"?",
+      "columnName": "Technical name",
+      "columnType": "Type",
+      "columnUsedIn": "Assigned to",
+      "columnAssignment": "Assignment",
+      "buttonAddDocument": "Add document",
+      "contextMenuEdit": "Edit",
+      "messageDeleteSuccess": "Document \"{name}\" has been deleted.",
+      "buttonDelete": "Delete",
+      "global": "Global"
+    },
+    "detail": {
+      "textHeadline": "New document",
+      "configCard": "Settings",
+      "companyCard": "Company settings",
+      "assignmentCard": "Assignment",
+      "messageSaveSuccess": "Document \"{name}\" has been saved.",
+      "labelName": "Technical name",
+      "labelFileNamePrefix": "Filename prefix",
+      "labelFileNameSuffix": "Filename suffix",
+      "labelDisplayPrices": "Display prices",
+      "labelDisplayHeader": "Display header",
+      "labelDisplayLineItems": "Display line items",
+      "labelDisplayLineItemPosition": "Display line item positions",
+      "labelDisplayPageCount": "Display page count",
+      "labelPageOrientation": "Page orientation",
+      "labelPageSize": "Page format",
+      "labelItemsPerPage": "Items per page",
+      "labelDisplayCompanyAddress": "Display company address",
+      "helpTextDisplayCompanyAddress": "Displays the company address below the header on the right-hand side of the document.",
+      "labelDisplayReturnAddress": "Display return address",
+      "helpTextDisplayReturnAddress": "Displays the company address as return address above the customer address in the address block.",
+      "labelCompanyCity": "City",
+      "labelCompanyCountry": "Country",
+      "labelCompanyName": "Name",
+      "labelCompanyEmail": "Email address",
+      "labelCompanyPhone": "Phone number",
+      "labelCompanyStreet": "Street",
+      "labelCompanyUrl": "Website",
+      "labelCompanyZipcode": "Postal code",
+      "labelPaymentDueDate": "Payment due date",
+      "labelTaxNumber": "Tax number",
+      "labelTaxOffice": "Tax office",
+      "labelVatId": "VAT Reg.No.",
+      "labelBankName": "Bank",
+      "labelBankIban": "IBAN",
+      "labelBankBic": "BIC",
+      "labelType": "Document type",
+      "labelSalesChannel": "Sales Channel",
+      "labelDisplayFooter": "Display footer",
+      "labelPlaceOfJurisdiction": "Place of jurisdiction / Commercial register no.",
+      "labelPlaceOfFulfillment": "Place of fulfillment",
+      "labelExecutiveDirector": "Business executive",
+      "labelDisplayAdditionalNoteDelivery": "Display \"intra-Community delivery\" label",
+      "labelDeliveryCountries": "Member countries",
+      "labelDisplayCustomerVatId": "Display customer VAT-ID",
+      "placeholderDisplayDeliveryCountries": "Search and add countries valid for intra-Community delivery...",
+      "labelOptionMedia": "Company logo",
+      "placeholderName": "Enter name...",
+      "buttonSave": "Save",
+      "disabledSalesChannel": "There is already another document of the same type in this Sales Channel.",
+      "disabledSalesChannelSelect": "Choose a document type first.",
+      "disabledTypeSelect": "The type of global documents cannot be changed.",
+      "labelDisplayDocumentInCustomerAccount": "Display document in \"My account\"",
+      "labelDisplayDivergentDeliveryAddress": "Display divergent delivery address",
+      "helpTextDisplayDocumentInCustomerAccount": "The document is displayed under \"Orders\" in the respective customer account. Note that only documents that have actually been sent to the customer are displayed in the customer account.",
+      "helpTextDisplayDeliveryCountries": "Displays indication of \"intra community delivery\" on invoice documents for selected countries.",
+      "helpTextPaymentDueDate": "E.g.: +30 days, +4 weeks, +1 week 2 days",
+      "helpTextDisplayAdditionalNoteDelivery": "Eligible only for EU member states, see also \"Settings > Countries\".",
+      "labelFileTypes": "File formats"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "document": {
+        "label": "Documents"
+      }
+    }
+  }
+}
+

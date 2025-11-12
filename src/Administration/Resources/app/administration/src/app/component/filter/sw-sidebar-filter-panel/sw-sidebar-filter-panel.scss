@@ -7,19 +7,25 @@
         align-items: center;
         margin: 0;
         padding: 0 25px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         a {
             float: left;
-            padding-left: 15px;
+            margin-left: 15px;
             margin-right: auto;
         }
     }
 
     a {
-        font-size: $font-size-xs;
-        color: $color-shopware-brand-500;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-brand-default);
         text-decoration: underline;
         cursor: pointer;
+
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline-offset: var(--scale-size-2);
+            border-radius: var(--border-radius-xs);
+        }
     }
 }

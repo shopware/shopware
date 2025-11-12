@@ -82,7 +82,7 @@ export default {
                     return this.liveOrder.updatedBy;
                 }
 
-                if (this.liveOrder.createdBy) {
+                if (this.liveOrder.createdBy && !this.liveOrder.updatedAt) {
                     return this.liveOrder.createdBy;
                 }
             }
@@ -171,6 +171,9 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -184,6 +187,10 @@ export default {
         savedSuccessful() {
             if (this.savedSuccessful) {
                 this.getLiveOrder();
+                Store.get('swOrderDetail').setLoading([
+                    'states',
+                    false,
+                ]);
             }
         },
 
@@ -373,10 +380,19 @@ export default {
             this.currentActionName = null;
             this.currentStateType = null;
             this.showModal = false;
+
+            Store.get('swOrderDetail').setLoading([
+                'states',
+                false,
+            ]);
         },
 
         onLeaveModalConfirm(docIds, sendMail = true) {
             this.showModal = false;
+            Store.get('swOrderDetail').setLoading([
+                'states',
+                true,
+            ]);
 
             let transition = null;
 
@@ -415,6 +431,12 @@ export default {
                     })
                     .catch((error) => {
                         this.createStateChangeErrorNotification(error);
+                    })
+                    .finally(() => {
+                        Store.get('swOrderDetail').setLoading([
+                            'states',
+                            false,
+                        ]);
                     });
             }
 

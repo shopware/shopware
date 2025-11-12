@@ -177,7 +177,7 @@ describe('components/rule/condition-type/sw-condition-order-custom-field', () =>
         wrapper.vm.onFieldChange('3');
 
         expect(wrapper.vm.renderedField).toBeNull();
-        expect(wrapper.vm.selectedFieldSet).toBeUndefined();
+        expect(wrapper.vm.selectedFieldSet).toBeNull();
     });
 
     it('should set custom field value on input', async () => {

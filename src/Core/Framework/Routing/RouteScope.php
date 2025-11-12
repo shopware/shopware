@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class RouteScope extends AbstractRouteScope
 {
+    final public const ID = 'default';
+
     protected array $allowedPaths = ['_wdt', '_profiler', '_error'];
 
     public function isAllowed(Request $request): bool
@@ -17,6 +19,6 @@ class RouteScope extends AbstractRouteScope
 
     public function getId(): string
     {
-        return 'default';
+        return self::ID;
     }
 }

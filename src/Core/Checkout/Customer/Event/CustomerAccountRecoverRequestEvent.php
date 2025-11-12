@@ -28,14 +28,14 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
 {
     public const EVENT_NAME = 'customer.recovery.request';
 
-    private string $shopName;
+    private readonly string $shopName;
 
     private ?MailRecipientStruct $mailRecipientStruct = null;
 
     public function __construct(
-        private SalesChannelContext $salesChannelContext,
-        private CustomerRecoveryEntity $customerRecovery,
-        private string $resetUrl
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly CustomerRecoveryEntity $customerRecovery,
+        private readonly string $resetUrl,
     ) {
         $this->shopName = $salesChannelContext->getSalesChannel()->getTranslation('name');
     }

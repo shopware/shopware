@@ -62,11 +62,19 @@ class MediaPathStorageTest extends TestCase
             'created_at' => '2022-01-01',
         ]);
 
+        $inserts->addInsert('media_thumbnail_size', [
+            'id' => $ids->getBytes('thumbnail-size-1'),
+            'width' => 100,
+            'height' => 100,
+            'created_at' => '2022-01-01',
+        ]);
+
         $inserts->addInsert('media_thumbnail', [
             'id' => $ids->getBytes('media_thumbnail'),
             'media_id' => $ids->getBytes('media'),
             'width' => 100,
             'height' => 100,
+            'media_thumbnail_size_id' => $ids->getBytes('thumbnail-size-1'),
             'created_at' => '2022-01-01',
         ]);
 

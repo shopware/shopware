@@ -49,12 +49,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-product-assignment', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an enabled sw-select-base', async () => {
         const wrapper = await createWrapper();
 

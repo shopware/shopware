@@ -38,7 +38,7 @@ class CmsSectionCollection extends EntityCollection
      */
     public function hasBlockWithType(string $type): bool
     {
-        return $this->firstWhere(fn (CmsSectionEntity $section) => $section->getBlocks()?->hasBlockWithType($type)) !== null;
+        return $this->firstWhere(fn (CmsSectionEntity $section) => $section->getBlocks()?->hasBlockWithType($type) === true) !== null;
     }
 
     protected function getExpectedClass(): string

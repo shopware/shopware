@@ -424,7 +424,7 @@ export default class VueAdapter extends ViewAdapter {
 
         meteorComponents.forEach((componentName) => {
             const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            this.app.component(componentNameAsKebabCase, MeteorImport[componentName]);
+            this.app.component(componentNameAsKebabCase, MeteorImport[componentName] as VueComponent);
         });
 
         return this.vueComponents;

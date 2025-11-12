@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Content\Category\SalesChannel\fixtures\CategoryRouteInheritanceFixtures;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -149,7 +150,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->createListingData();
 
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $salesChannelRepository->upsert([[
             'id' => $this->ids->get('sales-channel'),
@@ -285,6 +286,7 @@ class CategoryRouteTest extends TestCase
                 'territory' => 'TestGermany',
                 'code' => 'de-DE-test',
             ],
+            'active' => true,
             'translationCodeId' => $this->ids->get('locale-de'),
         ], [
             'id' => self::LANGUAGE_IDS['at'],
@@ -296,6 +298,7 @@ class CategoryRouteTest extends TestCase
                 'territory' => 'TestAustria',
                 'code' => 'de-AT-test',
             ],
+            'active' => true,
             'translationCodeId' => $this->ids->get('locale-at'),
         ]];
 
@@ -308,6 +311,7 @@ class CategoryRouteTest extends TestCase
             'id' => self::LANGUAGE_IDS['de'],
             'name' => 'TestGerman',
             'parentId' => self::LANGUAGE_IDS['en'],
+            'active' => true,
             'locale' => [
                 'id' => $this->ids->create('locale-de'),
                 'name' => 'TestGerman',

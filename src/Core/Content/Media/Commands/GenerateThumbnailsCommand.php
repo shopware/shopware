@@ -172,7 +172,7 @@ class GenerateThumbnailsCommand extends Command
                     }
                 } catch (\Throwable $e) {
                     ++$errored;
-                    $errors[] = [\sprintf('Cannot process file %s (id: %s) due error: %s', $media->getFileName(), $media->getId(), $e->getMessage())];
+                    $errors[] = [\sprintf('Cannot process file "%s" (id: %s) due error: %s', $media->getFileName() ?? '', $media->getId(), $e->getMessage())];
                 }
             }
             $this->io->progressAdvance($result->count());

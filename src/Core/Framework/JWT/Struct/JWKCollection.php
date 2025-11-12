@@ -23,14 +23,14 @@ class JWKCollection extends Collection
      */
     public static function fromArray(array $data): self
     {
-        $elements['elements'] = \array_map(static function (array $element): JWKStruct {
+        $elements = ['elements' => \array_map(static function (array $element): JWKStruct {
             $dto = ValidatorFactory::create($element, JWKStruct::class);
             if (!$dto instanceof JWKStruct) {
                 throw JWTException::invalidType(JWKStruct::class, $dto::class);
             }
 
             return $dto;
-        }, $data['keys']);
+        }, $data['keys'])];
 
         return (new self())->assign($elements);
     }

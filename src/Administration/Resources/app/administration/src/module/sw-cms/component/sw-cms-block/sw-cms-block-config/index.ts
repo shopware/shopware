@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
 import type MediaUploadResult from '../../../shared/MediaUploadResult';

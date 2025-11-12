@@ -43,7 +43,7 @@
 
         <service id="Shopware\Core\System\Language\SalesChannel\LanguageRoute" public="true">
             <argument type="service" id="sales_channel.language.repository"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Core\System\Language\Rule\LanguageRule">

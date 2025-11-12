@@ -8,6 +8,10 @@
         {% set headlineLevel = element.config.boxHeadlineLevel.value %}
         {% set headlineClasses = "product-name-headline mb-0" %}
 
+        {% set searchTerm = page.searchTerm %}
+        {% set childCount = product.childCount %}
+        {% set routeArguments = childCount > 0 and searchTerm ? { productId: id, search: searchTerm } : { productId: id } %}
+
         <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name}|json_encode }}">
             {% block component_product_box_content %}
                 <div class="card-body">
@@ -108,13 +112,13 @@
                             {% block component_product_box_name %}
                                 {% if headlineLevel is not empty %}
                                     {{ "<h#{headlineLevel} class=\"#{headlineClasses}\">"|raw }}
-                                        <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
+                                        <a href="{{ seoUrl('frontend.detail.page', routeArguments) }}"
                                            class="product-name stretched-link">
                                             {{ name }}
                                         </a>
                                     {{ "</h#{headlineLevel}>"|raw }}
                                 {% else %}
-                                    <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
+                                    <a href="{{ seoUrl('frontend.detail.page', routeArguments) }}"
                                        class="product-name stretched-link">
                                         {{ name }}
                                     </a>

@@ -27,6 +27,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\AbstractCustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -46,7 +47,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('checkout')]
 class RegisterController extends StorefrontController
 {
@@ -286,9 +287,7 @@ class RegisterController extends StorefrontController
         $definition = new DataValidationDefinition('storefront.confirmation');
 
         if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation', $context->getSalesChannelId())) {
-            $definition->add('emailConfirmation', new NotBlank(), new EqualTo([
-                'value' => $data->get('email'),
-            ]));
+            $definition->add('emailConfirmation', new NotBlank(), new EqualTo(value: $data->get('email')));
         }
 
         if ($data->getBoolean('guest')) {
@@ -296,9 +295,7 @@ class RegisterController extends StorefrontController
         }
 
         if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation', $context->getSalesChannelId())) {
-            $definition->add('passwordConfirmation', new NotBlank(), new EqualTo([
-                'value' => $data->get('password'),
-            ]));
+            $definition->add('passwordConfirmation', new NotBlank(), new EqualTo(value: $data->get('password')));
         }
 
         return $definition;

@@ -4,8 +4,8 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    margin-top: 4px;
-    font-size: $font-size-xxs;
-    line-height: 1.25;
-    color: $color-crimson-500;
+    margin-top: var(--scale-size-4);
+    font-size: var(--font-size-xs);
+    line-height: var(--font-line-height-xs);
+    color: var(--color-text-critical-default);
 }

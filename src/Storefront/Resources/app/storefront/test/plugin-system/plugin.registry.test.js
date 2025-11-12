@@ -87,7 +87,7 @@ describe('Plugin Registry', () => {
             const registrations = pluginMap.get('registrations');
             expect(registrations.get('.test-selector')).toEqual({
                 selector: '.test-selector',
-                options: options
+                options: options,
             });
         });
 
@@ -171,18 +171,18 @@ describe('Plugin Registry', () => {
             
             const result = registry.delete('TestPlugin', '.selector1');
             
-            expect(result).toBe(true);
+            expect(result).toBe(registry);
             expect(registry.has('TestPlugin', '.selector1')).toBe(false);
             expect(registry.has('TestPlugin', '.selector2')).toBe(true);
             expect(registry.has('TestPlugin')).toBe(true);
         });
 
-        it('should delete entire plugin when deleting last registration', () => {
+        it('should delete entire plugin when no selector is given', () => {
             const pluginClass = class TestPlugin {};
             registry.set('TestPlugin', pluginClass, '.selector1');
-            
-            const result = registry.delete('TestPlugin', '.selector1');
-            
+
+            const result = registry.delete('TestPlugin', null);
+
             expect(result).toBe(true);
             expect(registry.has('TestPlugin')).toBe(false);
         });
@@ -192,12 +192,15 @@ describe('Plugin Registry', () => {
             expect(result).toBe(true);
         });
 
-        it('should return true when plugin exists but registration does not', () => {
+        it('should not remove other registrations when given selector has no registration', () => {
             const pluginClass = class TestPlugin {};
             registry.set('TestPlugin', pluginClass, '.selector1');
             
             const result = registry.delete('TestPlugin', '.selector2');
-            expect(result).toBe(true);
+
+            expect(registry.get('TestPlugin').get('registrations').has('.selector1')).toBe(true);
+            expect(registry.get('TestPlugin').get('registrations').has('.selector2')).toBe(false);
+            expect(result).toBe(registry);
         });
     });
 
@@ -264,7 +267,7 @@ describe('Plugin Registry', () => {
             
             // Delete remaining registration
             registry.delete('ComplexPlugin', '.selector2');
-            expect(registry.has('ComplexPlugin')).toBe(false);
+            expect(registry.get('ComplexPlugin').get('registrations').has('.selector2')).toBe(false);
         });
 
         it('should handle async plugins correctly', () => {
@@ -286,7 +289,7 @@ describe('Plugin Registry', () => {
             const registrations = pluginMap.get('registrations');
             expect(registrations.get('.selector')).toEqual({
                 selector: '.selector',
-                options: undefined
+                options: undefined,
             });
         });
     });

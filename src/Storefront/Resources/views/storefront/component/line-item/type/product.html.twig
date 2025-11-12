@@ -38,7 +38,7 @@
                             <div class="line-item-info">
                                 {% block component_line_item_type_product_info_row %}
                                     <div class="row line-item-row">
-                                        {% set showLineItemModal = controllerAction is same as('confirmPage') %}
+                                        {% set showLineItemModal = activeRoute is same as('frontend.checkout.confirm.page') %}
 
                                         {% if nestingLevel < 1 %}
                                             {% block component_line_item_type_product_image %}

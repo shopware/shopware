@@ -45,10 +45,6 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render modal with body', async () => {
         await wrapper.setProps({
             title: 'Cool modal',

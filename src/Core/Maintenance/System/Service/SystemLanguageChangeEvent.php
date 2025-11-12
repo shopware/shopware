@@ -18,7 +18,9 @@ readonly class SystemLanguageChangeEvent
      *                                   Since the rows are swapped, this is now the new id of the previous default language.
      */
     public function __construct(
-        public string $previousLanguageId
+        public string $previousLanguageId,
+        public string $previousLocaleCode,
+        public string $newLocaleCode,
     ) {
     }
 }

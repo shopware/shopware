@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -23,6 +24,9 @@ class ImportExportProfileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportProfileEntity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;
@@ -331,6 +335,20 @@ class ImportExportProfileRepositoryTest extends TestCase
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
 
         static::assertCount($num, $records);
+    }
+
+    public function testCanSearchByTechnicalName(): void
+    {
+        $data = $this->prepareImportExportProfileTestData();
+        $this->repository->create(array_values($data), $this->context);
+
+        $criteria = new Criteria();
+        $criteria->setTerm('technical');
+
+        $result = $this->repository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $result);
+        static::assertInstanceOf(ImportExportProfileEntity::class, $result->first());
     }
 
     /**

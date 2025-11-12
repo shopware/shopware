@@ -19,6 +19,22 @@ class MediaThumbnailRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
+    private string $mediaThumbnailSizeId;
+
+    protected function setUp(): void
+    {
+        $this->mediaThumbnailSizeId = Uuid::randomHex();
+
+        $sizeData = [
+            'id' => $this->mediaThumbnailSizeId,
+            'width' => 100,
+            'height' => 200,
+        ];
+
+        static::getContainer()->get('media_thumbnail_size.repository')
+            ->create([$sizeData], Context::createDefaultContext());
+    }
+
     #[DataProvider('deleteThumbnailProvider')]
     public function testDeleteThumbnail(bool $private): void
     {
@@ -62,6 +78,7 @@ class MediaThumbnailRepositoryTest extends TestCase
                         'width' => 100,
                         'height' => 200,
                         'highDpi' => false,
+                        'mediaThumbnailSizeId' => $this->mediaThumbnailSizeId,
                     ],
                 ],
             ],
@@ -83,6 +100,7 @@ class MediaThumbnailRepositoryTest extends TestCase
             'width' => 100,
             'height' => 200,
             'path' => 'foo/bar.png',
+            'mediaThumbnailSizeId' => $this->mediaThumbnailSizeId,
         ];
 
         static::getContainer()->get('media_thumbnail.repository')

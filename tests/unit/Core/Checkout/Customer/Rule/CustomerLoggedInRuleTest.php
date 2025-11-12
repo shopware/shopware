@@ -30,7 +30,7 @@ class CustomerLoggedInRuleTest extends TestCase
         static::assertArrayHasKey('isLoggedIn', $constraints, 'Constraint isLoggedIn not found in Rule');
         static::assertEquals($constraints['isLoggedIn'], [
             new NotNull(),
-            new Type(['type' => 'bool']),
+            new Type(type: 'bool'),
         ]);
     }
 

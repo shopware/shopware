@@ -21,31 +21,6 @@ async function createWrapper() {
                 $router: { push: jest.fn() },
             },
             provide: {
-                userRecoveryService: {
-                    createRecovery: () => {
-                        return new Promise((resolve, reject) => {
-                            const response = {
-                                config: {
-                                    url: 'test.test.de',
-                                },
-                                response: {
-                                    data: {
-                                        errors: {
-                                            status: 429,
-                                            meta: {
-                                                parameters: {
-                                                    seconds: 1,
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            };
-
-                            reject(response);
-                        });
-                    },
-                },
                 userService: {},
                 licenseViolationService: {},
             },
@@ -73,11 +48,36 @@ describe('module/sw-login/recovery.spec.js', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
+        if (!Shopware.Service('userRecoveryService')) {
+            Shopware.Service().register('userRecoveryService', () => {
+                return {
+                    createRecovery: () => {
+                        return new Promise((resolve, reject) => {
+                            const response = {
+                                config: {
+                                    url: 'test.test.de',
+                                },
+                                response: {
+                                    data: {
+                                        errors: {
+                                            status: 429,
+                                            meta: {
+                                                parameters: {
+                                                    seconds: 1,
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            };
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
+                            reject(response);
+                        });
+                    },
+                };
+            });
+        }
+        wrapper = await createWrapper();
     });
 
     it('should redirect on submit', async () => {

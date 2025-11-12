@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogCollection;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
+use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -98,5 +99,85 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             ->first();
         static::assertNotNull($webhookEventLog);
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_FAILED);
+
+        $webhookRepository = static::getContainer()->get('webhook.repository');
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+
+        static::assertInstanceOf(WebhookEntity::class, $webhook);
+        static::assertSame(1, $webhook->getErrorCount());
+        static::assertTrue($webhook->isActive());
+    }
+
+    public function testHandleWebhookMessageFailedSetsWebhookToInactiveIfErrorCountIsTooHigh(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookEventId = Uuid::randomHex();
+
+        $appRepository = static::getContainer()->get('app.repository');
+        /** @var EntityRepository<WebhookEventLogCollection> $webhookEventLogRepository */
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => true,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'eventName' => 'order',
+                    'url' => 'https://test.com',
+                    'errorCount' => 9,
+                ],
+            ],
+        ]], $this->context);
+
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], $this->context);
+
+        $event = new WorkerMessageFailedEvent(
+            new Envelope($webhookEventMessage),
+            'async',
+            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
+        );
+
+        static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
+            ->failed($event);
+
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), $this->context)
+            ->getEntities()
+            ->first();
+        static::assertNotNull($webhookEventLog);
+        static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_FAILED);
+
+        $webhookRepository = static::getContainer()->get('webhook.repository');
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+
+        static::assertInstanceOf(WebhookEntity::class, $webhook);
+        static::assertSame(0, $webhook->getErrorCount());
+        static::assertFalse($webhook->isActive());
     }
 }

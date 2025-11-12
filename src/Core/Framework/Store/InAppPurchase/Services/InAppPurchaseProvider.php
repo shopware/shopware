@@ -20,15 +20,15 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @phpstan-import-type JSONWebKey from JWKStruct
  */
 #[Package('checkout')]
-final class InAppPurchaseProvider
+final readonly class InAppPurchaseProvider
 {
     public const CONFIG_STORE_IAP_KEY = 'core.store.iapKey';
 
     public function __construct(
-        private readonly SystemConfigService $systemConfig,
-        private readonly JWTDecoder $decoder,
-        private readonly KeyFetcher $keyFetcher,
-        private readonly LoggerInterface $logger,
+        private SystemConfigService $systemConfig,
+        private JWTDecoder $decoder,
+        private KeyFetcher $keyFetcher,
+        private LoggerInterface $logger,
     ) {
     }
 

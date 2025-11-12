@@ -48,20 +48,27 @@ class AssetInstallCommandTest extends TestCase
 
     public function testForceOptionIsForwardedToService(): void
     {
+        $exampleBundle = $this->getBundle();
         $kernel = $this->createMock(KernelInterface::class);
-        $kernel->method('getBundles')->willReturn([$this->getBundle()]);
+        $kernel->method('getBundles')->willReturn([$exampleBundle]);
 
         $service = $this->createMock(AssetService::class);
         $appLoader = $this->createMock(ActiveAppsLoader::class);
         $appLoader->method('getActiveApps')->willReturn([]);
 
-        $service->expects($this->once())
-            ->method('copyAssetsFromBundle')
-            ->with('ExampleBundle', true);
-
-        $service->expects($this->once())
+        $invokedCount = $this->exactly(2);
+        $service->expects($invokedCount)
             ->method('copyAssets')
-            ->with(static::isInstanceOf(Installer::class), true);
+            ->willReturnCallback(function ($bundle, $force) use ($invokedCount, $exampleBundle): void {
+                if ($invokedCount->numberOfInvocations() === 1) {
+                    static::assertSame($exampleBundle, $bundle);
+                    static::assertTrue($force);
+                }
+                if ($invokedCount->numberOfInvocations() === 2) {
+                    static::assertInstanceOf(Installer::class, $bundle);
+                    static::assertTrue($force);
+                }
+            });
 
         $command = new AssetInstallCommand(
             $kernel,

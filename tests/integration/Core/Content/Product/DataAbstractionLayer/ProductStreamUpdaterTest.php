@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -36,6 +37,9 @@ class ProductStreamUpdaterTest extends TestCase
      */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<ProductStreamCollection>
+     */
     private EntityRepository $productStreamRepository;
 
     private SalesChannelContext $salesChannel;
@@ -254,10 +258,10 @@ class ProductStreamUpdaterTest extends TestCase
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $activeStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
         // Check and ensure the opposite product_stream (inactive) weren't added
@@ -267,10 +271,10 @@ class ProductStreamUpdaterTest extends TestCase
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $inActiveStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
 
@@ -289,10 +293,10 @@ class ProductStreamUpdaterTest extends TestCase
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $inActiveStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
         // Check and ensure the opposite product_stream (active) weren't added
@@ -302,10 +306,10 @@ class ProductStreamUpdaterTest extends TestCase
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $activeStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
     }

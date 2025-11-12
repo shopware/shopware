@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Shopware\Commercial\Test\Annotation\ActiveFeatureToggles;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\AnnotationToAttributeRector;
@@ -15,7 +16,6 @@ return RectorConfig::configure()
         __DIR__ . '/tests',
     ])
     ->withFileExtensions(['php'])
-    ->withImportNames()
     ->withSkip([
         __DIR__ . '/src/Core/Framework/Script/ServiceStubs.php',
         __DIR__ . '/src/Recovery',
@@ -23,6 +23,9 @@ return RectorConfig::configure()
         '**/vendor/*',
         '**/node_modules/*',
         '**/Resources/*',
+    ])
+    ->withRules([
+        ClassConstantToSelfClassRector::class,
     ])
     ->withConfiguredRule(AnnotationToAttributeRector::class, [
         new AnnotationToAttribute(ActiveFeatureToggles::class),

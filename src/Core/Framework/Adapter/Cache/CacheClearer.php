@@ -8,10 +8,12 @@ use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -20,6 +22,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('framework')]
 class CacheClearer
 {
+    private const LOCK_TTL = 5;
+    private const LOCK_KEY_CONTAINER = 'container-cache-directories';
+
     /**
      * @internal
      *
@@ -36,15 +41,14 @@ class CacheClearer
         private readonly bool $clusterMode,
         private readonly bool $reverseHttpCacheEnabled,
         private readonly MessageBusInterface $messageBus,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly LockFactory $lockFactory,
     ) {
     }
 
     public function clear(bool $clearHttp = true): void
     {
-        foreach ($this->adapters as $adapter) {
-            $adapter->clear();
-        }
+        $this->clearObjectCache();
 
         if ($clearHttp && $this->reverseHttpCacheEnabled) {
             $this->reverseProxyCache?->banAll();
@@ -83,14 +87,17 @@ class CacheClearer
             return;
         }
 
-        $finder = (new Finder())->in($this->cacheDir)->name('*Container*')->depth(0);
+        $searchDir = $this->cacheDir;
+        $finder = (new Finder())->in($searchDir)->name('*Container*')->depth(0);
         $containerCaches = [];
 
         foreach ($finder->getIterator() as $containerPaths) {
             $containerCaches[] = $containerPaths->getRealPath();
         }
 
-        $this->filesystem->remove($containerCaches);
+        $this->lock(function () use ($containerCaches): void {
+            $this->filesystem->remove($containerCaches);
+        }, $this->lockKeyForDir($searchDir), self::LOCK_TTL);
     }
 
     public function scheduleCacheFolderCleanup(): void
@@ -105,6 +112,13 @@ class CacheClearer
     {
         foreach ($this->adapters as $adapter) {
             $adapter->deleteItems($keys);
+        }
+    }
+
+    public function clearObjectCache(): void
+    {
+        foreach ($this->adapters as $adapter) {
+            $adapter->clear();
         }
     }
 
@@ -125,15 +139,15 @@ class CacheClearer
             return;
         }
 
+        $searchDir = \dirname($this->cacheDir) . '/';
         $finder = (new Finder())
             ->directories()
             ->name($this->environment . '*')
-            ->in(\dirname($this->cacheDir) . '/');
+            ->in($searchDir);
 
         if (!$finder->hasResults()) {
             return;
         }
-
         $remove = [];
         foreach ($finder->getIterator() as $directory) {
             if ($directory->getPathname() !== $this->cacheDir) {
@@ -142,7 +156,9 @@ class CacheClearer
         }
 
         if ($remove !== []) {
-            $this->filesystem->remove($remove);
+            $this->lock(function () use ($remove): void {
+                $this->filesystem->remove($remove);
+            }, $this->lockKeyForDir($searchDir), self::LOCK_TTL);
         }
     }
 
@@ -154,6 +170,30 @@ class CacheClearer
         if ($this->reverseProxyCache === null) {
             $this->adapters['http']->clear();
         }
+    }
+
+    /**
+     * Locks the execution of the closure to prevent concurrent executions.
+     *
+     * @see https://symfony.com/doc/current/components/lock.html
+     */
+    private function lock(\Closure $closure, string $key, int $timeToLive): void
+    {
+        $lock = $this->lockFactory->createLock('cache-clearer::' . $key, $timeToLive);
+
+        // The execution is blocked until the key is found or the time to live is reached.
+        if ($lock->acquire(true)) {
+            try {
+                $closure();
+            } finally {
+                $lock->release();
+            }
+        }
+    }
+
+    private function lockKeyForDir(string $dir): string
+    {
+        return \sprintf('%s:%s', self::LOCK_KEY_CONTAINER, Hasher::hash($dir));
     }
 
     private function cleanupUrlGeneratorCacheFiles(): void

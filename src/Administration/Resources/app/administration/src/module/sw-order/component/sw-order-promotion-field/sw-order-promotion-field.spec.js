@@ -15,14 +15,25 @@ const orderFixture = {
             id: 'a4b4b1cf-95a7-4050-981b-0a1f301f5727',
             type: 'promotion',
             referencedId: '50669d0c-b1d2-470a-bb80-ac5ffa06ef10',
+            promotionId: '50669d0c-b1d2-470a-bb80-ac5ffa06ef10',
             payload: {
                 code: 'Redeem3456',
+            },
+        },
+        {
+            id: '11111111-1111-1111-1111-111111111111',
+            type: 'test',
+            referencedId: '50669d0c-b1d2-470a-bb80-ac5ffa06ef10',
+            promotionId: '50669d0c-b1d2-470a-bb80-ac5ffa06ef10',
+            payload: {
+                code: 'Fake-line-item',
             },
         },
         {
             id: '6066b693-97ce-4b91-a3e2-e015f0ddfb79',
             type: 'promotion',
             referencedId: 'f13ed3d3-158b-4fdf-bd54-d6fa8b880b83',
+            promotionId: 'f13ed3d3-158b-4fdf-bd54-d6fa8b880b83',
             payload: {
                 code: 'Redeem23',
             },
@@ -31,6 +42,7 @@ const orderFixture = {
             id: '05b5decd-072f-437e-84a3-8be5fb5e5fa7',
             type: 'promotion',
             referencedId: null,
+            promotionId: null,
             payload: {
                 code: null,
             },
@@ -255,15 +267,24 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         createStateMapper();
 
         const wrapper = await createWrapper();
-        wrapper.vm.swOrderDetailOnSaveAndReload = jest.fn();
+        wrapper.vm.swOrderDetailOnSaveAndRecalculate = jest.fn();
 
-        wrapper.vm.onRemoveExistingCode({ code: 'Redeem3456' });
+        expect(wrapper.vm.order.lineItems).toHaveLength(4);
+        wrapper.vm.onRemoveExistingCode({ promotionId: '50669d0c-b1d2-470a-bb80-ac5ffa06ef10' });
         await flushPromises();
 
-        expect(wrapper.vm.swOrderDetailOnSaveAndReload).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.swOrderDetailOnSaveAndRecalculate).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.promotionCodeTags).toEqual([{ code: 'Redeem23' }]);
         expect(wrapper.emitted('error')).toBeUndefined();
-        expect(wrapper.emitted('reload-entity-data')).toBeTruthy();
+
+        expect(wrapper.vm.order.lineItems).toHaveLength(3);
+        expect(wrapper.vm.order.lineItems.map((item) => item.id).sort()).toEqual(
+            [
+                '11111111-1111-1111-1111-111111111111',
+                '6066b693-97ce-4b91-a3e2-e015f0ddfb79',
+                '05b5decd-072f-437e-84a3-8be5fb5e5fa7',
+            ].sort(),
+        );
     });
 
     it('should disable the fields with missing roles', async () => {

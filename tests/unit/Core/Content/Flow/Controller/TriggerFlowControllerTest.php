@@ -63,6 +63,7 @@ class TriggerFlowControllerTest extends TestCase
         $request = new Request();
         $request->setMethod('POST');
         $context = Context::createDefaultContext();
+        /** @var StaticEntityRepository<AppFlowEventCollection> */
         $appFlowEventRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'app_flow_event',
@@ -86,6 +87,7 @@ class TriggerFlowControllerTest extends TestCase
         $request = new Request();
         $request->setMethod('POST');
         $context = Context::createDefaultContext();
+        /** @var StaticEntityRepository<AppFlowEventCollection> */
         $appFlowEventRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'app_flow_event',

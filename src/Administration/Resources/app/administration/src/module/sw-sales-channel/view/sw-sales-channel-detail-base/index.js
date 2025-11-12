@@ -13,6 +13,8 @@ const utils = Shopware.Utils;
 
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+const FOREIGN_KEY_CONSTRAINT_VIOLATION_CODE = '1451';
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -104,6 +106,9 @@ export default {
             mainCategoriesCollection: null,
             footerCategoriesCollection: null,
             serviceCategoriesCollection: null,
+            defaultMeasurementSystemId: null,
+            defaultLengthUnitId: null,
+            defaultWeightUnitId: null,
         };
     },
 
@@ -163,6 +168,14 @@ export default {
 
             criteria.addSorting(Criteria.sort('position', 'ASC'));
             criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
+        },
+
+        languageCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.equals('active', true));
 
             return criteria;
         },
@@ -486,6 +499,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -525,6 +541,9 @@ export default {
         });
 
         this.createCategoryCollections();
+        this.defaultMeasurementSystemId = this.salesChannel?.measurementSystemId;
+        this.defaultLengthUnitId = this.salesChannel?.lengthUnitId;
+        this.defaultWeightUnitId = this.salesChannel?.weightUnitId;
     },
 
     methods: {
@@ -594,17 +613,57 @@ export default {
         onConfirmDelete() {
             this.showDeleteModal = false;
 
-            this.$nextTick(() => {
-                this.deleteSalesChannel(this.salesChannel.id);
+            this.$nextTick(async () => {
+                const success = await this.deleteSalesChannel(this.salesChannel.id);
+
+                if (!success) {
+                    return;
+                }
+
                 this.$router.push({ name: 'sw.dashboard.index' });
             });
         },
 
         deleteSalesChannel(salesChannelId) {
-            this.salesChannelRepository.delete(salesChannelId, Context.api).then(() => {
-                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
-                this.salesChannelFavoritesService.refresh();
-            });
+            return this.salesChannelRepository
+                .delete(salesChannelId, Context.api)
+                .then(() => {
+                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
+                    this.salesChannelFavoritesService.refresh();
+
+                    return true;
+                })
+                .catch((error) => {
+                    const current = error?.response?.data?.errors?.[0];
+                    const assignment = this.extractFkInfo(current?.detail);
+
+                    if (current?.code === FOREIGN_KEY_CONSTRAINT_VIOLATION_CODE && assignment) {
+                        Shopware.Store.get('error').resetApiErrors();
+                        const translated = this.$t(`global.entities.${assignment}`, 0).toLowerCase();
+
+                        this.createNotificationError({
+                            message: this.$t('sw-sales-channel.detail.foreignKeyDelete', {
+                                assignment: translated,
+                            }),
+                        });
+
+                        return false;
+                    }
+
+                    throw error;
+                });
+        },
+
+        extractFkInfo(detail = '') {
+            if (!detail.includes('Integrity constraint violation: 1451')) return null;
+
+            // matches e.g. "CONSTRAINT `fk.customer."
+            const match = detail.match(/CONSTRAINT `fk\.([^.]+)\./);
+
+            if (!match) return null;
+
+            // returns e.g. "customer"
+            return match[1];
         },
 
         async copyToClipboard() {

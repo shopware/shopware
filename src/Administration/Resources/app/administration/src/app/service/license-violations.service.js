@@ -35,13 +35,47 @@ export default function createLicenseViolationsService(storeService) {
 
     function checkForLicenseViolations() {
         const hostname = window.location.hostname;
+        const emptyViolationsResponse = Promise.resolve({
+            warnings: [],
+            violations: [],
+            other: [],
+        });
 
         if (hostname === '[::1]' || hostname === '127.0.0.1') {
-            return Promise.resolve({
-                warnings: [],
-                violations: [],
-                other: [],
-            });
+            return emptyViolationsResponse;
+        }
+
+        const ipv4Match = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+
+        if (ipv4Match) {
+            const octet1 = parseInt(ipv4Match[1], 10);
+            const octet2 = parseInt(ipv4Match[2], 10);
+            const octet3 = parseInt(ipv4Match[3], 10);
+            const octet4 = parseInt(ipv4Match[4], 10);
+
+            // Validate IP address octets
+            if (octet1 <= 255 && octet2 <= 255 && octet3 <= 255 && octet4 <= 255) {
+                // Private IP ranges (RFC 1918)
+                // 10.0.0.0/8
+                if (octet1 === 10) {
+                    return emptyViolationsResponse;
+                }
+
+                // 172.16.0.0/12
+                if (octet1 === 172 && octet2 >= 16 && octet2 <= 31) {
+                    return emptyViolationsResponse;
+                }
+
+                // 192.168.0.0/16
+                if (octet1 === 192 && octet2 === 168) {
+                    return emptyViolationsResponse;
+                }
+
+                // CGNAT IP space (RFC 6598): 100.64.0.0/10
+                if (octet1 === 100 && octet2 >= 64 && octet2 <= 127) {
+                    return emptyViolationsResponse;
+                }
+            }
         }
 
         const hostnameParts = hostname.split('.').pop();
@@ -58,11 +92,7 @@ export default function createLicenseViolationsService(storeService) {
 
         // if the user is on a allowlisted domain
         if (allowlistDomains.includes(hostnameParts)) {
-            return Promise.resolve({
-                warnings: [],
-                violations: [],
-                other: [],
-            });
+            return emptyViolationsResponse;
         }
 
         // if last request is not older than 24 hours

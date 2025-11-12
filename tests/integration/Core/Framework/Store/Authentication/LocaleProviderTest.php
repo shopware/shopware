@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -20,6 +21,9 @@ class LocaleProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<UserCollection>
+     */
     private EntityRepository $userRepository;
 
     private LocaleProvider $localeProvider;

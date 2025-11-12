@@ -45,10 +45,6 @@ describe('src/app/mixin/placeholder.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     [
         [
             [

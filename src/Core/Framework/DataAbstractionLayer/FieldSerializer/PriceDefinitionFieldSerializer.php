@@ -175,7 +175,6 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     private function validateRules(array $data, string $basePath): ConstraintViolationList
     {
         $violationList = new ConstraintViolationList();
-        /** @var string|null $type */
         $type = null;
         if (\array_key_exists('_name', $data)) {
             $type = $data['_name'];

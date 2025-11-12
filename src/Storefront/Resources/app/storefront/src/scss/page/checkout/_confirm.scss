@@ -1,5 +1,11 @@
-.is-act-confirmpage,
-.is-ctl-accountorder {
+.is-act-confirmpage, // @deprecated tag:v6.8.0 - Body class `is-act-confirmpage` will be removed, use active route classes starting with `is-active-route-*` instead.
+.is-ctl-accountorder, // @deprecated tag:v6.8.0 - Body class `is-ctl-accountorder` will be removed, use active route classes starting with `is-active-route-frontend-account-*` instead.
+.is-active-route-frontend-checkout-confirm-page,
+.is-active-route-frontend-account-order-page,
+.is-active-route-frontend-account-order-cancel,
+.is-active-route-frontend-account-order-single-page,
+.is-active-route-widgets-account-order-detail,
+.is-active-route-frontend-account-edit-order-page {
     .checkout {
         padding-top: 70px;
 

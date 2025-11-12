@@ -148,7 +148,7 @@
                                                                         class="sw-theme-list-item__option-duplicate"
                                                                         @click="onDuplicateTheme(item)"
                                                                         :disabled="!acl.can('theme.creator')">
-                                                                        {{ $t('sw-theme-manager.actions.duplicate') }}
+                                                                        {{ $t('global.default.duplicate') }}
                                                                     </sw-context-menu-item>
                                                                 {% endblock %}
                                                             </template>
@@ -231,7 +231,7 @@
                                                                             :disabled="!acl.can('theme.creator')"
                                                                             @click="onDuplicateTheme(theme)"
                                                                         >
-                                                                            {{ $t('sw-theme-manager.actions.duplicate') }}
+                                                                            {{ $t('global.default.duplicate') }}
                                                                         </sw-context-menu-item>
                                                                     {% endblock %}
 
@@ -374,7 +374,7 @@
                                             size="small"
                                             @click="onConfirmThemeDuplicate"
                                         >
-                                            {{ $t('sw-theme-manager.modal.buttonDuplicateTheme') }}
+                                            {{ $t('global.default.duplicate') }}
                                         </mt-button>
                                     {% endblock %}
                                 </template>

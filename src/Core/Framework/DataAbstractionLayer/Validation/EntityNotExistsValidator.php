@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('framework')]
 class EntityNotExistsValidator extends ConstraintValidator
@@ -25,7 +25,7 @@ class EntityNotExistsValidator extends ConstraintValidator
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof EntityNotExists) {
-            throw new UnexpectedTypeException($constraint, EntityNotExists::class);
+            throw DataAbstractionLayerException::unexpectedConstraintType($constraint, EntityNotExists::class);
         }
 
         if ($value === null || $value === '') {
@@ -47,7 +47,7 @@ class EntityNotExistsValidator extends ConstraintValidator
             return;
         }
 
-        $this->context->buildViolation($constraint->message)
+        $this->context->buildViolation($constraint->getMessage())
             ->setParameter('{{ entity }}', $this->formatValue($constraint->getEntity()))
             ->setCode(EntityNotExists::ENTITY_EXISTS)
             ->addViolation();

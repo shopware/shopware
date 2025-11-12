@@ -33,6 +33,7 @@ export default class SpatialArViewerPlugin extends Plugin {
     public options!: {
         modelUrl: string;
         spatialArId: string;
+        arPlacement: 'horizontal' | 'vertical' | null;
         snippets: {
             openArView: string;
             launchingArView: string;
@@ -122,7 +123,7 @@ export default class SpatialArViewerPlugin extends Plugin {
             }
 
             await this.arSystem.launch(this.modelUrl, {
-                arPlacement: 'horizontal', // only place on horizontal surfaces
+                arPlacement: this.options.arPlacement ?? 'horizontal', // only place on horizontal surfaces
                 arScale: 'auto', // make model scalable
             });
         } catch (error: unknown) {

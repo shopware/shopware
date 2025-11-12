@@ -478,6 +478,6 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
             'type' => $type,
         ];
 
-        return (string) json_encode($result, \JSON_THROW_ON_ERROR);
+        return json_encode($result, \JSON_THROW_ON_ERROR);
     }
 }

@@ -5,7 +5,8 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
-use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -33,6 +34,9 @@ class MediaGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaDefaultFolderCollection> $defaultFolderRepository
+     * @param EntityRepository<MediaFolderCollection> $folderRepository
      */
     public function __construct(
         private readonly EntityWriterInterface $writer,
@@ -59,7 +63,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
         $mediaFolderId = $this->getOrCreateDefaultFolder($context);
         $downloadFolderId = $this->getOrCreateDefaultFolder($context, true);
-        $tags = $this->getIds('tag');
+        $tags = $this->getIds();
 
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $isDownloadFile = $i % 30 === 0;
@@ -131,10 +135,10 @@ class MediaGenerator implements DemodataGeneratorInterface
     /**
      * @return list<string>
      */
-    private function getIds(string $table): array
+    private function getIds(): array
     {
         /** @var list<string> $ids */
-        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM tag LIMIT 500');
 
         return $ids;
     }
@@ -196,8 +200,10 @@ class MediaGenerator implements DemodataGeneratorInterface
             return $mediaFolderId;
         }
 
-        /** @var MediaDefaultFolderEntity $defaultFolder */
-        $defaultFolder = $defaultFolders->first();
+        $defaultFolder = $defaultFolders->getEntities()->first();
+        if (!$defaultFolder) {
+            return $mediaFolderId;
+        }
 
         if ($defaultFolder->getFolder()) {
             return $defaultFolder->getFolder()->getId();

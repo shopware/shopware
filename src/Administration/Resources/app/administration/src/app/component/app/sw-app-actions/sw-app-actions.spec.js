@@ -104,21 +104,6 @@ describe('sw-app-actions', () => {
         }
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(router);
-
-        router.push({ name: 'sw.product.detail' });
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-
-        expect(wrapper.classes()).toEqual(
-            expect.arrayContaining([
-                'sw-app-actions',
-            ]),
-        );
-    });
-
     it('creates an sw-app-action-button per action', async () => {
         wrapper = await createWrapper(router);
 

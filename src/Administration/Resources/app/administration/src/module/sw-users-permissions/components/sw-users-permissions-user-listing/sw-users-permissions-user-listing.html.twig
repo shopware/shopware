@@ -21,7 +21,19 @@
             {% endblock %}
 
             {% block sw_settings_user_list_actions_create_user %}
+
             <mt-button
+                v-if="isSso"
+                size="small"
+                :disabled="!acl.can('users_and_permissions.creator') || undefined"
+                class="sw-users-permissions-user-listing__add-user-button"
+                variant="primary"
+                @click="openInvitationModal"
+            >
+                {{ $tc('sw-users-permissions.sso.inviteButtonLabel') }}
+            </mt-button>
+            <mt-button
+                v-else
                 ghost
                 size="small"
                 :disabled="!acl.can('users_and_permissions.creator') || undefined"
@@ -31,6 +43,13 @@
             >
                 {{ $tc('sw-users-permissions.users.general.labelCreateNewUser') }}
             </mt-button>
+
+            <sw-user-sso-invitation-modal
+                v-if="showInvitationModal"
+                @modal-close="closeInvitationModal"
+                @user-invited="onUserInvited"
+                @invitation-failed="invitationFailed"
+            />
             {% endblock %}
             {% endblock %}
         </sw-container>
@@ -54,7 +73,7 @@
             <sw-context-menu-item
                 class="sw-settings-user-list__user-view-action"
                 :disabled="!acl.can('users_and_permissions.editor') || undefined"
-                :router-link="{ name: 'sw.users.permissions.user.detail', params: { id: item.id } }"
+                :router-link="{ name: 'sw.users.permissions.user.sso.detail', params: { id: item.id } }"
             >
                 {{ $tc('sw-users-permissions.users.user-grid.contextMenuEdit') }}
             </sw-context-menu-item>
@@ -76,6 +95,7 @@
         {% block sw_settings_user_list_column_username_preview %}
         <template #preview-username="{ item, compact }">
             <sw-avatar
+                v-if="!isSso"
                 :size="compact ? '32px' : '48px'"
                 :first-name="item.firstName"
                 :last-name="item.lastName"
@@ -95,6 +115,12 @@
                 {{ item.username }}
             </router-link>
             {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_settings_user_list_column_status %}
+        <template #column-status="{item}">
+            <sw-user-sso-status-label :user="item" />
         </template>
         {% endblock %}
 
@@ -143,6 +169,7 @@
 
                 {% block sw_settings_user_list_delete_modal_input__confirm_password %}
                 <mt-password-field
+                    v-if="!isSso"
                     v-model="confirmPassword"
                     class="sw-settings-user-detail__confirm-password"
                     required
@@ -169,7 +196,7 @@
 
                     {% block sw_settings_user_list_delete_modal_confirm %}
                     <mt-button
-                        :disabled="!confirmPassword || undefined"
+                        :disabled="!confirmPassword && !isSso || undefined"
                         :is-loading="isConfirmingPassword"
                         variant="critical"
                         size="small"

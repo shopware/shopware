@@ -46,12 +46,6 @@ describe('module/sw-cms/elements/location-renderer/component', () => {
         jest.clearAllMocks();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should publish with the correct data id', async () => {
         await createWrapper();
 

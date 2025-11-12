@@ -43,8 +43,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-use function Symfony\Component\String\u;
-
 /**
  * @internal
  */
@@ -196,8 +194,8 @@ class ThemeTest extends TestCase
         $technicalName = $childTheme->getTechnicalName();
         static::assertIsString($technicalName);
         static::assertSame(
-            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
+            'default.themeColors.default.sw-color-brand-primary.label',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey'],
         );
     }
 
@@ -248,8 +246,8 @@ class ThemeTest extends TestCase
 
         $childThemeFields = $this->themeService->getThemeConfigurationFieldStructure($childTheme->getId(), $this->context);
         static::assertSame(
-            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
+            'default.themeColors.default.sw-color-brand-primary.label',
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey'],
         );
     }
 
@@ -518,7 +516,7 @@ class ThemeTest extends TestCase
             static::assertTrue($themeCompiled);
         } catch (ThemeCompileException $e) {
             // ignore files not found exception
-            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
+            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". `~vendor/bootstrap/scss/functions` file not found for @import: src/Storefront/Resources/app/storefront/src/scss/variables.scss')) {
                 throw $e;
             }
         }
@@ -776,11 +774,6 @@ class ThemeTest extends TestCase
             $this->themeService->updateTheme(
                 $childTheme->getId(),
                 [
-                    'fields' => [
-                        'some-custom' => [
-                            'editable' => true,
-                        ],
-                    ],
                     'test' => [
                         'value' => [false],
                     ],
@@ -790,7 +783,7 @@ class ThemeTest extends TestCase
             );
         } catch (ThemeCompileException $e) {
             // ignore files not found exception
-            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
+            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". `~vendor/bootstrap/scss/functions` file not found for @import: src/Storefront/Resources/app/storefront/src/scss/variables.scss')) {
                 throw $e;
             }
         }
@@ -803,11 +796,6 @@ class ThemeTest extends TestCase
 
         static::assertEquals(
             [
-                'fields' => [
-                    'some-custom' => [
-                        'editable' => true,
-                    ],
-                ],
                 'test' => [
                     'value' => [false],
                 ],

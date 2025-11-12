@@ -63,10 +63,11 @@ class PercentagePriceCalculatorTest extends TestCase
         yield [self::getDifferentTaxesCalculation()];
         yield [self::getOneHundredPercentageCalculation()];
         yield [self::getFiftyPercentageCalculation()];
-        yield [self::regression_next_12270()];
+        yield [self::regressionNext12270()];
+        yield [self::regressionIssue2938()];
     }
 
-    private static function regression_next_12270(): PercentageCalculation
+    private static function regressionNext12270(): PercentageCalculation
     {
         $calculator = self::createQuantityPriceCalculator();
 
@@ -86,11 +87,39 @@ class PercentagePriceCalculatorTest extends TestCase
                 -10.4,
                 -10.4,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(-1.80, 21, -10.4),
+                    new CalculatedTax(-1.81, 21, -10.4),
                 ]),
                 new TaxRuleCollection([new TaxRule(21)])
             ),
             new PriceCollection([$price])
+        );
+    }
+
+    private static function regressionIssue2938(): PercentageCalculation
+    {
+        $calculator = self::createQuantityPriceCalculator();
+
+        $priceDefinition = new QuantityPriceDefinition(5.00, new TaxRuleCollection([new TaxRule(7, 100)]), 1);
+        $price1 = $calculator->calculate($priceDefinition, Generator::generateSalesChannelContext());
+        static::assertSame(5.0, $price1->getTotalPrice());
+        static::assertSame(0.33, $price1->getCalculatedTaxes()->getAmount());
+
+        $priceDefinition = new QuantityPriceDefinition(5.90, new TaxRuleCollection([new TaxRule(7, 100)]), 1);
+        $price2 = $calculator->calculate($priceDefinition, Generator::generateSalesChannelContext());
+        static::assertSame(5.9, $price2->getTotalPrice());
+        static::assertSame(0.39, $price2->getCalculatedTaxes()->getAmount());
+
+        return new PercentageCalculation(
+            -100,
+            new CalculatedPrice(
+                -10.9,
+                -10.9,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(-0.72, 7, -10.9),
+                ]),
+                new TaxRuleCollection([new TaxRule(7)])
+            ),
+            new PriceCollection([$price1, $price2])
         );
     }
 

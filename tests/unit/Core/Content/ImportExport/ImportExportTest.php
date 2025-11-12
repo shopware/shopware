@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
@@ -67,13 +69,16 @@ class ImportExportTest extends TestCase
         $importExportService = $this->createMock(ImportExportService::class);
         $importExportService->method('findLog')->willReturn($logEntity);
 
+        /** @var StaticEntityRepository<OrderCollection> */
+        $repository = new StaticEntityRepository([], new OrderDefinition());
+
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
             $this->createMock(FilesystemOperator::class),
             new EventDispatcher(),
             $this->createMock(Connection::class),
-            new StaticEntityRepository([], new OrderDefinition()),
+            $repository,
             $pipe,
             $reader,
             $writer,
@@ -155,13 +160,16 @@ class ImportExportTest extends TestCase
         $importStrategyService->method('import')->willReturn(new ImportResult([], []));
         $importStrategyService->method('commit')->willReturn(new ImportResult([], []));
 
+        /** @var StaticEntityRepository<CustomerCollection> */
+        $repository = new StaticEntityRepository([], new CustomerDefinition());
+
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
             $this->createMock(FilesystemOperator::class),
             $eventDispatcher,
             $this->createMock(Connection::class),
-            new StaticEntityRepository([], new CustomerDefinition()),
+            $repository,
             $pipe,
             $reader,
             $writer,
@@ -210,13 +218,16 @@ class ImportExportTest extends TestCase
         $writer = $this->createMock(AbstractWriter::class);
         $writer->expects($this->never())->method('append');
 
+        /** @var StaticEntityRepository<CustomerCollection> */
+        $repository = new StaticEntityRepository([], new CustomerDefinition());
+
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
             $this->createMock(FilesystemOperator::class),
             $eventDispatcher,
             $this->createMock(Connection::class),
-            new StaticEntityRepository([], new CustomerDefinition()),
+            $repository,
             $pipe,
             $reader,
             $writer,
@@ -278,6 +289,7 @@ class ImportExportTest extends TestCase
 
         $orderId = Uuid::randomHex();
 
+        /** @var StaticEntityRepository<OrderCollection> */
         $repository = new StaticEntityRepository(
             [new EntitySearchResult(
                 OrderEntity::class,
@@ -411,6 +423,7 @@ class ImportExportTest extends TestCase
             }
         );
 
+        /** @var StaticEntityRepository<OrderCollection> */
         $repository = new StaticEntityRepository(
             [new EntitySearchResult(
                 OrderEntity::class,
@@ -563,13 +576,16 @@ class ImportExportTest extends TestCase
         $writer->expects($this->exactly(1))->method('flush');
         $writer->expects($this->exactly(1))->method('finish');
 
+        /** @var StaticEntityRepository<OrderCollection> */
+        $repository = new StaticEntityRepository([], new OrderDefinition());
+
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
             $this->createMock(FilesystemOperator::class),
             $eventDispatcher,
             $this->createMock(Connection::class),
-            new StaticEntityRepository([], new OrderDefinition()),
+            $repository,
             $pipe,
             $reader,
             $writer,

@@ -24,8 +24,8 @@
             padding: 0 0 0 4px;
         }
     }
-}
 
-.mt-popover.is--width-large .mt-popover__content {
-    padding: 0;
+    &.mt-floating-ui__content.mt-floating-ui--top .mt-popover__content {
+        padding: 0;
+    }
 }

@@ -80,11 +80,6 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
         Shopware.Store.get('swProductDetail').product = product;
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the sw-media-upload-v2 component', async () => {
         global.activeAclRoles = ['product.editor'];
 

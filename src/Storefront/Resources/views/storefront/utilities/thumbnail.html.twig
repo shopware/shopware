@@ -70,7 +70,12 @@
         {% endif %}
 
         {% for thumbnail in thumbnails %}
-            {% set srcsetValues = srcsetValues|merge([thumbnail.url|sw_encode_url ~ ' ' ~ thumbnail.width ~ 'w']) %}
+            {% set thumbnailUrl = thumbnail.url|sw_encode_url %}
+            {% if feature('v6.8.0.0') %}
+                {% set thumbnailUrl = thumbnail.url %}
+            {% endif %}
+
+            {% set srcsetValues = srcsetValues|merge([thumbnailUrl ~ ' ' ~ thumbnail.width ~ 'w']) %}
         {% endfor %}
 
         {# generate sizes #}

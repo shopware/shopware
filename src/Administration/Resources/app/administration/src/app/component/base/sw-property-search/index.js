@@ -85,7 +85,7 @@ export default {
 
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addSorting(Criteria.sort('name', 'ASC', true));
 
             if (this.currentGroup) {
                 criteria.addFilter(Criteria.equals('groupId', this.currentGroup.id));

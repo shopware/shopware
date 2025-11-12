@@ -123,10 +123,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         await flushPromises();
     });
 
-    it('should be a Vue.js Component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should sort criterias by their position', async () => {
         function getRowValuesAt(index) {
             function getContentOfCell(columnName) {

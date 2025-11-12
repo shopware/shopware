@@ -48,9 +48,9 @@ class Metadata extends XmlElement
 
     protected string $copyright;
 
-    protected ?string $license;
+    protected ?string $license = null;
 
-    protected ?string $compatibility;
+    protected ?string $compatibility = null;
 
     protected string $version;
 
@@ -191,11 +191,11 @@ class Metadata extends XmlElement
          *      type: string,
          *      author: string,
          *      copyright: string,
-         *      license: ?string,
-         *      compatibility: ?string,
-         *      version: ?string,
-         *      icon: ?string,
-         *      privacy: ?string,
+         *      license?: string,
+         *      compatibility?: string,
+         *      version?: string,
+         *      icon?: string,
+         *      privacy?: string,
          *      privacyPolicyExtensions: array<string, string>,
          *  } $values
          */

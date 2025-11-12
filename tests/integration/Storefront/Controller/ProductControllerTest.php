@@ -8,12 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -231,7 +233,11 @@ class ProductControllerTest extends TestCase
         $controller = static::getContainer()->get(ProductController::class);
 
         if ($shouldThrowException) {
-            $this->expectException(ProductNotFoundException::class);
+            if (!Feature::isActive('v6.8.0.0')) {
+                $this->expectException(ProductNotFoundException::class);
+            } else {
+                $this->expectException(ProductException::class);
+            }
         }
 
         $response = $controller->index($context, $this->createDetailRequest($context, $this->ids->get($requestVariant)));

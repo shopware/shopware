@@ -269,8 +269,6 @@ EOF;
             ->get('currency.repository')
             ->upsert([$currency], Context::createDefaultContext());
 
-        $ids = new IdsCollection();
-
         static::getContainer()
             ->get(EntityWriter::class)
             ->insert($definition, $records, WriteContext::createFromContext(Context::createDefaultContext()));
@@ -502,8 +500,6 @@ EOF;
         static::getContainer()
             ->get('currency.repository')
             ->upsert([$currency], Context::createDefaultContext());
-
-        $ids = new IdsCollection();
 
         static::getContainer()
             ->get(EntityWriter::class)

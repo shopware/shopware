@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -429,6 +430,7 @@ class EntityReaderTest extends TestCase
                 'name' => 'en_sub',
                 'parentId' => Defaults::LANGUAGE_SYSTEM,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                'active' => true,
             ],
         ], $context);
 
@@ -479,6 +481,7 @@ class EntityReaderTest extends TestCase
                 'name' => 'en_sub',
                 'parentId' => Defaults::LANGUAGE_SYSTEM,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                'active' => true,
             ],
         ], $context);
 
@@ -1251,8 +1254,6 @@ class EntityReaderTest extends TestCase
         $addressId5 = Uuid::randomHex();
         $addressId6 = Uuid::randomHex();
 
-        $repository = $this->customerRepository;
-
         $address = [
             'street' => 'A',
             'zipcode' => 'A',
@@ -2004,6 +2005,7 @@ class EntityReaderTest extends TestCase
 
     public function testReadRelationWithNestedToManyRelations(): void
     {
+        $ids = new IdsCollection();
         $context = Context::createDefaultContext();
 
         $data = [
@@ -2018,11 +2020,12 @@ class EntityReaderTest extends TestCase
             'cover' => [
                 'position' => 1,
                 'media' => [
+                    'id' => $ids->get('media'),
                     'name' => 'test-image',
                     'thumbnails' => [
-                        ['id' => Uuid::randomHex(), 'width' => 10, 'height' => 10, 'highDpi' => true],
-                        ['id' => Uuid::randomHex(), 'width' => 20, 'height' => 20, 'highDpi' => true],
-                        ['id' => Uuid::randomHex(), 'width' => 30, 'height' => 30, 'highDpi' => true],
+                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 10, 'height' => 10, 'highDpi' => true, 'mediaThumbnailSize' => ['width' => 10, 'height' => 10]],
+                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 20, 'height' => 20, 'highDpi' => true, 'mediaThumbnailSize' => ['width' => 20, 'height' => 20]],
+                        ['id' => Uuid::randomHex(), 'mediaId' => $ids->get('media'), 'width' => 30, 'height' => 30, 'highDpi' => true, 'mediaThumbnailSize' => ['width' => 30, 'height' => 30]],
                     ],
                 ],
             ],
@@ -2230,7 +2233,7 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<EntityCollection<Entity>> $repository */
         $repository = static::getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());
@@ -2269,7 +2272,7 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<EntityCollection<Entity>> $repository */
         $repository = static::getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());

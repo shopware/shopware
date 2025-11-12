@@ -83,6 +83,7 @@
             ref="resultsList"
             :options="results"
             :is-loading="isLoading"
+            :popover-classes="popoverClasses"
             :empty-message="$tc('global.sw-single-select.messageNoResults', { term: searchTerm })"
             :focus-el="$refs.swSelectInput"
             @paginate="paginate"

@@ -63,7 +63,7 @@ class StaticEntityRepository extends EntityRepository
 
         try {
             $definition->getFields();
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             $registry = new StaticDefinitionInstanceRegistry(
                 [$definition],
                 Validation::createValidator(),
@@ -129,9 +129,14 @@ class StaticEntityRepository extends EntityRepository
 
         // flat array of ids
         if (\array_key_exists(0, $result) && \is_string($result[0])) {
-            $result = \array_map(fn (string $id) => ['primaryKey' => $id, 'data' => []], $result);
+            $tmpResult = [];
+            foreach ($result as $id) {
+                $tmpResult[$id] = ['primaryKey' => $id, 'data' => []];
+            }
+            $result = $tmpResult;
         }
 
+        /** @phpstan-ignore return.type (Somehow does not get the generic type correct) */
         return new IdSearchResult(\count($result), $result, $criteria, $context);
     }
 

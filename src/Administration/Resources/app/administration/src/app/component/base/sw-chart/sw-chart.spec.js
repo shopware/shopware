@@ -74,11 +74,6 @@ describe('asyncComponent/base/sw-chart', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await setup();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should override some default options', async () => {
         const referenceFont = '"Comic Sans MS", cursive, sans-serif';
         const referenceText = 'Check against Comic Sans MS';

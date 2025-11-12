@@ -2,9 +2,17 @@ import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
 
 export default class RemoveFromCart extends AnalyticsEvent
 {
-    supports() {
+    /* eslint-disable no-unused-vars */
+    /**
+     * @param {string} controllerName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
+     * @param {string} actionName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
+     * @param {string} activeRoute
+     * @returns {boolean}
+     */
+    supports(controllerName, actionName, activeRoute) {
         return true;
     }
+    /* eslint-enable no-unused-vars */
 
     execute() {
         document.addEventListener('click', this._onRemoveFromCart.bind(this));

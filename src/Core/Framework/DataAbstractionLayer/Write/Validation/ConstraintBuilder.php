@@ -17,6 +17,9 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('framework')]
 class ConstraintBuilder
 {
+    /**
+     * @var Constraint[]
+     */
     private array $constraints = [];
 
     /**
@@ -38,35 +41,39 @@ class ConstraintBuilder
 
     public function isBool(): self
     {
-        $this->addConstraint(new Type('bool'));
+        $this->addConstraint(new Type(type: 'bool'));
 
         return $this;
     }
 
     public function isString(): self
     {
-        $this->addConstraint(new Type('string'));
+        $this->addConstraint(new Type(type: 'string'));
 
         return $this;
     }
 
     public function isNumeric(): self
     {
-        $this->addConstraint(new Type('numeric'));
+        $this->addConstraint(new Type(type: 'numeric'));
 
         return $this;
     }
 
     public function isFloat(): self
     {
-        $this->addConstraint(new Type('numeric'));
+        $this->addConstraint(new Type(type: 'numeric'));
 
         return $this;
     }
 
     public function isLengthLessThanOrEqual(int $maxLength): self
     {
-        $this->addConstraint(new Length(['max' => $maxLength]));
+        if ($maxLength < 1) {
+            $maxLength = null;
+        }
+
+        $this->addConstraint(new Length(max: $maxLength));
 
         return $this;
     }
@@ -104,7 +111,7 @@ class ConstraintBuilder
      */
     public function isEmail(): self
     {
-        $this->addConstraint(new Email(['mode' => 'strict']));
+        $this->addConstraint(new Email(mode: 'strict'));
 
         return $this;
     }
@@ -120,7 +127,8 @@ class ConstraintBuilder
     }
 
     /**
-     * Set prop must be in array
+     * @param array<string> $values
+     *                              Set prop must be in array
      */
     public function isInArray(array $values): self
     {

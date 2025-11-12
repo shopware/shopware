@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
@@ -27,8 +28,11 @@ class AppLifecycleIteratorTest extends TestCase
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
 
+        /** @var StaticEntityRepository<AppCollection> */
+        $repository = new StaticEntityRepository([new EntityCollection(), new EntityCollection()]);
+
         $lifecycle = new AppLifecycleIterator(
-            new StaticEntityRepository([new EntityCollection(), new EntityCollection()]),
+            $repository,
             $appLoader
         );
 
@@ -56,8 +60,11 @@ class AppLifecycleIteratorTest extends TestCase
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
 
+        /** @var StaticEntityRepository<AppCollection> */
+        $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
+
         $lifecycle = new AppLifecycleIterator(
-            new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]),
+            $repository,
             $appLoader
         );
 
@@ -86,8 +93,11 @@ class AppLifecycleIteratorTest extends TestCase
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
 
+        /** @var StaticEntityRepository<AppCollection> */
+        $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
+
         $lifecycle = new AppLifecycleIterator(
-            new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]),
+            $repository,
             $appLoader
         );
 
@@ -113,8 +123,11 @@ class AppLifecycleIteratorTest extends TestCase
 
         $appLoader = $this->createMock(AppLoader::class);
 
+        /** @var StaticEntityRepository<AppCollection> */
+        $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
+
         $lifecycle = new AppLifecycleIterator(
-            new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]),
+            $repository,
             $appLoader
         );
 
@@ -141,8 +154,11 @@ class AppLifecycleIteratorTest extends TestCase
 
         $appLoader = $this->createMock(AppLoader::class);
 
+        /** @var StaticEntityRepository<AppCollection> */
+        $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
+
         $lifecycle = new AppLifecycleIterator(
-            new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]),
+            $repository,
             $appLoader
         );
 
@@ -166,8 +182,11 @@ class AppLifecycleIteratorTest extends TestCase
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
 
+        /** @var StaticEntityRepository<AppCollection> */
+        $repository = new StaticEntityRepository([new EntityCollection(), new EntityCollection()]);
+
         $lifecycle = new AppLifecycleIterator(
-            new StaticEntityRepository([new EntityCollection(), new EntityCollection()]),
+            $repository,
             $appLoader
         );
 

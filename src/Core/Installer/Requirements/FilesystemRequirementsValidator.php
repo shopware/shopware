@@ -15,10 +15,8 @@ class FilesystemRequirementsValidator implements RequirementsValidatorInterface
 {
     private const NEEDED_DIRECTORY_PATHS = [
         '.',
-        'var/log/',
         'var/cache/',
         'public/',
-        'config/jwt/',
     ];
 
     public function __construct(private readonly string $projectDir)

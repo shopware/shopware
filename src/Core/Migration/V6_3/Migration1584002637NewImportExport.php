@@ -123,7 +123,7 @@ class Migration1584002637NewImportExport extends MigrationStep
     }
 
     /**
-     * @return array<int, array{id: string, width: int, height: int}>
+     * @return list<array{id: string, width: int, height: int}>
      */
     private function getThumbnailSizes(Connection $connection): array
     {
@@ -134,7 +134,7 @@ class Migration1584002637NewImportExport extends MigrationStep
         ];
 
         $sizes = [];
-        foreach ($thumbnailSizes as $i => $thumbnailSize) {
+        foreach ($thumbnailSizes as $thumbnailSize) {
             $id = $connection->fetchOne(
                 'SELECT id FROM media_thumbnail_size WHERE width = :width AND height = :height',
                 ['width' => $thumbnailSize['width'], 'height' => $thumbnailSize['height']]

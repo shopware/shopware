@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\UsageDataException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -20,6 +21,9 @@ class ConsentService
 {
     public const SYSTEM_CONFIG_KEY_CONSENT_STATE = 'core.usageData.consentState';
 
+    /**
+     * @param EntityRepository<SystemConfigCollection> $systemConfigRepository
+     */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly EntityRepository $systemConfigRepository,
@@ -83,7 +87,7 @@ class ConsentService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('configurationKey', self::SYSTEM_CONFIG_KEY_CONSENT_STATE));
         $criteria->setLimit(1);
-        $entitySearchResult = $this->systemConfigRepository->search($criteria, Context::createDefaultContext());
+        $entitySearchResult = $this->systemConfigRepository->search($criteria, Context::createDefaultContext())->getEntities();
         $config = $entitySearchResult->first();
 
         $updatedAt = $config?->getUpdatedAt();

@@ -116,17 +116,12 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         'mt-select': true,
                         'mt-text-field': true,
                         'router-link': true,
+                        'sw-time-ago': true,
                     },
                 },
             },
         );
     }
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it.each([
         [

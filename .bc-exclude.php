@@ -11,43 +11,39 @@ return [
         '**/src/Core/Profiling/Doctrine/BacktraceDebugDataHolder.php', // dev dependency
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
+        '**/src/Core/Framework/App/AppException.php', // intended to be internal
     ],
     'errors' => [
+        // Don't complain about doctrine library changes
+        'Doctrine\\\\DBAL',
+
         // Will be typed in Symfony 8 (maybe)
-        'Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure\(\) changed from no type to void',
+        preg_quote('Symfony\Component\Console\Command\Command#configure() changed from no type to void', '/'),
 
-        'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
-        // major
-        'Value of constant Shopware\\\\Core\\\\Kernel::SHOPWARE_FALLBACK_VERSION changed from \'6.6.9999999-dev\' to \'6.7.9999999-dev\'',
+        // Version-related const values changed for the 7.3 update
+        preg_quote('Value of constant Symfony\Component\HttpKernel\Kernel', '/'),
 
-        // Can be removed before RC release
-        'Shopware\\\\Core\\\\Framework\\\\Log\\\\LogEntryEntity.* array|null',
+        // Cannot be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+        'An enum expression .* is not supported in .*',
 
         // Incorrectly deprecated
         'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException.* changed from self',
+        preg_quote('The return type of Shopware\Core\Content\Product\ProductException::productNotFound() changed from self|Shopware\Core\Content\Product\Exception\ProductNotFoundException to Shopware\Core\Content\Product\Exception\ProductNotFoundException', '/'),
 
-        // Expected to be appended when new event is added
-        'Value of constant Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable',
+        // Expected to be appended when a new event is added
+        preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
-        // Adding optional parameters to a constructor is not a BC
-        'ADDED: Parameter prefixMatch was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig',
-        'ADDED: Parameter label was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax',
-        'ADDED: Parameter senderName was added to Method __construct\(\) of class Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\SendMailTemplateParams',
-        'ADDED: Parameter response was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\ElasticsearchEntitySearcherSearchedEvent',
+        // No break as mixed is the top type, and every other type is a subtype of mixed
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Util\Random::getRandomArrayElement() changed from no type to mixed', '/'),
 
-        // Fix to make promotions work with order recalculation
-        'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
+        // Domain exceptions should not be extended in 3rd party code
+        preg_quote('ADDED: Parameter domain was added to Method invalidDomain() of class Shopware\Core\System\SystemConfig\SystemConfigException', '/'),
 
-        // No break as mixed is the top type and every other type is a subtype of mixed
-        'The parameter \$value of Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent#setParameter\(\) changed from no type to mixed',
+        // Type widening from string to ParsedRobots|string is backward compatible - all existing string usage continues to work
+        preg_quote('CHANGED: The parameter $rules of Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct#__construct() changed from string to Shopware\Storefront\Page\Robots\Parser\ParsedRobots|string', '/'),
 
-        // No break as the `{get,set}SeoLink()` changes have not been released
-        'REMOVED: Property Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\SalesChannelCategoryEntity#\$seoLink was removed',
-        'REMOVED: Method Shopware\\\\Core\\\\Content\\\\Category\\\\SalesChannel\\\\SalesChannelCategoryEntity#(get|set)SeoLink\(\) was removed',
-
-        'ADDED: Parameter visibility was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Plugin\\\\CopyBatchInput',
-
-        // The type has been extended and the old type is still accepted
-        'CHANGED: The parameter \$context of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\BuildBreadcrumbExtension#(getFullBreadcrumb|getFullBreadcrumbById)\(\) changed from Shopware\\\\Core\\\\Framework\\\\Context to Shopware\\\\Core\\\\Framework\\\\Context\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext',
+        // Should have been internal in the first place, all the other changelog classes were internal and already removed
+        preg_quote('REMOVED: Class Shopware\Core\Framework\Changelog\ChangelogSection has been deleted'),
+        preg_quote('REMOVED: Class Shopware\Core\Framework\Changelog\ChangelogKeyword has been deleted'),
     ],
 ];

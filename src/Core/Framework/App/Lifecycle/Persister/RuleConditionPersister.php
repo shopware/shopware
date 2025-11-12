@@ -95,7 +95,6 @@ class RuleConditionPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        /** @var array<string> $scripts */
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $scripts);
@@ -109,7 +108,6 @@ class RuleConditionPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        /** @var array<string> $scripts */
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $scripts);
@@ -188,7 +186,7 @@ class RuleConditionPersister
             }
 
             if ($field instanceof MultiSelectField) {
-                $constraints[$field->getName()][] = new All([new Choice(array_keys($field->getOptions()))]);
+                $constraints[$field->getName()][] = new All(constraints: new Choice(array_keys($field->getOptions())));
 
                 continue;
             }

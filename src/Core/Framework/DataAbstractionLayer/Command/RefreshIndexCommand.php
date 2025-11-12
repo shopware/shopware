@@ -53,14 +53,14 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     {
         $this->io = $input->getOption('no-progress') ? null : new ShopwareStyle($input, $output);
 
-        $skip = \is_string($input->getOption('skip')) ? explode(',', (string) $input->getOption('skip')) : [];
-        $only = \is_string($input->getOption('only')) ? explode(',', (string) $input->getOption('only')) : [];
+        $skip = \is_string($input->getOption('skip')) ? explode(',', $input->getOption('skip')) : [];
+        $only = \is_string($input->getOption('only')) ? explode(',', $input->getOption('only')) : [];
 
         $this->registry->index($input->getOption('use-queue'), $skip, $only);
 
-        $skipEntities = array_map(fn ($indexer) => str_replace('.indexer', '', (string) $indexer), $skip);
+        $skipEntities = array_map(fn ($indexer) => str_replace('.indexer', '', $indexer), $skip);
 
-        $onlyEntities = array_map(fn ($indexer) => str_replace('.indexer', '', (string) $indexer), $only);
+        $onlyEntities = array_map(fn ($indexer) => str_replace('.indexer', '', $indexer), $only);
 
         $event = new RefreshIndexEvent(!$input->getOption('use-queue'), $skipEntities, $onlyEntities);
         $this->eventDispatcher->dispatch($event);

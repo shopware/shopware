@@ -14,6 +14,7 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'customFieldDataProviderService',
     ],
 
     mixins: [
@@ -40,6 +41,12 @@ export default {
         'save-option-edit',
     ],
 
+    data() {
+        return {
+            customFieldSets: null,
+        };
+    },
+
     computed: {
         mediaRepository() {
             return this.repositoryFactory.create('media');
@@ -60,9 +67,26 @@ export default {
         },
 
         ...mapPropertyErrors('currentOption', ['name']),
+
+        showCustomFields() {
+            return this.currentOption && this.customFieldSets && this.customFieldSets.length > 0;
+        },
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.loadCustomFieldSets();
+        },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('property_group_option').then((sets) => {
+                this.customFieldSets = sets;
+            });
+        },
         onCancel() {
             // Remove all property group options
             Shopware.Store.get('error').removeApiError('property_group_option');

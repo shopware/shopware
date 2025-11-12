@@ -42,6 +42,7 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        gap: 20px;
         margin: 40px 200px 20px;
     }
 
@@ -50,7 +51,6 @@
         color: $color-darkgray-200;
         background: #fff;
         padding: 28px 20px;
-        margin-right: 20px;
         text-align: center;
         cursor: pointer;
         border-radius: $border-radius-default;
@@ -67,10 +67,6 @@
 
         .mt-icon {
             margin-bottom: 8px;
-        }
-
-        &:last-child {
-            margin-right: 0;
         }
     }
 }

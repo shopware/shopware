@@ -39,7 +39,10 @@ class RedisInvalidatorStorageTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        $this->redis->flushAll();
+        // Clear the Redis storage only if it was set up and not skipped
+        if (isset($this->redis)) {
+            $this->redis->flushAll();
+        }
     }
 
     public function testLoadWhenEmpty(): void

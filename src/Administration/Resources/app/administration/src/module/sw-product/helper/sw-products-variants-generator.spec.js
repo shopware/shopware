@@ -193,6 +193,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     resolve(data);
                 };
 
+                // eslint-disable-next-line listeners/no-missing-remove-event-listener
                 variantsGenerator.on('queues', queueEventHandler);
 
                 variantsGenerator.generateVariants(currencies, product);

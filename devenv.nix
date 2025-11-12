@@ -24,6 +24,8 @@ in {
   process.manager.implementation = lib.mkDefault "honcho";
 
   dotenv.disableHint = true;
+  cachix.enable = false;
+  devenv.warnOnNewVersion = false;
 
   languages.javascript = {
     enable = lib.mkDefault true;
@@ -92,7 +94,7 @@ in {
 
   services.mysql = {
     enable = true;
-    package = pkgs.mysql80;
+    package = pkgs.mysql84;
     initialDatabases = lib.mkDefault [{ name = "shopware"; }];
     ensureUsers = lib.mkDefault [
       {
@@ -145,4 +147,7 @@ in {
   env.CYPRESS_dbUser = lib.mkDefault "shopware";
   env.CYPRESS_dbPassword = lib.mkDefault "shopware";
   env.CYPRESS_dbName = lib.mkDefault "shopware";
+
+  # Service Registry
+  env.SERVICE_REGISTRY_URL = lib.mkDefault "https://registry.staging-services.shopware.io";
 }

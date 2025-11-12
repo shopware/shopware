@@ -108,11 +108,6 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
         await setupCmsEnvironment();
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the correct page types in selection step', async () => {
         const wrapper = await createWrapper();
         const typeSelection = wrapper.findAll('.sw-cms-create-wizard__page-type');

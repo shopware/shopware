@@ -335,7 +335,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
             $message = $zipcode->getMessage();
 
-            static::assertSame($message, (new CustomerZipCode(['countryId' => $countryId]))->getMessage());
+            static::assertSame($message, (new CustomerZipCode(countryId: $countryId))->getMessage());
 
             return $validationEvent;
         });

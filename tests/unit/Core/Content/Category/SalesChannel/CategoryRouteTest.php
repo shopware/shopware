@@ -25,6 +25,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,7 +36,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -144,7 +144,7 @@ class CategoryRouteTest extends TestCase
             $categoryRepositoryMock,
             $cmsPageLoader,
             new CategoryDefinition(),
-            new EventDispatcher(),
+            $this->createMock(CacheTagCollector::class),
         );
 
         $categoryRoute->load(
@@ -287,7 +287,7 @@ class CategoryRouteTest extends TestCase
             $categoryRepositoryMock,
             $this->createMock(SalesChannelCmsPageLoaderInterface::class),
             new CategoryDefinition(),
-            new EventDispatcher(),
+            $this->createMock(CacheTagCollector::class),
         );
 
         return $categoryRoute->load(

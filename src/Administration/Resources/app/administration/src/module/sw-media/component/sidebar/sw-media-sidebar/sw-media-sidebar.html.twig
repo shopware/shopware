@@ -44,17 +44,11 @@
             @media-folder-renamed="onMediaFolderRenamed"
         />
 
-        <sw-empty-state
+        <mt-empty-state
             v-else
-            :title="$tc('sw-media.sidebar.labelNoMediaSelected')"
-        >
-            <template #icon>
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/media-empty-state.svg')"
-                    :alt="$tc('sw-media.sidebar.labelNoMediaSelected')"
-                >
-            </template>
-        </sw-empty-state>
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-media.sidebar.labelNoMediaSelected')"
+        />
     </div>
     {% endblock %}
 </div>

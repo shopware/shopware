@@ -16,6 +16,8 @@ use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\SharedLockInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -46,6 +48,8 @@ class CacheClearerTest extends TestCase
 
     private string $cacheDir;
 
+    private LockFactory&MockObject $lock;
+
     protected function setUp(): void
     {
         $this->adapters = [
@@ -58,6 +62,12 @@ class CacheClearerTest extends TestCase
         $this->filesystem = new Filesystem(); // Use real filesystem
         $this->messageBus = $this->createMock(MessageBusInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
+
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->method('acquire')->willReturn(true);
+        $this->lock = $this->createMock(LockFactory::class);
+        $this->lock->method('createLock')
+            ->willReturn($lock);
 
         // Create a nested directory structure to avoid scanning system temp directories
         $testBase = sys_get_temp_dir() . '/shopware_test_' . uniqid();
@@ -79,7 +89,8 @@ class CacheClearerTest extends TestCase
             false,
             true,
             $this->messageBus,
-            $this->logger
+            $this->logger,
+            $this->lock
         );
     }
 
@@ -183,7 +194,8 @@ class CacheClearerTest extends TestCase
             false,
             true,
             $this->messageBus,
-            $this->logger
+            $this->logger,
+            $this->lock
         );
 
         foreach ($this->adapters as $adapter) {
@@ -215,7 +227,8 @@ class CacheClearerTest extends TestCase
             true, // cluster mode enabled
             true,
             $this->messageBus,
-            $this->logger
+            $this->logger,
+            $this->lock
         );
 
         foreach ($this->adapters as $adapter) {
@@ -250,7 +263,8 @@ class CacheClearerTest extends TestCase
             false,
             true,
             $this->messageBus,
-            $this->logger
+            $this->logger,
+            $this->lock
         );
 
         foreach ($this->adapters as $adapter) {
@@ -306,7 +320,8 @@ class CacheClearerTest extends TestCase
             true, // cluster mode enabled
             true,
             $this->messageBus,
-            $this->logger
+            $this->logger,
+            $this->lock
         );
 
         $cacheClearer->clearContainerCache();
@@ -361,7 +376,8 @@ class CacheClearerTest extends TestCase
             false,
             true,
             $this->messageBus,
-            $this->logger
+            $this->logger,
+            $this->lock
         );
 
         $cacheClearer->prune();
@@ -407,7 +423,8 @@ class CacheClearerTest extends TestCase
             true, // cluster mode enabled
             true,
             $this->messageBus,
-            $this->logger
+            $this->logger,
+            $this->lock
         );
 
         $cacheClearer->cleanupOldContainerCacheDirectories();
@@ -437,7 +454,8 @@ class CacheClearerTest extends TestCase
             false,
             false,
             $this->messageBus,
-            $this->logger
+            $this->logger,
+            $this->lock
         );
 
         $this->adapters['http']->expects($this->once())->method('clear');
@@ -462,7 +480,8 @@ class CacheClearerTest extends TestCase
             false,
             false, // reverse http cache disabled
             $this->messageBus,
-            $this->logger
+            $this->logger,
+            $this->lock
         );
 
         foreach ($this->adapters as $adapter) {

@@ -37,8 +37,8 @@ class CriteriaArrayConverter
         }
 
         /** @var array<string, mixed> $array */
-        if ($criteria->getOffset()) {
-            $array['page'] = ($criteria->getOffset() / $criteria->getLimit()) + 1;
+        if ($criteria->getOffset() && $criteria->getLimit()) {
+            $array['page'] = $criteria->getOffset() / $criteria->getLimit() + 1;
         }
 
         /** @var array<string, mixed> $array */
@@ -49,6 +49,11 @@ class CriteriaArrayConverter
         /** @var array<string, mixed> $array */
         if ($criteria->getIncludes()) {
             $array['includes'] = $criteria->getIncludes();
+        }
+
+        /** @var array<string, mixed> $array */
+        if ($criteria->getExcludes()) {
+            $array['excludes'] = $criteria->getExcludes();
         }
 
         /** @var array<string, mixed> $array */

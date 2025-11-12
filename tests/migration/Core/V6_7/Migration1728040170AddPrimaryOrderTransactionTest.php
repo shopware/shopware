@@ -66,7 +66,32 @@ class Migration1728040170AddPrimaryOrderTransactionTest extends TestCase
         }
     }
 
-    private function prepareOldDatabaseEntry(): void
+    public function testMigrationWithoutTransaction(): void
+    {
+        $this->rollback();
+        $this->prepareOldDatabaseEntry(false);
+
+        $this->migrate();
+        $this->migrate();
+
+        $manager = $this->connection->createSchemaManager();
+        $columns = $manager->listTableColumns(OrderDefinition::ENTITY_NAME);
+
+        static::assertArrayHasKey('primary_order_transaction_id', $columns);
+        static::assertArrayHasKey('primary_order_transaction_version_id', $columns);
+
+        $query = $this->connection->createQueryBuilder();
+        $query->select('*');
+        $query->from('`order`');
+        $result = $query->executeQuery()->fetchAllAssociative();
+
+        foreach ($result as $row) {
+            static::assertNull($row['primary_order_transaction_id']);
+            static::assertNull($row['primary_order_transaction_version_id']);
+        }
+    }
+
+    private function prepareOldDatabaseEntry(bool $withOrderTransaction = true): void
     {
         $orderId = Uuid::fromHexToBytes(Uuid::randomHex());
         $defaultPaymentMethodId = $this->connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchOne();
@@ -101,19 +126,21 @@ class Migration1728040170AddPrimaryOrderTransactionTest extends TestCase
             ]
         );
 
-        $this->connection->insert(
-            '`order_transaction`',
-            [
-                'id' => Uuid::fromHexToBytes(Uuid::randomHex()),
-                'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                'order_id' => $orderId,
-                'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-                'state_id' => $stateId,
-                'payment_method_id' => $defaultPaymentMethodId,
-                'amount' => 100,
-                'created_at' => '2020-01-01',
-            ]
-        );
+        if ($withOrderTransaction) {
+            $this->connection->insert(
+                '`order_transaction`',
+                [
+                    'id' => Uuid::fromHexToBytes(Uuid::randomHex()),
+                    'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                    'order_id' => $orderId,
+                    'order_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                    'state_id' => $stateId,
+                    'payment_method_id' => $defaultPaymentMethodId,
+                    'amount' => 100,
+                    'created_at' => '2020-01-01',
+                ]
+            );
+        }
     }
 
     private function migrate(): void

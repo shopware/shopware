@@ -20,16 +20,6 @@ class ProductKeywordDictionaryEntity extends Entity
 
     protected ?LanguageEntity $language = null;
 
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
-
     public function getLanguageId(): string
     {
         return $this->languageId;

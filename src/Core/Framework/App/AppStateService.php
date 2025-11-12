@@ -79,7 +79,6 @@ class AppStateService
             throw AppException::restrictDeletePreventsDeactivation($app->getName());
         }
 
-        $this->activeAppsLoader->reset();
         // throw event before deactivating app in db as theme configs from the app need to be removed beforehand
         $event = new AppDeactivatedEvent($app, $context);
         $this->eventDispatcher->dispatch($event);
@@ -91,5 +90,7 @@ class AppStateService
         $this->paymentMethodStateService->deactivatePaymentMethods($appId, $context);
         $this->ruleConditionPersister->deactivateConditionScripts($appId, $context);
         $this->flowEventPersister->deactivateFlow($appId);
+        // reset only after new state is in the DB
+        $this->activeAppsLoader->reset();
     }
 }

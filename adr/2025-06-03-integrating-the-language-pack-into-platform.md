@@ -30,13 +30,13 @@ Translations will be downloaded as JSON files (via admin user interaction or com
 In addition, we will provide new `bin/console` commands in `shopware/shopware` to manage installed languages, for example when building an image for deployment. The initial set of commands will look like this:
 
 ```bash
-$ php bin/console translations
+$ php bin/console translation
 
 Available commands:
-    install [translations] [--all]
-    activate [translations] [--all]
-    deactivate [translations] [--all]
-    uninstall [translations] [--all]
+    install [translation] [--all, --locales]
+    activate [translation] [--all]
+    deactivate [translation] [--all]
+    uninstall [translation] [--all]
     list
 ```
 

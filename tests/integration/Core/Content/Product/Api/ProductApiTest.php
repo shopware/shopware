@@ -64,7 +64,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -103,7 +103,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('PATCH', '/api/product/' . $id, $data);
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -139,7 +139,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('PATCH', '/api/product/' . $id, $data);
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -179,12 +179,12 @@ class ProductApiTest extends TestCase
             'description' => $description,
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
-        $this->getBrowser()->request('GET', '/api/product/' . $id, [], [], [
+        $this->getBrowser()->jsonRequest('GET', '/api/product/' . $id, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
 
@@ -218,11 +218,11 @@ class ProductApiTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
-        $this->getBrowser()->request('POST', '/api/search/product', [], [], [], json_encode([
+        $this->getBrowser()->jsonRequest('POST', '/api/search/product', [
             'includes' => [
                 'product' => ['id', 'name'],
             ],
-        ], \JSON_THROW_ON_ERROR));
+        ]);
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -262,7 +262,7 @@ class ProductApiTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
-        $this->getBrowser()->request('POST', '/api/search/product', [], [], [], json_encode([
+        $this->getBrowser()->jsonRequest('POST', '/api/search/product', [
             'includes' => [
                 'product' => ['id', 'name', 'tax'],
                 'tax' => ['id', 'name'],
@@ -270,7 +270,7 @@ class ProductApiTest extends TestCase
             'associations' => [
                 'tax' => [],
             ],
-        ], \JSON_THROW_ON_ERROR));
+        ]);
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -306,7 +306,7 @@ class ProductApiTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -319,7 +319,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($crossSellingPatch, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('PATCH', '/api/product/' . $id, $crossSellingPatch);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
     }

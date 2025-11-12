@@ -67,7 +67,9 @@ export default Shopware.Component.wrapComponentConfig({
                 ALLOWED_TAGS: [
                     'a',
                     'b',
+                    'strong',
                     'i',
+                    'em',
                     'u',
                     's',
                     'li',

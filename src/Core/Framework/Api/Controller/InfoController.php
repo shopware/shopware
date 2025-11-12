@@ -5,13 +5,14 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
@@ -37,12 +39,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class InfoController extends AbstractController
 {
-    private const API_SCOPE_ADMIN = 'api';
-
     /**
      * @internal
      */
@@ -59,6 +59,7 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Administration dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
         private readonly Filesystem $filesystem,
         private readonly ShopIdProvider $shopIdProvider,
@@ -101,7 +102,7 @@ class InfoController extends AbstractController
 
         return new JsonResponse(array_map(static fn (array $entry) => [
             'name' => $entry['key'],
-            'size' => (int) $entry['count'],
+            'size' => $entry['count'],
         ], array_values($entries)));
     }
 
@@ -178,6 +179,7 @@ class InfoController extends AbstractController
         return new JsonResponse([
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
+            'appUrl' => (string) EnvironmentHelper::getVariable('APP_URL'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
@@ -224,7 +226,7 @@ class InfoController extends AbstractController
     {
         $endpoints = array_map(
             static fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
-            $this->apiRouteInfoResolver->getApiRoutes(self::API_SCOPE_ADMIN)
+            $this->apiRouteInfoResolver->getApiRoutes(ApiRouteScope::ID)
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);
@@ -296,10 +298,6 @@ class InfoController extends AbstractController
 
     private function getBaseUrl(Bundle $bundle): ?string
     {
-        if (!$bundle instanceof Plugin) {
-            return null;
-        }
-
         if ($bundle->getAdminBaseUrl()) {
             return $bundle->getAdminBaseUrl();
         }
@@ -313,7 +311,13 @@ class InfoController extends AbstractController
             return $this->router->generate(
                 'administration.plugin.index',
                 [
-                    'pluginName' => \mb_strtolower($bundle->getName()),
+                    /**
+                     * Adopted from symfony, as they also strip the bundle suffix:
+                     * https://github.com/symfony/symfony/blob/7.2/src/Symfony/Bundle/FrameworkBundle/Command/AssetsInstallCommand.php#L128
+                     *
+                     * @see Plugin\Util\AssetService::getTargetDirectory
+                     */
+                    'pluginName' => preg_replace('/bundle$/', '', mb_strtolower($bundle->getName())),
                 ],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
@@ -340,7 +344,7 @@ LEFT JOIN acl_role ar on app.acl_role_id = ar.id
 WHERE app.active = 1 AND app.base_app_url is not null');
 
         return array_map(static function (array $item) {
-            $privileges = $item['privileges'] ? json_decode((string) $item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
+            $privileges = $item['privileges'] ? json_decode($item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
             $item['privileges'] = [];
 
@@ -378,8 +382,8 @@ WHERE app.active = 1 AND app.base_app_url is not null');
     {
         try {
             return $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
-            return $e->getShopId();
+        } catch (ShopIdChangeSuggestedException $e) {
+            return $e->shopId->id;
         }
     }
 }

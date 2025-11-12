@@ -104,7 +104,11 @@ class ShopConfigurator
             $this->changeDefaultLanguageData($newDefaultLanguageId, $currentLocale, $locale);
         }
 
-        $this->eventDispatcher->dispatch(new SystemLanguageChangeEvent(Uuid::fromBytesToHex($newDefaultLanguageId)));
+        $this->eventDispatcher->dispatch(new SystemLanguageChangeEvent(
+            Uuid::fromBytesToHex($newDefaultLanguageId),
+            $currentLocale['code'],
+            $locale,
+        ));
     }
 
     public function setDefaultCurrency(string $currencyCode): void
@@ -282,7 +286,7 @@ class ShopConfigurator
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getLocaleTranslations(string $localeId): array
     {

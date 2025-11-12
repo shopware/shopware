@@ -86,6 +86,9 @@ async function createWrapper() {
         search: () => {
             return Promise.resolve({ total: 0 });
         },
+        searchIds: () => {
+            return Promise.resolve({ total: 0 });
+        },
     };
 
     return mount(await wrapTestComponent('sw-product-properties', { sync: true }), {
@@ -196,14 +199,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 isChild: () => true,
             },
         });
-    });
-
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get group ids successful', async () => {

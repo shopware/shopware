@@ -31,10 +31,8 @@
         </sw-card-view>
     </template>
 
+    {# @deprecated tag:v6.8.0 - Block will be removed. #}
     {% block sw_import_export_language_switch %}
-    <template #language-switch>
-        <sw-language-switch @on-change="onChangeLanguage" />
-    </template>
     {% endblock %}
 
 </sw-page>

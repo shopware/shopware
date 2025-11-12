@@ -63,13 +63,15 @@ class ThemeLifecycleService
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null
     ): void {
+        $pluginConfigurationCollection = $this->pluginRegistry->getConfigurations();
+
         if ($configurationCollection === null) {
-            $configurationCollection = $this->pluginRegistry->getConfigurations()->getThemes();
+            $configurationCollection = $pluginConfigurationCollection->getThemes();
         }
 
         // iterate over all theme configs in the filesystem (plugins/bundles)
         foreach ($configurationCollection as $config) {
-            $this->refreshTheme($config, $context, $configurationCollection);
+            $this->refreshTheme($config, $context, $pluginConfigurationCollection);
         }
     }
 
@@ -117,9 +119,9 @@ class ThemeLifecycleService
         }
 
         $parentThemes = $this->getParentThemes($configuration, $themeData['id']);
+        /** @var Criteria<array<string, string>> $parentCriteria */
         $parentCriteria = new Criteria();
         $parentCriteria->addFilter(new EqualsFilter('childId', $themeData['id']));
-        /** @var list<array<string, string>> $toDeleteIds */
         $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getIds();
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
@@ -196,10 +198,7 @@ class ThemeLifecycleService
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'theme'));
         $criteria->setLimit(1);
 
-        /** @var array<string> $defaultFolderIds */
-        $defaultFolderIds = $this->mediaFolderRepository->searchIds($criteria, $context)->getIds();
-
-        return \count($defaultFolderIds) === 1 ? $defaultFolderIds[0] : null;
+        return $this->mediaFolderRepository->searchIds($criteria, $context)->firstId();
     }
 
     /**
@@ -573,8 +572,7 @@ class ThemeLifecycleService
             ) {
                 continue;
             }
-            /** @var string $lastNotSameTheme */
-            $lastNotSameTheme = str_replace('@', '', (string) $themeName);
+            $lastNotSameTheme = str_replace('@', '', $themeName);
         }
 
         if ($lastNotSameTheme !== null) {

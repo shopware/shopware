@@ -31,6 +31,7 @@ Consumers can use dot notation in context keys to access nested properties: `pro
 - Path resolution happens in `ContextResolutionVisitor::setContextForConsumer()`
 - Direct distribution lookups use base key, then resolve path on retrieved data
 - Throws exception if `required: true` and path fails
+- Property alias applied after path resolution: storage key differs from resolution key (alias in `setContextForConsumer()`)
 
 **Usage**:
 ```php

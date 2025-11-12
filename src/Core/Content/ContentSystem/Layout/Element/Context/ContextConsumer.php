@@ -15,7 +15,8 @@ class ContextConsumer
         public readonly ContextType $type,
         public readonly bool $required,
         public readonly bool $redistribute = false,
-        public readonly ?string $consumerAlias = null
+        public readonly ?string $consumerAlias = null,
+        public readonly ?string $propertyAlias = null
     ) {
     }
 

@@ -46,6 +46,8 @@ class ContentSystemException extends HttpException
     public const REDISTRIBUTE_DOTTED_PATH = 'CONTENT_SYSTEM__REDISTRIBUTE_DOTTED_PATH';
     public const REDISTRIBUTE_CONFLICT = 'CONTENT_SYSTEM__REDISTRIBUTE_CONFLICT';
     public const CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE = 'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE';
+    public const PROPERTY_ALIAS_WITH_DOT_NOTATION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_WITH_DOT_NOTATION';
+    public const PROPERTY_ALIAS_COLLISION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION';
     public const PAGE_CONTEXT_EXTRACTION_FAILED = 'CONTENT_SYSTEM__PAGE_CONTEXT_EXTRACTION_FAILED';
 
     public static function contentNotFound(string $pathInfo): self
@@ -355,6 +357,26 @@ class ContentSystemException extends HttpException
             self::CONTEXT_PATH_NOT_RESOLVABLE,
             $message,
             ['fullPath' => $fullPath, 'elementId' => $elementId, 'reason' => $reason]
+        );
+    }
+
+    public static function propertyAliasWithDotNotation(string $contextKey, string $propertyAlias): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROPERTY_ALIAS_WITH_DOT_NOTATION,
+            'Context key "{{ key }}" has property_alias "{{ alias }}" with dot notation. Property aliases must be simple property names without dots.',
+            ['key' => $contextKey, 'alias' => $propertyAlias]
+        );
+    }
+
+    public static function propertyAliasCollision(string $propertyKey, string $firstContext, string $secondContext): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROPERTY_ALIAS_COLLISION,
+            'Property key "{{ propertyKey }}" is used by both context "{{ firstContext }}" and "{{ secondContext }}". Each property_alias must be unique within an element.',
+            ['propertyKey' => $propertyKey, 'firstContext' => $firstContext, 'secondContext' => $secondContext]
         );
     }
 

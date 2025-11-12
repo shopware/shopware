@@ -299,19 +299,37 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
      */
     private function expandRedistributeFlags(array $providers, array $consumers): array
     {
+        $propertyKeys = [];
+
+        foreach ($consumers as $contextKey => $consumer) {
+            $propertyKey = $consumer->propertyAlias ?? $contextKey;
+
+            $baseKey = str_contains($propertyKey, '.')
+                ? substr($propertyKey, 0, (int) strpos($propertyKey, '.'))
+                : $propertyKey;
+
+            if (isset($propertyKeys[$baseKey])) {
+                throw ContentSystemException::propertyAliasCollision(
+                    $baseKey,
+                    $propertyKeys[$baseKey],
+                    $contextKey
+                );
+            }
+
+            $propertyKeys[$baseKey] = $contextKey;
+        }
+
         foreach ($consumers as $contextKey => $consumer) {
             if (!$consumer->redistribute) {
                 continue;
             }
 
-            // Validate: no dotted paths with redistribute
             if (str_contains($contextKey, '.')) {
                 throw ContentSystemException::redistributeWithDottedPath($contextKey);
             }
 
             $providerKey = $consumer->consumerAlias ?? $contextKey;
 
-            // Validate: no conflict with explicit provider
             if (isset($providers[$providerKey])) {
                 throw ContentSystemException::redistributeConflict($contextKey);
             }

@@ -33,3 +33,13 @@
 ### Consumer Alias Validation
 
 `consumerAlias` requires `redistribute: true`. Validation throws in `ContextConsumersFieldSerializer::deserializeContextConsumer()` if alias present without redistribution enabled.
+
+### Property Alias Validation
+
+Property alias constraints validated at serialization:
+- No dots allowed: `ContextConsumersFieldSerializer::deserializeContextConsumer()` throws `propertyAliasWithDotNotation`
+- Uniqueness per element: `ContentElementFieldSerializer::expandRedistributeFlags()` throws `propertyAliasCollision`
+
+Applied in `ContextResolutionVisitor::setContextForConsumer()` after path resolution.
+
+Independent of `redistribute` (unlike `consumerAlias`).

@@ -60,6 +60,31 @@ Virtual providers generated at parse-time by `ContentElementFieldSerializer`, no
 
 Element accepts context as `"featuredProduct"`, children receive as `"product"`. Useful for semantic clarity.
 
+## Property Alias
+
+`ContextConsumer::$propertyAlias` renames storage key for resolved context data within consuming element.
+
+**Example:**
+```json
+{
+  "accepts_context": {
+    "product.cover": {
+      "type": "single",
+      "required": true,
+      "property_alias": "cover"
+    }
+  }
+}
+```
+
+Element receives `product.cover` from parent but stores as `cover` property. Useful for simplifying nested paths.
+
+**Constraints:**
+- No dots allowed in alias value
+- Each alias must be unique within element (validated at serialization)
+
+**Implementation:** `ContextConsumer::$propertyAlias` applied in `ContextResolutionVisitor::setContextForConsumer()`.
+
 ## See Also
 
 - `Layout/Field/` - Serialization implementation (parse-time expansion)

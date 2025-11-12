@@ -7,6 +7,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Loads data and resolves context for content elements.
@@ -27,12 +28,12 @@ class ContentElementHydrator
      *
      * @return \Generator<ContentElement>
      */
-    public function hydrate(iterable $elements, SalesChannelContext $context): \Generator
+    public function hydrate(iterable $elements, SalesChannelContext $context, Request $request): \Generator
     {
         // Phase 1: Data loading (two-phase constraint - must complete before context resolution)
         $loadedElements = [];
         foreach ($elements as $element) {
-            $this->hydrateElement($element, $context);
+            $this->hydrateElement($element, $context, $request);
             $loadedElements[] = $element;
         }
 
@@ -43,14 +44,14 @@ class ContentElementHydrator
         }
     }
 
-    private function hydrateElement(ContentElement $element, SalesChannelContext $context): void
+    private function hydrateElement(ContentElement $element, SalesChannelContext $context, Request $request): void
     {
         if ($element->requiresData()) {
             $dataRequirements = $element->getDataRequirements();
 
             foreach ($dataRequirements as $key => $requirement) {
                 $loader = $this->dataLoaderProvider->get($requirement->source);
-                $data = $loader->load($element, $requirement, $context);
+                $data = $loader->load($element, $requirement, $context, $request);
 
                 if ($data !== null) {
                     $element->setProperty($key, $data);
@@ -59,7 +60,7 @@ class ContentElementHydrator
         }
 
         foreach ($element->allSlotElements() as $child) {
-            $this->hydrateElement($child, $context);
+            $this->hydrateElement($child, $context, $request);
         }
     }
 }

@@ -46,7 +46,7 @@ class CategoryContentLayoutContextFactory implements RenderingSpecificationFacto
             $path,
             $request,
             $context,
-            $this->repository,
+            $this->repository, // @phpstan-ignore-line argument.type
             $this->definition
         );
     }

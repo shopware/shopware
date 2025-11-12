@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -37,7 +38,8 @@ class EntityCollectionLoader implements ContentDataLoaderInterface
     public function load(
         ContentElement $element,
         DataRequirement $requirement,
-        SalesChannelContext $context
+        SalesChannelContext $context,
+        Request $request
     ): ?array {
         $config = $requirement->config;
 

@@ -5,10 +5,12 @@ namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListin
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderInterface;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -17,7 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ProductListingDataLoader implements ContentDataLoaderInterface
 {
     public function __construct(
-        private readonly ProductListingLoader $productListingLoader
+        private readonly AbstractProductListingRoute $listingRoute
     ) {
     }
 
@@ -29,36 +31,39 @@ class ProductListingDataLoader implements ContentDataLoaderInterface
     public function load(
         ContentElement $element,
         DataRequirement $requirement,
-        SalesChannelContext $context
-    ): mixed {
+        SalesChannelContext $context,
+        Request $request
+    ): ?ProductListingResult {
         $config = $requirement->config;
 
         if (!$config instanceof ProductListingLoaderConfig) {
             return null;
         }
 
+        $propertyName = $config->property ?? 'navigationId';
+        $navigationId = $element->getProperty($propertyName);
+
+        if ($navigationId === null) {
+            return null;
+        }
+
+        if (!\is_string($navigationId)) {
+            return null;
+        }
+
         $criteria = $this->buildCriteria($element, $config);
 
-        return $this->productListingLoader->load($criteria, $context);
+        $response = $this->listingRoute->load($navigationId, $request, $context, $criteria);
+
+        return $response->getResult();
     }
 
     /**
-     * Element properties can override requirement config (limit, page, associations).
+     * Element properties can override requirement config associations.
      */
     private function buildCriteria(ContentElement $element, ProductListingLoaderConfig $config): Criteria
     {
         $criteria = new Criteria();
-
-        $limit = $element->getProperty('limit') ?? $config->limit;
-        if (\is_int($limit) && $limit > 0) {
-            $criteria->setLimit($limit);
-        }
-
-        $page = $element->getProperty('page');
-        if (\is_int($page) && $page > 0) {
-            $offset = ($page - 1) * ($limit ?? 24);
-            $criteria->setOffset($offset);
-        }
 
         foreach ($config->associations as $association) {
             $criteria->addAssociation($association);

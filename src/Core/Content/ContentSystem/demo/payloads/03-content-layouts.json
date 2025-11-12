@@ -108,14 +108,15 @@
             "id": "product-listing",
             "type": "Sw:Product:Listing",
             "properties": {
-              "categoryId": "{{category_id}}",
-              "limit": 24
+              "categoryId": "{{category_id}}"
             },
             "data_requirements": {
               "listing": {
                 "key": "listing",
                 "source": "product_listing",
-                "config": {}
+                "config": {
+                  "property": "categoryId"
+                }
               }
             },
             "provides_context": {
@@ -205,15 +206,14 @@
             "id": "laptops-product-listing",
             "type": "Sw:Product:Listing",
             "properties": {
-              "categoryId": "{{category_id}}",
-              "limit": 18
+              "categoryId": "{{category_id}}"
             },
             "data_requirements": {
               "listing": {
                 "key": "listing",
                 "source": "product_listing",
                 "config": {
-                  "limit": 18,
+                  "property": "categoryId",
                   "associations": [
                     "cover",
                     "manufacturer"
@@ -270,15 +270,14 @@
                   "id": "audio-listing",
                   "type": "Sw:Product:Listing",
                   "properties": {
-                    "categoryId": "{{category_id}}",
-                    "limit": 24
+                    "categoryId": "{{category_id}}"
                   },
                   "data_requirements": {
                     "listing": {
                       "key": "listing",
                       "source": "product_listing",
                       "config": {
-                        "limit": 24
+                        "property": "categoryId"
                       }
                     }
                   },
@@ -789,7 +788,6 @@
             "type": "Sw:Product:Listing",
             "properties": {
               "categoryId": "{{category_id}}",
-              "limit": 12,
               "page": "{{page}}"
             },
             "data_requirements": {
@@ -797,7 +795,7 @@
                 "key": "listing",
                 "source": "product_listing",
                 "config": {
-                  "limit": 12
+                  "property": "categoryId"
                 }
               }
             },
@@ -1393,9 +1391,17 @@
                         "id": "hero-image",
                         "type": "Sw:Media:Image",
                         "properties": {
-                          "mediaUrl": "https://www.shopware.com/media/pages/products/shopping-experiences/inspire-connect-riseup-mood.webp",
-                          "alt": "Hero Image",
-                          "title": "Welcome"
+                          "mediaId": "5c9baa54f14048c9af0cdd8eb3da7846"
+                        },
+                        "data_requirements": {
+                          "media": {
+                            "key": "media",
+                            "source": "entity",
+                            "config": {
+                              "entity": "media",
+                              "property": "mediaId"
+                            }
+                          }
                         }
                       }
                     ]
@@ -1447,21 +1453,21 @@
             "id": "homepage-product-listing",
             "type": "Sw:Product:Listing",
             "properties": {
-              "categoryId": "{{category_id}}",
-              "limit": 24
+              "categoryId": "{{category_id}}"
             },
             "data_requirements": {
               "listing": {
                 "key": "listing",
                 "source": "product_listing",
-                "config": {}
+                "config": {
+                  "property": "categoryId"
+                }
               }
             },
             "provides_context": {
-              "products": {
-                "type": "collection",
-                "distribution": "iterator",
-                "consumer_alias": "product"
+              "listing": {
+                "type": "single",
+                "distribution": "broadcast"
               }
             },
             "slots": {
@@ -1471,7 +1477,15 @@
                   "type": "Sw:Filter:Panel",
                   "properties": {},
                   "accepts_context": {
-                    "listing": {
+                    "listing.aggregations": {
+                      "type": "single",
+                      "required": false
+                    },
+                    "listing.currentFilters": {
+                      "type": "single",
+                      "required": false
+                    },
+                    "listing.availableSortings": {
                       "type": "single",
                       "required": false
                     }

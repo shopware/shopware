@@ -56,7 +56,7 @@ See `EntityLoader/` directory for complete example.
 
 ## Quick Reference
 
-- **Interface**: `ContentDataLoaderInterface::load(ContentElement, DataRequirement, SalesChannelContext): mixed`
+- **Interface**: `ContentDataLoaderInterface::load(ContentElement, DataRequirement, SalesChannelContext, Request): mixed`
 - **Registration**: `#[AutoconfigureTag('content_system.data_loader', ['source' => 'id'])]`
 - **Built-in sources**: `entity`, `entity_collection`, `product_listing`
 - **Config**: Separate config class + serializer

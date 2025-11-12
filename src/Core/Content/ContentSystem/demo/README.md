@@ -36,4 +36,5 @@ Run the request. The pre-request script will:
 The payload uses these placeholders (auto-populated by pre-request script):
 
 - `{{salesChannelId}}` - Storefront sales channel
+- `{{navigationCategoryId}}` - Navigation category ID from Storefront sales channel
 - `{{taxId}}` - Tax with 19% rate

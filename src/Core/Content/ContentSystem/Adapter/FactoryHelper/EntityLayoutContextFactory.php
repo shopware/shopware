@@ -70,6 +70,7 @@ class EntityLayoutContextFactory
             layoutId: $layoutData->assignment->getContentLayoutId(),
             dataRequirements: $dataRequirements,
             placeholderValues: $layoutData->placeholderValues,
+            request: $request,
             targetElementId: $targetElementId
         );
     }

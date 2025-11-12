@@ -10,6 +10,12 @@
     .sw-product-detail-variants__generated-variants .mt-card__content {
         padding: 0;
         height: 100%;
+        
+        &:has(.mt-empty-state) {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     }
 
     .sw-skeleton__detail:not(:last-child),

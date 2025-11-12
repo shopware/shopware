@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition\DefinitionValidatorTestDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition\DefinitionValidatorTestDefinitionWithNonStorageAwarePrimaryKey;
 
 /**
  * @internal
@@ -89,6 +90,26 @@ class DefinitionValidatorTest extends TestCase
         // When table doesn't exist, introspectTable throws an exception which is caught,
         // and validatePrimaryKeyConsistency returns empty array (no violations)
         static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations when table does not exist, but got: ' . implode(', ', $primaryKeyViolations));
+    }
+
+    public function testPrimaryKeyValidationSkipsNonStorageAwareFields(): void
+    {
+        // Use a definition with a non-StorageAware field marked as PrimaryKey
+        $definition = new DefinitionValidatorTestDefinitionWithNonStorageAwarePrimaryKey();
+        $validator = $this->createValidatorWithTable($definition, ['id']);
+
+        $violations = $validator->validate();
+        $definitionViolations = $violations[$definition::class] ?? [];
+
+        // Filter to only primary key violations
+        $primaryKeyViolations = array_filter(
+            $definitionViolations,
+            static fn (string $violation): bool => str_contains($violation, 'Primary key mismatch')
+        );
+
+        // The non-StorageAware field should be skipped (line 990 coverage)
+        // So only 'id' should be considered, which matches the database
+        static::assertEmpty($primaryKeyViolations, 'Non-StorageAware primary key fields should be ignored');
     }
 
     /**

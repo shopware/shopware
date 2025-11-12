@@ -444,29 +444,38 @@ The `property` field points to the element's own property. The loader reads the 
 
 #### Product Listing Loader (`source: "product_listing"`)
 
-Loads product listings with filters, sorting, and pagination.
+Loads product listings for a navigation/category. Filters, sorting, and pagination are controlled via request parameters.
 
 ```json
 {
   "id": "category-listing",
   "type": "Sw:Product:Listing",
   "properties": {
-    "categoryId": "{{category_id}}",
-    "limit": 24
+    "navigationId": "{{category_id}}"
   },
   "data_requirements": {
     "listing": {
       "key": "listing",
       "source": "product_listing",
       "config": {
-        "page": "{{page}}"
+        "property": "navigationId",
+        "associations": ["cover", "manufacturer"]
       }
     }
   }
 }
 ```
 
+Fields:
+- `key` - Identifies this data requirement (must match object key)
+- `source` - Loader identifier: "product_listing"
+- `config` - Loader-specific configuration object
+- `config.property` - Property on this element containing the navigation/category ID. The loader reads the ID from here. Defaults to `"navigationId"` if not specified.
+- `config.associations` - List of associations to load with the products
+
 After loading, access via element's `listing` property → ProductListingResult
+
+Pagination, filters, and sorting are controlled via request parameters (query string or POST body), not config. See [Additional Parameters](#additional-parameters) for details.
 
 ### Multiple Data Requirements
 

@@ -146,7 +146,7 @@
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingLoader\ProductListingDataLoader">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" />
             <tag name="content_system.data_loader"/>
         </service>
 
@@ -226,7 +226,9 @@
         <service id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
 
         <!-- Entity Layout Services -->
-        <service id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver"/>
+        <service id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor"/>
+        </service>
         <service id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor"/>

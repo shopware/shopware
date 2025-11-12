@@ -40,7 +40,7 @@ Direct entity-to-layout lookup. Entity-specific factories query assignment table
 - `EntityLayoutResolver` - Shared layout resolution logic (Adapter/FactoryHelper/)
 
 ### Rendering Pipeline
-- `RenderingSpecification` - Complete rendering specification (layout ID + placeholders + target element)
+- `RenderingSpecification` - Complete rendering specification (layout ID + placeholders + request + target element)
 - `PlaceholderValues` - Immutable map of placeholder values
 - `LayoutLoader` - Loads ContentLayoutEntity from repository (Layout/Loader/)
 - `ScaffoldingProcessor` - Orchestrates scaffolder execution (Layout/Scaffolding/)

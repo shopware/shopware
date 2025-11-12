@@ -76,8 +76,8 @@ const getFirstId = (endpoint, filters) => {
     });
 };
 
-// Function to fetch Storefront sales channel ID by translation
-const getSalesChannelId = () => {
+// Function to fetch Storefront sales channel ID and navigation category ID by translation
+const getSalesChannelData = () => {
     return new Promise((resolve, reject) => {
         pm.sendRequest({
             url: `${pm.environment.get('baseUrl')}/api/search/sales-channel`,
@@ -93,10 +93,7 @@ const getSalesChannelId = () => {
                     filter: [
                         { type: 'equals', field: 'active', value: true },
                         { type: 'equals', field: 'translations.name', value: 'Storefront' }
-                    ],
-                    includes: {
-                        sales_channel: ['id']
-                    }
+                    ]
                 })
             }
         }, (err, res) => {
@@ -105,13 +102,17 @@ const getSalesChannelId = () => {
                 reject(err);
             } else {
                 const data = res.json();
-                const id = data.data?.[0]?.id;
-                if (!id) {
+                const salesChannel = data.data?.[0];
+                if (!salesChannel) {
                     console.error('Storefront sales channel not found');
                     reject(new Error('Storefront sales channel not found'));
                 } else {
-                    console.log('Fetched Storefront sales channel ID:', id);
-                    resolve(id);
+                    console.log('Fetched Storefront sales channel ID:', salesChannel.id);
+                    console.log('Fetched Navigation category ID:', salesChannel.attributes.navigationCategoryId);
+                    resolve({
+                        salesChannelId: salesChannel.id,
+                        navigationCategoryId: salesChannel.attributes.navigationCategoryId
+                    });
                 }
             }
         });
@@ -122,17 +123,19 @@ const getSalesChannelId = () => {
 getAdminToken()
     .then(() => {
         return Promise.all([
-            getSalesChannelId(),
+            getSalesChannelData(),
             getFirstId('tax', [{ type: 'equals', field: 'taxRate', value: 19 }])
         ]);
     })
-    .then(([salesChannelId, taxId]) => {
+    .then(([salesChannelData, taxId]) => {
         // Store IDs as collection variables
-        pm.collectionVariables.set('salesChannelId', salesChannelId);
+        pm.collectionVariables.set('salesChannelId', salesChannelData.salesChannelId);
+        pm.collectionVariables.set('navigationCategoryId', salesChannelData.navigationCategoryId);
         pm.collectionVariables.set('taxId', taxId);
 
         console.log('✓ All IDs fetched successfully');
-        console.log('Sales Channel:', salesChannelId);
+        console.log('Sales Channel:', salesChannelData.salesChannelId);
+        console.log('Navigation Category:', salesChannelData.navigationCategoryId);
         console.log('Tax:', taxId);
     })
     .catch(err => {

@@ -76,7 +76,8 @@ class ContentRouteLoader
         $hydratedElements = iterator_to_array(
             $this->hydrationService->hydrate(
                 iterator_to_array($refinedLayout->elements, false),
-                $salesChannelContext
+                $salesChannelContext,
+                $specification->request
             ),
             false
         );

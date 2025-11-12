@@ -108,14 +108,15 @@
             "id": "product-listing",
             "type": "Sw:Product:Listing",
             "properties": {
-              "categoryId": "{{category_id}}",
-              "limit": 24
+              "categoryId": "{{category_id}}"
             },
             "data_requirements": {
               "listing": {
                 "key": "listing",
                 "source": "product_listing",
-                "config": {}
+                "config": {
+                  "property": "categoryId"
+                }
               }
             },
             "provides_context": {
@@ -205,15 +206,14 @@
             "id": "laptops-product-listing",
             "type": "Sw:Product:Listing",
             "properties": {
-              "categoryId": "{{category_id}}",
-              "limit": 18
+              "categoryId": "{{category_id}}"
             },
             "data_requirements": {
               "listing": {
                 "key": "listing",
                 "source": "product_listing",
                 "config": {
-                  "limit": 18,
+                  "property": "categoryId",
                   "associations": [
                     "cover",
                     "manufacturer"
@@ -270,15 +270,14 @@
                   "id": "audio-listing",
                   "type": "Sw:Product:Listing",
                   "properties": {
-                    "categoryId": "{{category_id}}",
-                    "limit": 24
+                    "categoryId": "{{category_id}}"
                   },
                   "data_requirements": {
                     "listing": {
                       "key": "listing",
                       "source": "product_listing",
                       "config": {
-                        "limit": 24
+                        "property": "categoryId"
                       }
                     }
                   },
@@ -789,7 +788,6 @@
             "type": "Sw:Product:Listing",
             "properties": {
               "categoryId": "{{category_id}}",
-              "limit": 12,
               "page": "{{page}}"
             },
             "data_requirements": {
@@ -797,7 +795,7 @@
                 "key": "listing",
                 "source": "product_listing",
                 "config": {
-                  "limit": 12
+                  "property": "categoryId"
                 }
               }
             },
@@ -1356,6 +1354,145 @@
               "style": "primary",
               "size": "large",
               "centered": true
+            }
+          }
+        ],
+        "schema": {}
+      },
+      {
+        "id": "daf166acd4bd45caa657c579f523d743",
+        "name": "Homepage Two-Column Grid with Listing",
+        "version": "1.0.0",
+        "layout": [
+          {
+            "id": "homepage-grid-container",
+            "type": "Sw:Grid:Container",
+            "properties": {
+              "columns": "2",
+              "columnsLg": "1",
+              "gap": "24",
+              "align": "start",
+              "alignContent": "start",
+              "justify": "stretch",
+              "justifyContent": "stretch"
+            },
+            "slots": {
+              "column-1": [
+                {
+                  "id": "media-column",
+                  "type": "Sw:Grid:Column",
+                  "properties": {
+                    "start": null,
+                    "span": null
+                  },
+                  "slots": {
+                    "content": [
+                      {
+                        "id": "hero-image",
+                        "type": "Sw:Media:Image",
+                        "properties": {
+                          "mediaId": "5c9baa54f14048c9af0cdd8eb3da7846"
+                        },
+                        "data_requirements": {
+                          "media": {
+                            "key": "media",
+                            "source": "entity",
+                            "config": {
+                              "entity": "media",
+                              "property": "mediaId"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "column-2": [
+                {
+                  "id": "text-column",
+                  "type": "Sw:Grid:Column",
+                  "properties": {
+                    "start": null,
+                    "span": null
+                  },
+                  "slots": {
+                    "default": [
+                      {
+                        "id": "welcome-text",
+                        "type": "Sw:Content:Text",
+                        "properties": {
+                          "text": "<h1>Lorem ipsum dolor sit amet.</h1><p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>"
+                        }
+                      },
+                      {
+                        "id": "alert-box",
+                        "type": "Sw:Alert",
+                        "properties": {
+                          "text": "Hello World"
+                        },
+                        "slots": {
+                          "content": [
+                            {
+                              "id": "alert-content",
+                              "type": "Sw:Content:Text",
+                              "properties": {
+                                "text": "Hello World"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "homepage-product-listing",
+            "type": "Sw:Product:Listing",
+            "properties": {
+              "categoryId": "{{category_id}}"
+            },
+            "data_requirements": {
+              "listing": {
+                "key": "listing",
+                "source": "product_listing",
+                "config": {
+                  "property": "categoryId"
+                }
+              }
+            },
+            "provides_context": {
+              "listing": {
+                "type": "single",
+                "distribution": "broadcast"
+              }
+            },
+            "slots": {
+              "filters-panel": [
+                {
+                  "id": "homepage-filter-panel",
+                  "type": "Sw:Filter:Panel",
+                  "properties": {},
+                  "accepts_context": {
+                    "listing.aggregations": {
+                      "type": "single",
+                      "required": false
+                    },
+                    "listing.currentFilters": {
+                      "type": "single",
+                      "required": false
+                    },
+                    "listing.availableSortings": {
+                      "type": "single",
+                      "required": false
+                    }
+                  }
+                }
+              ],
+              "product-card": []
             }
           }
         ],

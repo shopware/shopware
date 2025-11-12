@@ -41,11 +41,12 @@ Core provides these loaders:
 load(
   ContentElement $element,
   DataRequirement $requirement,
-  SalesChannelContext $context
+  SalesChannelContext $context,
+  Request $request
 ): mixed
 ```
 
-Loaders receive element (for context), requirement (what to load), context (sales channel). Return data or null. Hydrator stores result in element properties by requirement key.
+Loaders receive element (for context), requirement (what to load), context (sales channel), request. Return data or null. Hydrator stores result in element properties by requirement key.
 
 ## Extension Point
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Specification for content rendering pipeline.
@@ -22,6 +23,7 @@ final readonly class RenderingSpecification
         public string $layoutId,
         public array $dataRequirements,
         public PlaceholderValues $placeholderValues,
+        public Request $request,
         public ?string $targetElementId = null,
     ) {
     }

@@ -22,12 +22,12 @@ class ProductListingLoaderConfigSerializer implements ContentDataLoaderConfigSer
 
     public function decode(array $data): ContentDataLoaderConfigInterface
     {
-        $limit = null;
-        if (isset($data['limit'])) {
-            if (!\is_int($data['limit']) || $data['limit'] <= 0) {
-                throw ContentSystemException::invalidFieldValueType('limit', 'positive integer', \gettype($data['limit']));
+        $property = null;
+        if (isset($data['property'])) {
+            if (!\is_string($data['property']) || $data['property'] === '') {
+                throw ContentSystemException::invalidFieldValueType('property', 'non-empty string', \gettype($data['property']));
             }
-            $limit = $data['limit'];
+            $property = $data['property'];
         }
 
         $associations = [];
@@ -44,7 +44,7 @@ class ProductListingLoaderConfigSerializer implements ContentDataLoaderConfigSer
             }
         }
 
-        return new ProductListingLoaderConfig($limit, $associations);
+        return new ProductListingLoaderConfig($property, $associations);
     }
 
     /**
@@ -58,8 +58,8 @@ class ProductListingLoaderConfigSerializer implements ContentDataLoaderConfigSer
 
         $data = [];
 
-        if ($config->limit !== null) {
-            $data['limit'] = $config->limit;
+        if ($config->property !== null) {
+            $data['property'] = $config->property;
         }
 
         if ($config->associations !== []) {

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @phpstan-type ProductListingLoaderConfigData array{
- *   limit?: positive-int,
+ *   property?: non-empty-string,
  *   associations?: list<non-empty-string>
  * }
  *
@@ -17,12 +17,12 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ProductListingLoaderConfig implements ContentDataLoaderConfigInterface
 {
     /**
-     * @param positive-int|null $limit
+     * @param non-empty-string|null $property Element property name to read navigation ID from
      * @param list<non-empty-string> $associations
      */
     public function __construct(
-        public ?int $limit,
-        public array $associations
+        public ?string $property = null,
+        public array $associations = []
     ) {
     }
 }

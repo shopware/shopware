@@ -1,0 +1,121 @@
+<mt-modal-root
+    class="sw-setting-usage-data-consent-modal"
+    :is-open="showConsentModal"
+>
+    <mt-modal width="s">
+        <template #default>
+            <div class="sw-settings-usage-data-consent-modal__content">
+                <img
+                    class="sw-setting-usage-data-consent-modal__icon-union"
+                    :src="unionPath"
+                    alt=""
+                >
+
+                <h3 class="sw-setting-usage-data-consent-modal__heading">
+                    Help us improve
+                </h3>
+
+                <p>By sharing store and user data, you help us understand how the Administration is used and develop improvements that make your daily work easier.</p>
+
+                <ul class="sw-settings-usage-data-consent-modal__features">
+                    <li>
+                        <mt-icon
+                            name="solid-check-circle"
+                            color="var(--color-icon-positive-default)"
+                            size="var(--scale-size-16)"
+                        />
+                        GDPR compliant
+                    </li>
+                    <li>
+                        <mt-icon
+                            name="solid-check-circle"
+                            color="var(--color-icon-positive-default)"
+                            size="var(--scale-size-16)"
+                        />
+                        Securely stored data
+                    </li>
+                    <li>
+                        <mt-icon
+                            name="solid-check-circle"
+                            color="var(--color-icon-positive-default)"
+                            size="var(--scale-size-16)"
+                        />
+                        No data is shared with third parties
+                    </li>
+                </ul>
+
+                <div
+                    v-if="showStoreDataConsent"
+                    class="sw-settings-usage-data-consent-modal__subcard"
+                >
+                    <h4>Store data</h4>
+
+                    <p>
+                        Combined data from orders, diagnostics, and store data helps us improve features.
+                        Please confirm you’re authorized to give consent for your company.
+                    </p>
+
+                    <mt-switch label="Share store data" />
+                </div>
+
+                <div class="sw-settings-usage-data-consent-modal__subcard">
+                    <h4>My data</h4>
+
+                    <p>
+                        We use data about how you interact with the Administration to improve its usability and performance.
+                    </p>
+
+                    <mt-switch label="Share my data" />
+                </div>
+
+                <p class="sw-settings-usage-data-consent-modal__legal">
+                    You can opt out at any time via the settings, and profile settings For full details, see shopware.com/en/data-use-details and our Privacy Policy.
+                </p>
+            </div>
+        </template>
+
+        <template #footer>
+            <div class="sw-settings-usage-data-consent-modal__footer">
+                <template v-if="showSavePreferences">
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        @click="savePreferences"
+                    >
+                        Save preferences
+                    </mt-modal-action>
+                </template>
+                <template v-else>
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        @click="shareNothing"
+                    >
+                        <template #iconFront="{ size }">
+                            <mt-icon
+                                name="solid-times"
+                                :size="size"
+                            />
+                        </template>
+                        Share nothing
+                    </mt-modal-action>
+
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        @click="shareAll"
+                    >
+                        <template #iconFront="{ size }">
+                            <mt-icon
+                                name="solid-checkmark"
+                                :size="size"
+                            />
+                        </template>
+
+                        Share all
+                    </mt-modal-action>
+                </template>
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>

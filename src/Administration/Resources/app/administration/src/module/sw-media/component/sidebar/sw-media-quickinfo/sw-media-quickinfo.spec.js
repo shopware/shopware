@@ -491,4 +491,18 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
         expect(actionButtonMethod).toHaveBeenCalled();
     });
+
+    it.each([
+        { mimeType: 'video/quicktime', shouldShowWarning: true },
+        { mimeType: 'video/mp4', shouldShowWarning: false },
+    ])(
+        'should show warning banner if video format is not supported (type: $mimeType, shouldShowWarning: $shouldShowWarning)',
+        async ({ mimeType, shouldShowWarning }) => {
+            const wrapper = await createWrapper({ mimeType, hasFile: true });
+            await wrapper.vm.$nextTick();
+
+            const banner = wrapper.find('.sw-media-quickinfo__unsupported-format-banner');
+            expect(banner.exists()).toBe(shouldShowWarning);
+        },
+    );
 });

@@ -1,0 +1,49 @@
+$sw-media-modal-v2-non-grid-margin: 0 24px;
+
+.sw-modal.sw-media-save-modal.sw-modal--full {
+    z-index: 1100;
+
+    .sw-modal__dialog {
+        height: 100%;
+    }
+
+    .sw-modal__body {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .sw-media-save-modal__content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        margin-top: 24px;
+    }
+
+    .sw-media-save-modal__breadcrumbs-and-search {
+        position: absolute;
+        top: 48px;
+        left: 24px;
+        z-index: 1;
+
+        .sw-media-breadcrumbs {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-media-save-modal__library-content {
+        display: contents;
+    }
+
+    .sw-media-save-modal__input-file-name {
+        width: 300px;
+
+        .mt-block-field__block {
+            min-height: 32px;
+        }
+    }
+
+    .sw-media-library {
+        margin-top: 24px;
+    }
+}

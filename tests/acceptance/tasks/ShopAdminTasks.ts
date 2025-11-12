@@ -36,6 +36,11 @@ import { CustomerGroupActivation } from '@tasks/ShopAdmin/Customers/CustomerGrou
 import { AddCreditItem } from '@tasks/ShopAdmin/Orders/AddCreditItemViaAPI';
 import { CreateInvoice } from '@tasks/ShopAdmin/Orders/CreateInvoiceViaAPI';
 
+/**
+ * Rules
+ */
+import { CreateRule } from '@tasks/ShopAdmin/RuleBuilder/CreateRule';
+
 export const test = mergeTests(
     GenerateVariants,
     UploadImage,
@@ -45,4 +50,5 @@ export const test = mergeTests(
     CustomerGroupActivation,
     AddCreditItem,
     CreateInvoice,
+    CreateRule,
 );

@@ -1,4 +1,6 @@
 .sw-cms-el-config-image {
+    margin-bottom: 16px;
+
     .sw-media-upload-v2 {
         margin-bottom: 22px;
 
@@ -27,6 +29,8 @@
     }
 
     .sw-cms-el-config-image__link {
+        margin-top: 16px;
+
         .sw-dynamic-url-field {
             margin-bottom: var(--scale-size-32);
         }

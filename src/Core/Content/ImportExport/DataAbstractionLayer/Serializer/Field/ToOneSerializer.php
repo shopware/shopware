@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -28,7 +30,11 @@ class ToOneSerializer extends FieldSerializer
     public function serialize(Config $config, Field $toOne, $record): iterable
     {
         if (!$toOne instanceof ManyToOneAssociationField && !$toOne instanceof OneToOneAssociationField) {
-            throw new \InvalidArgumentException('Expected *ToOneField');
+            if (!Feature::isActive('v6.8.0.0')) {
+                /** @phpstan-ignore shopware.domainException (Will be removed in v6.8.0.0) */
+                throw new \InvalidArgumentException('Expected *ToOneField');
+            }
+            throw ImportExportException::invalidInstanceType('toOne', ManyToOneAssociationField::class . '|' . OneToOneAssociationField::class);
         }
 
         if ($record === null) {
@@ -52,12 +58,15 @@ class ToOneSerializer extends FieldSerializer
     public function deserialize(Config $config, Field $toOne, $records): mixed
     {
         if (!$toOne instanceof ManyToOneAssociationField && !$toOne instanceof OneToOneAssociationField) {
-            throw new \InvalidArgumentException('Expected *ToOneField');
+            if (!Feature::isActive('v6.8.0.0')) {
+                /** @phpstan-ignore shopware.domainException (Will be removed in v6.8.0.0) */
+                throw new \InvalidArgumentException('Expected *ToOneField');
+            }
+            throw ImportExportException::invalidInstanceType('toOne', ManyToOneAssociationField::class . '|' . OneToOneAssociationField::class);
         }
 
         $definition = $toOne->getReferenceDefinition();
         $entitySerializer = $this->serializerRegistry->getEntity($definition->getEntityName());
-        /** @var \Traversable<mixed> $records */
         $records = $this->primaryKeyResolver->resolvePrimaryKeyFromUpdatedBy($config, $definition, $records);
 
         $result = $entitySerializer->deserialize($config, $definition, $records);

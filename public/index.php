@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Installer\Helper\InstallerRedirectHelper;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Installer\InstallerKernel;
@@ -19,13 +20,15 @@ return function (array $context) {
     $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
     $skipWebInstaller = EnvironmentHelper::getVariable('SHOPWARE_SKIP_WEBINSTALLER', false);
-    
+
     if (!$skipWebInstaller && !\is_file(dirname(__DIR__) . '/install.lock')) {
         $baseURL = str_replace(basename(__FILE__), '', $_SERVER['SCRIPT_NAME']);
         $baseURL = rtrim($baseURL, '/');
 
         if (!str_contains($_SERVER['REQUEST_URI'], '/installer')) {
-            header('Location: ' . $baseURL . '/installer');
+            $sanitizer = new InstallerRedirectHelper($_SERVER);
+
+            header('Location: ' . $baseURL . '/installer' . $sanitizer->buildQueryString());
             exit;
         }
     }

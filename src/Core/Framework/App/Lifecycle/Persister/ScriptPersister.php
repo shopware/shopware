@@ -76,7 +76,6 @@ class ScriptPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        /** @var list<string> $scriptIds */
         $scriptIds = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $scriptIds);
@@ -91,7 +90,6 @@ class ScriptPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        /** @var list<string> $scriptIds */
         $scriptIds = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $scriptIds);
@@ -113,7 +111,6 @@ class ScriptPersister
         // We don't automatically update service scripts, as that would do a request to the service on every request to shopware
         $criteria->addFilter(new EqualsFilter('selfManaged', false));
 
-        /** @var list<string> $appIds */
         $appIds = $this->appRepository->searchIds($criteria, $context)->getIds();
 
         foreach ($appIds as $appId) {

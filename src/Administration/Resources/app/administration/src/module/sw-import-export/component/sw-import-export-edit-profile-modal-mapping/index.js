@@ -140,7 +140,7 @@ export default {
         },
 
         sortedMappings() {
-            const mappings = this.profile.mapping;
+            const mappings = this.mappings;
 
             return mappings.sort((firstMapping, secondMapping) => {
                 if (firstMapping.position > secondMapping.position) {

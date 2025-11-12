@@ -49,6 +49,12 @@ export default {
             required: false,
             default: null,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {

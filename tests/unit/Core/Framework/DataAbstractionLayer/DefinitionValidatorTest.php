@@ -30,7 +30,7 @@ class DefinitionValidatorTest extends TestCase
     #[DataProvider('primaryKeyConsistencyProvider')]
     public function testPrimaryKeyConsistency(?array $dbPrimaryKeys, array $expectedMessages): void
     {
-        $definition = $this->getTestDefinition();
+        $definition = new \Shopware\Core\Framework\DataAbstractionLayer\Validation\DefinitionValidatorTestDefinition();
 
         $connection = $this->createMock(Connection::class);
         $schemaManager = $this->createMock(AbstractSchemaManager::class);
@@ -129,11 +129,6 @@ class DefinitionValidatorTest extends TestCase
             null,
             [],
         ];
-    }
-
-    private function getTestDefinition(): \Shopware\Core\Framework\DataAbstractionLayer\Validation\DefinitionValidatorTestDefinition
-    {
-        return new \Shopware\Core\Framework\DataAbstractionLayer\Validation\DefinitionValidatorTestDefinition();
     }
 }
 

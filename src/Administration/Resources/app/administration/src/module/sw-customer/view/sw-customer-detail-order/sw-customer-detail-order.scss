@@ -7,4 +7,12 @@
         display: grid;
         grid-template-columns: 1fr auto;
     }
+
+    .mt-card__content {
+        &:has(.mt-empty-state) {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
 }

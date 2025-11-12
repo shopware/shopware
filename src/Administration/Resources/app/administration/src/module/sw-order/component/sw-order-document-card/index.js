@@ -22,7 +22,6 @@ export default {
     ],
 
     emits: [
-        'update-loading',
         'document-save',
     ],
 
@@ -174,6 +173,7 @@ export default {
                     dataIndex: 'fileTypes',
                     label: 'sw-order.documentCard.labelAvailableFormats',
                     allowResize: false,
+                    sortable: false,
                 });
             }
 

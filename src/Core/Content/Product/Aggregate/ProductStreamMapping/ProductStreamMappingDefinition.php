@@ -32,7 +32,7 @@ class ProductStreamMappingDefinition extends MappingEntityDefinition
     {
         return new FieldCollection([
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),

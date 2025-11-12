@@ -56,7 +56,7 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('cross_selling_id', 'crossSellingId', ProductCrossSellingDefinition::class))->addFlags(new Required()),
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
-            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
             new ManyToOneAssociationField('crossSelling', 'cross_selling_id', ProductCrossSellingDefinition::class),
             new IntField('position', 'position'),

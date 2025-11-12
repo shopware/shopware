@@ -180,6 +180,12 @@ class DocumentRenderReadinessCheck extends BaseCheck
             }
         }
 
+        /**
+         * At the moment, we only set OK and FAILURE statuses.
+         * If there is only one status in the $result array, we return that.
+         * If there are multiple statuses, it means that at least one rendering failed.
+         * So ERROR is returned to indicate that not all renderings were successful.
+         */
         $finalStatus = \count($result) === 1 ? current($result) : Status::ERROR;
 
         return new Result(

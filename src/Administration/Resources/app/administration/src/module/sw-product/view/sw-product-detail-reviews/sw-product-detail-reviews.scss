@@ -12,4 +12,12 @@
             padding: 0;
         }
     }
+
+    .mt-card__content {
+        &:has(.mt-empty-state) {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
 }

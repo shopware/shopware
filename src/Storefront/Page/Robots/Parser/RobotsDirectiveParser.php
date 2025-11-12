@@ -146,13 +146,13 @@ class RobotsDirectiveParser
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:becomes-obsolete - will be removed, as string parsing is deprecated
+     * @deprecated tag:v6.8.0
      */
     public static function parseDirectiveFromString(string $line): ?RobotsDirective
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'will be removed, as string parsing is deprecated')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'the `parse()` method of the `RobotsDirectiveParser` service to parse the whole `robots.txt` file')
         );
 
         $parts = explode(':', $line, 2);

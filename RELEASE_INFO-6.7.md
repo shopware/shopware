@@ -7,10 +7,37 @@ The tax-free detection logic if the cart changed to handle B2B and B2C customers
 Previously, enabling "Tax-free for B2C" in the country settings also affected B2B customers.
 Now, tax rules are applied **correctly** based on customer type.
 
+### Robots.txt configuration
+The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard.
+For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
 
 ## API
 
+### Add the possibility to specify indexer in context
+
+When you want to specify which indexer should run, you can add the `EntityIndexerRegistry::EXTENSION_INDEXER_ONLY` extension to the context as follows:
+
+```php
+$context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_ONLY,
+    new ArrayEntity([
+        ProductIndexer::STOCK_UPDATER // Only execute STOCK_UPDATER.
+    ]),
+);
+```
+
+When making a call to the Sync API, specify the required indexer in the header:
+
+```bash
+curl -X POST "http://localhost:8000/api/_action/sync" \
+-H "indexing-only: product.stock" \
+#...
+```
+
 ## Core
+
+### Robots.txt parsing
+A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.
+As part of this change, the constructor for `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` is now deprecated for string parameters. You should use the new parser to create a `ParsedRobots` object to pass to the constructor instead.
 
 ### new JWT helper
 Added new `Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator` and `Shopware\Core\Framework\JWT\Struct\JWTStruct` to build general structure for encoding and decoding JWT.
@@ -56,6 +83,18 @@ Payment tokens are no longer deleted immediately after use. A new scheduled task
 ### Added sanitized HTML tag support for app snippets
 Added sanitized HTML tag support for app snippets. App developers can now use HTML tags for better formatting within their snippets. The sanitizing uses the `basic` set of allowed HTML tags from the `html_sanitizer` config, ensuring that security-related tags such as `script` are automatically removed.
 
+### App custom entity association handling
+
+The behaviour creating associations with custom entities in apps changed.
+Now an exception will be thrown if the referenced table does not exist, instead of creating a reference to the non-existing table.
+
+To allow the schema updater to skip creating associations if the referenced table does not exist, improving flexibility and robustness during schema updates, a new optional attribute `ignore-missing-reference` was added to association types (`one-to-one`, `one-to-many`, `many-to-one`, `many-to-many`).
+
+Example usage:
+```xml
+<one-to-many name="custom_entity" reference="quote_comment" ignore-missing-reference="true" store-api-aware="false" on-delete="set-null" />
+```
+
 ## Administration
 
 ## Storefront
@@ -64,7 +103,6 @@ Added sanitized HTML tag support for app snippets. App developers can now use HT
 New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added to the language selector to allow custom flag implementations.
 
 ### Added specific `add-product-by-number` template
-
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.
 
 Instead of overwriting any of the `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig`,

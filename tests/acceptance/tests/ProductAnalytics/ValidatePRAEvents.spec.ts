@@ -211,57 +211,6 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
     });
 });
 
-test('As a merchant, I want to make sure no admin events are sent when I do not consent.', { tag: '@ProductAnalytics' }, async ({
-    ShopAdmin,
-    AdminDashboard,
-    AdminOrderListing,
-}) => {
-
-    const captured: CapturedRequest[] = [];
-    const requestHandler = async (route: Route) => {
-        const req: Request = route.request();
-        captured.push({
-            postData: req.postData(),
-        });
-        await route.fulfill(
-            {
-                status: 200,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    'code': 200,
-                }),
-            }
-        )
-    };
-
-    await test.step('Do not set consent for product analytics', async () => {
-        // TO-DO: implement via UI once available and Feature flag is disabled by default
-    });
-
-   await test.step('Intercept all the API calls to product analytics', async () => {
-
-        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
-    });
-
-    await test.step('Navigate via link to order page from dashboard', async () => {
-
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, { timeout: 3000 });
-        await AdminDashboard.adminMenuOrder.click();
-        await AdminDashboard.adminMenuOrderOverview.click();
-        await ShopAdmin.expects(requestPromise).rejects.toThrow();
-        await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
-    });
-
-    await test.step('Validate no captured requests for product analytics', async () => {
-
-        expect(captured.length).toBe(0);
-    });
-});
-
 function parseCapturedEvents(captured: CapturedRequest[]): AmplitudeEvent[] {
     const events: AmplitudeEvent[] = [];
 

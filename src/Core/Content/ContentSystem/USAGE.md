@@ -23,7 +23,7 @@ The Content System enables dynamic, data-driven layouts for your shop. Core capa
 
 ### Core Concepts
 
-**Content Elements** - Building blocks of layouts. Each element has a type (e.g., `Sw:Product:Card`), properties for configuration, slots for child elements, and optional data requirements.
+**Content Elements** - Building blocks of layouts. Each element has a component (e.g., `Sw:Product:Card`), properties for configuration, slots for child elements, and optional data requirements.
 
 **Placeholders** - Dynamic values in properties using `{{key}}` syntax. For example, `{{productId}}` gets replaced with the actual product UUID from the URL.
 
@@ -121,7 +121,7 @@ Entity-based rendering automatically loads the main entity before rendering your
 ```json
 {
   "id": "product-page",
-  "type": "Sw:Grid",
+  "component": "Sw:Grid",
   "accepts_context": {
     "product": {
       "type": "single",
@@ -133,7 +133,7 @@ Entity-based rendering automatically loads the main entity before rendering your
     "default": [
       {
         "id": "product-title",
-        "type": "Sw:Product:Title",
+        "component": "Sw:Product:Title",
         "accepts_context": {
           "product": {"type": "single", "required": true}
         }
@@ -170,7 +170,7 @@ Makes `{{page}}` and `{{limit}}` available as placeholders:
 ```json
 {
   "id": "product-listing",
-  "type": "Sw:Product:Listing",
+  "component": "Sw:Product:Listing",
   "properties": {
     "page": "{{page}}",
     "limit": "{{limit}}"
@@ -197,7 +197,7 @@ Each content element follows this structure:
 ```json
 {
   "id": "product-card",
-  "type": "Sw:Product:Card",
+  "component": "Sw:Product:Card",
   "properties": {
     "text": "Featured Product",
     "productId": "{{product_id}}"
@@ -206,7 +206,7 @@ Each content element follows this structure:
     "content": [
       {
         "id": "product-title",
-        "type": "Sw:Product:Title"
+        "component": "Sw:Product:Title"
       }
     ]
   },
@@ -233,7 +233,7 @@ Placeholders (like `{{productId}}`) must be assigned to properties before data l
 
 **Required fields:**
 - `id` - Unique identifier for the element (required for processing)
-- `type` - Element type identifier
+- `component` - Element component identifier
 
 **Optional fields:**
 - `properties` - Configuration values (static or placeholders)
@@ -249,22 +249,22 @@ Slots hold arrays of elements.
 ```json
 {
   "id": "main-container",
-  "type": "Sw:Grid",
+  "component": "Sw:Grid",
   "properties": {
     "columns": "1"
   },
   "slots": {
     "header": [
-      {"id": "logo", "type": "Sw:Content:Image"},
-      {"id": "navigation", "type": "Sw:Navigation"},
-      {"id": "search", "type": "Sw:Search"}
+      {"id": "logo", "component": "Sw:Content:Image"},
+      {"id": "navigation", "component": "Sw:Navigation"},
+      {"id": "search", "component": "Sw:Search"}
     ],
     "main": [
-      {"id": "product-listing", "type": "Sw:Product:Listing"}
+      {"id": "product-listing", "component": "Sw:Product:Listing"}
     ],
     "sidebar": [
-      {"id": "filter-panel", "type": "Sw:Filter:Panel"},
-      {"id": "promo-banner", "type": "Sw:Content:Image"}
+      {"id": "filter-panel", "component": "Sw:Filter:Panel"},
+      {"id": "promo-banner", "component": "Sw:Content:Image"}
     ]
   }
 }
@@ -279,7 +279,7 @@ Containers can be nested for complex layouts:
 ```json
 {
   "id": "page-layout",
-  "type": "Sw:Grid",
+  "component": "Sw:Grid",
   "properties": {
     "cssClass": "page-wrapper",
     "columns": "1"
@@ -288,7 +288,7 @@ Containers can be nested for complex layouts:
     "default": [
       {
         "id": "hero-section",
-        "type": "Sw:Grid",
+        "component": "Sw:Grid",
         "properties": {
           "cssClass": "hero",
           "columns": "1"
@@ -297,7 +297,7 @@ Containers can be nested for complex layouts:
           "default": [
             {
               "id": "heading",
-              "type": "Sw:Content:Text",
+              "component": "Sw:Content:Text",
               "properties": {
                 "text": "Summer Sale",
                 "style": "heading"
@@ -305,7 +305,7 @@ Containers can be nested for complex layouts:
             },
             {
               "id": "cta-button",
-              "type": "Sw:Content:Button",
+              "component": "Sw:Content:Button",
               "properties": {
                 "label": "Shop Now"
               }
@@ -354,7 +354,7 @@ Loads a single entity by ID or property reference.
 ```json
 {
   "id": "product-detail",
-  "type": "Sw:Product:Detail",
+  "component": "Sw:Product:Detail",
   "data_requirements": {
     "product": {
       "key": "product",
@@ -384,7 +384,7 @@ A product card that loads its own data:
 ```json
 {
   "id": "product-card",
-  "type": "Sw:Product:Card",
+  "component": "Sw:Product:Card",
   "properties": {
     "product": "{{product_id}}"
   },
@@ -412,7 +412,7 @@ Loads multiple entities by their IDs.
 ```json
 {
   "id": "product-slider",
-  "type": "Sw:Product:Slider",
+  "component": "Sw:Product:Slider",
   "properties": {
     "productIds": ["019456789abc", "019456789def", "019456789ghi"]
   },
@@ -449,7 +449,7 @@ Loads product listings for a navigation/category. Filters, sorting, and paginati
 ```json
 {
   "id": "category-listing",
-  "type": "Sw:Product:Listing",
+  "component": "Sw:Product:Listing",
   "properties": {
     "navigationId": "{{category_id}}"
   },
@@ -484,7 +484,7 @@ Elements can declare multiple data requirements:
 ```json
 {
   "id": "complex-page",
-  "type": "Sw:Page:Complex",
+  "component": "Sw:Page:Complex",
   "properties": {
     "product": "{{product_id}}",
     "manufacturer": "{{manufacturer_id}}",
@@ -532,7 +532,7 @@ Provider exposes data as context for direct children using `provides_context`.
 ```json
 {
   "id": "product-detail-provider",
-  "type": "Sw:Product:Detail",
+  "component": "Sw:Product:Detail",
   "data_requirements": {
     "product": {
       "key": "product",
@@ -590,7 +590,7 @@ Consumer receives context from ancestor provider using `accepts_context`.
 ```json
 {
   "id": "product-title-consumer",
-  "type": "Sw:Product:Title",
+  "component": "Sw:Product:Title",
   "accepts_context": {
     "product": {
       "type": "single",
@@ -619,7 +619,7 @@ Consumer receives context data directly as a property.
 ```json
 {
   "id": "product-cover",
-  "type": "Sw:Content:Image",
+  "component": "Sw:Content:Image",
   "accepts_context": {
     "product.cover": {
       "type": "single",
@@ -641,7 +641,7 @@ Consumers can request nested properties from context using dot notation. When a 
 ```json
 {
   "id": "product-provider",
-  "type": "Sw:Product:Container",
+  "component": "Sw:Product:Container",
   "data_requirements": {
     "product": {
       "key": "product",
@@ -663,7 +663,7 @@ Consumers can request nested properties from context using dot notation. When a 
     "default": [
       {
         "id": "cover-image",
-        "type": "Sw:Content:Image",
+        "component": "Sw:Content:Image",
         "accepts_context": {
           "product.cover": {
             "type": "single",
@@ -673,7 +673,7 @@ Consumers can request nested properties from context using dot notation. When a 
       },
       {
         "id": "manufacturer-name",
-        "type": "Sw:Content:Text",
+        "component": "Sw:Content:Text",
         "accepts_context": {
           "product.manufacturer.name": {
             "type": "single",
@@ -834,7 +834,7 @@ Provider distributing context to multiple consumer children:
 ```json
 {
   "id": "product-detail-context",
-  "type": "Sw:Product:Detail",
+  "component": "Sw:Product:Detail",
   "data_requirements": {
     "product": {
       "key": "product",
@@ -855,7 +855,7 @@ Provider distributing context to multiple consumer children:
     "default": [
       {
         "id": "product-title",
-        "type": "Sw:Product:Title",
+        "component": "Sw:Product:Title",
         "accepts_context": {
           "product": {
             "type": "single",
@@ -865,7 +865,7 @@ Provider distributing context to multiple consumer children:
       },
       {
         "id": "product-price",
-        "type": "Sw:Product:Price",
+        "component": "Sw:Product:Price",
         "accepts_context": {
           "product": {
             "type": "single",
@@ -875,7 +875,7 @@ Provider distributing context to multiple consumer children:
       },
       {
         "id": "product-images",
-        "type": "Sw:Product:Images",
+        "component": "Sw:Product:Images",
         "accepts_context": {
           "product": {
             "type": "single",
@@ -902,7 +902,7 @@ Combined example showing entity-based rendering, data loading, and context distr
 ```json
 {
   "id": "product-detail-page",
-  "type": "Sw:Grid",
+  "component": "Sw:Grid",
   "properties": {
     "product": "{{productId}}",
     "columns": "1",
@@ -929,19 +929,19 @@ Combined example showing entity-based rendering, data loading, and context distr
     "default": [
       {
         "id": "breadcrumb",
-        "type": "Sw:Navigation:Breadcrumb",
+        "component": "Sw:Navigation:Breadcrumb",
         "properties": {"showHome": true}
       },
       {
         "id": "product-images",
-        "type": "Sw:Product:Images",
+        "component": "Sw:Product:Images",
         "accepts_context": {
           "product": {"type": "single", "required": true}
         }
       },
       {
         "id": "product-info",
-        "type": "Sw:Grid",
+        "component": "Sw:Grid",
         "properties": {"columns": "1", "gap": 16},
         "accepts_context": {
           "product": {"type": "single", "required": false}
@@ -950,21 +950,21 @@ Combined example showing entity-based rendering, data loading, and context distr
           "default": [
             {
               "id": "product-title",
-              "type": "Sw:Product:Title",
+              "component": "Sw:Product:Title",
               "accepts_context": {
                 "product": {"type": "single", "required": true}
               }
             },
             {
               "id": "product-price",
-              "type": "Sw:Product:Price",
+              "component": "Sw:Product:Price",
               "accepts_context": {
                 "product": {"type": "single", "required": true}
               }
             },
             {
               "id": "product-description",
-              "type": "Sw:Product:Description",
+              "component": "Sw:Product:Description",
               "accepts_context": {
                 "product": {"type": "single", "required": true}
               }
@@ -974,7 +974,7 @@ Combined example showing entity-based rendering, data loading, and context distr
       },
       {
         "id": "add-to-cart",
-        "type": "Sw:Product:AddToCart",
+        "component": "Sw:Product:AddToCart",
         "accepts_context": {
           "product": {"type": "single", "required": true}
         }

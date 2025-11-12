@@ -55,14 +55,17 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
 
         if ($value instanceof ContentElement) {
             $value = [$this->serializeContentElement($value)];
-        } elseif (\is_array($value)) {
+        }
+
+        if (\is_array($value)) {
             $serializedElements = [];
             foreach ($value as $element) {
                 if ($element instanceof ContentElement) {
                     $serializedElements[] = $this->serializeContentElement($element);
-                } else {
-                    $serializedElements[] = $element;
+                    continue;
                 }
+
+                $serializedElements[] = $element;
             }
             $value = $serializedElements;
         }
@@ -140,8 +143,8 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::invalidFieldValueType('id', 'string', \gettype($data['id'] ?? null));
         }
 
-        if (!isset($data['type']) || !\is_string($data['type'])) {
-            throw ContentSystemException::invalidFieldValueType('type', 'string', \gettype($data['type'] ?? null));
+        if (!isset($data['component']) || !\is_string($data['component'])) {
+            throw ContentSystemException::invalidFieldValueType('component', 'string', \gettype($data['component'] ?? null));
         }
 
         $dataRequirementsField = new DataRequirementsField('data_requirements', 'dataRequirements');
@@ -173,7 +176,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
 
         return new ContentElement(
             id: $data['id'],
-            type: $data['type'],
+            component: $data['component'],
             dataRequirements: $dataRequirements ?? [],
             properties: $data['properties'] ?? [],
             slots: $slots,
@@ -190,7 +193,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     {
         $array = [
             'id' => $element->getId(),
-            'type' => $element->getType(),
+            'component' => $element->getComponent(),
             'properties' => $this->serializeProperties($element->getProperties()),
         ];
 

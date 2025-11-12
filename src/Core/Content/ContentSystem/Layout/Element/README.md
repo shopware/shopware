@@ -10,7 +10,7 @@ ContentElement tree structure. Elements nest via slots, traverse via visitor pat
 
 ContentElement contains:
 - `id`: Unique identifier
-- `type`: Element type
+- `component`: Element component type
 - `properties`: Configuration map (may contain `{{placeholder}}` strings)
 - `slots`: Named slots (`array<string, SlotContent>`)
 - `dataRequirements`: What data to load (indexed by key)

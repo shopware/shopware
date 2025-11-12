@@ -19,7 +19,7 @@ class ContentElementField extends JsonField
     ) {
         $propertyMapping = [
             (new StringField('id', 'id'))->addFlags(new Required()),
-            (new StringField('type', 'type'))->addFlags(new Required()),
+            (new StringField('component', 'component'))->addFlags(new Required()),
             new JsonField('properties', 'properties'),
             new DataRequirementsField('data_requirements', 'dataRequirements'),
             new ElementSlotsField('slots', 'slots'),

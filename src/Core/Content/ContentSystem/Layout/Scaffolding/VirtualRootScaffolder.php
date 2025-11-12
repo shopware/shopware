@@ -53,7 +53,7 @@ class VirtualRootScaffolder implements LayoutScaffolderInterface
         // as broadcast context providers, and has actual roots as children in a single slot
         $virtualRoot = new ContentElement(
             id: self::VIRTUAL_ROOT_ID,
-            type: self::VIRTUAL_ROOT_TYPE,
+            component: self::VIRTUAL_ROOT_TYPE,
             dataRequirements: $this->indexDataRequirements($specification->dataRequirements),
             properties: $specification->placeholderValues->all(),
             slots: [
@@ -137,10 +137,10 @@ class VirtualRootScaffolder implements LayoutScaffolderInterface
         if ($virtualRoot->getId() !== self::VIRTUAL_ROOT_ID) {
             throw ContentSystemException::pathIntegrityViolation(
                 \sprintf(
-                    'Expected virtual page context root with ID "%s", got element with ID "%s" and type "%s"',
+                    'Expected virtual page context root with ID "%s", got element with ID "%s" and component "%s"',
                     self::VIRTUAL_ROOT_ID,
                     $virtualRoot->getId(),
-                    $virtualRoot->getType()
+                    $virtualRoot->getComponent()
                 )
             );
         }

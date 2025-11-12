@@ -80,9 +80,9 @@ class ContextResolutionVisitor implements ElementVisitor
             return;
         }
 
-        $consumerData = array_map(fn (ContentElement $el) => [
-            'type' => $el->getType(),
-            'data_key' => $el->getProperties()['data_key'] ?? null,
+        $consumerData = array_map(fn (ContentElement $element) => [
+            'component' => $element->getComponent(),
+            'data_key' => $element->getProperties()['data_key'] ?? null,
         ], $consumers);
 
         $distributed = $strategy->distribute($data, $consumerData, $config);

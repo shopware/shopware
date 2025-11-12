@@ -23,7 +23,7 @@ Five responsibilities:
 ## Content Element Tree
 
 ContentElement contains:
-- `type`: Element type identifier
+- `component`: Element component type identifier
 - `properties`: Configuration values (may contain placeholders like `{{productId}}`)
 - `slots`: Named slots containing child elements
 - `dataRequirements`: What data to load (source + criteria)

@@ -111,7 +111,7 @@ Replaces placeholders with values from ResolvedData. Only scalar values replaced
 
 ## Quick Reference
 
-- **Constructor**: Requires `id` and `type`, rest optional with defaults
+- **Constructor**: Requires `id` and `component`, rest optional with defaults
 - **Property access**: Null-safe getters, use `hasProperty()` or null coalescing
 - **Slots**: Array of SlotContent, multiple elements per slot (SlotContent is collection)
 - **Generator**: `allSlotElements()` for memory-efficient traversal of direct slot elements

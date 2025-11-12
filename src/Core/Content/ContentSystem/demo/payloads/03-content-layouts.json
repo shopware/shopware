@@ -10,7 +10,7 @@
         "layout": [
           {
             "id": "header-text",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "Product Details",
               "style": "heading"
@@ -18,7 +18,7 @@
           },
           {
             "id": "product-card",
-            "type": "Sw:Product:Card",
+            "component": "Sw:Product:Card",
             "properties": {
               "product": "{{product_id}}",
               "layout": "default",
@@ -41,7 +41,7 @@
         "layout": [
           {
             "id": "premium-product-card",
-            "type": "Sw:Product:Card",
+            "component": "Sw:Product:Card",
             "properties": {
               "product": "{{product_id}}",
               "layout": "detailed"
@@ -63,7 +63,7 @@
         "layout": [
           {
             "id": "gaming-product-card",
-            "type": "Sw:Product:Card",
+            "component": "Sw:Product:Card",
             "properties": {
               "product": "{{product_id}}",
               "layout": "detailed"
@@ -85,7 +85,7 @@
         "layout": [
           {
             "id": "category-product-card",
-            "type": "Sw:Product:Card",
+            "component": "Sw:Product:Card",
             "properties": {
               "product": "{{product_id}}"
             },
@@ -106,7 +106,7 @@
         "layout": [
           {
             "id": "product-listing",
-            "type": "Sw:Product:Listing",
+            "component": "Sw:Product:Listing",
             "properties": {
               "categoryId": "{{category_id}}"
             },
@@ -130,7 +130,7 @@
               "items": [
                 {
                   "id": "listing-product-card",
-                  "type": "Sw:Product:Card",
+                  "component": "Sw:Product:Card",
                   "properties": {
                     "layout": "compact"
                   },
@@ -154,7 +154,7 @@
         "layout": [
           {
             "id": "parent-product-card",
-            "type": "Sw:Product:Card",
+            "component": "Sw:Product:Card",
             "properties": {
               "product": "{{product_id}}"
             },
@@ -175,7 +175,7 @@
         "layout": [
           {
             "id": "fallback-product-card",
-            "type": "Sw:Product:Card",
+            "component": "Sw:Product:Card",
             "properties": {
               "product": "{{product_id}}"
             },
@@ -196,7 +196,7 @@
         "layout": [
           {
             "id": "laptops-listing-header",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "Laptops & Computers",
               "style": "heading"
@@ -204,7 +204,7 @@
           },
           {
             "id": "laptops-product-listing",
-            "type": "Sw:Product:Listing",
+            "component": "Sw:Product:Listing",
             "properties": {
               "categoryId": "{{category_id}}"
             },
@@ -232,7 +232,7 @@
               "items": [
                 {
                   "id": "laptop-card",
-                  "type": "Sw:Product:Card",
+                  "component": "Sw:Product:Card",
                   "properties": {
                     "layout": "detailed",
                     "mediaHeight": 280
@@ -257,7 +257,7 @@
         "layout": [
           {
             "id": "audio-responsive-grid",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columnsSm": "2",
               "columnsMd": "3",
@@ -268,7 +268,7 @@
               "default": [
                 {
                   "id": "audio-listing",
-                  "type": "Sw:Product:Listing",
+                  "component": "Sw:Product:Listing",
                   "properties": {
                     "categoryId": "{{category_id}}"
                   },
@@ -292,7 +292,7 @@
                     "items": [
                       {
                         "id": "audio-compact-card",
-                        "type": "Sw:Product:Card",
+                        "component": "Sw:Product:Card",
                         "properties": {
                           "layout": "compact",
                           "mediaHeight": 200
@@ -320,7 +320,7 @@
         "layout": [
           {
             "id": "featured-header",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "Featured Products",
               "style": "heading"
@@ -328,7 +328,7 @@
           },
           {
             "id": "featured-provider",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columns": "3",
               "gap": 24,
@@ -362,7 +362,7 @@
               "default": [
                 {
                   "id": "featured-slot-1",
-                  "type": "Sw:Product:Card",
+                  "component": "Sw:Product:Card",
                   "properties": {
                     "layout": "hero",
                     "mediaHeight": 400
@@ -378,7 +378,7 @@
                     "overlay": [
                       {
                         "id": "cover-only-image-1",
-                        "type": "Sw:Content:Image",
+                        "component": "Sw:Content:Image",
                         "properties": {
                           "size": "large"
                         },
@@ -392,7 +392,7 @@
                       },
                       {
                         "id": "featured-manufacturer-1",
-                        "type": "Sw:Content:Text",
+                        "component": "Sw:Content:Text",
                         "properties": {
                           "style": "manufacturer-badge"
                         },
@@ -409,7 +409,7 @@
                 },
                 {
                   "id": "featured-slot-2",
-                  "type": "Sw:Product:Card",
+                  "component": "Sw:Product:Card",
                   "properties": {
                     "layout": "default",
                     "mediaHeight": 300
@@ -425,7 +425,7 @@
                     "overlay": [
                       {
                         "id": "cover-only-image-2",
-                        "type": "Sw:Content:Image",
+                        "component": "Sw:Content:Image",
                         "properties": {
                           "size": "medium"
                         },
@@ -442,7 +442,7 @@
                 },
                 {
                   "id": "featured-slot-3",
-                  "type": "Sw:Product:Card",
+                  "component": "Sw:Product:Card",
                   "properties": {
                     "layout": "default",
                     "mediaHeight": 300
@@ -458,7 +458,7 @@
                     "overlay": [
                       {
                         "id": "cover-only-image-3",
-                        "type": "Sw:Content:Image",
+                        "component": "Sw:Content:Image",
                         "properties": {
                           "size": "medium"
                         },
@@ -486,7 +486,7 @@
         "layout": [
           {
             "id": "homepage-provider",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columns": "1",
               "gap": 32,
@@ -520,7 +520,7 @@
               "default": [
                 {
                   "id": "featured-section",
-                  "type": "Sw:Product:Card",
+                  "component": "Sw:Product:Card",
                   "properties": {
                     "data_key": "featured",
                     "layout": "hero"
@@ -536,7 +536,7 @@
                     "overlay": [
                       {
                         "id": "featured-overlay-text",
-                        "type": "Sw:Content:Text",
+                        "component": "Sw:Content:Text",
                         "properties": {
                           "text": "Featured Product",
                           "style": "badge"
@@ -553,7 +553,7 @@
                 },
                 {
                   "id": "sale-section",
-                  "type": "Sw:Product:Card",
+                  "component": "Sw:Product:Card",
                   "properties": {
                     "data_key": "sale",
                     "layout": "sale"
@@ -567,7 +567,7 @@
                 },
                 {
                   "id": "new-section",
-                  "type": "Sw:Product:Card",
+                  "component": "Sw:Product:Card",
                   "properties": {
                     "data_key": "new",
                     "layout": "badge"
@@ -592,7 +592,7 @@
         "layout": [
           {
             "id": "column-1",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columns": "1",
               "gap": 16
@@ -609,7 +609,7 @@
           },
           {
             "id": "column-2",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columns": "1",
               "gap": 16
@@ -626,7 +626,7 @@
           },
           {
             "id": "column-3",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columns": "1",
               "gap": 16
@@ -651,7 +651,7 @@
         "layout": [
           {
             "id": "breadcrumb",
-            "type": "Sw:Navigation:Breadcrumb",
+            "component": "Sw:Navigation:Breadcrumb",
             "properties": {},
             "accepts_context": {
               "product": {
@@ -662,7 +662,7 @@
           },
           {
             "id": "main-grid",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columns": "2",
               "gap": 32
@@ -678,7 +678,7 @@
               "default": [
                 {
                   "id": "product-images",
-                  "type": "Sw:Product:Images",
+                  "component": "Sw:Product:Images",
                   "properties": {},
                   "accepts_context": {
                     "product": {
@@ -689,7 +689,7 @@
                 },
                 {
                   "id": "product-info-grid",
-                  "type": "Sw:Grid",
+                  "component": "Sw:Grid",
                   "properties": {
                     "columns": "1",
                     "gap": 16
@@ -705,7 +705,7 @@
                     "default": [
                       {
                         "id": "product-title",
-                        "type": "Sw:Product:Title",
+                        "component": "Sw:Product:Title",
                         "accepts_context": {
                           "product": {
                             "type": "single",
@@ -715,7 +715,7 @@
                       },
                       {
                         "id": "product-price",
-                        "type": "Sw:Product:Price",
+                        "component": "Sw:Product:Price",
                         "accepts_context": {
                           "product": {
                             "type": "single",
@@ -725,7 +725,7 @@
                       },
                       {
                         "id": "product-description",
-                        "type": "Sw:Product:Description",
+                        "component": "Sw:Product:Description",
                         "accepts_context": {
                           "product": {
                             "type": "single",
@@ -735,7 +735,7 @@
                       },
                       {
                         "id": "manufacturer-badge",
-                        "type": "Sw:Content:Text",
+                        "component": "Sw:Content:Text",
                         "properties": {
                           "style": "badge"
                         },
@@ -749,7 +749,7 @@
                       },
                       {
                         "id": "cover-thumbnail",
-                        "type": "Sw:Content:Image",
+                        "component": "Sw:Content:Image",
                         "properties": {
                           "width": 120,
                           "height": 120
@@ -764,7 +764,7 @@
                       },
                       {
                         "id": "media-gallery",
-                        "type": "Sw:Content:Gallery",
+                        "component": "Sw:Content:Gallery",
                         "properties": {
                           "thumbnailSize": "small"
                         },
@@ -792,7 +792,7 @@
         "layout": [
           {
             "id": "paginated-listing",
-            "type": "Sw:Product:Listing",
+            "component": "Sw:Product:Listing",
             "properties": {
               "categoryId": "{{category_id}}",
               "page": "{{page}}"
@@ -817,7 +817,7 @@
               "items": [
                 {
                   "id": "paginated-card",
-                  "type": "Sw:Product:Card",
+                  "component": "Sw:Product:Card",
                   "properties": {
                     "layout": "default"
                   },
@@ -833,7 +833,7 @@
           },
           {
             "id": "pagination-control",
-            "type": "Sw:Content:Pagination",
+            "component": "Sw:Content:Pagination",
             "properties": {
               "currentPage": "{{page}}"
             }
@@ -848,7 +848,7 @@
         "layout": [
           {
             "id": "bundle-header",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "Gaming Peripherals Bundle",
               "style": "heading"
@@ -856,7 +856,7 @@
           },
           {
             "id": "bundle-grid",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columns": "2",
               "gap": 24
@@ -873,7 +873,7 @@
               "default": [
                 {
                   "id": "bundle-item-1",
-                  "type": "Sw:Content:Text",
+                  "component": "Sw:Content:Text",
                   "properties": {
                     "text": "Bundle items available below",
                     "style": "info"
@@ -898,7 +898,7 @@
         "layout": [
           {
             "id": "hero-section",
-            "type": "Sw:Content:Hero",
+            "component": "Sw:Content:Hero",
             "properties": {
               "headline": "Summer Sale 2025",
               "subheadline": "Up to 50% Off on Tech Products",
@@ -911,7 +911,7 @@
           },
           {
             "id": "stats-section",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columns": "3",
               "gap": 32,
@@ -921,7 +921,7 @@
               "default": [
                 {
                   "id": "stat-discount",
-                  "type": "Sw:Content:Stats",
+                  "component": "Sw:Content:Stats",
                   "properties": {
                     "number": "50",
                     "suffix": "%",
@@ -931,7 +931,7 @@
                 },
                 {
                   "id": "stat-products",
-                  "type": "Sw:Content:Stats",
+                  "component": "Sw:Content:Stats",
                   "properties": {
                     "number": "1000",
                     "suffix": "+",
@@ -941,7 +941,7 @@
                 },
                 {
                   "id": "stat-time",
-                  "type": "Sw:Content:Stats",
+                  "component": "Sw:Content:Stats",
                   "properties": {
                     "number": "7",
                     "suffix": " Days",
@@ -954,7 +954,7 @@
           },
           {
             "id": "features-section",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columns": "3",
               "gap": 24
@@ -963,7 +963,7 @@
               "default": [
                 {
                   "id": "feature-shipping",
-                  "type": "Sw:Content:IconBox",
+                  "component": "Sw:Content:IconBox",
                   "properties": {
                     "icon": "truck",
                     "heading": "Free Shipping",
@@ -973,7 +973,7 @@
                 },
                 {
                   "id": "feature-returns",
-                  "type": "Sw:Content:IconBox",
+                  "component": "Sw:Content:IconBox",
                   "properties": {
                     "icon": "return",
                     "heading": "Easy Returns",
@@ -983,7 +983,7 @@
                 },
                 {
                   "id": "feature-support",
-                  "type": "Sw:Content:IconBox",
+                  "component": "Sw:Content:IconBox",
                   "properties": {
                     "icon": "headset",
                     "heading": "24/7 Support",
@@ -996,7 +996,7 @@
           },
           {
             "id": "newsletter-section",
-            "type": "Sw:Content:Form",
+            "component": "Sw:Content:Form",
             "properties": {
               "type": "newsletter",
               "heading": "Get Exclusive Deals",
@@ -1022,7 +1022,7 @@
         "layout": [
           {
             "id": "hero-section",
-            "type": "Sw:Content:Hero",
+            "component": "Sw:Content:Hero",
             "properties": {
               "headline": "Why Choose TechStore",
               "subheadline": "Your Trusted Partner for Premium Technology",
@@ -1033,7 +1033,7 @@
           },
           {
             "id": "benefits-heading",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "What Sets Us Apart",
               "style": "heading",
@@ -1042,7 +1042,7 @@
           },
           {
             "id": "benefits-grid",
-            "type": "Sw:Content:FeatureList",
+            "component": "Sw:Content:FeatureList",
             "properties": {
               "columns": "4",
               "items": [
@@ -1071,7 +1071,7 @@
           },
           {
             "id": "testimonials-heading",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "What Our Customers Say",
               "style": "heading",
@@ -1080,7 +1080,7 @@
           },
           {
             "id": "testimonials-grid",
-            "type": "Sw:Grid",
+            "component": "Sw:Grid",
             "properties": {
               "columns": "3",
               "gap": 32
@@ -1089,7 +1089,7 @@
               "default": [
                 {
                   "id": "testimonial-1",
-                  "type": "Sw:Content:Testimonial",
+                  "component": "Sw:Content:Testimonial",
                   "properties": {
                     "quote": "Best tech store I've ever used. Fast shipping and excellent customer service!",
                     "author": "Sarah Johnson",
@@ -1099,7 +1099,7 @@
                 },
                 {
                   "id": "testimonial-2",
-                  "type": "Sw:Content:Testimonial",
+                  "component": "Sw:Content:Testimonial",
                   "properties": {
                     "quote": "Great prices and authentic products. My go-to store for all tech needs.",
                     "author": "Michael Chen",
@@ -1109,7 +1109,7 @@
                 },
                 {
                   "id": "testimonial-3",
-                  "type": "Sw:Content:Testimonial",
+                  "component": "Sw:Content:Testimonial",
                   "properties": {
                     "quote": "The support team helped me choose the perfect laptop. Highly recommended!",
                     "author": "Emma Davis",
@@ -1122,7 +1122,7 @@
           },
           {
             "id": "timeline-heading",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "Our Journey",
               "style": "heading",
@@ -1131,7 +1131,7 @@
           },
           {
             "id": "company-timeline",
-            "type": "Sw:Content:Timeline",
+            "component": "Sw:Content:Timeline",
             "properties": {
               "items": [
                 {
@@ -1159,7 +1159,7 @@
           },
           {
             "id": "trust-badges",
-            "type": "Sw:Content:SocialProof",
+            "component": "Sw:Content:SocialProof",
             "properties": {
               "type": "badges",
               "heading": "Trusted By",
@@ -1189,7 +1189,7 @@
         "layout": [
           {
             "id": "hero-section",
-            "type": "Sw:Content:Hero",
+            "component": "Sw:Content:Hero",
             "properties": {
               "headline": "Smart Home Hub Pro",
               "subheadline": "The Future of Home Automation - Launching Q2 2025",
@@ -1202,7 +1202,7 @@
           },
           {
             "id": "video-section",
-            "type": "Sw:Content:Video",
+            "component": "Sw:Content:Video",
             "properties": {
               "videoUrl": "https://youtube.com/watch?v=example",
               "provider": "youtube",
@@ -1214,7 +1214,7 @@
           },
           {
             "id": "features-heading",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "Key Features",
               "style": "heading",
@@ -1223,7 +1223,7 @@
           },
           {
             "id": "features-grid",
-            "type": "Sw:Content:FeatureList",
+            "component": "Sw:Content:FeatureList",
             "properties": {
               "columns": "3",
               "items": [
@@ -1262,7 +1262,7 @@
           },
           {
             "id": "how-it-works-heading",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "How It Works",
               "style": "heading",
@@ -1271,7 +1271,7 @@
           },
           {
             "id": "setup-timeline",
-            "type": "Sw:Content:Timeline",
+            "component": "Sw:Content:Timeline",
             "properties": {
               "items": [
                 {
@@ -1295,7 +1295,7 @@
           },
           {
             "id": "specs-heading",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "Technical Specifications",
               "style": "heading",
@@ -1304,7 +1304,7 @@
           },
           {
             "id": "specs-content",
-            "type": "Sw:Content:RichText",
+            "component": "Sw:Content:RichText",
             "properties": {
               "content": "<div class='specs-table'><table><tr><th>Processor</th><td>Quad-core ARM Cortex-A73</td></tr><tr><th>Memory</th><td>4GB RAM, 32GB Storage</td></tr><tr><th>Connectivity</th><td>Wi-Fi 6E, Bluetooth 5.3, Zigbee, Z-Wave</td></tr><tr><th>Ports</th><td>2x USB 3.0, Ethernet, HDMI</td></tr><tr><th>Power</th><td>12V DC, 15W max</td></tr><tr><th>Dimensions</th><td>120mm x 120mm x 30mm</td></tr></table></div>",
               "className": "specs-section"
@@ -1312,7 +1312,7 @@
           },
           {
             "id": "faq-heading",
-            "type": "Sw:Content:Text",
+            "component": "Sw:Content:Text",
             "properties": {
               "text": "Frequently Asked Questions",
               "style": "heading",
@@ -1321,7 +1321,7 @@
           },
           {
             "id": "faq-accordion",
-            "type": "Sw:Content:Accordion",
+            "component": "Sw:Content:Accordion",
             "properties": {
               "items": [
                 {
@@ -1354,7 +1354,7 @@
           },
           {
             "id": "cta-button",
-            "type": "Sw:Content:Button",
+            "component": "Sw:Content:Button",
             "properties": {
               "text": "Pre-Order Now - $199",
               "link": "/pre-order",
@@ -1373,7 +1373,7 @@
         "layout": [
           {
             "id": "homepage-grid-container",
-            "type": "Sw:Grid:Container",
+            "component": "Sw:Grid:Container",
             "properties": {
               "columns": "2",
               "columnsLg": "1",
@@ -1387,7 +1387,7 @@
               "column-1": [
                 {
                   "id": "media-column",
-                  "type": "Sw:Grid:Column",
+                  "component": "Sw:Grid:Column",
                   "properties": {
                     "start": null,
                     "span": null
@@ -1396,7 +1396,7 @@
                     "content": [
                       {
                         "id": "hero-image",
-                        "type": "Sw:Media:Image",
+                        "component": "Sw:Media:Image",
                         "properties": {
                           "mediaId": "5c9baa54f14048c9af0cdd8eb3da7846"
                         },
@@ -1418,7 +1418,7 @@
               "column-2": [
                 {
                   "id": "text-column",
-                  "type": "Sw:Grid:Column",
+                  "component": "Sw:Grid:Column",
                   "properties": {
                     "start": null,
                     "span": null
@@ -1427,14 +1427,14 @@
                     "default": [
                       {
                         "id": "welcome-text",
-                        "type": "Sw:Content:Text",
+                        "component": "Sw:Content:Text",
                         "properties": {
                           "text": "<h1>Lorem ipsum dolor sit amet.</h1><p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>"
                         }
                       },
                       {
                         "id": "alert-box",
-                        "type": "Sw:Alert",
+                        "component": "Sw:Alert",
                         "properties": {
                           "text": "Hello World"
                         },
@@ -1442,7 +1442,7 @@
                           "content": [
                             {
                               "id": "alert-content",
-                              "type": "Sw:Content:Text",
+                              "component": "Sw:Content:Text",
                               "properties": {
                                 "text": "Hello World"
                               }
@@ -1458,7 +1458,7 @@
           },
           {
             "id": "homepage-product-listing",
-            "type": "Sw:Product:Listing",
+            "component": "Sw:Product:Listing",
             "properties": {
               "categoryId": "{{category_id}}"
             },
@@ -1481,7 +1481,7 @@
               "filters-panel": [
                 {
                   "id": "homepage-filter-panel",
-                  "type": "Sw:Filter:Panel",
+                  "component": "Sw:Filter:Panel",
                   "properties": {},
                   "accepts_context": {
                     "listing.aggregations": {

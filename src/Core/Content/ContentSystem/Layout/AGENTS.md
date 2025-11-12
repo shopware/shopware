@@ -15,7 +15,7 @@
 ### ContentElement Tree Structure
 
 ContentElement contains:
-- `type`: Element type identifier
+- `component`: Element component type identifier
 - `properties`: Configuration values (may contain placeholders like `{{productId}}`)
 - `slots`: Named slots containing child elements (`array<string, SlotContent>`)
 - `dataRequirements`: What data to load (source + criteria)

@@ -117,6 +117,10 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
             $data['consumer_alias'] = $consumer->consumerAlias;
         }
 
+        if ($consumer->propertyAlias !== null) {
+            $data['property_alias'] = $consumer->propertyAlias;
+        }
+
         return $data;
     }
 
@@ -144,17 +148,22 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
         $required = $config['required'] ?? false;
         $redistribute = $config['redistribute'] ?? false;
         $consumerAlias = $config['consumer_alias'] ?? null;
+        $propertyAlias = $config['property_alias'] ?? null;
 
-        // Validate: consumer_alias requires redistribute: true
         if ($consumerAlias !== null && !$redistribute) {
             throw ContentSystemException::consumerAliasWithoutRedistribute($key);
+        }
+
+        if ($propertyAlias !== null && str_contains($propertyAlias, '.')) {
+            throw ContentSystemException::propertyAliasWithDotNotation($key, $propertyAlias);
         }
 
         return new ContextConsumer(
             type: $type,
             required: $required,
             redistribute: $redistribute,
-            consumerAlias: $consumerAlias
+            consumerAlias: $consumerAlias,
+            propertyAlias: $propertyAlias
         );
     }
 }

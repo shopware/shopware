@@ -15,16 +15,16 @@ use Shopware\Core\Framework\Struct\Struct;
 class ContextPathResolver
 {
     /**
-     * Parse a context key into base key and path segments.
+     * Extract path segments from a context key (everything after the first dot).
      *
-     * @return array{0: string, 1: array<string>}
+     * @return array<string>
      */
     public static function parseContextKey(string $key): array
     {
         $segments = explode('.', $key);
-        $baseKey = array_shift($segments);
+        array_shift($segments);
 
-        return [$baseKey, $segments];
+        return $segments;
     }
 
     /**
@@ -129,9 +129,6 @@ class ContextPathResolver
         return str_starts_with($consumerKey, $providerKey . '.');
     }
 
-    /**
-     * Extract the base key from a potentially dotted context key.
-     */
     public static function extractBaseKey(string $key): string
     {
         return explode('.', $key)[0];

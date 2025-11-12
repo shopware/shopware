@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataContext;
 
-use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Framework\Log\Package;
@@ -106,9 +105,6 @@ class ContextResolutionVisitor implements ElementVisitor
         return null;
     }
 
-    /**
-     * Set context data for a consumer, resolving paths if needed.
-     */
     private function setContextForConsumer(ContentElement $consumer, string $providerKey, mixed $data): void
     {
         $acceptedContexts = $consumer->getAcceptsContext();
@@ -118,26 +114,24 @@ class ContextResolutionVisitor implements ElementVisitor
                 continue;
             }
 
+            $propertyKey = $consumerDef->propertyAlias ?? $consumerKey;
+
             if ($consumerKey === $providerKey) {
-                $consumer->setProperty($consumerKey, $data);
+                $consumer->setProperty($propertyKey, $data);
                 continue;
             }
 
-            [$baseKey, $path] = ContextPathResolver::parseContextKey($consumerKey);
+            $path = ContextPathResolver::parseContextKey($consumerKey);
 
-            try {
-                $resolvedValue = $this->pathResolver->resolvePath(
-                    $data,
-                    $path,
-                    $consumerDef->required,
-                    $consumerKey,
-                    $consumer->getId()
-                );
+            $resolvedValue = $this->pathResolver->resolvePath(
+                $data,
+                $path,
+                $consumerDef->required,
+                $consumerKey,
+                $consumer->getId()
+            );
 
-                $consumer->setProperty($consumerKey, $resolvedValue);
-            } catch (ContentSystemException $e) {
-                throw $e;
-            }
+            $consumer->setProperty($propertyKey, $resolvedValue);
         }
     }
 }

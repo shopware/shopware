@@ -54,6 +54,12 @@ Consumers can request nested properties from context using dot notation (e.g., `
 
 **Implementation**: See `ContextPathResolver` class for path parsing and resolution logic.
 
+### Property Alias
+
+Path resolution uses full context key (e.g., `product.cover`), but resolved value stored using optional property alias.
+
+Order: resolve path → apply alias → store in element properties.
+
 ## Virtual Providers from Redistribution
 
 Redistribution shorthand (`redistribute: true`) auto-generates broadcast providers at parse-time.

@@ -608,8 +608,29 @@ Fields:
 - `required` - Whether context is mandatory:
   - `true` - Element fails if context unavailable
   - `false` - Element works without context
+- `property_alias` (optional) - Renames the property key where context data is stored in this element. The consumed data is stored with this alias instead of the original context key. Useful for component reusability when elements expect specific property names.
 
 Consumer receives context data directly as a property.
+
+**Property Alias Example:**
+
+**Use case:** Reusable image element expects `"image"` property, but product layout provides `"product.cover"`. Use `property_alias` to adapt without modifying the element.
+
+```json
+{
+  "id": "product-cover",
+  "type": "Sw:Content:Image",
+  "accepts_context": {
+    "product.cover": {
+      "type": "single",
+      "required": true,
+      "property_alias": "image"
+    }
+  }
+}
+```
+
+Element receives `product.cover` from parent context but stores it as `image` internally, matching what the renderer expects. Enables component reusability across different data sources.
 
 ### Context Path Resolution
 
@@ -757,6 +778,13 @@ You can rename the context key when redistributing. Useful when your reusable co
 ```
 
 Container accepts `featuredProduct`, children receive `product`. Reuse the same product card components everywhere.
+
+**Property Alias vs Consumer Alias:**
+
+- `consumer_alias` (in `provides_context`): Provider renames context for all children receiving it
+- `property_alias` (in `accepts_context`): Individual consumer renames context for its own use only
+
+Use `consumer_alias` when all children need the same rename. Use `property_alias` when individual consumers need different internal names.
 
 #### Choosing Your Approach
 

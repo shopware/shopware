@@ -385,7 +385,8 @@
                         "accepts_context": {
                           "product.cover": {
                             "type": "single",
-                            "required": true
+                            "required": true,
+                            "property_alias": "cover"
                           }
                         }
                       },
@@ -398,7 +399,8 @@
                         "accepts_context": {
                           "product.manufacturer.name": {
                             "type": "single",
-                            "required": false
+                            "required": false,
+                            "property_alias": "manufacturerName"
                           }
                         }
                       }
@@ -430,7 +432,8 @@
                         "accepts_context": {
                           "product.cover": {
                             "type": "single",
-                            "required": true
+                            "required": true,
+                            "property_alias": "cover"
                           }
                         }
                       }
@@ -462,7 +465,8 @@
                         "accepts_context": {
                           "product.cover": {
                             "type": "single",
-                            "required": true
+                            "required": true,
+                            "property_alias": "cover"
                           }
                         }
                       }
@@ -738,7 +742,8 @@
                         "accepts_context": {
                           "product.manufacturer.name": {
                             "type": "single",
-                            "required": false
+                            "required": false,
+                            "property_alias": "manufacturerName"
                           }
                         }
                       },
@@ -752,7 +757,8 @@
                         "accepts_context": {
                           "product.cover": {
                             "type": "single",
-                            "required": true
+                            "required": true,
+                            "property_alias": "cover"
                           }
                         }
                       },
@@ -765,7 +771,8 @@
                         "accepts_context": {
                           "product.media": {
                             "type": "collection",
-                            "required": false
+                            "required": false,
+                            "property_alias": "media"
                           }
                         }
                       }
@@ -1479,15 +1486,18 @@
                   "accepts_context": {
                     "listing.aggregations": {
                       "type": "single",
-                      "required": false
+                      "required": false,
+                      "property_alias": "aggregations"
                     },
                     "listing.currentFilters": {
                       "type": "single",
-                      "required": false
+                      "required": false,
+                      "property_alias": "currentFilters"
                     },
                     "listing.availableSortings": {
                       "type": "single",
-                      "required": false
+                      "required": false,
+                      "property_alias": "availableSortings"
                     }
                   }
                 }

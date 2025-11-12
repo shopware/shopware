@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
-use Shopware\Core\Framework\DataAbstractionLayer\Validation\DefinitionValidatorTestDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition\DefinitionValidatorTestDefinition;
 
 /**
  * @internal
@@ -26,56 +26,15 @@ class DefinitionValidatorTest extends TestCase
 {
     /**
      * @param list<string> $expectedMessages
-     * @param list<string>|null $dbPrimaryKeys
+     * @param list<string> $dbPrimaryKeys
      */
-    #[DataProvider('primaryKeyConsistencyProvider')]
-    public function testPrimaryKeyConsistency(?array $dbPrimaryKeys, array $expectedMessages): void
+    #[DataProvider('primaryKeyMismatchProvider')]
+    public function testPrimaryKeyMismatchReportsViolation(array $dbPrimaryKeys, array $expectedMessages): void
     {
         $definition = new DefinitionValidatorTestDefinition();
+        $validator = $this->createValidatorWithTable($definition, $dbPrimaryKeys);
 
-        $connection = $this->createMock(Connection::class);
-        $schemaManager = $this->createMock(AbstractSchemaManager::class);
-        $connection->method('createSchemaManager')->willReturn($schemaManager);
-
-        if ($dbPrimaryKeys === null) {
-            $schemaManager->method('introspectTable')->willThrowException(new \Exception('Table does not exist'));
-        } else {
-            $table = $this->createMock(Table::class);
-            $table->method('getName')->willReturn('definition_validator_test');
-            $table->method('getColumns')->willReturn([]);
-
-            $pkConstraint = null;
-            if (!empty($dbPrimaryKeys)) {
-                $pkColumns = array_map(
-                    static function (string $col): UnqualifiedName {
-                        \assert($col !== '');
-
-                        return new UnqualifiedName(Identifier::unquoted($col));
-                    },
-                    $dbPrimaryKeys
-                );
-                $pkConstraint = new PrimaryKeyConstraint(null, $pkColumns, false);
-            }
-
-            // This setup is to make the other validation checks pass
-            $columns = [
-                new Column('id', Type::getType(Types::BINARY)),
-                new Column('foo', Type::getType(Types::INTEGER)),
-            ];
-            $schemaManager->method('listTableColumns')->willReturn($columns);
-            $table->method('getPrimaryKeyConstraint')->willReturn($pkConstraint);
-            $schemaManager->method('introspectTable')->willReturn($table);
-            $schemaManager->method('listTables')->willReturn([$table]);
-        }
-
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $definition->compile($registry);
-        $registry->method('getDefinitions')->willReturn([$definition]);
-        $registry->method('getByEntityName')->willReturn($definition);
-
-        $validator = new DefinitionValidator($registry, $connection);
         $violations = $validator->validate();
-
         $definitionViolations = $violations[$definition::class] ?? [];
 
         // Filter to only primary key violations
@@ -83,12 +42,6 @@ class DefinitionValidatorTest extends TestCase
             $definitionViolations,
             static fn (string $violation): bool => str_contains($violation, 'Primary key mismatch')
         );
-
-        if (empty($expectedMessages)) {
-            static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations, but got: ' . implode(', ', $primaryKeyViolations));
-
-            return;
-        }
 
         static::assertCount(1, $primaryKeyViolations, 'Expected 1 primary key violation, but got: ' . implode(', ', $primaryKeyViolations));
         $violation = reset($primaryKeyViolations);
@@ -99,9 +52,49 @@ class DefinitionValidatorTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{list<string>|null, list<string>}>
+     * @param list<string> $dbPrimaryKeys
      */
-    public static function primaryKeyConsistencyProvider(): \Generator
+    #[DataProvider('primaryKeyMatchProvider')]
+    public function testPrimaryKeyMatchReportsNoViolation(array $dbPrimaryKeys): void
+    {
+        $definition = new DefinitionValidatorTestDefinition();
+        $validator = $this->createValidatorWithTable($definition, $dbPrimaryKeys);
+
+        $violations = $validator->validate();
+        $definitionViolations = $violations[$definition::class] ?? [];
+
+        // Filter to only primary key violations
+        $primaryKeyViolations = array_filter(
+            $definitionViolations,
+            static fn (string $violation): bool => str_contains($violation, 'Primary key mismatch')
+        );
+
+        static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations, but got: ' . implode(', ', $primaryKeyViolations));
+    }
+
+    public function testPrimaryKeyValidationHandlesTableNotFoundException(): void
+    {
+        $definition = new DefinitionValidatorTestDefinition();
+        $validator = $this->createValidatorWithNonExistentTable($definition);
+
+        $violations = $validator->validate();
+        $definitionViolations = $violations[$definition::class] ?? [];
+
+        // Filter to only primary key violations
+        $primaryKeyViolations = array_filter(
+            $definitionViolations,
+            static fn (string $violation): bool => str_contains($violation, 'Primary key mismatch')
+        );
+
+        // When table doesn't exist, introspectTable throws an exception which is caught,
+        // and validatePrimaryKeyConsistency returns empty array (no violations)
+        static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations when table does not exist, but got: ' . implode(', ', $primaryKeyViolations));
+    }
+
+    /**
+     * @return \Generator<string, array{list<string>, list<string>}>
+     */
+    public static function primaryKeyMismatchProvider(): \Generator
     {
         yield 'mismatched primary key' => [
             ['foo'],
@@ -112,11 +105,6 @@ class DefinitionValidatorTest extends TestCase
             ],
         ];
 
-        yield 'matching primary key' => [
-            ['id'],
-            [],
-        ];
-
         yield 'no primary key' => [
             [],
             [
@@ -125,39 +113,74 @@ class DefinitionValidatorTest extends TestCase
                 'entity definition has PrimaryKey flags on (id)',
             ],
         ];
+    }
 
-        yield 'table does not exist' => [
-            null,
-            [],
+    /**
+     * @return \Generator<string, array{list<string>}>
+     */
+    public static function primaryKeyMatchProvider(): \Generator
+    {
+        yield 'matching primary key' => [
+            ['id'],
         ];
     }
-}
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
-
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-
-/**
- * @internal
- */
-class DefinitionValidatorTestDefinition extends EntityDefinition
-{
-    public const ENTITY_NAME = 'definition_validator_test';
-
-    public function getEntityName(): string
+    /**
+     * @param list<string> $dbPrimaryKeys
+     */
+    private function createValidatorWithTable(DefinitionValidatorTestDefinition $definition, array $dbPrimaryKeys): DefinitionValidator
     {
-        return self::ENTITY_NAME;
+        $connection = $this->createMock(Connection::class);
+        $schemaManager = $this->createMock(AbstractSchemaManager::class);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
+
+        $table = $this->createMock(Table::class);
+        $table->method('getName')->willReturn('definition_validator_test');
+        $table->method('getColumns')->willReturn([]);
+
+        $pkConstraint = null;
+        if (!empty($dbPrimaryKeys)) {
+            $pkColumns = array_map(
+                static function (string $col): UnqualifiedName {
+                    \assert($col !== '');
+
+                    return new UnqualifiedName(Identifier::unquoted($col));
+                },
+                $dbPrimaryKeys
+            );
+            $pkConstraint = new PrimaryKeyConstraint(null, $pkColumns, false);
+        }
+
+        // This setup is to make the other validation checks pass
+        $columns = [
+            new Column('id', Type::getType(Types::BINARY)),
+            new Column('foo', Type::getType(Types::INTEGER)),
+        ];
+        $schemaManager->method('listTableColumns')->willReturn($columns);
+        $table->method('getPrimaryKeyConstraint')->willReturn($pkConstraint);
+        $schemaManager->method('introspectTable')->willReturn($table);
+        $schemaManager->method('listTables')->willReturn([$table]);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definition->compile($registry);
+        $registry->method('getDefinitions')->willReturn([$definition]);
+        $registry->method('getByEntityName')->willReturn($definition);
+
+        return new DefinitionValidator($registry, $connection);
     }
 
-    protected function defineFields(): FieldCollection
+    private function createValidatorWithNonExistentTable(DefinitionValidatorTestDefinition $definition): DefinitionValidator
     {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
-            new IntField('foo', 'foo'),
-        ]);
+        $connection = $this->createMock(Connection::class);
+        $schemaManager = $this->createMock(AbstractSchemaManager::class);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
+        $schemaManager->method('introspectTable')->willThrowException(new \Exception('Table does not exist'));
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definition->compile($registry);
+        $registry->method('getDefinitions')->willReturn([$definition]);
+        $registry->method('getByEntityName')->willReturn($definition);
+
+        return new DefinitionValidator($registry, $connection);
     }
 }

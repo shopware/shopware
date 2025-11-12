@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition\DefinitionValidatorTestDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition\DefinitionValidatorTestDefinitionWithNonStorageAwarePrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition\DefinitionValidatorWithNonStorageAwarePrimaryKeyTestDefinition;
 
 /**
  * @internal
@@ -95,7 +95,7 @@ class DefinitionValidatorTest extends TestCase
     public function testPrimaryKeyValidationSkipsNonStorageAwareFields(): void
     {
         // Use a definition with a non-StorageAware field marked as PrimaryKey
-        $definition = new DefinitionValidatorTestDefinitionWithNonStorageAwarePrimaryKey();
+        $definition = new DefinitionValidatorWithNonStorageAwarePrimaryKeyTestDefinition();
         $validator = $this->createValidatorWithTable($definition, ['id']);
 
         $violations = $validator->validate();

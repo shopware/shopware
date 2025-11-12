@@ -18,24 +18,35 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * Content element aggregate root with tree traversal.
  *
- * @internal
+ * @final
  */
 #[Package('discovery')]
 class ContentElement extends Struct
 {
     /**
+     * @var array<string, Struct>
+     */
+    protected array $structProperties = [];
+
+    /**
+     * @var array<string, mixed>
+     */
+    protected array $nonStructProperties = [];
+
+    /**
      * @param array<string, DataRequirement> $dataRequirements Indexed by key
-     * @param array<string, mixed> $properties
+     * @param array<string, mixed> $properties Names properties
      * @param array<string, SlotContent> $slots Named slots containing child elements
      */
     public function __construct(
         protected string $id,
         protected string $type,
         protected array $dataRequirements = [],
-        protected array $properties = [],
+        array $properties = [],
         protected array $slots = [],
         protected ContextDefinitions $contextDefinitions = new ContextDefinitions([], [])
     ) {
+        $this->setProperties($properties);
     }
 
     public function getId(): string
@@ -50,7 +61,7 @@ class ContentElement extends Struct
 
     public function requiresData(): bool
     {
-        return !empty($this->dataRequirements);
+        return \count($this->dataRequirements) !== 0;
     }
 
     /**
@@ -66,22 +77,39 @@ class ContentElement extends Struct
      */
     public function getProperties(): array
     {
-        return $this->properties;
+        return array_merge($this->structProperties, $this->nonStructProperties);
     }
 
+    /**
+     * Returns null when the property doesn't exist
+     */
     public function getProperty(string $key): mixed
     {
-        return $this->properties[$key] ?? null;
+        if (isset($this->structProperties[$key])) {
+            return $this->structProperties[$key];
+        }
+
+        if (isset($this->nonStructProperties[$key])) {
+            return $this->nonStructProperties[$key];
+        }
+
+        return null;
     }
 
     public function hasProperty(string $key): bool
     {
-        return isset($this->properties[$key]);
+        return isset($this->structProperties[$key]) || isset($this->nonStructProperties[$key]);
     }
 
     public function setProperty(string $key, mixed $value): void
     {
-        $this->properties[$key] = $value;
+        if ($value instanceof Struct) {
+            $this->structProperties[$key] = $value;
+
+            return;
+        }
+
+        $this->nonStructProperties[$key] = $value;
     }
 
     /**
@@ -89,7 +117,12 @@ class ContentElement extends Struct
      */
     public function setProperties(array $properties): void
     {
-        $this->properties = $properties;
+        $this->structProperties = [];
+        $this->nonStructProperties = [];
+
+        foreach ($properties as $key => $value) {
+            $this->setProperty($key, $value);
+        }
     }
 
     /**
@@ -117,7 +150,7 @@ class ContentElement extends Struct
 
     public function hasSlots(): bool
     {
-        return !empty($this->slots);
+        return \count($this->slots) !== 0;
     }
 
     public function traverse(ElementVisitor $visitor): void
@@ -178,9 +211,9 @@ class ContentElement extends Struct
 
     public function replacePlaceholders(RenderingSpecification $specification): void
     {
-        foreach ($this->properties as $key => $value) {
+        foreach ($this->nonStructProperties as $key => $value) {
             if (\is_string($value)) {
-                $this->properties[$key] = $this->resolvePlaceholder($value, $specification->placeholderValues);
+                $this->nonStructProperties[$key] = $this->resolvePlaceholder($value, $specification->placeholderValues);
             }
         }
 
@@ -203,6 +236,25 @@ class ContentElement extends Struct
     public function getApiAlias(): string
     {
         return 'content_element';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+
+        // Remove internal structCache from output (should not be exposed via API)
+        unset($data['structProperties']);
+        unset($data['nonStructProperties']);
+
+        $data['properties'] = array_merge(
+            $this->structProperties,
+            $this->nonStructProperties
+        );
+
+        return $data;
     }
 
     private function resolvePlaceholder(string $input, PlaceholderValues $values): string

@@ -110,6 +110,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
                         \gettype($elementData)
                     );
                 }
+
                 $elements[] = $this->decodeElement($elementData);
             }
 
@@ -250,8 +251,6 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Serializes properties, handling nested objects with toArray() method.
-     *
      * @param array<string, mixed> $properties
      *
      * @return array<string, mixed>
@@ -263,9 +262,10 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         foreach ($properties as $key => $value) {
             if (\is_object($value) && method_exists($value, 'toArray')) {
                 $serialized[$key] = $value->toArray();
-            } else {
-                $serialized[$key] = $value;
+                continue;
             }
+
+            $serialized[$key] = $value;
         }
 
         return $serialized;

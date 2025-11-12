@@ -40,7 +40,7 @@ class ContentElement extends Struct
      */
     public function __construct(
         protected string $id,
-        protected string $type,
+        protected string $component,
         protected array $dataRequirements = [],
         array $properties = [],
         protected array $slots = [],
@@ -54,9 +54,9 @@ class ContentElement extends Struct
         return $this->id;
     }
 
-    public function getType(): string
+    public function getComponent(): string
     {
-        return $this->type;
+        return $this->component;
     }
 
     public function requiresData(): bool

@@ -130,7 +130,7 @@ class ElementTreeUtil
 
         return new ContentElement(
             id: $currentElement->getId(),
-            type: $currentElement->getType(),
+            component: $currentElement->getComponent(),
             dataRequirements: $currentElement->getDataRequirements(),
             properties: $currentElement->getProperties(),
             slots: [$slotName => new SlotContent([$child])],

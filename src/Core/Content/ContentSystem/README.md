@@ -61,7 +61,7 @@ The rendering pipeline (refinement → hydration → output) is independent of t
 
 ## Subdirectories
 
-- Layout/: Element tree structure, type system, refinement, scaffolding
+- Layout/: Element tree structure, component system, refinement, scaffolding
 - Hydration/: Data loading, context distribution
 - SalesChannel/: Store API endpoints
 - Adapter/: Entity adaptation for CMS-capable entities (Product, Category, Landing Page)

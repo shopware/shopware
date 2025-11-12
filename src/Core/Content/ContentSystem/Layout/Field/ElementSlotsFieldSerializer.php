@@ -138,20 +138,22 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
         $slots = [];
 
         foreach ($slotsData as $slotName => $slotData) {
-            // Handle single element (has 'type' key indicating it's an element, not an array of elements)
-            if (isset($slotData['type'])) {
+            // Handle single element (has 'component' key indicating it's an element, not an array of elements)
+            if (isset($slotData['component'])) {
                 $element = $this->elementSerializer->decodeElement($slotData);
                 $slots[$slotName] = new SlotContent([$element]);
-            } else {
-                // Handle multiple elements
-                $elements = [];
-                foreach ($slotData as $elementData) {
-                    if (\is_array($elementData)) {
-                        $elements[] = $this->elementSerializer->decodeElement($elementData);
-                    }
-                }
-                $slots[$slotName] = new SlotContent($elements);
+                continue;
             }
+
+            $elements = [];
+            foreach ($slotData as $elementData) {
+                if (!\is_array($elementData)) {
+                    continue;
+                }
+
+                $elements[] = $this->elementSerializer->decodeElement($elementData);
+            }
+            $slots[$slotName] = new SlotContent($elements);
         }
 
         return $slots;

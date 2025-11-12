@@ -24,7 +24,7 @@
                         "items": { "$ref": "#/components/schemas/LineItem" }
                     },
                     "cover": {
-                      "allOf": [
+                      "oneOf": [
                         { "$ref": "#/components/schemas/ProductMedia" },
                         { "$ref": "#/components/schemas/Media" }
                       ]

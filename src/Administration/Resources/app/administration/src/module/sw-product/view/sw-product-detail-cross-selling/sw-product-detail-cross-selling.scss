@@ -1,4 +1,4 @@
-@import "~scss/variables";
+@import '~scss/variables';
 
 .sw-product-detail-cross-selling {
     & &__restore-inheritance-btn.mt-button {
@@ -47,5 +47,16 @@
     &__cross-selling-list + .sw-tooltip--wrapper {
         margin: 0 auto;
         width: fit-content;
+    }
+
+    .mt-card__content {
+        .sw-empty-state {
+            .sw-empty-state__element {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+        }
     }
 }

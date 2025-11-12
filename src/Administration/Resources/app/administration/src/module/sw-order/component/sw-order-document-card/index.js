@@ -228,14 +228,6 @@ export default {
         },
     },
 
-    watch: {
-        isDataLoading: {
-            handler(value) {
-                this.$emit('update-loading', value);
-            },
-        },
-    },
-
     created() {
         this.createdComponent();
     },

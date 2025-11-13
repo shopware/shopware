@@ -119,6 +119,8 @@ AdminDashboard,
 
 
         // Check both consents are declined in the modal
+        // Toggles clearly show state (on/off) and have accessible labels.
+        // Link(s) to the legal page(s) exist and point to the expected URL(s). (assert anchors with href contain the canonical path domain or route).
 
         // Click on deline all button
 
@@ -129,8 +131,12 @@ AdminDashboard,
     await test.step('Verify both consents are declined in the settings', async () => {
 
         // Navigate to the shop data settings page and validate shop data consent is declined
+        // Toggles clearly show state (on/off) and have accessible labels.
+        // Link(s) to the legal page(s) exist and point to the expected URL(s). (assert anchors with href contain the canonical path domain or route).
 
         // Navigate to User Profile settings page and validate user data consent is declined
+        // Toggles clearly show state (on/off) and have accessible labels.
+        // Link(s) to the legal page(s) exist and point to the expected URL(s). (assert anchors with href contain the canonical path domain or route).
 
     });
 

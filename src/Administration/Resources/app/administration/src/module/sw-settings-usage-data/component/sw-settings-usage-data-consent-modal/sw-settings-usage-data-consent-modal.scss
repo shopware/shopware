@@ -44,6 +44,15 @@
         }
     }
 
+    .sw-settings-usage-data-consent-modal__emphasis {
+        cursor: pointer;
+        text-decoration: underline;
+
+        &:hover {
+            color: var(--color-text-brand-hover);
+        }
+    }
+
     .sw-settings-usage-data-consent-modal__legal {
         margin-top: var(--scale-size-24);
     }

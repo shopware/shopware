@@ -45,19 +45,19 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
             || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
 
         if (!$country->getActive() && $validateShipping) {
-            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
+            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name'), $context->getShippingLocation()->getAddress()?->getId()));
 
             return;
         }
 
         if (!$country->getShippingAvailable() && $validateShipping) {
-            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
+            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name'), $context->getShippingLocation()->getAddress()?->getId()));
 
             return;
         }
 
         if (!$this->isSalesChannelCountry($country->getId(), $context) && $validateShipping) {
-            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
+            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name'), $context->getShippingLocation()->getAddress()?->getId()));
 
             return;
         }

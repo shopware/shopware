@@ -164,7 +164,7 @@
             <name>useDefaultCookieConsent</name>
             <label>Use default cookie notification</label>
             <label lang="de-DE">Standard-Cookie-Hinweis verwenden</label>
-            <helpText>You should deactivate the default cookie notification only if you are using an alternative third-party solution.</helpText>
+            <helpText>Deactivate the default cookie notification only if you are using an alternative third-party solution.</helpText>
             <helpText lang="de-DE">Du solltest den Standard-Cookie-Hinweis hier nur deaktivieren, wenn Du eine alternative Drittanbieterlösung verwendest.</helpText>
         </input-field>
 
@@ -204,12 +204,19 @@
     <card>
         <title>Rules for robots.txt</title>
         <title lang="de-DE">Regeln für robots.txt </title>
+        <input-field type="bool">
+            <name>robotsDisableDefaults</name>
+            <label>Disable default robots.txt rules</label>
+            <label lang="de-DE">Standard-Regeln für robots.txt deaktivieren</label>
+            <helpText>If set, Shopware's standard built-in robots.txt rules such as "User-agent: *", "Allow: /", "Disallow: /*?", etc. will not be included in your robots.txt. However, your own custom rules from the configuration below will still be included.</helpText>
+            <helpText lang="de-DE">Wenn diese Option gesetzt ist, werden die standardmäßig in Shopware enthaltenen robots.txt-Regeln wie "User-agent: *", "Allow: /", "Disallow: /*?" usw. nicht in deiner robots.txt ausgegeben. Deine eigenen benutzerdefinierten Regeln aus der weiter unten folgenden Konfiguration werden jedoch weiterhin ausgegeben.</helpText>
+        </input-field>
         <input-field type="textarea">
             <name>robotsRules</name>
-            <label>Domain specific robots.txt Allow/Disallow rules</label>
-            <label lang="de-DE">Domain spezifische robots.txt Allow/Disallow Regeln</label>
-            <helpText>Rules which will be prepended by the corresponding domain path</helpText>
-            <helpText lang="de-DE">Regeln bei denen der entsprechende Domain Pfad vorangestellt wird</helpText>
+            <label>Domain specific robots.txt rules</label>
+            <label lang="de-DE">Domain spezifische robots.txt Regeln</label>
+            <helpText>Define robots.txt rules. Supports User-agent blocks (applied globally across all domains) and Allow/Disallow rules (applied to this domain path). Example: "User-agent: Googlebot&amp;#10;Crawl-delay: 10&amp;#10;Disallow: /private/"</helpText>
+            <helpText lang="de-DE">Definiere hier die Regeln für deine robots.txt. Du kannst User-agent-Blöcke (global für alle Domains) und Allow/Disallow-Regeln (für diesen Domain-Pfad) verwenden. Beispiel: "User-agent: Googlebot&amp;#10;Crawl-delay: 10&amp;#10;Disallow: /private/"</helpText>
         </input-field>
     </card>
 

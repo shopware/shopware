@@ -118,7 +118,7 @@ class CheckoutConfirmPageLoader
         $violations = $this->validator->getViolations($billingAddress->jsonSerialize(), $validation);
 
         if ($violations->count() > 0) {
-            $cart->getErrors()->add(new AddressValidationError(true, $violations));
+            $cart->getErrors()->add(new AddressValidationError(true, $violations, $billingAddress->getId()));
         }
     }
 
@@ -146,7 +146,7 @@ class CheckoutConfirmPageLoader
 
         $violations = $this->validator->getViolations($shippingAddress->jsonSerialize(), $validation);
         if ($violations->count() > 0) {
-            $cart->getErrors()->add(new AddressValidationError(false, $violations));
+            $cart->getErrors()->add(new AddressValidationError(false, $violations, $shippingAddress->getId()));
         }
     }
 }

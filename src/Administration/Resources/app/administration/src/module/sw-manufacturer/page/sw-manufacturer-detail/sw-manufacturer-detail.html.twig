@@ -139,7 +139,18 @@
 
                     {% block sw_manufacturer_detail_base_info_field_description %}
                     <sw-text-editor
+                        v-if="!feature.isActive('METEOR_TEXT_EDITOR')"
                         v-model:value="manufacturer.description"
+                        :label="$tc('sw-manufacturer.detail.labelDescription')"
+                        :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
+                        name="description"
+                        sanitize-input
+                        sanitize-field-name="product_manufacturer_translation.description"
+                        :disabled="!acl.can('product_manufacturer.editor') || undefined"
+                    />
+                    <mt-text-editor
+                        v-else
+                        v-model="manufacturer.description"
                         :label="$tc('sw-manufacturer.detail.labelDescription')"
                         :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
                         name="description"

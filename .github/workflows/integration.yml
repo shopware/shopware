@@ -104,7 +104,7 @@ jobs:
           echo 'EOF' >> $GITHUB_OUTPUT
 
   phpunit:
-    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
+    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}"
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
@@ -123,7 +123,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.test.path != '' && 'opensearchproject/opensearch:2' || 'alpine' }}
+        image: ${{ matrix.test.path != '' &&  matrix.opensearch || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -392,7 +392,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:2"
+        image: "opensearchproject/opensearch:3"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -450,7 +450,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:2"
+        image: "opensearchproject/opensearch:3"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -530,7 +530,7 @@ jobs:
 
       services:
           elasticsearch:
-              image: "opensearchproject/opensearch:2"
+              image: "opensearchproject/opensearch:3"
               env:
                   discovery.type: single-node
                   plugins.security.disabled: "true"

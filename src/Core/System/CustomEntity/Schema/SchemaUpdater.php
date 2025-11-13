@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal
  *
- * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}
+ * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool, ignoreMissingReference?: bool}
  */
 #[Package('framework')]
 class SchemaUpdater
@@ -187,8 +187,10 @@ class SchemaUpdater
 
                     break;
                 case 'many-to-many':
-                    // get reference name for foreign key building
-                    $referenceName = $field['reference'];
+                    $skipAssociationCreation = $this->skipAssociationCreation($schema, $field);
+                    if ($skipAssociationCreation) {
+                        continue 2;
+                    }
 
                     // build mapping table name: `custom_entity_blog_products`
                     $mappingName = implode('_', [$name, $field['name']]);
@@ -197,6 +199,8 @@ class SchemaUpdater
                     if ($schema->hasTable($mappingName)) {
                         continue 2;
                     }
+
+                    $referenceName = $field['reference'];
 
                     $mapping = $schema->createTable($mappingName);
 
@@ -249,6 +253,11 @@ class SchemaUpdater
                     break;
                 case 'many-to-one':
                 case 'one-to-one':
+                    $skipAssociationCreation = $this->skipAssociationCreation($schema, $field);
+                    if ($skipAssociationCreation) {
+                        continue 2;
+                    }
+
                     // first add foreign key column to custom entity table: `top_seller_id`
                     $table->addColumn(self::id($field['name']), Types::BINARY, $fieldOptions + $binary);
 
@@ -277,8 +286,12 @@ class SchemaUpdater
                     break;
 
                 case 'one-to-many':
-                    // for one-to-many association, we don't need to add some columns in the custom entity table
-                    $reference = $this->createTable($schema, $field['reference']);
+                    $skipAssociationCreation = $this->skipAssociationCreation($schema, $field);
+                    if ($skipAssociationCreation) {
+                        continue 2;
+                    }
+
+                    $reference = $schema->getTable($field['reference']);
 
                     $foreignKey = $table->getName() . '_' . self::id($field['name']);
                     if ($reference->hasColumn($foreignKey)) {
@@ -342,5 +355,24 @@ class SchemaUpdater
         return $schema->hasTable($name)
             ? $schema->getTable($name)
             : $schema->createTable($name);
+    }
+
+    /**
+     * @param CustomEntityField $field
+     */
+    private function skipAssociationCreation(Schema $schema, array $field): bool
+    {
+        $referenceName = $field['reference'];
+        $ignoreMissingReference = $field['ignoreMissingReference'] ?? false;
+
+        if (!$schema->hasTable($referenceName)) {
+            if ($ignoreMissingReference) {
+                return true;
+            }
+            // throw exception right away if the reference table does not exist and the ignoreMissingReference attribute is false
+            throw CustomEntityException::associationReferenceTableNotFound($referenceName);
+        }
+
+        return false;
     }
 }

@@ -195,15 +195,15 @@ class AccountService
         $criteria->setTitle('account-service::fetchCustomer');
 
         $result = $this->customerRepository->search($criteria, $context->getContext())->getEntities();
-        $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): ?bool {
+        $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): bool {
             // Skip not active users
             if (!$customer->getActive()) {
-                return null;
+                return false;
             }
 
             // Skip guest if not required
             if (!$includeGuest && $customer->getGuest()) {
-                return null;
+                return false;
             }
 
             // If not bound, we still need to consider it
@@ -213,7 +213,7 @@ class AccountService
 
             // It is bound, but not to the current one. Skip it
             if ($customer->getBoundSalesChannelId() !== $context->getSalesChannelId()) {
-                return null;
+                return false;
             }
 
             return true;

@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AssociationDescription;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -114,7 +115,7 @@ class CountryDefinition extends EntityDefinition
             (new BoolField('is_eu', 'isEu'))->addFlags(new ApiAware(), new Required()),
 
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', 'id'))
-                ->addFlags(new ApiAware(), new CascadeDelete()),
+                ->addFlags(new ApiAware(), new CascadeDelete(), new AssociationDescription('States/provinces/regions within the country')),
 
             (new TranslationsAssociationField(CountryTranslationDefinition::class, 'country_id'))
                 ->addFlags(new ApiAware(), new Required()),

@@ -71,4 +71,4 @@ Also, they need to adjust their clients to correctly pass the cache-hash head or
 
 ### Feature flag handling
 
-All the breaking changes (and caching benefits) can be already used by opting in and enabling the `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` feature flag.
+All the breaking changes (and caching benefits) can be already used by opting in and enabling the `CACHE_REWORK` feature flag.

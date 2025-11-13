@@ -167,3 +167,20 @@ span svg {
     display: initial;
     vertical-align: initial;
 }
+
+.mt-card .mt-card__content {
+    &:has(.mt-empty-state) {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .sw-empty-state {
+        .sw-empty-state__element {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}

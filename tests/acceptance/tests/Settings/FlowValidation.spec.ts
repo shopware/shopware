@@ -49,8 +49,9 @@ test(
 
         await test.step('Validate order state and customer tag via UI', async () => {
             await ShopAdmin.goesTo(AdminOrderDetail.url(order.id));
-            await ShopAdmin.expects(AdminOrderDetail.page.locator('.sw-order-state-select-v2__order_transaction')).toContainText('Paid');
-            await ShopAdmin.expects(AdminOrderDetail.page.locator('.sw-order-state-select-v2__order_delivery')).toContainText('Shipped (partially)');
+            await ShopAdmin.expects(AdminOrderDetail.orderStatus).toContainText('In Progress');
+            await ShopAdmin.expects(AdminOrderDetail.orderPaymentStatus).toContainText('Paid');
+            await ShopAdmin.expects(AdminOrderDetail.orderDeliveryStatus).toContainText('Shipped (partially)');
 
             await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id));
             await ShopAdmin.expects(AdminCustomerDetail.tagList).toContainText(tagTrue.name);

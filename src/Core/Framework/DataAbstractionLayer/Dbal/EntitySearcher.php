@@ -177,9 +177,9 @@ class EntitySearcher implements EntitySearcherInterface
 
     /**
      * @param array<string>|array<array<string, string>> $ids
-     * @param array<string, mixed> $data
+     * @param array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}> $data
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}>
      */
     private function sortByIdArray(array $ids, array $data): array
     {

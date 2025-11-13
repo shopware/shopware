@@ -82,6 +82,7 @@
     >
         <template #content="{ currentValue, updateCurrentValue, isInherited }">
             <sw-text-editor
+                v-if="!feature.isActive('METEOR_TEXT_EDITOR')"
                 :key="isInherited"
                 :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
                 :error="productDescriptionError"
@@ -90,6 +91,17 @@
                 sanitize-input
                 sanitize-field-name="product_translation.description"
                 @update:value="updateCurrentValue"
+            />
+            <mt-text-editor
+                v-else
+                :key="'meteor-' + isInherited"
+                :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
+                :error="productDescriptionError"
+                :disabled="isInherited || !allowEdit"
+                :model-value="currentValue"
+                sanitize-input
+                sanitize-field-name="product_translation.description"
+                @update:model-value="updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>

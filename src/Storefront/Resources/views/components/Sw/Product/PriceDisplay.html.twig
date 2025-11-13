@@ -106,17 +106,18 @@
             </div>
         {% endif %}
 
-        <a class="fs-6 d-block"
-           href="#"
-           role="button"
-           data-bs-toggle="modal"
-           data-bs-target="#listing-price-tax-info-modal">
+        <twig:Sw:Button 
+            variant="inline"
+            class="fs-6"
+            role="button"
+            data-bs-toggle="modal"
+            data-bs-target="#listing-price-tax-info-modal">
             {% if context.taxState == 'gross' %}
                 {{ 'general.grossTaxInformationShort'|trans|sw_sanitize }}
             {% else %}
                 {{ 'general.netTaxInformationShort'|trans|sw_sanitize }}
             {% endif %}
-        </a>
+        </twig:Sw:Button>
 
     </div>
 {% endblock %}

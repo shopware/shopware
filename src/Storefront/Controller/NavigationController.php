@@ -71,7 +71,7 @@ class NavigationController extends StorefrontController
 
             return $this->renderStorefront(
                 '@Storefront/storefront/page/content/index.html.twig',
-                ['page' => $page, 'cmsPage' => $cmsPage]);
+                ['page' => $page, 'cmsPage' => $cmsPage, 'isNewContentStructure' => true]);
         }
 
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
@@ -190,7 +190,7 @@ class NavigationController extends StorefrontController
                     'properties' => [
                         'columns' => '2',
                         'columnsLg' => '1',
-                        'gap' => '24',
+                        'gap' => 60,
                         'align' => 'start',
                         'alignContent' => 'start',
                         'justify' => 'stretch',
@@ -232,7 +232,7 @@ class NavigationController extends StorefrontController
                                             'id' => '123',
                                             'component' => 'Sw:Content:Text',
                                             'properties' => [
-                                                'text' => '<h1>Lorem ipsum dolor sit amet.</h1><p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>',
+                                                'text' => "<h1>Discover Your Summer Style</h1><p>Step into the sunshine with our Summer Fashion Collection! From breezy dresses and linen shirts to stylish sandals and bold accessories — everything you need to stay cool and look effortlessly chic all season long. Embrace vibrant colors, light fabrics, and timeless designs perfect for beach days, city strolls, and evening get-togethers. Your next favorite outfit is waiting — explore now and make this summer your most stylish one yet.</p><p>Each piece in our collection is carefully selected to combine comfort and elegance, using high-quality materials that feel as good as they look. Whether you're planning a weekend getaway or updating your everyday wardrobe, our summer essentials will keep you glowing with confidence and ready for every adventure under the sun.</p>",
                                             ],
                                         ],
                                         [
@@ -276,18 +276,7 @@ class NavigationController extends StorefrontController
                                     'filterAggregations' => $listingData->getAggregations(),
                                     'availableSortings' => $listingData->getAvailableSortings(),
                                 ],
-                                'slots' => [
-                                    // 'additional-filters-start' => [
-                                    //     [
-                                    //         'id' => '123',
-                                    //         'component' => 'Sw:Filter:Type:BooleanFilter',
-                                    //         'properties' => [
-                                    //             'name' => 'isCloseout',
-                                    //             'displayName' => 'Closeout',
-                                    //         ]
-                                    //     ]
-                                    // ]
-                                ]
+                                'slots' => []
                             ]
                         ],
                         'product-card' => []

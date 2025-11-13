@@ -76,15 +76,15 @@
     justify-content: center;
     transition: all 0.15s ease-in-out;
     opacity: 0;
-    background-color: $primary;
-    border: 0.125rem solid $body-bg;
+    background-color: var(--bs-primary);
+    border: 0.125rem solid var(--bs-body);
     top: 0;
     left: 1.813rem;
 
     .icon {
         width: 0.625rem;
         height: 0.625rem;
-        color: $white;
+        color: var(--bs-white);
 
         svg {
             top: 0;

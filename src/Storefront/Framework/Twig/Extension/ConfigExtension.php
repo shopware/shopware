@@ -28,6 +28,7 @@ class ConfigExtension extends AbstractExtension
             new TwigFunction('theme_scripts', $this->scripts(...), ['needs_context' => true]),
             new TwigFunction('component_scripts', $this->componentScripts(...), ['needs_context' => true]),
             new TwigFunction('mounted_component_scripts', $this->mountedComponentScripts(...), ['needs_context' => true]),
+            new TwigFunction('mounted_component_styles', $this->mountedComponentStyles(...), ['needs_context' => true]),
         ];
     }
 
@@ -79,6 +80,16 @@ class ConfigExtension extends AbstractExtension
     public function mountedComponentScripts(): array
     {
         return $this->config->mountedComponentScripts();
+    }
+
+    /**
+     * Returns all styles of components that have been mounted in the template.
+     * 
+     * @return array<int, string>
+     */
+    public function mountedComponentStyles(): array
+    {
+        return $this->config->mountedComponentStyles();
     }
 
     /**

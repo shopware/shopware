@@ -18,14 +18,14 @@ class TwigComponentCollection extends Collection
         foreach ($elements as $element) {
             $this->validateType($element);
 
-            $this->set($element->getName(), $element);
+            $this->set($element->getTag(), $element);
         }
     }
 
     public function add($element): void
     {
         $this->validateType($element);
-        $this->set($element->getName(), $element);
+        $this->set($element->getTag(), $element);
     }
 
     protected function getExpectedClass(): string

@@ -403,6 +403,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
     /**
      * Extracts entity name from operation response schemas
+     *
+     * @param array<string, mixed> $operation
      */
     private function extractEntityNameFromOperation(array $operation): ?string
     {
@@ -411,10 +413,13 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $ref = $operation['responses']['200']['$ref'];
             // Extract entity name from response reference like "ProductListResponse" -> "product"
             // Match pattern: components/responses/{Entity}[List|Detail]Response
-            if (preg_match('#/([^/]+?)(?:List|Detail)?Response$#', $ref, $matches)) {
-                $entityName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $matches[1]));
+            if (is_string($ref) && preg_match('#/([^/]+?)(?:List|Detail)?Response$#', $ref, $matches)) {
+                $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $matches[1]);
+                if (!is_string($converted)) {
+                    return null;
+                }
 
-                return $entityName;
+                return strtolower($converted);
             }
         }
 
@@ -503,11 +508,17 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         // Handle patterns like "ProductListing" -> "product"
         // Remove common suffixes before converting
         $schemaName = preg_replace('/(?:Listing|Search|Collection)$/', '', $schemaName);
+        if (!is_string($schemaName)) {
+            return null;
+        }
 
         // Convert PascalCase to snake_case
-        $entityName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName));
+        $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName);
+        if (!is_string($converted)) {
+            return null;
+        }
 
-        return $entityName;
+        return strtolower($converted);
     }
 
     /**
@@ -524,9 +535,12 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $schemaName = $matches[1];
 
         // Convert PascalCase to snake_case
-        $entityName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName));
+        $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName);
+        if (!is_string($converted)) {
+            return null;
+        }
 
-        return $entityName;
+        return strtolower($converted);
     }
 
     /**
@@ -543,9 +557,12 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $schemaName = $matches[1];
 
         // Convert PascalCase to snake_case
-        $entityName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName));
+        $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName);
+        if (!is_string($converted)) {
+            return null;
+        }
 
-        return $entityName;
+        return strtolower($converted);
     }
 
     /**
@@ -562,9 +579,12 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $schemaName = $matches[1];
 
         // Convert PascalCase to snake_case
-        $entityName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName));
+        $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName);
+        if (!is_string($converted)) {
+            return null;
+        }
 
-        return $entityName;
+        return strtolower($converted);
     }
 
     /**

@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Log\Package;
  *     );
  * ```
  */
-#[Package('core')]
-class AssociationDescription extends Flag
+#[Package('framework')]
+final class AssociationDescription extends Flag
 {
     public function __construct(
         private readonly string $description

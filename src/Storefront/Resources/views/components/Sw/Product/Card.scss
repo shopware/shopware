@@ -9,6 +9,12 @@
     --sw-product-card-media-height: 200px;
 }
 
+.sw-product-card.is--embed {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: #fff;
+}
+
 .sw-product-card__title {
     // Reset global core styling. No border wanted here.
     border-bottom: none;

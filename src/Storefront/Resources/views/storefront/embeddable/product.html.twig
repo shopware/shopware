@@ -1,0 +1,9 @@
+{% sw_extends '@Storefront/storefront/embeddable/base.html.twig' %}
+
+{% block layout_head_title %}
+    <title itemprop="name">{{- product.translated.name -}}</title>
+{% endblock %}
+
+{% block content %}
+    <twig:Sw:Product:Card :product="product" :isEmbed="isEmbed" />
+{% endblock %}

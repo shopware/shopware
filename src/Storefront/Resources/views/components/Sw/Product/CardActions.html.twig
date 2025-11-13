@@ -2,6 +2,7 @@
     product,
     addToCartExtraFormData = {},
     horizontal = false,
+    isEmbed = false
 %}
 
 <div class="sw-product-card-actions{% if not horizontal %} d-grid{% endif %}">
@@ -11,11 +12,12 @@
 
     <twig:Slot name="top"></twig:Slot>
 
-    {% if displayBuyButton and config('core.listing.allowBuyInListing') %}
+    {% if displayBuyButton and config('core.listing.allowBuyInListing') and not isEmbed %}
         <twig:Sw:Product:BuyButton :product="product" :extraFormData="addToCartExtraFormData" />
     {% else %}
         <a href="{{ seoUrl('frontend.detail.page', {productId: product.id}) }}"
-           class="btn btn-light btn-detail">
+           {% if isEmbed %}target="_top"{% endif %}
+           class="btn {% if isEmbed %}btn-primary{% else %}btn-light{% endif %} btn-detail">
             {% block component_product_box_action_detail_label %}
                 {{ 'listing.boxProductDetails'|trans|sw_sanitize }}
             {% endblock %}

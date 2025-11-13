@@ -1,5 +1,6 @@
 {% props
     product,
+    isEmbed = false,
 %}
 
 {% block component_product_box_price_info %}
@@ -106,17 +107,28 @@
             </div>
         {% endif %}
 
-        <twig:Sw:Button 
-            variant="inline"
-            class="fs-6"
-            data-ajax-modal="true"
-            data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
-            {% if context.taxState == 'gross' %}
-                {{ 'general.grossTaxInformationShort'|trans|sw_sanitize }}
-            {% else %}
-                {{ 'general.netTaxInformationShort'|trans|sw_sanitize }}
-            {% endif %}
-        </twig:Sw:Button>
-
+        {% if isEmbed %}
+            <a class="btn btn-link-inline d-block fs-6"
+               href="{{ path('frontend.cms.page.full', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}" 
+               target="_top">
+                {% if context.taxState == 'gross' %}
+                    {{ 'general.grossTaxInformationShort'|trans|sw_sanitize }}
+                {% else %}
+                    {{ 'general.netTaxInformationShort'|trans|sw_sanitize }}
+                {% endif %}
+            </a>
+        {% else %}
+            <twig:Sw:Button 
+                variant="inline"
+                class="d-block fs-6"
+                data-ajax-modal="true"
+                data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+                {% if context.taxState == 'gross' %}
+                    {{ 'general.grossTaxInformationShort'|trans|sw_sanitize }}
+                {% else %}
+                    {{ 'general.netTaxInformationShort'|trans|sw_sanitize }}
+                {% endif %}
+            </twig:Sw:Button>
+        {% endif %}
     </div>
 {% endblock %}

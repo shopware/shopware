@@ -37,7 +37,6 @@ class SalesChannelException extends HttpException
     final public const ENCODING_MISSING_AGGREGATION_EXCEPTION = 'SYSTEM__ENCODING_MISSING_AGGREGATION_EXCEPTION';
     final public const ORDER_NOT_FOUND_CODE = 'SYSTEM__ORDER_NOT_FOUND_CODE';
     final public const MISSING_ORDER_ASSOCIATION_CODE = 'SYSTEM__MISSING_ORDER_ASSOCIATION_CODE';
-    final public const CONTEXT_TOKEN_NOT_ACCESSIBLE = 'SYSTEM__CONTEXT_TOKEN_NOT_ACCESSIBLE';
     final public const SALES_CHANNEL_MAPPING_INVALID_OPERATION = 'SYSTEM__SALES_CHANNEL_MAPPING_INVALID_OPERATION';
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
@@ -260,15 +259,6 @@ class SalesChannelException extends HttpException
             self::ENCODING_INVALID_STRUCT_EXCEPTION,
             'Invalid struct: "{{ context }}"',
             ['context' => $context]
-        );
-    }
-
-    public static function contextTokenNotAccessible(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::CONTEXT_TOKEN_NOT_ACCESSIBLE,
-            'The context token is not accessible in Twig rendering context, as the token should never be leaked in HTML content.',
         );
     }
 

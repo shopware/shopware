@@ -111,13 +111,19 @@
             class="fs-6 d-block"
             role="button"
             data-bs-toggle="modal"
-            data-bs-target="#listing-price-tax-info-modal">
+            data-bs-target="#tax-info-modal-{{ product.id }}">
             {% if context.taxState == 'gross' %}
                 {{ 'general.grossTaxInformationShort'|trans|sw_sanitize }}
             {% else %}
                 {{ 'general.netTaxInformationShort'|trans|sw_sanitize }}
             {% endif %}
         </twig:Sw:Button>
+
+        <twig:Sw:Content:Modal
+            id="tax-info-modal-{{ product.id }}"
+            :setTitleFromAjaxContent="true"
+            ajaxUrl="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
+        />
 
     </div>
 {% endblock %}

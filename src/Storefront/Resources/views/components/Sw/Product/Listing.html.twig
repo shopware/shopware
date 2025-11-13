@@ -70,12 +70,4 @@
         </twig:Slot>
     {% endblock %}
 
-    {% block tax_info %}
-        <twig:Sw:Content:Modal
-            id="listing-price-tax-info-modal"
-            :setTitleFromAjaxContent="true"
-            ajaxUrl="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
-        />
-    {% endblock %}
-
 </div>

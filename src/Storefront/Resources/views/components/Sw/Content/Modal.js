@@ -40,9 +40,9 @@ class Modal extends window.ShopwareComponent {
     }
 
     renderContent(content) {
-({ content } = Shopware.emitInterception(`${this.componentName}:PreRenderContent`, { content }));
+        ({ content } = Shopware.emitInterception(`${this.componentName}:PreRenderContent`, { content }));
 
- this.modalBody.innerHTML = content;
+         this.modalBody.innerHTML = content;
 
         if (this.options.setTitleFromAjaxContent) {
             this.moveFirstHeadlineToModalTitle();

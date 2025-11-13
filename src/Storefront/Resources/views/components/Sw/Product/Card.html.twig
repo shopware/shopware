@@ -34,14 +34,9 @@
 
             {% block media %}
                 <twig:Slot name="media">
-                    <twig:Sw:Media:Image
-                        {{ ...attributes.nested('media').defaults({
-                            media: product.cover.media,
-                            height: mediaHeight,
-                            class: 'card-img-top sw-product-card__media object-fit-contain',
-                            sizes: '800px',
-                            loading: 'lazy'
-                        }) }}
+                    <twig:Sw:Media:Display
+                        :media="product.cover.media"
+                        :mediaHeight="mediaHeight"
                     />
                 </twig:Slot>
             {% endblock %}
@@ -66,7 +61,7 @@
                         <h2 {{ attributes.nested('title').defaults({ class: 'sw-product-card__title card-title fw-semibold' }) }}>
                             <a
                                 {{ attributes.nested('title-link').defaults({
-                                    class: 'sw-product-card__title-link stretched-link',
+                                    class: 'sw-product-card__title-link',
                                     href: defaultRoute,
                                     style: "--sw-product-card-media-height: #{mediaHeight}px",
                                 }) }}

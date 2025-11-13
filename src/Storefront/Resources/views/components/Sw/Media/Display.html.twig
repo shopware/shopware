@@ -1,0 +1,23 @@
+{% props
+    media,
+    mediaHeight = 240,
+%}
+
+{% if media.isSpatialObject() %}
+    <twig:Sw:Media:Spacial
+        :media="media"
+        :mediaHeight="mediaHeight"
+    />
+{% elseif image.getMediaType().getName() === 'VIDEO' %}
+    {# Video #}
+{% else %}
+    <twig:Sw:Media:Image
+        {{ ...attributes.nested('media').defaults({
+            media: media,
+            height: mediaHeight,
+            class: 'card-img-top sw-product-card__media object-fit-contain',
+            sizes: '800px',
+            loading: 'lazy'
+        }) }}
+    />
+{% endif %}

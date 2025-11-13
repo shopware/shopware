@@ -1,3 +1,7 @@
+# 6.7.4.1
+
+The `Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute` now deletes customer recovery links after a customer has changed their email address.
+
 # 6.7.4.0
 
 ## Plugin config default values

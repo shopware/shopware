@@ -108,6 +108,10 @@ Example usage:
 
 ## Storefront
 
+### Spaces are trimmed from promotion codes
+
+Spaces are now always trimmed from promotions codes, as in the past promotion codes with spaces lead to unexpected behavior and errors in the cart.
+
 ### Language selector twig blocks
 
 New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added to the language selector to allow custom flag implementations.

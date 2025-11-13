@@ -332,7 +332,10 @@ jobs:
 
       - name: Require shopware
         working-directory: old-shopware
-        run: composer require shopware/core:${{ matrix.update.version }}
+        run: |
+          composer config audit.block-insecure false # We expect to see vulnerabilities in the older versions we're using here
+          
+          composer require shopware/core:${{ matrix.update.version }}
 
       - name: Install
         working-directory: old-shopware

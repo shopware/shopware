@@ -237,7 +237,7 @@ class AddressControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         /** @var RedirectResponse $response */
-        $response = $controller->saveAddress($dataBag, $context, $customer);
+        $response = $controller->saveAddress($dataBag, $context, $customer, new Request());
 
         $criteria = new Criteria([$id1]);
         $criteria->addAssociation('addresses');

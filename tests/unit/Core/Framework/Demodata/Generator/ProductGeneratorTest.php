@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
 use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
@@ -77,7 +76,7 @@ class ProductGeneratorTest extends TestCase
                 $sqlStatement = \func_get_arg(0);
 
                 if (\str_contains($sqlStatement, 'sales_channel')) {
-                    return \array_map(fn (string $id) => ['id' => $id], $salesChannelIds);
+                    return \array_map(static fn (string $id) => ['id' => $id], $salesChannelIds);
                 }
 
                 if (\str_contains($sqlStatement, 'property_group_option')) {
@@ -85,7 +84,7 @@ class ProductGeneratorTest extends TestCase
                 }
 
                 if (\str_contains($sqlStatement, 'category')) {
-                    return \array_map(fn (string $id) => ['id' => $id], $categoryIds);
+                    return \array_map(static fn (string $id) => ['id' => $id], $categoryIds);
                 }
 
                 return null;
@@ -128,18 +127,8 @@ class ProductGeneratorTest extends TestCase
         ];
 
         $mediaRepository = new StaticEntityRepository([
-            new IdSearchResult(
-                5,
-                \array_map(fn (string $id) => ['primaryKey' => $id, 'data' => []], $mediaIds),
-                new Criteria(),
-                Context::createDefaultContext()
-            ),
-            new IdSearchResult(
-                5,
-                \array_map(fn (string $id) => ['primaryKey' => $id, 'data' => []], $mediaProductDownloadIds),
-                new Criteria(),
-                Context::createDefaultContext()
-            ),
+            $mediaIds,
+            $mediaProductDownloadIds,
         ]);
 
         $productRepository = new StaticEntityRepository([]);
@@ -156,10 +145,10 @@ class ProductGeneratorTest extends TestCase
         });
 
         $inheritanceUpdater = $this->createMock(InheritanceUpdater::class);
-        $inheritanceUpdater->expects(TestCase::exactly(3))->method('update');
+        $inheritanceUpdater->expects($this->exactly(3))->method('update');
 
         $statesUpdater = $this->createMock(StatesUpdater::class);
-        $statesUpdater->expects(TestCase::exactly(3))->method('update');
+        $statesUpdater->expects($this->exactly(3))->method('update');
 
         $productGenerator = new ProductGenerator($connection, $registry, $inheritanceUpdater, $statesUpdater);
 
@@ -170,9 +159,9 @@ class ProductGeneratorTest extends TestCase
         $context->method('getFaker')->willReturn($generator);
 
         $io = $this->createMock(SymfonyStyle::class);
-        $io->expects(TestCase::exactly(1))->method('progressStart')->with($productCount);
-        $io->expects(TestCase::exactly((int) ($productCount / 20)))->method('progressAdvance');
-        $io->expects(TestCase::exactly(1))->method('progressFinish');
+        $io->expects($this->once())->method('progressStart')->with($productCount);
+        $io->expects($this->exactly((int) ($productCount / 20)))->method('progressAdvance');
+        $io->expects($this->once())->method('progressFinish');
 
         $context->method('getConsole')->willReturn($io);
 

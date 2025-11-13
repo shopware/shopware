@@ -54,12 +54,9 @@ final class NewsletterRecipientAdminSearchIndexer extends AbstractAdminIndexer
 
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
-        /** @var array<string> $ids */
-        $ids = $event->getPrimaryKeysWithPropertyChange(NewsletterRecipientDefinition::ENTITY_NAME, [
+        return $event->getPrimaryKeysWithPropertyChange(NewsletterRecipientDefinition::ENTITY_NAME, [
             'email',
         ]);
-
-        return $ids;
     }
 
     public function globalData(array $result, Context $context): array

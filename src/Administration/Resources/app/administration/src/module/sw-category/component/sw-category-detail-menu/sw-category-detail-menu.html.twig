@@ -50,8 +50,21 @@
 
     {% block sw_category_detail_menu_description %}
     <sw-text-editor
+        v-if="!feature.isActive('METEOR_TEXT_EDITOR')"
         :key="category.id + 'description'"
         v-model:value="category.description"
+        class="sw-category-detail-base__description"
+        type="textarea"
+        :disabled="!acl.can('category.editor')"
+        sanitize-input
+        sanitize-field-name="category_translation.description"
+        :label="$tc('sw-category.base.menu.descriptionLabel')"
+        :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
+    />
+    <mt-text-editor
+        v-else
+        :key="category.id + 'description-meteor'"
+        v-model="category.description"
         class="sw-category-detail-base__description"
         type="textarea"
         :disabled="!acl.can('category.editor')"

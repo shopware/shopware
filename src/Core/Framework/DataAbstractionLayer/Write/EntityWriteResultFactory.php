@@ -115,10 +115,10 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<string, array<EntityWriteResult>> $writeResults
+     * @param array<string, list<EntityWriteResult>> $writeResults
      * @param array<string, array<string>> $parents
      *
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     public function addParentResults(array $writeResults, array $parents): array
     {
@@ -140,7 +140,7 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<string, array<EntityWriteResult>> $identifiers
+     * @param array<string, list<EntityWriteResult>> $identifiers
      * @param array<string, list<EntityWriteResult>> $notFound
      * @param array<string, array<string>> $parents
      */
@@ -225,19 +225,25 @@ class EntityWriteResultFactory
     /**
      * @param array<string, array<EntityWriteResult>> $identifiers
      *
-     * @return array{deleted: array<string, array<EntityWriteResult>>, updated: array<string, array<EntityWriteResult>>}
+     * @return array{deleted: array<string, list<EntityWriteResult>>, updated: array<string, list<EntityWriteResult>>}
      */
     private function splitResultsByOperation(array $identifiers): array
     {
         $deleted = [];
         $updated = [];
         foreach ($identifiers as $entityName => $writeResults) {
-            $deletedEntities = array_filter($writeResults, fn (EntityWriteResult $result): bool => $result->getOperation() === EntityWriteResult::OPERATION_DELETE);
+            $deletedEntities = array_values(array_filter(
+                $writeResults,
+                static fn (EntityWriteResult $result): bool => $result->getOperation() === EntityWriteResult::OPERATION_DELETE
+            ));
             if (!empty($deletedEntities)) {
                 $deleted[$entityName] = $deletedEntities;
             }
 
-            $updatedEntities = array_filter($writeResults, fn (EntityWriteResult $result): bool => \in_array($result->getOperation(), [EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE], true));
+            $updatedEntities = array_values(array_filter(
+                $writeResults,
+                static fn (EntityWriteResult $result): bool => \in_array($result->getOperation(), [EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE], true)
+            ));
 
             if (!empty($updatedEntities)) {
                 $updated[$entityName] = $updatedEntities;

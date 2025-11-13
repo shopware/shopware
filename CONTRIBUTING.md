@@ -98,6 +98,7 @@ services:
         ports: !override []
         environment:
             APP_URL: https://web.sw-trunk.orb.local
+            SYMFONY_TRUSTED_PROXIES: 'private_ranges'
     database:
         ports: !override []
     adminer:
@@ -114,10 +115,16 @@ The APP_URL environment variable always starts with `web.<project-name>.orb.loca
 
 You can also open `https://orb.local` in your browser and see all running containers and their URLs.
 
+The `SYMFONY_TRUSTED_PROXIES` setting is required to access Shopware via HTTPS using OrbStack's `.orb.local` domains.
+
 To run the Storefront Watcher you will need to set an additional `PROXY_URL` environment variable. This is needed to make the watcher work with the OrbStack routing.
 
 ```bash
 docker compose run --rm -p 9998:9998 -p 9999:9999 -e PROXY_URL=http://localhost web composer watch:storefront
+```
+and for the admin watcher accordingly:
+```bash
+docker compose run --rm -p 5173:5173 -e PROXY_URL=http://localhost web composer watch:admin
 ```
 
 ## Command Overview

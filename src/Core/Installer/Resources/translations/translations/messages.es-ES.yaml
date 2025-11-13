@@ -1,38 +1,64 @@
 shopware.installer:
     header_title: Instalación
-    menuitem_welcome: Iniciar
-    menuitem_requirements: 'Requisitos del sistema'
-    menuitem_database-configuration: 'Configuración de la base de datos'
-    menuitem_database-import: Instalación
-    menuitem_edition: 'Licencia Shopware'
-    menuitem_configuration: Configuración
-    menuitem_finish: Terminado
-    menuitem_license: CGV
+    menuitem:
+        start: Inicio
+        configure_php: Archivo binario PHP
+        download: Descarga
+        requirements: Requisitos del sistema
+        license: CGV
+        database-configuration: Configuración de la base de datos
+        database-import: Instalación
+        configuration: Configuración de la tienda
+        translation: Descarga de idiomas
+        finish: Terminado
     license_incorrect: 'La clave de licencia introducida no es válida.'
     license_does_not_match: 'La clave de licencia introducida no corresponde a ninguna versión comercial de Shopware'
     license_domain_error: 'La clave de licencia introducida no es válida para el dominio: '
     version_text: 'Versión:'
     back: Atrás
     forward: Continuar
-    start: Iniciar
+    start: Inicio
     start_installation: 'Iniciar instalación'
-    select_language_cs: Checo
+    select_language_bg-BG: Búlgaro
+    select_language_bs-BA: Bosnio
+    select_language_cs-CZ: Checo
     select_language_da-DK: Danés
-    select_language_de: Alemán
-    select_language_en-US: Inglés (Estados Unidos de América)
-    select_language_en: Inglés (Reino Unido)
+    select_language_de-DE: Alemán (Alemania)
+    select_language_de-CH: Alemán (Suiza)
+    select_language_de-AT: Alemán (Austria)
+    select_language_el-GR: Griego
+    select_language_en-US: Inglés (Estados Unidos)
+    select_language_en-GB: Inglés (Reino Unido)
     select_language_es-ES: Español
-    select_language_fr: Francés
-    select_language_it: Italiano
-    select_language_nl: Holandés
-    select_language_no: Noruego
-    select_language_pl: Polaco
+    select_language_fi-FI: Finés
+    select_language_fr-FR: Francés
+    select_language_hi-IN: Hindi
+    select_language_hr-HR: Croata
+    select_language_hu-HU: Húngaro
+    select_language_id-ID: Indonesio
+    select_language_it-IT: Italiano
+    select_language_ko-KR: Coreano
+    select_language_lv-LV: Letón
+    select_language_nl-NL: Neerlandés
+    select_language_nn-NO: Noruego
+    select_language_pl-PL: Polaco
     select_language_pt-PT: Portugués
+    select_language_ro-RO: Rumano
+    select_language_ru-RU: Ruso
+    select_language_sk-SK: Eslovaco
+    select_language_sl-SI: Esloveno
+    select_language_sr-RS: Serbio
     select_language_sv-SE: Sueco
-    welcome_title: 'Bienvenido/a a Shopware 6'
+    select_language_tr-TR: Turco
+    select_language_uk-UA: Ucraniano
+    select_language_vi-VN: Vietnamita
     language-selection_select_language: 'Idioma del asistente de instalación'
-    welcome_header: 'Tu instalación de Shopware'
-    welcome_message: '¡Nos complace que quieras entrar a formar parte de nuestra extraordinaria Shopware Community global! Ahora te acompañaremos paso a paso en el proceso de instalación. Si tienes dudas, echa primero un vistazo en nuestro <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Foro</a>, contacta con nosotros por teléfono llamando al <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a>, o mándanos un <a class="is--nowrap" href="mailto:info@shopware.com">correo electrónico</a>.'
+    welcome:
+        title: 'Bienvenido/a a Shopware 6'
+        header: 'Tu instalación de Shopware'
+        message: >
+            ¡Estamos encantados de que se una a nuestra comunidad global de Shopware! Este instalador le guiará a
+            través de cada paso necesario para instalar Shopware 6 sin problemas.
     requirements_header: 'Requisitos del sistema'
     requirements_header_files: 'Archivos y directorios'
     requirements_header_system: Sistema
@@ -116,7 +142,7 @@ shopware.installer:
     configuration_admin_mail: 'Dirección de correo electrónico del administrador:'
     configuration_admin_firstName: 'Nombre del administrador:'
     configuration_admin_lastName: 'Apellido(s) del administrador:'
-    configuration_defaults_warning: '.El idioma estándar y la moneda estándar del sistema no se podrán modificar posteriormente:'
+    configuration_defaults_warning: 'El idioma estándar y la moneda estándar del sistema no se podrán modificar posteriormente.'
     configuration_email_help_text: 'Esta dirección de correo electrónico se utilizará para los correos electrónicos salientes de la tienda.'
     configuration_admin_currency_headline: 'Monedas disponibles'
     configuration_admin_currency_text: 'Añade más monedas a tu tienda de Shopware. Si quieres añadir monedas después, puedes hacerlo en cualquier momento en la administración.'
@@ -141,3 +167,25 @@ shopware.installer:
         <p>
             ¡Que disfrutes de tu nueva tienda online!
         </p>"
+    configuration_admin_shop_headline: 'Datos de la tienda'
+    configuration_admin_language_headline: 'Idiomas'
+    configuration_admin_language_select_all: 'Seleccionar todo'
+    configuration_admin_language_clear_all: 'Limpiar todo'
+    configuration_admin_user_headline: 'Datos del usuario administrador'
+    configuration_admin_language_text: 'Añade más idiomas a tu tienda Shopware. Si quieres añadir o quitar idiomas más tarde, puedes hacerlo en cualquier momento en la administración.'
+    configuration_admin_language_search_placeholder: 'Buscar idioma...'
+    translations_header: 'Descarga de idiomas'
+    translations_import_install_label: 'Descargando e instalando idiomas adicionales.'
+    translations_install_duration_info: 'Esto puede tardar unos minutos.'
+    finish_title: 'La configuración de tu tienda Shopware está completa.'
+    finish_subtitle: 'Haz clic en "Continuar a la tienda" para abrir la administración de tu tienda y empezar a construir la tienda de tus sueños.'
+    finish_continue: 'Continuar a la tienda'
+    translations_install_error_message: 'Algo salió mal durante la instalación de traducciones.'
+    translations_install_retry_link: 'Haz clic aquí para reintentar'
+    help:
+        title: ¿Necesita ayuda?
+        support_channel: Elija el canal de asistencia que más le convenga
+        forum: Foro
+        phone_number_call: +492555928850
+        phone_number_formatted: (+49) 2555 928850
+        email: Correo electrónico

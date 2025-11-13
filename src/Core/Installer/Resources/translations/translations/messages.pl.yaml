@@ -1,13 +1,16 @@
 shopware.installer:
     header_title: Instalacja
-    menuitem_welcome: Start
-    menuitem_requirements: 'Wymagania systemowe'
-    menuitem_database-configuration: 'Konfiguracja bazy danych'
-    menuitem_database-import: Instalacja
-    menuitem_edition: 'Licencja Shopware'
-    menuitem_configuration: Konfiguracja
-    menuitem_finish: Gotowe
-    menuitem_license: OWH
+    menuitem:
+        start: Start
+        configure_php: Plik binarny PHP
+        download: Pobierz
+        requirements: Wymagania systemowe
+        license: OWH
+        database-configuration: Konfiguracja bazy danych
+        database-import: Instalacja
+        configuration: Konfiguracja sklepu
+        translation: Pobieranie języków
+        finish: Gotowe
     license_incorrect: 'Wprowadzony klucz licencyjny jest nieprawidłowy.'
     license_does_not_match: 'Wprowadzony klucz licencyjny nie pasuje do żadnej komercyjnej wersji oprogramowania Shopware.'
     license_domain_error: 'Wprowadzony klucz licencyjny nie jest ważny dla domeny: '
@@ -16,23 +19,46 @@ shopware.installer:
     forward: Dalej
     start: Start
     start_installation: 'Rozpocznij instalację'
-    select_language_cs: 'Język czech'
-    select_language_da-DK: 'Język duński'
-    select_language_de: 'Język niemiecki'
-    select_language_en-US: 'Język angielski (Stany Zjednoczone Ameryki)'
-    select_language_en: 'Język angielski (Zjednoczone Królestwo)'
-    select_language_es-ES: 'Język hiszpański'
-    select_language_fr: 'Język francuski'
-    select_language_it: 'Język włoski'
-    select_language_nl: 'Język niderlandzki'
-    select_language_no: 'Język norweski'
-    select_language_pl: 'Język polski'
-    select_language_pt-PT: 'Język portugalski'
-    select_language_sv-SE: 'Język szwedzki'
-    welcome_title: 'Witaj w Shopware 6'
+    select_language_bg-BG: 'Bułgarski'
+    select_language_bs-BA: 'Bośniacki'
+    select_language_cs-CZ: 'Czeski'
+    select_language_da-DK: 'Duński'
+    select_language_de-DE: 'Niemiecki (Niemcy)'
+    select_language_de-CH: 'Niemiecki (Szwajcaria)'
+    select_language_de-AT: 'Niemiecki (Austria)'
+    select_language_el-GR: 'Grecki'
+    select_language_en-US: 'Angielski (Stany Zjednoczone)'
+    select_language_en-GB: 'Angielski (Wielka Brytania)'
+    select_language_es-ES: 'Hiszpański'
+    select_language_fi-FI: 'Fiński'
+    select_language_fr-FR: 'Francuski'
+    select_language_hi-IN: 'Hindi'
+    select_language_hr-HR: 'Chorwacki'
+    select_language_hu-HU: 'Węgierski'
+    select_language_id-ID: 'Indonezyjski'
+    select_language_it-IT: 'Włoski'
+    select_language_ko-KR: 'Koreański'
+    select_language_lv-LV: 'Łotewski'
+    select_language_nl-NL: 'Niderlandzki'
+    select_language_nn-NO: 'Norweski'
+    select_language_pl-PL: 'Polski'
+    select_language_pt-PT: 'Portugalski'
+    select_language_ro-RO: 'Rumuński'
+    select_language_ru-RU: 'Rosyjski'
+    select_language_sk-SK: 'Słowacki'
+    select_language_sl-SI: 'Słoweński'
+    select_language_sr-RS: 'Serbski'
+    select_language_sv-SE: 'Szwedzki'
+    select_language_tr-TR: 'Turecki'
+    select_language_uk-UA: 'Ukraiński'
+    select_language_vi-VN: 'Wietnamski'
     language-selection_select_language: 'Język asystenta instalacji'
-    welcome_header: 'Twoja instalacja Shopware'
-    welcome_message: 'Cieszymy się, że chcesz być częścią naszej wielkiej światowej społeczności Shopware! Teraz pomożemy Ci przejść krok po kroku przez proces instalacji. Jeśli masz jakieś pytania, najpierw odwiedź nasze <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, skontaktuj się z nami telefonicznie pod numerem <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> lub wyślij nam <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome:
+        title: 'Witaj w Shopware 6'
+        header: 'Twoja instalacja Shopware'
+        message: >
+            Cieszymy się, że dołączyłeś do naszej globalnej społeczności Shopware! Ten instalator poprowadzi Cię
+            przez wszystkie kroki niezbędne do płynnej instalacji Shopware 6.
     requirements_header: 'Wymagania systemowe'
     requirements_header_files: 'Pliki i katalogi'
     requirements_header_system: System
@@ -141,3 +167,25 @@ shopware.installer:
         <p>
             Życzymy przyjemnego korzystania i sukcesów w prowadzeniu Twojego sklepu internetowego!
         </p>"
+    configuration_admin_shop_headline: 'Dane sklepu'
+    configuration_admin_language_headline: 'Języki'
+    configuration_admin_language_select_all: 'Zaznacz wszystkie'
+    configuration_admin_language_clear_all: 'Wyczyść wszystkie'
+    configuration_admin_user_headline: 'Dane użytkownika administratora'
+    configuration_admin_language_text: 'Dodaj więcej języków do swojego sklepu Shopware. Jeśli chcesz później dodać lub usunąć języki, możesz to zrobić w dowolnym momencie w administracji.'
+    configuration_admin_language_search_placeholder: 'Szukaj języka...'
+    translations_header: 'Pobieranie języków'
+    translations_import_install_label: 'Pobieranie i instalowanie dodatkowych języków.'
+    translations_install_duration_info: 'To może potrwać kilka minut.'
+    finish_title: 'Konfiguracja Twojego sklepu Shopware została zakończona.'
+    finish_subtitle: 'Kliknij "Przejdź do sklepu", aby otworzyć administrację swojego sklepu i zacząć budować sklep swoich marzeń.'
+    finish_continue: 'Przejdź do sklepu'
+    translations_install_error_message: 'Coś poszło nie tak podczas instalacji tłumaczeń.'
+    translations_install_retry_link: 'Kliknij tutaj, aby spróbować ponownie'
+    help:
+        title: Potrzebujesz pomocy?
+        support_channel: Wybierz kanał pomocy, który Ci odpowiada
+        forum: Forum
+        phone_number_call: +492555928850
+        phone_number_formatted: (+49) 2555 928850
+        email: E-mail

@@ -42,7 +42,6 @@ const missingTests = [
     'src/app/component/form/field-base/sw-base-field/index.js',
     'src/app/component/form/field-base/sw-block-field/index.js',
     'src/app/component/form/field-base/sw-contextual-field/index.js',
-    'src/app/component/form/select/base/sw-select-result-list/index.js',
     'src/app/component/form/select/entity/sw-entity-tag-select/index.js',
     'src/app/component/form/sw-boolean-radio-group/index.js',
     'src/app/component/form/sw-compact-colorpicker/index.js',
@@ -55,7 +54,6 @@ const missingTests = [
     'src/app/component/form/sw-tagged-field/index.js',
     'src/app/component/form/sw-text-editor/sw-text-editor-table-toolbar/index.js',
     'src/app/component/form/sw-text-editor/sw-text-editor-toolbar/index.js',
-    'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button/index.js',
     'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-table-button/index.js',
     'src/app/component/form/sw-textarea-field-deprecated/index.js',
     'src/app/component/grid/sw-grid/index.js',
@@ -191,7 +189,7 @@ const missingTests = [
     'src/core/service/api/seo-url-template.api.service.js',
     'src/core/service/api/seo-url.api.service.js',
     'src/core/service/api/snippet-set.api.service.js',
-    'src/core/service/api/snippet.api.service.js',
+    'src/core/service/api/snippet.api.service.ts',
     'src/core/service/api/state-machine.api.service.js',
     'src/core/service/api/store-context.api.service.ts',
     'src/core/service/api/user-input-sanitize.service.js',
@@ -353,6 +351,7 @@ const missingTests = [
     'src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal/index.js',
     'src/module/sw-first-run-wizard/index.js',
     'src/module/sw-first-run-wizard/page/index/index.js',
+    'src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-data-import/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-defaults/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/index.js',
@@ -405,7 +404,6 @@ const missingTests = [
     'src/module/sw-order/component/sw-order-create-invalid-promotion-modal/index.js',
     'src/module/sw-order/component/sw-order-create-promotion-modal/index.js',
     'src/module/sw-order/component/sw-order-customer-comment/index.js',
-    'src/module/sw-order/component/sw-order-document-settings-delivery-note-modal/index.js',
     'src/module/sw-order/component/sw-order-inline-field/index.js',
     'src/module/sw-order/component/sw-order-leave-page-modal/index.js',
     'src/module/sw-order/component/sw-order-nested-line-items-row/index.js',
@@ -546,6 +544,8 @@ const missingTests = [
     'src/app/init/component.init.ts',
     'src/module/sw-settings-services/index.ts',
     'src/module/sw-settings-services/service/index.ts',
+    // Has only a DTO
+    'src/core/telemetry/types.ts',
 ];
 
 /**

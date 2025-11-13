@@ -1,7 +1,9 @@
 {# @sw-package framework #}
 
-{% set name = parent.snippet_name ? parent.snippet_name|trans|sw_sanitize : parent.cookie %}
-{% set identifier = parent.cookie ? parent.cookie : name %}
+{# @deprecated tag:v6.8.0 - Use `parent.name` instead of `parent.snippet_name`. Support for `parent.snippet_name` will be removed. #}
+{% set parentName = parent.snippet_name ?? parent.name %}
+{% set name = parentName ? parentName|trans|sw_sanitize : parent.cookie %}
+{% set identifier = parent.cookie ? parent.cookie : name|replace({' ': '-'})|lower %}
 
 {% if name is not empty %}
     <div class="form-check">

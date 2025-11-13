@@ -1,13 +1,16 @@
 shopware.installer:
     header_title: Installation
-    menuitem_welcome: Start
-    menuitem_requirements: Systemkrav
-    menuitem_database-configuration: 'Database konfiguration'
-    menuitem_database-import: Installation
-    menuitem_edition: 'Shopware Licens'
-    menuitem_configuration: Konfiguration
-    menuitem_finish: Færdig
-    menuitem_license: 'Almindelige forretningsbetingelser'
+    menuitem:
+        start: Start
+        configure_php: PHP-binærfil
+        download: Download
+        requirements: Systemkrav
+        license: Almindelige forretningsbetingelser
+        database-configuration: Databasekonfiguration
+        database-import: Installation
+        configuration: Shopkonfiguration
+        translation: Sprogdownload
+        finish: Færdig
     license_incorrect: 'Den angivne licensnøgle er ugyldig.'
     license_does_not_match: 'Den angivne licensnøgle mather ikke en Shopware version'
     license_domain_error: 'Den angivne licensnøgle er ugyldig for domænet: '
@@ -16,23 +19,46 @@ shopware.installer:
     forward: Videre
     start: Start
     start_installation: 'Start installationen'
-    select_language_cs: Tjekkisk
+    select_language_bg-BG: Bulgarsk
+    select_language_bs-BA: Bosnisk
+    select_language_cs-CZ: Tjekkisk
     select_language_da-DK: Dansk
-    select_language_de: Tysk
-    select_language_en-US: Engelsk (Amerikas Forenede Stater)
-    select_language_en: Engelsk (Det Forenede Kongerige)
+    select_language_de-DE: Tysk (Tyskland)
+    select_language_de-CH: Tysk (Schweiz)
+    select_language_de-AT: Tysk (Østrig)
+    select_language_el-GR: Græsk
+    select_language_en-US: Engelsk (USA)
+    select_language_en-GB: Engelsk (Storbritannien)
     select_language_es-ES: Spansk
-    select_language_fr: Fransk
-    select_language_it: Italiensk
-    select_language_nl: Hollands
-    select_language_no: Norsk
-    select_language_pl: Polsk
+    select_language_fi-FI: Finsk
+    select_language_fr-FR: Fransk
+    select_language_hi-IN: Hindi
+    select_language_hr-HR: Kroatisk
+    select_language_hu-HU: Ungarsk
+    select_language_id-ID: Indonesisk
+    select_language_it-IT: Italiensk
+    select_language_ko-KR: Koreansk
+    select_language_lv-LV: Lettisk
+    select_language_nl-NL: Hollandsk
+    select_language_nn-NO: Norsk
+    select_language_pl-PL: Polsk
     select_language_pt-PT: Portugisisk
+    select_language_ro-RO: Rumænsk
+    select_language_ru-RU: Russisk
+    select_language_sk-SK: Slovakisk
+    select_language_sl-SI: Slovensk
+    select_language_sr-RS: Serbisk
     select_language_sv-SE: Svensk
-    welcome_title: 'Velkommen til Shopware 6'
+    select_language_tr-TR: Tyrkisk
+    select_language_uk-UA: Ukrainsk
+    select_language_vi-VN: Vietnamesisk
     language-selection_select_language: 'Installationsguidens sprog'
-    welcome_header: 'Din Shopware installation'
-    welcome_message: 'Vi er glade for at du vil være en del af vores fantastiske Shopware Community! Vi vil nu guide dig igennem vores installationsproces. Hvis du har spørgsmål, så se på vores <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, kontakt os på telefonnummer <a class="is--nowrap" href="tel:0080074676260">00 800 746 7626 0 (gratis)</a> eller send os en <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.'
+    welcome:
+        title: 'Velkommen til Shopware 6'
+        header: 'Din Shopware installation'
+        message: >
+            Vi er glade for, at du bliver en del af vores globale Shopware-fællesskab! Dette installationsprogram vil
+            guide dig gennem alle trin, der er nødvendige for at installere Shopware 6 uden problemer.
     requirements_header: Systemkrav
     requirements_header_files: 'Filer og mapper'
     requirements_header_system: System
@@ -143,3 +169,25 @@ shopware.installer:
         <p>
             God fornøjelse med din nye online shop!
         </p>"
+    configuration_admin_shop_headline: 'Shopdata'
+    configuration_admin_language_headline: 'Sprog'
+    configuration_admin_language_select_all: 'Vælg alle'
+    configuration_admin_language_clear_all: 'Ryd alle'
+    configuration_admin_user_headline: 'Administrator brugerdata'
+    configuration_admin_language_text: 'Tilføj flere sprog til din Shopware shop. Hvis du vil tilføje eller fjerne sprog senere, kan du gøre det når som helst i administrationen.'
+    configuration_admin_language_search_placeholder: 'Søg sprog...'
+    translations_header: 'Sprogdownload'
+    translations_import_install_label: 'Downloader og installerer yderligere sprog.'
+    translations_install_duration_info: 'Dette kan tage et par minutter.'
+    finish_title: 'Opsætningen af din Shopware shop er færdig.'
+    finish_subtitle: 'Klik på "Fortsæt til shop" for at åbne administrationen af din shop og begynde at bygge drømmeshoppen.'
+    finish_continue: 'Fortsæt til shop'
+    translations_install_error_message: 'Noget gik galt under oversættelsesinstallationen.'
+    translations_install_retry_link: 'Klik her for at prøve igen'
+    help:
+        title: Brug for hjælp?
+        support_channel: Vælg den supportkanal, der passer dig bedst
+        forum: Forum
+        phone_number_call: 008007467626
+        phone_number_formatted: 00 800 746 7626 0 (gratis)
+        email: E-mail

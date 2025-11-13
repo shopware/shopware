@@ -507,6 +507,9 @@ class ProductSearchTermInterpreterTest extends TestCase
             new EqualsFilter('languageId', Defaults::LANGUAGE_SYSTEM)
         );
 
-        return (string) $this->productSearchConfigRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        $id = $this->productSearchConfigRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertNotNull($id);
+
+        return $id;
     }
 }

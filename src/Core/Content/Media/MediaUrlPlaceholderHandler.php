@@ -62,7 +62,7 @@ class MediaUrlPlaceholderHandler implements MediaUrlPlaceholderHandlerInterface
         }
         $query = new QueryBuilder($this->connection);
         $query->setTitle('media_url::replacement');
-        $query->addSelect('id', 'path', 'updated_at', 'created_at');
+        $query->addSelect('id', 'path', 'updated_at', 'created_at', 'mime_type');
         $query->from('media');
         $query->andWhere('id IN (:mediaIds)');
         $query->setParameter('mediaIds', $mediaIds, ArrayParameterType::BINARY);
@@ -77,6 +77,7 @@ class MediaUrlPlaceholderHandler implements MediaUrlPlaceholderHandlerInterface
                 UrlParamsSource::MEDIA,
                 $record['path'],
                 new \DateTime($record['updated_at'] ?? $record['created_at']),
+                $record['mime_type']
             );
         }
         $urls = $this->mediaUrlGenerator->generate($urlParams);

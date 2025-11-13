@@ -10,12 +10,14 @@ parameters:
         - tests
 
     bootstrapFiles:
-        - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
-    # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
+        - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
     symfony:
         constantHassers: false
         containerXmlPath: 'var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
-        consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
+    scanDirectories:
+        - var/cache/static_phpstan_dev/Symfony/Config
+    scanFiles:
+        - vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php
 
     excludePaths:
         # vendor patches over autoload files
@@ -102,6 +104,10 @@ parameters:
            message: '#No global Command directories allowed, put your commands in the right domain directory#'
            path: src/Administration/
 
+        # A PartialEntity is not directly a subtype of a real Entity but it is returned by a EntityRepository, if fields are used
+        -
+           message: '#PHPDoc tag @var with type Shopware\\Core\\Framework\\DataAbstractionLayer\\PartialEntity.* is not subtype of type .*Entity.*\.#'
+
         # dynamic hydrator performance
         -
             message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
@@ -183,5 +189,8 @@ parameters:
         - # With the active `reportWrongPhpDocTypeInVarTag` phpstan parameter we should resolve this issue per area
             message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
             paths:
-                - src/Core/**
                 - tests/**
+
+        - # RedisArray has missing methods in the stub. See https://github.com/phpredis/phpredis/discussions/2736
+            message: '#Call to an undefined method Predis\\ClientInterface\|Redis\|RedisArray\|RedisCluster\|Relay\\Cluster\|Relay\\Relay::#'
+            identifier: method.notFound

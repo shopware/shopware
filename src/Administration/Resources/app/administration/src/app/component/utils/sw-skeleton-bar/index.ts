@@ -21,7 +21,7 @@ export default Shopware.Component.wrapComponentConfig({
             Shopware.Utils.debug.warn(
                 'sw-skeleton-bar',
                 // eslint-disable-next-line max-len
-                'The old usage of "sw-skeleton-bar" is deprecated and will be removed in v6.7.0.0. Please use "mt-skeleton-bar" instead.',
+                'The old usage of "sw-skeleton-bar" is deprecated and will be removed in v6.8.0.0. Please use "mt-skeleton-bar" instead.',
             );
 
             return false;

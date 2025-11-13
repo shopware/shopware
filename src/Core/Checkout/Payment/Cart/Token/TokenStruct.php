@@ -12,6 +12,8 @@ class TokenStruct extends Struct
 
     protected int $expires;
 
+    protected bool $consumed;
+
     public function __construct(
         protected ?string $id = null,
         protected ?string $token = null,
@@ -19,9 +21,11 @@ class TokenStruct extends Struct
         protected ?string $transactionId = null,
         protected ?string $finishUrl = null,
         ?int $expires = null,
-        protected ?string $errorUrl = null
+        protected ?string $errorUrl = null,
+        ?bool $consumed = null,
     ) {
         $this->expires = $expires ?? 1800;
+        $this->consumed = $consumed ?? false;
     }
 
     public function getId(): ?string
@@ -82,5 +86,15 @@ class TokenStruct extends Struct
     public function getApiAlias(): string
     {
         return 'payment_token';
+    }
+
+    public function isConsumed(): bool
+    {
+        return $this->consumed;
+    }
+
+    public function setConsumed(bool $consumed): void
+    {
+        $this->consumed = $consumed;
     }
 }

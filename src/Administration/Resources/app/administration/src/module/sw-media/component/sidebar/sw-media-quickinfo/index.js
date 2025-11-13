@@ -1,3 +1,4 @@
+import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 
@@ -92,6 +93,20 @@ export default {
         isSpatial() {
             // we need to check the media url since media.fileExtension is set directly after upload
             return this.item?.fileExtension === 'glb' || !!this.item?.url?.endsWith('.glb');
+        },
+
+        extensionSdkButtons() {
+            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+                return button.entity === 'media' && button.view === 'item';
+            });
+        },
+
+        isPlayable() {
+            return isPlayableMediaFormat(this.item.mimeType);
+        },
+
+        showUnsupportedFormatWarning() {
+            return shouldShowUnsupportedFormatWarning(this.item.mimeType);
         },
     },
 
@@ -358,6 +373,22 @@ export default {
             };
 
             this.$emit('update:item', { ...this.item, ...newItemConfig });
+        },
+
+        runAppAction(action) {
+            if (typeof action.callback !== 'function') {
+                return;
+            }
+
+            const { fileName, mimeType, fileSize, url, id } = this.item;
+
+            action.callback({
+                id,
+                url,
+                fileName,
+                mimeType,
+                fileSize,
+            });
         },
     },
 };

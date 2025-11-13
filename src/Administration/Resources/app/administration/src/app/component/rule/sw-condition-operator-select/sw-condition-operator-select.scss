@@ -1,17 +1,16 @@
-@import "~scss/variables";
-
 .sw-condition-operator-select {
+    background-color: var(--color-background-primary-default);
+    min-width: var(--scale-size-128);
     position: relative;
     flex-shrink: 0;
-    min-width: 128px;
     height: 100%;
-    background-color: $color-white;
+
+    &.has--error {
+        background: var(--color-background-critical-default);
+        border-color: var(--color-border-critical-default);
+    }
 
     .sw-condition-operator-select__select {
         height: 100%;
-    }
-
-    &.is--disabled {
-        background-color: transparent;
     }
 }

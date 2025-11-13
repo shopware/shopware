@@ -103,14 +103,12 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
             return [];
         }
 
-        /** @var array<string> $ids */
         $ids = $this->productRepository->searchIds(new Criteria($ids), $context)->getIds();
 
         $customerProducts = $this->loadCustomerProducts($wishlistId, $ids);
 
         $upsertData = [];
 
-        /** @var string $id * */
         foreach ($ids as $id) {
             if (\array_key_exists($id, $customerProducts)) {
                 $upsertData[] = [

@@ -248,7 +248,6 @@ export default {
                 .addAssociation('customFieldSets')
                 .addAssociation('featureSet')
                 .addAssociation('cmsPage')
-                .addAssociation('featureSet')
                 .addAssociation('downloads.media');
 
             criteria.getAssociation('manufacturer').addAssociation('media');
@@ -743,6 +742,7 @@ export default {
                         const propertyCriteria = new Criteria(1, null);
                         propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
                         propertyCriteria.setIds(product.propertyIds);
+                        propertyCriteria.addFilter(Criteria.equals('productProperties.id', product.id));
 
                         const result = await this.propertyRepository.search(propertyCriteria);
                         result.source = product.properties.source;
@@ -975,10 +975,8 @@ export default {
 
             this.isSaveSuccessful = false;
 
-            const pageOverrides = this.getCmsPageOverrides();
-
-            if (type.isPlainObject(pageOverrides)) {
-                this.product.slotConfig = cloneDeep(pageOverrides);
+            if (type.isEmpty(this.product.slotConfig)) {
+                this.product.slotConfig = null;
             }
 
             if (!this.entityValidationService.validate(this.product, this.customValidate, this.ignoreFieldsValidation)) {
@@ -1260,6 +1258,9 @@ export default {
             return true;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         getCmsPageOverrides() {
             if (this.currentPage === null) {
                 return null;
@@ -1292,6 +1293,9 @@ export default {
             return slotOverrides;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         deleteSpecifcKeys(sections) {
             if (!sections) {
                 return;

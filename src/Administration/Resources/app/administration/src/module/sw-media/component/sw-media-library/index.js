@@ -95,6 +95,18 @@ export default {
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
+
+        allowCreateFolder: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -255,9 +267,13 @@ export default {
         this.createdComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountedComponent();
+    },
+
     methods: {
         createdComponent() {
-            Shopware.Utils.EventBus.on('sw-media-library-item-updated', this.refreshItem.bind(this));
+            Shopware.Utils.EventBus.on('sw-media-library-item-updated', this.refreshItem);
 
             this.refreshList();
 
@@ -270,6 +286,10 @@ export default {
             };
 
             this.handleMediaGridItemSelected = () => {};
+        },
+
+        beforeUnmountedComponent() {
+            Shopware.Utils.EventBus.off('sw-media-library-item-updated', this.refreshItem);
         },
 
         /*

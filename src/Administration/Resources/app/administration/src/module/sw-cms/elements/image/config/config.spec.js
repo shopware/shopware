@@ -32,6 +32,16 @@ async function createWrapper() {
                     'sw-media-modal-v2': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
+                    'sw-container': await wrapTestComponent('sw-container'),
                 },
             },
             props: {
@@ -53,6 +63,10 @@ async function createWrapper() {
                             source: 'static',
                             value: null,
                         },
+                        ariaLabel: {
+                            source: 'static',
+                            value: null,
+                        },
                         newTab: {
                             source: 'static',
                             value: false,
@@ -70,6 +84,10 @@ async function createWrapper() {
                             value: null,
                         },
                         isDecorative: {
+                            source: 'static',
+                            value: false,
+                        },
+                        fetchPriorityHigh: {
                             source: 'static',
                             value: false,
                         },

@@ -1,7 +1,45 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Guest customer is able to add and remove products to the wishlist', { tag: '@Wishlist' }, async ({
-    TestDataService,
+let originalConfig: Record<string, unknown> = {};
+
+test.describe('Wishlist Guest Functionalities', () => {
+    test.beforeEach(async ({ TestDataService }) => {
+        // Get and store current config
+        const getCurrentConfig = await TestDataService.AdminApiClient.get('_action/system-config?domain=core');
+        if (!getCurrentConfig.ok()) {
+            throw new Error(`Failed to get system config: ${getCurrentConfig.status()} ${getCurrentConfig.statusText()}`);
+        }
+        originalConfig = await getCurrentConfig.json();
+
+        const updatedConfig = {
+            null: {
+                ...(originalConfig as Record<string, unknown>),
+                'core.cart.wishlistEnabled': true,
+                'core.basicInformation.acceptAllCookies': true,
+            },
+        };
+
+        const updateResponse = await TestDataService.AdminApiClient.post('_action/system-config/batch', {
+            data: updatedConfig
+        });
+        if (!updateResponse.ok()) {
+            throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
+        }
+
+        await TestDataService.clearCaches();
+    });
+
+    test.afterEach(async ({ TestDataService }) => {
+        if (Object.keys(originalConfig).length > 0) {
+            await TestDataService.AdminApiClient.post('_action/system-config/batch', {
+                data: { null: originalConfig }
+            });
+
+            await TestDataService.clearCaches();
+        }
+    });
+
+test('Guest customer is able to add and remove products to the wishlist', { tag: ['@Wishlist', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontHome,
     AddProductToWishlist,
@@ -11,17 +49,29 @@ test('Guest customer is able to add and remove products to the wishlist', { tag:
     StorefrontOffCanvasCart,
     HomeProducts,
 }) => {
-    await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': true });
     const [product1, product2] = HomeProducts;
-    const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
-    const product2Locators = await StorefrontHome.getListingItemByProductName(product2.name);
 
-    await test.step('Accept all cookies and reload page', async () => {
-        await TestDataService.setSystemConfig({ 'core.basicInformation.acceptAllCookies': true });
+    await test.step('Navigate to home and accept cookies', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
         await StorefrontHome.consentAcceptAllCookiesButton.click();
-        await ShopCustomer.expects(StorefrontHome.consentAcceptAllCookiesButton).not.toBeVisible();
+
+        // Wait for banner to disappear
+        await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
+
+        // Wait for cookies to be set (critical for wishlist functionality)
+        await ShopCustomer.expects(async () => {
+            const cookies = await StorefrontHome.page.context().cookies();
+            const cookiePreference = cookies.find(c => c.name === 'cookie-preference')?.value;
+            const wishlistCookie = cookies.find(c => c.name === 'wishlist-enabled')?.value;
+            await ShopCustomer.expects(cookiePreference).toBe('1');
+            await ShopCustomer.expects(wishlistCookie).toBe('1');
+        }).toPass({
+            intervals: [1_000, 2_500],
+        });
     });
+
+    const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
+    const product2Locators = await StorefrontHome.getListingItemByProductName(product2.name);
 
     await test.step('Add product1 to the wishlist and verify wishlist count updates to 1', async () => {
         await ShopCustomer.attemptsTo(AddProductToWishlist(product1));
@@ -58,4 +108,5 @@ test('Guest customer is able to add and remove products to the wishlist', { tag:
         await ShopCustomer.expects(product1Locators.productName).toBeVisible();
         await ShopCustomer.expects(product2Locators.productName).toBeVisible();
     });
+});
 });

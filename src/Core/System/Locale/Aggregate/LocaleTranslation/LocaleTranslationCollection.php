@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class LocaleTranslationCollection extends EntityCollection
 {
+    /**
+     * @return array<string, string>
+     */
     public function getLocaleIds(): array
     {
         return $this->fmap(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLocaleId());
@@ -21,6 +24,9 @@ class LocaleTranslationCollection extends EntityCollection
         return $this->filter(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLocaleId() === $id);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(fn (LocaleTranslationEntity $localeTranslation) => $localeTranslation->getLanguageId());

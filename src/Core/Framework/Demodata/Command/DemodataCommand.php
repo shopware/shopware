@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -82,7 +83,7 @@ class DemodataCommand extends Command
         $this->ensureAllDependenciesArePresent();
 
         if ($this->kernelEnv !== 'prod') {
-            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follows `APP_ENV=prod bin/console framework:demodata`');
+            $output->writeln('Demo data command requires the app environment set to production to run. Execute it with: `APP_ENV=prod bin/console framework:demodata`');
 
             return self::INVALID;
         }
@@ -120,6 +121,7 @@ class DemodataCommand extends Command
 
         $request->add(MailTemplateDefinition::class, $this->getCount($input, 'mail-template'));
         $request->add(MailHeaderFooterDefinition::class, $this->getCount($input, 'mail-header-footer'));
+        $request->add(SalesChannelDomainDefinition::class, $this->getCount($input, 'sales-channel-domain'));
 
         $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context, $input));
 

@@ -134,12 +134,27 @@ Component.register('sw-theme-manager-detail', {
             return Object.values(this.structuredThemeFields).length > 0 && !this.isLoading;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - This method will be removed.
+         */
         hasMoreThanOneTab() {
             return Object.values(this.structuredThemeFields.tabs).length > 1;
         },
 
         isDefaultTheme() {
             return this.theme.id === this.defaultTheme.id;
+        },
+
+        tabItems() {
+            const tabs = this.structuredThemeFields?.tabs || {};
+            const entries = Object.entries(tabs);
+
+            const items = entries.map(([name, tab]) => ({
+                name,
+                label: this.getTabLabel(tab.labelSnippetKey, tab.label) || name,
+            }));
+
+            return items;
         }
     },
 
@@ -445,10 +460,9 @@ Component.register('sw-theme-manager-detail', {
                     error.response.data.errors.forEach((error) => {
                         const fieldName = error.meta.parameters.name;
 
-                        error.detail = this.$t('global.error-codes.THEME__INVALID_SCSS_VAR', {
-                            value: error.meta.parameters.value,
-                            type: error.meta.parameters.type,
-                        });
+                        // Compatibility for issue within mt-field-error.vue
+                        // See GitHub issue: https://github.com/shopware/meteor/issues/906
+                        error.parameters = error.meta.parameters;
 
                         if (fieldName) {
                             this.themeConfigErrors[fieldName] = error;

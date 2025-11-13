@@ -1,4 +1,5 @@
 import template from './sw-category-link-settings.html.twig';
+import './sw-category-link-settings.scss';
 
 const { Criteria } = Shopware.Data;
 
@@ -30,6 +31,7 @@ export default {
     data() {
         return {
             categoriesCollection: [],
+            linkHasProtocol: false,
         };
     },
 
@@ -143,6 +145,7 @@ export default {
                 this.category.linkType = 'external';
             }
 
+            this.linkHasProtocol = this.category.externalLink?.startsWith('http') || this.category.externalLink === null;
             this.createCategoryCollection();
         },
 

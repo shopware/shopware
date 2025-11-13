@@ -214,10 +214,9 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Subscriber\SalesChannelAnalyticsLoader">
+        <service id="Shopware\Core\System\SalesChannel\Cookie\AnalyticsCookieCollectListener">
             <argument type="service" id="sales_channel_analytics.repository"/>
-
-            <tag name="kernel.event_listener" event="Shopware\Storefront\Event\StorefrontRenderEvent" method="loadAnalytics" priority="2000" />
+            <tag name="kernel.event_listener"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper">

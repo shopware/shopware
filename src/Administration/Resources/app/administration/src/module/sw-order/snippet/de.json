@@ -390,7 +390,6 @@
       "info": {
         "summary": {
           "and": "und",
-          "on": "am",
           "by": "durch",
           "lastChanged": "Zuletzt geändert",
           "with": "mit"
@@ -431,8 +430,8 @@
       "labelDeliveryDate": "Lieferdatum",
       "labelDocumentNumber": "Nummer",
       "labelDocumentStornoNumber": "Stornonummer",
-      "labelInvoiceNumber": "Rechnungsnummer",
-      "selectInvoiceNumber": "Rechnungsnummer wählen",
+      "labelInvoiceNumber": "Rechnung",
+      "selectInvoiceNumber": "Rechnung wählen",
       "labelDeliveryNoteNumber": "Lieferscheinnummer",
       "labelDocumentComment": "Kommentar",
       "labelCreateDownloadPdf": "Erstellen und PDF herunterladen",

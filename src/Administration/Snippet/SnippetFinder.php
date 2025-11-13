@@ -38,6 +38,7 @@ class SnippetFinder implements SnippetFinderInterface
         private readonly Filesystem $translationReader,
         private readonly TranslationConfig $translationConfig,
         private readonly TranslationLoader $translationLoader,
+        private readonly HtmlSanitizer $htmlSanitizer,
     ) {
     }
 
@@ -91,11 +92,11 @@ class SnippetFinder implements SnippetFinderInterface
 
         $snippetFiles = new SnippetPathCollection();
         array_map(
-            fn (string $path) => $snippetFiles->add(new SnippetPath($path, true)),
+            static fn (string $path) => $snippetFiles->add(new SnippetPath($path, true)),
             $this->findLocalSnippetFiles($snippetNames, $localPaths),
         );
         array_map(
-            fn (string $path) => $snippetFiles->add(new SnippetPath($path)),
+            static fn (string $path) => $snippetFiles->add(new SnippetPath($path)),
             $this->findRemoteSnippetFiles($snippetNames, $remotePaths),
         );
 
@@ -283,12 +284,10 @@ class SnippetFinder implements SnippetFinderInterface
      */
     private function sanitizeAppSnippets(array $snippets): array
     {
-        $sanitizer = new HtmlSanitizer();
-
         $sanitizedSnippets = [];
         foreach ($snippets as $key => $value) {
             if (\is_string($value)) {
-                $sanitizedSnippets[$key] = $sanitizer->sanitize($value);
+                $sanitizedSnippets[$key] = $this->htmlSanitizer->sanitize($value);
 
                 continue;
             }
@@ -338,7 +337,7 @@ class SnippetFinder implements SnippetFinderInterface
         $files = [];
         foreach ($paths as $path) {
             $snippetPaths = \array_map(
-                fn (string $name) => Path::join($path->location, $name),
+                static fn (string $name) => Path::join($path->location, $name),
                 $snippetNames
             );
             $existingSnippetNames = \array_filter(

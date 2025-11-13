@@ -6,7 +6,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\Order\RecalculationService;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -27,9 +30,12 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -93,13 +99,25 @@ class InvoiceRendererTest extends TestCase
 
     protected function tearDown(): void
     {
+        static::getContainer()->get(Translator::class)->reset();
+
         if (self::$callback instanceof \Closure) {
             static::getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
         }
+
+        parent::tearDown();
     }
 
     public function testDocumentSnapshot(): void
     {
+        $translator = static::getContainer()->get(Translator::class);
+        $translator->injectSettings(
+            $this->salesChannelContext->getSalesChannelId(),
+            $this->salesChannelContext->getLanguageId(),
+            'en-GB',
+            $this->salesChannelContext->getContext()
+        );
+
         $cart = $this->generateDemoCart([7]);
         $orderId = $this->persistCart($cart);
 
@@ -111,6 +129,7 @@ class InvoiceRendererTest extends TestCase
         ], $this->context);
 
         $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+            'documentComment' => '<script></script>This is a invoice.',
             'itemsPerPage' => 10,
             'displayHeader' => true,
             'displayFooter' => true,
@@ -608,6 +627,49 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringNotContainsString('VAT Reg.No:', $rendered);
             },
         ];
+
+        yield 'render with credit item' => [
+            [7],
+            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+                $context = Context::createDefaultContext();
+                $orderId = $operation->getOrderId();
+
+                $versionId = $container->get('order.repository')->createVersion($orderId, $context, 'DRAFT');
+                $versionContext = $context->createWithVersionId($versionId);
+
+                // add credit line item to order
+                $creditLineItemId = Uuid::randomHex();
+                $creditLineItem = new LineItem(
+                    $creditLineItemId,
+                    LineItem::CREDIT_LINE_ITEM_TYPE,
+                    null,
+                    1
+                )
+                ;
+                $creditLineItem->setLabel('credit-item-1');
+                $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition(-20.0));
+
+                $container->get(RecalculationService::class)->addCustomLineItem(
+                    $orderId,
+                    $creditLineItem,
+                    $versionContext,
+                );
+
+                // merge the version changes back into LIVE-ORDER-VERSION
+                $container->get(VersionManager::class)
+                    ->merge($versionId, WriteContext::createFromContext($context));
+
+                $operation->assign([
+                    'config' => [
+                        'displayLineItems' => true,
+                    ],
+                ]);
+            },
+            function (RenderedDocument $rendered): void {
+                $rendered = $rendered->getContent();
+                static::assertStringContainsString('credit-item-1', $rendered);
+            },
+        ];
     }
 
     public function testCreateNewOrderVersionId(): void
@@ -681,10 +743,10 @@ class InvoiceRendererTest extends TestCase
 
         static::getContainer()->get('country.repository')->upsert([$updateData], Context::createDefaultContext());
 
-        static::getContainer()->get('order_address.repository')->upsert([
+        static::getContainer()->get('order_customer.repository')->upsert([
             [
-                'id' => $orderAddress->getId(),
-                'vatId' => $vatNumber,
+                'id' => $order->getOrderCustomer()?->getId(),
+                'vatIds' => [$vatNumber],
             ],
         ], Context::createDefaultContext());
 

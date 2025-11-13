@@ -7,10 +7,11 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Login\Config\LoginConfigService;
 use Shopware\Core\Framework\Api\OAuth\UserRepository;
+use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -136,8 +137,7 @@ class UserRepositoryTest extends TestCase
                 'scope' => 'scope',
                 'register_url' => 'https://register.url',
             ],
-            '',
-            ''
+            $this->createMock(RouterInterface::class)
         );
 
         return new UserRepository($connection, $loginConfigService);

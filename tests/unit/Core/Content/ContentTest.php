@@ -39,6 +39,7 @@ class ContentTest extends TestCase
         $expectedResources = [
             'breadcrumb',
             'category',
+            'cookie',
             'media',
             'media_path',
             'product',

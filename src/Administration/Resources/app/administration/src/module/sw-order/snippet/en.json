@@ -390,7 +390,6 @@
       "info": {
         "summary": {
           "and": "and",
-          "on": "on",
           "by": "by",
           "lastChanged": "Last changed",
           "with": "with"
@@ -431,8 +430,8 @@
       "labelDeliveryDate": "Delivery date",
       "labelDocumentNumber": "Number",
       "labelDocumentStornoNumber": "Cancellation number",
-      "labelInvoiceNumber": "Invoice number",
-      "selectInvoiceNumber": "Select invoice number",
+      "labelInvoiceNumber": "Invoice",
+      "selectInvoiceNumber": "Select invoice",
       "labelDeliveryNoteNumber": "Delivery note number",
       "labelDocumentComment": "Comment",
       "labelCreateDownloadPdf": "Create and download PDF",
@@ -507,7 +506,7 @@
         "columnEmailAddress": "Email address",
         "titleSelectSalesChannel": "Select Sales Channel",
         "descriptionSelectSalesChannel": "The selected customer has access to multiple Sales Channels, please select the Sales Channel you wish to use for this order.",
-        "alertSelectSalesChannel": "Because the selected Sales channel channel determines the available products and options, changing it will remove the products and reset the options.",
+        "alertSelectSalesChannel": "Because the selected Sales Channel determines the available products and options, changing it will remove the products and reset the options.",
         "labelSalesChannel": "Use Sales Channel",
         "placeholderSalesChannel": "Select a Sales Channel...",
         "buttonSelectSalesChannel": "Select",

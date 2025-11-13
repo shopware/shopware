@@ -96,7 +96,7 @@ class FormController extends StorefrontController
     }
 
     /**
-     * @return array<int, array<string|int, mixed>>
+     * @return list<array<string|int, mixed>>
      */
     private function handleSubscribe(Request $request, RequestDataBag $data, SalesChannelContext $context): array
     {
@@ -143,7 +143,7 @@ class FormController extends StorefrontController
     }
 
     /**
-     * @return array<int, array<string|int, mixed>>
+     * @return list<array<string|int, mixed>>
      */
     private function handleUnsubscribe(RequestDataBag $data, SalesChannelContext $context): array
     {

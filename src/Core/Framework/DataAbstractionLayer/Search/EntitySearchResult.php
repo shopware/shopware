@@ -46,6 +46,9 @@ class EntitySearchResult extends EntityCollection
         parent::__construct($entities);
     }
 
+    /**
+     * @param \Closure(TElement): bool $closure
+     */
     public function filter(\Closure $closure): static
     {
         return $this->createNew($this->entities->filter($closure));

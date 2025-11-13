@@ -11,7 +11,7 @@ Shopware currently supports an HTTP-cache layer; however, the current implementa
 * **Only storefront requests are cached**: The cache is only used for storefront requests, store-api is not supported out of the box, leading to performance penalties in headless projects.
 * **Cache-Hit rate is rather low**: All matched rule ids are included in the cache-hash, this leads to a lot of cache permutations. As one consequence of that, by default, the whole caching is disabled as soon as the cart is filled or a customer logged in.
 * **Complex reverse proxy configuration**: The reverse proxy configuration is quite complex because of the use of different cache headers and cookies, as a result we only support Fastly and Varnish, other reverse proxies are hard to add.
-* **Actual cache-control configuration is hard-coded and splattered**: The values set for `cache-control` headers are hard-coded and splattered (e.g., hard(-coded) configured in the reverse proxy config and in shopware code), they cannot be configured based on projects needs, and also on route level only the max-age is configurable.
+* **Actual cache-control configuration is hard-coded and splattered**: The values set for `cache-control` headers are hard-coded and splattered (e.g., hardcoded in the reverse proxy config and in shopware), they cannot be configured based on projects needs, and also on route level only the max-age is configurable.
 
 ## Decision
 

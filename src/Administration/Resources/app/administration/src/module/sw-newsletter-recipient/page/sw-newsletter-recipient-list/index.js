@@ -6,6 +6,7 @@ const {
     /**
      * @deprecated tag:v6.8.0 - EntityCollection will be removed
      */
+    // eslint-disable-next-line no-unused-vars
     Data: { Criteria, EntityCollection },
 } = Shopware;
 
@@ -44,11 +45,11 @@ export default {
             tagFilterValue: [],
             internalFilters: {},
             /**
-             * @deprecated tag:v6.8.0 - Will be removed
+             * @deprecated tag:v6.8.0 - tagCollection will be removed
              */
             tagCollection: null,
             /**
-             * @deprecated tag:v6.8.0 - Will be removed
+             * @deprecated tag:v6.8.0 - searchConfigEntity will be removed
              */
             searchConfigEntity: 'newsletter_recipient',
         };

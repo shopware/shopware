@@ -10,6 +10,12 @@
     &__list {
         .mt-card__content {
             padding: 0;
+
+            &:has(.mt-empty-state) {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
         }
     }
 }

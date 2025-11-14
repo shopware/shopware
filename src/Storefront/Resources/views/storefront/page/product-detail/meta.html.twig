@@ -55,4 +55,8 @@
     {% endif %}
 
     <link rel="canonical" href="{{ seoUrl('frontend.detail.page', { productId: canonicalUrl }) }}">
+
+    <link rel="alternate" 
+          type="application/json+oembed" 
+          href="{{ url('oembed', { format: 'json' }) }}&url={{ seoUrl('frontend.detail.page', { productId: canonicalUrl }) }}" />
 {% endblock %}

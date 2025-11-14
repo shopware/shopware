@@ -14,6 +14,22 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\Api\EmbedController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
+            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigStorage"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Storefront\Controller\AccountOrderController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader"/>

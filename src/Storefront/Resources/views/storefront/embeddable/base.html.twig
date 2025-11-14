@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="{{ context.languageInfo.localeCode }}"
+      itemscope="itemscope"
+      itemtype="https://schema.org/WebPage">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        {% block layout_head_title %}
+            <title itemprop="name">
+                {% block layout_head_title_inner %}{{- metaTitle -}}{% endblock %}
+            </title>
+        {% endblock %}
+
+        <link rel="stylesheet" href="{{ asset('css/minimal.css', 'theme') }}">
+
+        <style>
+            html, body {
+                background-color: transparent !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+        </style>
+
+        <script>
+            {% set breakpoint = {
+                xs: theme_config('breakpoint.xs'),
+                sm: theme_config('breakpoint.sm'),
+                md: theme_config('breakpoint.md'),
+                lg: theme_config('breakpoint.lg'),
+                xl: theme_config('breakpoint.xl'),
+                xxl: theme_config('breakpoint.xxl')
+            } %}
+
+            window.breakpoints = JSON.parse('{{ breakpoint|json_encode|escape('js') }}');
+        </script>
+
+        <script>
+            window.themeJsPublicPath = '{{ asset('js/', 'theme') }}';
+        </script>
+        {% for script in theme_scripts() %}
+            <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>
+        {% endfor %}
+    </head>
+
+    <body class="{% block base_body_classes %}{% endblock %}">
+
+        {% block content %}{% endblock %}
+
+        {% block base_component_styles %}
+            {% if feature('STOREFRONT_COMPONENTS') %}
+                {# Component styles are only loaded for components used within the page. #}
+                {% for style in mounted_component_styles() %}
+                    <link rel="stylesheet" href="{{ asset(style, 'theme') }}">
+                {% endfor %}
+            {% endif %}
+        {% endblock %}
+
+        {% block base_component_scripts %}
+            {% if feature('STOREFRONT_COMPONENTS') %}
+                {# Component script files are only loaded for components used within the page. #}
+                {% for script in mounted_component_scripts() %}
+                    <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>
+                {% endfor %}
+            {% endif %}
+        {% endblock %}
+
+        {% block base_body_script %}{% endblock %}
+    </body>
+</html>

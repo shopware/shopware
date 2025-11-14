@@ -3,7 +3,8 @@
     mediaHeight = 240,
     defaultRoute = seoUrl('frontend.detail.page', { productId: product.id }),
     slots = [],
-    layout = 'default'
+    layout = 'default',
+    isEmbed = false
 %}
 
 {% set horizontal = (layout == 'horizontal') %}
@@ -18,13 +19,16 @@
         mediaDisplay: {
             cover: 'is--media-cover',
             contain: 'is-media-contain'
+        },
+        isEmbed: {
+            true: 'is--embed',
         }
     }
 }) %}
 
 {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
-<div class="{{ cardCVA.apply({ layout, mediaDisplay }, attributes.render('class')) }}">
+<div class="{{ cardCVA.apply({ layout, mediaDisplay, isEmbed }, attributes.render('class')) }}">
 
     <div class="sw-product-card__inner d-flex h-100">
 
@@ -37,7 +41,7 @@
                     <twig:Sw:Media:Image
                         {{ ...attributes.nested('media').defaults({
                             media: product.cover.media,
-                            height: mediaHeight,
+                            height: isEmbed ? '100%' : mediaHeight,
                             class: 'card-img-top sw-product-card__media object-fit-contain',
                             sizes: '800px',
                             loading: 'lazy'
@@ -65,6 +69,7 @@
                     <twig:Slot name="title">
                         <h2 {{ attributes.nested('title').defaults({ class: 'sw-product-card__title card-title fw-semibold' }) }}>
                             <a
+                                {% if isEmbed %}target="_top"{% endif %}
                                 {{ attributes.nested('title-link').defaults({
                                     class: 'sw-product-card__title-link stretched-link',
                                     href: defaultRoute,
@@ -104,7 +109,7 @@
 
                 {% block price %}
                     <twig:Slot name="price">
-                        <twig:Sw:Product:PriceDisplay :product="product" />
+                        <twig:Sw:Product:PriceDisplay :product="product" :isEmbed="isEmbed" />
                     </twig:Slot>
                 {% endblock %}
 
@@ -112,6 +117,7 @@
                     <twig:Slot name="actions">
                         <twig:Sw:Product:CardActions
                             :product="product"
+                            :isEmbed="isEmbed"
                         />
                     </twig:Slot>
                 {% endblock %}

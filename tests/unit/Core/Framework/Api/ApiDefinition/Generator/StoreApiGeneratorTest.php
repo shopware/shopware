@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithAssociations;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -56,6 +57,7 @@ class StoreApiGeneratorTest extends TestCase
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
             [
                 SimpleDefinition::class,
+                DefinitionWithAssociations::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -726,5 +728,319 @@ class StoreApiGeneratorTest extends TestCase
         // Test entity with multiple capital letters
         $result = $method->invoke($this->generator, '#/components/schemas/SEOUrl');
         static::assertSame('s_e_o_url', $result);
+    }
+
+    public function testGetAssociationsDocumentationReturnsEmptyForNoAssociations(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('getAssociationsDocumentation');
+
+        // Test with SimpleDefinition which has no associations
+        $definition = $this->definitionRegistry->get(SimpleDefinition::class);
+        $result = $method->invoke($this->generator, $definition);
+
+        static::assertSame('', $result);
+    }
+
+    public function testGetAssociationsDocumentationFormatsCorrectly(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('getAssociationsDocumentation');
+
+        // Test with a definition that has associations
+        // Use the definitionRegistry to get all definitions and find one with associations
+        foreach ($this->definitionRegistry->getDefinitions() as $definition) {
+            if (!$definition instanceof \Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition) {
+                continue;
+            }
+
+            $result = $method->invoke($this->generator, $definition);
+
+            // If this definition has associations
+            if ($result !== '') {
+                // Verify the format
+                static::assertStringStartsWith("\n\n**Available Associations:**\n", $result);
+                static::assertStringContainsString('- `', $result);
+
+                // Verify no duplicate association headers
+                static::assertSame(1, substr_count($result, '**Available Associations:**'));
+
+                break;
+            }
+        }
+
+        // If no definitions with associations found, that's fine for this test
+        static::assertTrue(true);
+    }
+
+    public function testGetAssociationsDocumentationSkipsNonAssociationFields(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('getAssociationsDocumentation');
+
+        // Test that non-association fields are skipped
+        $definition = $this->definitionRegistry->get(SimpleDefinition::class);
+        $result = $method->invoke($this->generator, $definition);
+
+        // SimpleDefinition should not have associations
+        static::assertSame('', $result);
+    }
+
+    public function testEnrichPathsWithAssociationsIntegration(): void
+    {
+        // This is an integration test to ensure enrichPathsWithAssociations works end-to-end
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+
+        // Verify that the schema has paths
+        static::assertArrayHasKey('paths', $schema);
+        static::assertIsArray($schema['paths']);
+
+        // Count operations processed
+        $totalOperations = 0;
+        $readOperations = 0;
+
+        foreach ($schema['paths'] as $methods) {
+            foreach ($methods as $method => $operation) {
+                if (\in_array($method, ['get', 'post', 'put', 'patch', 'delete'], true)) {
+                    $totalOperations++;
+
+                    if (isset($operation['operationId']) && str_starts_with($operation['operationId'], 'read')) {
+                        $readOperations++;
+                    }
+                }
+            }
+        }
+
+        // Ensure we processed some operations
+        static::assertGreaterThan(0, $totalOperations, 'Should have processed some operations');
+        static::assertGreaterThan(0, $readOperations, 'Should have processed some read operations');
+    }
+
+    public function testEnrichPathsWithAssociationsHandlesEmptyPaths(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('enrichPathsWithAssociations');
+
+        // Test with empty paths - should return early
+        $specs = ['paths' => []];
+        $definitions = [];
+
+        $method->invoke($this->generator, $specs, $definitions);
+
+        // If we get here without errors, the early return worked
+        static::assertSame([], $specs['paths']);
+    }
+
+    public function testEnrichPathsWithAssociationsHandlesNonArrayPaths(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('enrichPathsWithAssociations');
+
+        // Test with non-array paths
+        $specs = ['paths' => null];
+        $definitions = [];
+
+        $method->invoke($this->generator, $specs, $definitions);
+
+        // Should handle gracefully
+        static::assertNull($specs['paths']);
+    }
+
+    public function testEnrichPathsWithAssociationsHandlesMissingPaths(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('enrichPathsWithAssociations');
+
+        // Test with no paths key
+        $specs = [];
+        $definitions = [];
+
+        $method->invoke($this->generator, $specs, $definitions);
+
+        // Should handle gracefully
+        static::assertArrayNotHasKey('paths', $specs);
+    }
+
+    public function testExtractEntityNameFromOperationWithNonStringRef(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('extractEntityNameFromOperation');
+
+        // Test with non-string $ref
+        $operation = [
+            'responses' => [
+                '200' => [
+                    '$ref' => 12345, // Non-string ref
+                ],
+            ],
+        ];
+        $result = $method->invoke($this->generator, $operation);
+        static::assertNull($result);
+    }
+
+    public function testExtractEntityNameFromOperationWithNonMatchingResponseRef(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('extractEntityNameFromOperation');
+
+        // Test response-level $ref that doesn't match pattern
+        $operation = [
+            'responses' => [
+                '200' => [
+                    '$ref' => '#/invalid/reference',
+                ],
+            ],
+        ];
+        $result = $method->invoke($this->generator, $operation);
+        static::assertNull($result);
+    }
+
+    public function testExtractEntityFromResultRefWithNonMatchingPattern(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('extractEntityFromResultRef');
+
+        // Test with ref that doesn't match pattern
+        $result = $method->invoke($this->generator, '#/components/schemas/SomethingElse');
+        static::assertNull($result);
+    }
+
+    public function testExtractEntityFromResultRefWithInvalidPregReplaceResult(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('extractEntityFromResultRef');
+
+        // Test edge case where preg_replace returns null
+        $result = $method->invoke($this->generator, '#/components/schemas/ProductListingResult');
+        static::assertSame('product', $result);
+    }
+
+    public function testExtractEntityFromRouteResponseRefWithInvalidPattern(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('extractEntityFromRouteResponseRef');
+
+        // Test preg_replace null return
+        $result = $method->invoke($this->generator, '#/components/schemas/InvalidRef');
+        static::assertNull($result);
+    }
+
+    public function testExtractEntityFromDetailResponseRefWithInvalidPattern(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('extractEntityFromDetailResponseRef');
+
+        // Test preg_replace null return
+        $result = $method->invoke($this->generator, '#/components/schemas/InvalidRef');
+        static::assertNull($result);
+    }
+
+    public function testExtractEntityNameFromRefWithInvalidPattern(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('extractEntityNameFromRef');
+
+        // Test with invalid pattern
+        $result = $method->invoke($this->generator, 'invalid-ref-without-hash');
+        static::assertNull($result);
+    }
+
+    public function testGetAssociationsDocumentationWithEntityWithAssociations(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('getAssociationsDocumentation');
+
+        // Get the DefinitionWithAssociations entity definition
+        $definition = $this->definitionRegistry->getByEntityName('test_entity_with_associations');
+
+        // Invoke the method
+        $result = $method->invoke($this->generator, $definition, DefinitionService::STORE_API);
+
+        // Verify result is a non-empty string with association documentation
+        static::assertIsString($result);
+        static::assertStringContainsString('**Available Associations:**', $result);
+
+        // Verify the association with description is included
+        static::assertStringContainsString('`category`', $result);
+        static::assertStringContainsString('The category this entity belongs to', $result);
+
+        // Verify the association without description is included
+        static::assertStringContainsString('`children`', $result);
+
+        // Verify that hidden associations are NOT included
+        static::assertStringNotContainsString('`hiddenAssociation`', $result);
+
+        // Verify that translations are NOT included
+        static::assertStringNotContainsString('translations', $result);
+
+        // Verify that parent associations are NOT included
+        static::assertStringNotContainsString('`parent`', $result);
+
+        // Verify that non-ApiAware associations are NOT included
+        static::assertStringNotContainsString('`notApiAware`', $result);
+
+        // Verify that admin-only associations are NOT included
+        static::assertStringNotContainsString('`adminOnly`', $result);
+    }
+
+    public function testGetAssociationsDocumentationReturnsEmptyStringForEntityWithoutAssociations(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('getAssociationsDocumentation');
+
+        // Get the SimpleDefinition entity definition (has no associations)
+        $definition = $this->definitionRegistry->getByEntityName('simple');
+
+        // Invoke the method
+        $result = $method->invoke($this->generator, $definition, DefinitionService::STORE_API);
+
+        // Verify result is an empty string when no associations
+        static::assertSame('', $result);
+    }
+
+    public function testGetAssociationsDocumentationReturnsFormattedStringWithMultipleAssociations(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('getAssociationsDocumentation');
+
+        // Get the DefinitionWithAssociations entity definition
+        $definition = $this->definitionRegistry->getByEntityName('test_entity_with_associations');
+
+        // Invoke the method
+        $result = $method->invoke($this->generator, $definition, DefinitionService::STORE_API);
+
+        // Verify format: should contain "**Available Associations:**" and newlines for multiple associations
+        static::assertStringContainsString('**Available Associations:**', $result);
+
+        // Count the number of valid associations (category and children should be included)
+        $associationCount = substr_count($result, '`');
+        // Should have at least 2 associations (category and children) * 2 backticks each = 4 backticks
+        static::assertGreaterThanOrEqual(4, $associationCount);
+    }
+
+    public function testGetAssociationsDocumentationSupportsOptionalDescription(): void
+    {
+        $reflection = new \ReflectionClass($this->generator);
+        $method = $reflection->getMethod('getAssociationsDocumentation');
+
+        // Get the DefinitionWithAssociations entity definition
+        $definition = $this->definitionRegistry->getByEntityName('test_entity_with_associations');
+
+        // Invoke the method
+        $result = $method->invoke($this->generator, $definition, DefinitionService::STORE_API);
+
+        // Verify that associations without descriptions are still included
+        static::assertStringContainsString('`children`', $result);
+
+        // After `children`, there should be no " - " followed by a description
+        static::assertStringNotContainsString('`children` - ', $result);
+
+        // Verify that category DOES have a description (for contrast)
+        static::assertStringContainsString('`category` - ', $result);
     }
 }

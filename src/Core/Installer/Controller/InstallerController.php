@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 abstract class InstallerController extends AbstractController
 {
     private const ROUTES = [
-        'installer.welcome' => 'welcome',
+        'installer.start' => 'start',
         'installer.requirements' => 'requirements',
         'installer.license' => 'license',
         'installer.database-configuration' => 'database-configuration',
@@ -61,18 +61,38 @@ abstract class InstallerController extends AbstractController
     {
         $currentFound = false;
         $menu = [];
+        $session = $request->getSession();
+        $extendedMenu = [];
+        $menuOrder = \array_values(self::ROUTES);
+
+        // Check if the wizard was called from the web installer and add the already completed steps to the menu
+        if ($session->has('extendSteps')) {
+            $extendedSteps = ['configure_php', 'download'];
+            foreach ($extendedSteps as $step) {
+                $extendedMenu[$step] = [
+                    'label' => $step,
+                    'active' => false,
+                    'isCompleted' => true,
+                ];
+            }
+            \array_splice($menuOrder, 1, 0, $extendedSteps);
+        }
         foreach (self::ROUTES as $route => $name) {
             if ($route === $request->attributes->get('_route')) {
                 $currentFound = true;
             }
 
-            $menu[] = [
+            $menu[$name] = [
                 'label' => $name,
                 'active' => $route === $request->attributes->get('_route'),
                 'isCompleted' => !$currentFound,
             ];
         }
+        $sortedMenu = array_replace(
+            \array_fill_keys($menuOrder, null),
+            $menu + $extendedMenu
+        );
 
-        return $menu;
+        return \array_values(\array_filter($sortedMenu));
     }
 }

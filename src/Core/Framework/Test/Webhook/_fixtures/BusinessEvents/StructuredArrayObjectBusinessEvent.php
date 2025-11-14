@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Event\FlowEventAware;
  */
 class StructuredArrayObjectBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
+    /**
+     * @var array{string: 'string', bool: true, int: 3, float: 1.3}
+     */
     private array $inner = [
         'string' => 'string',
         'bool' => true,
@@ -36,12 +39,7 @@ class StructuredArrayObjectBusinessEvent implements FlowEventAware, BusinessEven
     public function getEncodeValues(string $shopwareVersion): array
     {
         return [
-            'inner' => [
-                'string' => 'string',
-                'bool' => true,
-                'int' => 3,
-                'float' => 1.3,
-            ],
+            'inner' => $this->getInner(),
         ];
     }
 
@@ -55,6 +53,9 @@ class StructuredArrayObjectBusinessEvent implements FlowEventAware, BusinessEven
         return Context::createDefaultContext();
     }
 
+    /**
+     * @return array{string: 'string', bool: true, int: 3, float: 1.3}
+     */
     public function getInner(): array
     {
         return $this->inner;

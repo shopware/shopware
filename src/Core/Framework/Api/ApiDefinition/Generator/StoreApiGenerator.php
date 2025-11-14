@@ -6,6 +6,7 @@ use OpenApi\Annotations\License;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
+use PhpParser\Node\Param;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
@@ -204,11 +205,11 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     $operation->parameters = [];
                 }
 
-                array_push($operation->parameters, [
-                    '$ref' => '#/components/parameters/contentType',
-                ], [
-                    '$ref' => '#/components/parameters/accept',
-                ]);
+                array_push(
+                    $operation->parameters,
+                    new Parameter(['ref' => '#/components/parameters/contentType']),
+                    new Parameter(['ref' => '#/components/parameters/accept']),
+                );
             }
         }
     }

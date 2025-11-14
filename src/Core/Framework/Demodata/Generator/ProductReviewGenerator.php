@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
+use Shopware\Core\Framework\Demodata\DemodataException;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
@@ -46,6 +47,9 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
         $customerIds = $this->getCustomerIds();
         $productIds = $this->getProductIds();
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+        if ($salesChannelIds === []) {
+            throw DemodataException::wrongExecutionOrder();
+        }
         $points = [1, 2, 3, 4, 5];
 
         $payload = [];

@@ -1,4 +1,5 @@
-import { test } from '@fixtures/AcceptanceTest';
+import { test, getLocale } from '@fixtures/AcceptanceTest';
+import { getAddressDataFromLocale } from '../../helpers/locale-helpers';
 
 test.describe('Customer Registration Form', () => {
     test.beforeEach(async ({ TestDataService, InstanceMeta }) => {
@@ -40,16 +41,19 @@ test.describe('Customer Registration Form', () => {
         'As a customer, I can perform a registration with full customer data without captcha protection.',
         { tag: ['@Form', '@Registration', '@Storefront'] },
         async ({ ShopCustomer, StorefrontAccountLogin, StorefrontAccount, IdProvider }) => {
+            const locale = getLocale();
+            const addressData = getAddressDataFromLocale(locale);
+
             const customer = {
                 salutation: 'Mr.',
                 firstName: 'Jeff',
                 lastName: 'Goldblum',
                 email: `${IdProvider.getIdPair().uuid}@test.com`,
                 password: 'shopware',
-                street: 'Ebbinghof 10',
-                city: 'Schöppingen',
-                country: 'Germany',
-                postalCode: '48624',
+                street: addressData.street,
+                city: addressData.city,
+                country: addressData.country,
+                postalCode: addressData.postalCode,
             };
 
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
@@ -77,16 +81,19 @@ test.describe('Customer Registration Form', () => {
         'As a customer, I can perform a registration with validation errors without captcha protection.',
         { tag: ['@Form', '@Registration', '@Storefront'] },
         async ({ ShopCustomer, StorefrontAccountLogin, IdProvider }) => {
+            const locale = getLocale();
+            const addressData = getAddressDataFromLocale(locale);
+
             const customer = {
                 salutation: 'Mr.',
                 firstName: 'Jeff',
                 // lastName is missing intentionally
                 email: `${IdProvider.getIdPair().uuid}@test.com`,
                 password: 'shopware',
-                street: 'Ebbinghof 10',
-                city: 'Schöppingen',
-                country: 'Germany',
-                postalCode: '48624',
+                street: addressData.street,
+                city: addressData.city,
+                country: addressData.country,
+                postalCode: addressData.postalCode,
             };
 
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());

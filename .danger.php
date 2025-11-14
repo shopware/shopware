@@ -40,8 +40,16 @@ return (new Config())
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
-        if ($files->matches('changelog/_unreleased/*.md')->count() === 0) {
-            $context->warning('The Pull Request doesn\'t contain any changelog file');
+        if ($files->matches('changelog/_unreleased/*.md')->count() > 0) {
+            $context->failure('The Pull Request makes use of the old changelog format. Please document your changes in the `RELEASE_INFO-6.7.md` and `UPGRADE-6.8.md` file respectively.');;
+        }
+    })
+
+    ->useRule(function (Context $context): void {
+        $files = $context->platform->pullRequest->getFiles();
+
+        if ($files->matches('RELEASE_INFO-6.7.md')->count() === 0) {
+            $context->warning('The Pull Request doesn\'t contain any release info');
         }
     })
 

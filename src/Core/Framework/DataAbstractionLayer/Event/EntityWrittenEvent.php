@@ -8,26 +8,42 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @template IDStructure of string|array<string, string> = string
+ */
 #[Package('framework')]
 class EntityWrittenEvent extends NestedEvent implements GenericEvent
 {
+    /**
+     * @var list<IDStructure>|null
+     */
     protected ?array $ids = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     protected NestedEventCollection $events;
 
+    /**
+     * @var list<array<string, mixed>>|null
+     */
     protected ?array $payloads = null;
 
     /**
-     * @var EntityExistence[]
+     * @var list<EntityExistence>
+     *
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
      */
     protected ?array $existences = null;
 
     protected string $name;
 
     /**
-     * @param EntityWriteResult[] $writeResults
+     * @param list<EntityWriteResult<IDStructure>> $writeResults
+     * @param array<mixed> $errors
      */
     public function __construct(
         protected string $entityName,
@@ -49,11 +65,17 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
         return $this->context;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getErrors(): array
     {
         return $this->errors;
     }
 
+    /**
+     * @return list<IDStructure>
+     */
     public function getIds(): array
     {
         if ($this->ids === null) {
@@ -71,16 +93,34 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
         return $this->entityName;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public function hasErrors(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
+
         return \count($this->errors) > 0;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public function addEvent(NestedEvent $event): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
         $this->events->add($event);
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     public function getPayloads(): array
     {
         if ($this->payloads === null) {
@@ -94,10 +134,16 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
     }
 
     /**
-     * @return EntityExistence[]
+     * @return list<EntityExistence>
+     *
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
      */
     public function getExistences(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
         if ($this->existences === null) {
             $this->existences = [];
             foreach ($this->writeResults as $entityWriteResult) {
@@ -111,7 +157,7 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
     }
 
     /**
-     * @return EntityWriteResult[]
+     * @return list<EntityWriteResult<IDStructure>>
      */
     public function getWriteResults(): array
     {

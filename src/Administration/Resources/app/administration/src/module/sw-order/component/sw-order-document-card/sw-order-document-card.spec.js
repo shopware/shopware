@@ -88,7 +88,7 @@ const documentTypeFixture = [
     },
 ];
 
-async function createWrapper() {
+async function createWrapper(routeName = 'sw.order.detail.documents') {
     const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         global: {
             stubs: {
@@ -206,7 +206,7 @@ async function createWrapper() {
             mocks: {
                 $route: {
                     query: '',
-                    name: 'sw.order.detail.documents',
+                    name: routeName,
                     meta: {
                         $module: {
                             icon: 'solid-content',
@@ -492,7 +492,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show attach column when attachView is true', async () => {
         global.activeAclRoles = [];
-        wrapper = await createWrapper();
+        wrapper = await createWrapper('sw.order.detail.details');
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -501,8 +501,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         let columns = wrapper.findAll('.sw-data-grid__cell--header');
-        // 5 data columns + 1 action column
-        expect(columns).toHaveLength(6);
+        // 4 data columns + 1 action column
+        expect(columns).toHaveLength(5);
 
         await wrapper.setProps({
             attachView: true,
@@ -510,7 +510,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         columns = wrapper.findAll('.sw-data-grid__cell--header');
         expect(columns).toHaveLength(6);
-        expect(columns[5].text()).toBe('sw-order.documentCard.labelAttach');
+        expect(columns[4].text()).toBe('sw-order.documentCard.labelAttach');
     });
 
     it('should show card filter when order has document', async () => {

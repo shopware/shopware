@@ -107,17 +107,24 @@
             </div>
         {% endif %}
 
-        <a class="fs-6 d-block"
-           href="#"
-           role="button"
-           data-ajax-modal="true"
-           data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+        <twig:Sw:Button
+            variant="inline"
+            class="fs-6 d-block"
+            role="button"
+            data-bs-toggle="modal"
+            data-bs-target="#tax-info-modal-{{ product.id }}">
             {% if context.taxState == 'gross' %}
                 {{ 'general.grossTaxInformationShort'|trans|sw_sanitize }}
             {% else %}
                 {{ 'general.netTaxInformationShort'|trans|sw_sanitize }}
             {% endif %}
-        </a>
+        </twig:Sw:Button>
+
+        <twig:Sw:Content:Modal
+            id="tax-info-modal-{{ product.id }}"
+            :setTitleFromAjaxContent="true"
+            ajaxUrl="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
+        />
 
     </div>
 {% endblock %}

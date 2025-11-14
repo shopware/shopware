@@ -108,6 +108,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
             <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener" />
+            <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper" />
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">

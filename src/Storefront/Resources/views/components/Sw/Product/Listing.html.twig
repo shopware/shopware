@@ -17,13 +17,13 @@
 
     {% block filters %}
         <twig:Slot name="filters-panel">
-            <twig:Sw:Filter:Panel 
+            <twig:Sw:Filter:Panel
                 :totalCount="listing.total"
                 :currentSorting="listing.sorting"
-                :filterAggregations="listing.aggregations" 
+                :filterAggregations="listing.aggregations"
                 :availableSortings="listing.availableSortings">
             </twig:Sw:Filter:Panel>
-        </twig:Slot> 
+        </twig:Slot>
 
         <twig:Slot name="filters-active">
             <twig:Sw:Filter:ActiveFilters />

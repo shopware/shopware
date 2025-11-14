@@ -345,9 +345,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             return;
         }
 
-        // Build a map of entity names to their association data (both text docs and structured data)
+        // Build a map of entity names to their association documentation
         $associationDocs = [];
-        $associationData = [];
         foreach ($definitions as $def) {
             if (!$def instanceof EntityDefinition) {
                 continue;
@@ -356,11 +355,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $doc = $this->getAssociationsDocumentation($def);
             if (!empty($doc)) {
                 $associationDocs[$def->getEntityName()] = $doc;
-            }
-
-            $data = $this->getAssociationsData($def);
-            if (!empty($data)) {
-                $associationData[$def->getEntityName()] = $data;
             }
         }
 
@@ -380,17 +374,12 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 // Try to find entity reference in the response schema
                 $entityName = $this->extractEntityNameFromOperation($pathDefinition[$method]);
 
-                if (!$entityName) {
+                if (!$entityName || !isset($associationDocs[$entityName])) {
                     continue;
                 }
 
-                // Add x-associations extension field (structured data)
-                if (isset($associationData[$entityName])) {
-                    $pathDefinition[$method]['x-associations'] = $associationData[$entityName];
-                }
-
-                // Also append to description for backward compatibility
-                if (isset($associationDocs[$entityName]) && isset($pathDefinition[$method]['description'])) {
+                // Append associations documentation
+                if (isset($pathDefinition[$method]['description'])) {
                     $currentDesc = $pathDefinition[$method]['description'];
                     // Only add if not already present
                     if (!str_contains($currentDesc, '**Available Associations:**')) {
@@ -642,58 +631,5 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         }
 
         return "\n\n**Available Associations:**\n" . implode("\n", $associations);
-    }
-
-    /**
-     * Generates structured association data for OpenAPI extension field
-     *
-     * @return array<int, array{name: string, description?: string}>
-     */
-    private function getAssociationsData(EntityDefinition $definition): array
-    {
-        $associations = [];
-
-        foreach ($definition->getFields() as $field) {
-            if (!$field instanceof AssociationField) {
-                continue;
-            }
-
-            // Skip if explicitly hidden from OpenAPI
-            if ($field->getFlag(IgnoreInOpenapiSchema::class)) {
-                continue;
-            }
-
-            // Skip translations
-            if ($field->getPropertyName() === 'translations') {
-                continue;
-            }
-
-            // Skip parent associations - they cannot be loaded via Criteria due to infinite recursion prevention
-            // Error: FRAMEWORK__PARENT_ASSOCIATION_CAN_NOT_BE_FETCHED
-            if ($field instanceof ParentAssociationField) {
-                continue;
-            }
-
-            // Check ApiAware flag for Store API
-            $apiAware = $field->getFlag(ApiAware::class);
-            if (!$apiAware || !$apiAware->isSourceAllowed(SalesChannelApiSource::class)) {
-                continue;
-            }
-
-            $fieldName = $field->getPropertyName();
-
-            // Build association object
-            $association = ['name' => $fieldName];
-
-            // Check for field-level AssociationDescription flag
-            $descriptionFlag = $field->getFlag(AssociationDescription::class);
-            if ($descriptionFlag) {
-                $association['description'] = $descriptionFlag->getDescription();
-            }
-
-            $associations[] = $association;
-        }
-
-        return $associations;
     }
 }

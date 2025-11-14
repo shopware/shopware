@@ -102,6 +102,7 @@
         {% block sw_product_stream_modal_preview_empty_state %}
         <mt-empty-state
             v-if="!total && !isLoading"
+            class="mt-empty-state--center"
             :icon="$route.meta.$module.icon"
             :headline="$tc('sw-product-stream.previewModal.empty')"
         />

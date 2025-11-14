@@ -50,5 +50,10 @@ return [
         preg_quote('ADDED: Parameter disableValidation was added to Method decode() of class Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator'),
         preg_quote('ADDED: Parameter jwt was added to Method getTokenLifetime() of class Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator'),
         preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator#getTokenLifetime() increased from 0 to 1'),
+
+        // consumed not released yet
+        preg_quote('REMOVED: Property Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct#$consumed was removed'),
+        preg_quote('REMOVED: Method Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct#isConsumed() was removed'),
+        preg_quote('REMOVED: Method Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct#setConsumed() was removed'),
     ],
 ];

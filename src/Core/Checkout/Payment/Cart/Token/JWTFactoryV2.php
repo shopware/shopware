@@ -26,7 +26,6 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
         private readonly Configuration $configuration,
         private readonly Connection $connection,
     ) {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(static::class, 'v6.8.0.0', PaymentTokenGenerator::class));
     }
 
     public function generateToken(TokenStruct $tokenStruct): string

@@ -52,7 +52,11 @@ abstract class JWTGenerator
             throw JWTException::invalidJwt('JWT cannot be empty');
         }
 
-        $jwt = $this->configuration->parser()->parse($token);
+        try {
+            $jwt = $this->configuration->parser()->parse($token);
+        } catch (\Exception $e) {
+            throw JWTException::invalidJwt('Failed to parse JWT: ' . $e->getMessage(), $e);
+        }
         if (!$jwt instanceof UnencryptedToken) {
             throw JWTException::invalidJwt('JWT is not an unencrypted token');
         }
@@ -82,6 +86,7 @@ abstract class JWTGenerator
         $jwt->iat ??= $now;
         $jwt->nbf ??= $now;
         $jwt->exp ??= $now->modify(\sprintf('+%d seconds', $this->getTokenLifetime($jwt)));
+        $jwt->jti ??= Uuid::randomHex();
 
         $builder = $this->configuration->builder()
             ->issuedAt($jwt->iat)
@@ -94,9 +99,7 @@ abstract class JWTGenerator
             }
 
             if ($key === RegisteredClaims::ID) {
-                $value ??= Uuid::randomHex();
                 $builder = $builder->identifiedBy($value);
-                $jwt->jti = $value;
                 continue;
             }
 

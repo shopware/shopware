@@ -99,20 +99,24 @@ class PaymentController extends AbstractController
 
             \assert($token instanceof PaymentToken);
         } catch (JWTException $e) {
-            // token could not be decoded, therefore $token will be null, try to decode it again without validation to get errorUrl
             try {
+                // try to decode without validation for graceful error handling
                 $token = $this->paymentTokenGenerator->decode($paymentToken, true);
+                $this->invalidate($token->jti);
             } catch (\Throwable $e) {
-                return $this->handleError($e, null);
+                throw PaymentException::invalidToken($paymentToken, $e);
             }
 
-            $this->invalidate($token->jti);
-
-            return $this->handleError(PaymentException::invalidToken($paymentToken, $e), $token);
-        } catch (\Throwable $e) {
+            return $this->handleError($e, $token);
+        } catch (PaymentException $e) {
+            // @deprecated tag:v6.8.0 - remove this catch block
             $this->invalidate($token?->jti);
 
             return $this->handleError($e, $token ?? null);
+        } catch (\Throwable $e) {
+            $this->invalidate($token?->jti);
+
+            throw PaymentException::invalidToken($paymentToken, $e);
         }
 
         if (Feature::isActive('REPEATED_PAYMENT_FINALIZE') && $token->jti !== null && !$this->paymentTokenLifecycle->isConsumable($token->jti)) {

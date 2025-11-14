@@ -47,18 +47,20 @@ Important details:
      cache hit ratio across clients.
    - Introduce phaseout plan for separate criteria parameters (e.g. `filter`, `grouping`, `fields`, `page`, `limit`, etc).
 3. Use cache headers (not cookies) to differentiate contexts on Store API
-    - Use `sw-currency-id` and `sw-language-id` to differentiate currency and language. Shopware must mutate context
-      based on these headers.
-    - Use `sw-context-hash` to differentiate other context aspects (e.g. logged in customer, active rules, etc). Use the
-      same algorithm as for storefront context hash cookie.
-    - All three headers must be returned in the Store API responses. If clients want to utilize caching, they should
-      send these headers in subsequent requests. When client sends these headers, reverse proxy uses them to detect
-      the cache bucket. Additionally, the language and currency headers change the currency and language in the context when sent.
-    - `Vary` header should include all three headers, so reverse proxies and CDNs can differentiate cache entries.
+   - Use `sw-currency-id` and `sw-language-id` to differentiate currency and language. Shopware must update currency and
+     language ids in the context of the current request based on these headers.
+   - Use `sw-context-hash` to differentiate other context aspects (e.g. logged in customer, active rules, etc). Use the
+     same algorithm as for storefront context hash cookie.
+   - All three headers must be returned in the Store API responses. If clients want to utilize caching, they should
+     send these headers in subsequent requests. When client sends these headers, reverse proxy uses them to detect
+     the cache bucket. Additionally, the language and currency headers change the currency and language in the response.
+   - `Vary` header should include all three headers, so reverse proxies and CDNs can differentiate cache entries.
 4. Mark cacheable routes
    - Use `'_httpCache'` route default attribute to mark cacheable Store API routes.
-   - Extend `CacheResponseSubscriber` to add `Cache-Control: public, s-maxage=7200` header to Store API requests similar
-     to Storefront requests (configurable TTL), but ignoring cookies (relying on headers + `Vary` instead).
+   - Extend `CacheResponseSubscriber` to add `Cache-Control` header to Store API responses similar
+     to Storefront responses, but ignoring cookies (relying on headers + `Vary` instead). Default `Cache-Control`
+     value for cacheable routes should be `public, max-age=0, s-maxage=1800, stale-while-revalidate=86400, stale-if-error=7200`,
+     non-cacheable `no-cache, private`
 5. Invalidation strategy
    - Reuse existing cache tags implementation to invalidate cached Store API responses.
 
@@ -67,18 +69,18 @@ Important details:
 - SDK updates
    - Switch relevant endpoints to GET where safe
    - Add support for `_criteria` parameter (encoding, decoding, canonicalization)
-   - Implement automatic request method selection (fallback to POST when the encoded _criteria would exceed practical
+   - Implement automatic request method selection (fallback to POST when the compressed _criteria would exceed practical
      URL limits).
    - Track and resend `sw-currency-id`, `sw-language-id`, and `sw-context-hash` headers on subsequent requests.
 - Clients
    - No changes required if caching is not desired.
    - To utilize caching, clients should adopt the updated SDK or implement the same strategy.
-   - Client should beware that `sw-currency-id`, `sw-language-id` may mutate the context if different from the current one.
+   - Client should beware that `sw-currency-id`, `sw-language-id` can change the response language and currency.
 - Extensions 
    - Custom Store API endpoints can opt into caching using the same route flags.
 - Trade-offs
-   - Using serialized `_criteria` reduces request readability and makes debugging and logging harder.
-   - Without canonicalization, serialized `_criteria` parameter may lead to a decreased cache hit ratio.
+   - Using compressed `_criteria` reduces request readability and makes debugging and logging harder.
+   - Without canonicalization, compressed `_criteria` parameter may lead to a decreased cache hit ratio.
    - Operators may need minor reverse-proxy adjustments, depending on the level of customization.
 
 ## Considered alternatives
@@ -101,6 +103,7 @@ Important details:
    - Additional round-trip for the requests.
    - Transparent request - easier to debug and log.
     Rejected in favor of simplicity of implementation, limited number of requests and minimal changes on clients side.
+
 4. Use “plain” structured query parameters (filter[...][]=...)
    - Can hit url length limits more easily.
    - More complex OpenAPI schema, problem with array format differences between clients persists.

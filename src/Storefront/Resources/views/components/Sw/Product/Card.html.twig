@@ -73,7 +73,7 @@
                         <h2 {{ attributes.nested('title').defaults({ class: 'sw-product-card__title card-title fw-semibold' }) }}>
                             <a
                                 {{ attributes.nested('title-link').defaults({
-                                    class: 'sw-product-card__title-link',
+                                    class: 'sw-product-card__title-link' ~ (product.cover.media.isSpatialObject() ? '' : ' stretched-link'),
                                     href: defaultRoute,
                                     style: "--sw-product-card-media-height: #{mediaHeight}px",
                                 }) }}

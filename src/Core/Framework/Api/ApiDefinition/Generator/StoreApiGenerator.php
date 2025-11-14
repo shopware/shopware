@@ -402,9 +402,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $ref = $operation['responses']['200']['$ref'];
             // Extract entity name from response reference like "ProductListResponse" -> "product"
             // Match pattern: components/responses/{Entity}[List|Detail]Response
-            if (is_string($ref) && preg_match('#/([^/]+?)(?:List|Detail)?Response$#', $ref, $matches)) {
+            if (\is_string($ref) && preg_match('#/([^/]+?)(?:List|Detail)?Response$#', $ref, $matches)) {
                 $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $matches[1]);
-                if (!is_string($converted)) {
+                if (!\is_string($converted)) {
                     return null;
                 }
 
@@ -497,13 +497,13 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         // Handle patterns like "ProductListing" -> "product"
         // Remove common suffixes before converting
         $schemaName = preg_replace('/(?:Listing|Search|Collection)$/', '', $schemaName);
-        if (!is_string($schemaName)) {
+        if (!\is_string($schemaName)) {
             return null;
         }
 
         // Convert PascalCase to snake_case
         $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName);
-        if (!is_string($converted)) {
+        if (!\is_string($converted)) {
             return null;
         }
 
@@ -525,7 +525,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         // Convert PascalCase to snake_case
         $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName);
-        if (!is_string($converted)) {
+        if (!\is_string($converted)) {
             return null;
         }
 
@@ -547,7 +547,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         // Convert PascalCase to snake_case
         $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName);
-        if (!is_string($converted)) {
+        if (!\is_string($converted)) {
             return null;
         }
 
@@ -569,7 +569,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         // Convert PascalCase to snake_case
         $converted = preg_replace('/(?<!^)[A-Z]/', '_$0', $schemaName);
-        if (!is_string($converted)) {
+        if (!\is_string($converted)) {
             return null;
         }
 

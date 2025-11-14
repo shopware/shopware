@@ -179,4 +179,34 @@ class StoreApiGeneratorTest extends TestCase
 
         $this->generator->getSchema($this->definitionRegistry->getDefinitions());
     }
+
+    public function testAssociationDocumentationIsAddedToReadOperations(): void
+    {
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+
+        // Find a read operation in the paths
+        $foundReadOperation = false;
+        foreach ($schema['paths'] as $methods) {
+            foreach ($methods as $operation) {
+                if (isset($operation['operationId']) && str_starts_with($operation['operationId'], 'read')) {
+                    $foundReadOperation = true;
+
+                    // If the operation has associations, the description should contain them
+                    if (isset($operation['description']) && str_contains($operation['description'], '**Available Associations:**')) {
+                        static::assertStringContainsString('**Available Associations:**', $operation['description']);
+                        // Verify it's properly formatted with bullet points
+                        static::assertMatchesRegularExpression('/\*\*Available Associations:\*\*\n- `\w+`/', $operation['description']);
+                    }
+                }
+            }
+        }
+
+        // Ensure we found at least one read operation to test
+        static::assertTrue($foundReadOperation, 'No read operations found in the schema to test');
+    }
 }

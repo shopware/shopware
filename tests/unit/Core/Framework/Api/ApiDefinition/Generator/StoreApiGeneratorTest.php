@@ -807,10 +807,10 @@ class StoreApiGeneratorTest extends TestCase
         foreach ($schema['paths'] as $methods) {
             foreach ($methods as $method => $operation) {
                 if (\in_array($method, ['get', 'post', 'put', 'patch', 'delete'], true)) {
-                    $totalOperations++;
+                    ++$totalOperations;
 
                     if (isset($operation['operationId']) && str_starts_with($operation['operationId'], 'read')) {
-                        $readOperations++;
+                        ++$readOperations;
                     }
                 }
             }

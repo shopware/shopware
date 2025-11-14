@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.9
+* [GHSA-2w46-vq8h-98vh](https://github.com/shopware/shopware/security/advisories/GHSA-2w46-vq8h-98vh) - fix: password recovery not expiring on email change
+
 ## 6.6.10.8
 *  [#11055 - Add global styling for blockquotes](./changelog/release-6-6-10-8/2025-09-25-storefront-blockquote-styling.md)
 *  [#11215 - Restore ResetInterface support in long-running runtimes](./changelog/release-6-6-10-8/2025-07-14-restore-kernel-handle-resetinterface.md) @mateuszfl

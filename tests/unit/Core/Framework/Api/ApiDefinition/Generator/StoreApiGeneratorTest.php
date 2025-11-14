@@ -220,12 +220,14 @@ class StoreApiGeneratorTest extends TestCase
         );
 
         // Find non-read operations and verify they don't get association docs added
+        $nonReadOperationsCount = 0;
         foreach ($schema['paths'] as $methods) {
             foreach ($methods as $operation) {
                 if (isset($operation['operationId'])) {
                     $operationId = $operation['operationId'];
                     // Check operations that don't start with "read"
                     if (!str_starts_with($operationId, 'read')) {
+                        $nonReadOperationsCount++;
                         // These operations should not have associations added even if they have descriptions
                         if (isset($operation['description'])) {
                             // The description might naturally contain "Association" but not our formatted section
@@ -243,7 +245,7 @@ class StoreApiGeneratorTest extends TestCase
             }
         }
 
-        static::assertTrue(true, 'Non-read operations checked');
+        static::assertGreaterThan(0, $nonReadOperationsCount, 'Should have found at least one non-read operation');
     }
 
     public function testAssociationDocumentationSkipsOperationsWithoutOperationId(): void
@@ -257,16 +259,18 @@ class StoreApiGeneratorTest extends TestCase
 
         // Verify that all operations in the generated schema have operationId
         // This tests that the code path for missing operationId is handled
+        $operationsChecked = 0;
         foreach ($schema['paths'] as $path => $methods) {
             foreach ($methods as $method => $operation) {
                 // All properly defined operations should have operationId
                 if (\in_array($method, ['get', 'post', 'put', 'patch', 'delete'], true)) {
+                    $operationsChecked++;
                     static::assertArrayHasKey('operationId', $operation, "Operation {$method} at path {$path} should have operationId");
                 }
             }
         }
 
-        static::assertTrue(true, 'Operations with operationId verified');
+        static::assertGreaterThan(0, $operationsChecked, 'Should have checked at least one operation');
     }
 
     public function testAssociationDocumentationNotAddedTwice(): void
@@ -279,11 +283,14 @@ class StoreApiGeneratorTest extends TestCase
         );
 
         // Check that if association docs are already present, they're not added again
+        $operationsWithAssociationsCount = 0;
         foreach ($schema['paths'] as $methods) {
             foreach ($methods as $operation) {
                 if (isset($operation['operationId'], $operation['description'])
                     && str_starts_with($operation['operationId'], 'read')
                     && str_contains($operation['description'], '**Available Associations:**')) {
+
+                    $operationsWithAssociationsCount++;
                     // Count occurrences of the associations header
                     $count = substr_count($operation['description'], '**Available Associations:**');
                     static::assertSame(
@@ -295,7 +302,8 @@ class StoreApiGeneratorTest extends TestCase
             }
         }
 
-        static::assertTrue(true, 'No duplicate association documentation found');
+        // We should have at least some operations with associations to test this properly
+        static::assertGreaterThan(0, $operationsWithAssociationsCount, 'Should have at least one operation with associations to verify no duplication');
     }
 
     public function testAssociationDocumentationOnlyForEntitiesWithAssociations(): void

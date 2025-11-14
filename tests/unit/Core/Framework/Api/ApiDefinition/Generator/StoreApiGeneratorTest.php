@@ -284,7 +284,6 @@ class StoreApiGeneratorTest extends TestCase
                 if (isset($operation['operationId'], $operation['description'])
                     && str_starts_with($operation['operationId'], 'read')
                     && str_contains($operation['description'], '**Available Associations:**')) {
-
                     // Count occurrences of the associations header
                     $count = substr_count($operation['description'], '**Available Associations:**');
                     static::assertSame(

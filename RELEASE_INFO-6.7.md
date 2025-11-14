@@ -36,6 +36,28 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 
 ## Core
 
+### Improved Store API OpenAPI documentation with association descriptions
+
+The OpenAPI schema generator for Store API endpoints now automatically includes documentation about available associations. Each entity's associations are now documented with human-readable descriptions, making it easier for developers to understand which associations are available and what they represent.
+
+For example, when viewing the OpenAPI documentation for a shipping method endpoint, developers will now see:
+- **Available Associations:** `prices` - Shipping cost rules, `media` - Shipping method logo
+
+This enhancement applies to 18 Store API entities including Product, Order, Customer, ShippingMethod, PaymentMethod, and Category.
+
+To document associations in your custom entity definitions, use the `AssociationDescription` flag:
+
+```php
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AssociationDescription;
+
+(new ManyToOneAssociationField('group', 'customer_group_id',
+    CustomerGroupDefinition::class, 'id', false))
+    ->addFlags(
+        new ApiAware(),
+        new AssociationDescription('Customer group determining pricing and permissions')
+    )
+```
+
 ### Robots.txt parsing
 A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.
 As part of this change, the constructor for `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` is now deprecated for string parameters. You should use the new parser to create a `ParsedRobots` object to pass to the constructor instead.

@@ -69,13 +69,13 @@ inputs:
         description: "Prefix for the artifact name"
 
 runs:
-    using: "composite"
-    steps:
-        - uses: octo-sts/action@e480437973a6f6ac2e9caa40ecabedc870d76395 # v1.0.1
+  using: "composite"
+  steps:
+        - uses: shopware/octo-sts-action@main
           id: create-pr-token
           with:
-              scope: shopware
-              identity: CreatePR
+            scope: shopware
+            identity: CreatePR
           continue-on-error: true
 
         - name: Start redis

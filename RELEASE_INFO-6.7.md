@@ -12,6 +12,10 @@ Now, tax rules are applied **correctly** based on the customer type.
 The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard.
 For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
 
+### Scheduled Task for cleaning up corrupted media entries
+A new scheduled task `media.cleanup_corrupted_media` has been introduced.
+It detects and removes corrupted media records, such as entries created by interrupted or failed file uploads that have no corresponding file on the filesystem.
+
 ## API
 
 ### Add the possibility to specify indexer in context

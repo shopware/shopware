@@ -18,4 +18,12 @@
         margin-bottom: 26px;
         background-color: transparent;
     }
+
+    .mt-card .mt-card__content {
+        &:has(.mt-empty-state) {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    }
 }

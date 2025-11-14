@@ -7,7 +7,7 @@
     showTaxInfo = false,
     mediaObjectFit = 'contain',
     border = true,
-    rounded = false,
+    rounded = true,
 %}
 
 {% set horizontal = (layout == 'horizontal') %}
@@ -111,7 +111,10 @@
 
                 {% block price %}
                     <twig:Slot name="price">
-                        <twig:Sw:Product:PriceDisplay :product="product" />
+                        <twig:Sw:Product:PriceDisplay
+                            :product="product"
+                            :showTaxInfo="showTaxInfo"
+                        />
                     </twig:Slot>
                 {% endblock %}
 

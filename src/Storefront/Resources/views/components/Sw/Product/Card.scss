@@ -30,6 +30,18 @@
             --bs-btn-border-radius: 0.5rem;
         }
     }
+
+    &.is--media-cover {
+        .sw-product-card__media {
+            object-fit: cover;
+        }
+    }
+
+    &.is--media-contain {
+        .sw-product-card__media {
+            object-fit: contain;
+        }
+    }
 }
 
 .sw-product-card__title {

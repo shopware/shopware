@@ -33,7 +33,7 @@ readonly class CacheControlListener
         // We don't want that the client will cache the website, if no reverse proxy is configured
         $response->headers->remove('cache-control');
 
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             $response->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
         }
 

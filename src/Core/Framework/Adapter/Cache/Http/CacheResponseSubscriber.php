@@ -84,7 +84,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $route = $request->attributes->get('_route');
         /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12968) */
         if ($route === 'frontend.checkout.configure') {
-            if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+            if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
                 $this->setCurrencyCookie($request, $response);
             }
         }
@@ -92,14 +92,16 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         /** @deprecated tag:v6.8.0 - states can be removed */
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             $states = [];
         } else {
             $states = $this->updateSystemState($cart, $context, $request, $response);
         }
 
-        // Cache-hash needs to be applied to every request, especially when POST-requests mutate the context,
-        // so the cache-hash needs to be updated
+        // The cache hash reflects the internal state of the context to properly cache pages
+        // when multiple permutations exist (e.g. different currencies etc)
+        // therefore, it needs to be applied to every request (including POST), especially when POST-requests mutate the context,
+        // even when the response is not cached itself, so that the cache-hash on the client is updated for the next request
         $this->cacheHashService->applyCacheHash($request, $context, $cart, $response);
 
         if (!$request->isMethod(Request::METHOD_GET)
@@ -118,7 +120,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         /** @deprecated tag:v6.8.0 - can be removed when cache states are always empty */
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
                 return;
             }
@@ -127,7 +129,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $maxAge = $cache['maxAge'] ?? $this->defaultTtl;
 
         $response->setSharedMaxAge($maxAge);
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             $response->headers->set(
                 HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER,
                 implode(',', $cache['states'] ?? [])

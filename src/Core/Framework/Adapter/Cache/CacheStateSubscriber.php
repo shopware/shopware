@@ -44,7 +44,7 @@ class CacheStateSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             return [];
         }
 
@@ -59,7 +59,7 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     public function login(CustomerLoginEvent $event): void
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             return;
         }
 
@@ -68,7 +68,7 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     public function cartChanged(CartChangedEvent $event): void
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             return;
         }
 
@@ -81,7 +81,7 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     public function setStates(ControllerEvent $event): void
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             return;
         }
 

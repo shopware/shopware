@@ -39,7 +39,7 @@ export default {
                 }
             });
 
-            this.$emit('on-confirm', docIds, this.sendMail, this.internalComment);
+            this.$emit('on-confirm', docIds, this.sendMail, this.internalComment?.trim() || null);
         },
     },
 };

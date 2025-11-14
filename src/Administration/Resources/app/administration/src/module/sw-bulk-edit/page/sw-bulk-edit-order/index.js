@@ -482,7 +482,7 @@ export default {
 
                             payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
                             payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged
-                                ? this.bulkEditData?.transitionInternalComment?.value || null
+                                ? this.bulkEditData?.transitionInternalComment?.value?.trim() || null
                                 : null;
                             payload.value = this.order?.[key];
                             data.statusData.push(payload);

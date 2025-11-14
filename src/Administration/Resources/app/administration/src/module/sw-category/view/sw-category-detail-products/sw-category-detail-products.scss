@@ -1,8 +1,12 @@
-@import "~scss/variables";
+@import '~scss/variables';
 
 .sw-category-detail-products {
     .sw-empty-state {
         position: relative;
+    }
+
+    .mt-empty-state {
+        margin: 0 auto;
     }
 
     .sw-category-detail-products__product-stream-preview-link {

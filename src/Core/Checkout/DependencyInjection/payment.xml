@@ -25,6 +25,8 @@
 
         <service id="Shopware\Core\Checkout\Payment\PaymentProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
@@ -39,6 +41,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle"/>
             <argument type="service" id="order.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -65,6 +69,22 @@
 
         <service id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2">
             <argument type="service" id="shopware.jwt_config"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Payment\Cart\Token\Constraint\PaymentTokenRegisteredValidator">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle"/>
+
+            <tag name="validator.constraint_validator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator">
+            <argument type="service" id="shopware.jwt_config"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 

@@ -1,6 +1,6 @@
 /* stylelint-disable max-nesting-depth */
-@import "~scss/variables";
-@import "~scss/mixins";
+@import '~scss/variables';
+@import '~scss/mixins';
 
 .sw-product-variant-modal {
     &__main-product-link {
@@ -20,6 +20,13 @@
         grid-template-rows: 84px auto;
         height: 100%;
         padding: 0;
+
+        &:has(.mt-empty-state) {
+            .mt-empty-state {
+                justify-self: center;
+                align-self: center;
+            }
+        }
     }
 
     .sw-data-grid {

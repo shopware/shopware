@@ -45,5 +45,10 @@ return [
         // Should have been internal in the first place, all the other changelog classes were internal and already removed
         preg_quote('REMOVED: Class Shopware\Core\Framework\Changelog\ChangelogSection has been deleted'),
         preg_quote('REMOVED: Class Shopware\Core\Framework\Changelog\ChangelogKeyword has been deleted'),
+
+        // JWTGenerator not released yet
+        preg_quote('ADDED: Parameter disableValidation was added to Method decode() of class Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator'),
+        preg_quote('ADDED: Parameter jwt was added to Method getTokenLifetime() of class Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator'),
+        preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator#getTokenLifetime() increased from 0 to 1'),
     ],
 ];

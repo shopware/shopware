@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -597,8 +598,14 @@ class PaymentProcessorTest extends TestCase
             ->method('invalidateToken')
             ->with('token-id');
 
+        $fakeTokenStruct = null;
+        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+            $fakeTokenStruct = new TokenStruct();
+        });
+        static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);
+
         $this->processor->finalize(
-            new TokenStruct(),
+            $fakeTokenStruct,
             $request,
             $salesChannelContext,
             $token,
@@ -608,6 +615,7 @@ class PaymentProcessorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed, as properties are required with new struct
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testFinalizeWithInvalidToken(): void
     {
         $this->expectException(PaymentException::class);
@@ -639,10 +647,16 @@ class PaymentProcessorTest extends TestCase
         $token->paymentMethodId = 'payment-method-id';
         $token->transactionId = 'order-transaction-id';
 
+        $fakeTokenStruct = null;
+        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+            $fakeTokenStruct = new TokenStruct();
+        });
+        static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);
+
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
         $this->processor->finalize(
-            new TokenStruct(),
+            $fakeTokenStruct,
             $request,
             $salesChannelContext,
             $token,
@@ -652,6 +666,7 @@ class PaymentProcessorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testFinalizeUserCancelledOldStruct(): void
     {
         $orderTransaction = new OrderTransactionEntity();
@@ -704,6 +719,7 @@ class PaymentProcessorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testFinalizeUserCancelled(): void
     {
         $orderTransaction = new OrderTransactionEntity();
@@ -761,6 +777,7 @@ class PaymentProcessorTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testFinalizeFailedOldStruct(): void
     {
         $orderTransaction = new OrderTransactionEntity();
@@ -855,9 +872,15 @@ class PaymentProcessorTest extends TestCase
             ->method('fail')
             ->with('order-transaction-id', $salesChannelContext->getContext());
 
+        $fakeTokenStruct = null;
+        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+            $fakeTokenStruct = new TokenStruct();
+        });
+        static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);
+
         $this->expectExceptionObject($exception);
         $this->processor->finalize(
-            new TokenStruct(),
+            $fakeTokenStruct,
             $request,
             $salesChannelContext,
             $token,

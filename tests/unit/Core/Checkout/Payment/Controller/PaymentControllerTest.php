@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Payment\Controller\PaymentController;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
@@ -63,7 +64,7 @@ class PaymentControllerTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'REPEATED_PAYMENT_FINALIZE'])]
     public function testFinalizeTransactionOldStruct(): void
     {
         $request = new Request([], ['_sw_payment_token' => 'test-token']);
@@ -133,7 +134,9 @@ class PaymentControllerTest extends TestCase
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
-        $fakeTokenStruct = new TokenStruct();
+        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+            $fakeTokenStruct = new TokenStruct();
+        });
 
         $this->paymentProcessor
             ->expects($this->once())
@@ -149,7 +152,7 @@ class PaymentControllerTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'REPEATED_PAYMENT_FINALIZE'])]
     public function testFinalizeTransactionReturnsShopwareExceptionOldStruct(): void
     {
         $request = new Request([], ['_sw_payment_token' => 'test-token']);
@@ -220,7 +223,9 @@ class PaymentControllerTest extends TestCase
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
-        $fakeTokenStruct = new TokenStruct();
+        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+            $fakeTokenStruct = new TokenStruct();
+        });
 
         $this->paymentProcessor
             ->expects($this->once())
@@ -236,7 +241,7 @@ class PaymentControllerTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'REPEATED_PAYMENT_FINALIZE'])]
     public function testFinalizeTransactionReturnsOtherExceptionOldStruct(): void
     {
         $request = new Request([], ['_sw_payment_token' => 'test-token']);
@@ -307,7 +312,9 @@ class PaymentControllerTest extends TestCase
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
-        $fakeTokenStruct = new TokenStruct();
+        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+            $fakeTokenStruct = new TokenStruct();
+        });
 
         $this->paymentProcessor
             ->expects($this->once())
@@ -348,15 +355,15 @@ class PaymentControllerTest extends TestCase
             ->expects($this->never())
             ->method('finalize');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token test-token is invalid and the payment could not be processed.');
-        $this->controller->finalizeTransaction($request);
+        $response = $this->controller->finalizeTransaction($request);
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('error-url?error-code=CHECKOUT__INVALID_PAYMENT_TOKEN', $response->getTargetUrl());
     }
 
     /**
      * @deprecated tag:v6.8.0 - will be removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'REPEATED_PAYMENT_FINALIZE'])]
     public function testFinalizeTransactionTokenWithInvalidTransactionIdOldStruct(): void
     {
         $request = new Request([], ['_sw_payment_token' => 'test-token']);

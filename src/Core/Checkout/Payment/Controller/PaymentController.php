@@ -71,80 +71,90 @@ class PaymentController extends AbstractController
         }
 
         try {
+            $token = null;
+            $oldToken = null;
             if (Feature::isActive('v6.8.0.0')) {
                 $token = $this->paymentTokenGenerator->decode($paymentToken);
-            } else {
-                $token = $this->tokenFactory->parseToken($paymentToken);
-
-                if ($token->isExpired()) {
-                    $exception = PaymentException::tokenExpired($paymentToken);
-                    $token->setException($exception);
-                    if ($token->getToken() !== null) {
-                        $this->tokenFactory->invalidateToken($token->getToken());
-                    }
-
-                    return $this->handleError($exception, $token);
-                }
             }
+
+            Feature::callSilentIfInactive('v6.8.0.0', function () use ($paymentToken, &$token, &$oldToken): void {
+                $oldToken = $this->tokenFactory->parseToken($paymentToken);
+
+                $token = new PaymentToken();
+                $token->jti = $paymentToken;
+                $token->finishUrl = $oldToken->getFinishUrl();
+                $token->errorUrl = $oldToken->getErrorUrl();
+
+                if (!$oldToken->getTransactionId() || !$oldToken->getPaymentMethodId()) {
+                    throw PaymentException::invalidToken($paymentToken);
+                }
+
+                $token->paymentMethodId = $oldToken->getPaymentMethodId();
+                $token->transactionId = $oldToken->getTransactionId();
+
+                if ($oldToken->isExpired()) {
+                    throw PaymentException::tokenExpired($paymentToken);
+                }
+            });
+
+            \assert($token instanceof PaymentToken);
         } catch (JWTException $e) {
             // token could not be decoded, therefore $token will be null, try to decode it again without validation to get errorUrl
-            if (($token ?? null) === null) {
-                try {
-                    $token = $this->paymentTokenGenerator->decode($paymentToken, true);
-                } catch (\Throwable $e) {
-                    return $this->handleError($e, null);
-                }
+            try {
+                $token = $this->paymentTokenGenerator->decode($paymentToken, true);
+            } catch (\Throwable $e) {
+                return $this->handleError($e, null);
             }
 
+            $this->invalidate($token->jti);
+
             return $this->handleError(PaymentException::invalidToken($paymentToken, $e), $token);
+        } catch (\Throwable $e) {
+            $this->invalidate($token?->jti);
+
+            return $this->handleError($e, $token ?? null);
         }
 
-        // @deprecated tag:v6.8.0 - if condition will be removed, as TokenStruct is deprecated
-        if (Feature::isActive('REPEATED_PAYMENT_FINALIZE') && $token instanceof TokenStruct && $token->isConsumed()) {
-            return $this->handleFinish($token);
-        }
-
-        if ($token instanceof PaymentToken && $token->jti !== null && !$this->paymentTokenLifecycle->isConsumable($token->jti)) {
+        if (Feature::isActive('REPEATED_PAYMENT_FINALIZE') && $token->jti !== null && !$this->paymentTokenLifecycle->isConsumable($token->jti)) {
             return $this->handleFinish($token);
         }
 
         $salesChannelContext = $this->assembleSalesChannelContext($token);
 
         try {
-            // @deprecated tag:v6.8.0 - needs to be replaced by `$this->paymentProcessor->finalize($token, $request, $salesChannelContext);`
-            if ($token instanceof PaymentToken) {
-                $this->paymentProcessor->finalize(
-                    new TokenStruct(),
-                    $request,
-                    $salesChannelContext,
-                    $token,
-                );
-            } else {
-                $token = $this->paymentProcessor->finalize(
-                    $token,
-                    $request,
-                    $salesChannelContext
-                );
-            }
+            $deprecatedParameter = $oldToken ?? null;
+            Feature::silent('v6.8.0.0', function () use (&$deprecatedParameter): void {
+                $deprecatedParameter ??= new TokenStruct();
+            });
+            \assert($deprecatedParameter instanceof TokenStruct);
 
-            // @deprecated tag:v6.8.0 - if condition will be removed, as TokenStruct is deprecated
-            if ($token instanceof TokenStruct && $token->getException()) {
-                return $this->handleError($token->getException(), $token);
-            }
+            $this->paymentProcessor->finalize(
+                $deprecatedParameter,
+                $request,
+                $salesChannelContext,
+                $token,
+            );
+
+            Feature::callSilentIfInactive('v6.8.0.0', function () use ($deprecatedParameter): void {
+                $exception = $deprecatedParameter->getException();
+                if ($exception) {
+                    throw $exception;
+                }
+            });
 
             return $this->handleFinish($token);
         } catch (\Throwable $e) {
             return $this->handleError($e, $token);
         } finally {
-            if ($token instanceof PaymentToken && $token->jti !== null) {
-                $this->paymentTokenLifecycle->invalidateToken($token->jti);
+            if ($token->jti !== null) {
+                $this->invalidate($token->jti);
             }
         }
     }
 
-    private function handleError(\Throwable $exception, TokenStruct|PaymentToken|null $token): Response
+    private function handleError(\Throwable $exception, ?PaymentToken $token): Response
     {
-        $errorUrl = $token instanceof PaymentToken ? $token->errorUrl : $token?->getErrorUrl();
+        $errorUrl = $token?->errorUrl;
         if ($errorUrl === null) {
             return new JsonResponse(null, Response::HTTP_NO_CONTENT);
         }
@@ -156,34 +166,46 @@ class PaymentController extends AbstractController
         return new RedirectResponse($errorUrl);
     }
 
-    private function handleFinish(TokenStruct|PaymentToken $token): Response
+    private function handleFinish(PaymentToken $token): Response
     {
-        $finishUrl = $token instanceof PaymentToken ? $token->finishUrl : $token->getFinishUrl();
-        if ($finishUrl) {
-            return new RedirectResponse($finishUrl);
+        if ($token->finishUrl) {
+            return new RedirectResponse($token->finishUrl);
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    private function assembleSalesChannelContext(TokenStruct|PaymentToken $token): SalesChannelContext
+    private function assembleSalesChannelContext(PaymentToken $token): SalesChannelContext
     {
         $context = Context::createDefaultContext();
 
-        $transactionId = $token instanceof PaymentToken ? $token->transactionId : $token->getTransactionId();
-        if (!$transactionId) {
-            throw PaymentException::invalidToken(($token instanceof PaymentToken ? $token->jti : $token->getToken()) ?? '');
-        }
-
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('transactions.id', $transactionId))
+            ->addFilter(new EqualsFilter('transactions.id', $token->transactionId))
             ->addAssociations(['transactions', 'orderCustomer']);
 
         $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
         if (!$order) {
-            throw PaymentException::invalidToken(($token instanceof PaymentToken ? $token->jti : $token->getToken()) ?? '');
+            throw PaymentException::invalidToken($token->jti ?? '');
         }
 
         return $this->orderConverter->assembleSalesChannelContext($order, $context);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - move code inline as it is easier to read now
+     */
+    private function invalidate(?string $token): void
+    {
+        if ($token === null) {
+            return;
+        }
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->paymentTokenLifecycle->invalidateToken($token);
+        }
+
+        Feature::callSilentIfInactive('v6.8.0.0', function () use ($token): void {
+            $this->tokenFactory->invalidateToken($token);
+        });
     }
 }

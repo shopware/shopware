@@ -20,9 +20,10 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
 use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
 use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
 use Shopware\Storefront\Framework\Twig\ThumbnailExtension;
 use Shopware\Storefront\Storefront;
@@ -246,7 +247,8 @@ class ThumbnailExtensionTest extends TestCase
                 $this->createMock(CacheTagCollector::class)
             ),
             $this->createMock(ThemeScripts::class),
-            $twigComponentRenderEventListener
+            $twigComponentRenderEventListener,
+            $this->createMock(TwigComponentHelper::class)
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

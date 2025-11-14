@@ -5,10 +5,12 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -63,15 +65,30 @@ class NavigationController extends StorefrontController
 
         // TODO: Remove this once the new cms structure is fully implemented.
         if (Feature::isActive('STOREFRONT_COMPONENTS')) {
-            $elements = $page->getCmsPage()->getAllElements();
-            $listing = $elements[4];
-            $listingData = $listing->getData()->getListing();
+            $cmsPage = $page->getCmsPage();
+            if ($cmsPage === null) {
+                return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
+            }
 
-            $cmsPage = $this->getNewCmsStructure($listingData);
+            $elements = $cmsPage->getAllElements();
+            $listing = $elements[4];
+            $data = $listing->getData();
+
+            if (!$data instanceof ProductListingStruct) {
+                return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
+            }
+
+            $listingData = $data->getListing();
+            if (!$listingData instanceof ProductListingResult) {
+                return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
+            }
+
+            $cmsPageStructure = $this->getNewCmsStructure($listingData);
 
             return $this->renderStorefront(
                 '@Storefront/storefront/page/content/index.html.twig',
-                ['page' => $page, 'cmsPage' => $cmsPage, 'isNewContentStructure' => true]);
+                ['page' => $page, 'cmsPage' => $cmsPageStructure, 'isNewContentStructure' => true]
+            );
         }
 
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
@@ -167,9 +184,11 @@ class NavigationController extends StorefrontController
 
     /**
      * TODO: Remove after final CMS structure is implemented.
+     *
+     * @return array<string, mixed>
      */
-    private static function getNewCmsStructure($listingData) {
-
+    private static function getNewCmsStructure(ProductListingResult $listingData): array
+    {
         $media = new MediaEntity();
         $media->setId('123');
         $media->setMimeType('image/webp');
@@ -213,9 +232,9 @@ class NavigationController extends StorefrontController
                                             'properties' => [
                                                 'media' => $media,
                                             ],
-                                        ]
+                                        ],
                                     ],
-                                ]
+                                ],
                             ],
                         ],
                         'column-2' => [
@@ -232,7 +251,7 @@ class NavigationController extends StorefrontController
                                             'id' => '123',
                                             'component' => 'Sw:Content:Text',
                                             'properties' => [
-                                                'text' => "<h1>Discover Your Summer Style</h1><p>Step into the sunshine with our Summer Fashion Collection! From breezy dresses and linen shirts to stylish sandals and bold accessories — everything you need to stay cool and look effortlessly chic all season long. Embrace vibrant colors, light fabrics, and timeless designs perfect for beach days, city strolls, and evening get-togethers. Your next favorite outfit is waiting — explore now and make this summer your most stylish one yet.</p><p>Each piece in our collection is carefully selected to combine comfort and elegance, using high-quality materials that feel as good as they look. Whether you're planning a weekend getaway or updating your everyday wardrobe, our summer essentials will keep you glowing with confidence and ready for every adventure under the sun.</p>",
+                                                'text' => '<h1>Discover Your Summer Style</h1><p>Step into the sunshine with our Summer Fashion Collection! From breezy dresses and linen shirts to stylish sandals and bold accessories — everything you need to stay cool and look effortlessly chic all season long. Embrace vibrant colors, light fabrics, and timeless designs perfect for beach days, city strolls, and evening get-togethers. Your next favorite outfit is waiting — explore now and make this summer your most stylish one yet.</p><p>Each piece in our collection is carefully selected to combine comfort and elegance, using high-quality materials that feel as good as they look. Whether you\'re planning a weekend getaway or updating your everyday wardrobe, our summer essentials will keep you glowing with confidence and ready for every adventure under the sun.</p>',
                                             ],
                                         ],
                                         [
@@ -249,21 +268,21 @@ class NavigationController extends StorefrontController
                                                         'properties' => [
                                                             'text' => 'Hello World',
                                                         ],
-                                                    ]
-                                                ]
-                                            ]
-                                        ]
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
                                     ],
-                                ]
-                            ]
-                        ]
+                                ],
+                            ],
+                        ],
                     ],
                 ],
                 [
                     'id' => '123',
                     'component' => 'Sw:Product:Listing',
                     'properties' => [
-                        'listing' => $listingData
+                        'listing' => $listingData,
                     ],
                     'slots' => [
                         'filters-panel' => [
@@ -276,13 +295,13 @@ class NavigationController extends StorefrontController
                                     'filterAggregations' => $listingData->getAggregations(),
                                     'availableSortings' => $listingData->getAvailableSortings(),
                                 ],
-                                'slots' => []
-                            ]
+                                'slots' => [],
+                            ],
                         ],
-                        'product-card' => []
-                    ]
-                ]
-            ]
+                        'product-card' => [],
+                    ],
+                ],
+            ],
         ];
     }
 }

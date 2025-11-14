@@ -23,6 +23,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
+use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigStorage;
@@ -30,8 +31,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 
@@ -65,7 +64,7 @@ class EmbedController extends AbstractController
         $url = $request->query->get('url');
 
         if (!$url || !\is_string($url)) {
-            throw new BadRequestHttpException('URL is required');
+            throw StorefrontException::embedUrlRequired();
         }
 
         $parsedUrl = $this->parseAndValidateUrl($url);
@@ -73,22 +72,22 @@ class EmbedController extends AbstractController
         $matchedDomain = $this->findMatchingSalesChannelDomain($url);
         $pathInfo = $this->extractPathInfoFromUrl($url, $matchedDomain->getUrl());
         $productId = $this->resolveProductIdFromSeoUrl($pathInfo, $matchedDomain);
-        
+
         $salesChannelContext = $this->contextFactory->create('', $matchedDomain->getSalesChannelId(), [
             'languageId' => $matchedDomain->getLanguageId(),
         ]);
 
         $product = $this->loadProductForEmbed(
-            $productId, 
-            $request, 
+            $productId,
+            $request,
             $salesChannelContext
         );
 
         return $this->buildOembedResponse(
-            $product, 
-            $productId, 
-            $matchedDomain->getSalesChannelId(), 
-            $baseUrl, 
+            $product,
+            $productId,
+            $matchedDomain->getSalesChannelId(),
+            $baseUrl,
             $salesChannelContext
         );
     }
@@ -99,7 +98,7 @@ class EmbedController extends AbstractController
         $productId = $request->query->get('productId');
 
         if (!$productId || !\is_string($productId)) {
-            throw new BadRequestHttpException('Product ID is required');
+            throw StorefrontException::embedProductIdRequired();
         }
 
         // Get sales channel ID from query or use first available
@@ -164,7 +163,7 @@ class EmbedController extends AbstractController
         $response->headers->remove('X-Frame-Options');
 
         // Set CSP to allow embedding from any domain
-        $response->headers->set('Content-Security-Policy', "frame-ancestors *");
+        $response->headers->set('Content-Security-Policy', 'frame-ancestors *');
 
         // CORS headers for cross-origin embedding
         $response->headers->set('Access-Control-Allow-Origin', '*');
@@ -212,7 +211,7 @@ class EmbedController extends AbstractController
     {
         $parsedUrl = parse_url($url);
         if (!$parsedUrl || !isset($parsedUrl['scheme'], $parsedUrl['host'], $parsedUrl['path'])) {
-            throw new BadRequestHttpException('Invalid URL format');
+            throw StorefrontException::embedInvalidUrlFormat();
         }
 
         return $parsedUrl;
@@ -224,11 +223,11 @@ class EmbedController extends AbstractController
     private function buildBaseUrl(array $parsedUrl): string
     {
         $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
-        
+
         if (isset($parsedUrl['port'])) {
-            $isNonStandardPort = ($parsedUrl['scheme'] === 'http' && $parsedUrl['port'] !== 80) 
+            $isNonStandardPort = ($parsedUrl['scheme'] === 'http' && $parsedUrl['port'] !== 80)
                 || ($parsedUrl['scheme'] === 'https' && $parsedUrl['port'] !== 443);
-            
+
             if ($isNonStandardPort) {
                 $baseUrl .= ':' . $parsedUrl['port'];
             }
@@ -243,9 +242,9 @@ class EmbedController extends AbstractController
         $criteria = new Criteria();
         $criteria->addAssociation('salesChannel');
         $criteria->addAssociation('language');
-        
+
         $domains = $this->salesChannelDomainRepository->search($criteria, $context)->getEntities();
-        
+
         foreach ($domains as $domain) {
             $domainUrl = rtrim($domain->getUrl(), '/');
             if (str_starts_with($url, $domainUrl)) {
@@ -253,14 +252,14 @@ class EmbedController extends AbstractController
             }
         }
 
-        throw new NotFoundHttpException('No sales channel found for this URL');
+        throw StorefrontException::embedSalesChannelNotFoundForUrl($url);
     }
 
     private function extractPathInfoFromUrl(string $url, string $domainUrl): string
     {
         $domainUrl = rtrim($domainUrl, '/');
         $pathInfo = substr($url, \strlen($domainUrl));
-        
+
         return '/' . ltrim($pathInfo, '/');
     }
 
@@ -275,7 +274,7 @@ class EmbedController extends AbstractController
         // Parse the pathInfo to extract product ID
         // Expected format: /detail/{productId}
         if (!preg_match('#^/detail/([a-f0-9]{32})$#', $resolved['pathInfo'], $matches)) {
-            throw new NotFoundHttpException('URL does not point to a valid product');
+            throw StorefrontException::embedInvalidProductUrl($resolved['pathInfo']);
         }
 
         return $matches[1];
@@ -289,10 +288,10 @@ class EmbedController extends AbstractController
 
         try {
             $result = $this->productDetailRoute->load($productId, $request, $context, $criteria);
-            
+
             return $result->getProduct();
         } catch (ProductNotFoundException $e) {
-            throw new NotFoundHttpException('Product not found', $e);
+            throw $this->createNotFoundException('Product not found', $e);
         }
     }
 

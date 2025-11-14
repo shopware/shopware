@@ -38,6 +38,7 @@ class CleanupPaymentTokenHandlerTest extends TestCase
 
         $connection->executeStatement($sql);
 
+        /** @var CleanupPaymentTokenTaskHandler $handler */
         $handler = static::getContainer()->get(CleanupPaymentTokenTaskHandler::class);
         $handler->run();
 

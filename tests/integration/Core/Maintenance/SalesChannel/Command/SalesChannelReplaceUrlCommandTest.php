@@ -45,7 +45,9 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
 
     public function testUpdateUrlCommand(): void
     {
-        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelReplaceUrlCommand::class));
+        /** @var SalesChannelReplaceUrlCommand $command */
+        $command = static::getContainer()->get(SalesChannelReplaceUrlCommand::class);
+        $commandTester = new CommandTester($command);
         $commandTester->execute([
             'previous-url' => EnvironmentHelper::getVariable('APP_URL'),
             'new-url' => 'https://www.new-url.com',
@@ -67,7 +69,9 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
 
     public function testUpdateWithNonExistentPreviousUrl(): void
     {
-        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelReplaceUrlCommand::class));
+        /** @var SalesChannelReplaceUrlCommand $command */
+        $command = static::getContainer()->get(SalesChannelReplaceUrlCommand::class);
+        $commandTester = new CommandTester($command);
         $commandTester->execute([
             'previous-url' => 'https://this-url-doesnt-exist.com',
             'new-url' => 'https://www.new-url.com',
@@ -86,7 +90,9 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
 
     public function testUpdateWithIncorrectNewUrl(): void
     {
-        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelReplaceUrlCommand::class));
+        /** @var SalesChannelReplaceUrlCommand $command */
+        $command = static::getContainer()->get(SalesChannelReplaceUrlCommand::class);
+        $commandTester = new CommandTester($command);
         $commandTester->execute([
             'previous-url' => EnvironmentHelper::getVariable('APP_URL'),
             'new-url' => 'this-is-not-a-url',
@@ -105,7 +111,9 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
 
     public function testUpdateWithIdenticalUrls(): void
     {
-        $commandTester = new CommandTester(static::getContainer()->get(SalesChannelReplaceUrlCommand::class));
+        /** @var SalesChannelReplaceUrlCommand $command */
+        $command = static::getContainer()->get(SalesChannelReplaceUrlCommand::class);
+        $commandTester = new CommandTester($command);
         $commandTester->execute([
             'previous-url' => EnvironmentHelper::getVariable('APP_URL'),
             'new-url' => EnvironmentHelper::getVariable('APP_URL'),

@@ -23,6 +23,11 @@ class StorefrontException extends HttpException
      */
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'STOREFRONT__REVIEW_NOT_ACTIVE';
     final public const SALES_CHANNEL_DOMAIN_NOT_FOUND = 'STOREFRONT__SALES_CHANNEL_DOMAIN_NOT_FOUND';
+    final public const EMBED_URL_REQUIRED = 'STOREFRONT__EMBED_URL_REQUIRED';
+    final public const EMBED_PRODUCT_ID_REQUIRED = 'STOREFRONT__EMBED_PRODUCT_ID_REQUIRED';
+    final public const EMBED_INVALID_URL_FORMAT = 'STOREFRONT__EMBED_INVALID_URL_FORMAT';
+    final public const EMBED_SALES_CHANNEL_NOT_FOUND_FOR_URL = 'STOREFRONT__EMBED_SALES_CHANNEL_NOT_FOUND_FOR_URL';
+    final public const EMBED_INVALID_PRODUCT_URL = 'STOREFRONT__EMBED_INVALID_PRODUCT_URL';
 
     private const CUSTOM_APP_PATH = 'custom/apps/';
 
@@ -140,5 +145,52 @@ class StorefrontException extends HttpException
     public static function routeNotFound(string $route, ?\Throwable $previous = null): StorefrontRouteNotFoundException
     {
         return new StorefrontRouteNotFoundException($route, $previous);
+    }
+
+    public static function embedUrlRequired(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::EMBED_URL_REQUIRED,
+            'URL parameter is required for embed endpoint'
+        );
+    }
+
+    public static function embedProductIdRequired(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::EMBED_PRODUCT_ID_REQUIRED,
+            'Product ID parameter is required for embed endpoint'
+        );
+    }
+
+    public static function embedInvalidUrlFormat(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::EMBED_INVALID_URL_FORMAT,
+            'Invalid URL format provided'
+        );
+    }
+
+    public static function embedSalesChannelNotFoundForUrl(string $url): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::EMBED_SALES_CHANNEL_NOT_FOUND_FOR_URL,
+            'No sales channel found for URL: {{ url }}',
+            ['url' => $url]
+        );
+    }
+
+    public static function embedInvalidProductUrl(string $pathInfo): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::EMBED_INVALID_PRODUCT_URL,
+            'URL does not point to a valid product: {{ pathInfo }}',
+            ['pathInfo' => $pathInfo]
+        );
     }
 }

@@ -232,7 +232,12 @@ export function loadExtensions(): ExtensionDefinition[] {
 export async function findAvailablePorts(startPort = 5173, requiredPorts = 1): Promise<number[]> {
     const ports = [];
     let currentPort = startPort;
-    const maxPort = 6333;
+    let maxPort = 6333;
+
+    if(maxPort < startPort)
+    {
+        maxPort = startPort + requiredPorts;
+    }
 
     while (ports.length < requiredPorts) {
         if (currentPort > maxPort) {

@@ -61,3 +61,9 @@ shopware:
         major: true
         toggleable: true
         description: "This allows repeated calls to the /payment/finalize-transaction endpoint with the same token without throwing a 'token expired' exception."
+
+      - name: METEOR_TEXT_EDITOR
+        default: false
+        major: false
+        toggleable: true
+        description: "Enables the Meteor text editor in the administration."

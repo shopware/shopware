@@ -219,7 +219,8 @@ All foreign key checks are now handled directly by the DAL, therefore the follow
 * `LanguageExceptionHandler`
 * `SalesChannelExceptionHandler`
 * `ThemeExceptionHandler`
-  This also means that the following exceptions are not thrown anymore and were removed as well:
+
+This also means that the following exceptions are not thrown anymore and were removed as well:
 * `LanguageOfOrderDeleteException`
 * `LanguageOfNewsletterDeleteException`
 * `LanguageForeignKeyDeleteException`
@@ -345,6 +346,22 @@ Refection has significantly improved in particular since PHP 8.1, therefore the 
 `Shopware\Core\Checkout\Cart\Error\ErrorRoute` is specific to the standard Storefront and therefore should not be in the Core package.
 At the same time, the Storefront does not properly use this class.
 Therefore, the class, and the `route` property of `Shopware\Core\Checkout\Cart\Error\CartError` have been removed.
+
+## Removal of string parameter in `DomainRuleStruct` constructor
+
+The deprecated string parameter in the `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` constructor was removed.
+If your plugin or theme instantiates `DomainRuleStruct` with a string parameter, it will no longer work.
+Use `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser::parse()` to create a `ParsedRobots` object instead.
+
+```php
+// Before:
+new DomainRuleStruct('Disallow: /admin/', '/en');
+
+// After:
+$parser = new RobotsDirectiveParser($eventDispatcher);
+$parsed = $parser->parse('Disallow: /admin/', $context);
+new DomainRuleStruct($parsed, '/en');
+```
 
 </details>
 

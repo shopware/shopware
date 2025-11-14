@@ -327,7 +327,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         );
 
         const field = wrapper.find('.sw-form-field-renderer');
-        expect(field.attributes('label')).toBe('editor');
+        expect(field.find('label').text()).toBe('editor');
         expect(field.attributes('componentname')).toBe('sw-field');
         expect(field.attributes('type')).toBe('text');
     });

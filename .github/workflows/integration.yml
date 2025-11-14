@@ -13,6 +13,10 @@ on:
         type: string
         default: ""
 
+permissions:
+    contents: read
+    id-token: write
+
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
@@ -104,7 +108,7 @@ jobs:
           echo 'EOF' >> $GITHUB_OUTPUT
 
   phpunit:
-    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
+    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}"
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
@@ -123,7 +127,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.test.path != '' && 'opensearchproject/opensearch:2' || 'alpine' }}
+        image: ${{ matrix.test.path != '' &&  matrix.opensearch || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -332,7 +336,12 @@ jobs:
 
       - name: Require shopware
         working-directory: old-shopware
-        run: composer require shopware/core:${{ matrix.update.version }}
+        run: |
+          # Note: We expect to see vulnerabilities in the older versions we're using here.
+          jq '.config.audit = { "block-insecure": false }' composer.json > composer.json.new
+          mv composer.json.new composer.json
+          
+          composer require shopware/core:${{ matrix.update.version }}
 
       - name: Install
         working-directory: old-shopware
@@ -392,7 +401,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:2"
+        image: "opensearchproject/opensearch:3"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -450,7 +459,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:2"
+        image: "opensearchproject/opensearch:3"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -530,7 +539,7 @@ jobs:
 
       services:
           elasticsearch:
-              image: "opensearchproject/opensearch:2"
+              image: "opensearchproject/opensearch:3"
               env:
                   discovery.type: single-node
                   plugins.security.disabled: "true"

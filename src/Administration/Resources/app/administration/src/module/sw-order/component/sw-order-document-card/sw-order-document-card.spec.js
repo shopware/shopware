@@ -123,9 +123,9 @@ async function createWrapper() {
                 ),
                 'sw-order-document-settings-credit-note-modal': true,
                 'sw-order-document-settings-storno-modal': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
-                    sync: true,
-                }),
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
+                'sw-bulk-edit-modal': await wrapTestComponent('sw-bulk-edit-modal', { sync: true }),
+                'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
                 'sw-data-grid-column-boolean': {
                     props: ['value'],
                     template: '<div class="sw-data-grid-column-boolean"><slot></slot></div>',

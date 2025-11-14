@@ -22,6 +22,7 @@ export default {
     ],
 
     emits: [
+        'update-loading',
         'document-save',
     ],
 
@@ -225,6 +226,14 @@ export default {
          */
         dateFilter() {
             return Shopware.Filter.getByName('date');
+        },
+    },
+
+    watch: {
+        isDataLoading: {
+            handler(value) {
+                this.$emit('update-loading', value);
+            },
         },
     },
 

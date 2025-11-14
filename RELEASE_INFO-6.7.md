@@ -160,6 +160,7 @@ Now:
 ```
 CACHE_REWORK=1
 ```
+To not break plugins that might check for the old flag unnecessarily, the old flag will be kept until the next major release, however, the flag has no effect anymore.
 
 ### Staging configuration
 

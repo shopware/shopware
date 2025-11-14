@@ -41,6 +41,11 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
+      - name: CACHE_CONTEXT_HASH_RULES_OPTIMIZATION
+        default: false
+        major: false
+        toggleable: true
+        description: "Deprecated! Not used anymore, use the `CACHE_REWORK` feature flag instead."
       - name: CACHE_REWORK
         default: false
         major: false

@@ -227,7 +227,7 @@ class StoreApiGeneratorTest extends TestCase
                     $operationId = $operation['operationId'];
                     // Check operations that don't start with "read"
                     if (!str_starts_with($operationId, 'read')) {
-                        $nonReadOperationsCount++;
+                        ++$nonReadOperationsCount;
                         // These operations should not have associations added even if they have descriptions
                         if (isset($operation['description'])) {
                             // The description might naturally contain "Association" but not our formatted section
@@ -264,7 +264,7 @@ class StoreApiGeneratorTest extends TestCase
             foreach ($methods as $method => $operation) {
                 // All properly defined operations should have operationId
                 if (\in_array($method, ['get', 'post', 'put', 'patch', 'delete'], true)) {
-                    $operationsChecked++;
+                    ++$operationsChecked;
                     static::assertArrayHasKey('operationId', $operation, "Operation {$method} at path {$path} should have operationId");
                 }
             }
@@ -289,8 +289,7 @@ class StoreApiGeneratorTest extends TestCase
                 if (isset($operation['operationId'], $operation['description'])
                     && str_starts_with($operation['operationId'], 'read')
                     && str_contains($operation['description'], '**Available Associations:**')) {
-
-                    $operationsWithAssociationsCount++;
+                    ++$operationsWithAssociationsCount;
                     // Count occurrences of the associations header
                     $count = substr_count($operation['description'], '**Available Associations:**');
                     static::assertSame(

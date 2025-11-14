@@ -133,6 +133,7 @@
         {% block sw_settings_country_state_list_empty %}
         <mt-empty-state
             v-if="showEmptyState"
+            class="mt-empty-state--center"
             :icon="$route.meta.$module.icon"
             :headline="$tc('sw-property.detail.messageOptionsEmpty')"
             :description="$tc('sw-property.detail.messageOptionsEmptySubline')"

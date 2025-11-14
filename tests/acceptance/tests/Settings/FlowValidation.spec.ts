@@ -52,7 +52,6 @@ test(
             await ShopAdmin.expects(AdminOrderDetail.orderStatus).toContainText('In Progress');
             await ShopAdmin.expects(AdminOrderDetail.orderPaymentStatus).toContainText('Paid');
             await ShopAdmin.expects(AdminOrderDetail.orderDeliveryStatus).toContainText('Shipped (partially)');
-
             await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id));
             await ShopAdmin.expects(AdminCustomerDetail.tagList).toContainText(tagTrue.name);
         });

@@ -42,8 +42,7 @@ UPDATE `product_manufacturer` AS pm
 INNER JOIN `product_manufacturer_translation` AS pmt
     ON pm.id = pmt.product_manufacturer_id
    AND pm.version_id = pmt.product_manufacturer_version_id
-SET pmt.`link` = pm.`link`,
-    pm.`link` = NULL
+SET pmt.`link` = pm.`link`
 WHERE pm.`link` IS NOT NULL
   AND pmt.`language_id` = :languageId;
 

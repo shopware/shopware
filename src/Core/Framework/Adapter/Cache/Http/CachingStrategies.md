@@ -6,29 +6,36 @@
 - When the `HTTP_CACHE_POLICIES` feature is enabled (default in tests), the subscriber uses policies; otherwise legacy behavior is used.
 
 ### Configuration keys (shopware.http_cache)
-- `policies`: map of policyName -> directives
-  - Supported keys: `public`, `private`, `no_cache`, `no_store`, `no_transform`, `must_revalidate`, `proxy_revalidate`, `immutable`, `max_age`, `s_maxage`, `stale_while_revalidate`, `stale_if_error`.
+- `policies`: map of policyName -> configuration
+  - Structure: `{ headers: { cache_control?: { directives } } }`
+  - Supported directives: `public`, `private`, `no_cache`, `no_store`, `no_transform`, `must_revalidate`, `proxy_revalidate`, `immutable`, `max_age`, `s_maxage`, `stale_while_revalidate`, `stale_if_error`.
   - Example:
     ```yaml
     shopware:
       http_cache:
         policies:
           no_cache_private:
-            private: true
-            no_cache: true
-            max_age: 0
-            s_maxage: 0
+            headers:
+              cache_control:
+                private: true
+                no_cache: true
+                max_age: 0
+                s_maxage: 0
           store_api.cacheable:
-            public: true
-            s_maxage: 0
-            stale_while_revalidate: 3600
-            stale_if_error: 7200
+            headers:
+              cache_control:
+                public: true
+                s_maxage: 0
+                stale_while_revalidate: 3600
+                stale_if_error: 7200
           storefront.cacheable:
-            public: true
-            max_age: 600
-            s_maxage: 3600
-            stale_while_revalidate: 60
-            stale_if_error: 300
+            headers:
+              cache_control:
+                public: true
+                max_age: 600
+                s_maxage: 3600
+                stale_while_revalidate: 60
+                stale_if_error: 300
     ```
 - `default_policies`: defaults per area
   - Structure: `{ <area>: { cacheable?: string, uncacheable?: string } }`
@@ -67,24 +74,11 @@
   - Hook normalization: URL path `/storefront/script/acme/feature` becomes `storefront-acme-feature`
   - Hook normalization: URL path `/store-api/script/vendor/action` becomes `store-api-vendor-action`
 
-### Container wiring
-- `src/Core/Framework/DependencyInjection/cache.xml` injects into `CacheResponseSubscriber`:
-  - `%shopware.http_cache.policies%`
-  - `%shopware.http_cache.default_policies%`
-  - `%shopware.http_cache.route_policies%`
-
-### Validation
-- `Configuration::createHttpCacheSection()` adds a `validate()` block to ensure:
-  - All `default_policies` values reference existing `policies`.
-  - All `route_policies` values reference existing `policies`.
-  - Error: `InvalidConfigurationException` with precise path.
-- `policies` uses `performNoDeepMerging()` to avoid unintended merges across env files.
-
 ### Runtime behavior (CacheResponseSubscriber)
 - Policy resolution precedence (highest to lowest):
   1. `route_policies[route#hook]` - most specific, for script endpoints with hook
   2. `route_policies[route]` - route-level override
-  3. `default_policies[area].{cacheable|uncacheable}` - area defaults
+  3. `default_policies[area].{cacheable|uncacheable}` - area defaults. TTLs (maxage, s-maxage) for them are redefined by values from the attribute (which can be set as a route attribute or as a request attribute in ScriptsController)
 - Store API (when `HTTP_CACHE_POLICIES` is active):
   - Only GET requests are cacheable; POST and non-GET use `default_policies.store_api.uncacheable`.
   - Requires `PlatformRequest::ATTRIBUTE_HTTP_CACHE` attribute; if absent -> uncacheable policy.
@@ -119,15 +113,27 @@
   - Admins map specific scripts to policies: `frontend.script_endpoint#storefront-acme-feature: storefront.cacheable_fast`
   - This allows per-app/per-script policy control without app changes
 
-### Tests
-- `CacheResponseSubscriberTest` covers:
-  - Various caching scenarios including cacheable requests, non-cacheable requests (POST, admin routes, maintenance mode, 404).
-  - Cookie handling and state management for storefront.
-  - Context cache cookie behavior.
-  - Integration with cart service and customer login/logout.
-  - Store API specific behavior including policy application and cookie isolation.
-  - Tests verify that Store API does not set context cache cookies when using policies.
-
 ### Notes
-- Response header construction uses policy-driven application inside the subscriber. For legacy path, `Response::setSharedMaxAge()` is used, which also sets `public`.
 - Default policies are provided in `src/Core/Framework/Resources/config/packages/shopware.yaml` and can be overridden per environment, but configuration validation disallows referencing undefined policy names.
+
+### Future Header Types
+The `headers` structure allows for future cache header types with different directive shapes:
+- `cdn_cache_control` (RFC 9213) - for CDN-specific caching policies that differ from browser caching
+- `surrogate_control` - for surrogate/edge server caching
+
+Each header type can have different directive shapes appropriate to its specification. For example:
+```yaml
+shopware:
+  http_cache:
+    policies:
+      storefront.cacheable:
+        headers:
+          cache_control:        # For browsers and general caches
+            public: true
+            max_age: 600
+            s_maxage: 3600
+          cdn_cache_control:    # Future: CDN-specific directives
+            public: true
+            max_age: 86400
+```
+

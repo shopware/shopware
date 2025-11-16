@@ -248,7 +248,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         $response->headers->remove('cache-control');
 
         // apply resolved policy to response
-        $response->setCache($policy->toArray());
+        $response->setCache($policy->cacheControl->toArray());
     }
 
     /**

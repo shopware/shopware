@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlDirectives;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider;
 use Shopware\Core\Framework\Adapter\Cache\Http\DefaultPolicies;
@@ -53,10 +54,30 @@ class CachePolicyProviderTest extends TestCase
      */
     public static function providePolicyResolutionCases(): iterable
     {
-        $specificPolicy = new CachePolicy(public: true, maxAge: 3600);
-        $defaultPolicy = new CachePolicy(public: true, maxAge: 600);
-        $hookPolicy = new CachePolicy(public: true, maxAge: 7200);
-        $uncacheablePolicy = new CachePolicy(private: true, noStore: true);
+        $specificPolicy = new CachePolicy(
+            cacheControl: new CacheControlDirectives(
+                public: true,
+                maxAge: 3600
+            )
+        );
+        $defaultPolicy = new CachePolicy(
+            cacheControl: new CacheControlDirectives(
+                public: true,
+                maxAge: 600
+            )
+        );
+        $hookPolicy = new CachePolicy(
+            cacheControl: new CacheControlDirectives(
+                public: true,
+                maxAge: 7200
+            )
+        );
+        $uncacheablePolicy = new CachePolicy(
+            cacheControl: new CacheControlDirectives(
+                private: true,
+                noStore: true
+            )
+        );
 
         yield 'route override takes precedence' => [
             'policies' => [
@@ -104,7 +125,9 @@ class CachePolicyProviderTest extends TestCase
         ];
 
         yield 'area cacheable default with max_age from CacheAttribute' => [
-            'policies' => ['area_cacheable' => new CachePolicy(public: true, maxAge: 300)],
+            'policies' => ['area_cacheable' => new CachePolicy(
+                cacheControl: new CacheControlDirectives(public: true, maxAge: 300),
+            )],
             'routePolicies' => [],
             'defaultPolicies' => [
                 'storefront' => new DefaultPolicies('area_cacheable', 'no_cache'),
@@ -113,11 +136,15 @@ class CachePolicyProviderTest extends TestCase
             'area' => 'storefront',
             'cacheable' => true,
             'cacheAttribute' => new CacheAttribute(maxAge: 1200),
-            'expectedPolicy' => new CachePolicy(public: true, maxAge: 1200),
+            'expectedPolicy' => new CachePolicy(
+                cacheControl: new CacheControlDirectives(public: true, maxAge: 1200),
+            ),
         ];
 
         yield 'area cacheable default with s_maxage from CacheAttribute' => [
-            'policies' => ['area_cacheable' => new CachePolicy(public: true, sMaxAge: 300)],
+            'policies' => ['area_cacheable' => new CachePolicy(
+                cacheControl: new CacheControlDirectives(public: true, sMaxAge: 300),
+            )],
             'routePolicies' => [],
             'defaultPolicies' => [
                 'storefront' => new DefaultPolicies('area_cacheable', 'no_cache'),
@@ -126,11 +153,15 @@ class CachePolicyProviderTest extends TestCase
             'area' => 'storefront',
             'cacheable' => true,
             'cacheAttribute' => new CacheAttribute(sMaxAge: 1100),
-            'expectedPolicy' => new CachePolicy(public: true, sMaxAge: 1100),
+            'expectedPolicy' => new CachePolicy(
+                cacheControl: new CacheControlDirectives(public: true, sMaxAge: 1100)
+            ),
         ];
 
         yield 'area cacheable default with max_age not overridden by CacheAttribute value while missing in original policy' => [
-            'policies' => ['area_cacheable' => new CachePolicy(public: true, sMaxAge: 300)],
+            'policies' => ['area_cacheable' => new CachePolicy(
+                cacheControl: new CacheControlDirectives(public: true, sMaxAge: 300),
+            )],
             'routePolicies' => [],
             'defaultPolicies' => [
                 'storefront' => new DefaultPolicies('area_cacheable', 'no_cache'),
@@ -139,7 +170,9 @@ class CachePolicyProviderTest extends TestCase
             'area' => 'storefront',
             'cacheable' => true,
             'cacheAttribute' => new CacheAttribute(maxAge: 1100, sMaxAge: 1200),
-            'expectedPolicy' => new CachePolicy(public: true, sMaxAge: 1200),
+            'expectedPolicy' => new CachePolicy(
+                cacheControl: new CacheControlDirectives(public: true, sMaxAge: 1200),
+            ),
         ];
 
         yield 'area uncacheable default' => [

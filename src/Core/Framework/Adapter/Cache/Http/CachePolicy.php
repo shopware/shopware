@@ -5,97 +5,48 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Represents a single HTTP cache policy with all cache control directives.
- * Follows the structure of Symfony's Response::setCache() options.
+ * Represents a single HTTP cache policy with cache control directives.
  *
  * @internal
  *
+ * @phpstan-import-type CacheControlDirectivesConfig from CacheControlDirectives
+ *
  * @phpstan-type CachePolicyConfig array{
- *     public?: bool,
- *     private?: bool,
- *     no_cache?: bool,
- *     no_store?: bool,
- *     no_transform?: bool,
- *     must_revalidate?: bool,
- *     proxy_revalidate?: bool,
- *     immutable?: bool,
- *     max_age?: int,
- *     s_maxage?: int,
- *     stale_while_revalidate?: int,
- *     stale_if_error?: int
+ *     headers: array{
+ *         cache_control: CacheControlDirectivesConfig
+ *     }
  * }
  */
 #[Package('framework')]
 readonly class CachePolicy
 {
     public function __construct(
-        public ?bool $public = null,
-        public ?bool $private = null,
-        public ?bool $noCache = null,
-        public ?bool $noStore = null,
-        public ?bool $noTransform = null,
-        public ?bool $mustRevalidate = null,
-        public ?bool $proxyRevalidate = null,
-        public ?bool $immutable = null,
-        public ?int $maxAge = null,
-        public ?int $sMaxAge = null,
-        public ?int $staleWhileRevalidate = null,
-        public ?int $staleIfError = null,
+        public CacheControlDirectives $cacheControl,
     ) {
     }
 
     /**
-     * Convert policy to array format suitable for Response::setCache()
+     * Create from configuration array
      *
-     * @return CachePolicyConfig
-     */
-    public function toArray(): array
-    {
-        return array_filter([
-            'public' => $this->public,
-            'private' => $this->private,
-            'no_cache' => $this->noCache,
-            'no_store' => $this->noStore,
-            'no_transform' => $this->noTransform,
-            'must_revalidate' => $this->mustRevalidate,
-            'proxy_revalidate' => $this->proxyRevalidate,
-            'immutable' => $this->immutable,
-            'max_age' => $this->maxAge,
-            's_maxage' => $this->sMaxAge,
-            'stale_while_revalidate' => $this->staleWhileRevalidate,
-            'stale_if_error' => $this->staleIfError,
-        ], fn ($value) => $value !== null);
-    }
-
-    /**
      * @param CachePolicyConfig $data
      */
     public static function fromArray(array $data): self
     {
-        return new self(
-            public: isset($data['public']) ? (bool) $data['public'] : null,
-            private: isset($data['private']) ? (bool) $data['private'] : null,
-            noCache: isset($data['no_cache']) ? (bool) $data['no_cache'] : null,
-            noStore: isset($data['no_store']) ? (bool) $data['no_store'] : null,
-            noTransform: isset($data['no_transform']) ? (bool) $data['no_transform'] : null,
-            mustRevalidate: isset($data['must_revalidate']) ? (bool) $data['must_revalidate'] : null,
-            proxyRevalidate: isset($data['proxy_revalidate']) ? (bool) $data['proxy_revalidate'] : null,
-            immutable: isset($data['immutable']) ? (bool) $data['immutable'] : null,
-            maxAge: isset($data['max_age']) ? (int) $data['max_age'] : null,
-            sMaxAge: isset($data['s_maxage']) ? (int) $data['s_maxage'] : null,
-            staleWhileRevalidate: isset($data['stale_while_revalidate']) ? (int) $data['stale_while_revalidate'] : null,
-            staleIfError: isset($data['stale_if_error']) ? (int) $data['stale_if_error'] : null,
-        );
+        if (!isset($data['headers']['cache_control'])) {
+            throw new \InvalidArgumentException('Policy must contain headers.cache_control configuration');
+        }
+
+        $cacheControl = CacheControlDirectives::fromArray($data['headers']['cache_control']);
+
+        return new self(cacheControl: $cacheControl);
     }
 
-    /**
-     * Create a new CachePolicy with overridden values
-     *
-     * @param CachePolicyConfig $overrides
-     */
-    public function with(array $overrides): self
-    {
-        return self::fromArray(array_merge($this->toArray(), $overrides));
+    public function with(
+        ?CacheControlDirectives $cacheControl = null,
+    ): self {
+        return new self(
+            cacheControl: $cacheControl ?? $this->cacheControl,
+        );
     }
 
     /**
@@ -104,12 +55,14 @@ readonly class CachePolicy
     public static function noCache(): self
     {
         return new self(
-            public: false,
-            private: true,
-            noStore: true,
-            mustRevalidate: true,
-            maxAge: 0,
-            sMaxAge: 0,
+            cacheControl: new CacheControlDirectives(
+                public: false,
+                private: true,
+                noStore: true,
+                mustRevalidate: true,
+                maxAge: 0,
+                sMaxAge: 0,
+            )
         );
     }
 }

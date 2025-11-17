@@ -1076,9 +1076,12 @@ export default {
         },
 
         setWordCount() {
-            if (this.$refs.textEditor) {
-                this.textLength = this.$refs.textEditor.innerText.length;
+            if (!this.$refs.textEditor) {
+                return;
             }
+
+            const textNode = this.$refs.textEditor.innerText ?? this.$refs.textEditor.textContent ?? '';
+            this.textLength = textNode.length;
         },
 
         onTableEdit(toggle) {

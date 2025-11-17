@@ -19,5 +19,7 @@ void import('src/core/shopware').then(async ({ ShopwareInstance }) => {
 
     // Start the main application and fingers crossed
     // that everything works as expected
-    window.startApplication();
+    if (typeof window.startApplication === 'function') {
+        window.startApplication();
+    }
 });

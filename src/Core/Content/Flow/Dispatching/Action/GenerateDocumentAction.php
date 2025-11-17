@@ -102,10 +102,8 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
 
         $result = $this->documentGenerator->generate($documentType, [$orderId => $operation], $context);
 
-        if (!empty($result->getErrors())) {
-            foreach ($result->getErrors() as $error) {
-                $this->logger->error($error->getMessage());
-            }
+        foreach ($result->getErrors() as $error) {
+            $this->logger->error($error->getMessage());
         }
     }
 }

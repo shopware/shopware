@@ -126,7 +126,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<mixed>, array<mixed>, AppEntity, array<string, string>}>
+     * @return iterable<string, array{array<mixed>, array<mixed>, AppEntity, array<string, string>}>
      */
     public static function persisterDataProvider(): iterable
     {
@@ -259,7 +259,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<mixed>, AppEntity, array<string, string>, string}>
+     * @return iterable<string, array{array<mixed>, AppEntity, array<string, string>, string}>
      */
     public static function persisterExceptionDataProvider(): iterable
     {

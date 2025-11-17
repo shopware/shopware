@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -87,9 +88,9 @@ class RepositoryIterator
             return $values;
         }
 
-        $last = end($values);
+        $last = array_last($values);
         if (!\is_string($last)) {
-            throw new \RuntimeException('Expected string as last element of ids array');
+            throw DataAbstractionLayerException::repositoryIteratorExpectedStringLastId();
         }
 
         $increment = $ids->getDataFieldOfId($last, 'autoIncrement') ?? 0;

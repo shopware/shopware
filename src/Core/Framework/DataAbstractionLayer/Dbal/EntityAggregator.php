@@ -181,7 +181,8 @@ class EntityAggregator implements EntityAggregatorInterface
             $scoreQuery = new QueryBuilder($this->connection);
 
             $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCriteria, $context, $paths);
-            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->map(fn (StorageAware $f) => $f->getStorageName());
+            // @phpstan-ignore argument.type (Phpstan can't correctly infer the type in the map function, as the StorageAware is an interface not directly implemented by the Field class)
+            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->filterInstance(StorageAware::class)->map(fn (StorageAware $f) => $f->getStorageName());
 
             $join = '';
             foreach ($pks as $pk) {
@@ -467,10 +468,10 @@ class EntityAggregator implements EntityAggregatorInterface
             $id = $range['key'] ?? (($range['from'] ?? '*') . '-' . ($range['to'] ?? '*'));
             $sum = '1';
             if (isset($range['from'])) {
-                $sum .= \sprintf(' AND %s >= %f', $accessor, $range['from']);
+                $sum .= \sprintf(' AND %s >= %s', $accessor, (string) $range['from']);
             }
             if (isset($range['to'])) {
-                $sum .= \sprintf(' AND %s < %f', $accessor, $range['to']);
+                $sum .= \sprintf(' AND %s < %s', $accessor, (string) $range['to']);
             }
 
             $query->addSelect(\sprintf('SUM(%s) as %s', $sum, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.' . $id)));
@@ -710,7 +711,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $row = array_shift($rows);
         if ($row) {
             foreach ($aggregation->getRanges() as $range) {
-                $ranges[(string) $range['key']] = (int) $row[\sprintf('%s.%s', $aggregation->getName(), $range['key'])];
+                $ranges[(string) $range['key']] = (int) $row[\sprintf('%s.%s', $aggregation->getName(), (string) $range['key'])];
             }
         }
 

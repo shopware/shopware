@@ -34,37 +34,63 @@
                 class="sw-cms-el-config-product-slider__tab-content"
             >
                 {% block sw_cms_element_product_slider_config_content_title %}
-
-                <mt-text-field
-                    v-model="element.config.title.value"
-                    class="sw-cms-el-config-product-slider__tab-content-title"
-                    :label="$tc('sw-cms.elements.productSlider.config.label.title')"
-                    :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.title')"
-                />
+                <sw-cms-inherit-wrapper
+                    field="title"
+                    :element="element"
+                    :label="$t('sw-cms.elements.productSlider.config.label.title')"
+                >
+                    <template #default="{ isInherited }">
+                        <mt-text-field
+                            v-model="element.config.title.value"
+                            class="sw-cms-el-config-product-slider__tab-content-title"
+                            :placeholder="$t('sw-cms.elements.productSlider.config.placeholder.title')"
+                            :disabled="isInherited"
+                        />
+                    </template>
+                </sw-cms-inherit-wrapper>
                 {% endblock %}
 
                 {% block sw_cms_element_product_slider_config_content_product_assignment_type %}
-                <sw-single-select
-                    v-model:value="element.config.products.source"
-                    class="sw-cms-el-config-product-slider__tab-content-product-assignment-type-select"
-                    :label="$tc('sw-cms.elements.productSlider.config.label.productAssignmentType')"
-                    :options="productAssignmentTypes"
-                    show-clearable-button
-                    @update:value="onChangeAssignmentType"
-                />
+                <sw-cms-inherit-wrapper
+                    field="products"
+                    field-path="source"
+                    :element="element"
+                    :label="$t('sw-cms.elements.productSlider.config.label.productAssignmentType')"
+                    @inheritance:restore="onRestoreInheritance"
+                >
+                    <template #default="{ isInherited }">
+                        <sw-single-select
+                            v-model:value="element.config.products.source"
+                            class="sw-cms-el-config-product-slider__tab-content-product-assignment-type-select"
+                            :options="productAssignmentTypes"
+                            :disabled="isInherited"
+                            show-clearable-button
+                            @update:value="onChangeAssignmentType"
+                        />
+                    </template>
+                </sw-cms-inherit-wrapper>
                 {% endblock %}
 
                 <template v-if="element.config.products.source === 'product_stream'">
                     {% block sw_cms_element_product_slider_config_content_product_stream_select %}
-                    <sw-entity-single-select
-                        v-model:value="element.config.products.value"
-                        entity="product_stream"
-                        class="sw-cms-el-config-product-slider__tab-content-product-stream-select"
-                        :label="$tc('sw-cms.elements.productSlider.config.label.productStreamChoice')"
-                        :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamChoice')"
-                        show-clearable-button
-                        @update:value="onChangeProductStream"
-                    />
+                    <sw-cms-inherit-wrapper
+                        field="products"
+                        :element="element"
+                        :label="$t('sw-cms.elements.productSlider.config.label.productStreamChoice')"
+                        @inheritance:restore="onRestoreInheritance"
+                    >
+                        <template #default="{ isInherited }">
+                            <sw-entity-single-select
+                                v-model:value="element.config.products.value"
+                                entity="product_stream"
+                                class="sw-cms-el-config-product-slider__tab-content-product-stream-select"
+                                :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamChoice')"
+                                :disabled="isInherited"
+                                show-clearable-button
+                                @update:value="onChangeProductStream"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                     {% endblock %}
 
                     {% block sw_cms_element_product_slider_config_content_product_stream_performance_hint %}
@@ -89,25 +115,39 @@
                         gap="30px"
                     >
                         {% block sw_cms_element_product_slider_config_content_product_stream_sorting %}
-                        <sw-single-select
-                            v-model:value="element.config.productStreamSorting.value"
-                            class="sw-cms-el-config-product-slider__tab-content-product-stream-sorting"
-                            :options="productStreamSortingOptions"
-                            :label="$tc('sw-cms.elements.productSlider.config.label.productStreamSorting')"
-                            :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamSorting')"
-                            :disabled="!productStream"
-                            show-clearable-button
-                        />
+                        <sw-cms-inherit-wrapper
+                            field="productStreamSorting"
+                            :element="element"
+                            :label="$t('sw-cms.elements.productSlider.config.label.productStreamSorting')"
+                        >
+                            <template #default="{ isInherited }">
+                                <sw-single-select
+                                    v-model:value="element.config.productStreamSorting.value"
+                                    class="sw-cms-el-config-product-slider__tab-content-product-stream-sorting"
+                                    :options="productStreamSortingOptions"
+                                    :placeholder="$t('sw-cms.elements.productSlider.config.placeholder.productStreamSorting')"
+                                    :disabled="isInherited || !productStream"
+                                    show-clearable-button
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
                         {% endblock %}
 
                         {% block sw_cms_element_product_slider_config_content_product_stream_limit %}
-                        <mt-number-field
-                            v-model="element.config.productStreamLimit.value"
-                            class="sw-cms-el-config-product-slider__tab-content-product-stream-limit"
-                            :label="$tc('sw-cms.elements.productSlider.config.label.productStreamLimit')"
-                            :disabled="!productStream"
-                            :min="1"
-                        />
+                        <sw-cms-inherit-wrapper
+                            field="productStreamLimit"
+                            :element="element"
+                            :label="$t('sw-cms.elements.productSlider.config.label.productStreamLimit')"
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-number-field
+                                    v-model="element.config.productStreamLimit.value"
+                                    class="sw-cms-el-config-product-slider__tab-content-product-stream-limit"
+                                    :disabled="isInherited || !productStream"
+                                    :min="1"
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
                         {% endblock %}
                     </sw-container>
 
@@ -130,38 +170,48 @@
                 </template>
 
                 {% block sw_cms_element_product_slider_config_content_products %}
-                <sw-entity-multi-select
+                <sw-cms-inherit-wrapper
                     v-else
-                    v-model:entity-collection="productCollection"
-                    class="sw-cms-el-config-product-slider__tab-content-products"
+                    field="products"
+                    :element="element"
                     :label="$tc('sw-cms.elements.productSlider.config.label.selection')"
-                    :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.selection')"
-                    :context="productMultiSelectContext"
-                    :criteria="productMediaFilter"
-                    @update:entity-collection="onProductsChange"
+                    @inheritance:restore="onRestoreInheritance"
                 >
-                    <template #selection-label-property="{ item }">
-                        <sw-product-variant-info :variations="item.variation">
-                            {{ item.translated.name || item.name }}
-                        </sw-product-variant-info>
-                    </template>
-                    <template #result-item="{ item, index }">
-                        <slot
-                            name="result-item"
-                            v-bind="{ item, index }"
+                    <template #default="{ isInherited }">
+                        <sw-entity-multi-select
+                            v-model:entity-collection="productCollection"
+                            class="sw-cms-el-config-product-slider__tab-content-products"
+                            :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.selection')"
+                            :context="productMultiSelectContext"
+                            :criteria="productMediaFilter"
+                            :disabled="isInherited"
+                            @update:entity-collection="onProductsChange"
                         >
-                            <sw-select-result v-bind="{ item, index, selected: isSelected(item.id)}">
-                                {% block sw_entity_single_select_base_results_list_result_label %}
-                                <span class="sw-select-result__result-item-text">
-                                    <sw-product-variant-info :variations="item.variation">
-                                        {{ item.translated.name || item.name }}
-                                    </sw-product-variant-info>
-                                </span>
-                                {% endblock %}
-                            </sw-select-result>
-                        </slot>
+                            <template #selection-label-property="{ item }">
+                                <sw-product-variant-info :variations="item.variation">
+                                    {{ item.translated.name || item.name }}
+                                </sw-product-variant-info>
+                            </template>
+                            <template #result-item="{ item, index }">
+                                <slot
+                                    name="result-item"
+                                    v-bind="{ item, index }"
+                                >
+                                    <sw-select-result v-bind="{ item, index, selected: isSelected(item.id)}">
+                                        {% block sw_entity_single_select_base_results_list_result_label %}
+                                        <span class="sw-select-result__result-item-text">
+                                            <sw-product-variant-info :variations="item.variation">
+                                                {{ item.translated.name || item.name }}
+                                            </sw-product-variant-info>
+                                        </span>
+                                        {% endblock %}
+                                    </sw-select-result>
+                                </slot>
+                            </template>
+                        </sw-entity-multi-select>
                     </template>
-                </sw-entity-multi-select>
+                </sw-cms-inherit-wrapper>
+
                 {% endblock %}
             </sw-container>
             {% endblock %}
@@ -173,83 +223,137 @@
             >
                 <div class="sw-cms-el-config-product-slider__tab-settings-display">
                     {% block sw_cms_element_product_slider_config_settings_display_mode %}
-                    <mt-select
-                        v-model="element.config.displayMode.value"
-                        class="sw-cms-el-config-product-slider__tab-settings-display-mode"
-                        :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-                        :help-text="$tc('sw-cms.elements.productSlider.config.helpText.displayMode')"
-                        :options="displayModeOptions"
-                    />
+                    <sw-cms-inherit-wrapper
+                        field="displayMode"
+                        :element="element"
+                        :label="$t('sw-cms.elements.general.config.label.displayMode')"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-select
+                                v-model="element.config.displayMode.value"
+                                class="sw-cms-el-config-product-slider__tab-settings-display-mode"
+                                :help-text="$tc('sw-cms.elements.productSlider.config.helpText.displayMode')"
+                                :options="displayModeOptions"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                     {% endblock %}
                 </div>
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-alignment has--two-elements">
                     {% block sw_cms_element_product_slider_config_settings_min_width %}
-
-                    <mt-text-field
-                        v-model="element.config.elMinWidth.value"
-                        class="sw-cms-el-config-product-slider__tab-settings-alignment-min-width"
-                        :label="$tc('sw-cms.elements.productSlider.config.label.minWidth')"
-                        :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.minWidth')"
-                        :help-text="$tc('sw-cms.elements.productSlider.config.helpText.minWidth')"
-                    />
+                    <sw-cms-inherit-wrapper
+                        field="elMinWidth"
+                        :element="element"
+                        :label="$t('sw-cms.elements.productSlider.config.label.minWidth')"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-text-field
+                                v-model="element.config.elMinWidth.value"
+                                class="sw-cms-el-config-product-slider__tab-settings-alignment-min-width"
+                                :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.minWidth')"
+                                :help-text="$tc('sw-cms.elements.productSlider.config.helpText.minWidth')"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                     {% endblock %}
 
                     {% block sw_cms_element_product_slider_config_settings_vertical_align %}
-                    <mt-select
-                        v-model="element.config.verticalAlign.value"
-                        class="sw-cms-el-config-product-slider__tab-settings-alignment-vertical"
-                        :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-                        :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-                        :options="alignmentOptions"
-                    />
+                    <sw-cms-inherit-wrapper
+                        field="verticalAlign"
+                        :element="element"
+                        :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-select
+                                v-model="element.config.verticalAlign.value"
+                                class="sw-cms-el-config-product-slider__tab-settings-alignment-vertical"
+                                :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                                :options="alignmentOptions"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                     {% endblock %}
                 </div>
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-layout has--two-elements">
                     {% block sw_cms_element_product_slider_config_settings_box_layout %}
-                    <mt-select
-                        v-model="element.config.boxLayout.value"
-                        class="sw-cms-el-config-product-slider__tab-settings-layout-type"
-                        :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
-                        :options="boxLayoutOptions"
-                    />
+                    <sw-cms-inherit-wrapper
+                        field="boxLayout"
+                        :element="element"
+                        :label="$t('sw-cms.elements.productBox.config.label.layoutType')"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-select
+                                v-model="element.config.boxLayout.value"
+                                class="sw-cms-el-config-product-slider__tab-settings-layout-type"
+                                :options="boxLayoutOptions"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                     {% endblock %}
 
                     {% block sw_cms_element_product_slider_config_settings_border %}
-                    <mt-switch
-                        v-model="element.config.border.value"
-                        class="sw-cms-el-config-product-slider__tab-settings-layout-border"
-                        :label="$tc('sw-cms.elements.productSlider.config.label.border')"
-                        bordered
-                    />
+                    <sw-cms-inherit-wrapper
+                        field="border"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                v-model="element.config.border.value"
+                                class="sw-cms-el-config-product-slider__tab-settings-layout-border"
+                                :label="$t('sw-cms.elements.productSlider.config.label.border')"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                     {% endblock %}
                 </div>
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-navigation">
                     {% block sw_cms_element_product_slider_config_settings_navigation_arrows %}
-                    <mt-select
-                        v-model="element.config.navigationArrows.value"
-                        class="sw-cms-el-config-product-slider__tab-settings-navigation-arrows"
-                        :label="$tc('sw-cms.elements.productSlider.config.label.navigationArrows')"
-                        :options="arrowOptions"
-                        @update:model-value="emitUpdateEl"
-                    />
+                    <sw-cms-inherit-wrapper
+                        field="navigationArrows"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                v-model="element.config.navigationArrows.value"
+                                class="sw-cms-el-config-product-slider__tab-settings-navigation-arrows"
+                                :label="$t('sw-cms.elements.productSlider.config.label.navigationArrows')"
+                                :options="arrowOptions"
+                                :disabled="isInherited"
+                                @update:model-value="emitUpdateEl"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                     {% endblock %}
                 </div>
 
                 <div class="sw-cms-el-config-product-slider__tab-settings-speed">
                     {% block sw_cms_element_product_slider_config_settings_speed %}
-                    <mt-number-field
-                        v-model="element.config.speed.value"
-                        class="sw-cms-el-config-product-slider__tab-settings-speed"
-                        number-type="int"
-                        :min="0"
-                        :max="3600000"
-                        :label="$tc('sw-cms.elements.general.config.label.speed')"
-                        :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
-                        :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
-                    />
+                    <sw-cms-inherit-wrapper
+                        field="speed"
+                        :element="element"
+                        :label="$t('sw-cms.elements.general.config.label.speed')"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-number-field
+                                v-model="element.config.speed.value"
+                                class="sw-cms-el-config-product-slider__tab-settings-speed"
+                                number-type="int"
+                                :min="0"
+                                :max="3600000"
+                                :placeholder="$t('sw-cms.elements.general.config.label.speed')"
+                                :help-text="$t('sw-cms.elements.general.config.helpText.speed')"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                     {% endblock %}
                 </div>
 
@@ -264,25 +368,40 @@
 
                     <div class="sw-cms-el-config-product-slider__tab-settings-rotate-config has--two-elements">
                         {% block sw_cms_element_product_slider_config_settings_rotate %}
-                        <mt-switch
-                            v-model="element.config.rotate.value"
-                            class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
-                            :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
-                            bordered
-                        />
+                        <sw-cms-inherit-wrapper
+                            field="rotate"
+                            :element="element"
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-switch
+                                    v-model="element.config.rotate.value"
+                                    class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
+                                    :label="$t('sw-cms.elements.general.config.label.autoSlide')"
+                                    :disabled="isInherited"
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
                         {% endblock %}
 
                         {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
-                        <mt-number-field
-                            v-model="element.config.autoplayTimeout.value"
-                            class="sw-cms-el-config-product-slider__tab-settings-rotate-autoplay"
-                            number-type="int"
-                            :min="0"
-                            :max="3600000"
-                            :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
-                            :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
-                            :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
-                        />
+                        <sw-cms-inherit-wrapper
+                            field="autoplayTimeout"
+                            :element="element"
+                            :label="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-number-field
+                                    v-model="element.config.autoplayTimeout.value"
+                                    class="sw-cms-el-config-product-slider__tab-settings-rotate-autoplay"
+                                    number-type="int"
+                                    :min="0"
+                                    :max="3600000"
+                                    :placeholder="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
+                                    :help-text="$t('sw-cms.elements.general.config.helpText.autoplayTimeout')"
+                                    :disabled="isInherited"
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
                         {% endblock %}
                     </div>
                 </mt-banner>

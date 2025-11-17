@@ -123,8 +123,6 @@ class ProductSearchQueryBuilderTest extends TestCase
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
-
-        /** @var string[] $resultIds */
         $resultIds = $result->getIds();
 
         static::assertCount(3, $resultIds, 'But got ' . $ids->getKeys($resultIds));
@@ -152,7 +150,6 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
 
-        /** @var string[] $resultIds */
         $resultIds = $result->getIds();
 
         static::assertCount(4, $resultIds, 'But got ' . $ids->getKeys($resultIds));
@@ -188,7 +185,6 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
 
-        /** @var array<string> $resultIds */
         $resultIds = $result->getIds();
 
         static::assertCount(\count($expectedProducts), $resultIds, \sprintf('Product count mismatch, Got "%s"', $ids->getKeys($resultIds)));
@@ -197,7 +193,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             static::assertSame(
                 $ids->get($expectedProduct),
                 $resultIds[$key],
-                \sprintf('Expected product %s at position %d to be there, but got %s', $expectedProduct, $key, $ids->getKey($resultIds[$key]))
+                \sprintf('Expected product %s at position %d to be there, but got "%s"', $expectedProduct, $key, (string) $ids->getKey($resultIds[$key]))
             );
         }
     }
@@ -215,7 +211,6 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
 
-        /** @var array<string> $resultIds */
         $resultIds = $result->getIds();
 
         static::assertCount(0, $resultIds, 'Product count mismatch, Got ' . $ids->getKeys($resultIds));

@@ -212,7 +212,6 @@ class ProductSerializer extends EntitySerializer
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
 
-        /** @var list<string> $additionalIds */
         $additionalIds = $this->salesChannelRepository->searchIds(
             $criteria,
             $context

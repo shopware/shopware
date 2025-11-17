@@ -94,7 +94,6 @@ class ElasticsearchHelper
             return;
         }
 
-        /** @var non-empty-list<string> $ids */
         $ids = array_values($ids);
 
         $query = $this->parser->parseFilter(

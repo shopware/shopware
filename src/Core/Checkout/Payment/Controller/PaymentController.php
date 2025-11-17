@@ -65,6 +65,11 @@ class PaymentController extends AbstractController
         }
 
         $token = $this->tokenFactory->parseToken($paymentToken);
+
+        if (Feature::isActive('REPEATED_PAYMENT_FINALIZE') && $token->isConsumed()) {
+            $this->handleResponse($token);
+        }
+
         if ($token->isExpired()) {
             $token->setException(PaymentException::tokenExpired($paymentToken));
             if ($token->getToken() !== null) {

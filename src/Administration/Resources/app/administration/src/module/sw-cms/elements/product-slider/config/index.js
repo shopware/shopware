@@ -29,6 +29,7 @@ export default {
             // Temporary values to store the previous selection in case the user changes the assignment type.
             tempProductIds: [],
             tempStreamId: null,
+            originProductsValue: [],
         };
     },
 
@@ -161,6 +162,7 @@ export default {
         createdComponent() {
             this.initElementConfig('product-slider');
 
+            this.originProductsValue = this.element.translated?.config.products.value;
             this.productCollection = new EntityCollection('/product', 'product', Shopware.Context.api);
 
             if (this.element.config.products.value.length <= 0) {
@@ -170,20 +172,20 @@ export default {
             if (this.element.config.products.source === 'product_stream') {
                 this.loadProductStream();
             } else {
-                const criteria = new Criteria(1, 100);
-                criteria.addAssociation('cover');
-                criteria.addAssociation('options.group');
-                criteria.setIds(this.element.config.products.value);
-
-                this.productRepository
-                    .search(criteria, {
-                        ...Shopware.Context.api,
-                        inheritance: true,
-                    })
-                    .then((result) => {
-                        this.productCollection = result;
-                    });
+                this.loadManualAssignment();
             }
+        },
+
+        async loadManualAssignment() {
+            const criteria = new Criteria(1, 100);
+            criteria.addAssociation('cover');
+            criteria.addAssociation('options.group');
+            criteria.setIds(this.element.config.products.value);
+
+            this.productCollection = await this.productRepository.search(criteria, {
+                ...Shopware.Context.api,
+                inheritance: true,
+            });
         },
 
         getProductAssignmentTypes() {
@@ -250,12 +252,12 @@ export default {
             }
         },
 
-        loadProductStream() {
-            this.productStreamRepository
-                .get(this.element.config.products.value, Shopware.Context.api, new Criteria(1, 25))
-                .then((result) => {
-                    this.productStream = result;
-                });
+        async loadProductStream() {
+            this.productStream = await this.productStreamRepository.get(
+                this.element.config.products.value,
+                Shopware.Context.api,
+                new Criteria(1, 25),
+            );
         },
 
         onChangeProductStream(streamId) {
@@ -295,6 +297,16 @@ export default {
 
         isSelected(itemId) {
             return this.productCollection.has(itemId);
+        },
+
+        onRestoreInheritance() {
+            if (this.element.config.products.source === 'product_stream') {
+                this.element.config.products.value = this.originProductsValue;
+                this.loadProductStream();
+            } else {
+                this.element.config.products.value = this.originProductsValue;
+                this.loadManualAssignment();
+            }
         },
     },
 };

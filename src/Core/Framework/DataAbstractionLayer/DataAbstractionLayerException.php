@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBuilderNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
@@ -23,6 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateH
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -50,12 +53,21 @@ class DataAbstractionLayerException extends HttpException
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
     public const ENTITY_NOT_VERSION_AWARE = 'FRAMEWORK__ENTITY_NOT_VERSION_AWARE';
     public const MIGRATION_STUB_NOT_FOUND = 'FRAMEWORK__MIGRATION_STUB_NOT_FOUND';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public const MIGRATION_DIRECTORY_NOT_FOUND = 'FRAMEWORK__MIGRATION_DIRECTORY_NOT_FOUND';
     public const FIELD_TYPE_NOT_FOUND = 'FRAMEWORK__FIELD_TYPE_NOT_FOUND';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public const PLUGIN_NOT_FOUND = 'FRAMEWORK__PLUGIN_NOT_FOUND';
     public const INVALID_FILTER_QUERY = 'FRAMEWORK__INVALID_FILTER_QUERY';
     public const INVALID_RANGE_FILTER_PARAMS = 'FRAMEWORK__INVALID_RANGE_FILTER_PARAMS';
     public const INVALID_SORT_QUERY = 'FRAMEWORK__INVALID_SORT_QUERY';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public const UNABLE_TO_FETCH_FOREIGN_KEY = 'FRAMEWORK__UNABLE_TO_FETCH_FOREIGN_KEY';
     public const REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND';
     public const INCONSISTENT_PRIMARY_KEY = 'FRAMEWORK__INCONSISTENT_PRIMARY_KEY';
@@ -67,6 +79,7 @@ class DataAbstractionLayerException extends HttpException
     public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
     public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
     public const EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE = 'FRAMEWORK__EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE';
+    public const REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID = 'FRAMEWORK__REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID';
     public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
     public const MISSING_FIELD_VALUE = 'FRAMEWORK__MISSING_FIELD_VALUE';
     public const NOT_CUSTOM_FIELDS_SUPPORT = 'FRAMEWORK__NOT_CUSTOM_FIELDS_SUPPORT';
@@ -91,17 +104,23 @@ class DataAbstractionLayerException extends HttpException
     public const FOREIGN_KEY_NOT_FOUND_IN_DEFINITION = 'FRAMEWORK__FOREIGN_KEY_NOT_FOUND_IN_DEFINITION';
     public const INVALID_CHUNK_SIZE = 'FRAMEWORK__INVALID_CHUNK_SIZE';
     public const HOOK_INJECTION_EXCEPTION = 'FRAMEWORK__HOOK_INJECTION_EXCEPTION';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public const FRAMEWORK_DEPRECATED_DEFINITION_CALL = 'FRAMEWORK__DEPRECATED_DEFINITION_CALL';
     public const UNSUPPORTED_QUERY_FILTER = 'FRAMEWORK__UNSUPPORTED_QUERY_FILTER';
     public const INVALID_SORT_DIRECTION = 'FRAMEWORK__INVALID_SORT_DIRECTION';
     public const PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND = 'FRAMEWORK__PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public const ENTITY_NOT_VERSIONABLE = 'FRAMEWORK__DAL_ENTITY_NOT_VERSIONABLE';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public const INVALID_UUID = 'FRAMEWORK__DAL_INVALID_UUID';
-
     public const DBAL_UNMAPPED_FIELD = 'FRAMEWORK__DBAL_UNMAPPED_FIELD';
-
     public const DBAL_UNEXPECTED_FIELD_TYPE = 'FRAMEWORK__DBAL_UNEXPECTED_FIELD_TYPE';
-
     public const DBAL_INVALID_IDENTIFIER = 'FRAMEWORK__DBAL_INVALID_IDENTIFIER';
     public const DBAL_MISSING_VERSION_FIELD = 'FRAMEWORK__DBAL_MISSING_VERSION_FIELD';
     public const DBAL_NO_TRANSLATION_DEFINITION = 'FRAMEWORK__DBAL_NO_TRANSLATION_DEFINITION';
@@ -111,6 +130,8 @@ class DataAbstractionLayerException extends HttpException
     public const DBAL_ONLY_STORAGE_AWARE_FIELDS_AS_TRANSLATED = 'FRAMEWORK__DBAL_ONLY_STORAGE_AWARE_FIELDS_AS_TRANSLATED';
     public const DBAL_FIELD_ACCESSOR_BUILDER_NOT_FOUND = 'FRAMEWORK__DBAL_FIELD_ACCESSOR_BUILDER_NOT_FOUND';
     public const DBAL_CANNOT_BUILD_ACCESSOR = 'FRAMEWORK__DBAL_CANNOT_BUILD_ACCESSOR';
+    public const ENTITY_INDEXER_NOT_FOUND = 'FRAMEWORK__ENTITY_INDEXER_NOT_FOUND';
+    public const INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__DAL_INVALID_SYNC_OPERATION';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -188,6 +209,15 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_CRITERIA_IDS,
             'Invalid ids provided in criteria. {{ reason }}. Ids: {{ ids }}.',
             ['ids' => print_r($ids, true), 'reason' => $reason]
+        );
+    }
+
+    public static function repositoryIteratorExpectedStringLastId(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID,
+            'Expected string as last element of ids array.'
         );
     }
 
@@ -298,8 +328,16 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public static function migrationDirectoryNotFound(string $path): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MIGRATION_DIRECTORY_NOT_FOUND,
@@ -318,8 +356,16 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public static function pluginNotFound(string $pluginName): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PLUGIN_NOT_FOUND,
@@ -330,9 +376,16 @@ class DataAbstractionLayerException extends HttpException
 
     /**
      * @param array<string> $primaryKey
+     *
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
      */
     public static function unableToFetchForeignKey(string $entity, array $primaryKey): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::UNABLE_TO_FETCH_FOREIGN_KEY,
@@ -459,8 +512,16 @@ class DataAbstractionLayerException extends HttpException
         return new MissingTranslationLanguageException($path, $index);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public static function invalidUuid(string $uuid): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_UUID,
@@ -919,8 +980,16 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public static function entityNotVersionable(string $entityName): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::ENTITY_NOT_VERSIONABLE,
@@ -1027,5 +1096,49 @@ class DataAbstractionLayerException extends HttpException
     public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
     {
         return new UnexpectedTypeException($constraint, $expectedType);
+    }
+
+    public static function entityIndexerNotFound(string $name): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ENTITY_INDEXER_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => 'entity indexer', 'field' => 'name', 'value' => $name],
+        );
+    }
+
+    public static function scoreNotFound(string $id): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'FRAMEWORK__DAL_ID_SEARCH_SCORE_NOT_FOUND',
+            'No score available for ID: "{{ id }}"',
+            ['id' => $id],
+        );
+    }
+
+    /**
+     * @param array<string, list<string>> $restrictions
+     */
+    public static function restrictDeleteViolations(EntityDefinition $definition, array $restrictions): RestrictDeleteViolationException
+    {
+        return new RestrictDeleteViolationException($definition, [new RestrictDeleteViolation($restrictions)]);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return only self
+     */
+    public static function invalidSyncOperationException(string $message): self|InvalidSyncOperationException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new InvalidSyncOperationException($message);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_SYNC_OPERATION_EXCEPTION,
+            $message
+        );
     }
 }

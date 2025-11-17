@@ -185,7 +185,9 @@
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password",
       "tooltipRestoreInheritance": "Restore inheritance",
-      "tooltipRemoveInheritance": "Remove inheritance"
+      "tooltipRemoveInheritance": "Remove inheritance",
+      "ariaLinkInheritance": "Link inheritance",
+      "ariaUnlinkInheritance": "Unlink inheritance"
     },
     "sw-field-copyable": {
       "tooltip": {
@@ -438,7 +440,8 @@
     "sw-media-preview-v2": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",
       "fallbackAudioTagSupport": "Your browser does not support the audio tag",
-      "textNoMedia": "No media available"
+      "textNoMedia": "No media available",
+      "warningUnsupportedFormat": "Format \"{format}\" may not be supported in all browsers."
     },
     "sw-media-upload": {
       "buttonFileUpload": "Upload file",

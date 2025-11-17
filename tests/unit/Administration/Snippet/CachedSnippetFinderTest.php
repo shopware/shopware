@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\CachedSnippetFinder;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 
@@ -65,11 +64,11 @@ class CachedSnippetFinderTest extends TestCase
     protected function buildCacheItem(bool $isHit, bool $isTaggable): CacheItem
     {
         $cacheItem = new CacheItem();
-        $prop = ReflectionHelper::getProperty(CacheItem::class, 'key');
+        $prop = new \ReflectionProperty(CacheItem::class, 'key');
         $prop->setValue($cacheItem, 'admin_snippet_test');
-        $prop = ReflectionHelper::getProperty(CacheItem::class, 'isHit');
+        $prop = new \ReflectionProperty(CacheItem::class, 'isHit');
         $prop->setValue($cacheItem, $isHit);
-        $prop = ReflectionHelper::getProperty(CacheItem::class, 'isTaggable');
+        $prop = new \ReflectionProperty(CacheItem::class, 'isTaggable');
         $prop->setValue($cacheItem, $isTaggable);
 
         return $cacheItem;

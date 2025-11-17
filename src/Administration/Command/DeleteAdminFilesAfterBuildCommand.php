@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -29,6 +30,7 @@ class DeleteAdminFilesAfterBuildCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $helper = $this->getHelper('question');
+        \assert($helper instanceof QuestionHelper);
 
         $question = new ConfirmationQuestion('This will delete all files unnecessary to build the administration. Do you want to continue? (y/n)');
 

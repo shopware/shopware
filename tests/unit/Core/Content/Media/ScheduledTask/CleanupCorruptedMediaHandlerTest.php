@@ -66,7 +66,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
 
     public function testRunCleansNothingUpIfNoCorruptedMediaExists(): void
     {
-        $ids = new IdSearchResult(2, [], new Criteria(), Context::createDefaultContext());
+        $ids = new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext());
 
         $this->mediaRepository = new StaticEntityRepository([$ids]);
 

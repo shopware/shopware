@@ -104,9 +104,12 @@ Example usage:
 <one-to-many name="custom_entity" reference="quote_comment" ignore-missing-reference="true" store-api-aware="false" on-delete="set-null" />
 ```
 
-### Translatable product manufacturer links (PR #13542)
+### Translatable product manufacturer links
 
-The `link` of product manufacturer can now be set depending on the language.
+The `link` property of product manufacturer can now be set depending on the language and the `product_manufacturer`.`link` was removed.
+
+If you're using `manufacturer.link`, please use `manufacturer.translated.link` instead.
+
 
 ## Administration
 

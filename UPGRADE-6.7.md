@@ -1,9 +1,3 @@
-# 6.7.5.0 (upcoming)
-
-## Translatable product manufacturer links (PR #13542)
-
-The `link` column moved from `product_manufacturer` to `product_manufacturer_translation`.
-
 # 6.7.4.1
 
 The `Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute` now deletes customer recovery links after a customer has changed their email address.

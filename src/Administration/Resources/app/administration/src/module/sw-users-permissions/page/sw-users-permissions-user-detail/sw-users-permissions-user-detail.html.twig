@@ -287,6 +287,7 @@
 
                         <mt-empty-state
                             v-if="integrations.length === 0"
+                            class="mt-empty-state--center"
                             :icon="$route.meta.$module.icon"
                             :headline="$tc('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
                             :description="$tc('sw-users-permissions.users.user-detail.noAccessKeysSubline')"

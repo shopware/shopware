@@ -473,6 +473,40 @@ function register<
     S
 >;
 
+// overload 5: accept DefineComponent directly (for synchronous component imports)
+function register<
+    PropsOptions,
+    RawBindings,
+    D,
+    C extends ComputedOptions,
+    M extends MethodOptions,
+    Mixin extends ComponentOptionsMixin,
+    Extends extends ComponentOptionsMixin,
+    E extends EmitsOptions,
+    EE extends string,
+    PP extends PublicProps,
+    Props,
+    Defaults,
+    S extends SlotsType,
+>(
+    componentName: string,
+    componentConfiguration: DefineComponent<
+        PropsOptions,
+        RawBindings,
+        D,
+        C,
+        M,
+        Mixin,
+        Extends,
+        E,
+        EE,
+        PP,
+        Props,
+        Defaults,
+        S
+    >,
+): DefineComponent<PropsOptions, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props, Defaults, S>;
+
 function register(componentName: string, componentConfiguration: unknown): unknown {
     if (!componentName || !componentName.length) {
         warn('ComponentFactory', 'A component always needs a name.', componentConfiguration);

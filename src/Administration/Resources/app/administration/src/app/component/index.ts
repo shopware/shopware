@@ -554,12 +554,28 @@ export default () => {
     Shopware.Component.extend('sw-condition-script', 'sw-condition-base', SwConditionScript);
     Shopware.Component.extend('sw-condition-order-custom-field', 'sw-condition-base', SwConditionOrderCustomField);
     Shopware.Component.extend('sw-condition-not-found', 'sw-condition-base', SwConditionNotFound);
-    Shopware.Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base-line-item', SwConditionLineItemWithQuantity);
-    Shopware.Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-line-item', SwConditionLineItemPurchasePrice);
+    Shopware.Component.extend(
+        'sw-condition-line-item-with-quantity',
+        'sw-condition-base-line-item',
+        SwConditionLineItemWithQuantity,
+    );
+    Shopware.Component.extend(
+        'sw-condition-line-item-purchase-price',
+        'sw-condition-base-line-item',
+        SwConditionLineItemPurchasePrice,
+    );
     Shopware.Component.extend('sw-condition-line-item-property', 'sw-condition-base-line-item', SwConditionLineItemProperty);
-    Shopware.Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-item', SwConditionLineItemInCategory);
+    Shopware.Component.extend(
+        'sw-condition-line-item-in-category',
+        'sw-condition-base-line-item',
+        SwConditionLineItemInCategory,
+    );
     Shopware.Component.extend('sw-condition-line-item-goods-total', 'sw-condition-base', SwConditionLineItemGoodsTotal);
-    Shopware.Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-item', SwConditionLineItemCustomField);
+    Shopware.Component.extend(
+        'sw-condition-line-item-custom-field',
+        'sw-condition-base-line-item',
+        SwConditionLineItemCustomField,
+    );
     Shopware.Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', SwConditionLineItem);
     Shopware.Component.extend('sw-condition-is-always-valid', 'sw-condition-base', SwConditionIsAlwaysValid);
     Shopware.Component.extend('sw-condition-goods-price', 'sw-condition-base', SwConditionGoodsPrice);
@@ -577,7 +593,11 @@ export default () => {
     Shopware.Component.extend('sw-email-field-deprecated', 'sw-text-field-deprecated', SwEmailFieldDeprecated);
     Shopware.Component.extend('sw-compact-colorpicker', 'sw-colorpicker-deprecated', SwCompactColorpicker);
     Shopware.Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', SwEntityTagSelect);
-    Shopware.Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing', SwEntityAdvancedSelectionModalGrid);
+    Shopware.Component.extend(
+        'sw-entity-advanced-selection-modal-grid',
+        'sw-entity-listing',
+        SwEntityAdvancedSelectionModalGrid,
+    );
     Shopware.Component.extend('sw-multi-tag-ip-select', 'sw-multi-tag-select', SwMultiTagIpSelect);
     Shopware.Component.extend('sw-grouped-single-select', 'sw-single-select', SwGroupedSingleSelect);
     Shopware.Component.extend('sw-one-to-many-grid', 'sw-data-grid', SwOneToManyGrid);

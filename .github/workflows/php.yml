@@ -165,6 +165,7 @@ jobs:
           retention-days: 1
 
       - name: Run OpenAPI Snapshot Action
+        if: github.repository == 'shopware/shopware'
         uses: patzick/explore-openapi-snapshot@7ea174b327803e6d4b5cfe98c3044edf011a874b # v2.0.0
         with:
           schema-file: "./api-types/storeApiSchema.json"

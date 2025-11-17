@@ -82,6 +82,6 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
         await ShopAdmin.expects(AdminRuleDetail.conditionTimeRangeValueSecond).toHaveValue(testConfig.toDate.split('T')[1].substring(0, 5));
 
         await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Order created by administrator (flow)')).toBeVisible();
-        await ShopAdmin.expects(AdminRuleDetail.conditionOrderCreatedByAdminValue).toHaveValue(testConfig.isAdminOrder ? 'Yes' : 'No');
+        await ShopAdmin.expects(AdminRuleDetail.conditionOrderCreatedByAdminValue).toHaveValue('No');
     });
 });

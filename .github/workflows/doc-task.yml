@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
       - id: sts
         continue-on-error: true
-        uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # 1.0.2
+        uses: shopware/octo-sts-action@main
         with:
           scope: shopware
           identity: ManageProjects
@@ -34,13 +34,13 @@ jobs:
           github-token: ${{ steps.sts.outputs.token }}
           script: |
             const { createDocumentationTasksForProjects } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
-            
+
             const repoVars = JSON.parse(process.env.REPO_VARS);
             const docTaskProjects = repoVars.DOC_TASK_PROJECTS.split(',').map(i => parseInt(i));
             const docTaskProjectId = parseInt(repoVars.DOC_TASK_PROJECT_ID);
             const docTaskDescription = repoVars.DOC_TASK_DESCRIPTION;
             const docTaskReferenceCommentPrefix = repoVars.DOC_TASK_REFERENCE_COMMENT_PREFIX;
-            
+
             await createDocumentationTasksForProjects(
               {github, core, context, fetch},
               docTaskProjects,

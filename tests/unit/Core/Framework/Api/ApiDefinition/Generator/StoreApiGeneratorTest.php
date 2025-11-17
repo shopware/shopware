@@ -334,30 +334,54 @@ class StoreApiGeneratorTest extends TestCase
         static::assertNotEmpty($operationsWithoutAssociations, 'Should have operations without associations');
     }
 
-    public function testSupportsReturnsTrueForStoreApiAndOpenApi3Format(): void
+    /**
+     * @dataProvider supportsDataProvider
+     */
+    public function testSupports(string $format, string $api, bool $expected): void
     {
-        // Test that supports() returns true for the correct format and API combination
-        static::assertTrue($this->generator->supports(StoreApiGenerator::FORMAT, DefinitionService::STORE_API));
+        static::assertSame($expected, $this->generator->supports($format, $api));
     }
 
-    public function testSupportsReturnsFalseForIncorrectFormat(): void
+    /**
+     * @return iterable<string, array{format: string, api: string, expected: bool}>
+     */
+    public static function supportsDataProvider(): iterable
     {
-        // Test that supports() returns false for incorrect format
-        static::assertFalse($this->generator->supports('json', DefinitionService::STORE_API));
-        static::assertFalse($this->generator->supports('openapi-2', DefinitionService::STORE_API));
-    }
+        yield 'correct format and API' => [
+            'format' => StoreApiGenerator::FORMAT,
+            'api' => DefinitionService::STORE_API,
+            'expected' => true,
+        ];
 
-    public function testSupportsReturnsFalseForIncorrectApi(): void
-    {
-        // Test that supports() returns false for incorrect API type
-        static::assertFalse($this->generator->supports(StoreApiGenerator::FORMAT, DefinitionService::API));
-        static::assertFalse($this->generator->supports(StoreApiGenerator::FORMAT, 'some-other-api'));
-    }
+        yield 'incorrect format (json)' => [
+            'format' => 'json',
+            'api' => DefinitionService::STORE_API,
+            'expected' => false,
+        ];
 
-    public function testSupportsReturnsFalseForBothIncorrect(): void
-    {
-        // Test that supports() returns false when both format and API are incorrect
-        static::assertFalse($this->generator->supports('json', DefinitionService::API));
+        yield 'incorrect format (openapi-2)' => [
+            'format' => 'openapi-2',
+            'api' => DefinitionService::STORE_API,
+            'expected' => false,
+        ];
+
+        yield 'incorrect API (admin API)' => [
+            'format' => StoreApiGenerator::FORMAT,
+            'api' => DefinitionService::API,
+            'expected' => false,
+        ];
+
+        yield 'incorrect API (custom)' => [
+            'format' => StoreApiGenerator::FORMAT,
+            'api' => 'some-other-api',
+            'expected' => false,
+        ];
+
+        yield 'both incorrect' => [
+            'format' => 'json',
+            'api' => DefinitionService::API,
+            'expected' => false,
+        ];
     }
 
     public function testExtractEntityNameFromOperationWithResponseLevelRef(): void

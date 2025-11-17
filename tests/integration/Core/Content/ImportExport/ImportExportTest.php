@@ -1354,11 +1354,11 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertTrue($result->has('0a1dea4bd2de43929ac210fd17339dde'));
         $customerWithMultipleAddresses = $result->get('0a1dea4bd2de43929ac210fd17339dde');
 
-        $passwords = \array_values(array_map(fn (CustomerEntity $customer) => $customer->getPassword(), $result->getElements()));
+        $passwords = \array_filter(\array_values(array_map(fn (CustomerEntity $customer) => $customer->getPassword(), $result->getElements())));
         static::assertCount(3, $passwords);
-        static::assertNull($passwords[0]);
-        static::assertNull($passwords[1]);
-        static::assertNull($passwords[2]);
+        static::assertTrue(password_verify('shopware', $passwords[0]));
+        static::assertTrue(password_verify('shopware', $passwords[1]));
+        static::assertTrue(password_verify('shopware', $passwords[2]));
 
         static::assertInstanceOf(CustomerAddressCollection::class, $customerWithMultipleAddresses->getAddresses());
         static::assertCount(4, $customerWithMultipleAddresses->getAddresses());

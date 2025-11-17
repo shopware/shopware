@@ -104,7 +104,6 @@ class ImportExport
         $resource = $this->filesystem->readStream($path);
 
         $config = Config::fromLog($this->logEntity);
-        $config = $this->filterApiAwareFields($config, $context);
 
         $overallResults = $this->logEntity->getResult();
 

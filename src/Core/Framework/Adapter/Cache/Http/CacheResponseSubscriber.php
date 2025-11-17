@@ -114,7 +114,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         // In Store API we rely on headers to manage caching, as it more explicit and easier to parse on reverse proxy side.
         // As we don't control headers that browser sends, in storefront we have to rely on cookies. For this reason here
         // we have two separate branches of logic.
-        if ($this->isStoreApi($request) && Feature::isActive('HTTP_CACHE_POLICIES')) {
+        if ($this->isStoreApi($request) && Feature::isActive('CACHE_REWORK')) {
             $this->applyStoreApiPolicy($request, $response, $cacheAttribute);
 
             return;
@@ -159,7 +159,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         );
 
         // old behavior
-        if (!Feature::isActive('HTTP_CACHE_POLICIES')) {
+        if (!Feature::isActive('CACHE_REWORK')) {
             $sMaxAge = $cacheAttribute->sMaxAge ?? $this->defaultTtl;
             $response->setSharedMaxAge($sMaxAge);
 
@@ -221,7 +221,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function noCache(Request $request, Response $response, bool $storeApi): void
     {
-        if (Feature::isActive('HTTP_CACHE_POLICIES')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $this->applyPolicy($request, $response, $storeApi ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT, false, null);
         }
         // do nothing for backwards compatibility

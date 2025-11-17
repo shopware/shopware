@@ -135,7 +135,7 @@ shopware:
             - 'klar_cpid'
             - 'klar_adid'
 
-        # Cache policies (feature flag HTTP_CACHE_POLICIES)
+        # Cache policies (feature flag CACHE_REWORK)
         policies:
             no_cache_private:
                 headers:

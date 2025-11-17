@@ -33,4 +33,13 @@ $sw-order-line-item-border: $color-gray-300;
     .icon--regular-chevron-down-xxs {
         padding: 4px;
     }
+
+    .mt-card__content {
+        &:has(.mt-empty-state) {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    }
 }

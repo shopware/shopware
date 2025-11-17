@@ -354,7 +354,8 @@
       "unconfirmed": "Unconfirmed",
       "pending": "Pending",
       "changed": "Changed",
-      "update": "Update"
+      "update": "Update",
+      "password": "Password"
     }
   },
   "sw-privileges": {

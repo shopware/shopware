@@ -28,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AssociationDescription;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -139,12 +138,12 @@ class SalesChannelDefinition extends EntityDefinition
             new ManyToManyIdField('payment_method_ids', 'paymentMethodIds', 'paymentMethods'),
             new ManyToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, SalesChannelShippingMethodDefinition::class, 'sales_channel_id', 'shipping_method_id'),
             new ManyToOneAssociationField('type', 'type_id', SalesChannelTypeDefinition::class, 'id', false),
-            (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Default language for the sales channel')),
+            (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Default language for the sales channel')),
             new ManyToOneAssociationField('customerGroup', 'customer_group_id', CustomerGroupDefinition::class, 'id', false),
-            (new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Default currency for the sales channel')),
-            (new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Default payment method for the sales channel')),
-            (new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Default shipping method for the sales channel')),
-            (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Default country for the sales channel')),
+            (new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Default currency for the sales channel')),
+            (new ManyToOneAssociationField('paymentMethod', 'payment_method_id', PaymentMethodDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Default payment method for the sales channel')),
+            (new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Default shipping method for the sales channel')),
+            (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Default country for the sales channel')),
             new OneToManyAssociationField('orders', OrderDefinition::class, 'sales_channel_id', 'id'),
 
             new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', 'id'),
@@ -159,12 +158,12 @@ class SalesChannelDefinition extends EntityDefinition
             new TranslatedField('homeMetaDescription'),
             new TranslatedField('homeKeywords'),
 
-            (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete(), new AssociationDescription('Domain URLs configured for the sales channel')),
+            (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', 'id'))->addFlags((new ApiAware())->withDescription('Domain URLs configured for the sales channel'), new CascadeDelete()),
 
             (new OneToManyAssociationField('systemConfigs', SystemConfigDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
-            (new ManyToOneAssociationField('navigationCategory', 'navigation_category_id', CategoryDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Root category for navigation menu')),
-            (new ManyToOneAssociationField('footerCategory', 'footer_category_id', CategoryDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Root category for footer navigation')),
-            (new ManyToOneAssociationField('serviceCategory', 'service_category_id', CategoryDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Root category for service pages')),
+            (new ManyToOneAssociationField('navigationCategory', 'navigation_category_id', CategoryDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Root category for navigation menu')),
+            (new ManyToOneAssociationField('footerCategory', 'footer_category_id', CategoryDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Root category for footer navigation')),
+            (new ManyToOneAssociationField('serviceCategory', 'service_category_id', CategoryDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Root category for service pages')),
             (new OneToManyAssociationField('productVisibilities', ProductVisibilityDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             (new OneToOneAssociationField('hreflangDefaultDomain', 'hreflang_default_domain_id', 'id', SalesChannelDomainDefinition::class, false))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('mailHeaderFooter', 'mail_header_footer_id', MailHeaderFooterDefinition::class, 'id', false),

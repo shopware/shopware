@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AssociationDescription;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInOpenapiSchema;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
@@ -611,9 +610,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
             $fieldName = $field->getPropertyName();
 
-            // Check for field-level AssociationDescription flag
-            $descriptionFlag = $field->getFlag(AssociationDescription::class);
-            $description = $descriptionFlag ? $descriptionFlag->getDescription() : null;
+            // Get description from ApiAware flag
+            $description = $apiAware->getDescription();
 
             // Build the association line
             $line = '- `' . $fieldName . '`';

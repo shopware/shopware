@@ -20,6 +20,8 @@ class ApiAware extends Flag
      */
     private array $whitelist = [];
 
+    private ?string $description = null;
+
     public function __construct(string ...$protectedSources)
     {
         foreach ($protectedSources as $source) {
@@ -29,6 +31,13 @@ class ApiAware extends Flag
         if (empty($protectedSources)) {
             $this->whitelist = self::BASE_URLS;
         }
+    }
+
+    public function withDescription(string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
     }
 
     public function isBaseUrlAllowed(string $baseUrl): bool
@@ -69,10 +78,19 @@ class ApiAware extends Flag
         return false;
     }
 
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
     public function parse(): \Generator
     {
         yield 'read_protected' => [
             array_keys($this->whitelist),
         ];
+
+        if ($this->description !== null) {
+            yield 'description' => $this->description;
+        }
     }
 }

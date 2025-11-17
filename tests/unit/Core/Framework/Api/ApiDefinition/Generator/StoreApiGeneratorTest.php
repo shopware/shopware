@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
@@ -334,9 +335,7 @@ class StoreApiGeneratorTest extends TestCase
         static::assertNotEmpty($operationsWithoutAssociations, 'Should have operations without associations');
     }
 
-    /**
-     * @dataProvider supportsDataProvider
-     */
+    #[DataProvider('supportsDataProvider')]
     public function testSupports(string $format, string $api, bool $expected): void
     {
         static::assertSame($expected, $this->generator->supports($format, $api));

@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AssociationDescription;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -91,7 +90,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new ApiAware(), new Required()),
             (new FkField('cover_id', 'coverId', MediaDefinition::class))->addFlags(new ApiAware()),
-            (new ManyToOneAssociationField('cover', 'cover_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Line item image or thumbnail')),
+            (new ManyToOneAssociationField('cover', 'cover_id', MediaDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Line item image or thumbnail')),
 
             (new StringField('identifier', 'identifier'))->addFlags(new ApiAware(), new Required()),
             (new StringField('referenced_id', 'referencedId'))->addFlags(new ApiAware()),
@@ -113,11 +112,11 @@ class OrderLineItemDefinition extends EntityDefinition
             (new StringField('type', 'type'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
-            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Referenced product if this is a product line item')),
+            (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Referenced product if this is a product line item')),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id', false),
-            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete(), new WriteProtected(), new AssociationDescription('Delivery positions for this line item')),
+            (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', 'id'))->addFlags((new ApiAware())->withDescription('Delivery positions for this line item'), new CascadeDelete(), new WriteProtected()),
             (new OneToManyAssociationField('orderTransactionCaptureRefundPositions', OrderTransactionCaptureRefundPositionDefinition::class, 'order_line_item_id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('downloads', OrderLineItemDownloadDefinition::class, 'order_line_item_id'))->addFlags(new ApiAware(), new CascadeDelete(), new AssociationDescription('Digital downloads associated with this line item')),
+            (new OneToManyAssociationField('downloads', OrderLineItemDownloadDefinition::class, 'order_line_item_id'))->addFlags((new ApiAware())->withDescription('Digital downloads associated with this line item'), new CascadeDelete()),
             (new ParentAssociationField(self::class))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware(), new Required()),
         ]);

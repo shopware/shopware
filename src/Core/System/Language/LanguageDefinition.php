@@ -43,7 +43,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AssociationDescription;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -124,9 +123,9 @@ class LanguageDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Required()),
             (new CustomFields())->addFlags(new ApiAware()),
             (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware()),
-            (new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Locale defining regional settings (date, time, number formats)')),
-            (new ManyToOneAssociationField('translationCode', 'translation_code_id', LocaleDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Locale used for translating content')),
-            (new ChildrenAssociationField(self::class))->addFlags(new ApiAware(), new AssociationDescription('Child languages inheriting from this parent language')),
+            (new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Locale defining regional settings (date, time, number formats)')),
+            (new ManyToOneAssociationField('translationCode', 'translation_code_id', LocaleDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Locale used for translating content')),
+            (new ChildrenAssociationField(self::class))->addFlags((new ApiAware())->withDescription('Child languages inheriting from this parent language')),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelLanguageDefinition::class, 'language_id', 'sales_channel_id'),
 
             // api relevant associations, restrict delete

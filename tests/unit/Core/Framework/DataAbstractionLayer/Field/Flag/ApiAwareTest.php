@@ -60,4 +60,61 @@ class ApiAwareTest extends TestCase
         static::assertTrue($flag->isSourceAllowed(AdminSalesChannelApiSource::class));
         static::assertTrue($flag->isSourceAllowed(SystemSource::class));
     }
+
+    public function testWithoutDescription(): void
+    {
+        $flag = new ApiAware();
+
+        static::assertNull($flag->getDescription());
+    }
+
+    public function testWithDescription(): void
+    {
+        $description = 'Main product image displayed in listings and detail pages';
+        $flag = (new ApiAware(SalesChannelApiSource::class))->withDescription($description);
+
+        static::assertSame($description, $flag->getDescription());
+        static::assertTrue($flag->isSourceAllowed(SalesChannelApiSource::class));
+    }
+
+    public function testDescriptionInParse(): void
+    {
+        $description = 'Test description';
+        $flag = (new ApiAware(SalesChannelApiSource::class))->withDescription($description);
+
+        $result = iterator_to_array($flag->parse());
+
+        static::assertArrayHasKey('description', $result);
+        static::assertSame($description, $result['description']);
+        static::assertArrayHasKey('read_protected', $result);
+    }
+
+    public function testParseWithoutDescription(): void
+    {
+        $flag = new ApiAware(SalesChannelApiSource::class);
+
+        $result = iterator_to_array($flag->parse());
+
+        static::assertArrayNotHasKey('description', $result);
+        static::assertArrayHasKey('read_protected', $result);
+    }
+
+    public function testDescriptionWithMultipleSources(): void
+    {
+        $description = 'Available in both admin and store API';
+        $flag = (new ApiAware(AdminApiSource::class, SalesChannelApiSource::class))->withDescription($description);
+
+        static::assertSame($description, $flag->getDescription());
+        static::assertTrue($flag->isSourceAllowed(AdminApiSource::class));
+        static::assertTrue($flag->isSourceAllowed(SalesChannelApiSource::class));
+    }
+
+    public function testFluentApiReturnsInstance(): void
+    {
+        $flag = new ApiAware(SalesChannelApiSource::class);
+        $result = $flag->withDescription('Test');
+
+        static::assertSame($flag, $result);
+        static::assertSame('Test', $flag->getDescription());
+    }
 }

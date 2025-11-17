@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AssociationDescription;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -117,25 +116,25 @@ class OrderDefinition extends EntityDefinition
             (new StringField('tax_calculation_type', 'taxCalculationType'))->addFlags(new ApiAware()),
 
             (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required()),
-            (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id'))->addFlags(new ApiAware(), new AssociationDescription('Current order state (e.g., open, in_progress, completed, cancelled)')),
+            (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id'))->addFlags((new ApiAware())->withDescription('Current order state (e.g., open, in_progress, completed, cancelled)')),
             new ListField('rule_ids', 'ruleIds', StringField::class),
             (new CustomFields())->addFlags(new ApiAware()),
             (new CreatedByField())->addFlags(new ApiAware()),
             (new UpdatedByField())->addFlags(new ApiAware()),
 
-            (new OneToOneAssociationField('primaryOrderDelivery', 'primary_order_delivery_id', 'id', OrderDeliveryDefinition::class, false))->addFlags(new ApiAware(), new AssociationDescription('Primary delivery information for the order')),
-            (new OneToOneAssociationField('primaryOrderTransaction', 'primary_order_transaction_id', 'id', OrderTransactionDefinition::class, false))->addFlags(new ApiAware(), new AssociationDescription('Primary payment transaction for the order')),
-            (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class))->addFlags(new ApiAware(), new CascadeDelete(), new SearchRanking(0.5), new AssociationDescription('Customer information associated with the order')),
-            (new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Currency used for the order')),
-            (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false))->addFlags(new ApiAware(), new AssociationDescription('Language used when placing the order')),
+            (new OneToOneAssociationField('primaryOrderDelivery', 'primary_order_delivery_id', 'id', OrderDeliveryDefinition::class, false))->addFlags((new ApiAware())->withDescription('Primary delivery information for the order')),
+            (new OneToOneAssociationField('primaryOrderTransaction', 'primary_order_transaction_id', 'id', OrderTransactionDefinition::class, false))->addFlags((new ApiAware())->withDescription('Primary payment transaction for the order')),
+            (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class))->addFlags((new ApiAware())->withDescription('Customer information associated with the order'), new CascadeDelete(), new SearchRanking(0.5)),
+            (new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Currency used for the order')),
+            (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false))->addFlags((new ApiAware())->withDescription('Language used when placing the order')),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
-            (new OneToManyAssociationField('addresses', OrderAddressDefinition::class, 'order_id'))->addFlags(new ApiAware(), new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING), new AssociationDescription('All addresses associated with the order (billing and shipping)')),
-            (new ManyToOneAssociationField('billingAddress', 'billing_address_id', OrderAddressDefinition::class))->addFlags(new ApiAware(), new AssociationDescription('Billing address for the order')),
-            (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id'))->addFlags(new ApiAware(), new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING), new AssociationDescription('Delivery information including shipping address and tracking')),
-            (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id'))->addFlags(new ApiAware(), new CascadeDelete(), new AssociationDescription('Order line items (products, discounts, fees)')),
-            (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id'))->addFlags(new ApiAware(), new CascadeDelete(), new AssociationDescription('Payment transactions for the order')),
-            (new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id'))->addFlags(new ApiAware(), new AssociationDescription('Generated documents (invoices, delivery notes, credit notes)')),
-            (new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, 'order_id', 'tag_id'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING), new AssociationDescription('Tags assigned to the order for organization and filtering')),
+            (new OneToManyAssociationField('addresses', OrderAddressDefinition::class, 'order_id'))->addFlags((new ApiAware())->withDescription('All addresses associated with the order (billing and shipping)'), new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToOneAssociationField('billingAddress', 'billing_address_id', OrderAddressDefinition::class))->addFlags((new ApiAware())->withDescription('Billing address for the order')),
+            (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id'))->addFlags((new ApiAware())->withDescription('Delivery information including shipping address and tracking'), new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new OneToManyAssociationField('lineItems', OrderLineItemDefinition::class, 'order_id'))->addFlags((new ApiAware())->withDescription('Order line items (products, discounts, fees)'), new CascadeDelete()),
+            (new OneToManyAssociationField('transactions', OrderTransactionDefinition::class, 'order_id'))->addFlags((new ApiAware())->withDescription('Payment transactions for the order'), new CascadeDelete()),
+            (new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id'))->addFlags((new ApiAware())->withDescription('Generated documents (invoices, delivery notes, credit notes)')),
+            (new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, 'order_id', 'tag_id'))->addFlags((new ApiAware())->withDescription('Tags assigned to the order for organization and filtering'), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('createdBy', 'created_by_id', UserDefinition::class, 'id', false),
             new ManyToOneAssociationField('updatedBy', 'updated_by_id', UserDefinition::class, 'id', false),
             (new CashRoundingConfigField('item_rounding', 'itemRounding'))->addFlags(new Required()),

@@ -133,6 +133,7 @@
         {% block sw_bulk_edit_order_empty_state %}
         <mt-empty-state
             v-if="selectedIds.length <= 0 && !isLoading"
+            class="mt-empty-state--center"
             :icon="$route.meta.$module.icon"
             :headline="$tc('sw-bulk-edit.order.messageEmptyTitle')"
             :description="$tc('sw-bulk-edit.order.messageEmptySubline')"

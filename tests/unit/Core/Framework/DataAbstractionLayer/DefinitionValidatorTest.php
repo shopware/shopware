@@ -52,14 +52,10 @@ class DefinitionValidatorTest extends TestCase
         }
     }
 
-    /**
-     * @param list<string> $dbPrimaryKeys
-     */
-    #[DataProvider('primaryKeyMatchProvider')]
-    public function testPrimaryKeyMatchReportsNoViolation(array $dbPrimaryKeys): void
+    public function testPrimaryKeyMatchReportsNoViolation(): void
     {
         $definition = new DefinitionValidatorTestDefinition();
-        $validator = $this->createValidatorWithTable($definition, $dbPrimaryKeys);
+        $validator = $this->createValidatorWithTable($definition, ['id']);
 
         $violations = $validator->validate();
         $definitionViolations = $violations[$definition::class] ?? [];
@@ -133,16 +129,6 @@ class DefinitionValidatorTest extends TestCase
                 'Table has PRIMARY KEY ()',
                 'entity definition has PrimaryKey flags on (id)',
             ],
-        ];
-    }
-
-    /**
-     * @return \Generator<string, array{list<string>}>
-     */
-    public static function primaryKeyMatchProvider(): \Generator
-    {
-        yield 'matching primary key' => [
-            ['id'],
         ];
     }
 

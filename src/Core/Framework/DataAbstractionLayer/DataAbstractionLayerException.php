@@ -130,6 +130,7 @@ class DataAbstractionLayerException extends HttpException
     public const DBAL_ONLY_STORAGE_AWARE_FIELDS_AS_TRANSLATED = 'FRAMEWORK__DBAL_ONLY_STORAGE_AWARE_FIELDS_AS_TRANSLATED';
     public const DBAL_FIELD_ACCESSOR_BUILDER_NOT_FOUND = 'FRAMEWORK__DBAL_FIELD_ACCESSOR_BUILDER_NOT_FOUND';
     public const DBAL_CANNOT_BUILD_ACCESSOR = 'FRAMEWORK__DBAL_CANNOT_BUILD_ACCESSOR';
+    public const ENTITY_INDEXER_NOT_FOUND = 'FRAMEWORK__ENTITY_INDEXER_NOT_FOUND';
     public const INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__DAL_INVALID_SYNC_OPERATION';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
@@ -1095,6 +1096,16 @@ class DataAbstractionLayerException extends HttpException
     public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
     {
         return new UnexpectedTypeException($constraint, $expectedType);
+    }
+
+    public static function entityIndexerNotFound(string $name): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ENTITY_INDEXER_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => 'entity indexer', 'field' => 'name', 'value' => $name],
+        );
     }
 
     public static function scoreNotFound(string $id): self

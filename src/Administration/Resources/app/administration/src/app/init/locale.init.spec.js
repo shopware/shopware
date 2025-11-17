@@ -2,11 +2,23 @@
  * @sw-package framework
  */
 import initializeLocaleService from 'src/app/init/locale.init';
-import initializeApiServices from 'src/app/init-pre/api-services.init';
 
 describe('src/app/init/locale.init.ts', () => {
-    beforeAll(() => {
-        initializeApiServices();
+    let snippetServiceMock;
+    let serviceContainer;
+
+    beforeEach(() => {
+        snippetServiceMock = {
+            getLocales: jest.fn().mockResolvedValue({}),
+            getSnippets: jest.fn().mockResolvedValue(undefined),
+        };
+
+        serviceContainer = Shopware.Application.getContainer('service');
+        serviceContainer.snippetService = snippetServiceMock;
+    });
+
+    afterEach(() => {
+        delete serviceContainer.snippetService;
     });
 
     it('should register the locale factory with correct snippet languages', async () => {
@@ -35,14 +47,8 @@ describe('src/app/init/locale.init.ts', () => {
             id4: 'jp-JP',
         };
 
-        Shopware.Service().register('snippetService', () => {
-            return {
-                getLocales: () => expectedLocales,
-                getSnippets: () => {},
-            };
-        });
-
-        expect(Shopware.Service('snippetService')).toBeDefined();
+        snippetServiceMock.getLocales.mockResolvedValue(expectedLocales);
+        snippetServiceMock.getSnippets.mockResolvedValue(undefined);
 
         await initializeLocaleService();
 

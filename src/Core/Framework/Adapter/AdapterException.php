@@ -38,6 +38,7 @@ class AdapterException extends HttpException
     final public const OPERATOR_NOT_SUPPORTED = 'FRAMEWORK__OPERATOR_NOT_SUPPORTED';
     final public const MISSING_REQUIRED_PARAMETER = 'FRAMEWORK__MISSING_REQUIRED_PARAMETER';
     final public const CIRCULAR_REFERENCE_ESI = 'FRAMEWORK__CIRCULAR_REFERENCE_ESI';
+    final public const INVALID_CACHE_POLICY_CONFIGURATION = 'FRAMEWORK__INVALID_CACHE_POLICY_CONFIGURATION';
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
@@ -302,6 +303,18 @@ class AdapterException extends HttpException
             'Circular ESI request detected: Request call stack: {{ paths }}',
             [
                 'paths' => implode(', ', $paths),
+            ]
+        );
+    }
+
+    public static function invalidCachePolicyConfiguration(string $error): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_CACHE_POLICY_CONFIGURATION,
+            'Used cache policy configuration is invalid: {{ error }}',
+            [
+                'error' => $error,
             ]
         );
     }

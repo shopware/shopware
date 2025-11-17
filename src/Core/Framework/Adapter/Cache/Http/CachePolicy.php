@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -33,7 +34,7 @@ readonly class CachePolicy
     public static function fromArray(array $data): self
     {
         if (!isset($data['headers']['cache_control'])) {
-            throw new \InvalidArgumentException('Policy must contain headers.cache_control configuration');
+            throw AdapterException::invalidCachePolicyConfiguration('missing required "headers.cache_control" configuration');
         }
 
         $cacheControl = CacheControlDirectives::fromArray($data['headers']['cache_control']);

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlDirectives;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
 
@@ -33,6 +34,15 @@ class CachePolicyTest extends TestCase
         static::assertSame(1800, $policy->cacheControl->maxAge);
         static::assertSame(7200, $policy->cacheControl->sMaxAge);
         static::assertNull($policy->cacheControl->private);
+    }
+
+    public function testFromArrayThrowsException(): void
+    {
+        self::expectExceptionObject(AdapterException::invalidCachePolicyConfiguration('missing required "headers.cache_control" configuration'));
+        /** @phpstan-ignore argument.type (testing a wrong array shape here) */
+        CachePolicy::fromArray([
+            'headers' => [],
+        ]);
     }
 
     public function testWith(): void

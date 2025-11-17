@@ -107,6 +107,7 @@ SQL
         // test
         $migration = new Migration1763316536ChangeProductManufacturerLink();
         $migration->update($this->connection);
+        $migration->update($this->connection);
 
         static::assertSame(
             $expected,

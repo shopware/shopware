@@ -41,7 +41,6 @@ import RepositoryFactory from 'src/core/data/repository-factory.data';
 import ApiContextFactory from 'src/core/factory/api-context.factory';
 import AppContextFactory from 'src/core/factory/app-context.factory';
 import RouterFactory from 'src/core/factory/router.factory';
-import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import Store from 'src/app/store';
 import { createExtendableSetup, overrideComponentSetup } from 'src/app/adapter/composition-extension-system';
@@ -309,7 +308,10 @@ class ShopwareClass implements CustomShopwareProperties {
     }
 
     public _private = {
-        ApiServices: ApiServices,
+        ApiServices: async () => {
+            const services = await import('src/core/service/api');
+            return services.default();
+        },
     };
 
     public Telemetry = Telemetry;

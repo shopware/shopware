@@ -6,7 +6,7 @@
 export default () => {
     // @ts-expect-error
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
-    const context = import.meta.glob('./**/!(*.spec).{j,t}s');
+    const context = import.meta.glob('./**/!(*.spec).{j,t}s', { eager: true });
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return Object.values(context);

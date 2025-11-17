@@ -4,12 +4,11 @@
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default async function initializeApiServices() {
+    const apiServiceLoaders = await Shopware._private.ApiServices();
+
     // Add custom api service providers
     // eslint-disable-next-line no-restricted-syntax
-    for (const ApiServicePromise of Shopware._private.ApiServices()) {
-        // eslint-disable-next-line no-await-in-loop,@typescript-eslint/no-unsafe-assignment
-        const ApiServiceRaw = await ApiServicePromise();
-
+    for (const ApiServiceRaw of apiServiceLoaders) {
         // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const ApiService = ApiServiceRaw.default;

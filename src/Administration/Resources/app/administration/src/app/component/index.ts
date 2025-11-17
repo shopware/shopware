@@ -2,678 +2,586 @@
  * @sw-package framework
  * @private
  */
+import SwWizardPage from 'src/app/component/wizard/sw-wizard-page/index';
+import SwWizardDotNavigation from 'src/app/component/wizard/sw-wizard-dot-navigation/index';
+import SwWizard from 'src/app/component/wizard/sw-wizard/index';
+import SwVnodeRenderer from 'src/app/component/utils/sw-vnode-renderer/index';
+import SwVerifyUserModal from 'src/app/component/utils/sw-verify-user-modal/index';
+import SwUploadListener from 'src/app/component/utils/sw-upload-listener/index';
+import SwTimeAgo from 'src/app/component/utils/sw-time-ago/index';
+import SwTextPreview from 'src/app/component/utils/sw-text-preview/index';
+import SwStepItem from 'src/app/component/utils/sw-step-item/index';
+import SwStepDisplay from 'src/app/component/utils/sw-step-display/index';
+import SwStatus from 'src/app/component/utils/sw-status/index';
+import SwSkeletonBarDeprecated from 'src/app/component/utils/sw-skeleton-bar-deprecated/index';
+import SwSkeletonBar from 'src/app/component/utils/sw-skeleton-bar/index';
+import SwSkeleton from 'src/app/component/utils/sw-skeleton/index';
+import SwShortcutOverviewItem from 'src/app/component/utils/sw-shortcut-overview-item/index';
+import SwShortcutOverview from 'src/app/component/utils/sw-shortcut-overview/index';
+import SwProvide from 'src/app/component/utils/sw-provide/index';
+import SwProgressBar from 'src/app/component/utils/sw-progress-bar/index';
+import SwPopoverDeprecated from 'src/app/component/utils/sw-popover-deprecated/index';
+import SwPopover from 'src/app/component/utils/sw-popover/index';
+import SwOverlay from 'src/app/component/utils/sw-overlay/index';
+import SwNotifications from 'src/app/component/utils/sw-notifications/index';
+import SwNotificationCenterItem from 'src/app/component/utils/sw-notification-center-item/index';
+import SwNotificationCenter from 'src/app/component/utils/sw-notification-center/index';
+import SwLoaderDeprecated from 'src/app/component/utils/sw-loader-deprecated/index';
+import SwLoader from 'src/app/component/utils/sw-loader/index';
+import SwLicenseViolation from 'src/app/component/utils/sw-license-violation/index';
+import SwInternalLink from 'src/app/component/utils/sw-internal-link/index';
+import SwInheritWrapper from 'src/app/component/utils/sw-inherit-wrapper/index';
+import SwIgnoreClass from 'src/app/component/utils/sw-ignore-class/index';
+import SwExternalLink from 'src/app/component/utils/sw-external-link/index';
+import SwErrorBoundary from 'src/app/component/utils/sw-error-boundary/index';
+import SwDuplicatedMediaV2 from 'src/app/component/utils/sw-duplicated-media-v2/index';
+import SwColorBadge from 'src/app/component/utils/sw-color-badge/index';
+import SwTreeItem from 'src/app/component/tree/sw-tree-item/index';
+import SwTreeInputField from 'src/app/component/tree/sw-tree-input-field/index';
+import SwTree from 'src/app/component/tree/sw-tree/index';
+import SwSkipLink from 'src/app/component/structure/sw-skip-link/index';
+import SwSidebarRenderer from 'src/app/component/structure/sw-sidebar-renderer/index';
+import SwSearchMoreResults from 'src/app/component/structure/sw-search-more-results/index';
+import SwSearchBarItem from 'src/app/component/structure/sw-search-bar-item/index';
+import SwSearchBar from 'src/app/component/structure/sw-search-bar/index';
+import SwSalesChannelSwitch from 'src/app/component/structure/sw-sales-channel-switch/index';
+import SwSalesChannelConfig from 'src/app/component/structure/sw-sales-channel-config/index';
+import SwPage from 'src/app/component/structure/sw-page/index';
+import SwModalsRenderer from 'src/app/component/structure/sw-modals-renderer/index';
+import SwLanguageSwitch from 'src/app/component/structure/sw-language-switch/index';
+import SwLanguageInfo from 'src/app/component/structure/sw-language-info/index';
+import SwInheritanceWarning from 'src/app/component/structure/sw-inheritance-warning/index';
+import SwInAppPurchaseCheckout from 'src/app/component/structure/sw-in-app-purchase-checkout/index';
+import SwHiddenIframes from 'src/app/component/structure/sw-hidden-iframes/index';
+import SwError from 'src/app/component/structure/sw-error/index';
+import SwDiscardChangesModal from 'src/app/component/structure/sw-discard-changes-modal/index';
+import SwDesktop from 'src/app/component/structure/sw-desktop/index';
+import SwCardView from 'src/app/component/structure/sw-card-view/index';
+import SwBlockParent from 'src/app/component/structure/sw-block-override/sw-block-parent/index';
+import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
+import SwAdminMenuItem from 'src/app/component/structure/sw-admin-menu-item/index';
+import SwAdminMenu from 'src/app/component/structure/sw-admin-menu/index';
+import SwAdmin from 'src/app/component/structure/sw-admin/index';
+import SwSidebarNavigationItem from 'src/app/component/sidebar/sw-sidebar-navigation-item/index';
+import SwSidebarItem from 'src/app/component/sidebar/sw-sidebar-item/index';
+import SwSidebar from 'src/app/component/sidebar/sw-sidebar/index';
+import SwRuleModal from 'src/app/component/rule/sw-rule-modal/index';
+import SwConditionUnitMenu from 'src/app/component/rule/sw-condition-unit-menu/index';
+import SwConditionTypeSelect from 'src/app/component/rule/sw-condition-type-select/index';
+import SwConditionTreeNode from 'src/app/component/rule/sw-condition-tree-node/index';
+import SwConditionTree from 'src/app/component/rule/sw-condition-tree/index';
+import SwConditionOrContainer from 'src/app/component/rule/sw-condition-or-container/index';
+import SwConditionOperatorSelect from 'src/app/component/rule/sw-condition-operator-select/index';
+import SwConditionModal from 'src/app/component/rule/sw-condition-modal/index';
+import SwConditionBase from 'src/app/component/rule/sw-condition-base/index';
+import SwConditionAndContainer from 'src/app/component/rule/sw-condition-and-container/index';
+import SwConditionAllLineItemsContainer from 'src/app/component/rule/sw-condition-all-line-items-container/index';
+import SwArrowField from 'src/app/component/rule/sw-arrow-field/index';
+import SwSearchPreferencesModal from 'src/app/component/modal/sw-search-preferences-modal/index';
+import SwImagePreviewModal from 'src/app/component/modal/sw-image-preview-modal/index';
+import SwConfirmModal from 'src/app/component/modal/sw-confirm-modal/index';
+import MtTextEditor from 'src/app/component/meteor-wrapper/mt-text-editor/index';
+import SwTextEditorToolbarButtonLink from 'src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-link/index';
+import MtTabs from 'src/app/component/meteor-wrapper/mt-tabs/index';
+import MtDatepicker from 'src/app/component/meteor-wrapper/mt-datepicker/index';
+import MtCard from 'src/app/component/meteor-wrapper/mt-card/index';
+import SwMeteorSingleSelect from 'src/app/component/meteor/sw-meteor-single-select/index';
+import SwMeteorPage from 'src/app/component/meteor/sw-meteor-page/index';
+import SwMeteorNavigation from 'src/app/component/meteor/sw-meteor-navigation/index';
+import SwMeteorCard from 'src/app/component/meteor/sw-meteor-card/index';
+import SwSortableList from 'src/app/component/list/sw-sortable-list/index';
+import SwPagination from 'src/app/component/grid/sw-pagination/index';
+import SwGridRow from 'src/app/component/grid/sw-grid-row/index';
+import SwGridColumn from 'src/app/component/grid/sw-grid-column/index';
+import SwGrid from 'src/app/component/grid/sw-grid/index';
+import SwUrlField from 'src/app/component/form/sw-url-field/index';
+import SwTextareaFieldDeprecated from 'src/app/component/form/sw-textarea-field-deprecated/index';
+import SwTextareaField from 'src/app/component/form/sw-textarea-field/index';
+import SwTextFieldDeprecated from 'src/app/component/form/sw-text-field-deprecated/index';
+import SwTextField from 'src/app/component/form/sw-text-field/index';
+import SwTextEditor from 'src/app/component/form/sw-text-editor/index';
+import SwTextEditorToolbarTableButton from 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-table-button/index';
+import SwTextEditorToolbarButton from 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button/index';
+import SwTextEditorToolbar from 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar/index';
+import SwTextEditorTableToolbar from 'src/app/component/form/sw-text-editor/sw-text-editor-table-toolbar/index';
+import SwTextEditorLinkMenu from 'src/app/component/form/sw-text-editor/sw-text-editor-link-menu/index';
+import SwTaggedField from 'src/app/component/form/sw-tagged-field/index';
+import SwSwitchField from 'src/app/component/form/sw-switch-field/index';
+import SwSnippetFieldEditModal from 'src/app/component/form/sw-snippet-field-edit-modal/index';
+import SwSnippetField from 'src/app/component/form/sw-snippet-field/index';
+import SwSelectRuleCreate from 'src/app/component/form/sw-select-rule-create/index';
+import SwSelectOption from 'src/app/component/form/sw-select-option/index';
+import SwSelectFieldDeprecated from 'src/app/component/form/sw-select-field-deprecated/index';
+import SwSelectField from 'src/app/component/form/sw-select-field/index';
+import SwRadioField from 'src/app/component/form/sw-radio-field/index';
+import SwPurchasePriceField from 'src/app/component/form/sw-purchase-price-field/index';
+import SwPriceField from 'src/app/component/form/sw-price-field/index';
+import SwPasswordField from 'src/app/component/form/sw-password-field/index';
+import SwNumberField from 'src/app/component/form/sw-number-field/index';
+import SwMaintainCurrenciesModal from 'src/app/component/form/sw-maintain-currencies-modal/index';
+import SwListPriceField from 'src/app/component/form/sw-list-price-field/index';
+import SwGtcCheckbox from 'src/app/component/form/sw-gtc-checkbox/index';
+import SwFormFieldRenderer from 'src/app/component/form/sw-form-field-renderer/index';
+import SwFileInput from 'src/app/component/form/sw-file-input/index';
+import SwFieldCopyable from 'src/app/component/form/sw-field-copyable/index';
+import SwEmailField from 'src/app/component/form/sw-email-field/index';
+import SwDynamicUrlField from 'src/app/component/form/sw-dynamic-url-field/index';
+import SwCustomFieldSetRenderer from 'src/app/component/form/sw-custom-field-set-renderer/index';
+import SwConfirmField from 'src/app/component/form/sw-confirm-field/index';
+import SwColorpickerDeprecated from 'src/app/component/form/sw-colorpicker-deprecated/index';
+import SwColorpicker from 'src/app/component/form/sw-colorpicker/index';
+import SwCheckboxFieldDeprecated from 'src/app/component/form/sw-checkbox-field-deprecated/index';
+import SwCheckboxField from 'src/app/component/form/sw-checkbox-field/index';
+import SwBooleanRadioGroup from 'src/app/component/form/sw-boolean-radio-group/index';
+import SwEntitySingleSelect from 'src/app/component/form/select/entity/sw-entity-single-select/index';
+import SwEntityMultiSelect from 'src/app/component/form/select/entity/sw-entity-multi-select/index';
+import SwEntityMultiIdSelect from 'src/app/component/form/select/entity/sw-entity-multi-id-select/index';
+import SwEntityManyToManySelect from 'src/app/component/form/select/entity/sw-entity-many-to-many-select/index';
+import SwEntityAdvancedSelectionModal from 'src/app/component/form/select/entity/sw-entity-advanced-selection-modal/index';
+import SwAdvancedSelectionRule from 'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/index';
+import SwAdvancedSelectionProduct from 'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-product/index';
+import SwSingleSelect from 'src/app/component/form/select/base/sw-single-select/index';
+import SwSelectSelectionList from 'src/app/component/form/select/base/sw-select-selection-list/index';
+import SwSelectResultList from 'src/app/component/form/select/base/sw-select-result-list/index';
+import SwSelectResult from 'src/app/component/form/select/base/sw-select-result/index';
+import SwSelectBase from 'src/app/component/form/select/base/sw-select-base/index';
+import SwMultiTagSelect from 'src/app/component/form/select/base/sw-multi-tag-select/index';
+import SwMultiSelect from 'src/app/component/form/select/base/sw-multi-select/index';
+import SwFieldError from 'src/app/component/form/field-base/sw-field-error/index';
+import SwContextualField from 'src/app/component/form/field-base/sw-contextual-field/index';
+import SwBlockField from 'src/app/component/form/field-base/sw-block-field/index';
+import SwBaseField from 'src/app/component/form/field-base/sw-base-field/index';
+import SwSidebarFilterPanel from 'src/app/component/filter/sw-sidebar-filter-panel/index';
+import SwRangeFilter from 'src/app/component/filter/sw-range-filter/index';
+import SwNumberFilter from 'src/app/component/filter/sw-number-filter/index';
+import SwMultiSelectFilter from 'src/app/component/filter/sw-multi-select-filter/index';
+import SwFilterPanel from 'src/app/component/filter/sw-filter-panel/index';
+import SwExistenceFilter from 'src/app/component/filter/sw-existence-filter/index';
+import SwDateFilter from 'src/app/component/filter/sw-date-filter/index';
+import SwBooleanFilter from 'src/app/component/filter/sw-boolean-filter/index';
+import SwBaseFilter from 'src/app/component/filter/sw-base-filter/index';
+import SwIframeRenderer from 'src/app/component/extension-api/sw-iframe-renderer/index';
+import SwExtensionTeaserSalesChannel from 'src/app/component/extension-api/sw-extension-teaser-sales-channel/index';
+import SwExtensionTeaserPopover from 'src/app/component/extension-api/sw-extension-teaser-popover/index';
+import SwExtensionComponentSection from 'src/app/component/extension-api/sw-extension-component-section/index';
+import SwProductStreamGridPreview from 'src/app/component/entity/sw-product-stream-grid-preview/index';
+import SwManyToManyAssignmentCard from 'src/app/component/entity/sw-many-to-many-assignment-card/index';
+import SwCategoryTreeField from 'src/app/component/entity/sw-category-tree-field/index';
+import SwBulkEditModal from 'src/app/component/entity/sw-bulk-edit-modal/index';
+import SwDataGridSkeleton from 'src/app/component/data-grid/sw-data-grid-skeleton/index';
+import SwDataGridSettings from 'src/app/component/data-grid/sw-data-grid-settings/index';
+import SwDataGridInlineEdit from 'src/app/component/data-grid/sw-data-grid-inline-edit/index';
+import SwDataGridColumnPosition from 'src/app/component/data-grid/sw-data-grid-column-position/index';
+import SwDataGridColumnBoolean from 'src/app/component/data-grid/sw-data-grid-column-boolean/index';
+import SwDataGrid from 'src/app/component/data-grid/sw-data-grid/index';
+import SwContextMenuItem from 'src/app/component/context-menu/sw-context-menu-item/index';
+import SwContextMenuDivider from 'src/app/component/context-menu/sw-context-menu-divider/index';
+import SwContextMenu from 'src/app/component/context-menu/sw-context-menu/index';
+import SwContextButton from 'src/app/component/context-menu/sw-context-button/index';
+import SwVersion from 'src/app/component/base/sw-version/index';
+import SwUserCard from 'src/app/component/base/sw-user-card/index';
+import SwTabsItem from 'src/app/component/base/sw-tabs-item/index';
+import SwTabsDeprecated from 'src/app/component/base/sw-tabs-deprecated/index';
+import SwTabs from 'src/app/component/base/sw-tabs/index';
+import SwSortingSelect from 'src/app/component/base/sw-sorting-select/index';
+import SwSimpleSearchField from 'src/app/component/base/sw-simple-search-field/index';
+import SwRatingStars from 'src/app/component/base/sw-rating-stars/index';
+import SwRadioPanel from 'src/app/component/base/sw-radio-panel/index';
+import SwPropertySearch from 'src/app/component/base/sw-property-search/index';
+import SwProductVariantInfo from 'src/app/component/base/sw-product-variant-info/index';
+import SwProductImage from 'src/app/component/base/sw-product-image/index';
+import SwModal from 'src/app/component/base/sw-modal/index';
+import SwLabel from 'src/app/component/base/sw-label/index';
+import SwInheritanceSwitch from 'src/app/component/base/sw-inheritance-switch/index';
+import SwIconDeprecated from 'src/app/component/base/sw-icon-deprecated/index';
+import SwIcon from 'src/app/component/base/sw-icon/index';
+import SwHighlightText from 'src/app/component/base/sw-highlight-text/index';
+import SwHelpText from 'src/app/component/base/sw-help-text/index';
+import SwErrorSummary from 'src/app/component/base/sw-error-summary/index';
+import SwEmptyState from 'src/app/component/base/sw-empty-state/index';
+import SwDescriptionList from 'src/app/component/base/sw-description-list/index';
+import SwContainer from 'src/app/component/base/sw-container/index';
+import SwCollapse from 'src/app/component/base/sw-collapse/index';
+import SwCircleIcon from 'src/app/component/base/sw-circle-icon/index';
+import SwChartCard from 'src/app/component/base/sw-chart-card/index';
+import SwCardSection from 'src/app/component/base/sw-card-section/index';
+import SwCardFilter from 'src/app/component/base/sw-card-filter/index';
+import SwCardDeprecated from 'src/app/component/base/sw-card-deprecated/index';
+import SwCard from 'src/app/component/base/sw-card/index';
+import SwButtonProcess from 'src/app/component/base/sw-button-process/index';
+import SwButtonGroup from 'src/app/component/base/sw-button-group/index';
+import SwButtonDeprecated from 'src/app/component/base/sw-button-deprecated/index';
+import SwButton from 'src/app/component/base/sw-button/index';
+import SwAvatar from 'src/app/component/base/sw-avatar/index';
+import SwAlertDeprecated from 'src/app/component/base/sw-alert-deprecated/index';
+import SwAlert from 'src/app/component/base/sw-alert/index';
+import SwAddress from 'src/app/component/base/sw-address/index';
+import SwAppWrongAppUrlModal from 'src/app/component/app/sw-app-wrong-app-url-modal/index';
+import SwAppTopbarButton from 'src/app/component/app/sw-app-topbar-button/index';
+import SwAppTopbarSidebar from 'src/app/component/app/sw-app-topbar-sidebar/index';
+import SwAppShopIdChangeModal from 'src/app/component/app/sw-app-shop-id-change-modal/index';
+import SwAppActions from 'src/app/component/app/sw-app-actions/index';
+import SwAppActionButton from 'src/app/component/app/sw-app-action-button/index';
+import SwCodeEditor from 'src/app/component/form/sw-code-editor';
+import SwDatepicker from 'src/app/component/form/sw-datepicker';
+import SwDatepickerDeprecated from 'src/app/component/form/sw-datepicker-deprecated';
+import SwChart from 'src/app/component/base/sw-chart';
+import SwHelpCenterV2 from 'src/app/component/utils/sw-help-center';
+import SwHelpSidebar from 'src/app/component/sidebar/sw-help-sidebar';
+import SwImageSlider from 'src/app/component/media/sw-image-slider';
+import SwMediaAddThumbnailForm from 'src/app/component/media/sw-media-add-thumbnail-form';
+import SwMediaBaseItem from 'src/app/component/media/sw-media-base-item';
+import SwMediaCompactUploadV2 from 'src/app/component/media/sw-media-compact-upload-v2';
+import SwMediaEntityMapper from 'src/app/component/media/sw-media-entity-mapper';
+import SwMediaField from 'src/app/component/media/sw-media-field';
+import SwMediaFolderContent from 'src/app/component/media/sw-media-folder-content';
+import SwMediaFolderItem from 'src/app/component/media/sw-media-folder-item';
+import SwMediaListSelectionItemV2 from 'src/app/component/media/sw-media-list-selection-item-v2';
+import SwMediaListSelectionV2 from 'src/app/component/media/sw-media-list-selection-v2';
+import SwMediaMediaItem from 'src/app/component/media/sw-media-media-item';
+import SwMediaModalDelete from 'src/app/component/media/sw-media-modal-delete';
+import SwMediaModalFolderDissolve from 'src/app/component/media/sw-media-modal-folder-dissolve';
+import SwMediaModalFolderSettings from 'src/app/component/media/sw-media-modal-folder-settings';
+import SwMediaModalMove from 'src/app/component/media/sw-media-modal-move';
+import SwMediaModalReplace from 'src/app/component/media/sw-media-modal-replace';
+import SwMediaPreviewV2 from 'src/app/component/media/sw-media-preview-v2';
+import SwMediaReplace from 'src/app/component/media/sw-media-replace';
+import SwMediaUploadV2 from 'src/app/component/media/sw-media-upload-v2';
+import SwMediaUrlForm from 'src/app/component/media/sw-media-url-form';
+import SwSidebarMediaItem from 'src/app/component/media/sw-sidebar-media-item';
+import SwExtensionIcon from 'src/app/component/extension/sw-extension-icon';
+import SwAiCopilotBadge from 'src/app/component/feedback/sw-ai-copilot-badge';
+import SwAiCopilotWarning from 'src/app/component/feedback/sw-ai-copilot-warning';
+import SwStringFilter from 'src/app/component/filter/sw-string-filter';
+import SwMediaModalRenderer from 'src/app/component/structure/sw-media-modal-renderer/index';
+import SwSidebarCollapse from './sidebar/sw-sidebar-collapse/index';
+import SwConditionIsNetSelect from './rule/sw-condition-is-net-select/index';
+import SwConditionBaseLineItem from './rule/sw-condition-base-line-item/index';
+import SwConditionTimeRange from './rule/condition-type/sw-condition-time-range/index';
+import SwConditionShippingZipCode from './rule/condition-type/sw-condition-shipping-zip-code/index';
+import SwConditionScript from './rule/condition-type/sw-condition-script/index';
+import SwConditionOrderCustomField from './rule/condition-type/sw-condition-order-custom-field/index';
+import SwConditionNotFound from './rule/condition-type/sw-condition-not-found/index';
+import SwConditionLineItemWithQuantity from './rule/condition-type/sw-condition-line-item-with-quantity/index';
+import SwConditionLineItemPurchasePrice from './rule/condition-type/sw-condition-line-item-purchase-price/index';
+import SwConditionLineItemProperty from './rule/condition-type/sw-condition-line-item-property/index';
+import SwConditionLineItemInCategory from './rule/condition-type/sw-condition-line-item-in-category/index';
+import SwConditionLineItemGoodsTotal from './rule/condition-type/sw-condition-line-item-goods-total/index';
+import SwConditionLineItemCustomField from './rule/condition-type/sw-condition-line-item-custom-field/index';
+import SwConditionLineItem from './rule/condition-type/sw-condition-line-item/index';
+import SwConditionIsAlwaysValid from './rule/condition-type/sw-condition-is-always-valid/index';
+import SwConditionGoodsPrice from './rule/condition-type/sw-condition-goods-price/index';
+import SwConditionGoodsCount from './rule/condition-type/sw-condition-goods-count/index';
+import SwConditionGenericLineItem from './rule/condition-type/sw-condition-generic-line-item/index';
+import SwConditionGeneric from './rule/condition-type/sw-condition-generic/index';
+import SwConditionDateRange from './rule/condition-type/sw-condition-date-range/index';
+import SwConditionCustomerCustomField from './rule/condition-type/sw-condition-customer-custom-field/index';
+import SwConditionBillingZipCode from './rule/condition-type/sw-condition-billing-zip-code/index';
+import SwUrlFieldDeprecated from './form/sw-url-field-deprecated/index';
+import SwSwitchFieldDeprecated from './form/sw-switch-field-deprecated/index';
+import SwSelectNumberField from './form/sw-select-number-field/index';
+import SwPasswordFieldDeprecated from './form/sw-password-field-deprecated/index';
+import SwNumberFieldDeprecated from './form/sw-number-field-deprecated/index';
+import SwEmailFieldDeprecated from './form/sw-email-field-deprecated/index';
+import SwCompactColorpicker from './form/sw-compact-colorpicker/index';
+import SwEntityTagSelect from './form/select/entity/sw-entity-tag-select/index';
+import SwEntityAdvancedSelectionModalGrid from './form/select/entity/sw-entity-advanced-selection-modal-grid/index';
+import SwMultiTagIpSelect from './form/select/base/sw-multi-tag-ip-select/index';
+import SwGroupedSingleSelect from './form/select/base/sw-grouped-single-select/index';
+import SwOneToManyGrid from './entity/sw-one-to-many-grid/index';
+import SwEntityListing from './entity/sw-entity-listing/index';
+import SwPricePreview from './base/sw-price-preview/index';
+
 export default () => {
     /* eslint-disable sw-deprecation-rules/private-feature-declarations, max-len */
-    Shopware.Component.register('sw-wizard-page', () => import('src/app/component/wizard/sw-wizard-page/index'));
-    Shopware.Component.register(
-        'sw-wizard-dot-navigation',
-        () => import('src/app/component/wizard/sw-wizard-dot-navigation/index'),
-    );
-    Shopware.Component.register('sw-wizard', () => import('src/app/component/wizard/sw-wizard/index'));
-    Shopware.Component.register('sw-vnode-renderer', () => import('src/app/component/utils/sw-vnode-renderer/index'));
-    Shopware.Component.register('sw-verify-user-modal', () => import('src/app/component/utils/sw-verify-user-modal/index'));
-    Shopware.Component.register('sw-upload-listener', () => import('src/app/component/utils/sw-upload-listener/index'));
-    Shopware.Component.register('sw-time-ago', () => import('src/app/component/utils/sw-time-ago/index'));
-    Shopware.Component.register('sw-text-preview', () => import('src/app/component/utils/sw-text-preview/index'));
-    Shopware.Component.register('sw-step-item', () => import('src/app/component/utils/sw-step-item/index'));
-    Shopware.Component.register('sw-step-display', () => import('src/app/component/utils/sw-step-display/index'));
-    Shopware.Component.register('sw-status', () => import('src/app/component/utils/sw-status/index'));
-    Shopware.Component.register(
-        'sw-skeleton-bar-deprecated',
-        () => import('src/app/component/utils/sw-skeleton-bar-deprecated/index'),
-    );
-    Shopware.Component.register('sw-skeleton-bar', () => import('src/app/component/utils/sw-skeleton-bar/index'));
-    Shopware.Component.register('sw-skeleton', () => import('src/app/component/utils/sw-skeleton/index'));
-    Shopware.Component.register(
-        'sw-shortcut-overview-item',
-        () => import('src/app/component/utils/sw-shortcut-overview-item/index'),
-    );
-    Shopware.Component.register('sw-shortcut-overview', () => import('src/app/component/utils/sw-shortcut-overview/index'));
-    Shopware.Component.register('sw-provide', () => import('src/app/component/utils/sw-provide/index'));
-    Shopware.Component.register('sw-progress-bar', () => import('src/app/component/utils/sw-progress-bar/index'));
-    Shopware.Component.register(
-        'sw-popover-deprecated',
-        () => import('src/app/component/utils/sw-popover-deprecated/index'),
-    );
-    Shopware.Component.register('sw-popover', () => import('src/app/component/utils/sw-popover/index'));
-    Shopware.Component.register('sw-overlay', () => import('src/app/component/utils/sw-overlay/index'));
-    Shopware.Component.register('sw-notifications', () => import('src/app/component/utils/sw-notifications/index'));
-    Shopware.Component.register(
-        'sw-notification-center-item',
-        () => import('src/app/component/utils/sw-notification-center-item/index'),
-    );
-    Shopware.Component.register(
-        'sw-notification-center',
-        () => import('src/app/component/utils/sw-notification-center/index'),
-    );
-    Shopware.Component.register('sw-loader-deprecated', () => import('src/app/component/utils/sw-loader-deprecated/index'));
-    Shopware.Component.register('sw-loader', () => import('src/app/component/utils/sw-loader/index'));
-    Shopware.Component.register('sw-license-violation', () => import('src/app/component/utils/sw-license-violation/index'));
-    Shopware.Component.register('sw-internal-link', () => import('src/app/component/utils/sw-internal-link/index'));
-    Shopware.Component.register('sw-inherit-wrapper', () => import('src/app/component/utils/sw-inherit-wrapper/index'));
-    Shopware.Component.register('sw-ignore-class', () => import('src/app/component/utils/sw-ignore-class/index'));
-    Shopware.Component.register('sw-external-link', () => import('src/app/component/utils/sw-external-link/index'));
-    Shopware.Component.register('sw-error-boundary', () => import('src/app/component/utils/sw-error-boundary/index'));
-    Shopware.Component.register(
-        'sw-duplicated-media-v2',
-        () => import('src/app/component/utils/sw-duplicated-media-v2/index'),
-    );
-    Shopware.Component.register('sw-color-badge', () => import('src/app/component/utils/sw-color-badge/index'));
-    Shopware.Component.register('sw-tree-item', () => import('src/app/component/tree/sw-tree-item/index'));
-    Shopware.Component.register('sw-tree-input-field', () => import('src/app/component/tree/sw-tree-input-field/index'));
-    Shopware.Component.register('sw-tree', () => import('src/app/component/tree/sw-tree/index'));
-    Shopware.Component.register('sw-skip-link', () => import('src/app/component/structure/sw-skip-link/index'));
-    Shopware.Component.register(
-        'sw-sidebar-renderer',
-        () => import('src/app/component/structure/sw-sidebar-renderer/index'),
-    );
-    Shopware.Component.register(
-        'sw-search-more-results',
-        () => import('src/app/component/structure/sw-search-more-results/index'),
-    );
-    Shopware.Component.register('sw-search-bar-item', () => import('src/app/component/structure/sw-search-bar-item/index'));
-    Shopware.Component.register('sw-search-bar', () => import('src/app/component/structure/sw-search-bar/index'));
-    Shopware.Component.register(
-        'sw-sales-channel-switch',
-        () => import('src/app/component/structure/sw-sales-channel-switch/index'),
-    );
-    Shopware.Component.register(
-        'sw-sales-channel-config',
-        () => import('src/app/component/structure/sw-sales-channel-config/index'),
-    );
-    Shopware.Component.register('sw-page', () => import('src/app/component/structure/sw-page/index'));
-    Shopware.Component.register('sw-modals-renderer', () => import('src/app/component/structure/sw-modals-renderer/index'));
-    Shopware.Component.register('sw-language-switch', () => import('src/app/component/structure/sw-language-switch/index'));
-    Shopware.Component.register('sw-language-info', () => import('src/app/component/structure/sw-language-info/index'));
-    Shopware.Component.register(
-        'sw-inheritance-warning',
-        () => import('src/app/component/structure/sw-inheritance-warning/index'),
-    );
-    Shopware.Component.register(
-        'sw-in-app-purchase-checkout',
-        () => import('src/app/component/structure/sw-in-app-purchase-checkout/index'),
-    );
-    Shopware.Component.register('sw-hidden-iframes', () => import('src/app/component/structure/sw-hidden-iframes/index'));
-    Shopware.Component.register('sw-error', () => import('src/app/component/structure/sw-error/index'));
-    Shopware.Component.register(
-        'sw-discard-changes-modal',
-        () => import('src/app/component/structure/sw-discard-changes-modal/index'),
-    );
-    Shopware.Component.register('sw-desktop', () => import('src/app/component/structure/sw-desktop/index'));
-    Shopware.Component.register('sw-card-view', () => import('src/app/component/structure/sw-card-view/index'));
-    Shopware.Component.register(
-        'sw-block-parent',
-        () => import('src/app/component/structure/sw-block-override/sw-block-parent/index'),
-    );
-    Shopware.Component.register('sw-block', () => import('src/app/component/structure/sw-block-override/sw-block/index'));
-    Shopware.Component.register('sw-admin-menu-item', () => import('src/app/component/structure/sw-admin-menu-item/index'));
-    Shopware.Component.register('sw-admin-menu', () => import('src/app/component/structure/sw-admin-menu/index'));
-    Shopware.Component.register('sw-admin', () => import('src/app/component/structure/sw-admin/index'));
-    Shopware.Component.register(
-        'sw-sidebar-navigation-item',
-        () => import('src/app/component/sidebar/sw-sidebar-navigation-item/index'),
-    );
-    Shopware.Component.register('sw-sidebar-item', () => import('src/app/component/sidebar/sw-sidebar-item/index'));
-    Shopware.Component.register('sw-sidebar', () => import('src/app/component/sidebar/sw-sidebar/index'));
-    Shopware.Component.register('sw-rule-modal', () => import('src/app/component/rule/sw-rule-modal/index'));
-    Shopware.Component.register(
-        'sw-condition-unit-menu',
-        () => import('src/app/component/rule/sw-condition-unit-menu/index'),
-    );
-    Shopware.Component.register(
-        'sw-condition-type-select',
-        () => import('src/app/component/rule/sw-condition-type-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-condition-tree-node',
-        () => import('src/app/component/rule/sw-condition-tree-node/index'),
-    );
-    Shopware.Component.register('sw-condition-tree', () => import('src/app/component/rule/sw-condition-tree/index'));
-    Shopware.Component.register(
-        'sw-condition-or-container',
-        () => import('src/app/component/rule/sw-condition-or-container/index'),
-    );
-    Shopware.Component.register(
-        'sw-condition-operator-select',
-        () => import('src/app/component/rule/sw-condition-operator-select/index'),
-    );
-    Shopware.Component.register('sw-condition-modal', () => import('src/app/component/rule/sw-condition-modal/index'));
-    Shopware.Component.register('sw-condition-base', () => import('src/app/component/rule/sw-condition-base/index'));
-    Shopware.Component.register(
-        'sw-condition-and-container',
-        () => import('src/app/component/rule/sw-condition-and-container/index'),
-    );
-    Shopware.Component.register(
-        'sw-condition-all-line-items-container',
-        () => import('src/app/component/rule/sw-condition-all-line-items-container/index'),
-    );
-    Shopware.Component.register('sw-arrow-field', () => import('src/app/component/rule/sw-arrow-field/index'));
-    Shopware.Component.register(
-        'sw-search-preferences-modal',
-        () => import('src/app/component/modal/sw-search-preferences-modal/index'),
-    );
-    Shopware.Component.register(
-        'sw-image-preview-modal',
-        () => import('src/app/component/modal/sw-image-preview-modal/index'),
-    );
-    Shopware.Component.register('sw-confirm-modal', () => import('src/app/component/modal/sw-confirm-modal/index'));
-    Shopware.Component.register('mt-text-editor', () => import('src/app/component/meteor-wrapper/mt-text-editor/index'));
-    Shopware.Component.register(
-        'sw-text-editor-toolbar-button-link',
-        () => import('src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-link/index'),
-    );
-    Shopware.Component.register('mt-tabs', () => import('src/app/component/meteor-wrapper/mt-tabs/index'));
-    Shopware.Component.register('mt-datepicker', () => import('src/app/component/meteor-wrapper/mt-datepicker/index'));
-    Shopware.Component.register('mt-card', () => import('src/app/component/meteor-wrapper/mt-card/index'));
-    Shopware.Component.register(
-        'sw-meteor-single-select',
-        () => import('src/app/component/meteor/sw-meteor-single-select/index'),
-    );
-    Shopware.Component.register('sw-meteor-page', () => import('src/app/component/meteor/sw-meteor-page/index'));
-    Shopware.Component.register('sw-meteor-navigation', () => import('src/app/component/meteor/sw-meteor-navigation/index'));
-    Shopware.Component.register('sw-meteor-card', () => import('src/app/component/meteor/sw-meteor-card/index'));
-    Shopware.Component.register('sw-sortable-list', () => import('src/app/component/list/sw-sortable-list/index'));
-    Shopware.Component.register('sw-pagination', () => import('src/app/component/grid/sw-pagination/index'));
-    Shopware.Component.register('sw-grid-row', () => import('src/app/component/grid/sw-grid-row/index'));
-    Shopware.Component.register('sw-grid-column', () => import('src/app/component/grid/sw-grid-column/index'));
-    Shopware.Component.register('sw-grid', () => import('src/app/component/grid/sw-grid/index'));
-    Shopware.Component.register('sw-url-field', () => import('src/app/component/form/sw-url-field/index'));
-    Shopware.Component.register(
-        'sw-textarea-field-deprecated',
-        () => import('src/app/component/form/sw-textarea-field-deprecated/index'),
-    );
-    Shopware.Component.register('sw-textarea-field', () => import('src/app/component/form/sw-textarea-field/index'));
-    Shopware.Component.register(
-        'sw-text-field-deprecated',
-        () => import('src/app/component/form/sw-text-field-deprecated/index'),
-    );
-    Shopware.Component.register('sw-text-field', () => import('src/app/component/form/sw-text-field/index'));
-    Shopware.Component.register('sw-text-editor', () => import('src/app/component/form/sw-text-editor/index'));
-    Shopware.Component.register(
-        'sw-text-editor-toolbar-table-button',
-        () => import('src/app/component/form/sw-text-editor/sw-text-editor-toolbar-table-button/index'),
-    );
-    Shopware.Component.register(
-        'sw-text-editor-toolbar-button',
-        () => import('src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button/index'),
-    );
-    Shopware.Component.register(
-        'sw-text-editor-toolbar',
-        () => import('src/app/component/form/sw-text-editor/sw-text-editor-toolbar/index'),
-    );
-    Shopware.Component.register(
-        'sw-text-editor-table-toolbar',
-        () => import('src/app/component/form/sw-text-editor/sw-text-editor-table-toolbar/index'),
-    );
-    Shopware.Component.register(
-        'sw-text-editor-link-menu',
-        () => import('src/app/component/form/sw-text-editor/sw-text-editor-link-menu/index'),
-    );
-    Shopware.Component.register('sw-tagged-field', () => import('src/app/component/form/sw-tagged-field/index'));
-    Shopware.Component.register('sw-switch-field', () => import('src/app/component/form/sw-switch-field/index'));
-    Shopware.Component.register(
-        'sw-snippet-field-edit-modal',
-        () => import('src/app/component/form/sw-snippet-field-edit-modal/index'),
-    );
-    Shopware.Component.register('sw-snippet-field', () => import('src/app/component/form/sw-snippet-field/index'));
-    Shopware.Component.register('sw-select-rule-create', () => import('src/app/component/form/sw-select-rule-create/index'));
-    Shopware.Component.register('sw-select-option', () => import('src/app/component/form/sw-select-option/index'));
-    Shopware.Component.register(
-        'sw-select-field-deprecated',
-        () => import('src/app/component/form/sw-select-field-deprecated/index'),
-    );
-    Shopware.Component.register('sw-select-field', () => import('src/app/component/form/sw-select-field/index'));
-    Shopware.Component.register('sw-radio-field', () => import('src/app/component/form/sw-radio-field/index'));
-    Shopware.Component.register(
-        'sw-purchase-price-field',
-        () => import('src/app/component/form/sw-purchase-price-field/index'),
-    );
-    Shopware.Component.register('sw-price-field', () => import('src/app/component/form/sw-price-field/index'));
-    Shopware.Component.register('sw-password-field', () => import('src/app/component/form/sw-password-field/index'));
-    Shopware.Component.register('sw-number-field', () => import('src/app/component/form/sw-number-field/index'));
-    Shopware.Component.register(
-        'sw-maintain-currencies-modal',
-        () => import('src/app/component/form/sw-maintain-currencies-modal/index'),
-    );
-    Shopware.Component.register('sw-list-price-field', () => import('src/app/component/form/sw-list-price-field/index'));
-    Shopware.Component.register('sw-gtc-checkbox', () => import('src/app/component/form/sw-gtc-checkbox/index'));
-    Shopware.Component.register(
-        'sw-form-field-renderer',
-        () => import('src/app/component/form/sw-form-field-renderer/index'),
-    );
-    Shopware.Component.register('sw-file-input', () => import('src/app/component/form/sw-file-input/index'));
-    Shopware.Component.register('sw-field-copyable', () => import('src/app/component/form/sw-field-copyable/index'));
-    Shopware.Component.register('sw-email-field', () => import('src/app/component/form/sw-email-field/index'));
-    Shopware.Component.register('sw-dynamic-url-field', () => import('src/app/component/form/sw-dynamic-url-field/index'));
-    Shopware.Component.register(
-        'sw-custom-field-set-renderer',
-        () => import('src/app/component/form/sw-custom-field-set-renderer/index'),
-    );
-    Shopware.Component.register('sw-confirm-field', () => import('src/app/component/form/sw-confirm-field/index'));
-    Shopware.Component.register(
-        'sw-colorpicker-deprecated',
-        () => import('src/app/component/form/sw-colorpicker-deprecated/index'),
-    );
-    Shopware.Component.register('sw-colorpicker', () => import('src/app/component/form/sw-colorpicker/index'));
-    Shopware.Component.register(
-        'sw-checkbox-field-deprecated',
-        () => import('src/app/component/form/sw-checkbox-field-deprecated/index'),
-    );
-    Shopware.Component.register('sw-checkbox-field', () => import('src/app/component/form/sw-checkbox-field/index'));
-    Shopware.Component.register(
-        'sw-boolean-radio-group',
-        () => import('src/app/component/form/sw-boolean-radio-group/index'),
-    );
-    Shopware.Component.register(
-        'sw-entity-single-select',
-        () => import('src/app/component/form/select/entity/sw-entity-single-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-entity-multi-select',
-        () => import('src/app/component/form/select/entity/sw-entity-multi-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-entity-multi-id-select',
-        () => import('src/app/component/form/select/entity/sw-entity-multi-id-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-entity-many-to-many-select',
-        () => import('src/app/component/form/select/entity/sw-entity-many-to-many-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-entity-advanced-selection-modal',
-        () => import('src/app/component/form/select/entity/sw-entity-advanced-selection-modal/index'),
-    );
-    Shopware.Component.register(
-        'sw-advanced-selection-rule',
-        () => import('src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/index'),
-    );
-    Shopware.Component.register(
-        'sw-advanced-selection-product',
-        () => import('src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-product/index'),
-    );
-    Shopware.Component.register(
-        'sw-single-select',
-        () => import('src/app/component/form/select/base/sw-single-select/index'),
-    );
-    Shopware.Component.register(
-        'sw-select-selection-list',
-        () => import('src/app/component/form/select/base/sw-select-selection-list/index'),
-    );
-    Shopware.Component.register(
-        'sw-select-result-list',
-        () => import('src/app/component/form/select/base/sw-select-result-list/index'),
-    );
-    Shopware.Component.register(
-        'sw-select-result',
-        () => import('src/app/component/form/select/base/sw-select-result/index'),
-    );
-    Shopware.Component.register('sw-select-base', () => import('src/app/component/form/select/base/sw-select-base/index'));
-    Shopware.Component.register(
-        'sw-multi-tag-select',
-        () => import('src/app/component/form/select/base/sw-multi-tag-select/index'),
-    );
-    Shopware.Component.register('sw-multi-select', () => import('src/app/component/form/select/base/sw-multi-select/index'));
-    Shopware.Component.register('sw-field-error', () => import('src/app/component/form/field-base/sw-field-error/index'));
-    Shopware.Component.register(
-        'sw-contextual-field',
-        () => import('src/app/component/form/field-base/sw-contextual-field/index'),
-    );
-    Shopware.Component.register('sw-block-field', () => import('src/app/component/form/field-base/sw-block-field/index'));
-    Shopware.Component.register('sw-base-field', () => import('src/app/component/form/field-base/sw-base-field/index'));
-    Shopware.Component.register(
-        'sw-sidebar-filter-panel',
-        () => import('src/app/component/filter/sw-sidebar-filter-panel/index'),
-    );
-    Shopware.Component.register('sw-range-filter', () => import('src/app/component/filter/sw-range-filter/index'));
-    Shopware.Component.register('sw-number-filter', () => import('src/app/component/filter/sw-number-filter/index'));
-    Shopware.Component.register(
-        'sw-multi-select-filter',
-        () => import('src/app/component/filter/sw-multi-select-filter/index'),
-    );
-    Shopware.Component.register('sw-filter-panel', () => import('src/app/component/filter/sw-filter-panel/index'));
-    Shopware.Component.register('sw-existence-filter', () => import('src/app/component/filter/sw-existence-filter/index'));
-    Shopware.Component.register('sw-date-filter', () => import('src/app/component/filter/sw-date-filter/index'));
-    Shopware.Component.register('sw-boolean-filter', () => import('src/app/component/filter/sw-boolean-filter/index'));
-    Shopware.Component.register('sw-base-filter', () => import('src/app/component/filter/sw-base-filter/index'));
-    Shopware.Component.register(
-        'sw-iframe-renderer',
-        () => import('src/app/component/extension-api/sw-iframe-renderer/index'),
-    );
-    Shopware.Component.register(
-        'sw-extension-teaser-sales-channel',
-        () => import('src/app/component/extension-api/sw-extension-teaser-sales-channel/index'),
-    );
-    Shopware.Component.register(
-        'sw-extension-teaser-popover',
-        () => import('src/app/component/extension-api/sw-extension-teaser-popover/index'),
-    );
-    Shopware.Component.register(
-        'sw-extension-component-section',
-        () => import('src/app/component/extension-api/sw-extension-component-section/index'),
-    );
-    Shopware.Component.register(
-        'sw-product-stream-grid-preview',
-        () => import('src/app/component/entity/sw-product-stream-grid-preview/index'),
-    );
-    Shopware.Component.register(
-        'sw-many-to-many-assignment-card',
-        () => import('src/app/component/entity/sw-many-to-many-assignment-card/index'),
-    );
-    Shopware.Component.register(
-        'sw-category-tree-field',
-        () => import('src/app/component/entity/sw-category-tree-field/index'),
-    );
-    Shopware.Component.register('sw-bulk-edit-modal', () => import('src/app/component/entity/sw-bulk-edit-modal/index'));
-    Shopware.Component.register(
-        'sw-data-grid-skeleton',
-        () => import('src/app/component/data-grid/sw-data-grid-skeleton/index'),
-    );
-    Shopware.Component.register(
-        'sw-data-grid-settings',
-        () => import('src/app/component/data-grid/sw-data-grid-settings/index'),
-    );
-    Shopware.Component.register(
-        'sw-data-grid-inline-edit',
-        () => import('src/app/component/data-grid/sw-data-grid-inline-edit/index'),
-    );
-    Shopware.Component.register(
-        'sw-data-grid-column-position',
-        () => import('src/app/component/data-grid/sw-data-grid-column-position/index'),
-    );
-    Shopware.Component.register(
-        'sw-data-grid-column-boolean',
-        () => import('src/app/component/data-grid/sw-data-grid-column-boolean/index'),
-    );
-    Shopware.Component.register('sw-data-grid', () => import('src/app/component/data-grid/sw-data-grid/index'));
-    Shopware.Component.register(
-        'sw-context-menu-item',
-        () => import('src/app/component/context-menu/sw-context-menu-item/index'),
-    );
-    Shopware.Component.register(
-        'sw-context-menu-divider',
-        () => import('src/app/component/context-menu/sw-context-menu-divider/index'),
-    );
-    Shopware.Component.register('sw-context-menu', () => import('src/app/component/context-menu/sw-context-menu/index'));
-    Shopware.Component.register('sw-context-button', () => import('src/app/component/context-menu/sw-context-button/index'));
-    Shopware.Component.register('sw-version', () => import('src/app/component/base/sw-version/index'));
-    Shopware.Component.register('sw-user-card', () => import('src/app/component/base/sw-user-card/index'));
-    Shopware.Component.register('sw-tabs-item', () => import('src/app/component/base/sw-tabs-item/index'));
-    Shopware.Component.register('sw-tabs-deprecated', () => import('src/app/component/base/sw-tabs-deprecated/index'));
-    Shopware.Component.register('sw-tabs', () => import('src/app/component/base/sw-tabs/index'));
-    Shopware.Component.register('sw-sorting-select', () => import('src/app/component/base/sw-sorting-select/index'));
-    Shopware.Component.register(
-        'sw-simple-search-field',
-        () => import('src/app/component/base/sw-simple-search-field/index'),
-    );
-    Shopware.Component.register('sw-rating-stars', () => import('src/app/component/base/sw-rating-stars/index'));
-    Shopware.Component.register('sw-radio-panel', () => import('src/app/component/base/sw-radio-panel/index'));
-    Shopware.Component.register('sw-property-search', () => import('src/app/component/base/sw-property-search/index'));
-    Shopware.Component.register(
-        'sw-product-variant-info',
-        () => import('src/app/component/base/sw-product-variant-info/index'),
-    );
-    Shopware.Component.register('sw-product-image', () => import('src/app/component/base/sw-product-image/index'));
-    Shopware.Component.register('sw-modal', () => import('src/app/component/base/sw-modal/index'));
-    Shopware.Component.register('sw-label', () => import('src/app/component/base/sw-label/index'));
-    Shopware.Component.register('sw-inheritance-switch', () => import('src/app/component/base/sw-inheritance-switch/index'));
-    Shopware.Component.register('sw-icon-deprecated', () => import('src/app/component/base/sw-icon-deprecated/index'));
-    Shopware.Component.register('sw-icon', () => import('src/app/component/base/sw-icon/index'));
-    Shopware.Component.register('sw-highlight-text', () => import('src/app/component/base/sw-highlight-text/index'));
-    Shopware.Component.register('sw-help-text', () => import('src/app/component/base/sw-help-text/index'));
-    Shopware.Component.register('sw-error-summary', () => import('src/app/component/base/sw-error-summary/index'));
-    Shopware.Component.register('sw-empty-state', () => import('src/app/component/base/sw-empty-state/index'));
-    Shopware.Component.register('sw-description-list', () => import('src/app/component/base/sw-description-list/index'));
-    Shopware.Component.register('sw-container', () => import('src/app/component/base/sw-container/index'));
-    Shopware.Component.register('sw-collapse', () => import('src/app/component/base/sw-collapse/index'));
-    Shopware.Component.register('sw-circle-icon', () => import('src/app/component/base/sw-circle-icon/index'));
-    Shopware.Component.register('sw-chart-card', () => import('src/app/component/base/sw-chart-card/index'));
-    Shopware.Component.register('sw-card-section', () => import('src/app/component/base/sw-card-section/index'));
-    Shopware.Component.register('sw-card-filter', () => import('src/app/component/base/sw-card-filter/index'));
-    Shopware.Component.register('sw-card-deprecated', () => import('src/app/component/base/sw-card-deprecated/index'));
-    Shopware.Component.register('sw-card', () => import('src/app/component/base/sw-card/index'));
-    Shopware.Component.register('sw-button-process', () => import('src/app/component/base/sw-button-process/index'));
-    Shopware.Component.register('sw-button-group', () => import('src/app/component/base/sw-button-group/index'));
-    Shopware.Component.register('sw-button-deprecated', () => import('src/app/component/base/sw-button-deprecated/index'));
-    Shopware.Component.register('sw-button', () => import('src/app/component/base/sw-button/index'));
-    Shopware.Component.register('sw-avatar', () => import('src/app/component/base/sw-avatar/index'));
-    Shopware.Component.register('sw-alert-deprecated', () => import('src/app/component/base/sw-alert-deprecated/index'));
-    Shopware.Component.register('sw-alert', () => import('src/app/component/base/sw-alert/index'));
-    Shopware.Component.register('sw-address', () => import('src/app/component/base/sw-address/index'));
-    Shopware.Component.register(
-        'sw-app-wrong-app-url-modal',
-        () => import('src/app/component/app/sw-app-wrong-app-url-modal/index'),
-    );
-    Shopware.Component.register('sw-app-topbar-button', () => import('src/app/component/app/sw-app-topbar-button/index'));
-    Shopware.Component.register('sw-app-topbar-sidebar', () => import('src/app/component/app/sw-app-topbar-sidebar/index'));
-    Shopware.Component.register(
-        'sw-app-shop-id-change-modal',
-        () => import('src/app/component/app/sw-app-shop-id-change-modal/index'),
-    );
-    Shopware.Component.register('sw-app-actions', () => import('src/app/component/app/sw-app-actions/index'));
-    Shopware.Component.register('sw-app-action-button', () => import('src/app/component/app/sw-app-action-button/index'));
-    Shopware.Component.register('sw-code-editor', () => import('src/app/component/form/sw-code-editor'));
-    Shopware.Component.register('sw-datepicker', () => import('src/app/component/form/sw-datepicker'));
-    Shopware.Component.register('sw-datepicker-deprecated', () => import('src/app/component/form/sw-datepicker-deprecated'));
-    Shopware.Component.register('sw-chart', () => import('src/app/component/base/sw-chart'));
-    Shopware.Component.register('sw-help-center-v2', () => import('src/app/component/utils/sw-help-center'));
-    Shopware.Component.register('sw-help-sidebar', () => import('src/app/component/sidebar/sw-help-sidebar'));
-    Shopware.Component.register('sw-image-slider', () => import('src/app/component/media/sw-image-slider'));
-    Shopware.Component.register(
-        'sw-media-add-thumbnail-form',
-        () => import('src/app/component/media/sw-media-add-thumbnail-form'),
-    );
-    Shopware.Component.register('sw-media-base-item', () => import('src/app/component/media/sw-media-base-item'));
-    Shopware.Component.extend(
-        'sw-media-compact-upload-v2',
-        'sw-media-upload-v2',
-        () => import('src/app/component/media/sw-media-compact-upload-v2'),
-    );
-    Shopware.Component.register('sw-media-entity-mapper', () => import('src/app/component/media/sw-media-entity-mapper'));
-    Shopware.Component.register('sw-media-field', () => import('src/app/component/media/sw-media-field'));
-    Shopware.Component.register('sw-media-folder-content', () => import('src/app/component/media/sw-media-folder-content'));
-    Shopware.Component.register('sw-media-folder-item', () => import('src/app/component/media/sw-media-folder-item'));
-    Shopware.Component.register(
-        'sw-media-list-selection-item-v2',
-        () => import('src/app/component/media/sw-media-list-selection-item-v2'),
-    );
-    Shopware.Component.register(
-        'sw-media-list-selection-v2',
-        () => import('src/app/component/media/sw-media-list-selection-v2'),
-    );
-    Shopware.Component.register('sw-media-media-item', () => import('src/app/component/media/sw-media-media-item'));
-    Shopware.Component.register('sw-media-modal-delete', () => import('src/app/component/media/sw-media-modal-delete'));
-    Shopware.Component.register(
-        'sw-media-modal-folder-dissolve',
-        () => import('src/app/component/media/sw-media-modal-folder-dissolve'),
-    );
-    Shopware.Component.register(
-        'sw-media-modal-folder-settings',
-        () => import('src/app/component/media/sw-media-modal-folder-settings'),
-    );
-    Shopware.Component.register('sw-media-modal-move', () => import('src/app/component/media/sw-media-modal-move'));
-    Shopware.Component.register('sw-media-modal-replace', () => import('src/app/component/media/sw-media-modal-replace'));
-    Shopware.Component.register('sw-media-preview-v2', () => import('src/app/component/media/sw-media-preview-v2'));
-    Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/component/media/sw-media-replace'));
-    Shopware.Component.register('sw-media-upload-v2', () => import('src/app/component/media/sw-media-upload-v2'));
-    Shopware.Component.register('sw-media-url-form', () => import('src/app/component/media/sw-media-url-form'));
-    Shopware.Component.register('sw-sidebar-media-item', () => import('src/app/component/media/sw-sidebar-media-item'));
-    Shopware.Component.register('sw-extension-icon', () => import('src/app/component/extension/sw-extension-icon'));
-    Shopware.Component.register('sw-ai-copilot-badge', () => import('src/app/component/feedback/sw-ai-copilot-badge'));
-    Shopware.Component.register('sw-ai-copilot-warning', () => import('src/app/component/feedback/sw-ai-copilot-warning'));
-    Shopware.Component.register('sw-string-filter', () => import('src/app/component/filter/sw-string-filter'));
-    Shopware.Component.register(
-        'sw-media-modal-renderer',
-        () => import('src/app/component/structure/sw-media-modal-renderer/index'),
-    );
-    Shopware.Component.extend('sw-sidebar-collapse', 'sw-collapse', () => import('./sidebar/sw-sidebar-collapse/index'));
-    Shopware.Component.extend(
-        'sw-condition-is-net-select',
-        'sw-condition-operator-select',
-        () => import('./rule/sw-condition-is-net-select/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-base-line-item',
-        'sw-condition-base',
-        () => import('./rule/sw-condition-base-line-item/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-time-range',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-time-range/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-shipping-zip-code',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-shipping-zip-code/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-script',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-script/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-order-custom-field',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-order-custom-field/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-not-found',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-not-found/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-with-quantity',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item-with-quantity/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-purchase-price',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item-purchase-price/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-property',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item-property/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-in-category',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item-in-category/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-goods-total',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-line-item-goods-total/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item-custom-field',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item-custom-field/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-line-item',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-line-item/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-is-always-valid',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-is-always-valid/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-goods-price',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-goods-price/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-goods-count',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-goods-count/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-generic-line-item',
-        'sw-condition-base-line-item',
-        () => import('./rule/condition-type/sw-condition-generic-line-item/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-generic',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-generic/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-date-range',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-date-range/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-customer-custom-field',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-customer-custom-field/index'),
-    );
-    Shopware.Component.extend(
-        'sw-condition-billing-zip-code',
-        'sw-condition-base',
-        () => import('./rule/condition-type/sw-condition-billing-zip-code/index'),
-    );
-    Shopware.Component.extend(
-        'sw-url-field-deprecated',
-        'sw-text-field-deprecated',
-        () => import('./form/sw-url-field-deprecated/index'),
-    );
-    Shopware.Component.extend(
-        'sw-switch-field-deprecated',
-        'sw-checkbox-field-deprecated',
-        () => import('./form/sw-switch-field-deprecated/index'),
-    );
-    Shopware.Component.extend(
-        'sw-select-number-field',
-        'sw-select-field-deprecated',
-        () => import('./form/sw-select-number-field/index'),
-    );
-    Shopware.Component.extend(
-        'sw-password-field-deprecated',
-        'sw-text-field-deprecated',
-        () => import('./form/sw-password-field-deprecated/index'),
-    );
-    Shopware.Component.extend(
-        'sw-number-field-deprecated',
-        'sw-text-field-deprecated',
-        () => import('./form/sw-number-field-deprecated/index'),
-    );
-    Shopware.Component.extend(
-        'sw-email-field-deprecated',
-        'sw-text-field-deprecated',
-        () => import('./form/sw-email-field-deprecated/index'),
-    );
-    Shopware.Component.extend(
-        'sw-compact-colorpicker',
-        'sw-colorpicker-deprecated',
-        () => import('./form/sw-compact-colorpicker/index'),
-    );
-    Shopware.Component.extend(
-        'sw-entity-tag-select',
-        'sw-entity-multi-select',
-        () => import('./form/select/entity/sw-entity-tag-select/index'),
-    );
-    Shopware.Component.extend(
-        'sw-entity-advanced-selection-modal-grid',
-        'sw-entity-listing',
-        () => import('./form/select/entity/sw-entity-advanced-selection-modal-grid/index'),
-    );
-    Shopware.Component.extend(
-        'sw-multi-tag-ip-select',
-        'sw-multi-tag-select',
-        () => import('./form/select/base/sw-multi-tag-ip-select/index'),
-    );
-    Shopware.Component.extend(
-        'sw-grouped-single-select',
-        'sw-single-select',
-        () => import('./form/select/base/sw-grouped-single-select/index'),
-    );
-    Shopware.Component.extend('sw-one-to-many-grid', 'sw-data-grid', () => import('./entity/sw-one-to-many-grid/index'));
-    Shopware.Component.extend('sw-entity-listing', 'sw-data-grid', () => import('./entity/sw-entity-listing/index'));
-    Shopware.Component.extend('sw-price-preview', 'sw-price-field', () => import('./base/sw-price-preview/index'));
+    Shopware.Component.register('sw-wizard-page', SwWizardPage);
+    Shopware.Component.register('sw-wizard-dot-navigation', SwWizardDotNavigation);
+    Shopware.Component.register('sw-wizard', SwWizard);
+    Shopware.Component.register('sw-vnode-renderer', SwVnodeRenderer);
+    Shopware.Component.register('sw-verify-user-modal', SwVerifyUserModal);
+    Shopware.Component.register('sw-upload-listener', SwUploadListener);
+    Shopware.Component.register('sw-time-ago', SwTimeAgo);
+    Shopware.Component.register('sw-text-preview', SwTextPreview);
+    Shopware.Component.register('sw-step-item', SwStepItem);
+    Shopware.Component.register('sw-step-display', SwStepDisplay);
+    Shopware.Component.register('sw-status', SwStatus);
+    Shopware.Component.register('sw-skeleton-bar-deprecated', SwSkeletonBarDeprecated);
+    Shopware.Component.register('sw-skeleton-bar', SwSkeletonBar);
+    Shopware.Component.register('sw-skeleton', SwSkeleton);
+    Shopware.Component.register('sw-shortcut-overview-item', SwShortcutOverviewItem);
+    Shopware.Component.register('sw-shortcut-overview', SwShortcutOverview);
+    Shopware.Component.register('sw-provide', SwProvide);
+    Shopware.Component.register('sw-progress-bar', SwProgressBar);
+    Shopware.Component.register('sw-popover-deprecated', SwPopoverDeprecated);
+    Shopware.Component.register('sw-popover', SwPopover);
+    Shopware.Component.register('sw-overlay', SwOverlay);
+    Shopware.Component.register('sw-notifications', SwNotifications);
+    Shopware.Component.register('sw-notification-center-item', SwNotificationCenterItem);
+    Shopware.Component.register('sw-notification-center', SwNotificationCenter);
+    Shopware.Component.register('sw-loader-deprecated', SwLoaderDeprecated);
+    Shopware.Component.register('sw-loader', SwLoader);
+    Shopware.Component.register('sw-license-violation', SwLicenseViolation);
+    Shopware.Component.register('sw-internal-link', SwInternalLink);
+    Shopware.Component.register('sw-inherit-wrapper', SwInheritWrapper);
+    Shopware.Component.register('sw-ignore-class', SwIgnoreClass);
+    Shopware.Component.register('sw-external-link', SwExternalLink);
+    Shopware.Component.register('sw-error-boundary', SwErrorBoundary);
+    Shopware.Component.register('sw-duplicated-media-v2', SwDuplicatedMediaV2);
+    Shopware.Component.register('sw-color-badge', SwColorBadge);
+    Shopware.Component.register('sw-tree-item', SwTreeItem);
+    Shopware.Component.register('sw-tree-input-field', SwTreeInputField);
+    Shopware.Component.register('sw-tree', SwTree);
+    Shopware.Component.register('sw-skip-link', SwSkipLink);
+    Shopware.Component.register('sw-sidebar-renderer', SwSidebarRenderer);
+    Shopware.Component.register('sw-search-more-results', SwSearchMoreResults);
+    Shopware.Component.register('sw-search-bar-item', SwSearchBarItem);
+    Shopware.Component.register('sw-search-bar', SwSearchBar);
+    Shopware.Component.register('sw-sales-channel-switch', SwSalesChannelSwitch);
+    Shopware.Component.register('sw-sales-channel-config', SwSalesChannelConfig);
+    Shopware.Component.register('sw-page', SwPage);
+    Shopware.Component.register('sw-modals-renderer', SwModalsRenderer);
+    Shopware.Component.register('sw-language-switch', SwLanguageSwitch);
+    Shopware.Component.register('sw-language-info', SwLanguageInfo);
+    Shopware.Component.register('sw-inheritance-warning', SwInheritanceWarning);
+    Shopware.Component.register('sw-in-app-purchase-checkout', SwInAppPurchaseCheckout);
+    Shopware.Component.register('sw-hidden-iframes', SwHiddenIframes);
+    Shopware.Component.register('sw-error', SwError);
+    Shopware.Component.register('sw-discard-changes-modal', SwDiscardChangesModal);
+    Shopware.Component.register('sw-desktop', SwDesktop);
+    Shopware.Component.register('sw-card-view', SwCardView);
+    Shopware.Component.register('sw-block-parent', SwBlockParent);
+    Shopware.Component.register('sw-block', SwBlock);
+    Shopware.Component.register('sw-admin-menu-item', SwAdminMenuItem);
+    Shopware.Component.register('sw-admin-menu', SwAdminMenu);
+    Shopware.Component.register('sw-admin', SwAdmin);
+    Shopware.Component.register('sw-sidebar-navigation-item', SwSidebarNavigationItem);
+    Shopware.Component.register('sw-sidebar-item', SwSidebarItem);
+    Shopware.Component.register('sw-sidebar', SwSidebar);
+    Shopware.Component.register('sw-rule-modal', SwRuleModal);
+    Shopware.Component.register('sw-condition-unit-menu', SwConditionUnitMenu);
+    Shopware.Component.register('sw-condition-type-select', SwConditionTypeSelect);
+    Shopware.Component.register('sw-condition-tree-node', SwConditionTreeNode);
+    Shopware.Component.register('sw-condition-tree', SwConditionTree);
+    Shopware.Component.register('sw-condition-or-container', SwConditionOrContainer);
+    Shopware.Component.register('sw-condition-operator-select', SwConditionOperatorSelect);
+    Shopware.Component.register('sw-condition-modal', SwConditionModal);
+    Shopware.Component.register('sw-condition-base', SwConditionBase);
+    Shopware.Component.register('sw-condition-and-container', SwConditionAndContainer);
+    Shopware.Component.register('sw-condition-all-line-items-container', SwConditionAllLineItemsContainer);
+    Shopware.Component.register('sw-arrow-field', SwArrowField);
+    Shopware.Component.register('sw-search-preferences-modal', SwSearchPreferencesModal);
+    Shopware.Component.register('sw-image-preview-modal', SwImagePreviewModal);
+    Shopware.Component.register('sw-confirm-modal', SwConfirmModal);
+    Shopware.Component.register('mt-text-editor', MtTextEditor);
+    Shopware.Component.register('sw-text-editor-toolbar-button-link', SwTextEditorToolbarButtonLink);
+    Shopware.Component.register('mt-tabs', MtTabs);
+    Shopware.Component.register('mt-datepicker', MtDatepicker);
+    Shopware.Component.register('mt-card', MtCard);
+    Shopware.Component.register('sw-meteor-single-select', SwMeteorSingleSelect);
+    Shopware.Component.register('sw-meteor-page', SwMeteorPage);
+    Shopware.Component.register('sw-meteor-navigation', SwMeteorNavigation);
+    Shopware.Component.register('sw-meteor-card', SwMeteorCard);
+    Shopware.Component.register('sw-sortable-list', SwSortableList);
+    Shopware.Component.register('sw-pagination', SwPagination);
+    Shopware.Component.register('sw-grid-row', SwGridRow);
+    Shopware.Component.register('sw-grid-column', SwGridColumn);
+    Shopware.Component.register('sw-grid', SwGrid);
+    Shopware.Component.register('sw-url-field', SwUrlField);
+    Shopware.Component.register('sw-textarea-field-deprecated', SwTextareaFieldDeprecated);
+    Shopware.Component.register('sw-textarea-field', SwTextareaField);
+    Shopware.Component.register('sw-text-field-deprecated', SwTextFieldDeprecated);
+    Shopware.Component.register('sw-text-field', SwTextField);
+    Shopware.Component.register('sw-text-editor', SwTextEditor);
+    Shopware.Component.register('sw-text-editor-toolbar-table-button', SwTextEditorToolbarTableButton);
+    Shopware.Component.register('sw-text-editor-toolbar-button', SwTextEditorToolbarButton);
+    Shopware.Component.register('sw-text-editor-toolbar', SwTextEditorToolbar);
+    Shopware.Component.register('sw-text-editor-table-toolbar', SwTextEditorTableToolbar);
+    Shopware.Component.register('sw-text-editor-link-menu', SwTextEditorLinkMenu);
+    Shopware.Component.register('sw-tagged-field', SwTaggedField);
+    Shopware.Component.register('sw-switch-field', SwSwitchField);
+    Shopware.Component.register('sw-snippet-field-edit-modal', SwSnippetFieldEditModal);
+    Shopware.Component.register('sw-snippet-field', SwSnippetField);
+    Shopware.Component.register('sw-select-rule-create', SwSelectRuleCreate);
+    Shopware.Component.register('sw-select-option', SwSelectOption);
+    Shopware.Component.register('sw-select-field-deprecated', SwSelectFieldDeprecated);
+    Shopware.Component.register('sw-select-field', SwSelectField);
+    Shopware.Component.register('sw-radio-field', SwRadioField);
+    Shopware.Component.register('sw-purchase-price-field', SwPurchasePriceField);
+    Shopware.Component.register('sw-price-field', SwPriceField);
+    Shopware.Component.register('sw-password-field', SwPasswordField);
+    Shopware.Component.register('sw-number-field', SwNumberField);
+    Shopware.Component.register('sw-maintain-currencies-modal', SwMaintainCurrenciesModal);
+    Shopware.Component.register('sw-list-price-field', SwListPriceField);
+    Shopware.Component.register('sw-gtc-checkbox', SwGtcCheckbox);
+    Shopware.Component.register('sw-form-field-renderer', SwFormFieldRenderer);
+    Shopware.Component.register('sw-file-input', SwFileInput);
+    Shopware.Component.register('sw-field-copyable', SwFieldCopyable);
+    Shopware.Component.register('sw-email-field', SwEmailField);
+    Shopware.Component.register('sw-dynamic-url-field', SwDynamicUrlField);
+    Shopware.Component.register('sw-custom-field-set-renderer', SwCustomFieldSetRenderer);
+    Shopware.Component.register('sw-confirm-field', SwConfirmField);
+    Shopware.Component.register('sw-colorpicker-deprecated', SwColorpickerDeprecated);
+    Shopware.Component.register('sw-colorpicker', SwColorpicker);
+    Shopware.Component.register('sw-checkbox-field-deprecated', SwCheckboxFieldDeprecated);
+    Shopware.Component.register('sw-checkbox-field', SwCheckboxField);
+    Shopware.Component.register('sw-boolean-radio-group', SwBooleanRadioGroup);
+    Shopware.Component.register('sw-entity-single-select', SwEntitySingleSelect);
+    Shopware.Component.register('sw-entity-multi-select', SwEntityMultiSelect);
+    Shopware.Component.register('sw-entity-multi-id-select', SwEntityMultiIdSelect);
+    Shopware.Component.register('sw-entity-many-to-many-select', SwEntityManyToManySelect);
+    Shopware.Component.register('sw-entity-advanced-selection-modal', SwEntityAdvancedSelectionModal);
+    Shopware.Component.register('sw-advanced-selection-rule', SwAdvancedSelectionRule);
+    Shopware.Component.register('sw-advanced-selection-product', SwAdvancedSelectionProduct);
+    Shopware.Component.register('sw-single-select', SwSingleSelect);
+    Shopware.Component.register('sw-select-selection-list', SwSelectSelectionList);
+    Shopware.Component.register('sw-select-result-list', SwSelectResultList);
+    Shopware.Component.register('sw-select-result', SwSelectResult);
+    Shopware.Component.register('sw-select-base', SwSelectBase);
+    Shopware.Component.register('sw-multi-tag-select', SwMultiTagSelect);
+    Shopware.Component.register('sw-multi-select', SwMultiSelect);
+    Shopware.Component.register('sw-field-error', SwFieldError);
+    Shopware.Component.register('sw-contextual-field', SwContextualField);
+    Shopware.Component.register('sw-block-field', SwBlockField);
+    Shopware.Component.register('sw-base-field', SwBaseField);
+    Shopware.Component.register('sw-sidebar-filter-panel', SwSidebarFilterPanel);
+    Shopware.Component.register('sw-range-filter', SwRangeFilter);
+    Shopware.Component.register('sw-number-filter', SwNumberFilter);
+    Shopware.Component.register('sw-multi-select-filter', SwMultiSelectFilter);
+    Shopware.Component.register('sw-filter-panel', SwFilterPanel);
+    Shopware.Component.register('sw-existence-filter', SwExistenceFilter);
+    Shopware.Component.register('sw-date-filter', SwDateFilter);
+    Shopware.Component.register('sw-boolean-filter', SwBooleanFilter);
+    Shopware.Component.register('sw-base-filter', SwBaseFilter);
+    Shopware.Component.register('sw-iframe-renderer', SwIframeRenderer);
+    Shopware.Component.register('sw-extension-teaser-sales-channel', SwExtensionTeaserSalesChannel);
+    Shopware.Component.register('sw-extension-teaser-popover', SwExtensionTeaserPopover);
+    Shopware.Component.register('sw-extension-component-section', SwExtensionComponentSection);
+    Shopware.Component.register('sw-product-stream-grid-preview', SwProductStreamGridPreview);
+    Shopware.Component.register('sw-many-to-many-assignment-card', SwManyToManyAssignmentCard);
+    Shopware.Component.register('sw-category-tree-field', SwCategoryTreeField);
+    Shopware.Component.register('sw-bulk-edit-modal', SwBulkEditModal);
+    Shopware.Component.register('sw-data-grid-skeleton', SwDataGridSkeleton);
+    Shopware.Component.register('sw-data-grid-settings', SwDataGridSettings);
+    Shopware.Component.register('sw-data-grid-inline-edit', SwDataGridInlineEdit);
+    Shopware.Component.register('sw-data-grid-column-position', SwDataGridColumnPosition);
+    Shopware.Component.register('sw-data-grid-column-boolean', SwDataGridColumnBoolean);
+    Shopware.Component.register('sw-data-grid', SwDataGrid);
+    Shopware.Component.register('sw-context-menu-item', SwContextMenuItem);
+    Shopware.Component.register('sw-context-menu-divider', SwContextMenuDivider);
+    Shopware.Component.register('sw-context-menu', SwContextMenu);
+    Shopware.Component.register('sw-context-button', SwContextButton);
+    Shopware.Component.register('sw-version', SwVersion);
+    Shopware.Component.register('sw-user-card', SwUserCard);
+    Shopware.Component.register('sw-tabs-item', SwTabsItem);
+    Shopware.Component.register('sw-tabs-deprecated', SwTabsDeprecated);
+    Shopware.Component.register('sw-tabs', SwTabs);
+    Shopware.Component.register('sw-sorting-select', SwSortingSelect);
+    Shopware.Component.register('sw-simple-search-field', SwSimpleSearchField);
+    Shopware.Component.register('sw-rating-stars', SwRatingStars);
+    Shopware.Component.register('sw-radio-panel', SwRadioPanel);
+    Shopware.Component.register('sw-property-search', SwPropertySearch);
+    Shopware.Component.register('sw-product-variant-info', SwProductVariantInfo);
+    Shopware.Component.register('sw-product-image', SwProductImage);
+    Shopware.Component.register('sw-modal', SwModal);
+    Shopware.Component.register('sw-label', SwLabel);
+    Shopware.Component.register('sw-inheritance-switch', SwInheritanceSwitch);
+    Shopware.Component.register('sw-icon-deprecated', SwIconDeprecated);
+    Shopware.Component.register('sw-icon', SwIcon);
+    Shopware.Component.register('sw-highlight-text', SwHighlightText);
+    Shopware.Component.register('sw-help-text', SwHelpText);
+    Shopware.Component.register('sw-error-summary', SwErrorSummary);
+    Shopware.Component.register('sw-empty-state', SwEmptyState);
+    Shopware.Component.register('sw-description-list', SwDescriptionList);
+    Shopware.Component.register('sw-container', SwContainer);
+    Shopware.Component.register('sw-collapse', SwCollapse);
+    Shopware.Component.register('sw-circle-icon', SwCircleIcon);
+    Shopware.Component.register('sw-chart-card', SwChartCard);
+    Shopware.Component.register('sw-card-section', SwCardSection);
+    Shopware.Component.register('sw-card-filter', SwCardFilter);
+    Shopware.Component.register('sw-card-deprecated', SwCardDeprecated);
+    Shopware.Component.register('sw-card', SwCard);
+    Shopware.Component.register('sw-button-process', SwButtonProcess);
+    Shopware.Component.register('sw-button-group', SwButtonGroup);
+    Shopware.Component.register('sw-button-deprecated', SwButtonDeprecated);
+    Shopware.Component.register('sw-button', SwButton);
+    Shopware.Component.register('sw-avatar', SwAvatar);
+    Shopware.Component.register('sw-alert-deprecated', SwAlertDeprecated);
+    Shopware.Component.register('sw-alert', SwAlert);
+    Shopware.Component.register('sw-address', SwAddress);
+    Shopware.Component.register('sw-app-wrong-app-url-modal', SwAppWrongAppUrlModal);
+    Shopware.Component.register('sw-app-topbar-button', SwAppTopbarButton);
+    Shopware.Component.register('sw-app-topbar-sidebar', SwAppTopbarSidebar);
+    Shopware.Component.register('sw-app-shop-id-change-modal', SwAppShopIdChangeModal);
+    Shopware.Component.register('sw-app-actions', SwAppActions);
+    Shopware.Component.register('sw-app-action-button', SwAppActionButton);
+    Shopware.Component.register('sw-code-editor', SwCodeEditor);
+    Shopware.Component.register('sw-datepicker', SwDatepicker);
+    Shopware.Component.register('sw-datepicker-deprecated', SwDatepickerDeprecated);
+    Shopware.Component.register('sw-chart', SwChart);
+    Shopware.Component.register('sw-help-center-v2', SwHelpCenterV2);
+    Shopware.Component.register('sw-help-sidebar', SwHelpSidebar);
+    Shopware.Component.register('sw-image-slider', SwImageSlider);
+    Shopware.Component.register('sw-media-add-thumbnail-form', SwMediaAddThumbnailForm);
+    Shopware.Component.register('sw-media-base-item', SwMediaBaseItem);
+    Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', SwMediaCompactUploadV2);
+    Shopware.Component.register('sw-media-entity-mapper', SwMediaEntityMapper);
+    Shopware.Component.register('sw-media-field', SwMediaField);
+    Shopware.Component.register('sw-media-folder-content', SwMediaFolderContent);
+    Shopware.Component.register('sw-media-folder-item', SwMediaFolderItem);
+    Shopware.Component.register('sw-media-list-selection-item-v2', SwMediaListSelectionItemV2);
+    Shopware.Component.register('sw-media-list-selection-v2', SwMediaListSelectionV2);
+    Shopware.Component.register('sw-media-media-item', SwMediaMediaItem);
+    Shopware.Component.register('sw-media-modal-delete', SwMediaModalDelete);
+    Shopware.Component.register('sw-media-modal-folder-dissolve', SwMediaModalFolderDissolve);
+    Shopware.Component.register('sw-media-modal-folder-settings', SwMediaModalFolderSettings);
+    Shopware.Component.register('sw-media-modal-move', SwMediaModalMove);
+    Shopware.Component.register('sw-media-modal-replace', SwMediaModalReplace);
+    Shopware.Component.register('sw-media-preview-v2', SwMediaPreviewV2);
+    Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', SwMediaReplace);
+    Shopware.Component.register('sw-media-upload-v2', SwMediaUploadV2);
+    Shopware.Component.register('sw-media-url-form', SwMediaUrlForm);
+    Shopware.Component.register('sw-sidebar-media-item', SwSidebarMediaItem);
+    Shopware.Component.register('sw-extension-icon', SwExtensionIcon);
+    Shopware.Component.register('sw-ai-copilot-badge', SwAiCopilotBadge);
+    Shopware.Component.register('sw-ai-copilot-warning', SwAiCopilotWarning);
+    Shopware.Component.register('sw-string-filter', SwStringFilter);
+    Shopware.Component.register('sw-media-modal-renderer', SwMediaModalRenderer);
+    Shopware.Component.extend('sw-sidebar-collapse', 'sw-collapse', SwSidebarCollapse);
+    Shopware.Component.extend('sw-condition-is-net-select', 'sw-condition-operator-select', SwConditionIsNetSelect);
+    Shopware.Component.extend('sw-condition-base-line-item', 'sw-condition-base', SwConditionBaseLineItem);
+    Shopware.Component.extend('sw-condition-time-range', 'sw-condition-base', SwConditionTimeRange);
+    Shopware.Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', SwConditionShippingZipCode);
+    Shopware.Component.extend('sw-condition-script', 'sw-condition-base', SwConditionScript);
+    Shopware.Component.extend('sw-condition-order-custom-field', 'sw-condition-base', SwConditionOrderCustomField);
+    Shopware.Component.extend('sw-condition-not-found', 'sw-condition-base', SwConditionNotFound);
+    Shopware.Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base-line-item', SwConditionLineItemWithQuantity);
+    Shopware.Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-line-item', SwConditionLineItemPurchasePrice);
+    Shopware.Component.extend('sw-condition-line-item-property', 'sw-condition-base-line-item', SwConditionLineItemProperty);
+    Shopware.Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-item', SwConditionLineItemInCategory);
+    Shopware.Component.extend('sw-condition-line-item-goods-total', 'sw-condition-base', SwConditionLineItemGoodsTotal);
+    Shopware.Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-item', SwConditionLineItemCustomField);
+    Shopware.Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', SwConditionLineItem);
+    Shopware.Component.extend('sw-condition-is-always-valid', 'sw-condition-base', SwConditionIsAlwaysValid);
+    Shopware.Component.extend('sw-condition-goods-price', 'sw-condition-base', SwConditionGoodsPrice);
+    Shopware.Component.extend('sw-condition-goods-count', 'sw-condition-base', SwConditionGoodsCount);
+    Shopware.Component.extend('sw-condition-generic-line-item', 'sw-condition-base-line-item', SwConditionGenericLineItem);
+    Shopware.Component.extend('sw-condition-generic', 'sw-condition-base', SwConditionGeneric);
+    Shopware.Component.extend('sw-condition-date-range', 'sw-condition-base', SwConditionDateRange);
+    Shopware.Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', SwConditionCustomerCustomField);
+    Shopware.Component.extend('sw-condition-billing-zip-code', 'sw-condition-base', SwConditionBillingZipCode);
+    Shopware.Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', SwUrlFieldDeprecated);
+    Shopware.Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', SwSwitchFieldDeprecated);
+    Shopware.Component.extend('sw-select-number-field', 'sw-select-field-deprecated', SwSelectNumberField);
+    Shopware.Component.extend('sw-password-field-deprecated', 'sw-text-field-deprecated', SwPasswordFieldDeprecated);
+    Shopware.Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', SwNumberFieldDeprecated);
+    Shopware.Component.extend('sw-email-field-deprecated', 'sw-text-field-deprecated', SwEmailFieldDeprecated);
+    Shopware.Component.extend('sw-compact-colorpicker', 'sw-colorpicker-deprecated', SwCompactColorpicker);
+    Shopware.Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', SwEntityTagSelect);
+    Shopware.Component.extend('sw-entity-advanced-selection-modal-grid', 'sw-entity-listing', SwEntityAdvancedSelectionModalGrid);
+    Shopware.Component.extend('sw-multi-tag-ip-select', 'sw-multi-tag-select', SwMultiTagIpSelect);
+    Shopware.Component.extend('sw-grouped-single-select', 'sw-single-select', SwGroupedSingleSelect);
+    Shopware.Component.extend('sw-one-to-many-grid', 'sw-data-grid', SwOneToManyGrid);
+    Shopware.Component.extend('sw-entity-listing', 'sw-data-grid', SwEntityListing);
+    Shopware.Component.extend('sw-price-preview', 'sw-price-field', SwPricePreview);
     /* eslint-enable sw-deprecation-rules/private-feature-declarations, max-len */
 };

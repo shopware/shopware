@@ -25,7 +25,7 @@ class PaymentTokenRegisteredValidator extends ConstraintValidator
             throw PaymentException::unexpectedConstraintType($constraint, PaymentTokenRegistered::class);
         }
 
-        if ($value === null || $value === '') {
+        if (!\is_string($value) || $value === '') {
             return;
         }
 

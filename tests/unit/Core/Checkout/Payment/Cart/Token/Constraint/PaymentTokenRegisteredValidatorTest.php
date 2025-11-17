@@ -61,6 +61,14 @@ class PaymentTokenRegisteredValidatorTest extends TestCase
         // empty string value
         $this->validator->validate('', new PaymentTokenRegistered());
         static::assertEmpty($this->context->getViolations());
+
+        // integer value
+        $this->validator->validate(1, new PaymentTokenRegistered());
+        static::assertEmpty($this->context->getViolations());
+
+        // bool value
+        $this->validator->validate(true, new PaymentTokenRegistered());
+        static::assertEmpty($this->context->getViolations());
     }
 
     public function testRegisteredTokenProducesNoViolation(): void

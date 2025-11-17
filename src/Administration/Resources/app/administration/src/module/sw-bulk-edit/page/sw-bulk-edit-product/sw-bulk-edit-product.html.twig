@@ -415,6 +415,7 @@
         </sw-card-view>
         <mt-empty-state
             v-if="!isLoading && selectedIds.length == 0"
+            class="mt-empty-state--center"
             :icon="$route.meta.$module.icon"
             :headline="$tc('sw-bulk-edit.product.messageEmptyTitle')"
             :description="$tc('sw-bulk-edit.product.messageEmptySubline')"

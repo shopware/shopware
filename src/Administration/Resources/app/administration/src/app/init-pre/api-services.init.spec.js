@@ -5,7 +5,7 @@ import initializeApiServices from 'src/app/init-pre/api-services.init';
 
 describe('src/app/init-pre/api-services.init.ts', () => {
     beforeEach(() => {
-        Shopware._private.ApiServices = jest.fn(() => {
+        Shopware._private.ApiServices = jest.fn(async () => {
             const services = [];
             const serviceNames = [
                 'aclApiService',
@@ -69,10 +69,13 @@ describe('src/app/init-pre/api-services.init.ts', () => {
             ];
 
             serviceNames.forEach((serviceName) => {
-                const MockApiService = jest.fn().mockImplementation(function () {
-                    this.name = serviceName;
-                });
-                services.push(() => Promise.resolve({ default: MockApiService }));
+                const MockApiService = class {
+                    constructor() {
+                        this.name = serviceName;
+                    }
+                };
+
+                services.push({ default: MockApiService });
             });
 
             return services;

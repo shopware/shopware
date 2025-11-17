@@ -2,6 +2,7 @@
  * @sw-package framework
  * @private
  */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations, max-len, sw-core-rules/enforce-async-component-registers */
 import SwWizardPage from 'src/app/component/wizard/sw-wizard-page/index';
 import SwWizardDotNavigation from 'src/app/component/wizard/sw-wizard-dot-navigation/index';
 import SwWizard from 'src/app/component/wizard/sw-wizard/index';
@@ -293,7 +294,6 @@ import SwEntityListing from './entity/sw-entity-listing/index';
 import SwPricePreview from './base/sw-price-preview/index';
 
 export default () => {
-    /* eslint-disable sw-deprecation-rules/private-feature-declarations, max-len */
     Shopware.Component.register('sw-wizard-page', SwWizardPage);
     Shopware.Component.register('sw-wizard-dot-navigation', SwWizardDotNavigation);
     Shopware.Component.register('sw-wizard', SwWizard);

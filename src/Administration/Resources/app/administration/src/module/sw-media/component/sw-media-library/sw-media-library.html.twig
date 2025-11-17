@@ -125,7 +125,7 @@
     {% block sw_media_library_empty_state %}
     <mt-empty-state
         v-if="shouldDisplayEmptyState"
-        class="sw-media-library__empty-state"
+        class="sw-media-library__empty-state mt-empty-state--center"
         :icon="$route.meta.$module.icon"
         :headline="$tc('sw-empty-state.messageNoResultTitle')"
         :link-text="$t('sw-empty-state.messageNoResultLink')"

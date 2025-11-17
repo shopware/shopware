@@ -3,7 +3,11 @@
     mediaHeight = 240,
     defaultRoute = seoUrl('frontend.detail.page', { productId: product.id }),
     slots = [],
-    layout = 'default'
+    layout = 'default',
+    showTaxInfo = false,
+    mediaObjectFit = 'contain',
+    border = false,
+    rounded = false,
 %}
 
 {% set horizontal = (layout == 'horizontal') %}
@@ -15,16 +19,24 @@
             default: 'is--layout-default',
             horizontal: 'is--layout-horizontal',
         },
-        mediaDisplay: {
+        mediaObjectFit: {
             cover: 'is--media-cover',
-            contain: 'is-media-contain'
+            contain: 'is--media-contain',
+        },
+        border: {
+            true: ['has--border'],
+            false: null,
+        },
+        rounded: {
+            true: ['is--rounded'],
+            false: null,
         }
     }
 }) %}
 
 {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
-<div class="{{ cardCVA.apply({ layout, mediaDisplay }, attributes.render('class')) }}">
+<div class="{{ cardCVA.apply({ layout, mediaObjectFit, border, rounded }, attributes.render('class')) }}">
 
     <div class="sw-product-card__inner d-flex h-100">
 
@@ -34,14 +46,9 @@
 
             {% block media %}
                 <twig:Slot name="media">
-                    <twig:Sw:Media:Image
-                        {{ ...attributes.nested('media').defaults({
-                            media: product.cover.media,
-                            height: mediaHeight,
-                            class: 'card-img-top sw-product-card__media object-fit-contain',
-                            sizes: '800px',
-                            loading: 'lazy'
-                        }) }}
+                    <twig:Sw:Media:Display
+                        :media="product.cover.media"
+                        :mediaHeight="mediaHeight"
                     />
                 </twig:Slot>
             {% endblock %}
@@ -66,7 +73,7 @@
                         <h2 {{ attributes.nested('title').defaults({ class: 'sw-product-card__title card-title fw-semibold' }) }}>
                             <a
                                 {{ attributes.nested('title-link').defaults({
-                                    class: 'sw-product-card__title-link stretched-link',
+                                    class: 'sw-product-card__title-link' ~ (product.cover.media.isSpatialObject() ? '' : ' stretched-link'),
                                     href: defaultRoute,
                                     style: "--sw-product-card-media-height: #{mediaHeight}px",
                                 }) }}
@@ -104,7 +111,10 @@
 
                 {% block price %}
                     <twig:Slot name="price">
-                        <twig:Sw:Product:PriceDisplay :product="product" />
+                        <twig:Sw:Product:PriceDisplay
+                            :product="product"
+                            :showTaxInfo="showTaxInfo"
+                        />
                     </twig:Slot>
                 {% endblock %}
 

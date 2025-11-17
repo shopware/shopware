@@ -1,7 +1,7 @@
 .sw-product-card-badges {
     position: absolute;
     left: 0;
-    bottom: 0;
+    bottom: calc(var(--bs-card-spacer-x) / 2);
 }
 
 .sw-product-card-badges__badge {

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class PaymentTokenRegistered extends Constraint
 {

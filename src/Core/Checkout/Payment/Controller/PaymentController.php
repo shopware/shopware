@@ -77,7 +77,8 @@ class PaymentController extends AbstractController
                 $token = $this->paymentTokenGenerator->decode($paymentToken);
             }
 
-            Feature::callSilentIfInactive('v6.8.0.0', function () use ($paymentToken, &$token, &$oldToken): void {
+            $return = null;
+            Feature::callSilentIfInactive('v6.8.0.0', function () use ($paymentToken, &$token, &$oldToken, &$return): void {
                 $oldToken = $this->tokenFactory->parseToken($paymentToken);
 
                 $token = new PaymentToken();
@@ -86,16 +87,26 @@ class PaymentController extends AbstractController
                 $token->errorUrl = $oldToken->getErrorUrl();
 
                 if (!$oldToken->getTransactionId() || !$oldToken->getPaymentMethodId()) {
-                    throw PaymentException::invalidToken($paymentToken);
+                    $this->invalidate($token->jti);
+
+                    $return = $this->handleError(PaymentException::invalidToken($paymentToken), $token);
+
+                    return;
                 }
 
                 $token->paymentMethodId = $oldToken->getPaymentMethodId();
                 $token->transactionId = $oldToken->getTransactionId();
 
                 if ($oldToken->isExpired()) {
-                    throw PaymentException::tokenExpired($paymentToken);
+                    $this->invalidate($token->jti);
+
+                    $return = $this->handleError(PaymentException::tokenExpired($paymentToken), $token);
                 }
             });
+
+            if ($return !== null) {
+                return $return;
+            }
 
             \assert($token instanceof PaymentToken);
         } catch (JWTException $e) {
@@ -112,7 +123,7 @@ class PaymentController extends AbstractController
             // @deprecated tag:v6.8.0 - remove this catch block
             $this->invalidate($token?->jti);
 
-            return $this->handleError($e, $token ?? null);
+            throw $e;
         } catch (\Throwable $e) {
             $this->invalidate($token?->jti);
 

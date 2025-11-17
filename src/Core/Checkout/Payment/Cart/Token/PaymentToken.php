@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Payment\Cart\Token;
 use Shopware\Core\Framework\JWT\Struct\JWTStruct;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class PaymentToken extends JWTStruct
 {

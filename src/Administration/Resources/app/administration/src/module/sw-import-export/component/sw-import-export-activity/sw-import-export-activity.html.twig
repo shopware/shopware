@@ -156,6 +156,7 @@
     {% block sw_import_export_activity_empty_state %}
     <mt-empty-state
         v-if="showEmptyState"
+        class="mt-empty-state--center"
         icon="solid-database"
         :headline="emptyStateTitle"
         :description="emptyStateSubLine"

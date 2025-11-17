@@ -22,6 +22,10 @@ $sw-settings-tax-list-color-success: $color-emerald-500;
         padding: 30px;
     }
 
+    .sw-settings-tax-provider-list-content__empty-state {
+        margin: 0 auto;
+    }
+
     .sw-tax-provider-item {
         display: grid;
         grid-template-columns: auto 1fr auto auto;

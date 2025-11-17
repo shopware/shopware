@@ -147,6 +147,7 @@
         {% block sw_settings_customer_group_list_empty_state %}
         <mt-empty-state
             v-if="!isLoading && !total && isValidTerm(term)"
+            class="sw-settings-customer-group-list__empty-state"
             :icon="$route.meta.$module.icon"
             :headline="$tc('sw-empty-state.messageNoResultTitle')"
             :link-text="$t('sw-empty-state.messageNoResultLink')"

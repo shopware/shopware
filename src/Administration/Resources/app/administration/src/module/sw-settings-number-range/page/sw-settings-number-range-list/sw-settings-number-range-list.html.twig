@@ -190,6 +190,7 @@
                     {% block sw_settings_number_ranges_set_list_empty_message %}
                     <mt-empty-state
                         v-if="!isLoading && !total"
+                        class="sw-settings-number-range-list__empty-state"
                         :icon="$route.meta.$module.icon"
                         :headline="$tc('sw-settings-number-range.list.messageEmpty')"
                     />

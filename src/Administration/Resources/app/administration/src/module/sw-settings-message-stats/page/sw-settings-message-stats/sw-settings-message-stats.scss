@@ -1,4 +1,4 @@
-@import "~scss/variables";
+@import '~scss/variables';
 
 .sw-settings-message-stats {
     &__stats-grid {
@@ -125,5 +125,9 @@
             max-width: 770px;
             margin-bottom: 15px;
         }
+    }
+
+    .sw-settings-message-stats__empty-state {
+        margin: 0 auto;
     }
 }

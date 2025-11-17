@@ -466,6 +466,7 @@
                     {% block sw_settings_tag_list_empty_state %}
                     <mt-empty-state
                         v-else
+                        class="mt-empty-state--center"
                         :icon="$route.meta.$module.icon"
                         :headline="$tc('sw-settings-tag.list.titleEmptyStateList')"
                     />

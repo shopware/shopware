@@ -43,6 +43,7 @@
             >
                 <mt-empty-state
                     v-if="!isLoading && isEmpty"
+                    class="sw-settings-units-list__empty-state"
                     :icon="$route.meta.$module.icon"
                     :headline="$tc('sw-settings-units.empty-state.title')"
                     :description="$tc('sw-settings-units.empty-state.subline')"

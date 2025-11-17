@@ -6,4 +6,13 @@
     .sw-settings-custom-field-set-list__help-text-global-set {
         margin-left: 8px;
     }
+
+    .mt-card__content {
+        &:has(.mt-empty-state) {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    }
 }

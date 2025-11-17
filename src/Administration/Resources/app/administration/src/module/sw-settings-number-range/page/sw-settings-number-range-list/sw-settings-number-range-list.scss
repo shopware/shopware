@@ -31,4 +31,8 @@ $sw-settings-number-range-list-font-size-default: $font-size-s;
             margin-right: 25px;
         }
     }
+
+    .sw-settings-number-range-list__empty-state {
+        margin: 0 auto;
+    }
 }

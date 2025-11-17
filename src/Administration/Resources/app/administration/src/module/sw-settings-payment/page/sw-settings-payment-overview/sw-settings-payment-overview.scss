@@ -1,4 +1,4 @@
-@import "~scss/variables";
+@import '~scss/variables';
 
 .sw-settings-payment-overview {
     &__title {
@@ -16,5 +16,9 @@
     & &__sorting_modal_card > .sw-card__content {
         background: $color-gray-100;
         text-align: right;
+    }
+
+    &__empty-state {
+        margin: 0 auto;
     }
 }

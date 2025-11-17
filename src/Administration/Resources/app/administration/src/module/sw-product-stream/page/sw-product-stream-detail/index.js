@@ -22,11 +22,13 @@ export default {
         'productStreamConditionService',
         'acl',
         'customFieldDataProviderService',
+        'productTypeService',
     ],
 
     provide() {
         return {
             productCustomFields: computed(() => this.productCustomFields),
+            productTypes: computed(() => this.productTypes),
         };
     },
 
@@ -73,6 +75,7 @@ export default {
             showModalPreview: false,
             languageId: null,
             customFieldSets: null,
+            productTypes: ['physical', 'digital'],
         };
     },
 
@@ -171,16 +174,30 @@ export default {
                 scope: this,
             });
             this.languageId = Context.api.languageId;
+
+            const promises = [
+                this.loadCustomFieldSets(),
+                this.loadProductTypes(),
+            ];
+
             if (this.productStreamId) {
-                this.getProductCustomFields();
+                promises.push(this.getProductCustomFields());
             }
-            this.loadCustomFieldSets();
+
+            Promise.all(promises).then(() => { Promise.resolve(void 0) });
         },
 
         loadCustomFieldSets() {
             this.customFieldDataProviderService.getCustomFieldSets('product_stream').then((sets) => {
                 this.customFieldSets = sets;
             });
+        },
+
+        loadProductTypes() {
+            this.productTypeService.fetchProductTypes()
+                .then((types) => {
+                    this.productTypes = types;
+                })
         },
 
         createProductStream() {

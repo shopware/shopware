@@ -143,6 +143,7 @@ Module.register('sw-product', {
                     creationStates: route.query.creationStates ?? [
                         'is-physical',
                     ],
+                    creationType: route.query.creationType ?? 'physical'
                 }),
             },
             redirect: {

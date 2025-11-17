@@ -126,7 +126,7 @@ export default {
 
         isGenerateButtonDisabled() {
             return this.variantGenerationQueue.createQueue.some((item) => {
-                return item.downloads.length === 0 && item.productStates?.includes('is-download');
+                return item.downloads.length === 0 && item.productType === 'digital';
             });
         },
     },
@@ -208,6 +208,7 @@ export default {
 
                         item.downloads = [];
                         item.productStates = [];
+                        item.productType = '';
                         item.id = item.productNumber;
                         this.idToIndex[item.id] = index;
                     });
@@ -315,7 +316,7 @@ export default {
             this.variantGenerationQueue.createQueue.forEach((item) => {
                 delete item.id;
 
-                if (item.productStates.includes('is-download')) {
+                if (item.productType === 'digital') {
                     item.maxPurchase = 1;
                     item.minPurchase = 1;
                     item.isCloseout = false;
@@ -389,8 +390,10 @@ export default {
                 variants.forEach((item) => {
                     item.downloads = [];
                     item.productStates = [];
+                    item.productType = '';
                 });
                 this.getList();
+
                 return;
             }
 
@@ -399,6 +402,7 @@ export default {
                 this.updateUsageForAllVariantFiles(item.id);
 
                 item.productStates = ['is-download'];
+                item.productType = 'digital';
             });
 
             this.getList();
@@ -418,6 +422,8 @@ export default {
 
                 item.downloads = [];
                 item.productStates = [];
+                item.productType = '';
+
                 return;
             }
 
@@ -425,6 +431,7 @@ export default {
             this.updateUsageForAllVariantFiles(item.id);
 
             item.productStates = ['is-download'];
+            item.productType = 'digital';
         },
 
         isUploadDisabled(item) {
@@ -459,7 +466,7 @@ export default {
                 }
 
                 variants.forEach((currentItem) => {
-                    if (currentItem.productStates.includes('is-download')) {
+                    if (currentItem.productType === 'digital') {
                         if (this.isExistingMedia(currentItem.downloads, event.targetId)) {
                             return;
                         }

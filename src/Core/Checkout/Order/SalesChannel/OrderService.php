@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -69,7 +70,13 @@ class OrderService
     {
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        $this->validateOrderData($data, $context, $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD));
+        if (Feature::isActive('v6.8.0.0')) {
+            $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductEntity::TYPE_DIGITAL);
+        } else {
+            $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductEntity::TYPE_DIGITAL) || $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD);
+        }
+
+        $this->validateOrderData($data, $context, $isDownloadLineItem);
 
         $this->validateCart($cart, $context->getContext());
 

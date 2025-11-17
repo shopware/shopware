@@ -70,6 +70,8 @@ class OrderLineItemEntity extends Entity
 
     protected ?string $type = null;
 
+    protected ?string $productType = null;
+
     protected ?OrderEntity $order = null;
 
     protected ?OrderDeliveryPositionCollection $orderDeliveryPositions = null;
@@ -86,6 +88,8 @@ class OrderLineItemEntity extends Entity
     protected ?OrderTransactionCaptureRefundPositionCollection $orderTransactionCaptureRefundPositions = null;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement. Use getProductType() instead.
+     *
      * @var array<int, string>
      */
     protected array $states = [];
@@ -305,6 +309,16 @@ class OrderLineItemEntity extends Entity
         $this->type = $type;
     }
 
+    public function getProductType(): ?string
+    {
+        return $this->productType;
+    }
+
+    public function setProductType(?string $productType): void
+    {
+        $this->productType = $productType;
+    }
+
     public function getOrder(): ?OrderEntity
     {
         return $this->order;
@@ -408,6 +422,9 @@ class OrderLineItemEntity extends Entity
     /**
      * @return array<int, string>
      */
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement. Use getProductType() instead.
+     */
     public function getStates(): array
     {
         return $this->states;
@@ -415,6 +432,8 @@ class OrderLineItemEntity extends Entity
 
     /**
      * @param array<int, string> $states
+     *
+     * @deprecated tag:v6.8.0 - Will be removed without replacement. Use setProductType() instead.
      */
     public function setStates(array $states): void
     {

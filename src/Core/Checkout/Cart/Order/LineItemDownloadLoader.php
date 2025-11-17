@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -34,11 +35,12 @@ class LineItemDownloadLoader
         foreach ($lineItems as $key => $lineItem) {
             $productId = $lineItem['referencedId'] ?? null;
             $states = $lineItem['states'] ?? null;
+            $productType = $lineItem['productType'] ?? null;
 
             if (
                 !$productId
                 || !$states
-                || !\in_array(State::IS_DOWNLOAD, $states, true)
+                || !(\in_array(State::IS_DOWNLOAD, $states, true) || $productType === ProductEntity::TYPE_DIGITAL)
                 || !empty($lineItem['downloads'])
             ) {
                 continue;

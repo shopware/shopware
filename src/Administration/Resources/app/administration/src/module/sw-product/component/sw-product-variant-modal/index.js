@@ -751,7 +751,7 @@ export default {
 
             let includesDigital = '0';
             const digital = Object.values(this.$refs.variantGrid.selection).filter((product) =>
-                product.states.includes('is-download'),
+                product.type === 'digital',
             );
             if (digital.length > 0) {
                 includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
@@ -767,7 +767,7 @@ export default {
         },
 
         variantIsDigital(variant) {
-            return variant.states && variant.states.includes('is-download');
+            return variant.type && variant.type === 'digital';
         },
     },
 };

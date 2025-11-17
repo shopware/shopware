@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Api;
 
+use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -18,7 +19,10 @@ class ProductActionController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly VariantCombinationLoader $combinationLoader)
+    public function __construct(
+        private readonly VariantCombinationLoader $combinationLoader,
+        private readonly ProductTypeRegistry $productTypeRegistry
+    )
     {
     }
 
@@ -28,5 +32,15 @@ class ProductActionController extends AbstractController
         return new JsonResponse(
             $this->combinationLoader->load($productId, $context)
         );
+    }
+
+    #[Route(path: '/api/_action/product/types', name: 'api.action.product.types', methods: ['GET'])]
+    public function getProductTypes(): JsonResponse
+    {
+        $types = array_map(static function ($handler) {
+            return $handler->getType();
+        }, $this->productTypeRegistry->getTypeHandlers());
+
+        return new JsonResponse($types);
     }
 }

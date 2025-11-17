@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -41,7 +43,14 @@ class ProductIndexer extends EntityIndexer
     final public const RATING_AVERAGE_UPDATER = 'product.rating-average';
     final public const STREAM_UPDATER = 'product.stream';
     final public const SEARCH_KEYWORD_UPDATER = 'product.search-keyword';
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
+     */
     final public const STATES_UPDATER = 'product.states';
+
+    final public const TYPE_INITIATOR = 'product.type';
+
     private const UPDATE_IDS_CHUNK_SIZE = 50;
 
     /**
@@ -65,7 +74,8 @@ class ProductIndexer extends EntityIndexer
         private readonly CheapestPriceUpdater $cheapestPriceUpdater,
         private readonly AbstractProductStreamUpdater $streamUpdater,
         private readonly StatesUpdater $statesUpdater,
-        private readonly MessageBusInterface $messageBus
+        private readonly MessageBusInterface $messageBus,
+        private readonly ProductTypeInitiator $typeInitiator,
     ) {
     }
 
@@ -93,6 +103,28 @@ class ProductIndexer extends EntityIndexer
 
         if (empty($ids)) {
             return null;
+        }
+
+        $productWriteEvent = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
+
+        if ($productWriteEvent === null) {
+            return null;
+        }
+
+        $newIds = [];
+
+        foreach ($productWriteEvent->getWriteResults() as $writeResult) {
+            if ($writeResult->getOperation() !== EntityWriteResult::OPERATION_INSERT) {
+                continue;
+            }
+
+            $newIds[] = $writeResult->getPrimaryKey();
+        }
+
+        if (!empty($newIds)) {
+            Profiler::trace('product:indexer:type-initiator', function () use ($newIds, $event): void {
+                $this->typeInitiator->update($newIds, $event->getContext());
+            });
         }
 
         Profiler::trace('product:indexer:inheritance', function () use ($ids, $event): void {
@@ -212,7 +244,7 @@ class ProductIndexer extends EntityIndexer
             });
         }
 
-        if ($message->allow(self::STATES_UPDATER)) {
+        if (!Feature::isActive('v6.8.0.0') && $message->allow(self::STATES_UPDATER)) {
             Profiler::trace('product:indexer:states', function () use ($ids, $context): void {
                 $this->statesUpdater->update($ids, $context);
             });

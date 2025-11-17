@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
@@ -10,19 +12,22 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
- */
 #[Package('fundamentals@after-sales')]
-class LineItemProductStatesRule extends Rule
+class LineItemProductTypeRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemProductStates';
+    final public const RULE_NAME = 'cartLineItemProductType';
 
-    protected string $productState;
+    protected string $productType;
 
     protected string $operator;
+
+    public function __construct(private readonly ProductTypeRegistry $productTypeRegistry)
+    {
+        parent::__construct();
+    }
 
     public function match(RuleScope $scope): bool
     {
@@ -50,10 +55,7 @@ class LineItemProductStatesRule extends Rule
     {
         return [
             'operator' => RuleConstraints::stringOperators(false),
-            'productState' => RuleConstraints::choice([
-                State::IS_PHYSICAL,
-                State::IS_DOWNLOAD,
-            ]),
+            'productType' => RuleConstraints::choice($this->productTypeRegistry->getTypes()),
         ];
     }
 
@@ -61,14 +63,25 @@ class LineItemProductStatesRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
-            ->selectField('productState', [
-                State::IS_PHYSICAL,
-                State::IS_DOWNLOAD,
-            ]);
+            ->selectField('productType', $this->productTypeRegistry->getTypes());
     }
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        return RuleComparison::stringArray($this->productState, array_values($lineItem->getStates()), $this->operator);
+        $resolvedType = $lineItem->getProductType();
+
+        if ($resolvedType === null && !Feature::isActive('v6.8.0.0')) {
+            if (\in_array(State::IS_DOWNLOAD, $lineItem->getStates(), true)) {
+                $resolvedType = ProductEntity::TYPE_DIGITAL;
+            } elseif (\in_array(State::IS_PHYSICAL, $lineItem->getStates(), true)) {
+                $resolvedType = ProductEntity::TYPE_PHYSICAL;
+            }
+        }
+
+        if ($resolvedType === null) {
+            return false;
+        }
+
+        return RuleComparison::string($resolvedType, $this->productType, $this->operator);
     }
 }

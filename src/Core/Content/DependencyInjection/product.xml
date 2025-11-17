@@ -194,6 +194,7 @@
 
         <service id="Shopware\Core\Content\Product\Api\ProductActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantCombinationLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductTypeRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -400,6 +401,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater"/>
             <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductTypeInitiator"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -413,9 +415,30 @@
             <tag name="shopware.entity_indexer"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\ProductTypeRegistry" public="true">
+            <argument type="tagged_iterator" tag="shopware.product.type" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ProductType\DigitalProductType">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.product.type" priority="1000"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\ProductType\PhysicalProductType">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.product.type" priority="-9999" />
+        </service>
+
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+
+            <deprecated package="shopware/core" version="6.8.0">tag:v6.8.0 - The %service_id% service will be removed, as product states are deprecated.</deprecated>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductTypeInitiator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductTypeRegistry"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater">

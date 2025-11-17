@@ -13,7 +13,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -35,8 +37,23 @@ class LineItemCollectionTest extends TestCase
     #[DataProvider('lineItemStateProvider')]
     public function testHasLineItemWithState(LineItemCollection $collection, array $expectedResults): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         foreach ($expectedResults as $state => $expected) {
             static::assertSame($expected, $collection->hasLineItemWithState($state), 'Line item of state `' . $state . '` could not be found.');
+        }
+    }
+
+    /**
+     * @param array<string, bool> $expectedResults
+     */
+    #[DataProvider('lineItemProductTypeProvider')]
+    public function testHasLineItemWithProductType(LineItemCollection $collection, array $expectedResults): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        foreach ($expectedResults as $type => $expected) {
+            static::assertSame($expected, $collection->hasLineItemWithProductType($type), 'Line item of type `' . $type . '` could not be found.');
         }
     }
 
@@ -76,6 +93,45 @@ class LineItemCollectionTest extends TestCase
                 (new LineItem('B', 'test'))->setStates(['foo']),
             ]),
             [State::IS_PHYSICAL => false, State::IS_DOWNLOAD => false, 'foo' => true],
+        ];
+    }
+
+    public static function lineItemProductTypeProvider(): \Generator
+    {
+        yield 'collection has line item with state download and physical' => [
+            new LineItemCollection([
+                (new LineItem('A', 'test'))->setProductType(ProductEntity::TYPE_PHYSICAL),
+                (new LineItem('B', 'test'))->setProductType(ProductEntity::TYPE_DIGITAL),
+            ]),
+            [ProductEntity::TYPE_PHYSICAL => true, ProductEntity::TYPE_DIGITAL => true],
+        ];
+        yield 'collection has line item with only state physical' => [
+            new LineItemCollection([
+                (new LineItem('A', 'test'))->setProductType(ProductEntity::TYPE_PHYSICAL),
+                (new LineItem('B', 'test'))->setProductType(ProductEntity::TYPE_PHYSICAL),
+            ]),
+            [ProductEntity::TYPE_PHYSICAL => true, ProductEntity::TYPE_DIGITAL => false],
+        ];
+        yield 'collection has line item with only state download' => [
+            new LineItemCollection([
+                (new LineItem('A', 'test'))->setProductType(ProductEntity::TYPE_DIGITAL),
+                (new LineItem('B', 'test'))->setProductType(ProductEntity::TYPE_DIGITAL),
+            ]),
+            [ProductEntity::TYPE_PHYSICAL => false, ProductEntity::TYPE_DIGITAL => true],
+        ];
+        yield 'collection has line items without any state' => [
+            new LineItemCollection([
+                new LineItem('A', 'test'),
+                new LineItem('B', 'test'),
+            ]),
+            [ProductEntity::TYPE_PHYSICAL => false, ProductEntity::TYPE_DIGITAL => false],
+        ];
+        yield 'collection has line items with a unknown state' => [
+            new LineItemCollection([
+                (new LineItem('A', 'test'))->setProductType('foo'),
+                (new LineItem('B', 'test'))->setProductType('foo'),
+            ]),
+            [ProductEntity::TYPE_PHYSICAL => false, ProductEntity::TYPE_DIGITAL => false, 'foo' => true],
         ];
     }
 

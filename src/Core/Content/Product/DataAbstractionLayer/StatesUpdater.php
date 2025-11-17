@@ -9,10 +9,14 @@ use Shopware\Core\Content\Product\Events\ProductStatesChangedEvent;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
+ */
 #[Package('framework')]
 class StatesUpdater
 {
@@ -26,10 +30,17 @@ class StatesUpdater
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
+     *
      * @param string[] $ids
      */
     public function update(array $ids, Context $context): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'update', 'v6.8.0.0')
+        );
+
         $sql = 'SELECT LOWER(HEX(`product`.`id`)) as id,
                 IF(`product_download`.`id` IS NOT NULL, 1, 0) as hasDownloads,
                 `product`.`states`

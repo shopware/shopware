@@ -1,5 +1,9 @@
 {
   "sw-product": {
+    "type": {
+      "physical": "Physisch",
+      "digital": "Digital"
+    },
     "visibility": {
       "textHeadline": "Sichtbarkeit je Verkaufskanal festlegen",
       "placeholderVisibility": "Verkaufskanäle zuweisen ...",

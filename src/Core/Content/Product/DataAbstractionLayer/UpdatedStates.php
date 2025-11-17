@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
+ */
 #[Package('framework')]
 final class UpdatedStates extends Struct
 {

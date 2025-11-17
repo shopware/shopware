@@ -21,12 +21,14 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -73,7 +75,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         private readonly ProductFeatureBuilder $featureBuilder,
         private readonly AbstractProductPriceCalculator $priceCalculator,
         private readonly EntityCacheKeyGenerator $generator,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly ProductTypeRegistry $productTypeRegistry
     ) {
     }
 
@@ -154,7 +157,14 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($item->getQuantity());
 
                 $item->setPrice($this->calculator->calculate($definition, $context));
-                $item->setShippingCostAware(!$item->hasState(State::IS_DOWNLOAD));
+
+                $isDownloadLineItem = $this->productTypeRegistry->getTypeHandler($item->getProductType())?->getBehavior()->downloadable ?? false;
+
+                if (!Feature::isActive('v6.8.0.0')) {
+                    $isDownloadLineItem = $isDownloadLineItem || $item->hasState(State::IS_DOWNLOAD);
+                }
+
+                $item->setShippingCostAware(!$isDownloadLineItem);
             }
 
             $this->featureBuilder->add($items, $data, $context);
@@ -325,9 +335,16 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $weight = $product->getWeight();
 
-        $lineItem->setStates($product->getStates());
+        $lineItem->setProductType($product->getType());
 
-        if ($lineItem->hasState(State::IS_PHYSICAL)) {
+        if (Feature::isActive('v6.8.0.0')) {
+            $isPhysicalLineItem = $lineItem->isProductType(ProductEntity::TYPE_PHYSICAL);
+        } else {
+            $lineItem->setStates($product->getStates());
+            $isPhysicalLineItem = $lineItem->isProductType(ProductEntity::TYPE_PHYSICAL) || $lineItem->hasState(State::IS_PHYSICAL);
+        }
+
+        if ($isPhysicalLineItem) {
             $lineItem->setDeliveryInformation(
                 new DeliveryInformation(
                     $product->getStock(),

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
@@ -81,11 +82,15 @@ class LineItem extends Struct
     protected string $uniqueIdentifier;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, use getProductType() instead
+     *
      * @var array<int, string>
      */
     protected array $states = [];
 
     protected bool $modifiedByApp = false;
+
+    protected ?string $productType = null;
 
     /**
      * @var array<string, bool>
@@ -521,26 +526,53 @@ class LineItem extends Struct
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, use getProductType() instead
+     *
      * @return array<int, string>
      */
     public function getStates(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getStates', 'v6.8.0.0', 'getProductType')
+        );
+
         return $this->states;
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, use setProductType() instead
+     *
      * @param array<int, string> $states
      */
     public function setStates(array $states): LineItem
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'setStates', 'v6.8.0.0', 'setProductType')
+        );
+
         $this->states = $states;
 
         return $this;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use isProductType() instead
+     */
     public function hasState(string $state): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'hasState', 'v6.8.0.0', 'isProductType')
+        );
+
         return \in_array($state, $this->states, true);
+    }
+
+    public function isProductType(string $type): bool
+    {
+        return $this->getProductType() === $type;
     }
 
     public function markUnModifiedByApp(): void
@@ -587,6 +619,18 @@ class LineItem extends Struct
     public function isShippingCostAware(): bool
     {
         return $this->shippingCostAware;
+    }
+
+    public function getProductType(): ?string
+    {
+        return $this->productType;
+    }
+
+    public function setProductType(string $productType): self
+    {
+        $this->productType = $productType;
+
+        return $this;
     }
 
     public function jsonSerialize(): array

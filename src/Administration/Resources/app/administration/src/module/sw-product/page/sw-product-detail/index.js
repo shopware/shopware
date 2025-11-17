@@ -56,12 +56,20 @@ export default {
             required: false,
             default: null,
         },
-        /* Product "types" provided by the split button for creating a new product through a router parameter */
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, please use `creationType` instead
+         */
         creationStates: {
             type: Array,
             required: false,
             default: null,
         },
+        /* Product "types" provided by the split button for creating a new product through a router parameter */
+        creationType: {
+            type: String,
+            required: false,
+            default: 'physical',
+        }
     },
 
     data() {
@@ -127,8 +135,15 @@ export default {
             return Shopware.Store.get('swProductDetail').advanceModeEnabled;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, please use `productType` instead
+         */
         productStates() {
             return Shopware.Store.get('swProductDetail').productStates;
+        },
+
+        productType() {
+            return Shopware.Store.get('swProductDetail').productType;
         },
 
         ...mapPageErrors(errorConfiguration),
@@ -637,6 +652,7 @@ export default {
 
             // set product "type"
             Shopware.Store.get('swProductDetail').creationStates = this.creationStates;
+            Shopware.Store.get('swProductDetail').creationType = this.creationType;
 
             // create empty product
             Shopware.Store.get('swProductDetail').product = this.productRepository.create();
@@ -649,7 +665,7 @@ export default {
             this.product.additionalText = '';
             this.product.variantListingConfig = {};
 
-            if (this.creationStates) {
+            if (this.creationType) {
                 this.adjustProductAccordingToType();
             }
 
@@ -716,7 +732,7 @@ export default {
         },
 
         adjustProductAccordingToType() {
-            if (this.creationStates.includes('is-download')) {
+            if (this.creationType === 'digital') {
                 this.product.maxPurchase = 1;
             }
         },
@@ -994,7 +1010,7 @@ export default {
         },
 
         customValidate(errors, product) {
-            if (this.productStates.includes('is-download')) {
+            if (this.productType === 'digital') {
                 // custom download product validation
                 if (product.downloads === undefined || product.downloads.length < 1) {
                     errors.push(EntityValidationService.createRequiredError('/0/downloads'));

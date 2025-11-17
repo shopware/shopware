@@ -43,6 +43,9 @@ class ProductEntity extends Entity implements \Stringable
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
+    public const TYPE_PHYSICAL = 'physical';
+    public const TYPE_DIGITAL = 'digital';
+
     protected ?string $parentId = null;
 
     protected int $childCount = 0;
@@ -74,6 +77,8 @@ class ProductEntity extends Entity implements \Stringable
     protected ?int $availableStock = null;
 
     protected bool $available;
+
+    protected string $type = self::TYPE_PHYSICAL;
 
     protected ?string $deliveryTimeId = null;
 
@@ -248,6 +253,8 @@ class ProductEntity extends Entity implements \Stringable
     protected ?ProductDownloadCollection $downloads = null;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, please use type field instead.
+     *
      * @var array<int, string>
      */
     protected array $states = [];
@@ -1002,6 +1009,16 @@ class ProductEntity extends Entity implements \Stringable
         $this->available = $available;
     }
 
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
+
     public function getDeliveryTimeId(): ?string
     {
         return $this->deliveryTimeId;
@@ -1226,6 +1243,8 @@ class ProductEntity extends Entity implements \Stringable
 
     /**
      * @return array<int, string>
+     *
+     * @deprecated tag:v6.8.0 - Will be removed without replacement. Use getProductType instead.
      */
     public function getStates(): array
     {
@@ -1234,6 +1253,8 @@ class ProductEntity extends Entity implements \Stringable
 
     /**
      * @param array<int, string> $states
+     *
+     * @deprecated tag:v6.8.0 - Will be removed without replacement. Use setType instead.
      */
     public function setStates(array $states): void
     {

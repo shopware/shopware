@@ -42,6 +42,7 @@ describe('module/sw-product/component/sw-product-category-form', () => {
             },
         };
         store.creationStates = 'is-physical';
+        store.creationType = 'physical';
 
         return mount(await wrapTestComponent('sw-product-category-form', { sync: true }), {
             global: {

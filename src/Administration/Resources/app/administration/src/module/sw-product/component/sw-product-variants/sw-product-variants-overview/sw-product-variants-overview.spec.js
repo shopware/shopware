@@ -314,6 +314,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const wrapper = await createWrapper(
             {
                 productStates: ['is-download'],
+                productType: ['digital'],
             },
             {
                 create: (entity) => {
@@ -358,7 +359,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         };
 
         const wrapper = await createWrapper(
-            { productStates: ['is-download'] },
+            { productStates: ['is-download'], productType: 'digital' },
             {
                 create: () => ({
                     search: () => Promise.resolve([item]),
@@ -403,7 +404,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         };
 
         const wrapper = await createWrapper(
-            { productStates: ['is-download'] },
+            { productStates: ['is-download'], productType: 'digital' },
             {
                 create: () => ({
                     search: () => Promise.resolve([item]),
@@ -434,7 +435,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             $refs: {
                 variantGrid: {
                     selection: {
-                        foo: { states: ['is-download'] },
+                        foo: { states: ['is-download'], type: 'digital' },
                     },
                 },
             },

@@ -9,7 +9,12 @@ use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductTypeRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -28,7 +33,8 @@ final readonly class ImportExportHandler
     public function __construct(
         private MessageBusInterface $messageBus,
         private ImportExportFactory $importExportFactory,
-        private EventDispatcherInterface $eventDispatcher
+        private EventDispatcherInterface $eventDispatcher,
+        private ProductTypeRegistry $productTypeRegistry
     ) {
     }
 
@@ -54,7 +60,7 @@ final readonly class ImportExportHandler
             ) {
                 $progress = $importExport->import($context, $message->getOffset());
             } elseif ($logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_EXPORT) {
-                $progress = $importExport->export($context, new Criteria(), $message->getOffset());
+                $progress = $importExport->export($context, $this->buildExportCriteria($importExport), $message->getOffset());
             } else {
                 throw ImportExportException::unknownActivity($logEntity->getActivity());
             }
@@ -86,5 +92,32 @@ final readonly class ImportExportHandler
                 $this->eventDispatcher->dispatch($event);
             }
         }
+    }
+
+    private function buildExportCriteria(ImportExport $importExport): Criteria
+    {
+        $criteria = new Criteria();
+
+        $sourceEntity = $importExport->getLogEntity()->getProfile()?->getSourceEntity();
+
+        if (!$sourceEntity || $sourceEntity !== ProductDefinition::ENTITY_NAME) {
+            return $criteria;
+        }
+
+        $hiddenTypes = [];
+        foreach ($this->productTypeRegistry->getTypeHandlers() as $handler) {
+            if ($handler->getBehavior()->exportable === false) {
+                $hiddenTypes[] = $handler->getType();
+            }
+        }
+
+        if ($hiddenTypes !== []) {
+            $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, array_map(
+                static fn (string $type) => new EqualsFilter('type', $type),
+                $hiddenTypes,
+            )));
+        }
+
+        return $criteria;
     }
 }

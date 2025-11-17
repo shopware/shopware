@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -37,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 
 #[Package('checkout')]
 class OrderLineItemDefinition extends EntityDefinition
@@ -101,7 +103,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new BoolField('removable', 'removable'))->addFlags(new ApiAware()),
             (new BoolField('stackable', 'stackable'))->addFlags(new ApiAware()),
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required()),
-            (new ListField('states', 'states', StringField::class))->addFlags(new ApiAware(), new Required()),
+            ...$this->buildStateField(),
 
             (new CalculatedPriceField('price', 'price'))->addFlags(new Required()),
             (new PriceDefinitionField('price_definition', 'priceDefinition'))->addFlags(new ApiAware()),
@@ -110,6 +112,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new FloatField('total_price', 'totalPrice'))->addFlags(new ApiAware(), new Computed()),
             (new LongTextField('description', 'description'))->addFlags(new ApiAware()),
             (new StringField('type', 'type'))->addFlags(new ApiAware()),
+            (new StringField('product_type', 'productType', 32))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ApiAware()),
@@ -120,5 +123,20 @@ class OrderLineItemDefinition extends EntityDefinition
             (new ParentAssociationField(self::class))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware(), new Required()),
         ]);
+    }
+
+    /**
+     * @return array<int, ListField>
+     */
+    private function buildStateField(): array
+    {
+        if (Feature::isActive('v6.8.0.0')) {
+            return [];
+        }
+
+        return [
+            (new ListField('states', 'states', StringField::class))
+                ->addFlags(new ApiAware(), new Required(), new Deprecated('v6.8.0.0', 'order_line_item.states will be removed; use productType instead')),
+        ];
     }
 }

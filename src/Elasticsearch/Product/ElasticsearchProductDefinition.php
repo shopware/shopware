@@ -131,7 +131,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'coverId' => self::KEYWORD_FIELD,
             'weight' => self::FLOAT_FIELD,
             'width' => self::FLOAT_FIELD,
-            'states' => self::KEYWORD_FIELD,
+            'type' => self::KEYWORD_FIELD,
+            'states' => Feature::isActive('v6.8.0.0') ? null : self::KEYWORD_FIELD,
             'customFields' => $this->fieldBuilder->customFields($this->getEntityDefinition()->getEntityName(), $context),
             ...$visibilities,
         ];
@@ -139,7 +140,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         if (Feature::isActive('v6.8.0.0')) {
             unset($properties['categoriesRo']);
             unset($properties['visibilities']);
+            unset($properties['states']);
         }
+
+        $properties = array_filter($properties, fn ($value) => $value !== null);
 
         $mapping = [
             'dynamic_templates' => [

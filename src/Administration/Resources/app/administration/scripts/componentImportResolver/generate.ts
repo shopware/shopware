@@ -24,6 +24,35 @@ type componentInfo = {
     e?: boolean, // needs extends
 }
 
+function buildAliasPath(importPath: string, sourceFile: SourceFile): string {
+    if (importPath.includes('./')) {
+        const relativePath = buildRelativePathForSourceFile(sourceFile);
+        return path.join(relativePath, importPath);
+    }
+
+    return importPath;
+}
+
+function getImportPathByIdentifier(sourceFile: SourceFile, identifierName: string): string | null {
+    const importDeclaration = sourceFile.getImportDeclarations().find((declaration) => {
+        const defaultImport = declaration.getDefaultImport();
+
+        if (defaultImport && defaultImport.getText() === identifierName) {
+            return true;
+        }
+
+        return declaration.getNamedImports().some((namedImport) => {
+            return namedImport.getName() === identifierName;
+        });
+    });
+
+    if (!importDeclaration) {
+        return null;
+    }
+
+    return importDeclaration.getModuleSpecifier().getLiteralText();
+}
+
 function isComponentCall(call: CallExpression<ts.CallExpression>, functionString: string): boolean {
     const expression = call.getExpression();
 
@@ -63,22 +92,13 @@ function buildRelativePathForSourceFile(sourceFile: SourceFile): string {
 function buildAliasPathForArrowFunctionImport(arrowFunction: ArrowFunction, sourceFile: SourceFile): string {
     // Get the import path inside the ArrowFunction
     // Shopware.Component.register('sw-xyz', () => import('src/app/xyz'));
-    const importPath = arrowFunction
-        .getDescendantsOfKind(ts.SyntaxKind.StringLiteral)[0]
-        .getText()
-        // remove all single and double quotes
-        .replace(/['"]/g, '');
+        const importPath = arrowFunction
+            .getDescendantsOfKind(ts.SyntaxKind.StringLiteral)[0]
+            .getText()
+            // remove all single and double quotes
+            .replace(/['"]/g, '');
 
-    let aliasPath = '';
-    if (importPath.includes('./')) {
-        const relativePath = buildRelativePathForSourceFile(sourceFile);
-        // Combine the relative path with the import path
-        aliasPath = path.join(relativePath, importPath);
-    } else {
-        aliasPath = importPath;
-    }
-
-    return aliasPath;
+    return buildAliasPath(importPath, sourceFile);
 }
 
 function procsessComponentRegisterCall(sourceFile: SourceFile, call: CallExpression<ts.CallExpression>): void {
@@ -110,15 +130,29 @@ function procsessComponentRegisterCall(sourceFile: SourceFile, call: CallExpress
         }
 
         // Check if the import path is relative
-        let aliasPath = '';
-        if (arrowFunctionImportsComponent) {
-            aliasPath = buildAliasPathForArrowFunctionImport(secondArgument as ArrowFunction, sourceFile);
-        } else {
-            aliasPath = buildRelativePathForSourceFile(sourceFile);
-        }
+        const aliasPath = arrowFunctionImportsComponent
+            ? buildAliasPathForArrowFunctionImport(secondArgument as ArrowFunction, sourceFile)
+            : buildRelativePathForSourceFile(sourceFile);
 
         componentImportMap[componentName] = {
             p: aliasPath,
+            r: true,
+        };
+
+        return;
+    }
+
+    if (secondArgument.getKind() === ts.SyntaxKind.Identifier) {
+        const identifierName = secondArgument.getText();
+        const importPath = getImportPathByIdentifier(sourceFile, identifierName);
+
+        if (!importPath) {
+            console.warn(`Could not resolve import path for component ${componentName} in file ${sourceFile.getFilePath()}`);
+            return;
+        }
+
+        componentImportMap[componentName] = {
+            p: buildAliasPath(importPath, sourceFile),
             r: true,
         };
 
@@ -154,20 +188,29 @@ function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpressio
             .replace(/['"]/g, '');
 
         // Check if the import path is relative
-        let aliasPath = '';
-        if (importPath.includes('./')) {
-            // Get the path of the parent directory of this file
-            const parentDirectory = sourceFile.getDirectoryPath();
-            // Remove everything before and including "/app/administration/" from the parent directory
-            const relativePath = parentDirectory.replace(/.*\/app\/administration\//, '');
-            // Combine the relative path with the import path
-            aliasPath = path.join(relativePath, importPath);
-        } else {
-            aliasPath = importPath;
-        }
+        const aliasPath = buildAliasPath(importPath, sourceFile);
 
         componentImportMap[componentName] = {
             p: aliasPath,
+            r: false,
+            en: extendedComponentName,
+            e: true,
+        };
+
+        return;
+    }
+
+    if (thirdArgument.getKind() === ts.SyntaxKind.Identifier) {
+        const identifierName = thirdArgument.getText();
+        const importPath = getImportPathByIdentifier(sourceFile, identifierName);
+
+        if (!importPath) {
+            console.warn(`Could not resolve import path for component ${componentName} in file ${sourceFile.getFilePath()}`);
+            return;
+        }
+
+        componentImportMap[componentName] = {
+            p: buildAliasPath(importPath, sourceFile),
             r: false,
             en: extendedComponentName,
             e: true,

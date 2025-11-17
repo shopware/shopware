@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Log\Package;
  *         new AssociationDescription('Main product image displayed in listings and detail pages')
  *     );
  * ```
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final class AssociationDescription extends Flag

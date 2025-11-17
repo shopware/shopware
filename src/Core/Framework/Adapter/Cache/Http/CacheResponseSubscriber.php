@@ -46,11 +46,20 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
     public function __construct(
         private array $cookies,
         private CartService $cartService,
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use cache policies instead
+         */
         private int $defaultTtl,
         private bool $httpCacheEnabled,
         private MaintenanceModeResolver $maintenanceResolver,
         private RequestStack $requestStack,
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use cache policies instead
+         */
         private ?string $staleWhileRevalidate,
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use cache policies instead
+         */
         private ?string $staleIfError,
         private EventDispatcherInterface $dispatcher,
         private CacheRelevantRulesResolver $ruleResolver,
@@ -114,7 +123,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         // In Store API we rely on headers to manage caching, as it more explicit and easier to parse on reverse proxy side.
         // As we don't control headers that browser sends, in storefront we have to rely on cookies. For this reason here
         // we have two separate branches of logic.
-        if ($this->isStoreApi($request) && Feature::isActive('CACHE_REWORK')) {
+        if ($this->isStoreApi($request) && (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0'))) {
             $this->applyStoreApiPolicy($request, $response, $cacheAttribute);
 
             return;
@@ -159,7 +168,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         );
 
         // old behavior
-        if (!Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
             $sMaxAge = $cacheAttribute->sMaxAge ?? $this->defaultTtl;
             $response->setSharedMaxAge($sMaxAge);
 
@@ -221,10 +230,11 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function noCache(Request $request, Response $response, bool $storeApi): void
     {
-        if (Feature::isActive('CACHE_REWORK')) {
-            $this->applyPolicy($request, $response, $storeApi ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT, false, null);
+        if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+            // do nothing for backwards compatibility
+            return;
         }
-        // do nothing for backwards compatibility
+        $this->applyPolicy($request, $response, $storeApi ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT, false, null);
     }
 
     private function applyStoreApiPolicy(Request $request, Response $response, ?CacheAttribute $cacheAttribute): void

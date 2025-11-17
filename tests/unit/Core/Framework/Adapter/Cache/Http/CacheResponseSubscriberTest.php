@@ -655,7 +655,10 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 
-    #[DisabledFeatures(['CACHE_REWORK'])]
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
     public function testMakeGetsCached(): void
     {
         $subscriber = new CacheResponseSubscriber(
@@ -1152,7 +1155,10 @@ class CacheResponseSubscriberTest extends TestCase
         ];
     }
 
-    #[DisabledFeatures(['CACHE_REWORK'])]
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
     public function testStoreApiBehavesLikeStorefrontWithoutFeatureFlag(): void
     {
         $cartService = $this->createMock(CartService::class);

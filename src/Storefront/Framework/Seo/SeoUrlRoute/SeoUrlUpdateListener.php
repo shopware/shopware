@@ -52,10 +52,9 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $ids = array_values($event->getIds());
-
+        $ids = $event->getIds();
         if (!$event->isFullIndexing) {
-            $ids = array_merge($ids, $this->getCategoryChildren($ids));
+            $ids = array_values(array_merge($ids, $this->getCategoryChildren($ids)));
         }
 
         $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $ids);
@@ -80,7 +79,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string>
      */
@@ -109,8 +108,6 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return [];
         }
 
-        $ids = Uuid::fromBytesToHexList($children);
-
-        return $ids;
+        return Uuid::fromBytesToHexList($children);
     }
 }

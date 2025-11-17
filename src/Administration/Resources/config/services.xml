@@ -151,6 +151,7 @@
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
         </service>
 
         <service id="Shopware\Administration\Snippet\CachedSnippetFinder" decorates="Shopware\Administration\Snippet\SnippetFinder">

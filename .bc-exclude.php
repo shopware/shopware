@@ -33,8 +33,14 @@ return [
         // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
+        // No break as mixed is the top type, and every other type is a subtype of mixed
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Util\Random::getRandomArrayElement() changed from no type to mixed', '/'),
+
         // Domain exceptions should not be extended in 3rd party code
         preg_quote('ADDED: Parameter domain was added to Method invalidDomain() of class Shopware\Core\System\SystemConfig\SystemConfigException', '/'),
+
+        // Type widening from string to ParsedRobots|string is backward compatible - all existing string usage continues to work
+        preg_quote('CHANGED: The parameter $rules of Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct#__construct() changed from string to Shopware\Storefront\Page\Robots\Parser\ParsedRobots|string', '/'),
 
         // Should have been internal in the first place, all the other changelog classes were internal and already removed
         preg_quote('REMOVED: Class Shopware\Core\Framework\Changelog\ChangelogSection has been deleted'),

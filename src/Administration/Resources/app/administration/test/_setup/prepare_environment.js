@@ -322,6 +322,14 @@ global.allowedErrors = [
         msg: 'No extension found for origin ""',
     },
     {
+        method: 'warn',
+        msg: '[MtCheckbox] The `checked` prop is deprecated and will be removed. Please use v-model (modelValue/update:modelValue) instead.',
+    },
+    {
+        method: 'warn',
+        msg: '[Vue warn]: Invalid prop: custom validator check failed for prop "size".'
+    },
+    {
         method: 'error',
         msgCheck: (msg) => {
             if (typeof msg !== 'string') {

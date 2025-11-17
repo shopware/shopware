@@ -79,17 +79,17 @@ function mockApiCall(type) {
         case 'tag':
             return [
                 {
-                    'id': '019a7d9f8ea171aaab00637a71b07bb7',
-                    'name': 'Tag 1',
+                    id: '019a7d9f8ea171aaab00637a71b07bb7',
+                    name: 'Tag 1',
                 },
                 {
-                    'id': '019a7d9f8ea171aaab00637a71b07cc8',
-                    'name': 'Tag 2',
+                    id: '019a7d9f8ea171aaab00637a71b07cc8',
+                    name: 'Tag 2',
                 },
                 {
-                    'id': '019a7d9f8ea171aaab00637a71b07dd9',
-                    'name': 'Tag 3',
-                }
+                    id: '019a7d9f8ea171aaab00637a71b07dd9',
+                    name: 'Tag 3',
+                },
             ];
         default:
             throw new Error(`no data for ${type} available`);

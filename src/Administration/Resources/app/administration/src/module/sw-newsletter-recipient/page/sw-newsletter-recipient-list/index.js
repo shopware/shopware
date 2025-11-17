@@ -91,10 +91,10 @@ export default {
 
         statusData() {
             return [
-                {'value': 'notSet', 'label': Shopware.Snippet.tc('sw-newsletter-recipient.list.notSet')},
-                {'value': 'direct', 'label': Shopware.Snippet.tc('sw-newsletter-recipient.list.direct')},
-                {'value': 'optIn', 'label': Shopware.Snippet.tc('sw-newsletter-recipient.list.optIn')},
-                {'value': 'optOut', 'label': Shopware.Snippet.tc('sw-newsletter-recipient.list.optOut')},
+                { value: 'notSet', label: Shopware.Snippet.tc('sw-newsletter-recipient.list.notSet') },
+                { value: 'direct', label: Shopware.Snippet.tc('sw-newsletter-recipient.list.direct') },
+                { value: 'optIn', label: Shopware.Snippet.tc('sw-newsletter-recipient.list.optIn') },
+                { value: 'optOut', label: Shopware.Snippet.tc('sw-newsletter-recipient.list.optOut') },
             ];
         },
     },

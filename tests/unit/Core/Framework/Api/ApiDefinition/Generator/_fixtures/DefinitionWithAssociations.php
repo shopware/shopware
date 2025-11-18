@@ -45,9 +45,7 @@ class DefinitionWithAssociations extends EntityDefinition
                 'category_id',
                 SimpleDefinition::class,
                 'id'
-            ))->addFlags(
-                (new ApiAware(SalesChannelApiSource::class))->withDescription('The category this entity belongs to')
-            ),
+            ))->addFlags(new ApiAware(SalesChannelApiSource::class))->setDescription('The category this entity belongs to'),
 
             // Association without description but ApiAware
             (new OneToManyAssociationField(

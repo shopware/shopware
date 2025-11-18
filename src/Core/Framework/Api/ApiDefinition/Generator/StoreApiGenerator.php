@@ -610,8 +610,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
             $fieldName = $field->getPropertyName();
 
-            // Get description from ApiAware flag
-            $description = $apiAware->getDescription();
+            // Get description from Field
+            $description = $field->getDescription();
 
             // Build the association line
             $line = '- `' . $fieldName . '`';

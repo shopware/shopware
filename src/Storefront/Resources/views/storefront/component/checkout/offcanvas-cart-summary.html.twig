@@ -12,13 +12,13 @@
         <dl class="row offcanvas-summary-list" aria-label="{{ 'checkout.summaryOffCanvasLabel'|trans|striptags }}">
             {% block component_offcanvas_summary_total %}
                 {% block component_offcanvas_summary_total_label %}
-                    <dt class="col-8 summary-label summary-total">
+                    <dt class="summary-label summary-total">
                         {{ 'checkout.subtotalAmount'|trans|sw_sanitize }}
                     </dt>
                 {% endblock %}
 
                 {% block component_offcanvas_summary_total_value %}
-                    <dd class="col-4 summary-value summary-total">
+                    <dd class="summary-value summary-total">
                         <strong>{{ page.cart.price.positionPrice|currency }}</strong>
                     </dd>
                 {% endblock %}
@@ -29,7 +29,7 @@
             {% for activeShipping in page.cart.deliveries.elements %}
                 {% block component_offcanvas_summary_content_info %}
                     <div class="row offcanvas-shipping-info">
-                        <span class="col-8 shipping-label shipping-cost">
+                        <span class="shipping-label shipping-cost">
                             <strong>{{ 'checkout.summaryShipping'|trans|sw_sanitize }}</strong>
                             {% if loop.first %}
                                 {% if page.shippingMethods|length %}
@@ -42,7 +42,7 @@
                             {% endif %}
                         </span>
 
-                        <span class="col-4 pb-2 shipping-value shipping-cost">
+                        <span class="pb-2 shipping-value shipping-cost">
                             {% set shippingTotalPrice = activeShipping.shippingCosts.totalPrice ?? 0 %}
                             <strong>{{ shippingTotalPrice < 0 ? '&minus;' : '+' }} {{ shippingTotalPrice|abs|currency }}</strong>
                         </span>

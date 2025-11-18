@@ -14,6 +14,7 @@
     <services>
         <service id="Shopware\Core\Checkout\Customer\CustomerDefinition">
             <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.hookable"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition">
@@ -22,6 +23,7 @@
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition">
             <tag name="shopware.entity.definition"/>
+            <tag name="shopware.entity.hookable"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition">
@@ -55,6 +57,10 @@
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%customer.account_types%</argument>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory">
@@ -109,6 +115,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Service\GuestAuthenticator" />
+
         <service id="Shopware\Core\Checkout\Customer\Subscriber\ProductReviewSubscriber">
             <argument type="service" id="Shopware\Core\Checkout\Customer\Service\ProductReviewCountService"/>
 
@@ -126,15 +134,6 @@
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerTokenSubscriber">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="request_stack"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupSubscriber">
-            <argument type="service" id="customer_group.repository"/>
-            <argument type="service" id="seo_url.repository"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
-            <argument type="service" id="slugify"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -185,9 +184,9 @@
             <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument type="service" id="shopware.rate_limiter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute" public="true">
@@ -219,12 +218,20 @@
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="customer_recovery.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeLanguageRoute" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute" public="true">
@@ -249,6 +256,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
             <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">
@@ -346,6 +354,11 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Cookie\WishlistCookieCollectListener">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="kernel.event_listener"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\CustomerValueResolver">
             <tag name="controller.argument_value_resolver" priority="1002"/>
         </service>
@@ -370,6 +383,8 @@
 
         <service id="Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator">
             <argument type="string">%env(APP_SECRET)%</argument>
+            <argument type="service" id="shopware.jwt_config"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Command\DeleteUnusedGuestCustomersCommand">

@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
 
 /**

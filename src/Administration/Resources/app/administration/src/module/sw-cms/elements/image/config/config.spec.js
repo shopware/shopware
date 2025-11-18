@@ -32,6 +32,16 @@ async function createWrapper() {
                     'sw-media-modal-v2': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
+                    'sw-container': await wrapTestComponent('sw-container'),
                 },
             },
             props: {
@@ -50,6 +60,10 @@ async function createWrapper() {
                             value: 'standard',
                         },
                         url: {
+                            source: 'static',
+                            value: null,
+                        },
+                        ariaLabel: {
                             source: 'static',
                             value: null,
                         },
@@ -73,6 +87,10 @@ async function createWrapper() {
                             source: 'static',
                             value: false,
                         },
+                        fetchPriorityHigh: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
                     data: {},
                 },
@@ -85,12 +103,6 @@ async function createWrapper() {
 describe('src/module/sw-cms/elements/image/config', () => {
     beforeAll(async () => {
         await setupCmsEnvironment();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should keep minHeight value when changing display mode', async () => {

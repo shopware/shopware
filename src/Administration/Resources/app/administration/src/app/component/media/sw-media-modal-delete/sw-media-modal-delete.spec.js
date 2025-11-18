@@ -51,11 +51,6 @@ describe('components/media/sw-media-modal-delete', () => {
         });
     };
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should return list of Media with only one media selected', async () => {
         const productMediaMock = {
             id: '3093dl23hf83jh29d0jsj',

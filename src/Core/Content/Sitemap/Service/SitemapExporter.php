@@ -6,10 +6,10 @@ use League\Flysystem\FilesystemOperator;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
+use Shopware\Core\Content\Sitemap\Event\SitemapGenerationStartEvent;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
-use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
@@ -46,6 +46,11 @@ class SitemapExporter implements SitemapExporterInterface
     public function generate(SalesChannelContext $context, bool $force = false, ?string $lastProvider = null, ?int $offset = null): SitemapGenerationResult
     {
         $this->refreshContextRules($context);
+
+        $this->dispatcher->dispatch(
+            new SitemapGenerationStartEvent($context)
+        );
+
         $this->lock($context, $force);
 
         try {
@@ -161,7 +166,6 @@ class SitemapExporter implements SitemapExporterInterface
     {
         /** @var SitemapHandle $sitemapHandle */
         foreach ($this->sitemapHandles as $host => $sitemapHandle) {
-            /** @var Url[] $urls */
             $urls = [];
 
             foreach ($result->getUrls() as $url) {

@@ -9,12 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -65,6 +65,7 @@ class ThemeChangeCommand extends Command
 
         $this->io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
+        \assert($helper instanceof QuestionHelper);
 
         if ($input->getOption('sales-channel') && $input->getOption('all')) {
             $this->io->error('You can use either --sales-channel or --all, not both at the same time.');
@@ -118,10 +119,9 @@ class ThemeChangeCommand extends Command
             $this->context->addState(ThemeService::STATE_NO_QUEUE);
         }
 
-        /** @var SalesChannelEntity $salesChannel */
         foreach ($selectedSalesChannel as $salesChannel) {
             $this->io->writeln(
-                \sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName())
+                \sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName() ?? $salesChannel->getId())
             );
 
             $this->themeService->assignTheme(

@@ -77,7 +77,7 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertNull($indexer->iterate(), 'Iterate should return null if es is disabled');
     }
 
-    public function testIterateNullCreatesIndices(): void
+    public function testIterateTillLastMsgCreatesIndices(): void
     {
         $indexer = $this->getIndexer();
 
@@ -90,7 +90,7 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertNull($msg);
     }
 
-    public function testIterateNullCreatesIndicesAndIndexTaskInDB(): void
+    public function testIterateTillLastMsgCreatesIndicesAndIndexTaskInDB(): void
     {
         $indexer = $this->getIndexer();
         $this->connection

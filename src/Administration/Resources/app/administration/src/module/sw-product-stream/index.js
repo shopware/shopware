@@ -31,7 +31,7 @@ Module.register('sw-product-stream', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'regular-products',
+    icon: 'solid-products',
     favicon: 'icon-module-products.png',
     entity: 'product_stream',
 
@@ -62,7 +62,7 @@ Module.register('sw-product-stream', {
             },
             props: {
                 default(route) {
-                    return { productStreamId: route.params.id };
+                    return { productStreamId: route.params.id.toLowerCase() };
                 },
             },
         },

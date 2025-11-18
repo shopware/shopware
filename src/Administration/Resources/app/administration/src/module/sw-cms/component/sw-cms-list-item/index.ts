@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-list-item.html.twig';
 import './sw-cms-list-item.scss';
 

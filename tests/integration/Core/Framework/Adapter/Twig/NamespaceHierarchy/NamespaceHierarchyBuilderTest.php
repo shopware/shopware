@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\NamespaceHierar
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -17,7 +18,7 @@ class NamespaceHierarchyBuilderTest extends TestCase
 
     public function testItAddsAppTemplateNamespaces(): void
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = static::getContainer()->get('app.repository');
 
         $appRepository->create([

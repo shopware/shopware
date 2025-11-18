@@ -43,13 +43,8 @@ class LineItemTransformer
     public static function transform(LineItem $lineItem, ?string $parentId = null, int $position = 1): array
     {
         $output = [];
-        /** @var IdStruct|null $idStruct */
-        $idStruct = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class);
-        if ($idStruct !== null) {
-            $id = $idStruct->getId();
-        } else {
-            $id = Uuid::randomHex();
-        }
+
+        $id = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId() ?? Uuid::randomHex();
 
         $productId = null;
         if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
@@ -80,7 +75,7 @@ class LineItemTransformer
             'price' => $lineItem->getPrice(),
             'priceDefinition' => $definition,
             'parentId' => $parentId,
-            'coverId' => $lineItem->getCover() ? $lineItem->getCover()->getId() : null,
+            'coverId' => $lineItem->getCover()?->getId(),
             'payload' => $lineItem->getPayload(),
             'states' => $lineItem->getStates(),
         ];

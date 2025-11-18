@@ -113,6 +113,11 @@ async function createWrapper(
                         params: {
                             id: '1a2b3c4d',
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
+                        },
                     },
                     $device: {
                         getSystemKey: () => 'STRG',
@@ -160,7 +165,6 @@ async function createWrapper(
                     `,
                     },
                     'sw-context-menu-item': true,
-                    'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
                     'sw-verify-user-modal': true,
@@ -202,10 +206,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         // not work with automatic unmount
         await wrapper.unmount();
         Shopware.Store.get('session').languageId = '';
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain all fields', async () => {
@@ -562,6 +562,18 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     it('should not update the auth token if user password is not changed', async () => {
         Shopware.Application.$container.resetProviders();
         Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).not.toHaveBeenCalled();
+        expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
+    });
+
+    it('should not update the auth token if user a different user then the currently logged in user is changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        wrapper.vm.user.password = 'newPassword';
+        wrapper.vm.user.id = 'randomId';
         await wrapper.vm.saveUser();
         await flushPromises();
 

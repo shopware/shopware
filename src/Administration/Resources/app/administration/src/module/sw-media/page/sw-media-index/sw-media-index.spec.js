@@ -51,11 +51,6 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the default accept value', async () => {
         const wrapper = await createWrapper();
         const fileInput = wrapper.find('sw-media-upload-v2-stub');

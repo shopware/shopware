@@ -46,11 +46,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not render tabs in card section', async () => {
         Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',

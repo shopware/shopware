@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
@@ -121,7 +122,11 @@ class DeliveryCalculator
 
         if (!$costs) {
             $cart->addErrors(
-                new ShippingMethodBlockedError((string) $shippingMethod->getTranslation('name'))
+                new ShippingMethodBlockedError(
+                    id: $shippingMethod->getId(),
+                    name: (string) $shippingMethod->getTranslation('name'),
+                    reason: 'no shipping costs found',
+                )
             );
 
             return;
@@ -225,13 +230,11 @@ class DeliveryCalculator
     {
         $shippingPrices->sort(
             function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($context) {
-                /** @var PriceCollection $priceCollectionA */
                 $priceCollectionA = $priceEntityA->getCurrencyPrice();
-                $priceA = $this->getCurrencyPrice($priceCollectionA, $context);
+                $priceA = $priceCollectionA ? $this->getCurrencyPrice($priceCollectionA, $context) : null;
 
-                /** @var PriceCollection $priceCollectionB */
                 $priceCollectionB = $priceEntityB->getCurrencyPrice();
-                $priceB = $this->getCurrencyPrice($priceCollectionB, $context);
+                $priceB = $priceCollectionB ? $this->getCurrencyPrice($priceCollectionB, $context) : null;
 
                 return $priceA <=> $priceB;
             }
@@ -262,7 +265,7 @@ class DeliveryCalculator
     private function hasDeliveryPriceRecalculationSkipWithZeroUnitPrice(?CartBehavior $behavior, float $unitPrice): bool
     {
         return $behavior
-            && $behavior->hasPermission(DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION)
+            && $behavior->hasPermission(CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION)
             && $unitPrice === 0.0;
     }
 }

@@ -183,6 +183,8 @@ class InvoiceRendererTest extends TestCase
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->method('fetchAllAssociative')->willReturn($ordersLanguageId);
 
+        $userCallCount = 0;
+
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturnCallback(function (Criteria $criteria, Context $context) use (&$userCallCount, $DELanguageId, $orderSearchResult) {
             ++$userCallCount;
@@ -427,6 +429,8 @@ class InvoiceRendererTest extends TestCase
      */
     private function createOrder(array $orderSettings): OrderEntity
     {
+        $orderDeliverId = Uuid::randomHex();
+
         $salesChannelId = Uuid::randomHex();
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId($salesChannelId);
@@ -451,13 +455,16 @@ class InvoiceRendererTest extends TestCase
         $orderCustomer = new OrderCustomerEntity();
         $orderCustomer->setOrder($order);
         $orderCustomer->setCustomer($customer);
+        $orderCustomer->setVatIds(['VAT123']);
         $order->setOrderCustomer($orderCustomer);
+        $order->setPrimaryOrderDeliveryId($orderDeliverId);
 
         if ($orderSettings['setOrderDelivery']) {
             $delivery = new OrderDeliveryEntity();
-            $delivery->setId(Uuid::randomHex());
+            $delivery->setId($orderDeliverId);
             $deliveries = new OrderDeliveryCollection([$delivery]);
             $order->setDeliveries($deliveries);
+            $order->setPrimaryOrderDelivery($delivery);
         }
 
         if ($orderSettings['setShippingCountry'] && $orderSettings['setOrderDelivery']) {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -19,6 +20,8 @@ class CustomerGroupStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      */
     public function __construct(
         private readonly EntityRepository $customerGroupRepository,
@@ -78,10 +81,9 @@ class CustomerGroupStorer extends FlowStorer
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        $customerGroup = $this->customerGroupRepository->search($criteria, $context)->get($id);
+        $customerGroup = $this->customerGroupRepository->search($criteria, $context)->getEntities()->get($id);
 
         if ($customerGroup) {
-            /** @var CustomerGroupEntity $customerGroup */
             return $customerGroup;
         }
 

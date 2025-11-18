@@ -82,7 +82,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -125,7 +125,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -166,7 +166,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -210,7 +210,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -254,7 +254,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -302,7 +302,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -342,7 +342,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -532,6 +532,10 @@ class FileSaverTest extends TestCase
                     'width' => 100,
                     'height' => 100,
                     'highDpi' => false,
+                    'mediaThumbnailSize' => [
+                        'width' => 100,
+                        'height' => 100,
+                    ],
                 ],
             ],
         ]], $context);
@@ -663,7 +667,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -709,7 +713,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }

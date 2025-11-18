@@ -175,7 +175,7 @@ export default {
         destroyedComponent() {
             this.closeExpandedMenu();
 
-            document.removeEventListener('scroll', this.scrollEventListener, true);
+            document.removeEventListener('scroll', this.scrollEventHandler, true);
             document.removeEventListener('mouseup', this.onMouseUp);
 
             if (this.$el?.parentElement?.contains(this.$el)) {
@@ -195,6 +195,10 @@ export default {
             }
 
             if (path.some((element) => element.classList?.contains('sw-popover__wrapper'))) {
+                return;
+            }
+
+            if (path.some((element) => element.classList?.contains('mt-select-result-list-popover-wrapper'))) {
                 return;
             }
 

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -76,16 +77,9 @@ class ShopIdChangedSubscriberTest extends TestCase
             $entityDispatchService
         );
 
-        $shopIdChangedSubscriber->handleShopIdChanged(new ShopIdChangedEvent(
-            [
-                'value' => 'newShopId',
-                'app_url' => 'newAppUrl',
-            ],
-            [
-                'value' => 'oldShopId',
-                'app_url' => 'oldAppUrl',
-            ],
-        ));
+        $shopIdChangedSubscriber->handleShopIdChanged(
+            new ShopIdChangedEvent(ShopId::v2('newShopId'), ShopId::v2('oldShopId')),
+        );
     }
 
     public function testHandleShopIdChangedDoesNothingIfOldShopIdIsNull(): void
@@ -104,13 +98,9 @@ class ShopIdChangedSubscriberTest extends TestCase
             $entityDispatchService
         );
 
-        $shopIdChangedSubscriber->handleShopIdChanged(new ShopIdChangedEvent(
-            [
-                'value' => 'newShopId',
-                'app_url' => 'newAppUrl',
-            ],
-            null
-        ));
+        $shopIdChangedSubscriber->handleShopIdChanged(
+            new ShopIdChangedEvent(ShopId::v1('newShopId', 'https://foo.bar'), null),
+        );
     }
 
     public function testHandleShopIdDoesNothingIfOldShopIdWasSet(): void
@@ -129,15 +119,8 @@ class ShopIdChangedSubscriberTest extends TestCase
             $entityDispatchService
         );
 
-        $shopIdChangedSubscriber->handleShopIdChanged(new ShopIdChangedEvent(
-            [
-                'value' => 'newShopId',
-                'app_url' => 'newAppUrl',
-            ],
-            [
-                'value' => 'newShopId',
-                'app_url' => 'newAppUrl',
-            ],
-        ));
+        $shopIdChangedSubscriber->handleShopIdChanged(
+            new ShopIdChangedEvent(ShopId::v2('newShopId'), ShopId::v2('newShopId')),
+        );
     }
 }

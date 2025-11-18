@@ -180,16 +180,17 @@ class OrderService
 
     public function isPaymentChangeableByTransactionState(OrderEntity $order): bool
     {
-        $state = $order->getTransactions()?->last()?->getStateMachineState()?->getTechnicalName();
+        $state = $order->getPrimaryOrderTransaction()?->getStateMachineState()?->getTechnicalName();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $state = $order->getTransactions()?->last()?->getStateMachineState()?->getTechnicalName();
+        }
+
         if (!$state) {
             return true;
         }
 
-        if (\in_array($state, self::ALLOWED_TRANSACTION_STATES, true)) {
-            return true;
-        }
-
-        return false;
+        return \in_array($state, self::ALLOWED_TRANSACTION_STATES, true);
     }
 
     private function validateCart(Cart $cart, Context $context): void

@@ -10,6 +10,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -45,7 +46,9 @@ class FilesystemFactory
         $config = $this->resolveFilesystemConfig($config);
         $factory = $this->findAdapterFactory($config['type']);
 
+        // @deprecated tag:v6.8.0 - the visibility option will be removed from the filesystem config, it should be set next to the type
         if (isset($config['config']['options']['visibility'])) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Setting visibility in the filesystem config level is deprecated. Set visibility next to type: amazon-s3 instead.');
             $config['visibility'] = $config['config']['options']['visibility'];
             unset($config['config']['options']['visibility']);
 

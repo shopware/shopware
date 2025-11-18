@@ -50,11 +50,6 @@ describe('src/app/component/media/sw-media-field', () => {
         });
     }
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the default folder in criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
@@ -119,5 +114,32 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.vm.page).toBe(2);
         expect(wrapper.vm.limit).toBe(5);
         expect(wrapper.vm.fetchSuggestions).toHaveBeenCalled();
+    });
+
+    it('returns empty config when picker is false', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.popoverConfig).toEqual({});
+    });
+
+    it('returns empty config when not inside a modal', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ showPicker: true });
+
+        wrapper.element.closest = jest.fn(() => null);
+        expect(wrapper.vm.popoverConfig).toEqual({});
+    });
+
+    it('returns modal targetSelector when picker open inside modal', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ showPicker: true });
+
+        const el = wrapper.element;
+        el.closest = jest.fn((selector) => (selector === '.mt-modal' ? el : null));
+
+        const config = wrapper.vm.$options.computed.popoverConfig.call(wrapper.vm);
+        expect(config).toEqual({
+            targetSelector: '.mt-modal__content-inner',
+        });
     });
 });

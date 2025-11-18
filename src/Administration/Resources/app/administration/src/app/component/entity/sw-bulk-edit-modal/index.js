@@ -97,6 +97,7 @@ export default {
 
             if (this.itemCount > 0) {
                 Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.bulkEditSelection);
+                Shopware.Store.get('swBulkEdit').selectedIds = Object.keys(this.bulkEditSelection);
                 this.$emit('edit-items');
             }
         },

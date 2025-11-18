@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
@@ -26,7 +27,7 @@ class ShopSecretInvalidMiddleware implements MiddlewareInterface
     ) {
     }
 
-    public function __invoke(ResponseInterface $response): ResponseInterface
+    public function __invoke(ResponseInterface $response, RequestInterface $request): ResponseInterface
     {
         if ($response->getStatusCode() !== 401) {
             return $response;

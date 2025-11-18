@@ -158,12 +158,6 @@ describe('components/base/sw-property-search', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have a pagination element inside group grid', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

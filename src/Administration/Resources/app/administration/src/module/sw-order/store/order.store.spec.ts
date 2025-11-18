@@ -49,14 +49,14 @@ describe('src/module/sw-order/store/order.store', () => {
                 removeLineItems: removeLineItemsMock,
                 saveLineItem: saveLineItemMock,
                 addMultipleLineItems: addMultipleLineItemsMock,
-            }  as unknown as CartStoreService;
+            } as unknown as CartStoreService;
         });
         // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
         Shopware.Service().register('contextStoreService', () => {
             return {
                 getSalesChannelContext: getSalesChannelContextMock,
                 updateContext: updateContextMock,
-            }  as unknown as ContextStoreService;
+            } as unknown as ContextStoreService;
         });
         // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
         Shopware.Service().register('checkoutStoreService', () => {
@@ -282,9 +282,13 @@ describe('src/module/sw-order/store/order.store', () => {
     });
 
     it('cancels cart', async () => {
+        const spy = jest.spyOn(store, '$reset');
         await store.cancelCart({ salesChannelId: '1', contextToken: token });
 
         expect(cancelCartMock).toHaveBeenLastCalledWith('1', token);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(store.customer).toBeNull();
+        expect(store.cart.lineItems).toHaveLength(0);
     });
 
     it('updates order context', async () => {

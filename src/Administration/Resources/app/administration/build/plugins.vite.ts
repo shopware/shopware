@@ -25,16 +25,16 @@ import AssetPlugin from './vite-plugins/asset-plugin';
 import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
-import { loadExtensions, findAvailablePorts, isInsideDockerContainer, getContainerIP } from './vite-plugins/utils';
+import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
 
 const VITE_MODE = process.env.VITE_MODE || 'development';
 const isDev = VITE_MODE === 'development';
-
-// This env variable is provided by the symfony recipes
-const hasAdminRootEnv = !!process.env.ADMIN_ROOT;
-const host = process.env.VITE_HOST || (isInsideDockerContainer() ? getContainerIP() : undefined) || 'localhost';
+const adminSrcPath = process.env.ADMIN_ROOT
+    ? path.join(process.env.ADMIN_ROOT, 'Resources', 'app', 'administration', 'src')
+    : path.join(path.dirname(__dirname), 'src');
+const host = process.env.VITE_HOST || 'localhost';
 
 const extensionEntries = loadExtensions();
 
@@ -98,21 +98,10 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
                     find: /^src\//,
                     replacement: '/src/',
                 },
-
-                // In the symfony recipes, shopware lies in the vendor folder, therefore we can't use the PROJECT_ROOT
-                ...(hasAdminRootEnv
-                    ? [
-                          {
-                              find: /^~scss\/(.*)/,
-                              replacement: `${process.env.ADMIN_ROOT}/Resources/app/administration/src/app/assets/scss/$1.scss`,
-                          },
-                      ]
-                    : [
-                          {
-                              find: /^~scss\/(.*)/,
-                              replacement: `${process.env.PROJECT_ROOT}/src/Administration/Resources/app/administration/src/app/assets/scss/$1.scss`,
-                          },
-                      ]),
+                {
+                    find: /^~scss\/(.*)/,
+                    replacement: `${adminSrcPath}/app/assets/scss/$1.scss`,
+                },
                 {
                     find: /^~(.*)$/,
                     replacement: '$1',
@@ -165,9 +154,7 @@ const main = async () => {
     let hasFailedBuilds = false;
 
     if (isDev) {
-        const availablePorts = await findAvailablePorts(5333, extensionEntries.length);
-        const extensionsServerScheme = process.env.VITE_EXTENSIONS_SERVER_SCHEME || 'http';
-        const extensionsServerHost = process.env.VITE_EXTENSIONS_SERVER_HOST || host || 'localhost';
+        const extensionPorts = getViteServerPorts();
 
         // Create sw-plugin-dev.json for development mode
         const swPluginDevJsonData = {
@@ -191,12 +178,13 @@ const main = async () => {
             }
 
             if (extension.isApp) {
-                swPluginDevJsonData[extension.technicalName].html = `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/index.html`;
+                swPluginDevJsonData[extension.technicalName].html = `/_internal_ext/${extension.technicalName}/index.html`;
             }
 
             if (extension.isPlugin) {
-                swPluginDevJsonData[extension.technicalName].js = `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/${fileName}`;
-                swPluginDevJsonData[extension.technicalName].hmrSrc = `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/@vite/client`;
+                swPluginDevJsonData[extension.technicalName].js = `/_internal_ext/${extension.technicalName}/${fileName}`;
+                swPluginDevJsonData[extension.technicalName].hmrSrc =
+                    `/_internal_ext/${extension.technicalName}/@vite/client`;
             }
         });
 
@@ -208,7 +196,6 @@ const main = async () => {
         // Start dev servers
         for (let i = 0; i < extensionEntries.length; i++) {
             const extension = extensionEntries[i];
-            const port = availablePorts[i];
             const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
 
             let server;
@@ -217,9 +204,10 @@ const main = async () => {
                 // For apps
                 server = await createServer({
                     root: extension.path,
+                    base: `/_internal_ext/${extension.technicalName}/`,
                     server: {
-                        port,
-                        host,
+                        host: '127.0.0.1',
+                        port: extensionPorts[extension.technicalName],
                         cors: true,
                     },
                 });
@@ -229,9 +217,10 @@ const main = async () => {
                 // For plugins
                 server = await createServer({
                     ...getBaseConfig(extension),
+                    base: `/_internal_ext/${extension.technicalName}/`,
                     server: {
-                        port,
-                        host,
+                        host: '127.0.0.1',
+                        port: extensionPorts[extension.technicalName],
                         cors: true,
                     },
                 });

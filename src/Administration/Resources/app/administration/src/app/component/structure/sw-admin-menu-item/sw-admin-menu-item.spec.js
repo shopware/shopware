@@ -85,17 +85,6 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         Shopware.Store.get('settingsItems').settingsGroups.system = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper({
-            props: {
-                entry: catalogues,
-            },
-        });
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain all menu entries', async () => {
         const wrapper = await createWrapper({
             props: {

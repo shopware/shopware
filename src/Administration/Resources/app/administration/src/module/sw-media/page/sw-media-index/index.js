@@ -84,13 +84,6 @@ export default {
 
     methods: {
         createdComponent() {
-            // Vue router sets the folder id to an empty string if the page is reloaded
-            if (this.routeFolderId === '') {
-                this.updateRoute(null);
-
-                return;
-            }
-
             this.updateFolder();
         },
 
@@ -180,7 +173,7 @@ export default {
         },
 
         updateRoute(newFolderId) {
-            this.term = this.$route.query?.term ?? '';
+            this.term = this.$route.query?.term ?? this.term ?? '';
             this.$router.push({
                 name: 'sw.media.index',
                 params: {

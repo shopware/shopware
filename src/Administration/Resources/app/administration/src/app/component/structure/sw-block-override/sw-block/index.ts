@@ -2,7 +2,7 @@
  * @sw-package framework
  *
  */
-import { computed, onBeforeUnmount, provide, ref, type ComponentInternalInstance, type PropType, type Slot } from 'vue';
+import { computed, onBeforeUnmount, provide, ref, type ComponentInternalInstance, type Slot } from 'vue';
 import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
 

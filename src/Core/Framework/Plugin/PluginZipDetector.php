@@ -19,7 +19,7 @@ class PluginZipDetector
     {
         try {
             $archive = ZipUtils::openZip($zipFilePath);
-        } catch (PluginExtractionException $e) {
+        } catch (PluginExtractionException) {
             throw PluginException::noPluginFoundInZip($zipFilePath);
         }
 

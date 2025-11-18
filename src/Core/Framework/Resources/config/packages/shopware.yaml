@@ -7,6 +7,7 @@ parameters:
 shopware:
     http_cache:
         cookies: []
+        soft_purge: false
         reverse_proxy:
             enabled: false
             ban_method: "BAN" # This can defer from used reverse proxy
@@ -69,12 +70,15 @@ shopware:
             - 'utm_marketing_tactic'
             - '_gl'
             - 'gclsrc'
+            - 'gPromoCode' # Google Merchant Center
+            - 'gQT' # Google Merchant Center
             - 'gclid'
             - 'srsltid'
             - 'dclid'
             - 'gbraid'
             - 'wbraid'
             - 'gad_source'
+            - 'gad_campaignid'
             - 'fbclid' # Facebook
             - 'fb_action_ids'
             - 'fb_action_types'
@@ -127,16 +131,21 @@ shopware:
             - 'ScCid' # Snapchat
             - 'rtid' # Rokt
             - 'irclickid' # Impact
+            - 'klar_source'
+            - 'klar_cpid'
+            - 'klar_adid'
 
     profiler:
         integrations: []
     filesystem:
         private:
             type: "local"
+            visibility: "private"
             config:
                 root: "%kernel.project_dir%/files"
         public:
             type: "local"
+            visibility: "public"
             config:
                 root: "%kernel.project_dir%/public"
         temp:
@@ -146,10 +155,11 @@ shopware:
         theme:
         asset:
         sitemap:
-        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb", "csv", "xls", "xlsx", "html"]
-        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml"]
+        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "csv", "xls", "xlsx", "html", "vtt", "srt", "sub", "ass", "ssa"]
+        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml", "vtt", "srt", "sub", "ass", "ssa"]
         private_local_download_strategy: "php"
         private_local_path_prefix: ""
+        batch_write_size: 250
 
     cdn:
         url: ''
@@ -185,6 +195,8 @@ shopware:
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
             max_limit: 100
+        static_token: # Optionally used for 'Authorization: Static ...' header in addition to normal bearer authorization for specific HTTP endpoints
+            health_check: ''
         rate_limiter:
             login:
                 enabled: true
@@ -300,6 +312,8 @@ shopware:
         batchsize: 100
         custom_urls:
         excluded_urls:
+        scheduled_task:
+            enabled: true
 
     deployment:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
@@ -325,6 +339,7 @@ shopware:
 
     cart:
         compress: false
+        serialization_max_mb_size:
         expire_days: 120
         storage:
             # supported types: mysql, redis
@@ -506,7 +521,10 @@ shopware:
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
+        twig:
+            string_template_renderer_cache_dir: '%kernel.cache_dir%/twig/string-template-renderer'
         invalidation:
+            delay_enabled: true
             delay_options:
                 storage: mysql
             http_cache: ['logged-in', 'cart-filled']
@@ -552,7 +570,11 @@ shopware:
         default: []
 
     messenger:
+        message_max_kib_size: 1024 # in KiB
+        scheduled_task:
+            requeue_timeout: 12 # requeue stuck messages after 12 hours
         routing_overwrite:
+        stats:
 
     product_stream:
         indexing: true

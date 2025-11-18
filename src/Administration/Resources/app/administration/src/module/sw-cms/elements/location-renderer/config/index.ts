@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-cms-el-config-location-renderer.html.twig';
 import type { ElementDataProp } from '../index';
 
@@ -53,7 +52,7 @@ export default Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            this.initElementConfig(this.elementData.name);
+            this.initElementConfig();
 
             /**
              * @deprecated tag:v6.8.0 - Will be removed

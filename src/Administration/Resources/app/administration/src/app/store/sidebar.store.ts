@@ -30,12 +30,13 @@ const sidebarsStore = Shopware.Store.register({
 
     actions: {
         // Extension API message methods
-        addSidebar({ locationId, title, icon, baseUrl }: SidebarItemEntry) {
+        addSidebar({ locationId, title, icon, resizable, baseUrl }: SidebarItemEntry) {
             const sidebar = reactive({
                 title,
                 icon,
                 locationId,
                 baseUrl,
+                resizable,
                 active: false,
             });
 

@@ -20,6 +20,7 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
                 'sw-app-wrong-app-url-modal': true,
                 'router-view': true,
                 'sw-skip-link': true,
+                'sw-media-modal-renderer': true,
             },
             mocks: {
                 $router: {
@@ -64,12 +65,6 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
         await flushPromises();
 
         localStorage.removeItem('lastActivity');
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(false);
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should update user activity on mousemove', async () => {

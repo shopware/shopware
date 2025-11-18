@@ -40,6 +40,7 @@ export interface ContextState {
             versionRevision: null | string;
             inAppPurchases: Record<string, string[]>;
             shopId: null | string;
+            appUrl: null | string;
         };
         environment: null | 'development' | 'production' | 'testing';
         fallbackLocale: null | string;
@@ -71,6 +72,9 @@ export interface ContextState {
         currencyId: null | string;
         versionId: null | string;
         refreshTokenTtl: null | string;
+        serviceRegistryUrl: null | string;
+        measurementLengthUnit: null | string;
+        measurementWeightUnit: null | string;
     };
 }
 
@@ -83,6 +87,7 @@ const state: ContextState = reactive({
             versionRevision: null,
             inAppPurchases: {},
             shopId: null,
+            appUrl: null,
         },
         environment: null,
         fallbackLocale: null,
@@ -109,6 +114,9 @@ const state: ContextState = reactive({
         currencyId: null,
         versionId: null,
         refreshTokenTtl: null,
+        serviceRegistryUrl: null,
+        measurementLengthUnit: null,
+        measurementWeightUnit: null,
     },
 });
 

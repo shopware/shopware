@@ -9,6 +9,7 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,7 +57,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         if ($page->getMetaInformation()) {
             $canonical = ($navigationId === $context->getSalesChannel()->getNavigationCategoryId())
                 ? $this->seoUrlReplacer->generate('frontend.home.page')
-                : $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $navigationId]);
+                : $this->seoUrlReplacer->generate(NavigationPageSeoUrlRoute::ROUTE_NAME, ['navigationId' => $navigationId]);
 
             $page->getMetaInformation()->setCanonical($canonical);
         }

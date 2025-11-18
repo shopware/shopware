@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -111,6 +112,15 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(DataAbstractionLayerException::VERSION_MERGE_ALREADY_LOCKED, $e->getErrorCode());
         static::assertSame('Merging of version version-id is locked, as the merge is already running by another process.', $e->getMessage());
+    }
+
+    public function testEntityNotVersionAware(): void
+    {
+        $e = DataAbstractionLayerException::entityNotVersionAware('entity-name');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::ENTITY_NOT_VERSION_AWARE, $e->getErrorCode());
+        static::assertSame('Entity "entity-name" is not version aware', $e->getMessage());
     }
 
     public function testExpectedArray(): void
@@ -228,5 +238,40 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertSame(DataAbstractionLayerException::UNSUPPORTED_QUERY_FILTER, $exception->getErrorCode());
         static::assertSame('Unsupported query foo', $exception->getMessage());
+    }
+
+    public function testInvalidSortingDirection(): void
+    {
+        $e = DataAbstractionLayerException::invalidSortingDirection('foo');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__INVALID_SORT_DIRECTION', $e->getErrorCode());
+        static::assertSame('The given sort direction "foo" is invalid.', $e->getMessage());
+    }
+
+    public function testConfigNotFound(): void
+    {
+        $e = DataAbstractionLayerException::configNotFound();
+
+        static::assertSame('Configuration for product search definition not found', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND', $e->getErrorCode());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testConfigNotFound will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testConfigNotFoundDeprecated(): void
+    {
+        if (!\class_exists('\Shopware\Elasticsearch\Product\ElasticsearchProductException')) {
+            static::markTestSkipped('\Shopware\Elasticsearch\Product\ElasticsearchProductException does not exist');
+        }
+
+        $e = DataAbstractionLayerException::configNotFound();
+
+        static::assertSame('Configuration for product elasticsearch definition not found', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('ELASTICSEARCH_PRODUCT__CONFIGURATION_NOT_FOUND', $e->getErrorCode());
     }
 }

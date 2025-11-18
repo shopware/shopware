@@ -16,6 +16,8 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -33,6 +35,7 @@ use Shopware\Core\Test\Generator;
 #[Package('checkout')]
 class AddressValidatorTest extends TestCase
 {
+    /** @var MockObject&EntityRepository<EntityCollection<Entity>> */
     private MockObject&EntityRepository $repository;
 
     private AddressValidator $validator;
@@ -57,7 +60,7 @@ class AddressValidatorTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -90,7 +93,7 @@ class AddressValidatorTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -116,7 +119,7 @@ class AddressValidatorTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -164,11 +167,11 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::generateSalesChannelContext(country: $country, countryState: $countryState, customer: $customer);
+        $context = Generator::generateSalesChannelContext(customer: $customer, country: $country, countryState: $countryState);
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -219,11 +222,11 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::generateSalesChannelContext(country: $country, countryState: $countryState, customer: $customer);
+        $context = Generator::generateSalesChannelContext(customer: $customer, country: $country, countryState: $countryState);
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -276,11 +279,11 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::generateSalesChannelContext(country: $country, countryState: $countryState, customer: $customer);
+        $context = Generator::generateSalesChannelContext(customer: $customer, country: $country, countryState: $countryState);
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );

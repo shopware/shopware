@@ -1,0 +1,312 @@
+{
+  "sw-customer": {
+    "error": {
+      "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist die Firma ein Pflichtfeld",
+      "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein."
+    },
+    "notification": {
+      "requiredFields": "Bitte fülle alle Pflichtfelder aus."
+    },
+    "general": {
+      "mainMenuItemGeneral": "Kunden",
+      "mainMenuItemList": "Übersicht",
+      "mainMenuItemAdd": "Kunden anlegen",
+      "descriptionTextModule": "Verwaltung von Kunden.",
+      "placeholderSearchBar": "Durchsuche alle Kunden ...",
+      "newCustomer": "Neuer Kunde",
+      "tooltipLanguageSwitch": "Die Sprachauswahl ist deaktiviert, da keine übersetzbaren Felder existieren."
+    },
+    "customerGroupRegistration": {
+      "alert": "Zugang zur Kundengruppe \"{name}\" angefragt.",
+      "accept": "Akzeptieren",
+      "acceptMessage": "Kundengruppe wurde geändert",
+      "decline": "Ablehnen",
+      "declineMessage": "Antrag wurde abgelehnt",
+      "errorMessage": "Anfrage kann nicht verarbeitet werden",
+      "notification": {
+        "title": "Händlerstatus-Anfrage",
+        "message": "Kunde \"{name}\" möchte in Kundengruppe \"{groupName}\" aufgenommen werden.",
+        "openCustomer": "Kunden öffnen"
+      }
+    },
+    "card": {
+      "buttonImitateCustomer": "Als Kunde anmelden",
+      "tooltipImitateCustomerGuest": "Gastbesteller können nicht imitiert werden.",
+      "tooltipImitateCustomerInactive": "Inaktive Kunden können nicht imitiert werden.",
+      "tooltipImitateCustomerInactiveSalesChannel": "Der Verkaufskanal des Kunden ist inaktiv.",
+      "tooltipImitateCustomerNoDomain": "Der Verkaufskanal des Kunden hat keine Domain.",
+      "tooltipImitateCustomerNoStorefront": "Der Verkaufskanal des Kunden ist nicht vom Typ Storefront.",
+      "placeholderTitle": "Titel",
+      "placeholderFirstName": "Vorname",
+      "placeholderLastName": "Nachname",
+      "placeholderCompany": "Firma",
+      "placeholderEmail": "E-Mail-Adresse",
+      "placeholderNewPassword": "Neues Passwort eingeben ...",
+      "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
+      "labelSalutation": "Anrede",
+      "labelTitle": "Titel",
+      "labelFirstName": "Vorname",
+      "labelLastName": "Nachname",
+      "labelCompany": "Firma",
+      "labelEmail": "E-Mail-Adresse",
+      "labelTags": "Tags",
+      "labelGuest": "Gastbesteller",
+      "labelVatId": "USt-IdNr.",
+      "placeholderVatId": "Gib die USt-IdNr. ein ..."
+    },
+    "list": {
+      "textCustomers": "Kunden",
+      "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
+      "buttonAddCustomer": "Kunden anlegen",
+      "columnCompany": "Firma",
+      "columnCustomerNumber": "Kundennummer",
+      "columnName": "Name",
+      "columnGroup": "Kundengruppe",
+      "columnGroupRequested": "Angefragt:",
+      "columnNameGuestLabel": "Gastbesteller",
+      "labelCreatedByAdmin": "Erstellt von Admin",
+      "columnFirstName": "Vorname",
+      "columnLastName": "Nachname",
+      "columnStreet": "Straße",
+      "columnZip": "PLZ",
+      "columnCity": "Stadt",
+      "columnEmail": "E-Mail-Adresse",
+      "columnLastLogin": "Zuletzt angemeldet",
+      "columnActions": "Aktion(en)",
+      "columnAffiliateCode": "Affiliate-Code",
+      "columnCampaignCode": "Kampagnen-Code",
+      "columnBoundSalesChannel": "Verkaufskanal",
+      "columnActive": "Aktiv",
+      "columnCreatedAt": "Erstellt am",
+      "emptyBoundSalesChannel": "Alle",
+      "contextMenuView": "Anzeigen",
+      "contextMenuDuplicate": "Duplizieren",
+      "contextMenuDelete": "Löschen",
+      "contextMenuEdit": "Bearbeiten",
+      "messageEmpty": "Noch keine Kunden",
+      "textDeleteConfirm": "Möchtest Du den Kunden \"{name}\" wirklich löschen?",
+      "buttonDelete": "Löschen",
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "titleSidebarItemFilter": "Filter",
+      "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
+      "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
+      "titleSidebarItemFilterRequestedGroup": "Nur Kunden anzeigen mit Kundengruppen Anfrage"
+    },
+    "baseForm": {
+      "labelSalutation": "Anrede",
+      "labelTitle": "Titel",
+      "labelFirstName": "Vorname",
+      "labelLastName": "Nachname",
+      "labelEmail": "E-Mail-Adresse",
+      "labelPhoneNumber": "Telefonnummer",
+      "labelCompany": "Firma",
+      "labelCustomerGroup": "Kundengruppe",
+      "labelSalesChannel": "Verkaufskanal",
+      "labelPaymentMethod": "Zahlungsart",
+      "labelCustomerNumber": "Kundennummer",
+      "labelBirthday": "Geburtsdatum",
+      "labelPassword": "Passwort",
+      "placeholderPassword": "Gib ein Passwort ein ...",
+      "helpTextPassword": "Das Passwort kann nach dem Speichern des Kunden nur direkt vom Kunden geändert werden.",
+      "placeholderSalutation": "Anrede wählen ...",
+      "placeholderTitle": "Gib einen Titel ein ...",
+      "placeholderFirstName": "Gib einen Vornamen ein ...",
+      "placeholderLastName": "Gib einen Nachnamen ein ...",
+      "placeholderEmail": "Gib eine E-Mail-Adresse ein ...",
+      "placeholderCustomerNumber": "Gib eine Kundennummer ein ...",
+      "placeholderCustomerGroup": "Wähle eine Kundengruppe ...",
+      "placeholderSalesChannel": "Wähle einen Verkaufskanal ...",
+      "placeholderPaymentMethod": "Wähle eine Zahlungsart ...",
+      "labelTags": "Tags",
+      "placeholderTags": "Wähle Tags aus ..."
+    },
+    "baseInfo": {
+      "contactEmail": "E-Mail-Adresse",
+      "labelCustomerNumber": "Kundennummer",
+      "labelCustomerGroup": "Kundengruppe",
+      "labelBirthday": "Geburtsdatum",
+      "labelLastLogin": "Letzte Anmeldung",
+      "labelLanguage": "Sprache",
+      "labelOrders": "Anzahl Bestellungen",
+      "labelTurnover": "Umsatz",
+      "labelDefaultPayment": "Standardzahlungsart",
+      "labelActive": "Kontostatus",
+      "labelConfirmed": "E-Mail-Adress-Status",
+      "labelAffiliateCode": "Affiliate-Code",
+      "labelCampaignCode": "Kampagnen-Code",
+      "labelCompany": "Unternehmen",
+      "labelVatId": "USt-IdNr.",
+      "contentActive": "Aktiv | Inaktiv",
+      "contentConfirmed": "Bestätigt | Unbestätigt",
+      "emptyTextLogin": "Noch keine Anmeldung",
+      "emptyTextBirthday": "keine Angabe",
+      "labelBoundSalesChannel": "Verkaufskanal",
+      "emptyBoundSalesChannel": "Alle",
+      "helpTextBoundSalesChannel": "Dieser Kunde kann sich in folgenden Verkaufskanälen anmelden",
+      "placeholderCustomerAffiliateCode": "Gib einen Affiliate-Code ein ...",
+      "placeholderCustomerCampaignCode": "Gib einen Kampagnen-Code ein ..."
+    },
+    "detailBase": {
+      "labelAccountCard": "Konto",
+      "labelAddressesCard": "Adressen",
+      "labelOrderCard": "Bestellungen",
+      "titleDefaultShippingAddress": "Standard-Lieferadresse",
+      "titleDefaultBillingAddress": "Standard-Rechnungsadresse",
+      "buttonAddAddress": "Adresse anlegen",
+      "buttonTitleEditAddress": "Adresse bearbeiten",
+      "buttonSave": "Speichern",
+      "buttonEdit": "Kunden bearbeiten",
+      "buttonChangePassword": "Passwort ändern",
+      "labelAccountActiveField": "Konto ist aktiv"
+    },
+    "detailAddresses": {
+      "buttonAddAddress": "Adresse anlegen",
+      "buttonClose": "Schließen",
+      "buttonDelete": "Löschen",
+      "buttonSelect": "Auswahl",
+      "buttonSaveAndSelect": "Speichern und auswählen",
+      "modalTitleAddress": "Adresse",
+      "modalTitleAddAddress": "Adresse hinzufügen",
+      "modalTitleEditAddress": "Adresse bearbeiten",
+      "textDeleteAddressConfirm": "Möchtest Du diese Adresse wirklich löschen?",
+      "columnDefaultShippingAddress": "Standard-Lieferadresse",
+      "columnDefaultBillingAddress": "Standard-Rechnungsadresse",
+      "columnCompany": "Firma",
+      "columnFirstName": "Vorname",
+      "columnLastName": "Nachname",
+      "columnStreet": "Straße",
+      "columnZipCode": "PLZ",
+      "columnCity": "Stadt",
+      "columnActions": "Aktionen",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "contextMenuDuplicate": "Duplizieren",
+      "contextMenuDefaultShippingAddress": "Als Standard-Lieferadresse festlegen",
+      "contextMenuDefaultBillingAddress": "Als Standard-Rechnungsadresse festlegen"
+    },
+    "detailOrder": {
+      "searchbarPlaceholder": "Suche nach Bestellungen",
+      "columnNumber": "Bestellnummer",
+      "columnAmount": "Betrag",
+      "columnOrderState": "Bestellstatus",
+      "columnOrderDate": "Bestelldatum",
+      "columnContextOpenOrder": "Bestellung öffnen",
+      "emptyTitle": "Noch keine Bestellungen",
+      "emptySearchTitle": "Keine Suchergebnisse",
+      "emptySubline": "Hier kannst Du die Bestellungen Deiner Kunden verwalten",
+      "buttonCreateOrder": "Bestellung anlegen",
+      "ordersTitle": "Bestellungen"
+    },
+    "imitateCustomerModal": {
+      "modalTitle": "Anmelden als {firstname} {lastname}",
+      "modalDescription": "Wähle den Verkaufskanal, in dem Du Dich als {firstname} {lastname} anmelden möchtest.",
+      "modalInfo": "Bitte denke daran, Dich {logout}, nachdem du Deine Arbeit erledigt hast.",
+      "modalInfoLogout": "abzumelden",
+      "modalInfoNoDomains": "Keine aktive Domain gefunden. Bitte überprüfe die Verkaufskanaleinstellungen.",
+      "labelCancel": "Schließen"
+    },
+    "addressForm": {
+      "labelCompany": "Firma",
+      "labelDepartment": "Abteilung",
+      "labelSalutation": "Anrede",
+      "labelTitle": "Titel",
+      "labelFirstName": "Vorname",
+      "labelLastName": "Nachname",
+      "labelZipcode": "PLZ",
+      "labelStreet": "Straße",
+      "labelCity": "Stadt",
+      "labelCountry": "Land",
+      "labelState": "Bundesland",
+      "labelAdditionalAddressLine1": "Adresszusatz 1",
+      "labelAdditionalAddressLine2": "Adresszusatz 2",
+      "labelPhoneNumber": "Telefonnummer",
+      "labelVatId": "USt-IdNr.",
+      "labelSameBillingAddress": "Entspricht Rechnungsadresse",
+      "placeholderCompany": "Gib einen Firmennamen ein ...",
+      "placeholderDepartment": "Gib die Abteilung ein ...",
+      "placeholderSalutation": "Wähle Anrede ...",
+      "placeholderTitle": "Gib einen Titel ein ...",
+      "placeholderFirstName": "Gib einen Vornamen ein ...",
+      "placeholderLastName": "Gib einen Nachnamen ein ...",
+      "placeholderZipcode": "Gib eine Postleitzahl an ...",
+      "placeholderStreet": "Gib einen Straßennamen ein ...",
+      "placeholderCity": "Gib eine Stadt ein ...",
+      "placeholderCountry": "Wähle ein Land aus ...",
+      "placeholderState": "Wähle ein (Bundes-)Land aus ...",
+      "placeholderAdditionalAddressLine1": "Gib eine erste Adresszeile ein ...",
+      "placeholderAdditionalAddressLine2": "Gib eine zweite Adresszeile ein ...",
+      "placeholderPhoneNumber": "Gib eine Telefonnummer an ...",
+      "placeholderVatId": "Gib die USt-IdNr. ein ..."
+    },
+    "detail": {
+      "buttonSave": "Speichern",
+      "buttonEdit": "Bearbeiten",
+      "tabGeneral": "Allgemein",
+      "tabAddresses": "Adressen",
+      "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
+      "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
+      "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
+      "notificationImitateCustomerErrorMessage": "Bei der Anmeldung als Kunde ist ein Fehler aufgetreten. Bitte stelle sicher, das Pop-Ups Fenster erlaubt sind.",
+      "labelCreatedByAdmin": "Erstellt von Admin"
+    },
+    "filter": {
+      "customerNumber": {
+        "label": "Kundenummer",
+        "placeholder": "Kundenummer eingeben ..."
+      },
+      "salutation": {
+        "label": "Anrede",
+        "placeholder": "Anrede auswählen ..."
+      },
+      "status": {
+        "label": "Status",
+        "placeholder": "Status auswählen ..."
+      },
+      "customerGroup": {
+        "label": "Kundengruppe",
+        "placeholder": "Kundengruppe auswählen ..."
+      },
+      "billingCountry": {
+        "label": "Rechnungsland",
+        "placeholder": "Rechnungsländer auswählen ..."
+      },
+      "shippingCountry": {
+        "label": "Lieferland",
+        "placeholder": "Lieferländer auswählen ..."
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "Tags auswählen ..."
+      },
+      "affiliateCode": {
+        "label": "Affiliate-Code",
+        "placeholder": "Affiliate-Code eingeben ..."
+      },
+      "campaignCode": {
+        "label": "Kampagnen-Code",
+        "placeholder": "Kampagnen-Code eingeben ..."
+      },
+      "customerGroupRequest": {
+        "label": "Kundengruppen-Anfragen",
+        "placeholder": "Wähle einen Anfragestatus ...",
+        "textHasCriteria": "Offenen Kundengruppen-Anfragen",
+        "textNoCriteria": "Keine Kundengruppen-Anfragen"
+      },
+      "messageEmptyTitle": "Nichts gefunden",
+      "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."
+    },
+    "customerType": {
+      "labelAccountType": "Kundentyp",
+      "placeholderAccountType": "Gib die Kundentyp ein ...",
+      "labelPrivate": "Privat",
+      "labelBusiness": "Gewerblich"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "customer": {
+        "label": "Kunden"
+      }
+    }
+  }
+}

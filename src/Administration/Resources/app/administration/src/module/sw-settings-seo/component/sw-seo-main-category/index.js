@@ -10,7 +10,10 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: ['main-category-add'],
+    emits: [
+        'main-category-add',
+        'main-category-remove',
+    ],
 
     props: {
         currentSalesChannelId: {
@@ -91,7 +94,11 @@ export default {
             this.refreshMainCategoryForSalesChannel();
         },
         onMainCategorySelected(categoryId) {
-            if (categoryId === null) {
+            if (!categoryId) {
+                if (this.mainCategoryForSalesChannel) {
+                    this.$emit('main-category-remove', this.mainCategoryForSalesChannel);
+                    this.mainCategoryForSalesChannel = null;
+                }
                 return;
             }
 

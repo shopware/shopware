@@ -1,9 +1,7 @@
-@import "~scss/variables";
-
 .sw-condition-modal {
     &.sw-modal {
         .sw-modal__body {
-            padding: 10px 0 170px;
+            padding: var(--scale-size-12) 0 var(--scale-size-160);
         }
 
         .sw-modal__footer {

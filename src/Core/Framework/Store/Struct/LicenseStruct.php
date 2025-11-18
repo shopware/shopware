@@ -21,7 +21,7 @@ class LicenseStruct extends Struct
 
     protected float $netPrice;
 
-    protected ?\DateTimeImmutable $nextBookingDate;
+    protected ?\DateTimeImmutable $nextBookingDate = null;
 
     protected ExtensionStruct $licensedExtension;
 

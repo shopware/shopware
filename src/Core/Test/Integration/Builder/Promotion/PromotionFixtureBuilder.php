@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Test\Integration\Builder\Promotion;
 
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,13 +25,18 @@ class PromotionFixtureBuilder
     /**
      * @var list<array<string, mixed>>
      */
-    private array $dataSetGroups;
+    private array $dataSetGroups = [];
 
     /**
      * @var list<array<string, mixed>>
      */
-    private array $dataDiscounts;
+    private array $dataDiscounts = [];
 
+    /**
+     * @param EntityRepository<PromotionCollection> $promotionRepository
+     * @param EntityRepository<PromotionSetGroupCollection> $promotionSetgroupRepository
+     * @param EntityRepository<PromotionDiscountCollection> $promotionDiscountRepository
+     */
     public function __construct(
         private readonly string $promotionId,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
@@ -36,9 +44,6 @@ class PromotionFixtureBuilder
         private readonly EntityRepository $promotionSetgroupRepository,
         private readonly EntityRepository $promotionDiscountRepository
     ) {
-        $this->dataSetGroups = [];
-        $this->dataDiscounts = [];
-
         $this->context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 

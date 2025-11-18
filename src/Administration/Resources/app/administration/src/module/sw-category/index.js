@@ -46,7 +46,7 @@ Module.register('sw-category', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'regular-products',
+    icon: 'solid-products',
     favicon: 'icon-module-products.png',
     entity: 'category',
 
@@ -151,7 +151,7 @@ Module.register('sw-category', {
             props: {
                 default(route) {
                     return {
-                        categoryId: route.params.id,
+                        categoryId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -189,7 +189,7 @@ Module.register('sw-category', {
             props: {
                 default(route) {
                     return {
-                        landingPageId: route.params.id,
+                        landingPageId: route.params.id.toLowerCase(),
                     };
                 },
             },

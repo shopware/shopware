@@ -12,6 +12,15 @@
                 "operationId": "searchSuggest",
                 "parameters": [
                     {
+                        "name": "p",
+                        "in": "query",
+                        "description": "The page number to fetch.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
                         "name": "sw-language-id",
                         "in": "header",
                         "description": "Instructs Shopware to return the response in the given language.",
@@ -19,6 +28,20 @@
                         "schema": {
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
                         }
                     }
                 ],
@@ -39,6 +62,9 @@
                                             }
                                         },
                                         "type": "object"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ProductListingCriteria"
                                     },
                                     {
                                         "$ref": "#/components/schemas/ProductListingFlags"

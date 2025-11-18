@@ -51,6 +51,7 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomEntity\CustomEntityCollection;
 use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
@@ -86,6 +87,9 @@ class AppLifecycleTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<CustomEntityCollection>
+     */
     private EntityRepository $customEntityRepository;
 
     protected function setUp(): void
@@ -414,7 +418,22 @@ class AppLifecycleTest extends TestCase
             ],
             'customFieldSets' => [
                 [
-                    'name' => 'test',
+                    'name' => 'custom_field_test',
+                    'customFields' => [
+                        [
+                            'name' => 'bla_test2',
+                            'type' => 'text',
+                        ],
+                    ],
+                ],
+                [
+                    'name' => 'custom_field_test', // same name used twice, sets should be deleted and recreated
+                    'customFields' => [
+                        [
+                            'name' => 'bla_test',
+                            'type' => 'text',
+                        ],
+                    ],
                 ],
             ],
             'aclRole' => [
@@ -479,7 +498,7 @@ class AppLifecycleTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -673,7 +692,7 @@ class AppLifecycleTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -776,7 +795,7 @@ class AppLifecycleTest extends TestCase
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
 
         $app = [
             'id' => $id,
@@ -1794,7 +1813,7 @@ class AppLifecycleTest extends TestCase
     {
         static::assertCount(2, $app->getModules());
 
-        static::assertSame([
+        static::assertEquals([
             [
                 'name' => 'first-module',
                 'label' => [
@@ -1876,7 +1895,7 @@ class AppLifecycleTest extends TestCase
         static::assertContains('product', $relatedEntities);
         static::assertContains('customer', $relatedEntities);
 
-        static::assertSame([
+        static::assertEquals([
             'label' => [
                 'de-DE' => 'Zusatzfeld Test',
                 'en-GB' => 'Custom field test',
@@ -2288,7 +2307,7 @@ class AppLifecycleTest extends TestCase
         static::assertSame($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
         $parameters = json_decode((string) $appFlowAction['parameters'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($parameters);
-        static::assertSame(
+        static::assertEquals(
             [
                 [
                     'name' => 'message',
@@ -2302,7 +2321,7 @@ class AppLifecycleTest extends TestCase
 
         $config = json_decode((string) $appFlowAction['config'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($config);
-        static::assertSame(
+        static::assertEquals(
             [
                 [
                     'name' => 'text',
@@ -2330,7 +2349,7 @@ class AppLifecycleTest extends TestCase
 
         $headers = json_decode((string) $appFlowAction['headers'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($headers);
-        static::assertSame(
+        static::assertEquals(
             [
                 [
                     'name' => 'content-type',
@@ -2344,7 +2363,7 @@ class AppLifecycleTest extends TestCase
 
         $requirements = json_decode((string) $appFlowAction['requirements'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($requirements);
-        static::assertSame(
+        static::assertEquals(
             [
                 'orderAware',
                 'customerAware',

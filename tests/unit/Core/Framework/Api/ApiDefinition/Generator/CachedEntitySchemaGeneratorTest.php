@@ -7,6 +7,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Log\Package;
@@ -52,7 +53,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
             ->willThrowException(new \RuntimeException());
 
         static::expectException(\RuntimeException::class);
-        $this->cachedEntitySchemaGenerator->generate([], 'api', 'json', null);
+        $this->cachedEntitySchemaGenerator->generate([], DefinitionService::API, 'json', null);
     }
 
     public function testGetSchemaUtilizesCacheIfPresent(): void

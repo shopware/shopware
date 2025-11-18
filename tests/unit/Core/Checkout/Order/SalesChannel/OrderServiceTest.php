@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -33,6 +34,7 @@ class OrderServiceTest extends TestCase
 {
     private MockObject&CartService $cartService;
 
+    /** @var MockObject&EntityRepository<PaymentMethodCollection> */
     private MockObject&EntityRepository $paymentMethodRepository;
 
     private OrderService $orderService;

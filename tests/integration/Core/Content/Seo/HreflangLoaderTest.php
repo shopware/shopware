@@ -4,9 +4,11 @@ namespace Shopware\Tests\Integration\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,8 +33,14 @@ class HreflangLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<SeoUrlCollection>
+     */
     private EntityRepository $seoUrlRepository;
 
+    /**
+     * @var EntityRepository<SalesChannelDomainCollection>
+     */
     private EntityRepository $salesChannelDomainRepository;
 
     private SalesChannelContext $salesChannelContext;
@@ -85,6 +93,7 @@ class HreflangLoaderTest extends TestCase
         $domain->setUrl('https://test.de');
         $domain->setHreflangUseOnlyLocale(false);
         $domain->setLanguageId($languageId);
+        $domain->setMeasurementUnits(MeasurementUnits::createDefaultUnits());
 
         static::assertInstanceOf(SalesChannelDomainCollection::class, $this->salesChannelContext->getSalesChannel()->getDomains());
         $this->salesChannelContext->getSalesChannel()->getDomains()->add($domain);
@@ -321,7 +330,7 @@ class HreflangLoaderTest extends TestCase
         static::assertInstanceOf(LocaleEntity::class, $last->getLocale());
 
         foreach ($links->getElements() as $element) {
-            if ($element->getLocale() === mb_substr((string) $first->getLocale()->getCode(), 0, 2)) {
+            if ($element->getLocale() === mb_substr($first->getLocale()->getCode(), 0, 2)) {
                 static::assertSame('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }

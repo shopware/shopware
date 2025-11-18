@@ -4,6 +4,8 @@ $color-state-positive: $color-emerald-500;
 $color-state-negative: $color-crimson-500;
 
 .sw-promotion-v2-individual-codes-behavior {
+    margin: 0 -24px -24px;
+
     &__add-codes-action.mt-button--small {
         margin-right: 6px;
     }
@@ -34,16 +36,15 @@ $color-state-negative: $color-crimson-500;
         cursor: pointer;
     }
 
-    &__card.sw-card {
-        margin: 0 -30px -30px;
+    & &__card {
+        margin-bottom: 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+    }
 
-        .sw-card__content {
-            border: none;
-        }
-
-        .sw-card__toolbar {
-            border-left: none;
-            border-right: none;
-        }
+    .sw-card-filter {
+        width: 100%;
     }
 }

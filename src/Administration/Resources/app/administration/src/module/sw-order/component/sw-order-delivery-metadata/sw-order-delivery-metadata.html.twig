@@ -19,7 +19,7 @@
 
             {% block sw_order_delivery_metadata_delivery_date %}
             <dt>{{ $tc('sw-order.detailDeliveries.labelDeliveryDate') }}</dt>
-            <dd>{{ dateFilter(delivery.shippingDateEarliest) }}</dd>
+            <dd>{{ dateFilter(delivery.shippingDateEarliest, { month: '2-digit', day: '2-digit' }) }}</dd>
             {% endblock %}
 
             {% block sw_order_delivery_metadata_shipping_costs %}

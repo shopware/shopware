@@ -48,7 +48,7 @@ test('As a merchant, I can perform bulk edits on customer information', { tag: '
                 label: {
                     'en-GB': customFieldTextName,
                 },
-            }
+            },
         });
     });
 

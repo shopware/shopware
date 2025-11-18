@@ -15,6 +15,8 @@ class CheckoutFinishPage extends Page
 
     protected bool $paymentFailed = false;
 
+    protected bool $logoutCustomer = false;
+
     public function getOrder(): OrderEntity
     {
         return $this->order;
@@ -43,5 +45,15 @@ class CheckoutFinishPage extends Page
     public function setPaymentFailed(bool $paymentFailed): void
     {
         $this->paymentFailed = $paymentFailed;
+    }
+
+    public function isLogoutCustomer(): bool
+    {
+        return $this->logoutCustomer;
+    }
+
+    public function setLogoutCustomer(bool $logoutCustomer): void
+    {
+        $this->logoutCustomer = $logoutCustomer;
     }
 }

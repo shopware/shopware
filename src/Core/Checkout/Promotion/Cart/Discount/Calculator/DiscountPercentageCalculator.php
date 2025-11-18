@@ -122,6 +122,6 @@ class DiscountPercentageCalculator
         }
 
         // if we have an empty string value then we convert it to 0.00 when casting it,  thus we create an early return
-        return trim((string) $discount->getPayloadValue('maxValue')) !== '';
+        return trim($discount->getPayloadValue('maxValue')) !== '';
     }
 }

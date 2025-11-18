@@ -64,7 +64,29 @@ class AdminSearchRegistryTest extends TestCase
             $this->client,
             $searchHelper,
             $this->createMock(LoggerInterface::class),
-            [],
+            [
+                'settings' => [
+                    'analysis' => [
+                        'analyzer' => [
+                            'sw_ngram_analyzer' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'whitespace',
+                                'filter' => [
+                                    'lowercase',
+                                    'sw_ngram_filter',
+                                ],
+                            ],
+                        ],
+                        'filter' => [
+                            'sw_ngram_filter' => [
+                                'type' => 'ngram',
+                                'min_gram' => 4,
+                                'max_gram' => 5,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
             []
         );
     }
@@ -90,7 +112,10 @@ class AdminSearchRegistryTest extends TestCase
             'text' => ['type' => 'text'],
             'entityName' => ['type' => 'keyword'],
             'parameters' => ['type' => 'keyword'],
-            'textBoosted' => ['type' => 'text'],
+            'textBoosted' => [
+                'type' => 'text',
+                'analyzer' => 'sw_ngram_analyzer',
+            ],
         ];
 
         static::assertEquals($expectedProperties, $properties);
@@ -128,7 +153,10 @@ class AdminSearchRegistryTest extends TestCase
             'text' => ['type' => 'text'],
             'entityName' => ['type' => 'keyword'],
             'parameters' => ['type' => 'keyword'],
-            'textBoosted' => ['type' => 'text'],
+            'textBoosted' => [
+                'type' => 'text',
+                'analyzer' => 'sw_ngram_analyzer',
+            ],
         ];
 
         static::assertEquals($expectedProperties, $properties);

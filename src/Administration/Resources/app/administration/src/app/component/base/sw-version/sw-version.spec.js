@@ -17,12 +17,6 @@ describe('components/base/sw-version', () => {
         });
     }
 
-    it('should be a Vue.js component', async () => {
-        await createWrapper('foo');
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should output strange version constraint', async () => {
         const version = 'strange version-dev-rc-ea';
         await createWrapper(version);

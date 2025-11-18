@@ -66,6 +66,10 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        allowBulkDelete() {
+            return !this.selectionArray.some((item) => item.orderCount > 0);
+        },
     },
 
     methods: {
@@ -114,14 +118,14 @@ export default {
                     label: 'sw-promotion-v2.list.columnValidFrom',
                     inlineEdit: 'date',
                     allowResize: true,
-                    align: 'center',
+                    align: 'left',
                 },
                 {
                     property: 'validUntil',
                     label: 'sw-promotion-v2.list.columnValidUntil',
                     inlineEdit: 'date',
                     allowResize: true,
-                    align: 'center',
+                    align: 'left',
                 },
             ];
         },

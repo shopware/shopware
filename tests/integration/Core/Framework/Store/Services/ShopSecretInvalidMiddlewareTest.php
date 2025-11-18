@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -35,10 +36,11 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $this->systemConfigService->set('core.store.shopSecret', 'shop-s3cr3t-token');
 
         $response = new Response(200, [], '{"payload":"data"}');
+        $request = new Psr7Request('GET', '/');
 
         $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
 
-        $handledResponse = $middleware($response);
+        $handledResponse = $middleware($response, $request);
 
         static::assertSame($response, $handledResponse);
 
@@ -55,10 +57,11 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $this->systemConfigService->set('core.store.shopSecret', 'shop-s3cr3t-token');
 
         $response = new Response(401, [], '{"payload":"data"}');
+        $request = new Psr7Request('GET', '/');
 
         $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
 
-        $handledResponse = $middleware($response);
+        $handledResponse = $middleware($response, $request);
 
         static::assertSame($response, $handledResponse);
 
@@ -74,11 +77,12 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $this->setAllUserStoreTokens('secret_token');
 
         $response = new Response(401, [], '{"code":"ShopwarePlatformException-68"}');
+        $request = new Psr7Request('GET', '/');
 
         $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
 
         $this->expectException(ShopSecretInvalidException::class);
-        $middleware($response);
+        $middleware($response, $request);
 
         foreach ($this->fetchAllUserStoreTokens() as $token) {
             static::assertNull($token['store_token']);

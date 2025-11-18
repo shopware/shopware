@@ -29,7 +29,7 @@ class PluginTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
-        if (file_exists(self::$symlinkedSwagTestPluginPath) && is_link(self::$symlinkedSwagTestPluginPath)) {
+        if (\is_dir(self::$symlinkedSwagTestPluginPath) && is_link(self::$symlinkedSwagTestPluginPath)) {
             unlink(self::$symlinkedSwagTestPluginPath);
         }
     }

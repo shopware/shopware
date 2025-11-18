@@ -53,6 +53,7 @@ async function createWrapper(route = productDetailRoute) {
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-app-topbar-button': true,
+                'sw-app-topbar-sidebar': true,
             },
             plugins: [router],
             mocks: {
@@ -64,30 +65,6 @@ async function createWrapper(route = productDetailRoute) {
 }
 
 describe('src/app/component/structure/sw-page', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should use the header bottom-color specified with the headerBorderColor prop', async () => {
-        const wrapper = await createWrapper({
-            meta: {
-                $module: {
-                    color: 'red',
-                },
-            },
-        });
-
-        expect(wrapper.get('.sw-page__head-area').attributes('style')).toBe('border-bottom-color: red; padding-right: 0px;');
-
-        await wrapper.setProps({ headerBorderColor: 'green' });
-
-        expect(wrapper.get('.sw-page__head-area').attributes('style')).toBe(
-            'border-bottom-color: green; padding-right: 0px;',
-        );
-    });
-
     it('should preserve previous path with query params and reuse them when navigating back', async () => {
         let wrapper = await createWrapper();
 

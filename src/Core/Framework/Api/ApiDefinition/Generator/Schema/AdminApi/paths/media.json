@@ -77,6 +77,220 @@
                     }
                 }
             }
+        },
+        "/_action/media/upload": {
+            "post": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Upload a new media file",
+                "description": "Creates a new media entity and uploads a file to it using form-data file upload.",
+                "operationId": "uploadV2",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "description": "The file to upload"
+                                    },
+                                    "id": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "Custom ID for the media entity"
+                                    },
+                                    "fileName": {
+                                        "type": "string",
+                                        "description": "Name of the uploaded file"
+                                    },
+                                    "private": {
+                                        "type": "boolean",
+                                        "description": "Whether the media should be private"
+                                    },
+                                    "mediaFolderId": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "ID of the media folder"
+                                    },
+                                    "mimeType": {
+                                        "type": "string",
+                                        "description": "MIME type of the file"
+                                    },
+                                    "deduplicate": {
+                                        "type": "boolean",
+                                        "description": "Whether to deduplicate based on file hash"
+                                    }
+                                },
+                                "required": ["file"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Media file uploaded successfully",
+                        "content": {
+                            "application\\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$",
+                                            "description": "ID of the created media entity"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/media/upload_by_url": {
+            "post": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Upload a media file from URL",
+                "description": "Creates a new media entity by downloading and uploading a file from the provided URL. This only works if the `shopware.media.enable_url_upload_feature` variable is set to true in the shop environment.",
+                "operationId": "uploadByUrl",
+                "requestBody": {
+                    "content": {
+                        "application\\/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "url": {
+                                        "type": "string",
+                                        "description": "URL of the file to download and upload"
+                                    },
+                                    "id": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "Custom ID for the media entity"
+                                    },
+                                    "fileName": {
+                                        "type": "string",
+                                        "description": "Name of the uploaded file"
+                                    },
+                                    "private": {
+                                        "type": "boolean",
+                                        "description": "Whether the media should be private"
+                                    },
+                                    "mediaFolderId": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "ID of the media folder"
+                                    },
+                                    "mimeType": {
+                                        "type": "string",
+                                        "description": "MIME type of the file"
+                                    },
+                                    "deduplicate": {
+                                        "type": "boolean",
+                                        "description": "Whether to deduplicate based on file hash"
+                                    }
+                                },
+                                "required": ["url"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Media file uploaded successfully",
+                        "content": {
+                            "application\\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$",
+                                            "description": "ID of the created media entity"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/media/external-link": {
+            "post": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Create external media link",
+                "description": "Creates a new media entity that links to an external URL without downloading the file.",
+                "operationId": "externalLink",
+                "requestBody": {
+                    "content": {
+                        "application\\/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "url": {
+                                        "type": "string",
+                                        "description": "URL of the external media file"
+                                    },
+                                    "id": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "Custom ID for the media entity"
+                                    },
+                                    "fileName": {
+                                        "type": "string",
+                                        "description": "Name of the file"
+                                    },
+                                    "private": {
+                                        "type": "boolean",
+                                        "description": "Whether the media should be private"
+                                    },
+                                    "mediaFolderId": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "ID of the media folder"
+                                    },
+                                    "mimeType": {
+                                        "type": "string",
+                                        "description": "MIME type of the file"
+                                    },
+                                    "deduplicate": {
+                                        "type": "boolean",
+                                        "description": "Whether to deduplicate based on path"
+                                    }
+                                },
+                                "required": ["url", "mimeType"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "External media link created successfully",
+                        "content": {
+                            "application\\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$",
+                                            "description": "ID of the created media entity"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

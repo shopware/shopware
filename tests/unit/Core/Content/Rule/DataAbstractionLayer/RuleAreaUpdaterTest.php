@@ -69,6 +69,7 @@ class RuleAreaUpdaterTest extends TestCase
                 RuleAreaTestOneToMany::class,
                 RuleAreaTestOneToOne::class,
                 RuleAreaTestManyToOne::class,
+                ReferenceDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -139,14 +140,17 @@ class RuleAreaUpdaterTest extends TestCase
 
         $oneToManyField = $fieldCollection->get('oneToMany');
         $manyToOneField = $fieldCollection->get('manyToOne');
+        $manyToManyField = $fieldCollection->get('manyToMany');
 
         static::assertInstanceOf(OneToManyAssociationField::class, $oneToManyField);
         static::assertInstanceOf(ManyToOneAssociationField::class, $manyToOneField);
+        static::assertInstanceOf(ManyToManyAssociationField::class, $manyToManyField);
 
         $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [
             new DeleteCommand($oneToManyField->getReferenceDefinition(), [], $this->createMock(EntityExistence::class)),
             new UpdateCommand($manyToOneField->getReferenceDefinition(), [], [], $this->createMock(EntityExistence::class), ''),
             new UpdateCommand($oneToManyField->getReferenceDefinition(), ['rule_id' => 'foo'], [], $this->createMock(EntityExistence::class), ''),
+            new UpdateCommand($manyToManyField->getReferenceDefinition(), ['rule_id' => 'foo'], [], $this->createMock(EntityExistence::class), ''),
         ]);
 
         $this->areaUpdater->triggerChangeSet($event);
@@ -154,10 +158,11 @@ class RuleAreaUpdaterTest extends TestCase
         /** @var DeleteCommand[]|UpdateCommand[] $commands */
         $commands = $event->getCommands();
 
-        static::assertCount(3, $commands);
+        static::assertCount(4, $commands);
         static::assertTrue($commands[0]->requiresChangeSet());
         static::assertFalse($commands[1]->requiresChangeSet());
         static::assertTrue($commands[2]->requiresChangeSet());
+        static::assertTrue($commands[3]->requiresChangeSet());
     }
 
     public function testOnEntityWritten(): void
@@ -168,6 +173,7 @@ class RuleAreaUpdaterTest extends TestCase
         $idB = Uuid::randomBytes();
         $idC = Uuid::randomBytes();
         $idD = Uuid::randomBytes();
+        $idE = Uuid::randomBytes();
 
         $event = new EntityWrittenContainerEvent($context, new NestedEventCollection([
             new EntityWrittenEvent('many_to_one', [
@@ -186,12 +192,23 @@ class RuleAreaUpdaterTest extends TestCase
                     true
                 )),
             ], $context, []),
+            new EntityWrittenEvent('mapping', [
+                new EntityWriteResult(
+                    $idA,
+                    [
+                        'ruleId' => Uuid::fromBytesToHex($idE),
+                        'referenceId' => Uuid::randomHex(),
+                    ],
+                    'mapping',
+                    EntityWriteResult::OPERATION_INSERT
+                ),
+            ], $context, []),
         ]), []);
 
         $resultStatement = $this->createMock(Result::class);
         $resultStatement->expects($this->once())->method('fetchAllAssociative')->willReturn([]);
         $this->connection->method('executeQuery')
-            ->with(static::anything(), static::equalTo(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD], 'flowTypes' => ['orderTags']]))
+            ->with(static::anything(), static::equalTo(['ids' => [Uuid::fromHexToBytes($idA), $idB, $idC, $idD, $idE], 'flowTypes' => ['orderTags']]))
             ->willReturn($resultStatement);
 
         $statement = $this->createMock(Statement::class);
@@ -299,8 +316,27 @@ class RuleAreaTestManyToMany extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new FkField('rule_id', 'ruleId', RuleDefinition::class),
-            new FkField('reference_id', 'referenceId', 'ReferenceMock'),
+            new FkField('rule_id', 'ruleId', RuleAreaDefinitionTest::class),
+            new FkField('reference_id', 'referenceId', ReferenceDefinition::class),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+#[Package('fundamentals@after-sales')]
+class ReferenceDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'reference';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            new ManyToManyAssociationField('rule', RuleAreaDefinitionTest::class, RuleAreaTestManyToMany::class, 'reference_id', 'rule_id'),
         ]);
     }
 }

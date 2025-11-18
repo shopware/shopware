@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\ShippingMethod;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethods;
@@ -70,8 +70,7 @@ class ShippingMethodTest extends TestCase
         $shippingMethodOne = XmlUtils::loadFile(self::INVALID_TEST_MANIFEST, self::XSD_FILE)->getElementsByTagName('shipping-method')->item(0);
 
         static::assertInstanceOf(\DOMElement::class, $shippingMethodOne);
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('name must not be empty');
+        $this->expectExceptionObject(AppException::invalidArgument('name must not be empty'));
         ShippingMethod::fromXml($shippingMethodOne);
     }
 
@@ -80,8 +79,7 @@ class ShippingMethodTest extends TestCase
         $shippingMethodTwo = XmlUtils::loadFile(self::INVALID_TEST_MANIFEST, self::XSD_FILE)->getElementsByTagName('shipping-method')->item(1);
 
         static::assertInstanceOf(\DOMElement::class, $shippingMethodTwo);
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('identifier must not be empty');
+        $this->expectExceptionObject(AppException::invalidArgument('identifier must not be empty'));
         ShippingMethod::fromXml($shippingMethodTwo);
     }
 

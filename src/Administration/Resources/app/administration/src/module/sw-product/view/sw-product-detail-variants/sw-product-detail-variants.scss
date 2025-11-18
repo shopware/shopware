@@ -10,22 +10,6 @@
     .sw-product-detail-variants__generated-variants .mt-card__content {
         padding: 0;
         height: 100%;
-
-        .sw-product-detail-variants__generated-variants-empty-state {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 400px;
-            background: #f8f9fa;
-
-            .sw-product-detail-variants__generated-variants-empty-state--label {
-                max-width: 240px;
-                margin-top: 25px;
-                margin-bottom: 25px;
-                text-align: center;
-            }
-        }
     }
 
     .sw-skeleton__detail:not(:last-child),

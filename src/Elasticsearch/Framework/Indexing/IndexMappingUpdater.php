@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use OpenSearch\Client;
 use OpenSearch\Common\Exceptions\BadRequest400Exception;
+use OpenSearch\Common\Exceptions\Missing404Exception;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -58,6 +59,8 @@ class IndexMappingUpdater
                     $exception = ElasticsearchProductException::cannotChangeFieldType($exception);
                 }
 
+                $this->elasticsearchHelper->logAndThrowException($exception);
+            } catch (Missing404Exception $exception) {
                 $this->elasticsearchHelper->logAndThrowException($exception);
             }
         }

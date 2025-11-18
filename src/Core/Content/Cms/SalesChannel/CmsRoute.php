@@ -2,16 +2,20 @@
 
 namespace Shopware\Core\Content\Cms\SalesChannel;
 
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
 class CmsRoute extends AbstractCmsRoute
 {
@@ -44,11 +48,13 @@ class CmsRoute extends AbstractCmsRoute
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));
         }
 
-        $pages = $this->cmsPageLoader->load($request, $criteria, $context);
-
-        $cmsPage = $pages->first();
+        $cmsPage = $this->cmsPageLoader->load($request, $criteria, $context)->first();
         if ($cmsPage === null) {
-            throw new PageNotFoundException($id);
+            if (!Feature::isActive('v6.8.0.0')) {
+                /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */
+                throw new PageNotFoundException($id);
+            }
+            throw CmsException::pageNotFound($id);
         }
 
         return new CmsRouteResponse($cmsPage);

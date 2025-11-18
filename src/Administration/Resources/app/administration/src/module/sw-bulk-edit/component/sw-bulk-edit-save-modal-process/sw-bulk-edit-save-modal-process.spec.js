@@ -35,10 +35,6 @@ describe('sw-bulk-edit-save-modal-process', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should create documents when component created', async () => {
         wrapper.vm.createDocuments = jest.fn();
 

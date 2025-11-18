@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -809,7 +810,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $record = $search->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
-        static::assertSame(['bar' => 'baz', 'foo' => 'bar'], $record->getCustomFields());
+        static::assertEquals(['bar' => 'baz', 'foo' => 'bar'], $record->getCustomFields());
         static::assertSame('bar', $record->getCustomFieldsValue('foo'));
         static::assertSame('baz', $record->getCustomFieldsValue('bar'));
     }
@@ -898,6 +899,9 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame('code-number', $record->number);
     }
 
+    /**
+     * @return EntityRepository<EntityCollection<Entity>>
+     */
     private function repository(string $entity): EntityRepository
     {
         $repository = static::getContainer()->get($entity . '.repository');

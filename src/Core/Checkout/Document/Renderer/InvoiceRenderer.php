@@ -62,8 +62,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
 
-        foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
-            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $ids), $rendererConfig->deepLinkCode, self::TYPE);
+        foreach ($chunk as ['language_id' => $languageId, 'ids' => $chunkIds]) {
+            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $chunkIds), $rendererConfig->deepLinkCode, self::TYPE);
 
             $context = $context->assign([
                 'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$languageIdChain]))),
@@ -129,7 +129,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
                     $language = $order->getLanguage();
                     if ($language === null) {
-                        throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
+                        throw DocumentException::generationError('Can not generate invoice document because no language exists. OrderId: ' . $operation->getOrderId());
                     }
 
                     $doc = new RenderedDocument(

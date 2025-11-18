@@ -57,7 +57,7 @@ class CreateIntegrationCommandTest extends TestCase
         static::assertNotNull($accessKey);
         static::assertNotNull($secretAccessKey);
         static::assertNotNull($admin);
-        static::assertSame((bool) $adminOption, $admin);
+        static::assertSame($adminOption, $admin);
 
         $output = $cmd->getDisplay();
         static::assertNotEmpty($output);
@@ -66,5 +66,47 @@ class CreateIntegrationCommandTest extends TestCase
         static::assertCount(2, $parsedEnv);
         static::assertSame($accessKey, $parsedEnv['SHOPWARE_ACCESS_KEY_ID']);
         static::assertSame($secretAccessKey, $parsedEnv['SHOPWARE_SECRET_ACCESS_KEY']);
+    }
+
+    public function testCreateIntegrationWithCustomKeys(): void
+    {
+        $integrationRepository = $this->createMock(EntityRepository::class);
+
+        $customAccessKey = 'custom-access-key';
+        $customSecretAccessKey = 'custom-secret-access-key';
+
+        $accessKey = null;
+        $secretAccessKey = null;
+        $admin = null;
+        $integrationRepository->expects($this->once())
+            ->method('create')
+            ->with(static::callback(function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
+                $accessKey = $input[0]['accessKey'];
+                $secretAccessKey = $input[0]['secretAccessKey'];
+                $admin = $input[0]['admin'];
+
+                return true;
+            }), static::anything());
+
+        $cmd = new CommandTester(new CreateIntegrationCommand($integrationRepository));
+        $cmd->execute([
+            'name' => 'Test',
+            '--access-key' => $customAccessKey,
+            '--secret-access-key' => $customSecretAccessKey,
+        ]);
+
+        $cmd->assertCommandIsSuccessful();
+
+        static::assertSame($customAccessKey, $accessKey);
+        static::assertSame($customSecretAccessKey, $secretAccessKey);
+        static::assertFalse($admin);
+
+        $output = $cmd->getDisplay();
+        static::assertNotEmpty($output);
+
+        $parsedEnv = (new Dotenv())->parse($output);
+        static::assertCount(2, $parsedEnv);
+        static::assertSame($customAccessKey, $parsedEnv['SHOPWARE_ACCESS_KEY_ID']);
+        static::assertSame($customSecretAccessKey, $parsedEnv['SHOPWARE_SECRET_ACCESS_KEY']);
     }
 }

@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class PaymentMethodPersister
 {
-    private FinfoMimeTypeDetector $mimeDetector;
+    private readonly FinfoMimeTypeDetector $mimeDetector;
 
     /**
      * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository

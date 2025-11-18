@@ -117,6 +117,7 @@ export default {
         'startInlineEditing',
         'selectAll',
         'selectItem',
+        'getSelection',
     ],
 
     data() {

@@ -11,9 +11,7 @@
             columns="repeat(auto-fit, minmax(150px, 1fr))"
             gap="0px 30px"
         >
-
             {% block sw_landing_page_detail_base_information_name %}
-
             <mt-text-field
                 v-model="landingPage.name"
                 required
@@ -27,13 +25,13 @@
             {% endblock %}
 
             {% block sw_landing_page_detail_base_information_active %}
-
             <mt-switch
                 v-model="landingPage.active"
                 class="sw-landing-page-detail-base__active"
                 name="landingPageActive"
                 :disabled="!acl.can('landing_page.editor')"
                 :label="$tc('sw-landing-page.base.general.isActiveLabel')"
+                bordered
             />
             {% endblock %}
         </sw-container>

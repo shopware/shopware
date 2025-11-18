@@ -20,8 +20,6 @@ class DynamicMappingEntityDefinition extends MappingEntityDefinition
 {
     protected string $name;
 
-    protected array $fieldDefinitions;
-
     protected string $source;
 
     protected string $reference;

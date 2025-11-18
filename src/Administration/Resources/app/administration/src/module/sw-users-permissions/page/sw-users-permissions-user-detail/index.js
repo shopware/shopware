@@ -265,7 +265,7 @@ export default {
         },
 
         loadUser() {
-            this.userId = this.$route.params.id;
+            this.userId = this.$route.params.id?.toLowerCase();
 
             return this.userRepository.get(this.userId, Shopware.Context.api, this.userCriteria).then((user) => {
                 this.user = user;
@@ -411,10 +411,13 @@ export default {
             try {
                 await this.userRepository.save(this.user, context);
 
-                if (this.user.password) {
-                    await this.updateAuthToken();
+                if (this.currentUser.id === this.user.id) {
+                    if (this.user.password) {
+                        await this.updateAuthToken();
+                    }
+                    await this.updateCurrentUser();
                 }
-                await this.updateCurrentUser();
+
                 this.createdComponent();
 
                 this.confirmPasswordModal = false;

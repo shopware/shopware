@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
@@ -21,6 +22,7 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,29 +39,37 @@ class PromotionCollector implements CartDataCollectorInterface
      * Promotions may **not** be recalculated based on their price definition.
      *
      * Takes precedence over {@see PIN_MANUAL_PROMOTIONS} and {@see PIN_MANUAL_PROMOTIONS}.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_PROMOTION}
      */
-    final public const SKIP_PROMOTION = 'skipPromotion';
+    final public const SKIP_PROMOTION = CheckoutPermissions::SKIP_PROMOTION;
 
     /**
      * Skips the addition of automatic promotion.
      * If {@see PIN_AUTOMATIC_PROMOTIONS} is not set, all existing automatic promotions will be deleted.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS}
      */
-    final public const SKIP_AUTOMATIC_PROMOTIONS = 'skipAutomaticPromotions';
+    final public const SKIP_AUTOMATIC_PROMOTIONS = CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS;
 
     /**
      * Existing set of manual/fixed promotions will not be changed,
      * but new manual/fixed promotions can be added.
      * Promotions may be recalculated based on their price definition.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::PIN_MANUAL_PROMOTIONS}
      */
-    final public const PIN_MANUAL_PROMOTIONS = 'pinManualPromotions';
+    final public const PIN_MANUAL_PROMOTIONS = CheckoutPermissions::PIN_MANUAL_PROMOTIONS;
 
     /**
      * Existing set of automatic promotions will not be changed.
      * Promotions may be recalculated based on their price definition.
      *
      * Takes precedence over {@see SKIP_AUTOMATIC_PROMOTIONS}.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS}
      */
-    final public const PIN_AUTOMATIC_PROMOTIONS = 'pinAutomaticPromotions';
+    final public const PIN_AUTOMATIC_PROMOTIONS = CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS;
 
     private const CACHE_KEY_CODE = 'promotions-code';
     private const CACHE_KEY_AUTO = 'promotions-auto';
@@ -109,7 +119,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
             // if we are in recalculation,
             // we must not re-add any promotions. just leave it as it is.
-            if ($behavior->hasPermission(self::SKIP_PROMOTION)) {
+            if ($behavior->hasPermission(CheckoutPermissions::SKIP_PROMOTION)) {
                 return;
             }
 
@@ -126,7 +136,7 @@ class PromotionCollector implements CartDataCollectorInterface
             // Pinned: We want to allow the addition of any promotion by code even if promotions are pinned
             $allPromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
 
-            if (!$behavior->hasPermission(self::SKIP_AUTOMATIC_PROMOTIONS) && !$behavior->hasPermission(self::PIN_AUTOMATIC_PROMOTIONS)) {
+            if (!$behavior->hasPermission(CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS) && !$behavior->hasPermission(CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS)) {
                 $allPromotions->addAutomaticPromotions($this->searchPromotionsAuto($data, $context));
             }
 
@@ -169,7 +179,9 @@ class PromotionCollector implements CartDataCollectorInterface
 
             // when being in a recalculation, having notifications about the removal of automatic promotion is desired
             // addition notifications are handled as usual in the PromotionCalculator
-            if ($behavior->isRecalculation()) {
+            /** @deprecated tag:v6.8.0 - `$isRecalculation` will be removed without replacement */
+            $isRecalculation = !Feature::isActive('v6.8.0.0') && $behavior->isRecalculation();
+            if ($isRecalculation || $behavior->hasPermission(CheckoutPermissions::AUTOMATIC_PROMOTION_DELETION_NOTICES)) {
                 $oldPromotions = $original->getLineItems()
                     ->filter(static fn (LineItem $item) => $item->getType() === PromotionProcessor::LINE_ITEM_TYPE && !$item->getReferencedId())
                     ->getElements();

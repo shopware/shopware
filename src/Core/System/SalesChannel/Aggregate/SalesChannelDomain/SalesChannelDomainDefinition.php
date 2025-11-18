@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
+use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -10,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -62,12 +65,13 @@ class SalesChannelDomainDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('snippet_set_id', 'snippetSetId', SnippetSetDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new MeasurementUnitsField('measurement_units', 'measurementUnits'))->addFlags(new ApiAware(), new Since('6.7.1.0')),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('snippetSet', 'snippet_set_id', SnippetSetDefinition::class, 'id', false),
             (new OneToOneAssociationField('salesChannelDefaultHreflang', 'id', 'hreflang_default_domain_id', SalesChannelDefinition::class, false))->addFlags(new ApiAware()),
-            new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_domain_id', 'id'),
+            (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_domain_id', 'id'))->addFlags(new RestrictDelete()),
             (new BoolField('hreflang_use_only_locale', 'hreflangUseOnlyLocale'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);

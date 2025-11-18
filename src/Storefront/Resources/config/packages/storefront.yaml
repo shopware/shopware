@@ -2,3 +2,5 @@ storefront:
     theme:
         allowed_scss_values: [ '^\$.*' ]
         validate_on_compile: false
+    router:
+        allowed_routes:

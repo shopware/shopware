@@ -27,8 +27,8 @@ export default {
     data() {
         return {
             customers: null,
-            sortBy: 'customerNumber',
-            naturalSorting: true,
+            sortBy: 'createdAt',
+            naturalSorting: false,
             sortDirection: 'DESC',
             isLoading: false,
             showDeleteModal: false,
@@ -393,6 +393,11 @@ export default {
                     allowResize: true,
                     visible: false,
                     useCustomSort: true,
+                },
+                {
+                    property: 'createdAt',
+                    label: 'sw-customer.list.columnCreatedAt',
+                    allowResize: true,
                 },
             ];
 

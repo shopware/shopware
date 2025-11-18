@@ -88,6 +88,11 @@ class OrderDefinition extends EntityDefinition
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->addFlags(new ApiAware(), new Required(), new NoConstraint()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->addFlags(new ApiAware(), new Required()),
 
+            (new FkField('primary_order_delivery_id', 'primaryOrderDeliveryId', OrderDeliveryDefinition::class))->addFlags(new ApiAware(), new NoConstraint()),
+            (new ReferenceVersionField(OrderDeliveryDefinition::class, 'primary_order_delivery_version_id'))->addFlags(new ApiAware(), new Required()),
+            (new FkField('primary_order_transaction_id', 'primaryOrderTransactionId', OrderTransactionDefinition::class))->addFlags(new ApiAware(), new NoConstraint()),
+            (new ReferenceVersionField(OrderTransactionDefinition::class, 'primary_order_transaction_version_id'))->addFlags(new ApiAware(), new Required()),
+
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(), new Required()),
@@ -108,6 +113,7 @@ class OrderDefinition extends EntityDefinition
             (new LongTextField('customer_comment', 'customerComment'))->addFlags(new ApiAware(), new AllowEmptyString()),
             (new LongTextField('internal_comment', 'internalComment'))->addFlags(new AllowEmptyString()),
             (new StringField('source', 'source'))->addFlags(new ApiAware()),
+            (new StringField('tax_calculation_type', 'taxCalculationType'))->addFlags(new ApiAware()),
 
             (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required()),
             (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id'))->addFlags(new ApiAware()),
@@ -116,6 +122,8 @@ class OrderDefinition extends EntityDefinition
             (new CreatedByField())->addFlags(new ApiAware()),
             (new UpdatedByField())->addFlags(new ApiAware()),
 
+            (new OneToOneAssociationField('primaryOrderDelivery', 'primary_order_delivery_id', 'id', OrderDeliveryDefinition::class, false))->addFlags(new ApiAware()),
+            (new OneToOneAssociationField('primaryOrderTransaction', 'primary_order_transaction_id', 'id', OrderTransactionDefinition::class, false))->addFlags(new ApiAware()),
             (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class))->addFlags(new ApiAware(), new CascadeDelete(), new SearchRanking(0.5)),
             (new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false))->addFlags(new ApiAware()),

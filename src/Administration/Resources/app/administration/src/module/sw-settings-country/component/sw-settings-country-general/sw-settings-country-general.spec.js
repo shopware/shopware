@@ -90,13 +90,6 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         Shopware.Store.get('session').setCurrentUser({});
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to show the tax free from', async () => {
         const wrapper = await createWrapper(
             [

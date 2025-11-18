@@ -71,7 +71,11 @@ async function createWrapper(privileges = []) {
                         },
                     },
 
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
             },
         },

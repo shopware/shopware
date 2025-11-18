@@ -171,7 +171,12 @@ trait StorefrontPageTestBehaviour
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
             'domains' => [
-                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+                [
+                    'url' => 'http://test.com/' . Uuid::randomHex(),
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $snippetSetId,
+                ],
             ],
         ];
 
@@ -205,7 +210,12 @@ trait StorefrontPageTestBehaviour
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
             'domains' => [
-                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+                [
+                    'url' => 'http://test.com/' . Uuid::randomHex(),
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $snippetSetId,
+                ],
             ],
         ];
 
@@ -245,7 +255,12 @@ trait StorefrontPageTestBehaviour
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
             'domains' => [
-                ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
+                [
+                    'url' => 'http://test.com/' . Uuid::randomHex(),
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $snippetSetId,
+                ],
             ],
         ];
 

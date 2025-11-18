@@ -3,21 +3,14 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
-use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
-use Shopware\Storefront\Theme\MD5ThemePathBuilder;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File as StorefrontPluginConfigurationFile;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\ThemeFileResolver;
+use Shopware\Storefront\Theme\ThemeRuntimeConfig;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -27,62 +20,53 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[CoversClass(ThemeScripts::class)]
 class ThemeScriptsTest extends TestCase
 {
+    private RequestStack $requestStack;
+
+    private ThemeRuntimeConfigService&MockObject $themeRuntimeConfigService;
+
+    private ThemeScripts $themeScripts;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $this->requestStack = new RequestStack();
+        $this->themeScripts = new ThemeScripts(
+            $this->requestStack,
+            $this->themeRuntimeConfigService,
+        );
+    }
+
     public function testGetThemeScriptsWhenNoRequestGiven(): void
     {
-        $themeScripts = new ThemeScripts(
-            $this->createMock(StorefrontPluginRegistry::class),
-            $this->createMock(ThemeFileResolver::class),
-            $this->createMock(RequestStack::class),
-            new MD5ThemePathBuilder(),
-            new ArrayAdapter(),
-            $this->createMock(AbstractConfigLoader::class)
-        );
-
-        static::assertSame([], $themeScripts->getThemeScripts());
+        $this->themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
+        static::assertSame([], $this->themeScripts->getThemeScripts());
     }
 
     public function testGetThemeScriptsWhenAdminRequest(): void
     {
-        $requestStack = new RequestStack();
-        $requestStack->push(new Request());
+        $this->requestStack->push(new Request());
 
-        $themeScripts = new ThemeScripts(
-            $this->createMock(StorefrontPluginRegistry::class),
-            $this->createMock(ThemeFileResolver::class),
-            $requestStack,
-            new MD5ThemePathBuilder(),
-            new ArrayAdapter(),
-            $this->createMock(AbstractConfigLoader::class)
-        );
-
-        static::assertSame([], $themeScripts->getThemeScripts());
+        $this->themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
+        static::assertSame([], $this->themeScripts->getThemeScripts());
     }
 
     public function testNotExistingTheme(): void
     {
-        $requestStack = new RequestStack();
         $request = new Request();
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'invalid');
-        $requestStack->push($request);
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'invalid');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'sales-channel-id');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
+        $this->requestStack->push($request);
 
-        $pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
-        $pluginRegistry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection([]));
+        $this->themeRuntimeConfigService->expects($this->once())->method('getResolvedRuntimeConfig')->willReturn(null);
 
-        $themeScripts = new ThemeScripts(
-            $pluginRegistry,
-            $this->createMock(ThemeFileResolver::class),
-            $requestStack,
-            new MD5ThemePathBuilder(),
-            new ArrayAdapter(),
-            $this->createMock(AbstractConfigLoader::class)
-        );
-
-        static::assertSame([], $themeScripts->getThemeScripts());
+        static::assertSame([], $this->themeScripts->getThemeScripts());
     }
 
     public function testLoadPaths(): void
     {
-        $requestStack = new RequestStack();
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'Storefront');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'Storefront');
@@ -91,75 +75,19 @@ class ThemeScriptsTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
-        $requestStack->push($request);
+        $this->requestStack->push($request);
 
-        $pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
+        $themeRuntimeConfig = ThemeRuntimeConfig::fromArray([
+            'themeId' => 'Storefront',
+            'technicalName' => 'Storefront',
+            'resolvedConfig' => [],
+            'viewInheritance' => [],
+            'scriptFiles' => ['js/foo/foo.js', 'js/foo/bar.js'],
+            'iconSets' => [],
+            'updatedAt' => new \DateTimeImmutable(),
+        ]);
+        $this->themeRuntimeConfigService->expects($this->once())->method('getResolvedRuntimeConfig')->willReturn($themeRuntimeConfig);
 
-        $storefront = new StorefrontPluginConfiguration('Storefront');
-        $pluginRegistry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection([$storefront]));
-
-        $themeFileResolver = $this->createMock(ThemeFileResolver::class);
-        $themeFileResolver
-            ->expects($this->once())
-            ->method('resolveFiles')
-            ->willReturn([
-                ThemeFileResolver::SCRIPT_FILES => new FileCollection([
-                    new StorefrontPluginConfigurationFile('foo/foo.js', [], 'foo'),
-                ]),
-            ]);
-
-        $themeScripts = new ThemeScripts(
-            $pluginRegistry,
-            $themeFileResolver,
-            $requestStack,
-            new MD5ThemePathBuilder(),
-            new ArrayAdapter(),
-            $this->createMock(AbstractConfigLoader::class)
-        );
-
-        static::assertSame(['js/foo/foo.js'], $themeScripts->getThemeScripts());
-        static::assertSame(['js/foo/foo.js'], $themeScripts->getThemeScripts());
-    }
-
-    public function testInheritsFromBase(): void
-    {
-        $requestStack = new RequestStack();
-        $request = new Request();
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'Storefront');
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'ChildId');
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'ChildName');
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, 'Storefront');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createCLIContext());
-
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
-
-        $requestStack->push($request);
-
-        $pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
-
-        $storefront = new StorefrontPluginConfiguration('Storefront');
-        $pluginRegistry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection([$storefront]));
-
-        $themeFileResolver = $this->createMock(ThemeFileResolver::class);
-        $themeFileResolver
-            ->method('resolveFiles')
-            ->willReturn([
-                ThemeFileResolver::SCRIPT_FILES => new FileCollection([
-                    new StorefrontPluginConfigurationFile('foo/foo.js', [], 'foo'),
-                ]),
-            ]);
-
-        $themeScripts = new ThemeScripts(
-            $pluginRegistry,
-            $themeFileResolver,
-            $requestStack,
-            new MD5ThemePathBuilder(),
-            new ArrayAdapter(),
-            $this->createMock(AbstractConfigLoader::class)
-        );
-
-        static::assertSame(['js/foo/foo.js'], $themeScripts->getThemeScripts());
+        static::assertSame(['js/foo/foo.js', 'js/foo/bar.js'], $this->themeScripts->getThemeScripts());
     }
 }

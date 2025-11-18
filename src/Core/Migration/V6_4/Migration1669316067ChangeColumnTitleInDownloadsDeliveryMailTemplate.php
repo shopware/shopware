@@ -8,13 +8,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1669316067ChangeColumnTitleInDownloadsDeliveryMailTemplate extends MigrationStep
 {
     use UpdateMailTrait;
@@ -26,12 +27,14 @@ class Migration1669316067ChangeColumnTitleInDownloadsDeliveryMailTemplate extend
 
     public function update(Connection $connection): void
     {
+        $filesystem = new Filesystem();
+
         $updateDownloadsDeliveryMailTemplate = new MailUpdate(
             MailTemplateTypes::MAILTYPE_DOWNLOADS_DELIVERY,
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/downloads_delivery/en-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/downloads_delivery/en-html.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/downloads_delivery/de-plain.html.twig'),
-            (string) file_get_contents(__DIR__ . '/../Fixtures/mails/downloads_delivery/de-html.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/downloads_delivery/en-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/downloads_delivery/en-html.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/downloads_delivery/de-plain.html.twig'),
+            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/downloads_delivery/de-html.html.twig'),
         );
         $this->updateMail($updateDownloadsDeliveryMailTemplate, $connection);
     }

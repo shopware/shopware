@@ -71,6 +71,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addFilter(Criteria.equals('active', true));
 
             return criteria;
         },

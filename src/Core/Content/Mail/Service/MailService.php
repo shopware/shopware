@@ -136,7 +136,7 @@ class MailService extends AbstractMailService
         $definition = new DataValidationDefinition('mail_service.send');
 
         $definition->add('recipients', new NotBlank(), new Type('array'));
-        $definition->add('salesChannelId', new EntityExists(['entity' => SalesChannelDefinition::ENTITY_NAME, 'context' => $context]));
+        $definition->add('salesChannelId', new EntityExists(entity: SalesChannelDefinition::ENTITY_NAME, context: $context));
         $definition->add('contentHtml', new NotBlank(), new Type('string'));
         $definition->add('contentPlain', new NotBlank(), new Type('string'));
         $definition->add('subject', new NotBlank(), new Type('string'));
@@ -150,7 +150,7 @@ class MailService extends AbstractMailService
      */
     private function createMail(array &$data, array $templateData, Context $context): ?Email
     {
-        $testMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) ?: !empty($data['testMode']);
+        $testMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) || !empty($data['testMode']);
 
         $salesChannel = $this->getSalesChannel($data, $templateData, $context);
 
@@ -242,11 +242,15 @@ class MailService extends AbstractMailService
         );
 
         if ($testMode) {
-            $mail->getHeaders()
-                ->addTextHeader('X-Shopware-Event-Name', $templateData['eventName'] ?? '')
-                ->addTextHeader('X-Shopware-Sales-Channel-Id', (string) $salesChannel?->getId())
-                ->addTextHeader('X-Shopware-Language-Id', $context->getLanguageId())
-            ;
+            $headers = $mail->getHeaders();
+            $headers->addTextHeader('X-Shopware-Language-Id', $context->getLanguageId());
+
+            if (!empty($templateData['eventName'])) {
+                $headers->addTextHeader('X-Shopware-Event-Name', $templateData['eventName']);
+            }
+            if ($salesChannel instanceof SalesChannelEntity) {
+                $headers->addTextHeader('X-Shopware-Sales-Channel-Id', $salesChannel->getId());
+            }
         }
 
         return $mail;

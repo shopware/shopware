@@ -248,7 +248,7 @@ class PromotionExclusionUpdater
             return [];
         }
 
-        $validValues = array_values(array_filter($hexIds, fn ($hexId) => Uuid::isValid((string) $hexId)));
+        $validValues = array_values(array_filter($hexIds, fn ($hexId) => Uuid::isValid($hexId)));
 
         if (\count($validValues) === 0) {
             return [];

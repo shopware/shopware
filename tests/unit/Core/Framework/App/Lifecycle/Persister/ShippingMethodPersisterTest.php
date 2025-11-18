@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
@@ -82,11 +84,18 @@ class ShippingMethodPersisterTest extends TestCase
         );
     }
 
-    private function createShippingMethodRepositoryMock(): EntityRepository
+    /**
+     * @return StaticEntityRepository<ShippingMethodCollection>
+     */
+    private function createShippingMethodRepositoryMock(): StaticEntityRepository
     {
+        /** @var StaticEntityRepository<ShippingMethodCollection> */
         return new StaticEntityRepository([]);
     }
 
+    /**
+     * @return EntityRepository<EntityCollection<AppShippingMethodEntity>>
+     */
     private function createAppShippingMethodRepositoryMock(): EntityRepository
     {
         $appShippingMethodMock = $this->createMock(EntityRepository::class);
@@ -104,6 +113,9 @@ class ShippingMethodPersisterTest extends TestCase
         return $appShippingMethodMock;
     }
 
+    /**
+     * @return EntityRepository<MediaCollection>
+     */
     private function createMediaRepositoryMock(): EntityRepository
     {
         $mediaRepositoryMock = $this->createMock(EntityRepository::class);
@@ -134,6 +146,9 @@ class ShippingMethodPersisterTest extends TestCase
         return Manifest::createFromXmlFile($file);
     }
 
+    /**
+     * @return EntityRepository<EntityCollection<AppShippingMethodEntity>>
+     */
     private function createAppShippingMethodRepositoryMockWithExistingAppShippingMethods(): EntityRepository|MockObject
     {
         $shippingMethodOne = new ShippingMethodEntity();

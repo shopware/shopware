@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Content\Category\SalesChannel\fixtures\CategoryRouteInheritanceFixtures;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -141,14 +143,14 @@ class CategoryRouteTest extends TestCase
             '/store-api/category/' . $id
         );
 
-        $this->assertError($id);
+        $this->assertLinkCategory($this->ids->get('link'));
     }
 
     public function testHomeWithSalesChannelOverride(): void
     {
         $this->createListingData();
 
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $salesChannelRepository->upsert([[
             'id' => $this->ids->get('sales-channel'),
@@ -284,6 +286,7 @@ class CategoryRouteTest extends TestCase
                 'territory' => 'TestGermany',
                 'code' => 'de-DE-test',
             ],
+            'active' => true,
             'translationCodeId' => $this->ids->get('locale-de'),
         ], [
             'id' => self::LANGUAGE_IDS['at'],
@@ -295,6 +298,7 @@ class CategoryRouteTest extends TestCase
                 'territory' => 'TestAustria',
                 'code' => 'de-AT-test',
             ],
+            'active' => true,
             'translationCodeId' => $this->ids->get('locale-at'),
         ]];
 
@@ -307,6 +311,7 @@ class CategoryRouteTest extends TestCase
             'id' => self::LANGUAGE_IDS['de'],
             'name' => 'TestGerman',
             'parentId' => self::LANGUAGE_IDS['en'],
+            'active' => true,
             'locale' => [
                 'id' => $this->ids->create('locale-de'),
                 'name' => 'TestGerman',
@@ -399,6 +404,22 @@ class CategoryRouteTest extends TestCase
         $listing = $slot['data']['listing'];
         static::assertArrayHasKey('aggregations', $listing);
         static::assertArrayHasKey('elements', $listing);
+    }
+
+    private function assertLinkCategory(string $expectedCategoryId): void
+    {
+        $response = $this->browser->getResponse();
+        static::assertIsString($response->getContent());
+        $response = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame($expectedCategoryId, $response['id'], 'CategoryIds do not match');
+        static::assertSame($this->ids->get('linked-category-name'), $response['name']);
+        static::assertSame(CategoryDefinition::TYPE_LINK, $response['type']);
+        static::assertSame(CategoryDefinition::LINK_TYPE_PRODUCT, $response['linkType']);
+        static::assertSame($this->ids->get('linked-product'), $response['internalLink'], 'Internal Link Ids do not match');
+
+        static::assertSame('/detail/' . $this->ids->get('linked-product'), $response['seoUrl'], 'SEO URLs do not match');
+        static::assertTrue($response['linkNewTab']);
     }
 
     private function assertLandingPageCmsPage(string $categoryId, string $cmsPageId, string $expected): void
@@ -566,7 +587,11 @@ class CategoryRouteTest extends TestCase
 
         $linkData = $childCategory;
         $linkData['id'] = $this->ids->create('link');
+        $linkData['name'] = $this->ids->create('linked-category-name');
         $linkData['type'] = 'link';
+        $linkData['linkType'] = CategoryDefinition::LINK_TYPE_PRODUCT;
+        $linkData['internalLink'] = $this->ids->create('linked-product');
+        $linkData['linkNewTab'] = true;
         unset($linkData['cmsPage']);
 
         $this->getContainer()->get('category.repository')

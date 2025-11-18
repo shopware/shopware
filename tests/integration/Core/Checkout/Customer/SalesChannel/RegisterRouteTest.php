@@ -34,7 +34,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
@@ -163,8 +162,13 @@ class RegisterRouteTest extends TestCase
     }
 
     #[DataProvider('customerBoundToSalesChannelProvider')]
-    public function testRegistrationWithCustomerScope(bool $isCustomerScoped, bool $hasGlobalAccount, bool $hasBoundAccount, bool $requestOnSameSalesChannel, int $expectedStatus): void
-    {
+    public function testRegistrationWithCustomerScope(
+        bool $isCustomerScoped,
+        bool $hasGlobalAccount,
+        bool $hasBoundAccount,
+        bool $requestOnSameSalesChannel,
+        int $expectedStatus
+    ): void {
         static::getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', $isCustomerScoped);
 
         if ($hasGlobalAccount || $hasBoundAccount) {
@@ -243,7 +247,7 @@ class RegisterRouteTest extends TestCase
         static::assertSame('customer', $response['apiAlias']);
         static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', (string) $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -464,7 +468,6 @@ class RegisterRouteTest extends TestCase
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
         $systemConfig->set('core.loginRegistration.confirmationUrl', '/confirm/custom/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
 
-        /** @var EventDispatcherInterface $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $this->addEventListener(
@@ -494,7 +497,6 @@ class RegisterRouteTest extends TestCase
                 json_encode($this->getRegistrationData(), \JSON_THROW_ON_ERROR)
             );
 
-        /** @var CustomerDoubleOptInRegistrationEvent $caughtEvent */
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $caughtEvent);
         static::assertStringStartsWith('http://localhost/confirm/custom/', $caughtEvent->getConfirmUrl());
     }
@@ -628,8 +630,8 @@ class RegisterRouteTest extends TestCase
 
         static::assertSame('customer', $response['apiAlias']);
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertSame($this->ids->get('group'), $customer->getRequestedGroupId());
     }
@@ -715,9 +717,9 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationWithAllowedAccountType(): void
     {
-        /** @var string[] $accountTypes */
         $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
+        static::assertNotEmpty($accountTypes);
         $accountType = $accountTypes[array_rand($accountTypes)];
 
         $additionalData = [
@@ -768,7 +770,6 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationWithWrongAccountType(): void
     {
-        /** @var string[] $accountTypes */
         $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
         $notAllowedAccountType = implode('', $accountTypes);
@@ -1277,6 +1278,74 @@ class RegisterRouteTest extends TestCase
 
         static::assertNotEmpty($response['errors']);
         static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
+    }
+
+    public function testRegistrationWithNonArrayBillingAddressAndWithEmptyShippingAddress(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['billingAddress'] = 'Max Mustermanns Address';
+        unset($registrationData['shippingAddress']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotEmpty($response['errors']);
+        static::assertSame('VIOLATION::INVALID_TYPE_ERROR', $response['errors'][0]['code']);
+        static::assertSame('associative_array', $response['errors'][0]['meta']['parameters']['{{ type }}']);
+        static::assertSame('/billingAddress', $response['errors'][0]['source']['pointer']);
+    }
+
+    public function testRegistrationWithBillingAddressAndWithNonArrayShippingAddress(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['shippingAddress'] = 'Max Mustermanns Address';
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertNotEmpty($response['errors']);
+        static::assertSame('VIOLATION::AT_LEAST_ONE_OF_ERROR', $response['errors'][0]['code']);
+        static::assertSame('/shippingAddress', $response['errors'][0]['source']['pointer']);
+    }
+
+    public function testRegistrationWithBillingAddressAndEmptyShippingAddress(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['shippingAddress']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testRegistrationWithExistingNotSpecifiedSalutation(): void

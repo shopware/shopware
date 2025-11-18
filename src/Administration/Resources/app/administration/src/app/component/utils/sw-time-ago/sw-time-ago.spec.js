@@ -60,7 +60,53 @@ describe('src/app/component/utils/sw-time-ago', () => {
         expect(wrapper.vm.now).toBe(1750777260000);
     });
 
-    it('should clear intervals', async () => {
+    it('should setup global interval, if a component is mounted', async () => {
+        jest.spyOn(global, 'setInterval');
+
+        await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        expect(setInterval).toHaveBeenCalledTimes(1);
+        expect(setInterval).toHaveBeenCalledWith(expect.any(Function), 30_000);
+    });
+
+    it('should keep a single global interval, if multiple components are mounted', async () => {
+        jest.spyOn(global, 'setInterval');
+
+        await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        expect(setInterval).toHaveBeenCalledTimes(1);
+    });
+
+    it('should keep the global interval, if not all components are unmounted', async () => {
+        jest.spyOn(global, 'setInterval');
+        jest.spyOn(global, 'clearInterval');
+
+        const wrapper1 = await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        await createWrapper({
+            date: '2025-06-24T15:00:00.000+00:00',
+        });
+
+        expect(setInterval).toHaveBeenCalledTimes(1);
+        expect(clearInterval).toHaveBeenCalledTimes(0);
+
+        wrapper1.unmount();
+
+        expect(setInterval).toHaveBeenCalledTimes(1);
+        expect(clearInterval).toHaveBeenCalledTimes(0);
+    });
+
+    it('should clear global interval, if all components are unmounted', async () => {
         jest.spyOn(global, 'clearInterval');
 
         const wrapper = await createWrapper({
@@ -75,31 +121,7 @@ describe('src/app/component/utils/sw-time-ago', () => {
         expect(clearInterval).toHaveBeenCalledWith(expect.any(Number));
     });
 
-    it('should not clear intervals if not set', async () => {
-        jest.spyOn(global, 'clearInterval');
-
-        const wrapper = await createWrapper({
-            date: '2025-06-24T15:00:00.000+00:00',
-        });
-
-        expect(clearInterval).toHaveBeenCalledTimes(0);
-
-        wrapper.vm.interval = null;
-
-        wrapper.unmount();
-
-        expect(clearInterval).toHaveBeenCalledTimes(0);
-    });
-
     describe('date property as string', () => {
-        it('should be a Vue.JS component', async () => {
-            const wrapper = await createWrapper({
-                date: '2025-06-24T15:00:00.000+00:00',
-            });
-
-            expect(wrapper.vm).toBeTruthy();
-        });
-
         describe('past dates', () => {
             it('should show the correct time for less than one minute', async () => {
                 const wrapper = await createWrapper({
@@ -202,14 +224,6 @@ describe('src/app/component/utils/sw-time-ago', () => {
     });
 
     describe('date property as object', () => {
-        it('should be a Vue.JS component', async () => {
-            const wrapper = await createWrapper({
-                date: new Date('2025-06-24T15:00:00.000+00:00'),
-            });
-
-            expect(wrapper.vm).toBeTruthy();
-        });
-
         describe('past dates', () => {
             it('should show the correct time for less than one minute', async () => {
                 const wrapper = await createWrapper({

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -22,13 +23,14 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
     public function testKeepsStoreTokensAndReturnsResponse(): void
     {
         $response = new Response(200, [], '{"payload":"data"}');
+        $request = new Request('GET', '/');
 
         $middleware = new ShopSecretInvalidMiddleware(
             $this->createMock(Connection::class),
             $this->createMock(SystemConfigService::class)
         );
 
-        $handledResponse = $middleware($response);
+        $handledResponse = $middleware($response, $request);
 
         static::assertSame($response, $handledResponse);
     }
@@ -36,13 +38,14 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
     public function testKeepsStoreTokensAndReturnsResponseWithRewoundBody(): void
     {
         $response = new Response(401, [], '{"payload":"data"}');
+        $request = new Request('GET', '/');
 
         $middleware = new ShopSecretInvalidMiddleware(
             $this->createMock(Connection::class),
             $this->createMock(SystemConfigService::class)
         );
 
-        $handledResponse = $middleware($response);
+        $handledResponse = $middleware($response, $request);
 
         static::assertSame($response, $handledResponse);
     }
@@ -50,6 +53,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
     public function testThrowsAndDeletesStoreTokensIfApiRespondsWithTokenExpiredException(): void
     {
         $response = new Response(401, [], '{"code":"ShopwarePlatformException-68"}');
+        $request = new Request('GET', '/');
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
@@ -66,6 +70,6 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         );
 
         $this->expectException(ShopSecretInvalidException::class);
-        $middleware($response);
+        $middleware($response, $request);
     }
 }

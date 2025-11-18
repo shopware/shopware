@@ -2,82 +2,124 @@
 
 namespace Shopware\Core\Framework\App\ShopId;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @internal only for use by the app-system
+ * @internal
  *
- * @phpstan-type ShopId array{value: string, app_url: ?string}
+ * @phpstan-import-type ShopIdV1Config from ShopId
+ * @phpstan-import-type ShopIdV2Config from ShopId
  */
 #[Package('framework')]
-class ShopIdProvider
+class ShopIdProvider implements ResetInterface
 {
     final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
+    final public const SHOP_ID_SYSTEM_CONFIG_KEY_V2 = 'core.app.shopIdV2';
+
+    private ?ShopId $shopId = null;
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ActiveAppsLoader $activeAppsLoader
+        private readonly Connection $connection,
+        private readonly FingerprintGenerator $fingerprintGenerator
     ) {
     }
 
     /**
-     * @throws AppUrlChangeDetectedException
+     * @throws ShopIdChangeSuggestedException
      */
     public function getShopId(): string
     {
-        $shopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
-
-        if (!\is_array($shopId)) {
-            $newShopId = $this->generateShopId();
-            $this->setShopId($newShopId, (string) EnvironmentHelper::getVariable('APP_URL'));
-
-            return $newShopId;
+        if ($this->shopId) {
+            return $this->shopId->id;
         }
 
-        $appUrl = EnvironmentHelper::getVariable('APP_URL');
-        if (\is_string($appUrl) && $appUrl !== ($shopId['app_url'] ?? '')) {
-            if ($this->activeAppsLoader->getActiveApps()) {
-                throw new AppUrlChangeDetectedException($shopId['app_url'], $appUrl, $shopId['value']);
+        $this->shopId = $this->fetchShopIdFromSystemConfig() ?? $this->regenerateAndSetShopId();
+
+        $fingerprintsComparison = $this->fingerprintGenerator->matchFingerprints($this->shopId->fingerprints);
+        if (!$fingerprintsComparison->isMatching()) {
+            if ($this->hasAppsRegisteredAtAppServers()) {
+                throw AppException::shopIdChangeSuggested($this->shopId, $fingerprintsComparison);
             }
 
             // if the shop does not have any apps we can update the existing shop id value
             // with the new APP_URL as no app knows the shop id
-            $this->setShopId($shopId['value'], $appUrl);
+            $this->regenerateAndSetShopId($this->shopId->id);
         }
 
-        return $shopId['value'];
+        return $this->shopId->id;
     }
 
-    public function setShopId(string $shopId, string $appUrl): void
+    public function regenerateAndSetShopId(?string $existingShopId = null): ShopId
     {
-        /** @var ShopId|null $oldShopId */
-        $oldShopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
-        $newShopId = [
-            'app_url' => $appUrl,
-            'value' => $shopId,
-        ];
+        $shopId = ShopId::v2(
+            $existingShopId ?? Random::getAlphanumericString(16),
+            $this->fingerprintGenerator->takeFingerprints(),
+        );
 
-        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY, $newShopId);
+        $this->setShopId($shopId);
 
-        $this->eventDispatcher->dispatch(new ShopIdChangedEvent($newShopId, $oldShopId));
+        return $shopId;
     }
 
     public function deleteShopId(): void
     {
         $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+
+        $this->reset();
 
         $this->eventDispatcher->dispatch(new ShopIdDeletedEvent());
     }
 
-    private function generateShopId(): string
+    public function reset(): void
     {
-        return Random::getAlphanumericString(16);
+        $this->shopId = null;
+    }
+
+    private function setShopId(ShopId $shopId): void
+    {
+        $oldShopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
+            ?? $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
+        if (\is_array($oldShopId)) {
+            $oldShopId = ShopId::fromSystemConfig($oldShopId);
+        } else {
+            $oldShopId = null;
+        }
+
+        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) $shopId);
+        $this->eventDispatcher->dispatch(new ShopIdChangedEvent($shopId, $oldShopId));
+    }
+
+    private function hasAppsRegisteredAtAppServers(): bool
+    {
+        return (int) $this->connection->fetchOne('SELECT COUNT(id) FROM app WHERE app_secret IS NOT NULL') > 0;
+    }
+
+    private function fetchShopIdFromSystemConfig(): ?ShopId
+    {
+        /** @var ShopIdV2Config|null $shopIdV2 */
+        $shopIdV2 = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        if (\is_array($shopIdV2)) {
+            return ShopId::fromSystemConfig($shopIdV2);
+        }
+
+        /** @var ShopIdV1Config|null $shopIdV1 */
+        $shopIdV1 = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
+        if (\is_array($shopIdV1)) {
+            $shopIdV1 = ShopId::fromSystemConfig($shopIdV1);
+
+            return $this->regenerateAndSetShopId($shopIdV1->id);
+        }
+
+        return null;
     }
 }

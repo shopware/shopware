@@ -12,6 +12,8 @@ $sw-media-preview-v2-locked-icon-z-index: 5;
     &.is--icon {
         .sw-media-preview-v2__item {
             transform: translate(-50%, -50%) scale(0.7);
+            width: 100%;
+            height: 100%;
         }
     }
 
@@ -19,7 +21,7 @@ $sw-media-preview-v2-locked-icon-z-index: 5;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: $color-gray-300;
+        color: var(--color-icon-primary-default);
     }
 
     .sw-media-preview-v2__item {
@@ -29,6 +31,7 @@ $sw-media-preview-v2-locked-icon-z-index: 5;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
+        width: 100%;
 
         &.shows--transparency {
             background: $transparent-background-url;
@@ -78,6 +81,13 @@ $sw-media-preview-v2-locked-icon-z-index: 5;
         position: absolute;
         top: 2px;
         left: 16px;
+        z-index: $sw-media-preview-v2-locked-icon-z-index;
+    }
+
+    .sw-media-preview-v2__warning-icon {
+        position: absolute;
+        bottom: 2px;
+        left: 2px;
         z-index: $sw-media-preview-v2-locked-icon-z-index;
     }
 }

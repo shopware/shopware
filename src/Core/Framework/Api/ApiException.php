@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
@@ -34,10 +35,13 @@ class ApiException extends HttpException
     public const API_UNSUPPORTED_ASSOCIATION_FIELD = 'FRAMEWORK__API_UNSUPPORTED_ASSOCIATION_FIELD_EXCEPTION';
     public const API_INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__INVALID_SYNC_OPERATION';
     public const API_INVALID_SCHEMA_DEFINITION_EXCEPTION = 'FRAMEWORK__INVALID_SCHEMA_DEFINITION';
+    public const API_SCHEMA_DEFINITION_NOT_READABLE = 'FRAMEWORK__SCHEMA_DEFINITION_NOT_READABLE';
 
     public const API_NOT_EXISTING_RELATION_EXCEPTION = 'FRAMEWORK__NOT_EXISTING_RELATION_EXCEPTION';
 
     public const API_UNSUPPORTED_OPERATION_EXCEPTION = 'FRAMEWORK__UNSUPPORTED_OPERATION_EXCEPTION';
+
+    public const API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT = 'FRAMEWORK__UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT';
     public const API_INVALID_VERSION_ID = 'FRAMEWORK__INVALID_VERSION_ID';
     public const API_TYPE_PARAMETER_INVALID = 'FRAMEWORK__API_TYPE_PARAMETER_INVALID';
     public const API_APP_ID_PARAMETER_IS_MISSING = 'FRAMEWORK__APP_ID_PARAMETER_IS_MISSING';
@@ -198,15 +202,23 @@ class ApiException extends HttpException
     }
 
     /**
-     * @param string[] $fails
+     * @param list<string> $fails
      */
     public static function expectationFailed(array $fails): ShopwareHttpException
     {
         return new ExpectationFailedException($fails);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public static function invalidSyncOperation(string $message): ShopwareHttpException
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
+
         return new InvalidSyncOperationException($message);
     }
 
@@ -245,6 +257,15 @@ class ApiException extends HttpException
             self::API_UNSUPPORTED_OPERATION_EXCEPTION,
             'Unsupported {{ operation }} operation.',
             ['operation' => $operation]
+        );
+    }
+
+    public static function unsupportedStoreApiSchemaEndpoint(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT,
+            'The Store-API does not support the entity schema endpoint. Use `/store-api/_info/openapi3.json` for the OpenAPI specification.'
         );
     }
 
@@ -311,6 +332,15 @@ class ApiException extends HttpException
             self::API_UNABLE_GENERATE_BUNDLE,
             'Unable to generate bundle directory for bundle "{{ bundleName }}".',
             ['bundleName' => $bundleName]
+        );
+    }
+
+    public static function schemaDefinitionNotReadable(string $filename): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_SCHEMA_DEFINITION_NOT_READABLE,
+            \sprintf('Can\'t read schema file "%s"', $filename),
         );
     }
 

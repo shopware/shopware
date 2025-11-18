@@ -10,6 +10,7 @@
                         id="{{ type }}-{{ address.id }}"
                         data-address-type="{{ type }}"
                         {% if address.id == activeAddressId %}checked{% endif %}
+                        {% if type === 'shipping' and not address.country.shippingAvailable %}disabled{% endif %}
                         class="form-check-input col-auto"
                     />
 
@@ -39,7 +40,7 @@
                             {% block address_manager_modal_item_dropdown_items %}
                                 <li>
                                     <a
-                                        class="dropdown-item text-primary address-manager-modal-address-form"
+                                        class="dropdown-item address-manager-modal-address-form"
                                         href="#"
                                         data-address-id="{{ address.id }}"
                                         data-address-type="{{ type }}"
@@ -47,7 +48,7 @@
                                         {{ 'global.default.edit'|trans|sw_sanitize }}
                                     </a>
                                 </li>
-                                {% if defaultAddressId !== address.id %}
+                                {% if defaultAddressId !== address.id and not (type === 'shipping' and not address.country.shippingAvailable) %}
                                     <li>
                                         <a
                                             class="dropdown-item address-manager-modal-set-default-address"
@@ -72,7 +73,7 @@
             {% if address.id === defaultAddressId %}
                 {% block address_manager_modal_default_badge %}
                     <div class="mt-auto d-flex justify-content-end">
-                        <span class="fs-6 fw-semibold px-4 py-1 bg-primary rounded-pill text-white">
+                        <span class="address-item-default-badge fs-6 fw-semibold px-4 py-1 rounded-pill text-bg-info">
                             {{ 'account.addressDefault'|trans|sw_sanitize }}
                         </span>
                     </div>

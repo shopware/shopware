@@ -104,7 +104,6 @@ class QueryBuilder extends DBALQueryBuilder
     }
 
     /**
-     * @internal
      * {@inheritdoc}
      */
     public function select(string ...$expressions): self
@@ -115,7 +114,6 @@ class QueryBuilder extends DBALQueryBuilder
     }
 
     /**
-     * @internal
      * {@inheritdoc}
      */
     public function addSelect(string $expression, string ...$expressions): self
@@ -126,7 +124,6 @@ class QueryBuilder extends DBALQueryBuilder
     }
 
     /**
-     * @internal
      * {@inheritdoc}
      */
     public function orderBy(string $sort, ?string $order = null): self
@@ -137,7 +134,6 @@ class QueryBuilder extends DBALQueryBuilder
     }
 
     /**
-     * @internal
      * {@inheritdoc}
      */
     public function addOrderBy(string $sort, ?string $order = null): self

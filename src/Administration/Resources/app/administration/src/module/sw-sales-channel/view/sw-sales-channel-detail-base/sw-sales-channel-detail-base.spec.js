@@ -45,6 +45,9 @@ async function createWrapper() {
                 'sw-category-tree-field': true,
                 'mt-select': true,
                 'sw-custom-field-set-renderer': true,
+                'mt-banner': true,
+                'sw-sales-channel-measurement': true,
+                'sw-time-ago': true,
             },
             provide: {
                 salesChannelService: {},
@@ -1004,7 +1007,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 
     it('"changeInterval" also updates cronjob config', async () => {
@@ -1188,5 +1194,206 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         );
 
         expect(result).toBe(snippet);
+    });
+
+    it('should return disabledCountryVariant "attention" if the sales channel country is in the disabled countries list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                countryId: 'DE',
+                countries: [{ id: 'DE', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledCountryVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledCountryVariant "info" if the sales channel country is NOT in the disabled countries list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                countryId: 'DE',
+                countries: [{ id: 'DE', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledCountryVariant).toBe('info');
+    });
+
+    it('should return disabledPaymentMethodVariant "attention" if the sales channel payment method is in the disabled payment methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                paymentMethodId: 'pm-1',
+                paymentMethods: [{ id: 'pm-1', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledPaymentMethodVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledPaymentMethodVariant "info" if the sales channel payment method is NOT in the disabled payment methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                paymentMethodId: 'pm-1',
+                paymentMethods: [{ id: 'pm-1', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledPaymentMethodVariant).toBe('info');
+    });
+
+    it('should return disabledShippingMethodVariant "attention" if the sales channel shipping method is in the disabled shipping methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                shippingMethodId: 'sm-1',
+                shippingMethods: [{ id: 'sm-1', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledShippingMethodVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledShippingMethodVariant "info" if the sales channel shipping method is NOT in the disabled shipping methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                shippingMethodId: 'sm-1',
+                shippingMethods: [{ id: 'sm-1', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledShippingMethodVariant).toBe('info');
+    });
+
+    it('should return unservedLanguageVariant "attention" if the sales channel language is NOT served by any domain', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                languageId: 'language-1',
+                languages: [{ id: 'language-1' }],
+                domains: [], // no domain serves the language
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguageVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return unservedLanguageVariant "info" if the sales channel language IS served by a domain', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                languageId: 'language-1',
+                languages: [{ id: 'language-1' }],
+                domains: [{ languageId: 'language-1' }],
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguageVariant).toBe('info');
+    });
+
+    it('should handle error if sales channel cannot be deleted due to foreign key constraint issues', async () => {
+        const wrapper = await createWrapper();
+
+        const deleteError = {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: '1451',
+                            detail: 'Integrity constraint violation: 1451 - Cannot delete or update a parent row: a foreign key constraint fails (`test`.`order`, CONSTRAINT `fk.order.sales_channel_id` FOREIGN KEY (`sales_channel_id`) REFERENCES `sales_channel` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE)',
+                        },
+                    ],
+                },
+            },
+        };
+
+        wrapper.vm.salesChannelRepository.delete = jest.fn().mockRejectedValue(deleteError);
+        wrapper.vm.$t = jest
+            .fn()
+            .mockReturnValueOnce('Orders')
+            .mockReturnValueOnce('sw-sales-channel.detail.foreignKeyDelete');
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const result = await wrapper.vm.deleteSalesChannel('test-id');
+
+        expect(wrapper.vm.salesChannelRepository.delete).toHaveBeenCalledWith('test-id', Shopware.Context.api);
+        expect(wrapper.vm.$t.mock.calls).toEqual([
+            [
+                'global.entities.order',
+                0,
+            ],
+            [
+                'sw-sales-channel.detail.foreignKeyDelete',
+                { assignment: 'orders' },
+            ],
+        ]);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-sales-channel.detail.foreignKeyDelete',
+        });
+        expect(result).toBe(false);
+    });
+
+    it('should handle delete confirmation and navigate on success', async () => {
+        const wrapper = await createWrapper();
+        const mockPush = jest.fn();
+
+        wrapper.vm.$router = { push: mockPush };
+        wrapper.vm.$nextTick = jest.fn().mockImplementation((callback) => callback());
+        wrapper.vm.deleteSalesChannel = jest.fn().mockResolvedValue(true);
+
+        await wrapper.setProps({
+            salesChannel: { id: 'test-id' },
+        });
+
+        wrapper.vm.onConfirmDelete();
+        await flushPromises();
+
+        expect(wrapper.vm.showDeleteModal).toBe(false);
+        expect(wrapper.vm.deleteSalesChannel).toHaveBeenCalledWith('test-id');
+        expect(mockPush).toHaveBeenCalledWith({ name: 'sw.dashboard.index' });
+    });
+
+    it('should handle delete confirmation without navigation on failure', async () => {
+        const wrapper = await createWrapper();
+        const mockPush = jest.fn();
+
+        wrapper.vm.$router = { push: mockPush };
+        wrapper.vm.$nextTick = jest.fn().mockImplementation((callback) => callback());
+        wrapper.vm.deleteSalesChannel = jest.fn().mockResolvedValue(false);
+
+        await wrapper.setProps({
+            salesChannel: { id: 'test-id' },
+        });
+
+        wrapper.vm.onConfirmDelete();
+        await flushPromises();
+
+        expect(wrapper.vm.showDeleteModal).toBe(false);
+        expect(wrapper.vm.deleteSalesChannel).toHaveBeenCalledWith('test-id');
+        expect(mockPush).not.toHaveBeenCalled();
     });
 });

@@ -32,12 +32,6 @@ async function createWrapper(routeParams) {
 }
 
 describe('module/sw-login/recovery-info.spec.js', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the normal info', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

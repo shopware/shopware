@@ -26,11 +26,9 @@ class FilesystemFactoryTest extends TestCase
         $factory = new FilesystemFactory([new LocalFactory()]);
         $adapter = $factory->factory([
             'type' => 'local',
+            'visibility' => Visibility::PUBLIC,
             'config' => [
                 'root' => __DIR__,
-                'options' => [
-                    'visibility' => Visibility::PUBLIC,
-                ],
             ],
         ]);
 

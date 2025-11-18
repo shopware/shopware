@@ -133,6 +133,7 @@
             class="sw-order-create-options__shipping-cost"
             :label="$tc('sw-order.initialModal.options.labelShippingCosts')"
             :step="1"
+            :min="0"
             @update:model-value="onChangeShippingCost"
         >
             <template #suffix>

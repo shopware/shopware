@@ -34,6 +34,13 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('validate_on_compile')->defaultFalse()->end()
                     ->end()
                 ->end()
+                ->arrayNode('router')
+                    ->children()
+                        ->arrayNode('allowed_routes')
+                            ->prototype('string')->end()
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $treeBuilder;

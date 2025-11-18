@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import type { RouteLocationNamedRaw } from 'vue-router';
 import type { ModuleManifest } from 'src/core/factory/module.factory';
 import template from './sw-meteor-page.html.twig';

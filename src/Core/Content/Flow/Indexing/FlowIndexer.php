@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Indexing;
 
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,6 +24,8 @@ class FlowIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<FlowCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

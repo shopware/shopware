@@ -198,6 +198,7 @@ class SystemConfigFacadeTest extends TestCase
         return new ScriptAppInformation(
             $app->getId(),
             $app->getName(),
+            $app->getVersion(),
             $app->getIntegrationId()
         );
     }

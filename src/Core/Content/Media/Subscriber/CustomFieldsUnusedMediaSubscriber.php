@@ -19,8 +19,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private Connection $connection,
-        private DefinitionInstanceRegistry $definitionRegistry
+        private readonly Connection $connection,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
     ) {
     }
 

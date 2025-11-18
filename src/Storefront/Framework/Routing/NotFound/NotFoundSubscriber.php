@@ -41,12 +41,12 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
      */
     private bool $handled = false;
 
-    private string $sessionName;
+    private readonly string $sessionName;
 
     /**
      * @internal
      *
-     * @param array{name?: string} $sessionOptions
+     * @param array<string, mixed> $sessionOptions
      */
     public function __construct(
         private readonly HttpKernelInterface $httpKernel,
@@ -58,7 +58,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         private readonly EventDispatcherInterface $eventDispatcher,
         array $sessionOptions = []
     ) {
-        $this->sessionName = $sessionOptions['name'] ?? 'session-';
+        $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
 
     public static function getSubscribedEvents(): array

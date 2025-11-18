@@ -75,7 +75,10 @@
     {% block sw_media_folder_meta_data %}
     <template #metadata="{ item }">
         <div class="sw-media-folder-item__metadata">
-            {{ dateFilter(item.createdAt) }}
+            <sw-time-ago
+                :date="item.createdAt"
+                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+            />
         </div>
     </template>
     {% endblock %}

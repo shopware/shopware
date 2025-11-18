@@ -187,7 +187,7 @@ class CartShippingCostRuleTest extends TestCase
         static::assertArrayHasKey('cartShippingCost', $constraints);
         static::assertEquals($constraints['cartShippingCost'], [
             new NotBlank(),
-            new Type(['type' => 'numeric']),
+            new Type(type: 'numeric'),
         ]);
 
         static::assertArrayHasKey('operator', $constraints);

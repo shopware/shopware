@@ -12,8 +12,11 @@ use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoade
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('discovery')]
 class CmsController extends StorefrontController
 {
@@ -39,7 +42,8 @@ class CmsController extends StorefrontController
         private readonly AbstractProductDetailRoute $productRoute,
         private readonly AbstractProductReviewLoader $productReviewLoader,
         private readonly AbstractFindProductVariantRoute $findVariantRoute,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -113,7 +117,7 @@ class CmsController extends StorefrontController
     #[Route(
         path: '/widgets/cms/navigation/{navigationId}/filter',
         name: 'frontend.cms.navigation.filter',
-        defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true],
+        defaults: ['XmlHttpRequest' => true, '_httpCache' => true],
         methods: ['GET', 'POST']
     )]
     public function filter(string $navigationId, Request $request, SalesChannelContext $context): Response
@@ -147,7 +151,7 @@ class CmsController extends StorefrontController
     #[Route(
         path: '/widgets/cms/buybox/{productId}/switch',
         name: 'frontend.cms.buybox.switch',
-        defaults: ['productId' => null, 'XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true],
+        defaults: ['productId' => null, 'XmlHttpRequest' => true, '_httpCache' => true],
         methods: ['GET']
     )]
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
@@ -176,7 +180,11 @@ class CmsController extends StorefrontController
         $product = $result->getProduct();
         $configurator = $result->getConfigurator();
 
-        $reviews = $this->productReviewLoader->load($request, $context, $product->getId(), $product->getParentId());
+        $reviewTotal = 0;
+        if ($this->systemConfigService->getBool('core.listing.showReview', $context->getSalesChannelId())) {
+            $reviews = $this->productReviewLoader->load($request, $context, $product->getId(), $product->getParentId());
+            $reviewTotal = $reviews->getTotal();
+        }
 
         $event = new SwitchBuyBoxVariantEvent($elementId, $product, $configurator, $request, $context);
         $this->eventDispatcher->dispatch($event);
@@ -184,7 +192,7 @@ class CmsController extends StorefrontController
         $response = $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
             'product' => $product,
             'configuratorSettings' => $configurator,
-            'totalReviews' => $reviews->getTotal(),
+            'totalReviews' => $reviewTotal,
             'elementId' => $elementId,
         ]);
         $response->headers->set('x-robots-tag', 'noindex');

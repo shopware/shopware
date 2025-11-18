@@ -91,7 +91,7 @@
                     "$ref": "#/definitions/mail"
                 },
                 "profiler": {
-                  "$ref": "#/definitions/profiler"
+                    "$ref": "#/definitions/profiler"
                 },
                 "twig": {
                     "$ref": "#/definitions/twig"
@@ -109,7 +109,7 @@
                     "$ref": "#/definitions/redis"
                 },
                 "usage_data": {
-                  "$ref": "#/definitions/usage_data"
+                    "$ref": "#/definitions/usage_data"
                 },
                 "staging": {
                     "$ref": "#/definitions/staging"
@@ -137,7 +137,11 @@
                         "anyOf": [
                             {
                                 "type": "string",
-                                "enum": ["Symfony", "Datadog", "Tideways"]
+                                "enum": [
+                                    "Symfony",
+                                    "Datadog",
+                                    "Tideways"
+                                ]
                             },
                             {
                                 "type": "string"
@@ -222,7 +226,11 @@
                                     },
                                     "type": {
                                         "type": "string",
-                                        "enum": ["equal", "regex", "prefix"]
+                                        "enum": [
+                                            "equal",
+                                            "regex",
+                                            "prefix"
+                                        ]
                                     },
                                     "replace": {
                                         "type": "string"
@@ -314,6 +322,45 @@
                     "type": "boolean",
                     "title": "Enforce the message size to 256KB, bigger messages will be rejected with an exception",
                     "default": false
+                },
+                "message_max_kib_size": {
+                    "type": "integer",
+                    "default": 1024,
+                    "title": "Defines the maximum message size in KiB. Messages exceeding this size will be rejected with an exception. If set to 0, no limit is enforced.",
+                    "description": "The current default value of 1024 KiB (1 MiB) is the maximum size supported by AWS SQS, which is most restrictive among the supported transports. See https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html"
+                },
+                "stats": {
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "title": "Enable the messenger stats collection",
+                            "default": false
+                        },
+                        "time_span": {
+                            "type": "integer",
+                            "title": "The time span in seconds for the messenger stats. Be aware that high values can slow down message processing",
+                            "default": 300
+                        }
+                    }
+                },
+                "scheduled_task": {
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "requeue_timeout": {
+                            "type": "integer",
+                            "title": "The timeout in hours after which a scheduled task is considered to be stuck and will be re-queued",
+                            "default": 12
+                        }
+                    }
                 }
             }
         },
@@ -372,7 +419,10 @@
             "additionalProperties": false,
             "properties": {
                 "max_limit": {
-                    "type": ["integer", "null"],
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
                     "default": 100
                 },
                 "access_token_ttl": {
@@ -485,7 +535,10 @@
                     "type": "string"
                 },
                 "max_limit": {
-                    "type": ["integer", "null"],
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
                     "default": 100
                 }
             },
@@ -515,7 +568,10 @@
                 },
                 "cache_compression_method": {
                     "type": "string",
-                    "enum": ["gzip", "zstd"],
+                    "enum": [
+                        "gzip",
+                        "zstd"
+                    ],
                     "default": "gzip",
                     "description": "Controls the cache compression method"
                 },
@@ -524,6 +580,15 @@
                 },
                 "tagging": {
                     "$ref": "#/definitions/cache_tags"
+                },
+                "twig": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "string_template_renderer_cache_dir": {
+                            "type": "string"
+                        }
+                    }
                 }
             },
             "title": "Cache"
@@ -553,8 +618,8 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "delay": {
-                    "type": "integer"
+                "delay_enabled": {
+                    "type": "boolean"
                 },
                 "delay_options": {
                     "type": "object",
@@ -660,9 +725,17 @@
                     "type": "boolean",
                     "description": "All carts, which stored in redis, are compressed via gzcompress. This option is only available if redis is used."
                 },
+                "serialization_max_mb_size": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "Limits the maximum size of the serialized cart (in MB). Helps prevent database errors (e.g. max_allowed_packet) by validating the payload size before persistence."
+                },
                 "compression_method": {
                     "type": "string",
-                    "enum": ["gzip", "zstd"],
+                    "enum": [
+                        "gzip",
+                        "zstd"
+                    ],
                     "default": "gzip",
                     "description": "Controls the cache compression method"
                 },
@@ -672,7 +745,10 @@
                     "properties": {
                         "type": {
                             "type": "string",
-                            "enum": ["mysql", "redis"]
+                            "enum": [
+                                "mysql",
+                                "redis"
+                            ]
                         },
                         "config": {
                             "type": "object",
@@ -701,7 +777,10 @@
                     "anyOf": [
                         {
                             "type": "string",
-                            "enum": ["mysql", "redis"]
+                            "enum": [
+                                "mysql",
+                                "redis"
+                            ]
                         },
                         {
                             "type": "string"
@@ -745,7 +824,10 @@
                         },
                         "soft_purge": {
                             "type": "string",
-                            "enum": ["1", "0"],
+                            "enum": [
+                                "1",
+                                "0"
+                            ],
                             "default": "0",
                             "Title": "Soft purge parameter will be passed to fastly API"
                         },
@@ -809,12 +891,22 @@
                     }
                 },
                 "stale_while_revalidate": {
-                    "type": ["integer", "null"],
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
                     "default": null
                 },
                 "stale_if_error": {
-                    "type": ["integer", "null"],
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
                     "default": null
+                },
+                "soft_purge": {
+                    "type": "boolean",
+                    "default": false
                 },
                 "reverse_proxy": {
                     "type": "object",
@@ -907,7 +999,10 @@
                                 },
                                 "soft_purge": {
                                     "type": "string",
-                                    "enum": ["1", "0"],
+                                    "enum": [
+                                        "1",
+                                        "0"
+                                    ],
                                     "default": "0"
                                 }
                             }
@@ -961,6 +1056,11 @@
                 "private_local_path_prefix": {
                     "type": "string",
                     "description": "Path prefix to be prepended to the path when using a local download strategy"
+                },
+                "batch_write_size": {
+                    "type": "integer",
+                    "default": 250,
+                    "description": "Batch size for writing files simultaneously using AsyncAwsS3WriteBatchAdapter"
                 }
             },
             "title": "Filesystem"
@@ -1157,7 +1257,9 @@
                 },
                 "error_code_log_levels": {
                     "type": "object",
-                    "additionalProperties": {"type": "string"}
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 }
             },
             "title": "Logger"
@@ -1202,6 +1304,16 @@
                 },
                 "excluded_urls": {
                     "type": "null"
+                },
+                "scheduled_task": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
                 }
             },
             "title": "sitemap"
@@ -1255,17 +1367,26 @@
             "additionalProperties": false,
             "properties": {
                 "enabled": {
-                    "type": ["string", "boolean"],
+                    "type": [
+                        "string",
+                        "boolean"
+                    ],
                     "description": "Enable Elasticsearch Searching",
                     "default": false
                 },
                 "indexing_enabled": {
-                    "type": ["string", "boolean"],
+                    "type": [
+                        "string",
+                        "boolean"
+                    ],
                     "description": "Enable Elasticsearch Indexing",
                     "default": false
                 },
                 "indexing_batch_size": {
-                    "type": ["string", "integer"],
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
                     "description": "Elasticsearch Batch Size",
                     "default": 100
                 },
@@ -1280,7 +1401,10 @@
                     "default": "sw"
                 },
                 "throw_exception": {
-                    "type": ["string", "boolean"],
+                    "type": [
+                        "string",
+                        "boolean"
+                    ],
                     "description": "Throw exception when Elasticsearch queries failing",
                     "default": false
                 },
@@ -1289,7 +1413,10 @@
                     "additionalProperties": false,
                     "properties": {
                         "custom_fields_mapping": {
-                            "type": ["object", "null"],
+                            "type": [
+                                "object",
+                                "null"
+                            ],
                             "title": "Custom Field Mapping of Product"
                         }
                     }
@@ -1330,11 +1457,17 @@
                             "default": true
                         },
                         "cert_path": {
-                            "type": ["boolean", "string"],
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "default": false
                         },
                         "cert_key_path": {
-                            "type": ["boolean", "string"],
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "default": false
                         },
                         "sigV4": {
@@ -1346,11 +1479,17 @@
                                     "default": false
                                 },
                                 "region": {
-                                    "type": ["boolean", "string"],
+                                    "type": [
+                                        "boolean",
+                                        "string"
+                                    ],
                                     "default": false
                                 },
                                 "service": {
-                                    "type": ["boolean", "string"],
+                                    "type": [
+                                        "boolean",
+                                        "string"
+                                    ],
                                     "default": false
                                 },
                                 "credentials_provider": {
@@ -1358,11 +1497,17 @@
                                     "additionalProperties": false,
                                     "properties": {
                                         "key_id": {
-                                            "type": ["boolean", "string"],
+                                            "type": [
+                                                "boolean",
+                                                "string"
+                                            ],
                                             "default": false
                                         },
                                         "secret_key": {
-                                            "type": ["boolean", "string"],
+                                            "type": [
+                                                "boolean",
+                                                "string"
+                                            ],
                                             "default": false
                                         }
                                     }
@@ -1376,11 +1521,17 @@
                     "additionalProperties": true,
                     "properties": {
                         "number_of_shards": {
-                            "type": ["integer", "null"],
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
                             "default": 3
                         },
                         "number_of_replicas": {
-                            "type": ["integer", "null"],
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
                             "default": 3
                         },
                         "mapping.total_fields.limit": {

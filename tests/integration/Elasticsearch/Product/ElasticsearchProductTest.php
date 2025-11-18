@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -70,7 +71,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -85,6 +85,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAgg
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Shopware\Tests\Integration\Elasticsearch\Product\Fixture\ProductsFixture;
@@ -146,6 +147,8 @@ class ElasticsearchProductTest extends TestCase
         $this->client = static::getContainer()->get(Client::class);
         $this->productDefinition = static::getContainer()->get(ProductDefinition::class);
         $this->languageRepository = static::getContainer()->get('language.repository');
+
+        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
 
         static::getContainer()->get(SalesChannelLanguageLoader::class)->reset();
         $this->connection = static::getContainer()->get(Connection::class);
@@ -277,6 +280,7 @@ class ElasticsearchProductTest extends TestCase
             $this->productRepository->upsert([
                 (new ProductBuilder($this->ids, 'u7', 300))
                     ->price(100)
+                    ->visibility()
                     ->build(),
             ], $context);
 
@@ -1720,6 +1724,25 @@ class ElasticsearchProductTest extends TestCase
     }
 
     #[Depends('testIndexing')]
+    public function testFilterCustomTextFieldEqualNull(IdsCollection $data): void
+    {
+        try {
+            $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addFilter(new EqualsFilter('customFields.testField', null));
+
+            $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, Context::createDefaultContext());
+
+            static::assertSame(1, $result->getTotal());
+            static::assertTrue($result->has($data->get('product-7')));
+        } catch (\Exception $e) {
+            $this->tearDown();
+
+            throw $e;
+        }
+    }
+
+    #[Depends('testIndexing')]
     public function testXorQuery(IdsCollection $data): void
     {
         try {
@@ -2005,7 +2028,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{from: int, to: int, expected: string[], rules?: string[]}>
+     * @return iterable<string, array{from: int, to: int, expected: list<string>, rules?: list<string>}>
      */
     public function providerCheapestPriceFilter(): iterable
     {
@@ -2075,7 +2098,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ids: string[], rules: string[]}>
+     * @return iterable<string, array{ids: list<string>, rules: list<string>}>
      */
     public function cheapestPriceSortingProvider(): iterable
     {
@@ -2445,7 +2468,7 @@ class ElasticsearchProductTest extends TestCase
                     ],
                     'test_date' => [
                         'type' => 'date',
-                        'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                        'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
                         'ignore_malformed' => true,
                     ],
                     'test_float' => [
@@ -2893,7 +2916,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{min: float, max: float, rules: string[]}>
+     * @return iterable<string, array{min: float, max: float, rules: list<string>}>
      */
     private function providerCheapestPriceAggregation(): iterable
     {
@@ -2940,7 +2963,7 @@ class ElasticsearchProductTest extends TestCase
 
         $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
 
-        ReflectionHelper::getProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes')->setValue(
+        (new \ReflectionProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes'))->setValue(
             $this->utils,
             ['product' => $customMapping],
         );
@@ -2982,6 +3005,7 @@ class ElasticsearchProductTest extends TestCase
                     'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
+                    'active' => true,
                     'translationCode' => [
                         'code' => Uuid::randomHex(),
                         'name' => 'Test locale',

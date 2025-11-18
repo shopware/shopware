@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -70,6 +71,7 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
                 'name' => $faker->format('productName'),
                 'description' => $faker->text(),
                 'filters' => [['type' => 'multi', 'operator' => 'OR', 'queries' => $filters]],
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             ];
         }
 

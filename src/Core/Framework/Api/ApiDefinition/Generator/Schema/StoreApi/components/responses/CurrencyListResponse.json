@@ -1,0 +1,22 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "responses": {
+            "CurrencyListResponse": {
+                "description": "Entity search result containing currencies.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+} 

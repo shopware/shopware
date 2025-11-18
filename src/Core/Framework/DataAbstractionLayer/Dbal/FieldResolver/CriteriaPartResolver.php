@@ -122,11 +122,11 @@ class CriteriaPartResolver
             $query->setParameter($key, $value, $parsed->getType($key));
         }
 
-        foreach ($filter->getQueries() as $filter) {
-            if (!$filter instanceof SingleFieldFilter) {
+        foreach ($filter->getQueries() as $queryFilter) {
+            if (!$queryFilter instanceof SingleFieldFilter) {
                 continue;
             }
-            $filter->setResolved(self::escape($alias) . '.id IS NOT NULL');
+            $queryFilter->setResolved(self::escape($alias) . '.id IS NOT NULL');
         }
 
         $query->andWhere(implode(' AND ', $parsed->getWheres()));

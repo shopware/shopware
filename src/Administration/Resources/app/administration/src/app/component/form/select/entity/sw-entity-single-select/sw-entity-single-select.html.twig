@@ -32,7 +32,7 @@
             {% block sw_entity_single_select_single_selection_inner %}
             {% block sw_entity_single_select_single_selection_inner_label %}
             <div
-                v-if="!isExpanded"
+                v-show="!isExpanded"
                 class="sw-entity-single-select__selection-text"
                 :class="selectionTextClasses"
             >
@@ -83,6 +83,7 @@
             ref="resultsList"
             :options="results"
             :is-loading="isLoading"
+            :popover-classes="popoverClasses"
             :empty-message="$tc('global.sw-single-select.messageNoResults', { term: searchTerm })"
             :focus-el="$refs.swSelectInput"
             @paginate="paginate"

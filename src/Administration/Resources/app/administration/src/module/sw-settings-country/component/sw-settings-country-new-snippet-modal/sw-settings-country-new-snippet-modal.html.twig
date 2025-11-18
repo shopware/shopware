@@ -71,6 +71,7 @@
                 v-for="item in treeItems"
                 :key="item.id"
                 should-focus
+                :display-checkbox="false"
                 :item="item"
                 :active="item.active"
                 :sortable="sortable"
@@ -147,5 +148,14 @@
             </ul>
         </template>
     </sw-select-base>
+
+    <template #modal-footer>
+        <mt-button
+            variant="primary"
+            @click="onCloseModal"
+        >
+            {{ $tc('global.default.apply') }}
+        </mt-button>
+    </template>
 </sw-modal>
 {% endblock %}

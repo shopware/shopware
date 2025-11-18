@@ -107,8 +107,12 @@ async function createWrapper() {
                     data() {
                         return { term: '' };
                     },
-                    template:
-                        '<input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
+                    template: `
+                        <div>
+                            <input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">
+                            <slot name="filter"></slot>
+                        </div>
+                    `,
                 },
                 'sw-field': true,
                 'router-link': true,

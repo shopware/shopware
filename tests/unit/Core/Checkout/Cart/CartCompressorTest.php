@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Random;
 
 /**
  * @internal
@@ -71,5 +72,25 @@ class CartCompressorTest extends TestCase
 
         static::expectExceptionObject(CartException::deserializeFailed());
         $compressor->unserialize('invalid', 1);
+    }
+
+    public function testSerializationMaxSizeWithCompress(): void
+    {
+        $this->expectExceptionObject(CartException::serializedCartTooLarge());
+
+        $compressor = new CartCompressor(true, 'gzip', 1);
+
+        // necessary to get the limit of 1 mb
+        $compressor->serialize(Random::getString(1500000));
+    }
+
+    public function testSerializationMaxSizeWithOutCompress(): void
+    {
+        $this->expectExceptionObject(CartException::serializedCartTooLarge());
+
+        $compressor = new CartCompressor(false, 'gzip', 1);
+
+        // necessary to get the limit of 1 mb
+        $compressor->serialize(Random::getString(1500000));
     }
 }

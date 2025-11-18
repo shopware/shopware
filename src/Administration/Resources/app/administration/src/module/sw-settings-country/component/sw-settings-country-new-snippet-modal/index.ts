@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-settings-country-new-snippet-modal.html.twig';
 import './sw-settings-country-new-snippet-modal.scss';
 

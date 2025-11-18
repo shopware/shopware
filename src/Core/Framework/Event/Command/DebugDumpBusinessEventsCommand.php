@@ -18,15 +18,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('fundamentals@after-sales')]
 class DebugDumpBusinessEventsCommand extends Command
 {
-    protected BusinessEventCollector $collector;
-
     /**
      * @internal
      */
-    public function __construct(BusinessEventCollector $collector)
+    public function __construct(protected BusinessEventCollector $collector)
     {
         parent::__construct();
-        $this->collector = $collector;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

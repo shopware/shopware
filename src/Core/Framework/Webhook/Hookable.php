@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
@@ -23,6 +24,7 @@ interface Hookable
         AppDeletedEvent::class => AppDeletedEvent::NAME,
         AppInstalledEvent::class => AppInstalledEvent::NAME,
         AppUpdatedEvent::class => AppUpdatedEvent::NAME,
+        AppPermissionsUpdated::class => AppPermissionsUpdated::NAME,
         UpdatePostFinishEvent::class => UpdatePostFinishEvent::EVENT_NAME,
         SystemConfigChangedHook::class => SystemConfigChangedHook::EVENT_NAME,
     ];
@@ -34,6 +36,7 @@ interface Hookable
         AppDeletedEvent::class => 'Fires when an app is deleted',
         AppInstalledEvent::class => 'Fires when an app is installed',
         AppUpdatedEvent::class => 'Fires when an app is updated',
+        AppPermissionsUpdated::class => 'Fires when an apps permissions were updated with a list of the currently accepted permissions, eg after new were accepted or revoked',
         UpdatePostFinishEvent::class => 'Fires after an shopware update has been finished',
         SystemConfigChangedHook::class => 'Fires when a system config value is changed',
     ];
@@ -45,6 +48,7 @@ interface Hookable
         AppDeletedEvent::class => [],
         AppInstalledEvent::class => [],
         AppUpdatedEvent::class => [],
+        AppPermissionsUpdated::class => [],
         UpdatePostFinishEvent::class => [],
         SystemConfigChangedHook::class => ['system_config:read'],
     ];

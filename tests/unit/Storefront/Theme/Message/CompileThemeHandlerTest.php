@@ -17,6 +17,7 @@ use Shopware\Storefront\Theme\Message\CompileThemeHandler;
 use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCompiler;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 
 /**
  * @internal
@@ -46,7 +47,8 @@ class CompileThemeHandlerTest extends TestCase
             $this->createMock(AbstractConfigLoader::class),
             $this->createMock(StorefrontPluginRegistry::class),
             $notificationServiceMock,
-            $salesChannelRep
+            $salesChannelRep,
+            $this->createMock(ThemeRuntimeConfigService::class),
         );
 
         $handler($message);

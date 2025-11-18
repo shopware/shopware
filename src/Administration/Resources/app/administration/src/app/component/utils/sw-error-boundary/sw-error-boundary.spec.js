@@ -25,12 +25,6 @@ describe('src/app/component/utils/sw-error-boundary', () => {
         if (console.error.mockReset) console.error.mockReset();
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = shallowMount(swErrorBoundary);
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should catch the error from siblings', async () => {
         expect(console.error).not.toHaveBeenCalled();
 

@@ -12,7 +12,7 @@
     }
 
     h3 {
-        margin: 20px 0 10px;
+        margin: var(--scale-size-20) 0 var(--scale-size-10);
 
         &:first-child {
             margin-top: 0;

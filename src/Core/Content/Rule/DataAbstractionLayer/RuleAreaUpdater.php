@@ -190,7 +190,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
     /**
      * @param array<string> $ids
      *
-     * @return array<string, array<array<string>>>
+     * @return array<string, array<string, string>>
      */
     private function getAreas(array $ids, CompiledFieldCollection $associationFields): array
     {
@@ -215,7 +215,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             ArrayParameterType::STRING
         );
 
-        /** @var array<string, array<array<string>>> $result */
+        /** @var array<string, array<string, string>> $result */
         $result = FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
 
         return $result;
@@ -299,18 +299,32 @@ class RuleAreaUpdater implements EventSubscriberInterface
      */
     private function getAssociationEntities(): array
     {
-        return $this->getAssociationFields()->filter(fn (AssociationField $associationField): bool => $associationField instanceof OneToManyAssociationField)->map(fn (AssociationField $field): string => $field->getReferenceDefinition()->getEntityName());
+        return $this->getAssociationFields()
+            ->filter(fn (AssociationField $associationField): bool => $associationField instanceof OneToManyAssociationField || $associationField instanceof ManyToManyAssociationField)
+            ->map(
+                static function (AssociationField $field): string {
+                    return $field->getReferenceDefinition()->getEntityName();
+                }
+            );
     }
 
     private function getAssociationDefinitionByEntity(CompiledFieldCollection $collection, string $entityName): ?EntityDefinition
     {
         $field = $collection->filter(function (AssociationField $associationField) use ($entityName): bool {
+            if ($associationField instanceof ManyToManyAssociationField) {
+                return $associationField->getMappingDefinition()->getEntityName() === $entityName;
+            }
+
             if (!$associationField instanceof OneToManyAssociationField) {
                 return false;
             }
 
             return $associationField->getReferenceDefinition()->getEntityName() === $entityName;
         })->first();
+
+        if ($field instanceof ManyToManyAssociationField) {
+            return $field->getMappingDefinition();
+        }
 
         return $field instanceof AssociationField ? $field->getReferenceDefinition() : null;
     }

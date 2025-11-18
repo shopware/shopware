@@ -20,6 +20,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 class DemodataService
 {
+    public const DEMODATA_CUSTOM_FIELDS_KEY = 'shopwareDemoData';
+
     /**
      * @internal
      *
@@ -54,9 +56,7 @@ class DemodataService
             $validGenerators = array_filter(iterator_to_array($this->generators), static fn (DemodataGeneratorInterface $generator) => $generator->getDefinition() === $definitionClass);
 
             if (empty($validGenerators)) {
-                throw new \RuntimeException(
-                    \sprintf('Could not generate demodata for "%s" because no generator is registered.', $definitionClass)
-                );
+                throw DemodataException::noGeneratorFound($definitionClass);
             }
 
             $start = microtime(true);

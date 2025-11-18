@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdInvoiceOrdersEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -60,8 +61,8 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $languageIdChain = $context->getLanguageIdChain();
 
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
-        foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
-            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $ids), $rendererConfig->deepLinkCode);
+        foreach ($chunk as ['language_id' => $languageId, 'ids' => $chunkIds]) {
+            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $chunkIds), $rendererConfig->deepLinkCode);
             $criteria->addAssociation('lineItems.product.manufacturer');
 
             $context->assign([
@@ -94,20 +95,27 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         // So no A11y will be generated
         $config->merge(['fileTypes' => ['xml']]);
 
+        $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
+
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $config->merge([
+            'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
+            'documentNumber' => $number,
+            'custom' => [
+                'invoiceNumber' => $number,
+            ],
+        ]);
+
         // create version of order to ensure the document stays the same even if the order changes
         $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
-
-        $documentNumber = $config->getDocumentNumber();
-        if ($documentNumber === null) {
-            $config->setDocumentNumber($documentNumber = $this->getNumber($context, $order, $operation));
-        }
 
         try {
             $content = $this->documentBuilder->buildDocument($order, $config, $context);
             $renderResult->addSuccess(
                 $order->getId(),
                 new RenderedDocument(
-                    $documentNumber,
+                    $number,
                     $config->buildName(),
                     FileTypes::XML,
                     $config->jsonSerialize(),

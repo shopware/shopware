@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-cms-el-location-renderer.html.twig';
 import './sw-cms-el-location-renderer.scss';
 import type { ElementDataProp } from '../index';
@@ -71,7 +70,7 @@ export default Component.wrapComponentConfig({
 
     methods: {
         createdComponent(): void {
-            this.initElementConfig(this.elementData.name);
+            this.initElementConfig();
             this.updatePublishData();
         },
 

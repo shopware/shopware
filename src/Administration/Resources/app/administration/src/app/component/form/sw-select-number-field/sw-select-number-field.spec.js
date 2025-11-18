@@ -33,11 +33,6 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/form/sw-select-number-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should emit the value as a number', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

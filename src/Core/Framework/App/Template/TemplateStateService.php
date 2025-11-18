@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class TemplateStateService
 {
+    /**
+     * @param EntityRepository<TemplateCollection> $templateRepo
+     */
     public function __construct(
         private readonly EntityRepository $templateRepo,
         private readonly CacheClearer $cacheClearer,
@@ -37,7 +40,6 @@ class TemplateStateService
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', $currentActiveState));
 
-        /** @var array<string> $templates */
         $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);

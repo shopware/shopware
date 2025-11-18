@@ -56,6 +56,10 @@ Shopware.Component.register('sw-order-state-change-modal', () => import('./compo
 Shopware.Component.register('sw-order-state-select-v2', () => import('./component/sw-order-state-select-v2'));
 Shopware.Component.register('sw-order-details-state-card', () => import('./component/sw-order-details-state-card'));
 Shopware.Component.register('sw-order-inline-field', () => import('./component/sw-order-inline-field'));
+
+/**
+ * @deprecated tag:v6.8.0 - File will be removed. No longer used.
+ */
 Shopware.Component.register('sw-order-user-card', () => import('./component/sw-order-user-card'));
 Shopware.Component.register('sw-order-document-card', () => import('./component/sw-order-document-card'));
 Shopware.Component.register(
@@ -123,7 +127,7 @@ Module.register('sw-order', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#A092F0',
-    icon: 'regular-shopping-bag',
+    icon: 'solid-shopping-bag',
     favicon: 'icon-module-orders.png',
     entity: 'order',
 
@@ -168,7 +172,7 @@ Module.register('sw-order', {
             children: orderDetailChildren(),
             props: {
                 default: ($route) => {
-                    return { orderId: $route.params.id };
+                    return { orderId: $route.params.id.toLowerCase() };
                 },
             },
         },

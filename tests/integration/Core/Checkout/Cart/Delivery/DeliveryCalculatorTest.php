@@ -840,6 +840,67 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame(8.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
+    public function testCalculateWithMultiplePricesMissingCalculationPrice(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+        $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
+        $prices = new ShippingMethodPriceCollection();
+        $quantityStart = 0;
+        foreach ([8, null] as $price) {
+            $priceEntity = new ShippingMethodPriceEntity();
+            $priceEntity->setUniqueIdentifier(Uuid::randomHex());
+            if ($price) {
+                $priceEntity->setCurrencyPrice(new PriceCollection([
+                    new Price(
+                        Defaults::CURRENCY,
+                        $price,
+                        $price,
+                        false
+                    ),
+                ]));
+            }
+            $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT);
+            $priceEntity->setQuantityStart($quantityStart);
+            $priceEntity->setQuantityEnd($quantityStart + 5);
+            $prices->add($priceEntity);
+
+            $quantityStart += 5;
+        }
+        $shippingMethod->setPrices($prices);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = Context::createDefaultContext();
+
+        $context->expects($this->atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects($this->atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+
+        $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 2);
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                50,
+                22.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setShippingCostAware(true);
+        $lineItem->setPrice(new CalculatedPrice(7.5, 15.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 2));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame(8.0, $delivery->getShippingCosts()->getTotalPrice());
+    }
+
     public function testCalculateExclusiveEndPrice(): void
     {
         $shippingMethod = new ShippingMethodEntity();

@@ -1,28 +1,114 @@
 {
-    "openapi": "3.1.0",
-    "info": [],
-    "paths": {
-        "\/_info\/config": {
-            "get": {
-                "tags": [
-                    "System Info & Health Check"
-                ],
-                "summary": "Get API information",
-                "description": "Get information about the API",
-                "operationId": "config",
-                "responses": {
-                    "200": {
-                        "description": "Returns information about the API.",
-                        "content": {
-                            "application\/json": {
-                                "schema": {
-                                    "$ref": "#\/components\/schemas\/infoConfigResponse"
-                                }
-                            }
-                        }
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": {
+    "\/_info\/config": {
+      "get": {
+        "tags": [
+          "System Info & Health Check"
+        ],
+        "summary": "Get public runtime config & feature metadata",
+        "description": "Returns non-sensitive system/runtime metadata used by the administration UI for initialization, feature toggling, and diagnostics. Typical fields include platform/API version, active feature flags, environment mode, available capabilities (e.g. workers, queue, cache), limits, and other public configuration hints. Use this at admin startup to decide which features to enable and to display environment information.",
+        "operationId": "config",
+        "responses": {
+          "200": {
+            "description": "Public runtime configuration & feature metadata returned.",
+            "content": {
+              "application\/json": {
+                "schema": {
+                  "$ref": "#\/components\/schemas\/infoConfigResponse"
+                },
+                "example": {
+                  "version": "6.7.2.0",
+                  "shopId": "NoiU8PfJtu7NBY8M",
+                  "versionRevision": "98fcdbeab238fbef3b47bc258340124a1dba4852",
+                  "adminWorker": {
+                    "enableAdminWorker": true,
+                    "enableQueueStatsWorker": true,
+                    "enableNotificationWorker": true,
+                    "transports": [
+                      "async",
+                      "low_priority"
+                    ]
+                  },
+                  "bundles": {
+                    "Administration": {
+                      "css": [
+                        "http://localhost:8000/bundles/administration/administration/assets/administration-DX5ywH2m.css"
+                      ],
+                      "js": [
+                        "http://localhost:8000/bundles/administration/administration/assets/administration-DPiBX_LO.js"
+                      ],
+                      "baseUrl": null,
+                      "type": "plugin"
+                    },
+                    "Storefront": {
+                      "css": [
+                        "http://localhost:8000/bundles/storefront/administration/assets/storefront-LFaCMnyI.css"
+                      ],
+                      "js": [
+                        "http://localhost:8000/bundles/storefront/administration/assets/storefront-C-M6U7ZM.js"
+                      ],
+                      "baseUrl": null,
+                      "type": "plugin"
                     }
+                  },
+                  "settings": {
+                    "enableUrlFeature": true,
+                    "appUrlReachable": true,
+                    "appsRequireAppUrl": false,
+                    "private_allowed_extensions": [
+                      "jpg",
+                      "jpeg",
+                      "png",
+                      "webp",
+                      "avif",
+                      "gif",
+                      "svg",
+                      "bmp",
+                      "tiff",
+                      "tif",
+                      "eps",
+                      "webm",
+                      "mkv",
+                      "flv",
+                      "ogv",
+                      "ogg",
+                      "mov",
+                      "mp4",
+                      "avi",
+                      "wmv",
+                      "pdf",
+                      "aac",
+                      "mp3",
+                      "wav",
+                      "flac",
+                      "oga",
+                      "wma",
+                      "txt",
+                      "doc",
+                      "docx",
+                      "ico",
+                      "glb",
+                      "zip",
+                      "rar",
+                      "csv",
+                      "xls",
+                      "xlsx",
+                      "html",
+                      "xml"
+                    ],
+                    "enableHtmlSanitizer": true,
+                    "enableStagingMode": false,
+                    "disableExtensionManagement": false
+                  },
+                  "inAppPurchases": []
                 }
+              }
             }
+          }
         }
+      }
     }
+  }
 }

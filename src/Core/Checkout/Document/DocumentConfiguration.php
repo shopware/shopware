@@ -115,6 +115,7 @@ class DocumentConfiguration extends Struct
      */
     public function __set($name, $value): void
     {
+        // @phpstan-ignore property.dynamicName (We allow all dynamic properties in the document configuration)
         $this->$name = $value;
     }
 
@@ -125,6 +126,7 @@ class DocumentConfiguration extends Struct
      */
     public function __get($name)
     {
+        // @phpstan-ignore property.dynamicName (We allow all dynamic properties in the document configuration)
         return $this->$name;
     }
 
@@ -430,5 +432,20 @@ class DocumentConfiguration extends Struct
     public function setFileTypes(array $types): void
     {
         $this->fileTypes = $types;
+    }
+
+    public function getLogo(): ?MediaEntity
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(?MediaEntity $logo): void
+    {
+        $this->logo = $logo;
+    }
+
+    public function setItemsPerPage(string|int|null $itemsPerPage): void
+    {
+        $this->itemsPerPage = (int) $itemsPerPage;
     }
 }

@@ -57,16 +57,16 @@ class WebhookPersister
             $this->connection->insert('webhook', $insert);
         }
 
-        $this->deleteOldWebhooks($existingWebhooks, $context);
+        $this->deleteOldWebhooks($existingWebhooks);
         $this->cacheClearer->clearWebhookCache();
     }
 
     /**
      * @param array<string, string> $toBeRemoved
      */
-    private function deleteOldWebhooks(array $toBeRemoved, Context $context): void
+    private function deleteOldWebhooks(array $toBeRemoved): void
     {
-        $this->connection->executeQuery(
+        $this->connection->executeStatement(
             'DELETE FROM webhook WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList(array_keys($toBeRemoved))],
             ['ids' => ArrayParameterType::STRING],
@@ -109,7 +109,7 @@ class WebhookPersister
             'event_name' => $webhook['eventName'],
             'url' => $webhook['url'],
             'only_live_version' => \array_key_exists('onlyLiveVersion', $webhook) ? (int) $webhook['onlyLiveVersion'] : 0,
-            'error_count' => \array_key_exists('errorCount', $webhook) ? (int) $webhook['errorCount'] : 0,
+            'error_count' => \array_key_exists('errorCount', $webhook) ? $webhook['errorCount'] : 0,
             'active' => 1,
             'app_id' => Uuid::fromHexToBytes($appId),
         ];

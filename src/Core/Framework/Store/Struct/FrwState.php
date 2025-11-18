@@ -8,12 +8,12 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('checkout')]
-final class FrwState
+final readonly class FrwState
 {
     private function __construct(
-        private readonly ?\DateTimeImmutable $completedAt = null,
-        private readonly ?\DateTimeImmutable $failedAt = null,
-        private readonly int $failureCount = 0
+        private ?\DateTimeImmutable $completedAt = null,
+        private ?\DateTimeImmutable $failedAt = null,
+        private int $failureCount = 0
     ) {
     }
 

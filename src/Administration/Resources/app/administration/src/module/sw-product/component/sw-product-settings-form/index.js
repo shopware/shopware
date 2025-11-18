@@ -3,6 +3,7 @@
  */
 
 import template from './sw-product-settings-form.html.twig';
+import './sw-product-settings-form.scss';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 

@@ -101,7 +101,9 @@ describe('src/app/init/context.init.ts', () => {
         Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
-            permissions: [],
+            permissions: {
+                read: ['product'],
+            },
             version: '1.0.0',
             type: 'app',
             integrationId: '123',
@@ -114,6 +116,9 @@ describe('src/app/init/context.init.ts', () => {
                     name: 'jestapp',
                     version: '1.0.0',
                     type: 'app',
+                    privileges: {
+                        read: ['product'],
+                    },
                 }),
             );
         });

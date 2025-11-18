@@ -26,10 +26,6 @@ describe('src/app/component/base/mt-icon/index.js', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the correct icon (circle-download)', async () => {
         expect(wrapper.find('.mt-icon').exists()).toBeTruthy();
         expect(wrapper.find('svg#meteor-icon-kit__regular-circle-download').exists()).toBeTruthy();

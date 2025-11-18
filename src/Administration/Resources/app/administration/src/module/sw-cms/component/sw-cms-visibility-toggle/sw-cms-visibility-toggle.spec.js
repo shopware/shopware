@@ -19,12 +19,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-visibility-toggle', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be collapsed', async () => {
         const wrapper = await createWrapper();
         const toggleButton = wrapper.find('.sw-cms-visibility-toggle__button');

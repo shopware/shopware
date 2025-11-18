@@ -42,7 +42,12 @@ class StaticInAppPurchaseFactory
                         {
                         }
                     }
-                )
+                ),
+                new class extends Logger {
+                    public function __construct()
+                    {
+                    }
+                }
             )
         );
 

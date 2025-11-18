@@ -5,9 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
+use Shopware\Core\Framework\Routing\Extension\CanonicalRedirectExtension;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +29,10 @@ class CanonicalRedirectServiceTest extends TestCase
     {
         static::assertNotNull($response);
         $shouldRedirect = $response->getStatusCode() === Response::HTTP_MOVED_PERMANENTLY;
-        $canonicalRedirectService = new CanonicalRedirectService($this->getSystemConfigService($shouldRedirect));
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService($shouldRedirect),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
 
         /** @var RedirectResponse|null $actual */
         $actual = $canonicalRedirectService->getRedirect($request);
@@ -54,12 +61,45 @@ class CanonicalRedirectServiceTest extends TestCase
         $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']);
         $request->server->set('QUERY_STRING', 'foo=bar');
 
-        $canonicalRedirectService = new CanonicalRedirectService($this->getSystemConfigService(true));
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService(true),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
 
         $response = $canonicalRedirectService->getRedirect($request);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/lorem/ipsum/dolor-sit/amet?foo=bar', $response->getTargetUrl());
+    }
+
+    public function testExtensionIsDispatched(): void
+    {
+        $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']);
+
+        $dispatcher = new EventDispatcher();
+
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService(true),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        $post = $this->createMock(CallableClass::class);
+        $post->expects($this->exactly(1))->method('__invoke');
+        $dispatcher->addListener(ExtensionDispatcher::post(CanonicalRedirectExtension::NAME), $post);
+
+        $dispatcher->addListener(
+            ExtensionDispatcher::pre(CanonicalRedirectExtension::NAME),
+            function (CanonicalRedirectExtension $extension): void {
+                $extension->stopPropagation();
+
+                $extension->result = new RedirectResponse('/overridden/url');
+            }
+        );
+
+        $response = $canonicalRedirectService->getRedirect($request);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/overridden/url', $response->getTargetUrl());
     }
 
     /**

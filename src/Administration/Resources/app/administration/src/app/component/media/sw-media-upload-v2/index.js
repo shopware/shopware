@@ -28,7 +28,6 @@ export default {
     inject: [
         'repositoryFactory',
         'mediaService',
-        'configService',
         'feature',
         'fileValidationService',
     ],
@@ -187,7 +186,7 @@ export default {
             preview: null,
             isDragActive: false,
             defaultFolderId: null,
-            isUploadUrlFeatureEnabled: false,
+            isUploadUrlFeatureEnabled: Shopware.Store.get('context').app.config?.settings?.enableUrlFeature ?? false,
             isLoading: false,
         };
     },
@@ -290,10 +289,6 @@ export default {
                 this.defaultFolderId = await this.getDefaultFolderId();
                 this.isLoading = false;
             }
-
-            this.configService.getConfig().then((result) => {
-                this.isUploadUrlFeatureEnabled = result.settings.enableUrlFeature;
-            });
         },
 
         mountedComponent() {
@@ -319,8 +314,11 @@ export default {
                 'dragover',
                 'drop',
             ].forEach((event) => {
-                window.addEventListener(event, this.stopEventPropagation, false);
+                window.removeEventListener(event, this.stopEventPropagation, false);
             });
+            if (this.$refs.dropzone) {
+                this.$refs.dropzone.removeEventListener('drop', this.onDrop);
+            }
 
             window.removeEventListener('dragenter', this.onDragEnter);
             window.removeEventListener('dragleave', this.onDragLeave);

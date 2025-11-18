@@ -2,10 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
-use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface as SeoUrlRouteConfigRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -35,6 +32,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class StoreApiSeoResolver implements EventSubscriberInterface
 {
     /**
+     * @param SalesChannelRepository<SeoUrlCollection> $salesChannelRepository
+     *
      * @internal
      */
     public function __construct(
@@ -115,6 +114,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     {
         if ($struct instanceof Entity) {
             $definition = $this->definitionInstanceRegistry->getByEntityClass($struct) ?? $this->salesChannelDefinitionInstanceRegistry->getByEntityClass($struct);
+
             if ($definition && $definition->isSeoAware()) {
                 $data->add($definition->getEntityName(), $struct);
             }
@@ -153,18 +153,25 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
             $criteria->addSorting(new FieldSorting('salesChannelId'));
 
-            /** @var SeoUrlEntity $url */
             foreach ($this->salesChannelRepository->search($criteria, $context) as $url) {
-                /** @var SalesChannelProductEntity|CategoryEntity $entity */
-                $entity = $data->get($definition, $url->getForeignKey());
+                $entities = $data->getAll($definition, $url->getForeignKey());
 
-                if ($entity->getSeoUrls() === null) {
-                    $entity->setSeoUrls(new SeoUrlCollection());
+                foreach ($entities as $entity) {
+                    if (!\method_exists($entity, 'getSeoUrls') || !\method_exists($entity, 'setSeoUrls')) {
+                        break;
+                    }
+
+                    if ($entity->getSeoUrls() === null) {
+                        $entity->setSeoUrls(new SeoUrlCollection());
+                    }
+
+                    if (!$entity->getSeoUrls() instanceof SeoUrlCollection) {
+                        break;
+                    }
+
+                    $seoUrlCollection = $entity->getSeoUrls();
+                    $seoUrlCollection->add($url);
                 }
-
-                /** @var SeoUrlCollection $seoUrlCollection */
-                $seoUrlCollection = $entity->getSeoUrls();
-                $seoUrlCollection->add($url);
             }
         }
     }

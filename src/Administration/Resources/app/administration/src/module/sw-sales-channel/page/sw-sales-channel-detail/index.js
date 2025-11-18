@@ -185,7 +185,7 @@ export default {
         loadSalesChannel() {
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, Context.api, this.getLoadSalesChannelCriteria())
+                .get(this.$route.params.id.toLowerCase(), Context.api, this.getLoadSalesChannelCriteria())
                 .then((entity) => {
                     this.salesChannel = entity;
 
@@ -209,7 +209,10 @@ export default {
             criteria.addAssociation('countries');
             criteria.getAssociation('currencies').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains');
-            criteria.getAssociation('languages').addSorting(Criteria.sort('name', 'ASC'));
+            criteria
+                .getAssociation('languages')
+                .addSorting(Criteria.sort('name', 'ASC'))
+                .addFilter(Criteria.equals('active', true));
             criteria.addAssociation('analytics');
 
             criteria.addAssociation('productExports');

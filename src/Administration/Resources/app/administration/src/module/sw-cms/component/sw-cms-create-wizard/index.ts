@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
 

@@ -27,6 +27,7 @@
                 }"
                 selected=""
                 class="sw-category-tree-field__selected-label"
+                :dismissable="!disabled"
                 @dismiss="removeItem(selectedCategory)"
             >
 
@@ -40,7 +41,10 @@
 
                 {% block sw_category_tree_field_input_labels_dismiss_icon %}
                 <template #dismiss-icon>
-                    <mt-icon name="regular-times-s" />
+                    <mt-icon
+                        name="regular-times-s"
+                        size="8"
+                    />
                 </template>
                 {% endblock %}
 

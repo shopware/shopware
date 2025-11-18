@@ -41,7 +41,12 @@ export default {
             url: '',
             extensionFromUrl: '',
             extensionFromInput: '',
+            showModal: false,
         };
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     computed: {
@@ -98,6 +103,12 @@ export default {
     },
 
     methods: {
+        mountedComponent() {
+            if (this.variant === 'modal') {
+                this.showModal = true;
+            }
+        },
+
         emitUrl(originalDomEvent) {
             if (this.isValid) {
                 this.$emit('media-url-form-submit', {
@@ -107,13 +118,16 @@ export default {
                 });
 
                 if (this.variant === 'modal') {
-                    this.closeModal();
+                    this.showModal = false;
                 }
             }
         },
 
-        closeModal() {
-            this.$emit('modal-close');
+        onModalChange(isOpen) {
+            this.showModal = isOpen;
+            if (!isOpen) {
+                this.$emit('modal-close');
+            }
         },
     },
 };

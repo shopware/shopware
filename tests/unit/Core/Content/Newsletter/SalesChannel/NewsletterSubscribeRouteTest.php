@@ -68,6 +68,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -119,6 +120,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -169,6 +171,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -208,10 +211,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             ['firstName' => 'Y http://localhost', 'lastName' => 'Tran http://localhost'],
             [
                 new NotBlank(),
-                new Regex([
-                    'pattern' => NewsletterSubscribeRoute::DOMAIN_NAME_REGEX,
-                    'match' => false,
-                ]),
+                new Regex(pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX, match: false),
             ],
         ];
 
@@ -225,10 +225,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             ['firstName' => 'Y', 'lastName' => 'Tran'],
             [
                 new NotBlank(),
-                new Regex([
-                    'pattern' => NewsletterSubscribeRoute::DOMAIN_NAME_REGEX,
-                    'match' => false,
-                ]),
+                new Regex(pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX, match: false),
             ],
         ];
     }
@@ -245,6 +242,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),

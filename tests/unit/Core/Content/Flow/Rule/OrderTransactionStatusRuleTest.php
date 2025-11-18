@@ -59,16 +59,20 @@ class OrderTransactionStatusRuleTest extends TestCase
     #[DataProvider('getMatchingValues')]
     public function testOrderPaymentStatusRuleMatching(bool $expected, string $orderStateId, array $selectedOrderStateIds, string $operator): void
     {
+        $orderTransactionId = Uuid::randomHex();
+
         $stateMachineState = new StateMachineStateEntity();
         $stateMachineState->setTechnicalName(OrderTransactionStates::STATE_IN_PROGRESS);
         $orderTransactionCollection = new OrderTransactionCollection();
         $orderTransaction = new OrderTransactionEntity();
-        $orderTransaction->setId(Uuid::randomHex());
+        $orderTransaction->setId($orderTransactionId);
         $orderTransaction->setStateId($orderStateId);
         $orderTransaction->setStateMachineState($stateMachineState);
         $orderTransactionCollection->add($orderTransaction);
         $order = new OrderEntity();
         $order->setTransactions($orderTransactionCollection);
+        $order->setPrimaryOrderTransactionId($orderTransactionId);
+        $order->setPrimaryOrderTransaction($orderTransaction);
         $scope = new FlowRuleScope(
             $order,
             new Cart('test'),

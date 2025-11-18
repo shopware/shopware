@@ -51,13 +51,11 @@ class FileFetcher
         );
     }
 
-    public function fetchFileFromURL(Request $request, string $fileName): MediaFile
+    public function fetchFromURL(string $url, string $fileName, ?string $fileExtension = null): MediaFile
     {
         if (!$this->enableUrlUploadFeature) {
             throw MediaException::disableUrlUploadFeature();
         }
-
-        $url = $this->getUrlFromRequest($request);
 
         if (!$this->fileService->isUrl($url)) {
             throw MediaException::invalidUrl($url);
@@ -77,18 +75,24 @@ class FileFetcher
             fclose($destStream);
         }
 
-        $extension = (string) $request->query->get('extension');
-        $mimeType = FileInfoHelper::getMimeType($fileName, $extension);
-        $extension = $extension ?: FileInfoHelper::getExtension($mimeType);
+        $mimeType = FileInfoHelper::getMimeType($fileName, $fileExtension);
+        $fileExtension = $fileExtension ?: FileInfoHelper::getExtension($mimeType);
 
         return new MediaFile(
             $fileName,
             $mimeType,
-            $extension,
+            $fileExtension,
             $writtenBytes,
             // Change length of db field `media`.`file_hash` if algorithm is changed
             Hasher::hashFile($fileName, 'md5')
         );
+    }
+
+    public function fetchFileFromURL(Request $request, string $fileName): MediaFile
+    {
+        $url = $this->getUrlFromRequest($request);
+
+        return $this->fetchFromURL($url, $fileName, (string) $request->query->get('extension'));
     }
 
     public function fetchBlob(string $blob, string $extension, string $contentType): MediaFile
@@ -154,6 +158,7 @@ class FileFetcher
             'http' => [
                 'follow_location' => 0,
                 'max_redirects' => 0,
+                'user_agent' => 'Shopware Remote File Fetcher',
             ],
         ]);
 

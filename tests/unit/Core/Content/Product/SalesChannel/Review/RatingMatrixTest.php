@@ -110,7 +110,6 @@ class RatingMatrixTest extends TestCase
 
         static::assertCount(5, $matrix->getMatrix());
 
-        /** @var MatrixElement[] $matrixElements */
         $matrixElements = $matrix->getMatrix();
 
         for ($i = 1; $i <= $matrix->getMaxPoints(); ++$i) {
@@ -145,7 +144,6 @@ class RatingMatrixTest extends TestCase
 
         static::assertCount(5, $matrix->getMatrix());
 
-        /** @var MatrixElement[] $matrixElements */
         $matrixElements = $matrix->getMatrix();
 
         for ($i = 1; $i <= $matrix->getMaxPoints(); ++$i) {

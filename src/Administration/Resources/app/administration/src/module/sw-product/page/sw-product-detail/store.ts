@@ -55,13 +55,16 @@ const swProductDetail = Shopware.Store.register({
                 'visibility_structure',
                 'media',
                 'labelling',
-                'measures_packaging',
+                'measurement',
+                'selling_packaging',
                 'properties',
                 'essential_characteristics',
                 'custom_fields',
             ],
             /* Product "types" provided by the split button for creating a new product through a router parameter */
             creationStates: [] as string[],
+            lengthUnit: 'mm',
+            weightUnit: 'kg',
         };
     },
 
@@ -220,6 +223,14 @@ const swProductDetail = Shopware.Store.register({
 
         setDefaultFeatureSet(newDefaultFeatureSet: EntitySchema.product_feature_set) {
             this.defaultFeatureSet = newDefaultFeatureSet;
+        },
+
+        setLengthUnit(unit: string) {
+            this.lengthUnit = unit;
+        },
+
+        setWeightUnit(unit: string) {
+            this.weightUnit = unit;
         },
     },
 });

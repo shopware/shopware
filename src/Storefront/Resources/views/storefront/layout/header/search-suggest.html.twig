@@ -4,7 +4,7 @@
     <div class="search-suggest js-search-result">
         {% block layout_search_suggest_container %}
 
-            <ul class="search-suggest-container" 
+            <ul class="search-suggest-container"
                 id="search-suggest-listbox"
                 aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}"
                 role="listbox">
@@ -54,6 +54,19 @@
                                             {% block layout_search_suggest_result_name %}
                                                 <div class="col search-suggest-product-name">
                                                     {{ product.translated.name }}
+
+                                                    {% block layout_search_suggest_result_variation %}
+                                                        {% if product.variation and config('core.listing.showVariantOptionInSearchSuggestionResult') %}
+                                                            <div class="search-suggest-product-variation">
+                                                                {% for variation in product.variation %}
+                                                                    {{ variation.group }}: {{ variation.option }}
+                                                                    {% if product.variation|last != variation %}
+                                                                        /
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endblock %}
                                                 </div>
                                             {% endblock %}
 

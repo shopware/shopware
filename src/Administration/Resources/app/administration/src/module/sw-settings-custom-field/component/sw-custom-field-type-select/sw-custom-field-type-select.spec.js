@@ -69,7 +69,9 @@ async function createWrapper(props = defaultProps) {
             renderStubDefaultSlot: true,
             mocks: {
                 $i18n: {
-                    fallbackLocale: 'en-GB',
+                    fallbackLocale: {
+                        value: 'en-GB',
+                    },
                 },
             },
             stubs: {
@@ -174,6 +176,30 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
         });
         await flushPromises();
 
+        expect(wrapper.vm.currentCustomField.config.componentName).toBe('sw-single-select');
+    });
+
+    it('should toggle multi-switch on switch', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        // Initially should be sw-single-select
+        expect(wrapper.vm.currentCustomField.config.componentName).toBe('sw-single-select');
+        expect(wrapper.vm.multiSelectSwitch).toBe(false);
+
+        // Find the switch and trigger checkbox input event to change to true
+        const mtSwitch = wrapper.find('.sw-custom-field-detail__switch input');
+        await mtSwitch.setValue(true);
+        await flushPromises();
+
+        // Should now be sw-multi-select
+        expect(wrapper.vm.currentCustomField.config.componentName).toBe('sw-multi-select');
+
+        // Toggle back to false
+        await mtSwitch.setValue(false);
+        await flushPromises();
+
+        // Should be back to sw-single-select
         expect(wrapper.vm.currentCustomField.config.componentName).toBe('sw-single-select');
     });
 });

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\NewsletterException;
@@ -11,10 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,12 +25,14 @@ use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('after-sales')]
 class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository
      */
     public function __construct(
         private readonly EntityRepository $newsletterRecipientRepository,
@@ -73,7 +78,6 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
-        /** @var NewsletterRecipientEntity|null $newsletterRecipient */
         $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$newsletterRecipient) {
@@ -87,8 +91,8 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     {
         $definition = new DataValidationDefinition('newsletter_recipient.opt_in_before');
         $definition->add('id', new NotBlank())
-            ->add('status', new EqualTo(['value' => NewsletterSubscribeRoute::STATUS_NOT_SET]))
-            ->add('em', new EqualTo(['value' => $emHash]));
+            ->add('status', new EqualTo(value: NewsletterSubscribeRoute::STATUS_NOT_SET))
+            ->add('em', new EqualTo(value: $emHash));
 
         return $definition;
     }

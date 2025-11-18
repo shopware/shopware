@@ -59,11 +59,6 @@ async function createWrapper(propsData = {}) {
 }
 
 describe('src/app/component/entity/sw-entity-listing', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should enable the context menu edit item', async () => {
         const wrapper = await createWrapper();
 

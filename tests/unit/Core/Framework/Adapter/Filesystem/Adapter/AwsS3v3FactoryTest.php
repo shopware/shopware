@@ -80,4 +80,28 @@ class AwsS3v3FactoryTest extends TestCase
             (new AwsS3v3Factory())->create($config)
         );
     }
+
+    public function testCreateWithCustomBatchSize(): void
+    {
+        $config = [
+            'bucket' => 'private',
+            'region' => 'local',
+            'root' => 'foobar',
+        ];
+
+        $customBatchSize = 100;
+        $factory = new AwsS3v3Factory($customBatchSize);
+
+        $client = new S3Client([
+            'region' => 'local',
+        ]);
+
+        $adapter = new AsyncAwsS3WriteBatchAdapter($client, 'private', 'foobar', new PortableVisibilityConverter());
+        $adapter->batchSize = $customBatchSize;
+
+        static::assertEquals(
+            $adapter,
+            $factory->create($config)
+        );
+    }
 }

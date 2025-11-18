@@ -100,6 +100,36 @@ Examples:
 
     request cookies
 _________
+## [services.acl (`Shopware\Core\Framework\Script\Api\AclFacade`)](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Api/AclFacade.php) {#aclfacade}
+
+The `acl` service allows you to check if your app has been granted the specified privilege.
+
+
+### can()
+
+* The `can()` method allows you to check if your app has been granted the specified privilege.
+
+    
+* **Returns** `bool`
+
+    Returns `true` if the privilege has been granted, `false` otherwise.
+* **Arguments:**
+    * *`string`* **privilege**: The privilege you wish to check
+* **Examples:**
+    * Check for the `product:read` permission and query a product if the permission is granted.
+
+        ```twig
+        {% set canReadProduct = services.acl.can('product:read') %}
+		{% if canReadProduct %}
+		    {% set criteria = {
+		        'ids': [ hook.productId ]
+		    } %}
+		
+		    {% set product = services.repository.search('product', criteria).first %}
+		    {% do page.addExtension('myProduct', product) %}
+		{% endif %}
+        ```
+_________
 ## [`Shopware\Core\Framework\Script\Facade\ArrayFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Facade/ArrayFacade.php) {#arrayfacade}
 
 The ArrayFacade acts as a wrapper around an array and allows easier manipulation of arrays inside scripts.
@@ -216,7 +246,7 @@ The `config` service allows you to access the shop's and your app's configuratio
 * The `get()` method allows you to access all config values of the store.
 
     Notice that your app needs the `system_config:read` privilege to use this method.
-* **Returns** `array|bool|float|int|string|null`
+* **Returns** `array&lt;string,mixed&gt;|bool|float|int|string|null`
 
     
 * **Arguments:**
@@ -235,7 +265,7 @@ The `config` service allows you to access the shop's and your app's configuratio
 * The `app()` method allows you to access the config values your app's configuration.
 
     Notice that your app does not need any additional privileges to use this method, as you can only access your own app's configuration.
-* **Returns** `array|bool|float|int|string|null`
+* **Returns** `array&lt;string,mixed&gt;|bool|float|int|string|null`
 
     
 * **Arguments:**

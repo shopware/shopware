@@ -21,7 +21,7 @@ class ColorPickerFieldTest extends TestCase
         static::assertSame('test_color_picker_field', $colorPickerField->getName());
         static::assertSame('text', $colorPickerField->getType());
         static::assertTrue($colorPickerField->isActive());
-        static::assertSame([
+        static::assertEquals([
             'type' => 'colorpicker',
             'label' => [
                 'en-GB' => 'Test color-picker field',

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Transformer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -22,11 +21,11 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -37,17 +36,57 @@ class CartTransformerTest extends TestCase
 {
     public function testCartTransformation(): void
     {
+        $stateId = Uuid::randomHex();
+        $cart = $this->createCart();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cartTransformer = CartTransformer::transform($cart, $salesChannelContext, $stateId);
+
+        static::assertIsString($cartTransformer['deepLinkCode']);
+        static::assertIsString($cartTransformer['orderDateTime']);
+        unset($cartTransformer['deepLinkCode']);
+        unset($cartTransformer['orderDateTime']);
+
+        static::assertEquals($this->getExpectedBaseData($stateId, $salesChannelContext), $cartTransformer);
+    }
+
+    public function testCartTransformationWithCreatedByUserId(): void
+    {
         $adminUserId = '123467890';
         $stateId = Uuid::randomHex();
-
         $cart = $this->createCart();
-        $salesChannelContextMock = $this->createSalesChannelMock($adminUserId);
+        $context = Context::createDefaultContext(new AdminSalesChannelApiSource(Uuid::randomHex(), Context::createDefaultContext(new AdminApiSource($adminUserId))));
+        $salesChannelContext = Generator::generateSalesChannelContext($context);
 
-        $cartTransformer = CartTransformer::transform($cart, $salesChannelContextMock, $stateId);
+        $cartTransformer = CartTransformer::transform($cart, $salesChannelContext, $stateId, false);
 
-        $currency = $salesChannelContextMock->getCurrency();
+        static::assertArrayHasKey('createdById', $cartTransformer);
+        static::assertSame($adminUserId, $cartTransformer['createdById']);
+        unset($cartTransformer['createdById']);
 
-        $expected = [
+        static::assertEquals($this->getExpectedBaseData($stateId, $salesChannelContext), $cartTransformer);
+    }
+
+    public function testCartTransformationWithoutOrderData(): void
+    {
+        $stateId = Uuid::randomHex();
+        $cart = $this->createCart();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cartTransformer = CartTransformer::transform($cart, $salesChannelContext, $stateId, false);
+
+        static::assertArrayNotHasKey('deepLinkCode', $cartTransformer);
+        static::assertArrayNotHasKey('orderDateTime', $cartTransformer);
+
+        static::assertEquals($this->getExpectedBaseData($stateId, $salesChannelContext), $cartTransformer);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getExpectedBaseData(string $stateId, SalesChannelContext $salesChannelContext): array
+    {
+        return [
             'price' => new CartPrice(
                 100.0,
                 100.0,
@@ -59,30 +98,21 @@ class CartTransformerTest extends TestCase
             ),
             'shippingCosts' => new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'stateId' => $stateId,
-            'currencyId' => $currency->getId(),
-            'currencyFactor' => $currency->getFactor(),
-            'salesChannelId' => $salesChannelContextMock->getSalesChannelId(),
+            'currencyId' => $salesChannelContext->getCurrencyId(),
+            'currencyFactor' => $salesChannelContext->getCurrency()->getFactor(),
+            'salesChannelId' => $salesChannelContext->getSalesChannelId(),
             'lineItems' => [],
             'deliveries' => [],
             'customerComment' => 'customerCommentTest',
             'affiliateCode' => 'AffiliateCodeTest',
             'campaignCode' => 'campaignCodeTest',
             'source' => 'sourceTest',
-            'createdById' => $adminUserId,
-            'itemRounding' => [],
-            'totalRounding' => [],
+            'itemRounding' => json_decode(Json::encode($salesChannelContext->getItemRounding()), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(Json::encode($salesChannelContext->getTotalRounding()), true, 512, \JSON_THROW_ON_ERROR),
         ];
-
-        static::assertIsString($cartTransformer['deepLinkCode']);
-        static::assertIsString($cartTransformer['orderDateTime']);
-
-        unset($cartTransformer['deepLinkCode']);
-        unset($cartTransformer['orderDateTime']);
-
-        static::assertEquals($expected, $cartTransformer);
     }
 
-    public function createCart(): Cart
+    private function createCart(): Cart
     {
         $cart = new Cart('test');
         $cart->setPrice(
@@ -116,29 +146,5 @@ class CartTransformerTest extends TestCase
         $cart->setSource('sourceTest');
 
         return $cart;
-    }
-
-    public function createSalesChannelMock(string $adminUserId): SalesChannelContext&MockObject
-    {
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
-        $contextSourceMock = $this->createMock(AdminSalesChannelApiSource::class);
-        $sourceTest = $this->createMock(AdminApiSource::class);
-
-        $contextMockAdminSales = new Context($contextSourceMock);
-        $contextMockAdminApi = new Context($sourceTest);
-
-        $contextSourceMock->method('getOriginalContext')->willReturn($contextMockAdminApi);
-        $sourceTest->method('getUserId')->willReturn($adminUserId);
-        $salesChannelContextMock->method('getContext')->willReturn($contextMockAdminSales);
-        $currency = new CurrencyEntity();
-        $currency->setId('12345');
-        $currency->setFactor(1);
-
-        $salesChannelContextMock->method('getCurrency')->willReturn($currency);
-        $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId('123');
-        $salesChannelContextMock->method('getSalesChannel')->willReturn($salesChannelEntity);
-
-        return $salesChannelContextMock;
     }
 }

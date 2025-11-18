@@ -192,13 +192,16 @@ class SetPaymentOrderRouteTest extends TestCase
         $transactionState->setId(Uuid::randomHex());
         $transactionState->setPaymentMethodId(Uuid::randomHex());
         $transactionState->setStateId(Uuid::randomHex());
+        $transactionStateLastId = Uuid::randomHex();
         $transactionStateLast = new OrderTransactionEntity();
-        $transactionStateLast->setId(Uuid::randomHex());
+        $transactionStateLast->setId($transactionStateLastId);
         $transactionStateLast->setPaymentMethodId($paymentMethod->getId());
         $transactionStateLast->setStateId(Uuid::randomHex());
 
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
+        $order->setPrimaryOrderTransactionId($transactionStateLastId);
+        $order->setPrimaryOrderTransaction($transactionStateLast);
         $order->setTransactions(new OrderTransactionCollection([$transactionState, $transactionStateLast]));
 
         /** @var StaticEntityRepository<OrderCollection> $staticRepository */

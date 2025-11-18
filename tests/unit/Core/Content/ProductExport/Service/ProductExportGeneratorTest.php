@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
@@ -36,6 +37,9 @@ class ProductExportGeneratorTest extends TestCase
 {
     private MockObject&ProductStreamBuilderInterface $productStreamBuilder;
 
+    /**
+     * @var MockObject&SalesChannelRepository<SalesChannelProductCollection>
+     */
     private MockObject&SalesChannelRepository $productRepository;
 
     private MockObject&ProductExportRendererInterface $productExportRender;

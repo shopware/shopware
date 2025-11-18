@@ -88,7 +88,7 @@ const documentTypeFixture = [
     },
 ];
 
-async function createWrapper(routeName = 'sw.order.detail.documents') {
+async function createWrapper(routeName = 'sw.order.detail.details') {
     const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         global: {
             stubs: {
@@ -490,9 +490,25 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.vm.sendDocument).toEqual(documentFixture);
     });
 
+    it('should show file types on order documents route', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper('sw.order.detail.documents');
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        let columns = wrapper.findAll('.sw-data-grid__cell--header');
+        // 5 data columns + 1 action column
+        expect(columns).toHaveLength(6);
+        expect(columns[3].text()).toBe('sw-order.documentCard.labelAvailableFormats');
+    });
+
     it('should show attach column when attachView is true', async () => {
         global.activeAclRoles = [];
-        wrapper = await createWrapper('sw.order.detail.details');
+        wrapper = await createWrapper();
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -702,7 +718,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should render the only pdf on available formats column', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper('sw.order.detail.documents');
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -719,7 +735,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should render html and pdf on available formats column', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper('sw.order.detail.documents');
 
         await wrapper.setData({
             documents: getCollection('document', [

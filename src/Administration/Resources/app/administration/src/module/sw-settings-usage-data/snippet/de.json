@@ -30,7 +30,7 @@
       },
       "user-data": {
         "title": "Meine Daten",
-        "description": "Wir verwenden {data} darüber, wie Du mit der Administration interagierst, um deren Benutzerfreundlichkeit und Leistung zu verbessern.",
+        "description": "Wir erheben {data}, wie Du mit der Administration interagierst, um deren Benutzerfreundlichkeit und Leistung zu verbessern.",
         "emphasizes": {
           "data": "deine Daten"
         },

@@ -1,9 +1,14 @@
 /**
  * @sw-package framework
  */
+import type { PropType } from 'vue';
 import { MtModal, MtModalAction, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-usage-data-consent-modal.html.twig';
 import './sw-settings-usage-data-consent-modal.scss';
+
+type ConsentStruct = {
+    value: boolean,
+}
 
 /**
  * @private
@@ -18,12 +23,12 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     props: {
-        initialDataUsageConsent: {
-            type: Object,
+        initialStoreDataConsent: {
+            type: Object as PropType<ConsentStruct>,
             required: true,
         },
-        initialTrackingConsent: {
-            type: Object,
+        initialUserDataConsent: {
+            type: Object as PropType<ConsentStruct>,
             required: true,
         },
     },
@@ -33,8 +38,14 @@ export default Shopware.Component.wrapComponentConfig({
             unionPath: Shopware.Filter.getByName('asset')(
                 '/administration/administration/static/img/data-sharing/union.svg',
             ),
-            showSavePreferences: false,
+            storeDataConsent: false,
+            userDataConsent: false,
         };
+    },
+
+    create() {
+        this.storeDataConsent = this.initialStoreDataConsent.value;
+        this.userDataConsent = this.initialUserDataConsent.value;
     },
 
     computed: {
@@ -43,10 +54,22 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         showStoreDataConsent() {
+            if (this.initialStoreDataConsent.value) {
+                return false;
+            }
+
             return true;
         },
 
         showSavePreferences() {
+            if (!this.showStoreDataConsent) {
+                return true;
+            }
+
+            if (this.storeDataConsent === true || this.userDataConsent === true) {
+                return true;
+            }
+
             return false;
         },
     },

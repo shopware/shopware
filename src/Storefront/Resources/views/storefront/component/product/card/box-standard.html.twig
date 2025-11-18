@@ -113,12 +113,14 @@
                                 {% if headlineLevel is not empty %}
                                     {{ "<h#{headlineLevel} class=\"#{headlineClasses}\">"|raw }}
                                         <a href="{{ seoUrl('frontend.detail.page', routeArguments) }}"
+                                           title="{{ name }}"
                                            class="product-name stretched-link">
                                             {{ name }}
                                         </a>
                                     {{ "</h#{headlineLevel}>"|raw }}
                                 {% else %}
                                     <a href="{{ seoUrl('frontend.detail.page', routeArguments) }}"
+                                       title="{{ name }}"
                                        class="product-name stretched-link">
                                         {{ name }}
                                     </a>

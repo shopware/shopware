@@ -1,6 +1,5 @@
-import { test, expect, getLocale, getCurrencySymbolFromLocale } from '@fixtures/AcceptanceTest';
+import { test, expect, formatPrice } from '@fixtures/AcceptanceTest';
 
-const currencyIcon = getCurrencySymbolFromLocale(getLocale());
 test(
     'Registered shop customer buys a product.',
     { tag: ['@Checkout', '@Storefront'] },
@@ -36,10 +35,10 @@ test(
         await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
         await ShopCustomer.attemptsTo(SelectStandardShippingOption());
 
-        await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(`${currencyIcon}10.00`);
+        await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(formatPrice(10.0));
 
         await ShopCustomer.attemptsTo(SubmitOrder());
-        await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(`${currencyIcon}10.00`);
+        await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(formatPrice(10.0));
 
         const orderId = StorefrontCheckoutFinish.getOrderId();
 

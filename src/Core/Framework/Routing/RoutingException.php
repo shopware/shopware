@@ -6,6 +6,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('framework')]
 class RoutingException extends HttpException
@@ -110,5 +111,10 @@ class RoutingException extends HttpException
             self::MISSING_PRIVILEGE,
             $errorMessage ?: ''
         );
+    }
+
+    public static function unexpectedType(mixed $actualType, string $expectedType): UnexpectedTypeException
+    {
+        return new UnexpectedTypeException($actualType, $expectedType);
     }
 }

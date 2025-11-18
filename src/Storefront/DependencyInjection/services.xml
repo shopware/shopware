@@ -545,10 +545,17 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser"/>
+
         <service id="Shopware\Storefront\Page\Robots\RobotsPageLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Robots\RobotsConfigChangeSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">

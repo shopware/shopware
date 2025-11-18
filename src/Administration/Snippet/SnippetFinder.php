@@ -38,6 +38,7 @@ class SnippetFinder implements SnippetFinderInterface
         private readonly Filesystem $translationReader,
         private readonly TranslationConfig $translationConfig,
         private readonly TranslationLoader $translationLoader,
+        private readonly HtmlSanitizer $htmlSanitizer,
     ) {
     }
 
@@ -283,12 +284,10 @@ class SnippetFinder implements SnippetFinderInterface
      */
     private function sanitizeAppSnippets(array $snippets): array
     {
-        $sanitizer = new HtmlSanitizer();
-
         $sanitizedSnippets = [];
         foreach ($snippets as $key => $value) {
             if (\is_string($value)) {
-                $sanitizedSnippets[$key] = $sanitizer->sanitize($value);
+                $sanitizedSnippets[$key] = $this->htmlSanitizer->sanitize($value);
 
                 continue;
             }

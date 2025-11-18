@@ -29,6 +29,7 @@ final class PlatformRequest
     public const HEADER_APP_USER_ID = 'sw-app-user-id';
     public const HEADER_INDEXING_BEHAVIOR = 'indexing-behavior';
     public const HEADER_INDEXING_SKIP = 'indexing-skip';
+    public const HEADER_INDEXING_ONLY = 'indexing-only';
     public const HEADER_FORCE_CACHE_INVALIDATE = 'sw-force-cache-invalidate';
 
     public const HEADER_MEASUREMENT_WEIGHT_UNIT = 'sw-measurement-weight-unit';

@@ -574,6 +574,7 @@ class StorefrontControllerTest extends TestCase
         $session = new Session(new TestSessionStorage());
 
         $request->setSession($session);
+        $request->attributes->set('_route', 'some.route');
 
         $stack = new RequestStack();
         $stack->push($request);
@@ -589,7 +590,7 @@ class StorefrontControllerTest extends TestCase
         $router
             ->expects($this->once())
             ->method('generate')
-            ->with('frontend.account.address.edit.page', ['addressId' => 'address-id-123'])
+            ->with('frontend.account.address.edit.page', ['addressId' => 'address-id-123', 'redirectTo' => 'some.route'])
             ->willReturn('errorUrl');
 
         $container = new ContainerBuilder();

@@ -1,8 +1,6 @@
 ({ Shopware, ShopwareComponent } = window);
 
-class FilterPanel extends ShopwareComponent {
-
-    static selector = '[data-component="FilterPanel"]';
+export default class FilterPanel extends ShopwareComponent {
 
     static options = {
         /**
@@ -58,6 +56,8 @@ class FilterPanel extends ShopwareComponent {
         this.expandText.style.display = 'inline-block';
         this.collapseText.style.display = 'none';
     }
-}
 
-Shopware.registerComponent('FilterPanel', FilterPanel);
+    destroy() {
+        this.expandButton.removeEventListener('click', this.onToggleHiddenFilters.bind(this));
+    }
+}

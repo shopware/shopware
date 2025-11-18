@@ -1,7 +1,6 @@
 ({ Shopware, ShopwareComponent } = window);
 
-class FilterItem extends ShopwareComponent {
-    static selector = '[data-component="FilterItem"]';
+export default class FilterItem extends ShopwareComponent {
 
     init() {
         this.filterElement = this.el.querySelector('.sw-filter');
@@ -32,6 +31,8 @@ class FilterItem extends ShopwareComponent {
         const { content } = event.detail;
         this.updateBadge(content);
     }
-}
 
-Shopware.registerComponent('FilterItem', FilterItem);
+    destroy() {
+        this.filterElement.removeEventListener('Filter:UpdateBadge', this.handleFilterUpdateBadge.bind(this));
+    }
+}

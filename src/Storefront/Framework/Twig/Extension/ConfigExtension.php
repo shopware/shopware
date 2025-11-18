@@ -26,9 +26,8 @@ class ConfigExtension extends AbstractExtension
             new TwigFunction('config', $this->config(...), ['needs_context' => true]),
             new TwigFunction('theme_config', $this->theme(...), ['needs_context' => true]),
             new TwigFunction('theme_scripts', $this->scripts(...), ['needs_context' => true]),
-            new TwigFunction('component_scripts', $this->componentScripts(...), ['needs_context' => true]),
-            new TwigFunction('mounted_component_scripts', $this->mountedComponentScripts(...), ['needs_context' => true]),
-            new TwigFunction('mounted_component_styles', $this->mountedComponentStyles(...), ['needs_context' => true]),
+            new TwigFunction('component_import_map', $this->componentImportMap(...), ['needs_context' => true]),
+            new TwigFunction('component_styles', $this->componentStyles(...), ['needs_context' => true]),
         ];
     }
 
@@ -63,33 +62,23 @@ class ConfigExtension extends AbstractExtension
     }
 
     /**
-     * Returns all scripts that belong to a component.
+     * Returns the component import map.
      * 
-     * @return array<int, string>
+     * @return array<string, mixed>
      */
-    public function componentScripts(): array
+    public function componentImportMap(): array
     {
-        return $this->config->componentScripts();
+        return $this->config->componentImportMap();
     }
 
     /**
-     * Returns all scripts of components that have been mounted in the template.
+     * Returns all styles of components.
      * 
      * @return array<int, string>
      */
-    public function mountedComponentScripts(): array
+    public function componentStyles(): array
     {
-        return $this->config->mountedComponentScripts();
-    }
-
-    /**
-     * Returns all styles of components that have been mounted in the template.
-     * 
-     * @return array<int, string>
-     */
-    public function mountedComponentStyles(): array
-    {
-        return $this->config->mountedComponentStyles();
+        return $this->config->componentStyles();
     }
 
     /**

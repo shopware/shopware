@@ -1,7 +1,6 @@
 ({ Shopware, ShopwareComponent } = window);
 
-class RangeFilter extends ShopwareComponent {
-    static selector = '[data-component="RangeFilter"]';
+export default class RangeFilter extends ShopwareComponent {
 
     static options = {
         unit: '',
@@ -40,9 +39,9 @@ class RangeFilter extends ShopwareComponent {
         let paramName = inputElement.getAttribute('name').trim();
         let label = paramName === this.minParamName ? this.getMinLabel(value) : this.getMaxLabel(value);
 
-        ({ paramName, value, label, unit } = Shopware.emitInterception(`${this.componentName}:PreChange`, { paramName, value, label, unit }));
+        ({ paramName, value, label, unit } = Shopware.emitInterception(`RangeFilter:PreChange`, { paramName, value, label, unit }));
 
-        Shopware.emit(`${this.componentName}:Change`, { paramName, value, label, unit });
+        Shopware.emit(`RangeFilter:Change`, { paramName, value, label, unit });
         Shopware.emit('Filter:Change', { paramName, value, label, unit });
 
         this.updateBadge();
@@ -67,7 +66,7 @@ class RangeFilter extends ShopwareComponent {
         this.rangeMaxInput.value = maxValue || null;
 
         if (minValue) {
-            Shopware.emit('Filter:Init', {
+            Shopware.emitQueued('Filter:Init', {
                 paramName: this.minParamName,
                 value: minValue,
                 label: this.getMinLabel(minValue),
@@ -76,7 +75,7 @@ class RangeFilter extends ShopwareComponent {
         }
 
         if (maxValue) {
-            Shopware.emit('Filter:Init', {
+            Shopware.emitQueued('Filter:Init', {
                 paramName: this.maxParamName,
                 value: maxValue,
                 label: this.getMaxLabel(maxValue),
@@ -108,6 +107,12 @@ class RangeFilter extends ShopwareComponent {
     getMaxLabel(value) {
         return value > 0 ? `${this.options.maxLabel}: ${value}${this.options.unit}` : '';
     }
-}
 
-Shopware.registerComponent('RangeFilter', RangeFilter);
+    destroy() {
+        this.rangeMinInput.removeEventListener('input', this.debounce(this.handleRangeInput.bind(this)));
+        this.rangeMaxInput.removeEventListener('input', this.debounce(this.handleRangeInput.bind(this)));
+
+        Shopware.off(`Filter:Remove:${this.minParamName}`, this.handleFilterRemove.bind(this));
+        Shopware.off(`Filter:Remove:${this.maxParamName}`, this.handleFilterRemove.bind(this));
+    }
+}

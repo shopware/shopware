@@ -1,6 +1,6 @@
-class Modal extends window.ShopwareComponent {
+({ Shopware, ShopwareComponent } = window);
 
-    static selector = '[data-component="Modal"]';
+export default class Modal extends ShopwareComponent {
 
     static options = {
         ajaxUrl: null,
@@ -40,7 +40,7 @@ class Modal extends window.ShopwareComponent {
     }
 
     renderContent(content) {
-        ({ content } = Shopware.emitInterception(`${this.componentName}:PreRenderContent`, { content }));
+        ({ content } = Shopware.emitInterception(`Modal:PreRenderContent`, { content }));
 
          this.modalBody.innerHTML = content;
 
@@ -90,6 +90,9 @@ class Modal extends window.ShopwareComponent {
             </p>
         `;
     }
-}
 
-Shopware.registerComponent('Modal', Modal);
+    destroy() {
+        this.el.removeEventListener('show.bs.modal', this.addLoadingState.bind(this));
+        this.el.removeEventListener('shown.bs.modal', this.fetchContent.bind(this));
+    }
+}

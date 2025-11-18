@@ -1,6 +1,7 @@
 ({ Shopware, ShopwareComponent } = window);
 
-class LayoutSwitch extends ShopwareComponent {
+export default class LayoutSwitch extends ShopwareComponent {
+
     static options = {
         paramName: 'layout',
     };
@@ -29,12 +30,16 @@ class LayoutSwitch extends ShopwareComponent {
 
         event.currentTarget.classList.add('is--active');
 
-        Shopware.emit(`${this.componentName}:Change`, this.options.paramName, layout);
+        Shopware.emit(`LayoutSwitch:Change`, this.options.paramName, layout);
 
-        this.dispatchEvent(`${this.componentName}:Change`, {
+        this.dispatchEvent(`LayoutSwitch:Change`, {
             layout,
         });
     }
-}
 
-Shopware.registerComponent('LayoutSwitch', LayoutSwitch);
+    destroy() {
+        this.buttons.forEach((button) => {
+            button.removeEventListener('click', this.onChangeLayout.bind(this));
+        });
+    }
+}

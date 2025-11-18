@@ -10,6 +10,7 @@
 .sw-active-filter__item {
     --bs-btn-focus-box-shadow: 0 0 0 0.125rem var(--bs-white), 0 0 0 var(--bs-focus-ring-width) var(--bs-focus-ring-color);
     --bs-btn-border-color: var(--bs-border-color);
+    --bs-btn-bg: var(--bs-white);
     --bs-btn-hover-border-color: var(--bs-primary);
     --bs-btn-hover-color: var(--bs-primary);
     --bs-btn-hover-bg: var(--bs-gray-100);
@@ -48,6 +49,7 @@
     --bs-btn-border-radius: var(--bs-border-radius-pill);
     --bs-btn-padding-y: 0.125rem;
     --bs-btn-line-height: 1.625rem;
+    --bs-btn-bg: var(--bs-white);
 
     &.is--hidden {
         display: none;

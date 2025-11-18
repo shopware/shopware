@@ -1,8 +1,6 @@
 ({ Shopware, ShopwareComponent } = window);
 
-class ProductListing extends ShopwareComponent {
-
-    static selector = '[data-component="ProductListing"]';
+export default class ProductListing extends ShopwareComponent {
 
     static options = {
         pageParamName: 'p',
@@ -147,6 +145,12 @@ class ProductListing extends ShopwareComponent {
             this.updateHistory();
         }, 200);
     }
-}
 
-Shopware.registerComponent('ProductListing', ProductListing);
+    destroy() {
+        Shopware.off('Filter:Change', this.handleFilterChange.bind(this));
+        Shopware.off('Pagination:Change', this.handlePageChange.bind(this));
+        Shopware.off('LayoutSwitch:Change', this.handleLayoutChange.bind(this));
+        Shopware.off('FilterSorting:Change', this.handleSortingChange.bind(this));
+        Shopware.off('Filter:Remove', this.handleFilterRemove.bind(this));
+    }
+}

@@ -59,6 +59,11 @@ class QueryBuilderTest extends TestCase
 
         $result = $this->queryBuilder->executeQuery()->fetchOne();
         static::assertSame($id, $result);
+
+        $sql = $this->queryBuilder->getSQL();
+        $matches = [];
+        preg_match('/-- (.+)\n/', $sql, $matches);
+        static::assertSame($title, $matches[0]);
     }
 
     /**

@@ -1,9 +1,9 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
+import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a customer, I expect to see and use a basic captcha function on the contact form.',
     { tag: '@form @contact' },
-    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel, TestDataService, InstanceMeta }) => {
+    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, TestDataService, InstanceMeta }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
@@ -34,16 +34,21 @@ test(
         });
 
         await test.step('Send and validate the unaccomplished contact form.', async () => {
-            const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
-            );
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            const formRoute = InstanceMeta.features['ACCESSIBILITY_TWEAKS'] ? '**/basic-captcha-validate' : '**/form/contact';
+
+            const formSubmitPromise = StorefrontContactForm.page.waitForResponse(formRoute);
             await StorefrontContactForm.submitButton.click();
-            const contactFormResponse = await contactFormPromise;
-            expect(contactFormResponse.ok()).toBeTruthy();
+            await formSubmitPromise;
 
             await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-            await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toBeVisible();
-            await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toContainText('Incorrect input. Please try again.');
+
+            if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+                await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveAccessibleDescription('Incorrect input. Please try again.');
+            } else {
+                await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toBeVisible();
+                await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toContainText('Incorrect input. Please try again.');
+            }
         });
     }
 );

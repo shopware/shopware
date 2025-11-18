@@ -500,7 +500,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
-        let columns = wrapper.findAll('.sw-data-grid__cell--header');
+        const columns = wrapper.findAll('.sw-data-grid__cell--header');
         // 5 data columns + 1 action column
         expect(columns).toHaveLength(6);
         expect(columns[3].text()).toBe('sw-order.documentCard.labelAvailableFormats');

@@ -1,4 +1,6 @@
 # 6.7.5.0 (upcoming)
+### More tech updates
+* ProductStream IDs added to ElasticsearchProductDefinition
 
 ## Features
 

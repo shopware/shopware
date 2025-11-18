@@ -56,16 +56,17 @@ class ProductManufacturerDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()->setDescription('Unique identity of the Product Manufacturer.')),
             (new VersionField())->addFlags(new ApiAware()),
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
-            (new StringField('link', 'link'))->addFlags(new ApiAware()),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()->setDescription('Unique identity of the media.')),
+            (new StringField('link', 'link'))->addFlags(new ApiAware()->setDescription('URL of the manufacturer\'s portal.')),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('description'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'product_manufacturer_id', 'id'))->addFlags(new SetNullOnDelete(), new ReverseInherited('manufacturer')),
             (new TranslationsAssociationField(ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id'))->addFlags(new ApiAware(), new Required()),
-        ]);
+        
+]);
     }
 }

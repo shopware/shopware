@@ -50,10 +50,10 @@ class DocumentTypeDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()->setDescription('Unique identity of the document type.')),
 
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()->setDescription('Technical name of document type.')),
             (new CreatedAtField())->addFlags(new ApiAware()),
             (new UpdatedAtField())->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
@@ -62,6 +62,7 @@ class DocumentTypeDefinition extends EntityDefinition
             new OneToManyAssociationField('documents', DocumentDefinition::class, 'document_type_id'),
             (new OneToManyAssociationField('documentBaseConfigs', DocumentBaseConfigDefinition::class, 'document_type_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_type_id'))->addFlags(new CascadeDelete()),
-        ]);
+        
+]);
     }
 }

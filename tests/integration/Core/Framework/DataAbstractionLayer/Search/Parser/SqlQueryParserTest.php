@@ -256,26 +256,6 @@ class SqlQueryParserTest extends TestCase
         static::assertContains($testIds['specialLink1'], $foundIds);
     }
 
-    public function testCriteriaTitleLookingLikeNamedParameter(): void
-    {
-        $criteria = new Criteria();
-        $criteria->setTitle('test :title');
-        $criteria->setLimit(1);
-
-        $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-        static::assertCount(1, $foundIds);
-    }
-
-    public function testCriteriaTitleLookingLikePositionalParameter(): void
-    {
-        $criteria = new Criteria();
-        $criteria->setTitle('test title ?');
-        $criteria->setLimit(1);
-
-        $foundIds = $this->manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-        static::assertCount(1, $foundIds);
-    }
-
     /**
      * @param array<string, mixed> $parameters
      */

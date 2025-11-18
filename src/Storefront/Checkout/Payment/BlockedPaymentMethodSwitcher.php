@@ -73,8 +73,7 @@ class BlockedPaymentMethodSwitcher
             }
 
             $criteria = (new Criteria())
-                ->addFilter(new NotEqualsAnyFilter('id', $blockedPaymentMethodIds))
-                ->setLimit(1);
+                ->addFilter(new NotEqualsAnyFilter('id', $blockedPaymentMethodIds));
         } else {
             $blockedPaymentMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof PaymentMethodBlockedError ? $error->getName() : null);
 
@@ -89,8 +88,7 @@ class BlockedPaymentMethodSwitcher
             }
 
             $criteria = (new Criteria())
-                ->addFilter(new NotEqualsAnyFilter('name', $blockedPaymentMethodNames))
-                ->setLimit(1);
+                ->addFilter(new NotEqualsAnyFilter('name', $blockedPaymentMethodNames));
         }
 
         return $this->paymentMethodRoute->load(

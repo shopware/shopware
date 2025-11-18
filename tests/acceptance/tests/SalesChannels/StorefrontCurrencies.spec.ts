@@ -1,4 +1,4 @@
-import { getCurrencySymbolFromLocale, getLocale, test } from '@fixtures/AcceptanceTest';
+import { getCurrencySymbolFromLocale, test } from '@fixtures/AcceptanceTest';
 
 test(
     'Shop customers should be able to view products in different currencies.',
@@ -13,8 +13,8 @@ test(
         await ShopCustomer.expects(async () => {
             await test.step('Customer can view currencies menu', async () => {
                 await ShopCustomer.goesTo(StorefrontHome.url());
-                await ShopCustomer.expects(StorefrontHome.currenciesDropdown).toContainText(currency.name);
-                const currencySymbol = getCurrencySymbolFromLocale(getLocale());
+                const currencySymbol = getCurrencySymbolFromLocale();
+                await ShopCustomer.expects(StorefrontHome.currenciesDropdown).toContainText(currencySymbol);
                 await ShopCustomer.expects(productListing.productPrice).toContainText(currencySymbol);
             });
         }).toPass({

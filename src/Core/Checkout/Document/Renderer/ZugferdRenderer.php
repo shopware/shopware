@@ -24,6 +24,10 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'zugferd_invoice';
 
+    public const FILE_EXTENSION = 'xml';
+
+    public const FILE_CONTENT_TYPE = 'application/xml';
+
     /**
      * @internal
      *
@@ -93,7 +97,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $config = clone $this->documentConfigLoader->load(InvoiceRenderer::TYPE, $order->getSalesChannelId(), $context);
         $config->merge($operation->getConfig());
         // So no A11y will be generated
-        $config->merge(['fileTypes' => ['xml']]);
+        $config->merge(['fileTypes' => [self::FILE_EXTENSION]]);
 
         $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
@@ -117,9 +121,9 @@ class ZugferdRenderer extends AbstractDocumentRenderer
                 new RenderedDocument(
                     $number,
                     $config->buildName(),
-                    FileTypes::XML,
+                    self::FILE_EXTENSION,
                     $config->jsonSerialize(),
-                    'application/xml',
+                    self::FILE_CONTENT_TYPE,
                     $content
                 )
             );

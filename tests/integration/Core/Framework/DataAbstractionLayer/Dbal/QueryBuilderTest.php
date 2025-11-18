@@ -63,7 +63,7 @@ class QueryBuilderTest extends TestCase
         $sql = $this->queryBuilder->getSQL();
         $matches = [];
         preg_match('/-- (.+)\n/', $sql, $matches);
-        static::assertSame($title, $matches[0]);
+        static::assertSame($title, $matches[1]);
     }
 
     /**

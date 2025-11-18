@@ -781,16 +781,13 @@ export default class RuleConditionService {
             return {
                 showOnDisabledElements: true,
                 disabled: false,
-                message: app.$t(
-                    'sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip',
-                    {
-                        conditions: this.getTranslatedConditionViolationList(
-                            restrictionConfig.notEqualsViolations,
-                            'sw-restricted-rules.and',
-                        ),
-                        entityLabel: app.$tc(restrictionConfig.assignmentSnippet as string, 2),
-                    },
-                ),
+                message: app.$tc('sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip', {
+                    conditions: this.getTranslatedConditionViolationList(
+                        restrictionConfig.notEqualsViolations,
+                        'sw-restricted-rules.and',
+                    ),
+                    entityLabel: app.$tc(restrictionConfig.assignmentSnippet as string, 2),
+                }),
             };
         }
 
@@ -798,17 +795,13 @@ export default class RuleConditionService {
             showOnDisabledElements: true,
             disabled: false,
             width: 400,
-            message: app.$tc(
-                'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
-                {
-                    conditions: this.getTranslatedConditionViolationList(
-                        restrictionConfig.equalsAnyNotMatched,
-                        'sw-restricted-rules.or',
-                    ),
-                    entityLabel: app.$tc(restrictionConfig.assignmentSnippet ?? '', 2),
-                },
-                0,
-            ),
+            message: app.$tc('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip', {
+                conditions: this.getTranslatedConditionViolationList(
+                    restrictionConfig.equalsAnyNotMatched,
+                    'sw-restricted-rules.or',
+                ),
+                entityLabel: app.$tc(restrictionConfig.assignmentSnippet ?? '', 2),
+            }),
         };
     }
 

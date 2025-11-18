@@ -49,17 +49,13 @@ For example, when viewing the OpenAPI documentation for a shipping method endpoi
 
 This enhancement applies to 18 Store API entities including Product, Order, Customer, ShippingMethod, PaymentMethod, and Category.
 
-To document associations in your custom entity definitions, use the `AssociationDescription` flag:
+To document associations in your custom entity definitions, use the `setDescription()` method on the field:
 
 ```php
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AssociationDescription;
-
 (new ManyToOneAssociationField('group', 'customer_group_id',
     CustomerGroupDefinition::class, 'id', false))
-    ->addFlags(
-        new ApiAware(),
-        new AssociationDescription('Customer group determining pricing and permissions')
-    )
+    ->addFlags(new ApiAware())
+    ->setDescription('Customer group determining pricing and permissions')
 ```
 
 ### Robots.txt parsing

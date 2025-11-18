@@ -39,7 +39,7 @@ class MailHeaderFooterDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()->setDescription('Unique identity of mail\'s header and footer component.')),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of mail\'s header and footer component.'),
             (new BoolField('system_default', 'systemDefault'))->addFlags(new ApiAware()),
 
             // translatable fields->setDescription('Unused field. To be removed in future.')

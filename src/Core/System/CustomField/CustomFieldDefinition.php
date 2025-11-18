@@ -55,14 +55,14 @@ class CustomFieldDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()->setDescription('Unique identity of a custom field.')),
-            (new StringField('name', 'name'))->addFlags(new Required()->setDescription('Unique name of a custom field.')),
-            (new StringField('type', 'type'))->addFlags(new Required()->setDescription('Custom field type can be selection, media , etc')),
-            (new JsonField('config', 'config', [], []))->setDescription('Specifies detailed information about the component.')),
-            (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the custom field is enabled for use.')),
-            (new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class))->setDescription('Unique identity of customFieldSet.')),
-            (new BoolField('allow_customer_write', 'allowCustomerWrite'))->setDescription('When boolean value is `true`, then customers have permission to write data in the custom field.')),
-            (new BoolField('allow_cart_expose', 'allowCartExpose'))->setDescription('When boolean value is `true`, then the custom field\'s data can be exposed within the shopping cart or order process.')),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of a custom field.'),
+            (new StringField('name', 'name'))->addFlags(new Required())->setDescription('Unique name of a custom field.'),
+            (new StringField('type', 'type'))->addFlags(new Required())->setDescription('Custom field type can be selection, media , etc'),
+            (new JsonField('config', 'config', [], []))->setDescription('Specifies detailed information about the component.'),
+            (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the custom field is enabled for use.'),
+            (new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class))->setDescription('Unique identity of customFieldSet.'),
+            (new BoolField('allow_customer_write', 'allowCustomerWrite'))->setDescription('When boolean value is `true`, then customers have permission to write data in the custom field.'),
+            (new BoolField('allow_cart_expose', 'allowCartExpose'))->setDescription('When boolean value is `true`, then the custom field\'s data can be exposed within the shopping cart or order process.'),
             new BoolField('store_api_aware', 'storeApiAware'),
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
             (new OneToManyAssociationField('productSearchConfigFields', ProductSearchConfigFieldDefinition::class, 'custom_field_id', 'id'))->addFlags(new CascadeDelete()),

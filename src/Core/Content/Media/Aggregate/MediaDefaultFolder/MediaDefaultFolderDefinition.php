@@ -41,11 +41,11 @@ class MediaDefaultFolderDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()->setDescription('Unique identity of media default folder.')),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of media default folder.'),
 
-            (new StringField('entity', 'entity'))->addFlags(new Required()->setDescription('Indicates in which particular entity.')),
+            (new StringField('entity', 'entity'))->addFlags(new Required())->setDescription('Indicates in which particular entity.'),
             new OneToOneAssociationField('folder', 'id', 'default_folder_id', MediaFolderDefinition::class),
-            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.')),
+            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
         
 ]);
     }

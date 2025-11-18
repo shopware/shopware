@@ -29,6 +29,16 @@ test(
                 gross: 10,
                 linked: false,
                 net: 8.4,
+                listPrice: {
+                    currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                    gross: 20,
+                    linked: false,
+                    net: 16.8,
+                },
+                percentage: {
+                    gross: 50,
+                    net: 50,
+                },
             },
         ];
 

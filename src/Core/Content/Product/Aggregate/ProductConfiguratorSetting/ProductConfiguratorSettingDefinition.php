@@ -64,7 +64,7 @@ class ProductConfiguratorSettingDefinition extends EntityDefinition
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()->setDescription('Unique identity of media.')),
             (new FkField('property_group_option_id', 'optionId', PropertyGroupOptionDefinition::class))->addFlags(new ApiAware(), new Required()->setDescription('Unique identity of option.')),
-            new JsonField('price', 'price'->setDescription('Price of the Product.')),
+            (new JsonField('price', 'price'))->setDescription('Price of the Product.')),
             (new IntField('position', 'position'))->addFlags(new ApiAware()->setDescription('The order of the tabs of your defined product configuration settings in the storefront by entering numerical values like 1,2,3, etc.')),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),

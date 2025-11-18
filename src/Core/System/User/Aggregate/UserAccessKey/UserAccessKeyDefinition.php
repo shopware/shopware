@@ -53,8 +53,8 @@ class UserAccessKeyDefinition extends EntityDefinition
             (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required()->setDescription('Unique identity of user.')),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()->setDescription('Access key to admin api.')),
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required()->setDescription('Secret key to admin api.')),
-            new DateTimeField('last_usage_at', 'lastUsageAt'->setDescription('Parameter that indicates when the access key was last accessed.')),
-            new CustomFields(->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.')),
+            (new DateTimeField('last_usage_at', 'lastUsageAt'))->setDescription('Parameter that indicates when the access key was last accessed.')),
+            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.')),
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
         
 ]);

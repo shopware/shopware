@@ -58,7 +58,7 @@ class OrderCustomerDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()->setDescription('Unique identity of order customer.')),
             (new VersionField())->addFlags(new ApiAware()),
-            new FkField('customer_id', 'customerId', CustomerDefinition::class->setDescription('Unique identity of customer.')),
+            (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setDescription('Unique identity of customer.')),
 
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required()->setDescription('Unique identity of order.')),
             (new ReferenceVersionField(OrderDefinition::class))->addFlags(new Required()),
@@ -75,7 +75,7 @@ class OrderCustomerDefinition extends EntityDefinition
             new OneToOneAssociationField('order', 'order_id', 'id', OrderDefinition::class, false),
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false))->addFlags(new SearchRanking(0.5)),
             (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            new RemoteAddressField('remote_address', 'remoteAddress'->setDescription('Anonymous IP address of the customer for last session.')),
+            (new RemoteAddressField('remote_address', 'remoteAddress'))->setDescription('Anonymous IP address of the customer for last session.')),
         
 ]);
     }

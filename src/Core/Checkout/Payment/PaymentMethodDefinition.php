@@ -64,8 +64,8 @@ class PaymentMethodDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()->setDescription('Unique identity of payment method.')),
-            new FkField('plugin_id', 'pluginId', PluginDefinition::class->setDescription('Unique identity of plugin.')),
-            new StringField('handler_identifier', 'handlerIdentifier'->setDescription('Internal field that contains system identifier details for payment methods like Paypal.')),
+            (new FkField('plugin_id', 'pluginId', PluginDefinition::class))->setDescription('Unique identity of plugin.')),
+            (new StringField('handler_identifier', 'handlerIdentifier'))->setDescription('Internal field that contains system identifier details for payment methods like Paypal.')),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('distinguishableName'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new TranslatedField('description'))->addFlags(new ApiAware()),
@@ -73,7 +73,7 @@ class PaymentMethodDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new ApiAware()->setDescription('When boolean value is `true`, the payment methods are available for selection in the storefront.')),
             (new BoolField('after_order_enabled', 'afterOrderEnabled'))->addFlags(new ApiAware()->setDescription('When set to true, customers are redirected to the payment options page to choose a new payment method on order failure.')),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
-            new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class->setDescription('Unique identity of rule.')),
+            (new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class))->setDescription('Unique identity of rule.')),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()->setDescription('Unique identity of media.')),
             (new StringField('formatted_handler_identifier', 'formattedHandlerIdentifier'))->addFlags(new WriteProtected(), new Runtime()),
             (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()),

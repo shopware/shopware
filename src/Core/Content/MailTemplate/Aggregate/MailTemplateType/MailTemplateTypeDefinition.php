@@ -56,11 +56,11 @@ class MailTemplateTypeDefinition extends EntityDefinition
 
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()->setDescription('Technical name of mail template.')),
-            new JsonField('available_entities', 'availableEntities'->setDescription('Defines  which entities are compatible with a given mail template type, ensuring that the right templates can be used for the appropriate purposes within the system')),
+            (new JsonField('available_entities', 'availableEntities'))->setDescription('Defines  which entities are compatible with a given mail template type, ensuring that the right templates can be used for the appropriate purposes within the system')),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(MailTemplateTypeTranslationDefinition::class, 'mail_template_type_id'))->addFlags(new ApiAware(), new Required()),
             (new OneToManyAssociationField('mailTemplates', MailTemplateDefinition::class, 'mail_template_type_id'))->addFlags(new SetNullOnDelete()),
-            new JsonField('template_data', 'templateData'->setDescription('Template data used to generate emails associated with that template type.')),
+            (new JsonField('template_data', 'templateData'))->setDescription('Template data used to generate emails associated with that template type.')),
         
 ]);
     }

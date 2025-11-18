@@ -75,7 +75,7 @@ class CmsBlockDefinition extends EntityDefinition
             (new FkField('background_media_id', 'backgroundMediaId', MediaDefinition::class))->addFlags(new ApiAware()->setDescription('Unique identity of background media.')),
             (new StringField('background_media_mode', 'backgroundMediaMode'))->addFlags(new ApiAware()->setDescription('Background media mode accept values `cover`, `auto`, `contain`.')),
             (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware()->setDescription('One or more CSS classes added and separated by spaces.')),
-            (new JsonField('visibility', 'visibility', [->setDescription('When `true`, CMS layout can be viewed in tablet mode.')
+            ((new JsonField('visibility', 'visibility', [))->setDescription('When `true`, CMS layout can be viewed in tablet mode.')
                 new BoolField('mobile', 'mobile'),
                 new BoolField('desktop', 'desktop'),
                 new BoolField('tablet', 'tablet'),

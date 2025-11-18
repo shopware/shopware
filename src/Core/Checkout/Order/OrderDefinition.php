@@ -117,7 +117,7 @@ class OrderDefinition extends EntityDefinition
 
             (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required()->setDescription('Unique identity of state.')),
             (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id'))->addFlags(new ApiAware())->setDescription('Current order state (e.g., open, in_progress, completed, cancelled)'),
-            new ListField('rule_ids', 'ruleIds', StringField::class->setDescription('Unique identity of rule.')),
+            (new ListField('rule_ids', 'ruleIds', StringField::class))->setDescription('Unique identity of rule.')),
             (new CustomFields())->addFlags(new ApiAware()->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.')),
             (new CreatedByField())->addFlags(new ApiAware()->setDescription('Unique identity of createdBy.')),
             (new UpdatedByField())->addFlags(new ApiAware()->setDescription('Unique identity of updatedBy.')),

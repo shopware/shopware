@@ -64,7 +64,7 @@ class ProductReviewDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()->setDescription('Unique identity of the product\'s review.')),
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware(), new Required()->setDescription('Unique identity of the product.')),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
-            new FkField('customer_id', 'customerId', CustomerDefinition::class->setDescription('Unique identity of the customer.')),
+            (new FkField('customer_id', 'customerId', CustomerDefinition::class))->setDescription('Unique identity of the customer.')),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(), new Required()->setDescription('Unique identity of the sales channel.')),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()->setDescription('Unique identity of the language.')),
             (new StringField('external_user', 'externalUser'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)->setDescription('External user name.')),

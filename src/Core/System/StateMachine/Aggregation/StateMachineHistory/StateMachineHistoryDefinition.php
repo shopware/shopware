@@ -59,8 +59,8 @@ class StateMachineHistoryDefinition extends EntityDefinition
 
             (new FkField('to_state_id', 'toStateId', StateMachineStateDefinition::class))->addFlags(new Required()->setDescription('Unique identity of toState.')),
             (new ManyToOneAssociationField('toStateMachineState', 'to_state_id', StateMachineStateDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            new StringField('action_name', 'transitionActionName'->setDescription('Unique name of transition action.')),
-            new FkField('user_id', 'userId', UserDefinition::class->setDescription('Unique identity of user.')),
+            (new StringField('action_name', 'transitionActionName'))->setDescription('Unique name of transition action.')),
+            (new FkField('user_id', 'userId', UserDefinition::class))->setDescription('Unique identity of user.')),
             new FkField('integration_id', 'integrationId', IntegrationDefinition::class),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),

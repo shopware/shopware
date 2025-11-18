@@ -64,7 +64,7 @@ class TaxProviderDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new ApiAware()->setDescription('When boolean value is `true`, the tax providers are available for selection in the storefront.')),
             (new IntField('priority', 'priority'))->addFlags(new Required(), new ApiAware()->setDescription('A numerical value to prioritize one of the tax providers from the list.')),
             (new StringField('process_url', 'processUrl'))->addFlags(new ApiAware()->setDescription('External URL makes request to get tax info.')),
-            new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class->setDescription('Unique identity of availability Rule.')),
+            (new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class))->setDescription('Unique identity of availability Rule.')),
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new ApiAware()->setDescription('Unique identity of app.')),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
 

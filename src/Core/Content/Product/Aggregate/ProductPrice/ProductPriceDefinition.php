@@ -64,10 +64,10 @@ class ProductPriceDefinition extends EntityDefinition
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()->setDescription('Unique identity of the rule.')),
             (new PriceField('price', 'price'))->addFlags(new Required()->setDescription('Price of the Product.')),
             (new IntField('quantity_start', 'quantityStart'))->addFlags(new Required()->setDescription('Starting range of quantity of an item.')),
-            new IntField('quantity_end', 'quantityEnd'->setDescription('Ending range of quantity of an item.')),
+            (new IntField('quantity_end', 'quantityEnd'))->setDescription('Ending range of quantity of an item.')),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ReverseInherited('prices')),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
-            new CustomFields(->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.')),
+            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.')),
         
 ]);
     }

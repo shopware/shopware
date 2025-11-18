@@ -59,7 +59,7 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
             new ManyToOneAssociationField('crossSelling', 'cross_selling_id', ProductCrossSellingDefinition::class),
-            new IntField('position', 'position'->setDescription('The order of the tabs of your defined product cross-selling in the storefront by entering numerical values like 1,2,3, etc.')),
+            (new IntField('position', 'position'))->setDescription('The order of the tabs of your defined product cross-selling in the storefront by entering numerical values like 1,2,3, etc.')),
         
 ]);
     }

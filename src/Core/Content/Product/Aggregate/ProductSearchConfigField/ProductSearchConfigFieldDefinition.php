@@ -65,7 +65,7 @@ class ProductSearchConfigFieldDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()->setDescription('Unique identity of Product Search Configuration field.')),
             (new FkField('product_search_config_id', 'searchConfigId', ProductSearchConfigDefinition::class))->addFlags(new Required()->setDescription('Unique identity of Search Configuration.')),
-            new FkField('custom_field_id', 'customFieldId', CustomFieldDefinition::class->setDescription('Unique identity of custom field.')),
+            (new FkField('custom_field_id', 'customFieldId', CustomFieldDefinition::class))->setDescription('Unique identity of custom field.')),
             (new StringField('field', 'field'))->addFlags(new Required()->setDescription('Configuration of search field.')),
             (new BoolField('tokenize', 'tokenize'))->addFlags(new Required()->setDescription('To decide whether the text within the field should undergo tokenization, which involves splitting it into smaller chunks.')),
             (new BoolField('searchable', 'searchable'))->addFlags(new Required()->setDescription('To configure whether the field can be used for searching.')),

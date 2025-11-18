@@ -72,7 +72,7 @@ class OrderAddressDefinition extends EntityDefinition
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required()->setDescription('Unique identity of order.')),
             (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new Required()),
 
-            new FkField('salutation_id', 'salutationId', SalutationDefinition::class->setDescription('Unique identity of salutation.')),
+            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->setDescription('Unique identity of salutation.')),
             (new StringField('first_name', 'firstName', self::MAX_LENGTH_FIRST_NAME))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)->setDescription('First name of the customer.')),
             (new StringField('last_name', 'lastName', self::MAX_LENGTH_LAST_NAME))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)->setDescription('Last name of the customer.')),
             (new StringField('street', 'street'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)->setDescription('Street address')),

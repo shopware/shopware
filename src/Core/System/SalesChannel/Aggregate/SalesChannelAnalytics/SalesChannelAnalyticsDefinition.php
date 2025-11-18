@@ -42,10 +42,10 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()->setDescription('Unique identity of sales channel analytics.')),
-            new StringField('tracking_id', 'trackingId'->setDescription('Unique identity for tracking.')),
-            new BoolField('active', 'active'->setDescription('When boolean value is `true`, the sales channel analytics are enabled.')),
-            new BoolField('track_orders', 'trackOrders'->setDescription('When boolean value is `true`, it enables Google Analytics to track orders.')),
-            new BoolField('anonymize_ip', 'anonymizeIp'->setDescription('Unique identity of anonymize.')),
+            (new StringField('tracking_id', 'trackingId'))->setDescription('Unique identity for tracking.')),
+            (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the sales channel analytics are enabled.')),
+            (new BoolField('track_orders', 'trackOrders'))->setDescription('When boolean value is `true`, it enables Google Analytics to track orders.')),
+            (new BoolField('anonymize_ip', 'anonymizeIp'))->setDescription('Unique identity of anonymize.')),
             new OneToOneAssociationField('salesChannel', 'id', 'analytics_id', SalesChannelDefinition::class, false),
         
 ]);

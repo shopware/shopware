@@ -79,7 +79,7 @@ class RuleDefinition extends EntityDefinition
             (new BoolField('invalid', 'invalid'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)->setDescription('When the boolean value is `true`, the rule is no more available for usage.')),
             (new ListField('areas', 'areas'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)->setDescription('Internal field.')),
             (new CustomFields())->addFlags(new ApiAware()->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.')),
-            new JsonField('module_types', 'moduleTypes'->setDescription('It can be used in cart or shipping pricing.')),
+            (new JsonField('module_types', 'moduleTypes'))->setDescription('It can be used in cart or shipping pricing.')),
 
             (new OneToManyAssociationField('conditions', RuleConditionDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
 

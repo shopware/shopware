@@ -363,6 +363,13 @@ $parsed = $parser->parse('Disallow: /admin/', $context);
 new DomainRuleStruct($parsed, '/en');
 ```
 
+## Removal of product manufacturer link column
+
+The column `product_manufacturer`.`link` was migrated to `product_manufacturer_translation.link` and then removed.
+
+If you're using `manufacturer.link`, please use `manufacturer.translated.link` instead.
+
+
 </details>
 
 # Administration

@@ -106,10 +106,7 @@ Example usage:
 
 ### Translatable product manufacturer links
 
-The `link` property of product manufacturer can now be set depending on the language and the `product_manufacturer`.`link` was removed.
-
-If you're using `manufacturer.link`, please use `manufacturer.translated.link` instead.
-
+The `link` property of product manufacturer can now be set depending on the language.
 
 ## Administration
 

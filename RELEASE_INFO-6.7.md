@@ -2,6 +2,13 @@
 
 ## Features
 
+### HTTP caching rework
+
+- Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
+  and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
+  together with other HTTP caching improvements.
+- Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
+
 ### Tax Calculation Logic
 
 The tax-free detection logic if the cart changed to handle B2B and B2C customers separately.
@@ -13,6 +20,23 @@ The rendering of the `robots.txt` file has been changed to support custom `User-
 For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
 
 ## API
+
+### StoreAPI HTTP caching support
+Selected Store API routes now support HTTP caching with `Cache-Control` headers:
+- `/store-api/breadcrumb/{id}`
+- `/store-api/category`
+- `/store-api/category/{navigationId}`
+- `/store-api/navigation/{activeId}/{rootId}`
+- `/store-api/cms/{id}`
+- `/store-api/product`
+- `/store-api/seo-url`
+- `/store-api/country`
+- `/store-api/country-state/{countryId}`
+- `/store-api/currency`
+- `/store-api/language`
+- `/store-api/salutation`
+
+It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Add the possibility to specify indexer in context
 
@@ -35,6 +59,95 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 ```
 
 ## Core
+
+### HTTP Caching Policies
+
+Caching policies define HTTP cache behavior per area (storefront, store_api) and per route via configuration. The feature
+is enabled using the `CACHE_REWORK` feature flag.
+
+#### Configuration
+
+```yaml
+shopware:
+  http_cache:
+    # Define reusable cache policies
+    policies:
+      no_cache_private:
+        headers:
+          cache_control:
+            private: true
+            no_cache: true
+            max_age: 0
+            s_maxage: 0
+      store_api.cacheable:
+        headers:
+          cache_control:
+            public: true
+            s_maxage: 0  # immediate expiry, rely on stale-while-revalidate
+            stale_while_revalidate: 3600
+            stale_if_error: 7200
+      storefront.cacheable:
+        headers:
+          cache_control:
+            public: true
+            max_age: 600  # browser cache
+            s_maxage: 3600  # reverse proxy cache
+            stale_while_revalidate: 60
+            stale_if_error: 300
+    
+    # Default policies per area
+    default_policies:
+      storefront:
+        cacheable: storefront.cacheable
+        uncacheable: no_cache_private
+      store_api:
+        cacheable: store_api.cacheable
+        uncacheable: no_cache_private
+    
+    # Per-route policy overrides
+    route_policies:
+      store-api.product.search: custom_policy
+      # Granular per-script overrides using route#hook pattern
+      frontend.script_endpoint#storefront-acme-feature: storefront.my_custom_policy
+```
+
+Supported `cache_control` directives: `public`, `private`, `no_cache`, `no_store`, `no_transform`, `must_revalidate`, `proxy_revalidate`, `immutable`, `max_age`, `s_maxage`, `stale_while_revalidate`, `stale_if_error`.
+
+#### How it works
+
+`CacheResponseSubscriber` processes requests differently based on feature flag and route type:
+
+**Feature flag disabled (legacy behavior)**:
+- Applies changes only to GET requests for routes with `PlatformRequest::ATTRIBUTE_HTTP_CACHE` in Symfony's `#[Route]` attribute defaults array.
+- Sets `s-maxage` with TTL from cache attribute or default
+- Adds `stale-if-error` and `stale-while-revalidate` from configuration
+- Applies to both Storefront and Store API routes
+
+**Feature flag enabled + Store API**:
+- Only GET requests are cacheable; POST/non-GET use uncacheable policy
+- Requires `ATTRIBUTE_HTTP_CACHE` attribute; if absent → uncacheable policy
+- No cookies set/checked (headers-only caching)
+- Existing `cache-control` header removed before applying policy
+
+**Feature flag enabled + Storefront**:
+- Only GET requests are cacheable; POST/non-GET use uncacheable policy
+- Processes cache context cookies
+- Processes invalidation states, if state mismatch → use uncacheable policy  (deprecated, will be removed in 6.8.0.0)
+- If request marked cacheable → applies resolved policy
+- Existing `cache-control` header removed before applying policy
+
+#### Policy precedence
+
+Policies are resolved in order (highest to lowest priority):
+1. `route_policies[route#hook]` - most specific, for script endpoints with hook (e.g., `frontend.script_endpoint#acme-app-hook`)
+2. `route_policies[route]` - route-level override
+3. `default_policies[area].{cacheable|uncacheable}` - area defaults; TTLs (max-age, s-maxage) can be overridden by values from the request attribute/script configuration.
+
+**Deprecations**:
+- `CacheResponseSubscriber` constructor parameters: `$defaultTtl`, `$staleWhileRevalidate`, `$staleIfError` - use cache policies instead
+- `CacheAttribute::$states` property - will be removed without replacement
+- `ResponseCacheConfiguration::maxAge()` - use `sharedMaxAge()` instead
+- `ResponseCacheConfiguration::invalidationState()` - deprecated, no replacement (state logic only applies to Storefront)
 
 ### Robots.txt parsing
 A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.
@@ -145,7 +258,26 @@ to:
 
 ## App System
 
+### App Script caching control
+
+As before, app developers can control caching via in app scripts using syntax `{% do response.cache.<directive> %}`, which map to `ResponseCacheConfiguration` methods.
+Next changes were made to `ResponseCacheConfiguration` methods:
+- added `sharedMaxAge(seconds)` - set shared (reverse proxy/CDN) cache TTL, equivalent to `s-maxage` cache control directive.
+- added `clientMaxAge(seconds)` - set client-side (browser) cache TTL, equivalent to `max-age` cache control directive. Has effect only if `CACHE_REWORK` feature flag is enabled.
+- deprecated `maxAge(seconds)` - use sharedMaxAge() instead.
+
+Admins can override policies per script using `route_policies` with `route#hook` pattern in configuration (see HTTP caching policies description in the Core section).
+
 ## Hosting & Configuration
+
+### Deprecated HTTP cache configuration
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable.
+- `shopware.http.cache.default_ttl` parameter.
+- `shopware.http_cache.stale_while_revalidate` parameter.
+- `shopware.http_cache.stale_if_error` parameter.
+
+Deprecated parameters will have no effect when `CACHE_REWORK` feature flag is enabled, and will be removed in 6.8.0.0.
 
 ### Sales Channel Replace URL Command
 

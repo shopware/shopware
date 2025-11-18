@@ -31,6 +31,14 @@
         min-height: 0;
     }
 
+    .mt-card__content {
+        padding: 0;
+
+        .sw-sales-channel-product-assignment-categories__empty-state {
+            margin: 0 auto;
+        }
+    }
+
     .sw-tree-item .sw-field--checkbox {
         margin-bottom: 0;
     }
@@ -68,14 +76,6 @@
 
         li .sw-field--checkbox__content {
             display: inline-block;
-        }
-    }
-
-    .mt-card__content {
-        padding: 0;
-
-        .sw-sales-channel-product-assignment-categories__empty-state {
-            margin: 0 auto;
         }
     }
 }

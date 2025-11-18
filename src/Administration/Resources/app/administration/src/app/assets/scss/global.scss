@@ -159,15 +159,6 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
     }
 }
 
-/**
- * Reset some global styling from
- * the Meteor Component Library
- */
-span svg {
-    display: initial;
-    vertical-align: initial;
-}
-
 .mt-card .mt-card__content {
     .sw-empty-state {
         .sw-empty-state__element {
@@ -176,4 +167,13 @@ span svg {
             align-items: center;
         }
     }
+}
+
+/**
+ * Reset some global styling from
+ * the Meteor Component Library
+ */
+span svg {
+    display: initial;
+    vertical-align: initial;
 }

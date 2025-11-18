@@ -119,7 +119,7 @@ class CartLineItemController extends StorefrontController
     {
         return Profiler::trace('cart::add-promotion', function () use ($cart, $request, $context) {
             try {
-                $code = (string) $request->request->get('code');
+                $code = mb_trim((string) $request->request->get('code'));
 
                 if ($code === '') {
                     throw RoutingException::missingRequestParameter('code');

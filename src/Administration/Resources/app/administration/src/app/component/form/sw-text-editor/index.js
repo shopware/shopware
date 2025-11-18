@@ -528,7 +528,13 @@ export default {
 
             const path = this.getPath(event);
 
-            if (path.some((element) => element.classList?.contains('sw-popover__wrapper'))) {
+            if (
+                path.some(
+                    (el) =>
+                        el.classList?.contains('sw-popover__wrapper') ||
+                        el.classList?.contains('mt-popover-deprecated__wrapper'),
+                )
+            ) {
                 return;
             }
 

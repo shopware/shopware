@@ -357,5 +357,16 @@
         <service id="Shopware\Core\Content\Media\SalesChannel\MediaRoute" public="true">
             <argument type="service" id="media.repository"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaHandler">
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="logger"/>
+            <argument type="service" id="media.repository"/>
+            <tag name="messenger.message_handler" />
+        </service>
     </services>
 </container>

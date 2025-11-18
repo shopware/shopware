@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 #[CoversClass(QueryBuilder::class)]
 class QueryBuilderTest extends TestCase
 {

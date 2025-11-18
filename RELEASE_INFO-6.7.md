@@ -1,4 +1,6 @@
 # 6.7.5.0 (upcoming)
+### More tech updates
+* ProductStream IDs added to ElasticsearchProductDefinition
 
 ## Features
 
@@ -18,6 +20,10 @@ Now, tax rules are applied **correctly** based on the customer type.
 ### Robots.txt configuration
 The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard.
 For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
+
+### Scheduled Task for cleaning up corrupted media entries
+A new scheduled task `media.cleanup_corrupted_media` has been introduced.
+It detects and removes corrupted media records, such as entries created by interrupted or failed file uploads that have no corresponding file on the filesystem.
 
 ## API
 
@@ -148,6 +154,21 @@ Policies are resolved in order (highest to lowest priority):
 - `CacheAttribute::$states` property - will be removed without replacement
 - `ResponseCacheConfiguration::maxAge()` - use `sharedMaxAge()` instead
 - `ResponseCacheConfiguration::invalidationState()` - deprecated, no replacement (state logic only applies to Storefront)
+
+### Improved Store API OpenAPI documentation with field descriptions
+
+The OpenAPI schema generator for Store API endpoints now includes descriptions for entity fields, making it easier for developers to understand the available fields and their purposes.
+
+Additionally, available associations for each entity are now automatically listed in the OpenAPI operation descriptions, showing developers which relationships can be loaded.
+
+To add descriptions to fields in your custom entity definitions, use the `setDescription()` method:
+
+```php
+(new ManyToOneAssociationField('group', 'customer_group_id',
+    CustomerGroupDefinition::class, 'id', false))
+    ->addFlags(new ApiAware())
+    ->setDescription('Customer group determining pricing and permissions')
+```
 
 ### Robots.txt parsing
 A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.

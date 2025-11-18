@@ -781,10 +781,8 @@ export default class RuleConditionService {
             return {
                 showOnDisabledElements: true,
                 disabled: false,
-                message: app.$tc(
+                message: app.$t(
                     'sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip',
-                    // @ts-expect-error
-                    undefined,
                     {
                         conditions: this.getTranslatedConditionViolationList(
                             restrictionConfig.notEqualsViolations,

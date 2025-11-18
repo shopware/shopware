@@ -184,7 +184,7 @@ export default {
                 promises.push(this.getProductCustomFields());
             }
 
-            Promise.all(promises).then(() => { Promise.resolve(void 0) });
+            Promise.all(promises).then(() => { Promise.resolve() });
         },
 
         loadCustomFieldSets() {

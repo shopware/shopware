@@ -565,7 +565,8 @@
         "options": {
           "physical": "Physical",
           "digital": "Digital"
-        }
+        },
+        "deprecationWarning": "The product states filter is deprecated and will be removed in v6.8. Please use the product type filter instead."
       },
       "productTypeFilter": {
         "label": "Product type",

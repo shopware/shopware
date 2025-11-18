@@ -6,18 +6,18 @@ Currently, the product.states field has various issues:
 
 * Not clear semantics:
   - It mixes multiple responsibilities (download/physical markers, per-row flags).
-  - A product never changes from digital to physical or vice versa, but the field is updated on every save even if no relevant changes were made. So the term "states" is ambiguous and does not clearly convey the purpose of the field, as of other `states` in other entities like `order.states`, it should represent the lifecycle state of the entity, but in this case, it represents product types.
+  - A product never changes from digital to physical or vice versa, but the field is updated on every save even if no relevant changes were made. Hence, the term "states" is ambiguous and does not clearly convey the purpose of the field, as for other `states` in other entities, for e.g `order.states`, it should represent the lifecycle state of the entity, but in this case, it represents product types.
   - A product is not possibly both digital and physical, but the field is a JSON array.
   - We need a single authoritative indicator for whether a product/line-item is digital or physical that can be easily queried by DAL, Elasticsearch, Cart processors, and rule conditions.
 
 * Performance:
-  - The fields are not indexed and again, it is a JSON array, so simple filtering (e.g. "only digital products") is slow and complex.
+  - The field is not indexed as it is a JSON array, so simple filtering (e.g. "only digital products") is slow and complex.
   - `StatesUpdater` was also not optimal for performance, it runs on every product save and updates the entire product record even if no relevant changes were made but in theory, once a product is marked as digital or physical, it should not be changed.
 
 * Extensibility:
-  - `product.states` are updated by the `StatesUpdater` based on the presence of downloads; if a product has downloads, it gets the `download` state, otherwise `physical`. This should be fine for platform use cases, but it is not flexible for third-party extensions that may want to introduce new product types.
+  - `product.states` are updated by the `StatesUpdater` based on the presence of downloads; if a product has downloads, it gets the `is-download` state, otherwise `is-physical`. This should be fine for platform use cases, but it is not flexible for third-party extensions that may want to introduce new product types.
   - The current implementation does not provide a straightforward way for third-party developers to add new product types or states  (e.g. subscription, bundle, container, etc.).
-  - The rule conditions and product stream filters are tightly coupled to the legacy states, making it difficult to extend or modify their behavior. For e.g a third-party developer wanting to add a new product type, they would need to modify the existing rule conditions, product stream filters, product listing filters which is not ideal.
+  - The rule conditions and product stream filters are tightly coupled to the legacy states (hard coded in both client-side and server-side), making it difficult to extend or modify their behavior. For e.g a third-party developer wanting to add a new product type, they would need to modify the existing rule conditions, product stream filters, product listing filters which is not ideal.
 
 ## Decision
 

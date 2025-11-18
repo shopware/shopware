@@ -11,7 +11,7 @@ export default class ProductTypeApiService extends ApiService {
 
     async fetchProductTypes() {
         const response = await this.httpClient.get(
-            `${this.getApiBasePath()}/${this.apiEndpoint}`,
+            `/${this.apiEndpoint}`,
             {
                 headers: this.getBasicHeaders(),
             },

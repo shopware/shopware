@@ -44,11 +44,11 @@ export default {
             filterCriteria: [],
             productTypeOptions: [
                 {
-                    label: this.$tc('sw-product.filters.productTypeFilter.options.physical'),
+                    label: this.$tc('sw-product.type.physical'),
                     value: 'physical',
                 },
                 {
-                    label: this.$tc('sw-product.filters.productTypeFilter.options.digital'),
+                    label: this.$tc('sw-product.type.digital'),
                     value: 'digital',
                 },
             ],

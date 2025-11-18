@@ -565,7 +565,8 @@
         "options": {
           "physical": "Physisch",
           "digital": "Digital"
-        }
+        },
+        "deprecationWarning": "Der Filter für Produktzustände ist veraltet und wird mit v6.8 entfernt. Bitte verwende stattdessen den Produkttyp-Filter."
       },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."

@@ -80,6 +80,10 @@ See below for the explicit replacements:
 + $fileName = \ReflectionClass(MyClass::class)->getFileName();
 ```
 
+### New constraint to check for existing routes
+
+The new constraint `\Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlocked` checks if a route is available or already taken by another part of the application.
+
 ### Multiple payment finalize calls allowed
 
 With the feature flag `REPEATED_PAYMENT_FINALIZE`, the `/payment-finalize` endpoint can now be called multiple times using the same payment token.
@@ -105,6 +109,10 @@ Example usage:
 ```
 
 ## Administration
+
+### URL restrictions for product and category SEO URLs
+
+When creating a SEO URL for a product or category, the URL is now checked for availability. Before it was possible to override existing URLs like `account` or `maintenance` with SEO URLs. Existing URLs are now blocked to be used as SEO URLs.
 
 ## Storefront
 

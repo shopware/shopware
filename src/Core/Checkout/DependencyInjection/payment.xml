@@ -24,7 +24,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\PaymentProcessor">
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
@@ -40,7 +40,7 @@
         <service id="Shopware\Core\Checkout\Payment\Controller\PaymentController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle"/>
             <argument type="service" id="order.repository"/>
@@ -71,7 +71,7 @@
             <argument type="service" id="shopware.jwt_config"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
-            <deprecated package="shopware/core" version="6.8.0">tag:v6.8.0 - The %service_id% service will be removed in v6.8.0.0. Use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator instead.</deprecated>
+            <deprecated package="shopware/core" version="6.8.0.0">tag:v6.8.0 - The %service_id% service will be removed in v6.8.0.0. Use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator instead.</deprecated>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\Token\Constraint\PaymentTokenRegisteredValidator">

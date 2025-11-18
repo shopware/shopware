@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentToken;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -46,7 +48,7 @@ class PaymentProcessor
      * @internal
      */
     public function __construct(
-        private readonly TokenFactoryInterfaceV2 $tokenFactory,
+        private readonly ?TokenFactoryInterfaceV2 $tokenFactory,
         private readonly PaymentTokenGenerator $paymentTokenGenerator,
         private readonly PaymentTokenLifecycle $paymentTokenLifecycle,
         private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
@@ -72,7 +74,7 @@ class PaymentProcessor
             return null;
         }
 
-        if (Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('v6.8.0.0') || $this->tokenFactory === null) {
             $token = $this->getToken($transaction, $finishUrl, $errorUrl, $salesChannelContext);
             $encodedToken = $this->encodeToken($token);
         } else {
@@ -111,7 +113,7 @@ class PaymentProcessor
                 if (($token ?? null) instanceof PaymentToken && $token->jti !== null) {
                     $this->paymentTokenLifecycle->invalidateToken($token->jti);
                 } else {
-                    $this->tokenFactory->invalidateToken($encodedToken);
+                    $this->tokenFactory?->invalidateToken($encodedToken);
                 }
             }
         }
@@ -166,7 +168,7 @@ class PaymentProcessor
 
             // @deprecated tag:v6.8.0 - remove this if block
             if ($token instanceof TokenStruct && $token->getToken() !== null) {
-                $this->tokenFactory->invalidateToken($token->getToken());
+                $this->tokenFactory?->invalidateToken($token->getToken());
             }
         }
 
@@ -225,6 +227,11 @@ class PaymentProcessor
 
     private function getOldToken(OrderTransactionEntity $transaction, ?string $finishUrl, ?string $errorUrl, SalesChannelContext $salesChannelContext): string
     {
+        if (!$this->tokenFactory) {
+            // @phpstan-ignore-next-line
+            throw new ServiceNotFoundException(JWTFactoryV2::class);
+        }
+
         $paymentFinalizeTransactionTime = $this->systemConfigService->get('core.cart.paymentFinalizeTransactionTime', $salesChannelContext->getSalesChannelId());
 
         $paymentFinalizeTransactionTime = \is_numeric($paymentFinalizeTransactionTime)

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Payment\Controller;
 
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentToken;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,7 +41,7 @@ class PaymentController extends AbstractController
     public function __construct(
         private readonly PaymentProcessor $paymentProcessor,
         private readonly OrderConverter $orderConverter,
-        private readonly TokenFactoryInterfaceV2 $tokenFactory,
+        private readonly ?TokenFactoryInterfaceV2 $tokenFactory,
         private readonly PaymentTokenGenerator $paymentTokenGenerator,
         private readonly PaymentTokenLifecycle $paymentTokenLifecycle,
         private readonly EntityRepository $orderRepository
@@ -79,6 +81,11 @@ class PaymentController extends AbstractController
 
             $return = null;
             Feature::callSilentIfInactive('v6.8.0.0', function () use ($paymentToken, &$token, &$oldToken, &$return): void {
+                if (!$this->tokenFactory) {
+                    // @phpstan-ignore-next-line
+                    throw new ServiceNotFoundException(JWTFactoryV2::class);
+                }
+
                 $oldToken = $this->tokenFactory->parseToken($paymentToken);
 
                 $token = new PaymentToken();
@@ -220,7 +227,7 @@ class PaymentController extends AbstractController
         }
 
         Feature::callSilentIfInactive('v6.8.0.0', function () use ($token): void {
-            $this->tokenFactory->invalidateToken($token);
+            $this->tokenFactory?->invalidateToken($token);
         });
     }
 }

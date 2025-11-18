@@ -44,6 +44,8 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 
 The OpenAPI schema generator for Store API endpoints now includes descriptions for entity fields, making it easier for developers to understand the available fields and their purposes.
 
+Additionally, available associations for each entity are now automatically listed in the OpenAPI operation descriptions, showing developers which relationships can be loaded.
+
 To add descriptions to fields in your custom entity definitions, use the `setDescription()` method:
 
 ```php

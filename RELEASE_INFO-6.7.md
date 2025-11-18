@@ -40,16 +40,11 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 
 ## Core
 
-### Improved Store API OpenAPI documentation with association descriptions
+### Improved Store API OpenAPI documentation with field descriptions
 
-The OpenAPI schema generator for Store API endpoints now automatically includes documentation about available associations. Each entity's associations are now documented with human-readable descriptions, making it easier for developers to understand which associations are available and what they represent.
+The OpenAPI schema generator for Store API endpoints now includes descriptions for entity fields, making it easier for developers to understand the available fields and their purposes.
 
-For example, when viewing the OpenAPI documentation for a shipping method endpoint, developers will now see:
-- **Available Associations:** `prices` - Shipping cost rules, `media` - Shipping method logo
-
-This enhancement applies to 18 Store API entities including Product, Order, Customer, ShippingMethod, PaymentMethod, and Category.
-
-To document associations in your custom entity definitions, use the `setDescription()` method on the field:
+To add descriptions to fields in your custom entity definitions, use the `setDescription()` method:
 
 ```php
 (new ManyToOneAssociationField('group', 'customer_group_id',

@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @internal
  */
 #[Package('discovery')]

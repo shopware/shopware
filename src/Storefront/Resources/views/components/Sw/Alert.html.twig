@@ -6,7 +6,7 @@
 %}
 
 {% set alert = cva({
-    base: 'alert',
+    base: 'sw-alert alert',
     variants: {
         variant: {
             primary: 'alert-primary',
@@ -27,6 +27,21 @@
 }) %}
 
 <div role="alert" {{ attributes.defaults({ class: alert.apply({ variant, size }) }) }}>
+
+    <twig:Sw:Icon name="info" color="primary"/>
+    <twig:Sw:Icon name="info" color="secondary"/>
+    <twig:Sw:Icon name="info" color="danger"/>
+    <twig:Sw:Icon name="info" color="success"/>
+    <twig:Sw:Icon name="info" color="warning"/>
+    <twig:Sw:Icon name="info" color="info"/>
+    <twig:Sw:Icon name="info" color="light"/>
+    <twig:Sw:Icon name="info" size="sm" color="dark"/>
+    <twig:Sw:Icon name="info" size="lg" color="review"/>
+    <twig:Sw:Icon name="warning" :rotation="90"/>
+    <twig:Sw:Icon name="warning" flip="vertical"/>
+
+    <div class="text-success">Heeee</div>
+
     {% block content %}
         <twig:Slot name="content">
             {{ text }}

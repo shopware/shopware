@@ -1,0 +1,12 @@
+.sw-alert {
+    --bs-alert-padding-x: 0.6rem;
+    --bs-alert-padding-y: 0.6rem;
+
+    --bs-info-bg-subtle: color-mix(in oklab, var(--bs-info), hsl(195 120% 98%) 92%);
+    --bs-info-border-subtle: var(--bs-info);
+    --bs-info-text-emphasis: var(--bs-body-color);
+
+    .icon {
+        margin-right: 0.5rem;
+    }
+}

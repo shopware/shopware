@@ -41,8 +41,8 @@
     position: relative;
     padding-right: 2.2rem;
 
-    &.btn .icon {
-        color: currentColor;
+    &.btn .sw-icon {
+        //color: currentColor;
         width: 0.8rem;
         height: 0.8rem;
         margin-left: 0.5rem;
@@ -51,7 +51,7 @@
         top: 0.8rem;
     }
 
-    &.btn .icon > svg {
+    &.btn .sw-icon > svg {
         top: 0;
         fill: currentColor;
     }

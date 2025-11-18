@@ -8,9 +8,12 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetFinder;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPath;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPathCollection;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
@@ -41,7 +44,8 @@ class SnippetFinderTest extends TestCase
             static::getContainer()->get(Connection::class),
             $flySystem,
             $configLoader->load(),
-            $this->createMock(TranslationLoader::class),
+            static::getContainer()->get(TranslationLoader::class),
+            static::getContainer()->get(HtmlSanitizer::class),
         );
     }
 
@@ -137,6 +141,52 @@ class SnippetFinderTest extends TestCase
 
         static::assertEquals($expectedDe, $actualDe);
         static::assertEquals($expectedEn, $actualEn);
+    }
+
+    public function testSnippetFinderSanitizesAppSnippets(): void
+    {
+        $this->createAppWithMalformedSnippet();
+        $snippets = $this->snippetFinder->findSnippets('en-GB');
+
+        $actualSnippet = $snippets['theme']['label'];
+        static::assertSame('<h1>This app</h1> is really <b>safe</b>!)', $actualSnippet);
+    }
+
+    private function createAppWithMalformedSnippet(): void
+    {
+        $context = Context::createDefaultContext();
+        static::getContainer()->get('app.repository')->create([
+            [
+                'id' => $id = Uuid::randomHex(),
+                'name' => 'Test app',
+                'active' => true,
+                'appVersion' => '1.0.0',
+                'author' => 'Shopware AG',
+                'label' => [
+                    'en-GB' => 'Test App',
+                ],
+                'path' => 'path',
+                'version' => '1.0.0',
+                'integration' => [
+                    'id' => Uuid::randomHex(),
+                    'label' => 'Test app Integration',
+                    'accessKey' => Uuid::randomHex(),
+                    'secretAccessKey' => Uuid::randomHex(),
+                ],
+                'aclRole' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test app ACL Role',
+                ],
+            ],
+        ], $context);
+
+        static::getContainer()->get('app_administration_snippet.repository')->create([
+            [
+                'appId' => $id,
+                'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                'value' => '{"theme":{"label":"<script>alert(\"xss attack\");</script><h1>This app</h1> is really <b>safe</b>!)"}}',
+            ],
+        ], $context);
     }
 
     private function getSnippetFilePathsOfFixtures(string $folder, string $namePattern): SnippetPathCollection

@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -42,9 +45,12 @@ INNER JOIN `product_manufacturer_translation` AS pmt
     ON pm.id = pmt.product_manufacturer_id
    AND pm.version_id = pmt.product_manufacturer_version_id
 SET pmt.`link` = pm.`link`
-WHERE pm.`link` IS NOT NULL;
+WHERE pm.`link` IS NOT NULL
+  AND pmt.`language_id` = :languageId;
 
-SQL
+SQL,
+                ['languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)],
+                ['languageId' => ParameterType::BINARY]
             );
         }
     }

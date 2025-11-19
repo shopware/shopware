@@ -54,6 +54,9 @@ final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
+    /**
+     * @param EntityWrittenContainerEvent<covariant array<string, string>> $event Mapping and translation definitions have multiple primary keys
+     */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
         $ids = [];

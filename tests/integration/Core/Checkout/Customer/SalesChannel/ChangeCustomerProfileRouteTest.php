@@ -670,10 +670,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('salutationKey'));
 
-        $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
-        static::assertContainsOnlyString($ids);
-
-        return $ids;
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
     }
 
     private function createData(): void

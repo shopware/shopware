@@ -31,18 +31,17 @@ class IntegrationController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/integration', name: 'api.integration.create', methods: ['POST'], defaults: ['_acl' => ['integration:create']])]
+    #[Route(path: '/api/integration', name: 'api.integration.create', defaults: ['_acl' => ['integration:create']], methods: ['POST'])]
     public function upsertIntegration(?string $integrationId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
-        /** @var AdminApiSource $source */
         $source = $context->getSource();
 
         $data = $request->request->all();
 
         // only an admin is allowed to set the admin field
-        if (
-            !$source->isAdmin()
-            && isset($data['admin'])
+        if ((!$source instanceof AdminApiSource)
+            || (!$source->isAdmin()
+            && isset($data['admin']))
         ) {
             throw new PermissionDeniedException();
         }
@@ -54,16 +53,14 @@ class IntegrationController extends AbstractController
 
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): EntityWrittenContainerEvent => $this->integrationRepository->upsert([$data], $context));
 
-        $event = $events->getEventByEntityName(IntegrationDefinition::ENTITY_NAME);
-        \assert($event !== null);
-
-        $eventIds = $event->getIds();
-        $entityId = array_pop($eventIds);
+        $eventIds = $events->getEventByEntityName(IntegrationDefinition::ENTITY_NAME)?->getIds() ?? [];
+        $entityId = array_last($eventIds);
+        \assert($entityId !== null);
 
         return $factory->createRedirectResponse($this->integrationRepository->getDefinition(), $entityId, $request, $context);
     }
 
-    #[Route(path: '/api/integration/{integrationId}', name: 'api.integration.update', methods: ['PATCH'], defaults: ['_acl' => ['integration:update']])]
+    #[Route(path: '/api/integration/{integrationId}', name: 'api.integration.update', defaults: ['_acl' => ['integration:update']], methods: ['PATCH'])]
     public function updateIntegration(?string $integrationId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         return $this->upsertIntegration($integrationId, $request, $context, $factory);

@@ -20,6 +20,7 @@ export default {
         'repositoryFactory',
         'acl',
         'mediaDefaultFolderService',
+        'feature',
     ],
 
     mixins: [

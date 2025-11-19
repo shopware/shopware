@@ -88,7 +88,6 @@ export default {
                 'password',
                 'int',
                 'float',
-                'bool',
                 'checkbox',
                 'colorpicker',
             ];
@@ -202,7 +201,7 @@ export default {
         hasMapInheritanceSupport(element) {
             const componentName = element.config ? element.config.componentName : undefined;
 
-            if (componentName === 'sw-switch-field' || componentName === 'sw-snippet-field') {
+            if (componentName === 'sw-snippet-field') {
                 return true;
             }
 
@@ -243,6 +242,10 @@ export default {
 
         getInheritWrapperBind(element) {
             if (this.hasMapInheritanceSupport(element)) {
+                return {};
+            }
+
+            if (this.isMeteorComponent(element)) {
                 return {};
             }
 
@@ -310,6 +313,89 @@ export default {
 
         kebabCase(value) {
             return kebabCase(value);
+        },
+
+        /**
+         * New methods for Meteor components
+         */
+        isMeteorComponent(element) {
+            const componentName = element.config ? element.config.componentName : undefined;
+
+            // Special case for sw-text-editor, because we still support the legacy one
+            const componentsWithMeteorSupport = [
+                'sw-text-editor',
+            ];
+
+            const typesWithMeteorSupport = [
+                'bool',
+                'switch',
+                'text',
+                'textarea',
+                'url',
+                'checkbox',
+                'colorpicker',
+                'password',
+                'date',
+                'datetime',
+                'time',
+                'single-select',
+                'multi-select',
+                'float',
+                'int',
+            ];
+
+            return typesWithMeteorSupport.includes(element.type) || componentsWithMeteorSupport.includes(componentName);
+        },
+
+        getMeteorElementBind(element, mapInheritance) {
+            const bind = {};
+
+            // Bind necessary props to sw-form-field-renderer
+            bind.value = mapInheritance?.currentValue;
+            bind.type = element.type;
+            bind.config = element.config;
+
+            // Inheritance bindings
+            bind.inheritedValue = this.getInheritedValue(element);
+            bind.isInheritanceField = mapInheritance?.isInheritField;
+            bind.isInherited = mapInheritance?.isInherited;
+
+            // Handle datepicker date/datetime value format
+            if (element.type === 'date') {
+                bind.dateType = 'date';
+            }
+
+            if (element.type === 'datetime') {
+                bind.dateType = 'datetime';
+            }
+
+            // Handle select properties
+            if (
+                [
+                    'single-select',
+                    'multi-select',
+                ].includes(element.type)
+            ) {
+                bind.config.labelProperty = 'name';
+                bind.config.valueProperty = 'id';
+            }
+
+            // Handle multi select
+            if (element.type === 'multi-select') {
+                bind.enableMultiSelection = true;
+            }
+
+            return bind;
+        },
+
+        getMeteorElementEventsHandler(element, mapInheritance) {
+            const eventHandler = {};
+
+            eventHandler['update:value'] = mapInheritance?.updateCurrentValue;
+            eventHandler['inheritance-remove'] = mapInheritance?.removeInheritance;
+            eventHandler['inheritance-restore'] = mapInheritance?.restoreInheritance;
+
+            return eventHandler;
         },
     },
 };

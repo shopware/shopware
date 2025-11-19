@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -46,6 +45,9 @@ class SyncService implements SyncServiceInterface
 
         if (\count($behavior->getSkipIndexers())) {
             $context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_SKIP, new ArrayEntity(['skips' => $behavior->getSkipIndexers()]));
+        }
+        if (\count($behavior->getOnlyIndexers())) {
+            $context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_ONLY, new ArrayEntity(['onlies' => $behavior->getOnlyIndexers()]));
         }
 
         if (
@@ -102,7 +104,6 @@ class SyncService implements SyncServiceInterface
     {
         $entities = [];
 
-        /** @var EntityWrittenEvent $event */
         foreach ($result->getEvents() ?? [] as $event) {
             $entity = $event->getEntityName();
 

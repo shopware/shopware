@@ -1,7 +1,6 @@
 ({ Shopware, ShopwareComponent } = window);
 
-class RatingFilter extends ShopwareComponent {
-    static selector = '[data-component="RatingFilter"]';
+export default class RatingFilter extends ShopwareComponent {
 
     static options = {
         maxStars: 5,
@@ -36,9 +35,9 @@ class RatingFilter extends ShopwareComponent {
         let paramName = this.paramName;
         let label = this.getLabel(value);
 
-        ({ paramName, value, label } = Shopware.emitInterception(`${this.componentName}:PreChange`, { paramName, value, label }));
+        ({ paramName, value, label } = Shopware.emitInterception(`RatingFilter:PreChange`, { paramName, value, label }));
 
-        Shopware.emit(`${this.componentName}:Change`, { paramName, value, label });
+        Shopware.emit(`RatingFilter:Change`, { paramName, value, label });
         Shopware.emit('Filter:Change', { paramName, value, label });
 
         this.updateBadge(value, this.options.maxStars);
@@ -67,10 +66,10 @@ class RatingFilter extends ShopwareComponent {
         });
 
         if (inputElement) {
-            Shopware.emit('Filter:Init', {
+            Shopware.emitQueued('Filter:Init', {
                 paramName: this.paramName,
                 value,
-                label: this.getLabel(value),
+                label: this.getLabel(value)
             });
 
             this.updateBadge(value, this.options.maxStars);
@@ -86,6 +85,12 @@ class RatingFilter extends ShopwareComponent {
     getLabel(value, max = this.options.maxStars) {
         return value > 0 ? `${this.options.displayName} ${value}/${max}` : '';
     }
-}
 
-Shopware.registerComponent('RatingFilter', RatingFilter);
+    destroy() {
+        this.inputs.forEach(input => {
+            input.removeEventListener('change', this.handleChange.bind(this));
+        });
+
+        Shopware.off(`Filter:Remove:${this.paramName}`, this.handleFilterRemove.bind(this));
+    }
+}

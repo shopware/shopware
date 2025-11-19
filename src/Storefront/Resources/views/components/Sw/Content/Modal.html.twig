@@ -61,8 +61,8 @@
     'aria-labelledby': id ~ '-title',
     'aria-hidden': 'true',
     'data-bs-backdrop': backdrop,
-    'data-component': 'Modal',
-    'data-modal-options': options|json_encode,
+    'data-component': 'Sw:Content:Modal',
+    'data-component-options': options|json_encode,
 } %}
 
 <div class="{{ modalCVA.apply({ size, animation }, attributes.render('class')) }}" {{ attributes.defaults(defaultAttributes) }}>

@@ -11,8 +11,8 @@
 
 {% set defaultAttributes = {
     'class': 'sw-rating-filter sw-filter',
-    'data-component': 'RatingFilter',
-    'data-rating-filter-options': options|json_encode,
+    'data-component': 'Sw:Filter:Type:RatingFilter',
+    'data-component-options': options|json_encode,
 } %}
 
 <div {{ attributes.defaults(defaultAttributes) }}>

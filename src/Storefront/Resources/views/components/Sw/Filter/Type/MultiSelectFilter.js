@@ -1,7 +1,6 @@
 ({ Shopware, ShopwareComponent } = window);
 
-class MultiSelectFilter extends ShopwareComponent {
-    static selector = '[data-component="MultiSelectFilter"]';
+export default class MultiSelectFilter extends ShopwareComponent {
 
     init() {
         this.activeOptions = [];
@@ -52,7 +51,7 @@ class MultiSelectFilter extends ShopwareComponent {
             }
         });
 
-        Shopware.emit(`${this.componentName}:Search`, searchTerm);
+        Shopware.emit(`MultiSelectFilter:Search`, searchTerm);
     }
 
     handleOptionChange(event) {
@@ -62,7 +61,7 @@ class MultiSelectFilter extends ShopwareComponent {
         let paramName = this.paramName;
         let label = this.getLabelFromInput(inputElement);
 
-        ({ paramName, value, option, label } = Shopware.emitInterception(`${this.componentName}:PreChange`, { paramName, value, option, label }));
+        ({ paramName, value, option, label } = Shopware.emitInterception(`MultiSelectFilter:PreChange`, { paramName, value, option, label }));
 
         if (value) {
             this.activeOptions.push(option);
@@ -72,7 +71,7 @@ class MultiSelectFilter extends ShopwareComponent {
 
         const eventData = { paramName, value, option, label, activeOptions: this.activeOptions };
 
-        Shopware.emit(`${this.componentName}:Change`, eventData);
+        Shopware.emit(`MultiSelectFilter:Change`, eventData);
         Shopware.emit('Filter:Change', eventData);
 
         this.updateBadge();
@@ -101,7 +100,7 @@ class MultiSelectFilter extends ShopwareComponent {
                 input.checked = true;
                 this.activeOptions.push(input.value);
 
-                Shopware.emit('Filter:Init', {
+                Shopware.emitQueued('Filter:Init', {
                     paramName: this.paramName,
                     value: true,
                     option: input.value,
@@ -134,6 +133,14 @@ class MultiSelectFilter extends ShopwareComponent {
 
         return labelText;
     }
-}
 
-Shopware.registerComponent('MultiSelectFilter', MultiSelectFilter);
+    destroy() {
+        this.searchInput.removeEventListener('input', this.handleSearchInput.bind(this));
+
+        this.optionInputs.forEach(input => {
+            input.removeEventListener('change', this.handleOptionChange.bind(this));
+        });
+
+        Shopware.off(`Filter:Remove:${this.paramName}`, this.handleFilterRemove.bind(this));
+    }
+}

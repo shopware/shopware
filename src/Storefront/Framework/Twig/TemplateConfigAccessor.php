@@ -7,8 +7,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
+use Symfony\Component\Asset\Packages;
 
 #[Package('framework')]
 class TemplateConfigAccessor
@@ -20,7 +20,7 @@ class TemplateConfigAccessor
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
         private readonly ThemeScripts $themeScripts,
-        private readonly TwigComponentRenderEventListener $twigComponentRenderEventListener,
+        private readonly Packages $packages,
         private readonly TwigComponentHelper $twigComponentHelper
     ) {
     }
@@ -64,58 +64,40 @@ class TemplateConfigAccessor
     }
 
     /**
-     * @return array<int, string>
+     * @return array<string, mixed>
      */
-    public function componentScripts(): array
+    public function componentImportMap(): array
     {
-        $scripts = [];
+        $componentImportMap = [];
+        $themeScripts = $this->themeScripts->getThemeScripts();
 
-        foreach($this->themeScripts->getThemeScripts() as $script) {
-            if (str_starts_with($script, 'js/components/')) {
-                $scripts[] = $script;
+        foreach($this->twigComponentHelper->getComponents() as $component) {
+            $relativeNamespacePath = $component->getRelativeNamespacePath();
+            $scriptPath = 'js/components/'.$relativeNamespacePath.'.js';
+
+            if (!in_array($scriptPath, $themeScripts, true)) {
+                continue;
             }
+
+            $componentImportMap[$component->getTag()] = $this->packages->getUrl($scriptPath, 'theme');
         }
 
-        return $scripts;
+        return $componentImportMap;
     }
 
-    /**
-     * @return array<int, string>
-     */
-    public function mountedComponentScripts(): array
-    {
-        $scripts = [];
-        $mountedScripts = [];
-        $mountedComponents = $this->twigComponentRenderEventListener->getMountedComponents();
-
-        foreach($mountedComponents as $component) {
-            $mountedScripts[] = 'js/components/'.str_replace(':', '/', $component).'.js';
-        }
-
-        foreach($this->themeScripts->getThemeScripts() as $script) {
-            if (str_starts_with($script, 'js/components/') && in_array($script, $mountedScripts, true)) {
-                $scripts[] = $script;
-            }
-        }
-
-        return $scripts;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    public function mountedComponentStyles(): array
+    public function componentStyles(): array
     {
         $styles = [];
-        $mountedComponents = $this->twigComponentRenderEventListener->getMountedComponents();
-        $components = $this->twigComponentHelper->getComponents();
 
-        foreach($mountedComponents as $mountedComponentName) {
-            $component = $components->get($mountedComponentName);
+        foreach($this->twigComponentHelper->getComponents() as $component) {
+            $relativeNamespacePath = $component->getRelativeNamespacePath();
+            $stylePath = 'css/components/'.$relativeNamespacePath.'.css';
 
-            if ($component !== null && $component->getStylePath() !== null) {
-                $styles[] = 'css/components/'.str_replace(':', '/', $mountedComponentName).'.css';
+            if ($component->getStylePath() === null) {
+                continue;
             }
+
+            $styles[] = $stylePath;
         }
 
         return $styles;

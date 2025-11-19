@@ -1,6 +1,6 @@
-class BuyButton extends ShopwareComponent {
+({ Shopware, ShopwareComponent } = window);
 
-    static selector = 'form[data-component="BuyButton"]';
+export default class BuyButton extends ShopwareComponent {
 
     static options = {
         redirectSelector: '[name="redirectTo"]',
@@ -23,22 +23,20 @@ class BuyButton extends ShopwareComponent {
         this.el.addEventListener('submit', this.onFormSubmit.bind(this));
     }
 
-    destroy() {
-        this.el.removeEventListener('submit', this.onFormSubmit.bind(this));
-    }
-
     onFormSubmit(event) {
         event.preventDefault();
 
         let requestUrl = this.el.getAttribute('action');
-        let formData = window.Shopware.serializeForm(this.el);
+        let formData = Shopware.serializeForm(this.el);
 
-        ({ requestUrl, formData } = window.Shopware.emitInterception(`${this.componentName}:PreSubmit`, { requestUrl, formData }));
+        ({ requestUrl, formData } = Shopware.emitInterception(`BuyButton:PreSubmit`, { requestUrl, formData }));
 
-        window.Shopware.emit(`${this.componentName}:Submit`, requestUrl, formData);
+        Shopware.emit(`BuyButton:Submit`, requestUrl, formData);
 
         window.PluginManager.callPluginMethod('OffCanvasCart', 'openOffCanvas', requestUrl, formData);
     }
-}
 
-window.Shopware.registerComponent('BuyButton', BuyButton);
+    destroy() {
+        this.el.removeEventListener('submit', this.onFormSubmit.bind(this));
+    }
+}

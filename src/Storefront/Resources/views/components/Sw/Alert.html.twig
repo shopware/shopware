@@ -3,10 +3,11 @@
     size = 'text-md',
     text = null,
     slots = [],
+    icon = null,
 %}
 
 {% set alert = cva({
-    base: 'alert',
+    base: 'sw-alert alert',
     variants: {
         variant: {
             primary: 'alert-primary',
@@ -26,7 +27,27 @@
     }
 }) %}
 
+{% set defaultIcons = {
+    primary: 'info',
+    secondary: 'info',
+    warning: 'warning',
+    success: 'checkmark-circle',
+    info: 'info',
+    danger: 'blocked',
+    light: 'info',
+    dark: 'info',
+} %}
+
 <div role="alert" {{ attributes.defaults({ class: alert.apply({ variant, size }) }) }}>
+
+    {% block icon %}
+        {% if icon is not false and icon|length > 0 %}
+            <twig:Sw:Icon :name="icon" :color="variant" />
+        {% elseif icon is not false %}
+            <twig:Sw:Icon :name="defaultIcons[variant]" :color="variant" />
+        {% endif %}
+    {% endblock %}
+
     {% block content %}
         <twig:Slot name="content">
             {{ text }}

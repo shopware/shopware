@@ -1,0 +1,20 @@
+.sw-alert {
+    --bs-alert-padding-x: 0.6rem;
+    --bs-alert-padding-y: 0.6rem;
+    --bs-info-bg-subtle: color-mix(in oklab, var(--bs-info), hsl(195 120% 98%) 92%);
+    --bs-info-border-subtle: var(--bs-info);
+    --bs-info-text-emphasis: var(--bs-body-color);
+    --bs-danger-bg-subtle: color-mix(in oklab, var(--bs-danger), hsl(195 120% 100%) 92%);
+    --bs-danger-border-subtle: var(--bs-danger);
+    --bs-danger-text-emphasis: var(--bs-body-color);
+    --bs-success-bg-subtle: color-mix(in oklab, var(--bs-success), hsl(195 120% 98%) 92%);
+    --bs-success-border-subtle: var(--bs-success);
+    --bs-success-text-emphasis: var(--bs-body-color);
+    --bs-warning-bg-subtle: color-mix(in oklab, var(--bs-warning), hsl(195 120% 101%) 95%);
+    --bs-warning-border-subtle: var(--bs-warning);
+    --bs-warning-text-emphasis: var(--bs-body-color);
+
+    .sw-icon {
+        margin-right: 0.5rem;
+    }
+}

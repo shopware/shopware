@@ -1,13 +1,20 @@
 {% props
     text = null,
+    inline = false,
 %}
 
 {% set attributeDefaults = {} %}
 
 {% set textVariants = cva({
-    base: 'text'
+    base: 'sw-text',
+    variants: {
+        inline: {
+            false: null,
+            true: ['d-inline'],
+        },
+    },
 }) %}
 
-<div {{ attributes.defaults(attributeDefaults) }} class="{{ textVariants.apply({}) }}">
+<div {{ attributes.defaults(attributeDefaults) }} class="{{ textVariants.apply({ inline }) }}">
     {{ text|sw_sanitize|raw }}
 </div>

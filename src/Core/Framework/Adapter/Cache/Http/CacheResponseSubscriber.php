@@ -179,41 +179,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function buildCacheHash(Request $request, SalesChannelContext $context): string
-    {
-        $ruleAreas = $this->ruleResolver->resolveRuleAreas($request, $context);
-
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
-            $ruleIds = $context->getRuleIdsByAreas($ruleAreas);
-        } else {
-            $ruleIds = $context->getRuleIds();
-        }
-
-        $ruleIds = array_unique($ruleIds);
-        sort($ruleIds);
-
-        $parts = [
-            HttpCacheCookieEvent::RULE_IDS => $ruleIds,
-            HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
-            HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
-            HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
-            HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-        ];
-
-        foreach ($this->cookies as $cookie) {
-            if (!$request->cookies->has($cookie)) {
-                continue;
-            }
-
-            $parts[$cookie] = $request->cookies->get($cookie);
-        }
-
-        $event = new HttpCacheCookieEvent($request, $context, $parts);
-        $this->dispatcher->dispatch($event);
-
-        return Hasher::hash($event->getParts());
-    }
-
     /**
      * System states can be used to stop caching routes at certain states. For example,
      * the checkout routes are no longer cached if the customer has products in the cart or is logged in.

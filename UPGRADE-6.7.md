@@ -2,17 +2,18 @@
 
 The `Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute` now deletes customer recovery links after a customer has changed their email address.
 
-## Deprecated Newsletter-recipient-list
-File `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js` will be private in v6.8.0.0.
-File `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` will be removed without replacement.
-
-## Deprecated Twig blocks
-File: `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/sw-newsletter-recipient-list.html.twig`
+## Refactor filters for the newsletter recipients list.
+We now use the <mt-select> instead `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch`.
+Because of that, we deprecate these twig blocks:
 * `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
 * `sw_newsletter_recipient_list_sidebar_filter_status_direct`
 * `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
 * `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
-  The blocks will be removed in v6.8.0.0. Use parent blocks.
+
+These blocks will be removed in v6.8.0.0 without replacement. Use the parent blocks instead.
+We also deprecate
+`administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` which will be removed with v6.8.0.0 and
+`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js` which will be private in v6.8.0.0.
 
 # 6.7.4.0
 

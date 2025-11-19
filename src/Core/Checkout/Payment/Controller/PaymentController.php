@@ -88,7 +88,9 @@ class PaymentController extends AbstractController
             try {
                 // try to decode without validation for graceful error handling
                 $token = $this->paymentTokenGenerator->decode($paymentToken, true);
-                $this->invalidate($token->jti);
+                if ($token->jti !== null) {
+                    $this->paymentTokenLifecycle->invalidateToken($token->jti);
+                }
             } catch (\Throwable $e) {
                 throw PaymentException::invalidToken($paymentToken, $e);
             }
@@ -123,7 +125,7 @@ class PaymentController extends AbstractController
             return $this->handleError($e, $token);
         } finally {
             if ($token->jti !== null) {
-                $this->invalidate($token->jti);
+                $this->paymentTokenLifecycle->invalidateToken($token->jti);
             }
         }
     }
@@ -237,23 +239,5 @@ class PaymentController extends AbstractController
         }
 
         return $this->orderConverter->assembleSalesChannelContext($order, $context);
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - move code inline as it is easier to read now
-     */
-    private function invalidate(?string $token): void
-    {
-        if ($token === null) {
-            return;
-        }
-
-        if (Feature::isActive('v6.8.0.0')) {
-            $this->paymentTokenLifecycle->invalidateToken($token);
-        }
-
-        Feature::callSilentIfInactive('v6.8.0.0', function () use ($token): void {
-            $this->tokenFactory?->invalidateToken($token);
-        });
     }
 }

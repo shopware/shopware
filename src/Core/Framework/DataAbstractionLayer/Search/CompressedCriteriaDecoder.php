@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Base64;
+use Shopware\Core\Framework\Util\Exception\Base64DecodingException;
 
 /**
  * @interal
@@ -54,14 +55,15 @@ class CompressedCriteriaDecoder
             }
 
             // Decode base64url
-            $gzippedData = Base64::urlDecode($encodedCriteria);
-            if ($gzippedData === false) {
+            try {
+                $gzippedData = Base64::urlDecode($encodedCriteria);
+            } catch (Base64DecodingException $e) {
                 throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('Unable to decode base64 data');
             }
 
             // Decompress gzipped data
             // Limit the decompressed size for additional safety from malicious input.
-            // Function throws a warning on failure, suppressing it as result is validated afterwards.
+            // Function throws a warning on failure, suppressing it as result is validated afterward.
             $jsonData = @gzdecode($gzippedData, $this->decompressedCriteriaLengthLimit);
 
             if ($jsonData === false) {

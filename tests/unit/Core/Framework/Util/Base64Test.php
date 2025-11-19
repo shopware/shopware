@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\Base64;
+use Shopware\Core\Framework\Util\UtilException;
 
 /**
  * @internal
@@ -26,7 +27,6 @@ class Base64Test extends TestCase
 
         // Test decode
         $decoded = Base64::urlDecode($encoded);
-        static::assertNotFalse($decoded);
         static::assertSame($input, $decoded);
     }
 
@@ -79,8 +79,9 @@ class Base64Test extends TestCase
     #[DataProvider('invalidBase64Provider')]
     public function testUrlDecodeWithInvalidInput(string $input): void
     {
-        $result = Base64::urlDecode($input);
-        static::assertFalse($result);
+        static::expectExceptionObject(UtilException::base64DecodingFailed());
+
+        Base64::urlDecode($input);
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Exception\Base64DecodingException;
 
 /**
  * The standard base64 alphabet contains + and / which are not URL safe.
@@ -24,12 +25,20 @@ class Base64
 
     /**
      * Decodes a string in base64url format as described in RFC 4648, Section 5.
+     *
+     * @throws Base64DecodingException
      */
-    public static function urlDecode(string $data): string|false
+    public static function urlDecode(string $data): string
     {
-        return base64_decode(
+        $decoded = base64_decode(
             strtr($data, '-_', '+/'),
             true,
         );
+
+        if ($decoded === false) {
+            throw UtilException::base64DecodingFailed();
+        }
+
+        return $decoded;
     }
 }

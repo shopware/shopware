@@ -72,9 +72,3 @@ shopware:
         major: false
         toggleable: true
         description: "Enables the Meteor text editor in the administration."
-
-      - name: CACHE_REWORK
-        default: false
-        major: false
-        toggleable: true
-        description: "Enables updated cache logic (cache policies, store api caching).\nThis feature will be standard as of v6.8.0"

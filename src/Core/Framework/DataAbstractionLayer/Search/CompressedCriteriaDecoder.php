@@ -48,44 +48,38 @@ class CompressedCriteriaDecoder
      */
     public function decode(string $encodedCriteria): array
     {
-        try {
-            // Hard limit to avoid overloading
-            if (\strlen($encodedCriteria) > $this->compressedCriteriaLengthLimit) {
-                throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('The _criteria parameter is too long');
-            }
-
-            // Decode base64url
-            try {
-                $gzippedData = Base64::urlDecode($encodedCriteria);
-            } catch (Base64DecodingException $e) {
-                throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('Unable to decode base64 data');
-            }
-
-            // Decompress gzipped data
-            // Limit the decompressed size for additional safety from malicious input.
-            // Function throws a warning on failure, suppressing it as result is validated afterward.
-            $jsonData = @gzdecode($gzippedData, $this->decompressedCriteriaLengthLimit);
-
-            if ($jsonData === false) {
-                throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('Unable to decompress gzipped data');
-            }
-
-            // Decode JSON
-            try {
-                $criteriaData = json_decode($jsonData, true, 512, \JSON_THROW_ON_ERROR);
-            } catch (\JsonException $e) {
-                throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('Invalid JSON data: ' . $e->getMessage());
-            }
-
-            if (!\is_array($criteriaData)) {
-                throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('Criteria data must be an array');
-            }
-
-            return $criteriaData;
-        } catch (DataAbstractionLayerException $e) {
-            throw $e;
-        } catch (\Throwable $e) {
-            throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('Unable to decode or decompress criteria data: ' . $e->getMessage());
+        // Hard limit to avoid overloading
+        if (\strlen($encodedCriteria) > $this->compressedCriteriaLengthLimit) {
+            throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('The _criteria parameter is too long');
         }
+
+        // Decode base64url
+        try {
+            $gzippedData = Base64::urlDecode($encodedCriteria);
+        } catch (Base64DecodingException $e) {
+            throw DataAbstractionLayerException::invalidCompressedCriteriaParameter($e->getMessage());
+        }
+
+        // Decompress gzipped data
+        // Limit the decompressed size for additional safety from malicious input.
+        // Function throws a warning on failure, suppressing it as result is validated afterward.
+        $jsonData = @gzdecode($gzippedData, $this->decompressedCriteriaLengthLimit);
+
+        if ($jsonData === false) {
+            throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('Unable to decompress gzipped data');
+        }
+
+        // Decode JSON
+        try {
+            $criteriaData = json_decode($jsonData, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('Invalid JSON data: ' . $e->getMessage());
+        }
+
+        if (!\is_array($criteriaData)) {
+            throw DataAbstractionLayerException::invalidCompressedCriteriaParameter('Criteria data must be an array');
+        }
+
+        return $criteriaData;
     }
 }

@@ -83,7 +83,7 @@ class CompressedCriteriaDecoderTest extends TestCase
 
         yield 'invalid base64 format' => [
             'invalid-base64-format!@#$%',
-            'Unable to decode base64 data',
+            'Failed to decode base64url data',
         ];
 
         yield 'invalid JSON data' => [

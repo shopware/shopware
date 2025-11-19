@@ -3,6 +3,7 @@
     size = 'text-md',
     text = null,
     slots = [],
+    icon = null,
 %}
 
 {% set alert = cva({
@@ -26,21 +27,26 @@
     }
 }) %}
 
+{% set defaultIcons = {
+    primary: 'info',
+    secondary: 'info',
+    warning: 'warning',
+    success: 'checkmark-circle',
+    info: 'info',
+    danger: 'blocked',
+    light: 'info',
+    dark: 'info',
+} %}
+
 <div role="alert" {{ attributes.defaults({ class: alert.apply({ variant, size }) }) }}>
 
-    <twig:Sw:Icon name="info" color="primary"/>
-    <twig:Sw:Icon name="info" color="secondary"/>
-    <twig:Sw:Icon name="info" color="danger"/>
-    <twig:Sw:Icon name="info" color="success"/>
-    <twig:Sw:Icon name="info" color="warning"/>
-    <twig:Sw:Icon name="info" color="info"/>
-    <twig:Sw:Icon name="info" color="light"/>
-    <twig:Sw:Icon name="info" size="sm" color="dark"/>
-    <twig:Sw:Icon name="info" size="lg" color="review"/>
-    <twig:Sw:Icon name="warning" :rotation="90"/>
-    <twig:Sw:Icon name="warning" flip="vertical"/>
-
-    <div class="text-success">Heeee</div>
+    {% block icon %}
+        {% if icon is not false and icon|length > 0 %}
+            <twig:Sw:Icon :name="icon" :color="variant" />
+        {% elseif icon is not false %}
+            <twig:Sw:Icon :name="defaultIcons[variant]" :color="variant" />
+        {% endif %}
+    {% endblock %}
 
     {% block content %}
         <twig:Slot name="content">

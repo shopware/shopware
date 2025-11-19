@@ -12,16 +12,14 @@ Credit: https://github.com/FortAwesome/Font-Awesome
     --sw-icon-base-size: 1.375rem;
     width: var(--sw-icon-base-size);
     height: var(--sw-icon-base-size);
-    display: inline-flex;
-    align-self: center;
-    font-size: inherit;
-    overflow: visible;
+    display: inline-block;
+    line-height: 1;
 
     > svg {
         width: 100%;
         height: 100%;
-        top: 0.25em;
-        position: relative;
+        vertical-align: middle;
+        display: inline-block;
         fill: currentColor;
 
         path,
@@ -35,7 +33,6 @@ Credit: https://github.com/FortAwesome/Font-Awesome
 // -------------------------
 
 .sw-icon--fluid {
-    //@include sw-icon-size(100%);
     width: 100%;
     height: 100%;
 }

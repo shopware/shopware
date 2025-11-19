@@ -29,18 +29,12 @@
     text-align: left;
 
     &.btn .sw-icon {
-        color: currentColor;
         width: 0.8rem;
         height: 0.8rem;
         margin-left: 0.5rem;
         position: absolute;
         right: 0.8rem;
         top: 0.7rem;
-    }
-
-    &.btn .sw-icon > svg {
-        top: 0.2em !important;
-        fill: currentColor;
     }
 
     &.is--more {

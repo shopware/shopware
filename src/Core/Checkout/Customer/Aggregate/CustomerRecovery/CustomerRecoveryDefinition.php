@@ -50,7 +50,6 @@ class CustomerRecoveryDefinition extends EntityDefinition
             (new StringField('hash', 'hash'))->addFlags(new Required())->setDescription('Password hash for customer\'s account recovery.'),
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required())->setDescription('Unique identity of the customer.'),
             new OneToOneAssociationField('customer', 'customer_id', 'id', CustomerDefinition::class, false),
-        
-]);
+        ]);
     }
 }

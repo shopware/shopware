@@ -139,7 +139,6 @@ class OrderDefinition extends EntityDefinition
             new ManyToOneAssociationField('updatedBy', 'updated_by_id', UserDefinition::class, 'id', false),
             (new CashRoundingConfigField('item_rounding', 'itemRounding'))->addFlags(new Required())->setDescription('The cash rounding applied on net prices.'),
             (new CashRoundingConfigField('total_rounding', 'totalRounding'))->addFlags(new Required())->setDescription('The cash rounding applied on net prices.'),
-        
-]);
+        ]);
     }
 }

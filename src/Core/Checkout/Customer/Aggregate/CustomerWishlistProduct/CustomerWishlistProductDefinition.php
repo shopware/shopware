@@ -55,7 +55,6 @@ class CustomerWishlistProductDefinition extends EntityDefinition
             (new FkField('customer_wishlist_id', 'wishlistId', CustomerWishlistDefinition::class))->addFlags(new Required())->setDescription('Unique identity of the wishlist.'),
             new ManyToOneAssociationField('wishlist', 'customer_wishlist_id', CustomerWishlistDefinition::class, 'id', false),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

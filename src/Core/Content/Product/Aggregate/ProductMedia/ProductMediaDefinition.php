@@ -71,7 +71,6 @@ class ProductMediaDefinition extends EntityDefinition
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('coverProducts', ProductDefinition::class, 'product_media_id'))->addFlags(new SetNullOnDelete(false)),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
-        
-]);
+        ]);
     }
 }

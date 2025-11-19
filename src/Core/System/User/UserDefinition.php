@@ -107,7 +107,6 @@ class UserDefinition extends EntityDefinition
             new OneToManyAssociationField('updatedOrders', OrderDefinition::class, 'updated_by_id', 'id'),
             new OneToManyAssociationField('createdCustomers', CustomerDefinition::class, 'created_by_id', 'id'),
             new OneToManyAssociationField('updatedCustomers', CustomerDefinition::class, 'updated_by_id', 'id'),
-        
-]);
+        ]);
     }
 }

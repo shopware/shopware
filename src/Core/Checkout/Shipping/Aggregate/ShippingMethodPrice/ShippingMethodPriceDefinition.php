@@ -63,7 +63,6 @@ class ShippingMethodPriceDefinition extends EntityDefinition
             new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, 'id', false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
             new ManyToOneAssociationField('calculationRule', 'calculation_rule_id', RuleDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

@@ -87,7 +87,6 @@ class CmsBlockDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('slots', CmsSlotDefinition::class, 'cms_block_id'))->addFlags(new ApiAware(), new CascadeDelete()),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
-        
-]);
+        ]);
     }
 }

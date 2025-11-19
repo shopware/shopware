@@ -53,7 +53,6 @@ class PromotionSalesChannelDefinition extends EntityDefinition
             (new IntField('priority', 'priority'))->addFlags(new Required())->setDescription('A numerical value to prioritize one of the promotion saleschannels from the list.'),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

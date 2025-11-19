@@ -55,7 +55,6 @@ class TemplateDefinition extends EntityDefinition
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required())->setDescription('Unique identity of app.'),
             new StringField('hash', 'hash', 32),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
-        
-]);
+        ]);
     }
 }

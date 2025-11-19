@@ -69,7 +69,6 @@ class OrderTransactionCaptureDefinition extends EntityDefinition
             (new StringField('external_reference', 'externalReference'))->addFlags(new ApiAware())->setDescription('External payment provider token.'),
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new ApiAware(), new Required())->setDescription('Number of items of each product.'),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
-        
-]);
+        ]);
     }
 }

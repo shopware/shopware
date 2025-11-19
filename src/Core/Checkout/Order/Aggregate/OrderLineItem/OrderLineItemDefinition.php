@@ -119,7 +119,6 @@ class OrderLineItemDefinition extends EntityDefinition
             (new OneToManyAssociationField('downloads', OrderLineItemDownloadDefinition::class, 'order_line_item_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Digital downloads associated with this line item'),
             (new ParentAssociationField(self::class))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware(), new Required()),
-        
-]);
+        ]);
     }
 }

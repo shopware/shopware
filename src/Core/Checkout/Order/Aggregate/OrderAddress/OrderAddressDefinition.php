@@ -93,7 +93,6 @@ class OrderAddressDefinition extends EntityDefinition
             // We need to cascade delete the order deliveries, because when deleting an order, the cascade delete will be triggered first
             (new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'shipping_order_address_id', 'id'))->addFlags(new CascadeDelete()),
             (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false))->addFlags(new ApiAware()),
-        
-]);
+        ]);
     }
 }

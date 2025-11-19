@@ -65,7 +65,6 @@ class RuleConditionDefinition extends EntityDefinition
             (new ParentAssociationField(self::class, 'id'))->setDescription('Unique identity of rule condition.'),
             new ChildrenAssociationField(self::class),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
-        
-]);
+        ]);
     }
 }

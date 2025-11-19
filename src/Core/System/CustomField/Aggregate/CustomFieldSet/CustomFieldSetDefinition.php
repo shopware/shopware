@@ -69,7 +69,6 @@ class CustomFieldSetDefinition extends EntityDefinition
             (new OneToManyAssociationField('relations', CustomFieldSetRelationDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCustomFieldSetDefinition::class, 'custom_field_set_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('customFieldSets')),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
-        
-]);
+        ]);
     }
 }

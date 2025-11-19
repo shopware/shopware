@@ -53,7 +53,6 @@ class PromotionDiscountPriceDefinition extends EntityDefinition
             (new FloatField('price', 'price'))->addFlags(new Required())->setDescription('Price of the discount.'),
             new ManyToOneAssociationField('promotionDiscount', 'discount_id', PromotionDiscountDefinition::class, 'id', false),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

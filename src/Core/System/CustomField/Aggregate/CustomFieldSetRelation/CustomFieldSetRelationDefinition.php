@@ -46,8 +46,7 @@ class CustomFieldSetRelationDefinition extends EntityDefinition
             (new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class))->addFlags(new Required())->setDescription('Unique identity of a custom field set.'),
             (new StringField('entity_name', 'entityName', 63))->addFlags(new Required())->setDescription('Name of the entity.'),
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 
     protected function getParentDefinitionClass(): ?string

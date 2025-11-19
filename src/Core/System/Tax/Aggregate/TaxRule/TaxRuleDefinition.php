@@ -63,7 +63,6 @@ class TaxRuleDefinition extends EntityDefinition
             new ManyToOneAssociationField('type', 'tax_rule_type_id', TaxRuleTypeDefinition::class, 'id'),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id'),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id'),
-        
-]);
+        ]);
     }
 }

@@ -65,7 +65,6 @@ class AppPaymentMethodDefinition extends EntityDefinition
 
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required())->setDescription('Unique identity of payment method.'),
             new OneToOneAssociationField('paymentMethod', 'payment_method_id', 'id', PaymentMethodDefinition::class, false),
-        
-]);
+        ]);
     }
 }

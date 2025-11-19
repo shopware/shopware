@@ -55,7 +55,6 @@ class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
             new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'),
             new ManyToOneAssociationField('documentBaseConfig', 'document_base_config_id', DocumentBaseConfigDefinition::class, 'id'),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id'),
-        
-]);
+        ]);
     }
 }

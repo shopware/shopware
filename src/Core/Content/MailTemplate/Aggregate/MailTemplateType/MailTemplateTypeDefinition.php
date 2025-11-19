@@ -61,7 +61,6 @@ class MailTemplateTypeDefinition extends EntityDefinition
             (new TranslationsAssociationField(MailTemplateTypeTranslationDefinition::class, 'mail_template_type_id'))->addFlags(new ApiAware(), new Required()),
             (new OneToManyAssociationField('mailTemplates', MailTemplateDefinition::class, 'mail_template_type_id'))->addFlags(new SetNullOnDelete()),
             (new JsonField('template_data', 'templateData'))->setDescription('Template data used to generate emails associated with that template type.'),
-        
-]);
+        ]);
     }
 }

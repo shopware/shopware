@@ -64,7 +64,6 @@ class AppCmsBlockDefinition extends EntityDefinition
             (new TranslationsAssociationField(AppCmsBlockTranslationDefinition::class, 'app_cms_block_id'))->addFlags(new Required()),
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required())->setDescription('Unique identity of app.'),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
-        
-]);
+        ]);
     }
 }

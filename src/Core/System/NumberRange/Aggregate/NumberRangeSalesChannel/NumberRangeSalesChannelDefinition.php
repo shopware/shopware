@@ -54,7 +54,6 @@ class NumberRangeSalesChannelDefinition extends EntityDefinition
             new ManyToOneAssociationField('numberRange', 'number_range_id', NumberRangeDefinition::class),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class),
             new ManyToOneAssociationField('numberRangeType', 'number_range_type_id', NumberRangeTypeDefinition::class),
-        
-]);
+        ]);
     }
 }

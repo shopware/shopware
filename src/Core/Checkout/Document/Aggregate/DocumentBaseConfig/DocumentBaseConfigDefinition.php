@@ -80,7 +80,6 @@ class DocumentBaseConfigDefinition extends EntityDefinition
             new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'),
             (new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware())->setDescription('Logo in the document at the top-right corner.'),
             (new OneToManyAssociationField('salesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_base_config_id', 'id'))->addFlags(new CascadeDelete()),
-        
-]);
+        ]);
     }
 }

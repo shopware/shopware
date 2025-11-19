@@ -60,7 +60,6 @@ class StateMachineDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(StateMachineTranslationDefinition::class, 'state_machine_id'))->addFlags(new CascadeDelete(), new Required()),
             new OneToManyAssociationField('historyEntries', StateMachineHistoryDefinition::class, 'state_machine_id'),
-        
-]);
+        ]);
     }
 }

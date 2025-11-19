@@ -77,7 +77,6 @@ class FlowSequenceDefinition extends EntityDefinition
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             new FkField('app_flow_action_id', 'appFlowActionId', AppFlowActionDefinition::class),
             new ManyToOneAssociationField('appFlowAction', 'app_flow_action_id', AppFlowActionDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

@@ -58,7 +58,6 @@ class PromotionSetGroupDefinition extends EntityDefinition
             (new FloatField('value', 'value'))->addFlags(new Required())->setDescription('To filter by PromotionSetgroup value.'),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
             (new ManyToManyAssociationField('setGroupRules', RuleDefinition::class, PromotionSetGroupRuleDefinition::class, 'setgroup_id', 'rule_id'))->addFlags(new CascadeDelete()),
-        
-]);
+        ]);
     }
 }

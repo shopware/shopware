@@ -72,7 +72,6 @@ class CmsSlotDefinition extends EntityDefinition
             (new FkField('cms_block_id', 'blockId', CmsBlockDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of CMS block where slot is defined.'),
             (new ManyToOneAssociationField('block', 'cms_block_id', CmsBlockDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(CmsSlotTranslationDefinition::class, 'cms_slot_id'))->addFlags(new ApiAware()),
-        
-]);
+        ]);
     }
 }

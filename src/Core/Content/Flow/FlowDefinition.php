@@ -71,7 +71,6 @@ class FlowDefinition extends EntityDefinition
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new FkField('app_flow_event_id', 'appFlowEventId', AppFlowEventDefinition::class))->setDescription('Unique identity of app flow event.'),
             new ManyToOneAssociationField('appFlowEvent', 'app_flow_event_id', AppFlowEventDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

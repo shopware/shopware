@@ -58,7 +58,6 @@ class LocaleDefinition extends EntityDefinition
 
             // Reverse Associations not available in sales-channel-api
             (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', 'id'))->addFlags(new RestrictDelete()),
-        
-]);
+        ]);
     }
 }

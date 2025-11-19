@@ -48,7 +48,6 @@ class LogEntryDefinition extends EntityDefinition
             new StringField('channel', 'channel'),
             (new JsonField('context', 'context'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Information associated with a log entry.'),
             (new JsonField('extra', 'extra'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RANKING))->setDescription('Additional information associated with a log entry.'),
-        
-]);
+        ]);
     }
 }

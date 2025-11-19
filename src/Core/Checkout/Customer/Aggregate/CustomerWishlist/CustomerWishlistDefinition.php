@@ -59,7 +59,6 @@ class CustomerWishlistDefinition extends EntityDefinition
             (new OneToManyAssociationField('products', CustomerWishlistProductDefinition::class, 'customer_wishlist_id'))->addFlags(new ApiAware(), new CascadeDelete()),
             new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

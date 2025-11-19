@@ -53,7 +53,6 @@ class UserRecoveryDefinition extends EntityDefinition
             (new CreatedAtField())->addFlags(new Required()),
 
             new OneToOneAssociationField('user', 'user_id', 'id', UserDefinition::class, false),
-        
-]);
+        ]);
     }
 }

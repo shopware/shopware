@@ -119,7 +119,6 @@ class PromotionDefinition extends EntityDefinition
             (new TranslationsAssociationField(PromotionTranslationDefinition::class, 'promotion_id'))->addFlags(new Required()),
             (new ListField('exclusion_ids', 'exclusionIds', IdField::class))->setDescription('Unique identity of exclusion.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
-        
-]);
+        ]);
     }
 }

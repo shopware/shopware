@@ -52,7 +52,6 @@ class MailHeaderFooterDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(MailHeaderFooterTranslationDefinition::class, 'mail_header_footer_id'))->addFlags(new ApiAware(), new Required()),
             new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'mail_header_footer_id'),
-        
-]);
+        ]);
     }
 }

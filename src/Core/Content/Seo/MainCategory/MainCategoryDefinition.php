@@ -65,7 +65,6 @@ class MainCategoryDefinition extends EntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class),
-        
-]);
+        ]);
     }
 }

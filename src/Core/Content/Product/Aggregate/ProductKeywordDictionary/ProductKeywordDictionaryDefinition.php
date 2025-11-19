@@ -54,8 +54,7 @@ class ProductKeywordDictionaryDefinition extends EntityDefinition
             (new StringField('keyword', 'keyword'))->addFlags(new ApiAware(), new Required())->setDescription('The keywords that help to search the product.'),
             (new StringField('reversed', 'reversed'))->addFlags(new Computed())->setDescription('The keywords are revered for the search.'),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 
     protected function defaultFields(): array

@@ -77,7 +77,6 @@ class CmsPageDefinition extends EntityDefinition
             (new OneToManyAssociationField('landingPages', LandingPageDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new RestrictDelete())->setDescription('Landing pages using this CMS layout'),
             (new OneToManyAssociationField('homeSalesChannels', SalesChannelDefinition::class, 'home_cms_page_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete()),
-        
-]);
+        ]);
     }
 }

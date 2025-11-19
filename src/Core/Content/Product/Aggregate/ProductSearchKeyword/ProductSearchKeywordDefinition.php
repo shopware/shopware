@@ -64,7 +64,6 @@ class ProductSearchKeywordDefinition extends EntityDefinition
             (new FloatField('ranking', 'ranking'))->addFlags(new Required())->setDescription('Search ranking.'),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

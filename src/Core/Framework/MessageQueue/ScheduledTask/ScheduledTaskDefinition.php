@@ -65,7 +65,6 @@ class ScheduledTaskDefinition extends EntityDefinition
             (new StringField('status', 'status'))->addFlags(new Required())->setDescription('When status is set, the ScheduledTask is made visible.'),
             (new DateTimeField('last_execution_time', 'lastExecutionTime'))->setDescription('Time when the scheduled task was last executed.'),
             (new DateTimeField('next_execution_time', 'nextExecutionTime'))->addFlags(new Required())->setDescription('Time when the scheduled task will execute next.'),
-        
-]);
+        ]);
     }
 }

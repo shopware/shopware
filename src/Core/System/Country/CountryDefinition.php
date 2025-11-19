@@ -135,7 +135,6 @@ class CountryDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('currencyCountryRoundings', CurrencyCountryRoundingDefinition::class, 'country_id'))
                 ->addFlags(new CascadeDelete()),
-        
-]);
+        ]);
     }
 }

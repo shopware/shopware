@@ -54,7 +54,6 @@ class ScriptDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new Required())->setDescription('Internal field.'),
             new FkField('app_id', 'appId', AppDefinition::class),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
-        
-]);
+        ]);
     }
 }

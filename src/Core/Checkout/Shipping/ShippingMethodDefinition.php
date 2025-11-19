@@ -98,7 +98,6 @@ class ShippingMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'shipping_method_id', 'id'))->addFlags(new RestrictDelete()),
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class))->addFlags(new ApiAware())->setDescription('Tax configuration for shipping costs'),
             (new OneToOneAssociationField('appShippingMethod', 'id', 'shipping_method_id', AppShippingMethodDefinition::class, false))->addFlags(new CascadeDelete()),
-        
-]);
+        ]);
     }
 }

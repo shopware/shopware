@@ -55,7 +55,6 @@ class SalesChannelTypeDefinition extends EntityDefinition
             new TranslatedField('customFields'),
             (new TranslationsAssociationField(SalesChannelTypeTranslationDefinition::class, 'sales_channel_type_id'))->addFlags(new Required()),
             new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'type_id', 'id'),
-        
-]);
+        ]);
     }
 }

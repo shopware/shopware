@@ -45,7 +45,6 @@ class ImportExportFileDefinition extends EntityDefinition
             (new IntField('size', 'size'))->setDescription('Size of the import-export file.'),
             (new OneToOneAssociationField('log', 'id', 'file_id', ImportExportLogDefinition::class, false))->addFlags(new CascadeDelete()),
             (new StringField('access_token', 'accessToken'))->setDescription('Secret key to access import-export file.'),
-        
-]);
+        ]);
     }
 }

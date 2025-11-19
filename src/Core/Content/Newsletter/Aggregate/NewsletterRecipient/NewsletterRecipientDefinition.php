@@ -69,7 +69,6 @@ class NewsletterRecipientDefinition extends EntityDefinition
 
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required())->setDescription('Unique identity of the sales channel.'),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

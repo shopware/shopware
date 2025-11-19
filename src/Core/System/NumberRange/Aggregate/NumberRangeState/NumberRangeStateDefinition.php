@@ -52,7 +52,6 @@ class NumberRangeStateDefinition extends EntityDefinition
             (new IntField('last_value', 'lastValue'))->addFlags(new Required()),
 
             (new OneToOneAssociationField('numberRange', 'number_range_id', 'id', NumberRangeDefinition::class, false))->addFlags(new RestrictDelete()),
-        
-]);
+        ]);
     }
 }

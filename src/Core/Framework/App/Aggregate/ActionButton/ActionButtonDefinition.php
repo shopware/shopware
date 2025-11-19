@@ -61,7 +61,6 @@ class ActionButtonDefinition extends EntityDefinition
             (new TranslationsAssociationField(ActionButtonTranslationDefinition::class, 'app_action_button_id'))->addFlags(new Required()),
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required())->setDescription('Unique identity of app.'),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
-        
-]);
+        ]);
     }
 }

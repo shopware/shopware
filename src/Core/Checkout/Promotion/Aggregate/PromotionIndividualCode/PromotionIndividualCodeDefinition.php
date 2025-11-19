@@ -52,7 +52,6 @@ class PromotionIndividualCodeDefinition extends EntityDefinition
             (new StringField('code', 'code'))->addFlags(new Required())->setDescription('Promotion code.'),
             (new JsonField('payload', 'payload'))->setDescription('Any data related to promotion is passed.'),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
-        
-]);
+        ]);
     }
 }

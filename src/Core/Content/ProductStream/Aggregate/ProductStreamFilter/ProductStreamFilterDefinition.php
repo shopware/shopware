@@ -71,7 +71,6 @@ class ProductStreamFilterDefinition extends EntityDefinition
             (new ParentAssociationField(self::class, 'id'))->setDescription('Unique identity of product stream filter.'),
             new ChildrenAssociationField(self::class, 'queries'),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
-        
-]);
+        ]);
     }
 }

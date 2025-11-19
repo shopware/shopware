@@ -66,7 +66,6 @@ class CustomFieldDefinition extends EntityDefinition
             new BoolField('store_api_aware', 'storeApiAware'),
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
             (new OneToManyAssociationField('productSearchConfigFields', ProductSearchConfigFieldDefinition::class, 'custom_field_id', 'id'))->addFlags(new CascadeDelete()),
-        
-]);
+        ]);
     }
 }

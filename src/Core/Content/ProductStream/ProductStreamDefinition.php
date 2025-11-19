@@ -69,7 +69,6 @@ class ProductStreamDefinition extends EntityDefinition
             new OneToManyAssociationField('productCrossSellings', ProductCrossSellingDefinition::class, 'product_stream_id'),
             new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'product_stream_id', 'id'),
             new OneToManyAssociationField('categories', CategoryDefinition::class, 'product_stream_id'),
-        
-]);
+        ]);
     }
 }

@@ -56,7 +56,6 @@ class StateMachineTransitionDefinition extends EntityDefinition
             (new FkField('to_state_id', 'toStateId', StateMachineStateDefinition::class))->addFlags(new Required())->setDescription('Unique identity of to state.'),
             new ManyToOneAssociationField('toStateMachineState', 'to_state_id', StateMachineStateDefinition::class, 'id', false),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
-        
-]);
+        ]);
     }
 }

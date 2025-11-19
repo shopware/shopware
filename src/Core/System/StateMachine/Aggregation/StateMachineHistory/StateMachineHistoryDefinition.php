@@ -65,7 +65,6 @@ class StateMachineHistoryDefinition extends EntityDefinition
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
             new ManyToOneAssociationField('integration', 'integration_id', IntegrationDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

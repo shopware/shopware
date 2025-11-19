@@ -66,7 +66,6 @@ class CustomEntityDefinition extends EntityDefinition
             (new BoolField('custom_fields_aware', 'customFieldsAware'))->setDescription('Parameter that indicates the areas in which the custom field is supported.'),
             (new StringField('label_property', 'labelProperty'))->setDescription('Specifies which property or attribute of the custom entity is used.'),
             new DateTimeField('deleted_at', 'deletedAt'),
-        
-]);
+        ]);
     }
 }

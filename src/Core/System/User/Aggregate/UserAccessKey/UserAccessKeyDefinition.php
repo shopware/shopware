@@ -56,7 +56,6 @@ class UserAccessKeyDefinition extends EntityDefinition
             (new DateTimeField('last_usage_at', 'lastUsageAt'))->setDescription('Parameter that indicates when the access key was last accessed.'),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

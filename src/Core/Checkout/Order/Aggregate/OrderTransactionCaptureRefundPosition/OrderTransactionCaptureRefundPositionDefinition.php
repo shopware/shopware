@@ -68,7 +68,6 @@ class OrderTransactionCaptureRefundPositionDefinition extends EntityDefinition
             (new IntField('quantity', 'quantity'))->addFlags(new ApiAware())->setDescription('Quantity of line item to be refunded.'),
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new ApiAware(), new Required())->setDescription('Number of items of each product.'),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
-        
-]);
+        ]);
     }
 }

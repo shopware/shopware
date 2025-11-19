@@ -54,7 +54,6 @@ class SeoUrlTemplateDefinition extends EntityDefinition
             (new BoolField('is_valid', 'isValid'))->addFlags(new ApiAware())->setDescription('Created SEO URL template can be made usable by setting `isValid` to true.'),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

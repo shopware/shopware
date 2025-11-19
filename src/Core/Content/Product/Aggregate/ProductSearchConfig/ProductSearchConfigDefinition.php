@@ -68,7 +68,6 @@ class ProductSearchConfigDefinition extends EntityDefinition
             (new ListField('excluded_terms', 'excludedTerms', StringField::class))->setDescription('Excluded terms in product search.'),
             new OneToOneAssociationField('language', 'language_id', 'id', LanguageDefinition::class, false),
             (new OneToManyAssociationField('configFields', ProductSearchConfigFieldDefinition::class, 'product_search_config_id', 'id'))->addFlags(new CascadeDelete()),
-        
-]);
+        ]);
     }
 }

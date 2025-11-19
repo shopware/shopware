@@ -91,7 +91,6 @@ class PaymentMethodDefinition extends EntityDefinition
 
             // runtime fields
             (new StringField('short_name', 'shortName'))->addFlags(new ApiAware(), new Runtime()),
-        
-]);
+        ]);
     }
 }

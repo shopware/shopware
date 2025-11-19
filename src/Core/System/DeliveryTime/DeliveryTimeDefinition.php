@@ -56,7 +56,6 @@ class DeliveryTimeDefinition extends EntityDefinition
             new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'delivery_time_id'),
             new OneToManyAssociationField('products', ProductDefinition::class, 'delivery_time_id'),
             (new TranslationsAssociationField(DeliveryTimeTranslationDefinition::class, 'delivery_time_id'))->addFlags(new Required()),
-        
-]);
+        ]);
     }
 }

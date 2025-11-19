@@ -53,7 +53,6 @@ class UserConfigDefinition extends EntityDefinition
             (new JsonField('value', 'value'))->setDescription('Value of the user configuration.'),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

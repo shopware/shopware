@@ -62,7 +62,6 @@ class DocumentTypeDefinition extends EntityDefinition
             new OneToManyAssociationField('documents', DocumentDefinition::class, 'document_type_id'),
             (new OneToManyAssociationField('documentBaseConfigs', DocumentBaseConfigDefinition::class, 'document_type_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_type_id'))->addFlags(new CascadeDelete()),
-        
-]);
+        ]);
     }
 }

@@ -64,7 +64,6 @@ class SeoUrlDefinition extends EntityDefinition
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
 
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

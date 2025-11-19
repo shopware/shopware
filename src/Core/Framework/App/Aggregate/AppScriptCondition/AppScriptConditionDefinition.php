@@ -73,7 +73,6 @@ class AppScriptConditionDefinition extends EntityDefinition
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
             (new OneToManyAssociationField('ruleConditions', RuleConditionDefinition::class, 'script_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new TranslationsAssociationField(AppScriptConditionTranslationDefinition::class, 'app_script_condition_id'))->addFlags(new Required()),
-        
-]);
+        ]);
     }
 }

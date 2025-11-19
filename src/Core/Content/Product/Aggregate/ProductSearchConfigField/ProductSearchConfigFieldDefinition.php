@@ -72,7 +72,6 @@ class ProductSearchConfigFieldDefinition extends EntityDefinition
             (new IntField('ranking', 'ranking'))->addFlags(new Required())->setDescription('Search ranking.'),
             new ManyToOneAssociationField('searchConfig', 'product_search_config_id', ProductSearchConfigDefinition::class, 'id', false),
             new ManyToOneAssociationField('customField', 'custom_field_id', CustomFieldDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

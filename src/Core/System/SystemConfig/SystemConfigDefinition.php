@@ -48,7 +48,6 @@ class SystemConfigDefinition extends EntityDefinition
             (new ConfigJsonField('configuration_value', 'configurationValue'))->addFlags(new ApiAware(), new Required())->setDescription('Config value for shop configurations.'),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of sales channel.'),
             (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false))->addFlags(new ApiAware()),
-        
-]);
+        ]);
     }
 }

@@ -69,7 +69,6 @@ class OrderTransactionCaptureRefundDefinition extends EntityDefinition
             (new StringField('reason', 'reason'))->addFlags(new ApiAware())->setDescription('Reason for refunding the amount for an order.'),
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new ApiAware(), new Required())->setDescription('Number of items of each product.'),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
-        
-]);
+        ]);
     }
 }

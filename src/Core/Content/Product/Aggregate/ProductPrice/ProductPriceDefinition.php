@@ -68,7 +68,6 @@ class ProductPriceDefinition extends EntityDefinition
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ReverseInherited('prices')),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
-        
-]);
+        ]);
     }
 }

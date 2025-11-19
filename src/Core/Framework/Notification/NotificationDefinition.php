@@ -76,7 +76,6 @@ class NotificationDefinition extends EntityDefinition
 
             new ManyToOneAssociationField('createdByIntegration', 'created_by_integration_id', IntegrationDefinition::class, 'id', false),
             new ManyToOneAssociationField('createdByUser', 'created_by_user_id', UserDefinition::class, 'id', false),
-        
-]);
+        ]);
     }
 }

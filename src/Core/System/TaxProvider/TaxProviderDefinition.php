@@ -71,7 +71,6 @@ class TaxProviderDefinition extends EntityDefinition
             new TranslationsAssociationField(TaxProviderTranslationDefinition::class, 'tax_provider_id'),
             (new ManyToOneAssociationField('availabilityRule', 'availability_rule_id', RuleDefinition::class))->addFlags(new RestrictDelete()),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
-        
-]);
+        ]);
     }
 }

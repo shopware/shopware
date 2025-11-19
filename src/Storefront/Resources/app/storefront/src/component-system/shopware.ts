@@ -37,17 +37,11 @@ class Shopware extends EventEmitter {
     // Registry to store all registered components.
     private componentRegistry: Map<string, typeof ShopwareComponent>;
 
-    // Registry to store all selectors for automatic component initialization.
-    private selectorRegistry: Map<string, string>;
-
     // Registry to store all component instances.
     private instanceRegistry: Array<ComponentRegistryEntry>;
 
     // Registry to store all interception events.
     private interceptionRegistry: Map<string, InterceptionRegistryEntry[]>;
-
-    // Flag to check if the shopware instance is loaded.
-    private loaded: boolean = false;
 
     constructor() {
         super();
@@ -55,7 +49,6 @@ class Shopware extends EventEmitter {
         this.setMaxListeners(50)
 
         this.componentRegistry = new Map();
-        this.selectorRegistry = new Map();
         this.instanceRegistry = [];
 
         this.interceptionRegistry = new Map();
@@ -65,7 +58,6 @@ class Shopware extends EventEmitter {
 
         document.addEventListener('DOMContentLoaded', () => {
             this.initializeComponents();
-            this.loaded = true;
         });
 
         // Singleton
@@ -77,66 +69,35 @@ class Shopware extends EventEmitter {
     }
 
     /**
-     * Register a new component.
-     *
-     * @param componentName - The name of the component.
-     * @param component - The component class.
-     */
-    public registerComponent(componentName: string, component: typeof ShopwareComponent): void {
-        if (this.componentRegistry.has(componentName)) {
-            console.warn(`Component ${componentName} already registered. Component will be overwritten.`);
-        }
-
-        this.componentRegistry.set(componentName, component);
-
-        if (component.selector) {
-            this.selectorRegistry.set(component.selector, componentName);
-        }
-
-        if (this.loaded) {
-            this.initializeComponent(componentName);
-        }
-    }
-
-    /**
      * Get a component by name by its registered name.
      *
      * @param componentName - The name of the component.
      * @returns The component class.
      */
-    public getComponent(componentName: string): typeof ShopwareComponent | undefined {
-        return this.componentRegistry.get(componentName);
-    }
-
-    /**
-     * Unregister a component by its registered name.
-     *
-     * @param componentName - The name of the component.
-     */
-    public unregisterComponent(componentName: string): void {
-        if (!this.componentRegistry.has(componentName)) {
-            console.warn(`Component ${componentName} not found. Component will not be unregistered.`);
-            return;
+    public async getComponent(componentName: string): Promise<typeof ShopwareComponent | undefined> {
+        let component = this.componentRegistry.get(componentName);
+        if (component) {
+            return component;
         }
 
-        // Remove component from selector registry.
-        const component = this.componentRegistry.get(componentName);
-        if (component?.selector) {
-            this.selectorRegistry.delete(component.selector);
+        try {
+            /**
+             * This import has to be ignored by webpack.
+             * It is used for true native ES modules.
+             */
+            const module = await import(/* webpackIgnore: true */ componentName);
+            component = module.default;
+        } catch (error) {
+            console.error(`Failed to import component ${componentName}:`, error);
+            return undefined;
         }
 
-        // Delete all instances of the component.
-        this.instanceRegistry.forEach((instance, index) => {
-            if (instance.componentName !== componentName) {
-                return;
-            }
+        if (!component) {
+            return undefined;
+        }
 
-            instance.component.destroy();
-            // Remove instance from registry.
-            this.instanceRegistry.splice(index, 1);
-        });
-
-        this.componentRegistry.delete(componentName);
+        this.componentRegistry.set(componentName, component);
+        return component;
     }
 
     /**
@@ -178,22 +139,19 @@ class Shopware extends EventEmitter {
      *
      * @param componentName - The name of the component.
      */
-    public initializeComponent(componentName: string): void {
-        const component = this.getComponent(componentName);
+    public async initializeComponent(componentName: string): Promise<void> {
+        const component = await this.getComponent(componentName);
+
         if (!component) {
             console.warn(`Component ${componentName} not found. Component will not be initialized.`);
             return;
         }
 
-        let targetElements: NodeList|Array<Node>;
-        if (component.selector) {
-            targetElements = document.querySelectorAll(component.selector);
-        } else {
-            targetElements = [ document ];
-        }
+        const selector = `[data-component="${componentName}"]`;
+        const targetElements = document.querySelectorAll(selector);
 
         targetElements.forEach(targetEl => {
-            this.initializeComponentOnElement(componentName, targetEl);
+            this.initializeComponentOnElement(componentName, component, targetEl);
         });
     }
 
@@ -201,23 +159,38 @@ class Shopware extends EventEmitter {
      * Initialize a component by its registered name and element.
      *
      * @param componentName - The name of the component.
+     * @param component - The component class.
      * @param element - The element.
      */
-    public initializeComponentOnElement(componentName: string, element: Node): void {
-        const component = this.getComponent(componentName);
-        if (!component) {
-            console.warn(`Component ${componentName} not found. Component will not be initialized.`);
-            return;
+    public initializeComponentOnElement(componentName: string, component: typeof ShopwareComponent, element: Node): ShopwareComponent | undefined {
+        if (!component || !element) {
+            return undefined;
         }
 
         const existingInstance = this.getComponentInstanceByElement(componentName, element);
 
         if (existingInstance) {
-            return;
+            return existingInstance;
         }
 
         const componentInstance = new component(element, component.options || {}, componentName);
         this.instanceRegistry.push({ element, componentName, component: componentInstance });
+
+        return componentInstance;
+    }
+
+    /**
+     * Emit an event but queue it for execution after the current event loop.
+     * Use this for events that, for example, are triggered on direct initialization.
+     * It can prevent race conditions.
+     *
+     * @param eventName - The name of the event.
+     * @param args - The event arguments passed via the event.
+     */
+    public emitQueued(eventName: string, ...args: any[]): void {
+        window.queueMicrotask(() => {
+            this.emit(eventName, ...args);
+        });
     }
 
     /**
@@ -310,10 +283,54 @@ class Shopware extends EventEmitter {
     /**
      * Initialize all registered components.
      */
-    private initializeComponents(): void {
-        this.componentRegistry.forEach((component, componentName) => {
-            this.initializeComponent(componentName);
-        });
+    private async initializeComponents(): Promise<void> {
+        const componentElements = Array.from(document.querySelectorAll('[data-component]'));
+        const componentQueue = new Map();
+        const components = new Map<string, typeof ShopwareComponent>();
+
+        // Create a queue to load all components in parallel.
+        for (const element of componentElements) {
+            const componentName = element.getAttribute('data-component');
+            if (!componentName) {
+                continue;
+            }
+
+            if (componentQueue.has(componentName)) {
+                continue;
+            }
+
+            const loadComponent = new Promise(async (resolve, reject) => {
+                const component = await this.getComponent(componentName);
+                if (!component) {
+                    reject(new Error(`Component ${componentName} not found.`));
+                    return;
+                }
+
+                components.set(componentName, component);
+
+                resolve(component);
+            });
+
+            componentQueue.set(componentName, loadComponent);
+        }
+
+        await Promise.allSettled(Array.from(componentQueue.values()));
+
+        for (const element of componentElements) {
+            const componentName = element.getAttribute('data-component');
+            if (!componentName) {
+                continue;
+            }
+
+            const component = components.get(componentName);
+            if (!component) {
+                continue;
+            }
+
+            this.initializeComponentOnElement(componentName, component, element);
+        }
+
+        this.emitQueued('Components:Initialized');
     }
 
     /**
@@ -334,14 +351,26 @@ class Shopware extends EventEmitter {
      *
      * @param addedNodes - The added nodes.
      */
-    private handleAddedNodes(addedNodes: NodeList): void {
-        Array.from(addedNodes).forEach(node => {
-            this.selectorRegistry.forEach((componentName, selector) => {
-                if (node instanceof Element && node.matches(selector)) {
-                    this.initializeComponentOnElement(componentName, node);
-                }
-            });
-        });
+    private async handleAddedNodes(addedNodes: NodeList): Promise<void> {
+        const elements = Array.from(addedNodes);
+        
+        for (const element of elements) {
+            if (!(element instanceof Element)) {
+                continue;
+            }
+
+            const componentName = element.getAttribute('data-component');
+            if (!componentName) {
+                continue;
+            }
+
+            const component = await this.getComponent(componentName);
+            if (!component) {
+                continue;
+            }
+
+            this.initializeComponentOnElement(componentName, component, element);
+        }
     }
 
     /**

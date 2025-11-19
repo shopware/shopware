@@ -7,12 +7,15 @@ For Twig components that have to implement interactive funcationality via JavaSc
 ### Major differences between plugin and component system.
 
 1. **Automatic initialization**  
-    If the component is registered properly it will automatically be initialized on the corresponding elements. Even if the DOM tree changes and elements are added or removed, the component will automatically be initiallized on added elements or destroyed for removed elements. No more manual re-initialization of plugins that have to work in conjunction after dynamic DOM changes.
+    If the component is implemented properly it will automatically be initialized on the corresponding elements. Even if the DOM tree changes and elements are added or removed, the component will automatically be initiallized on added elements or destroyed for removed elements. No more manual re-initialization of plugins that have to work in conjunction after dynamic DOM changes.
 
-2. **Better events instead of overrides**  
+2. **No registration needed**
+    The component system uses native ES module loading that does everyhting for you, if you follow the conventions. The script will automatically be loaded and initialized on corresponding elements just based on the component's name.
+
+3. **Better events instead of overrides**  
     The current override technique of the plugin system was not reintroduced to the component system, as it showed some major flaws, as overrides could only happen once which can lead to conflicts between different Shopware exntensions. Instead there is a central event system which is easier to use and offers a more robust public interface. In addtion, it offers special interception events, for example, to manupilate request data before it is send.
 
-3. **No imports**  
+4. **No imports**  
     We decided to make everything related to the component system available via global scope. This means it is available at the `window` object level and can directly be used in plain JavaScript. No imports or bundling is necessary. You can still use the bundling as it is avialable today or use your own build processes if desired, but the component scripts target for plain JavaScript that don't need to be build in conjuction with our core files.
 
 ## Overview
@@ -37,7 +40,7 @@ All components extend from the `ShopwareComponent` base class, which provides:
 
 The `Shopware` class acts as a singleton that:
 
-- Manages component registration.
+- Manages component loading via ES modules.
 - Handles automatic component discovery and initialization.
 - Provides methods for component communication.
 - Provices a central event system for cross component communication.
@@ -46,14 +49,11 @@ The `Shopware` class acts as a singleton that:
 
 ### Basic Component Structure
 
-The component has to extend the `ShopwareComponent` class, which is globally available.
+The component has to extend the `ShopwareComponent` class, which is globally available. The name of the component class does not have to follow a particular pattern, but the name of the script file should have the same name as your Twig component and should be located right beside the template file.
 
 ```javascript
-class MyComponent extends ShopwareComponent {
+export default class MyComponent extends ShopwareComponent {
 
-    // Define the CSS selector for automatic initialization.
-    static selector = '[data-my-component]';
-    
     // Define default options
     static options = {
         foo: 'bar',
@@ -86,39 +86,25 @@ class MyComponent extends ShopwareComponent {
         // Custom logic
     }
 }
-
-window.Shopware.registerComponent('my-component', MyComponent);
-```
-
-### Component Registration
-
-Components are registered with the global Shopware instance. You can do this simply in the same file as your component.
-
-```javascript
-// Register the component
-window.Shopware.registerComponent('my-component', MyComponent);
 ```
 
 ### Automatic Initialization
 
-To define which elements the component should be applied to, you can define a static property `selector` in your component class. The component will then automatically be initialized on elements that match the selector. This also applies to elements that might be added later to the document. You do not need to do this manually.
+Components don't have to be registered manually. If the script file of your component follows the rules of the Twig component directory structure, they are automatically loaded via ES module loading. 
 
-```javascript
-class MyComponent extends ShopwareComponent {
+Shopware generates an importmap for all components based on the Twig component tag name. On initialization, Shopware will search for all elements with a `data-component` attribute and will try to load the corresponding script file, if necessary. Just make sure to add the data attribute, including the tag name of your Twig component, to the root element of your component.
 
-    static selector = '[data-my-component]';
-    
-    init() {
-        console.log('Component automatically initialized!');
-    }
-}
+```Twig
+<div data-component="MyComponentNamespace:MyComponent"></div>
 ```
+
+When the script is loaded, Shopware will automatically initialize the component class on all elements matching the selector. This also applies to elements that might be added later. You do not need to do this manually. Shopware will observe the DOM tree and initialize components also on elements that are dynamically added to the document.
 
 ## Component Configuration
 
 ### Data Attributes
 
-Components can be configured through data attributes using the pattern `data-{component-name}-options`. For example, you can pass information form Twig into your component. The options should be passed as a JSON string.
+Components can be configured through a data attribute named `data-component-options`. For example, you can pass information form Twig into your component. The options should be passed as a JSON string.
 
 ```Twig
 
@@ -127,16 +113,16 @@ Components can be configured through data attributes using the pattern `data-{co
     test: true
 } %}
 
-<div data-my-component 
-     data-my-component-options="{{ componentOptions|json_encode }}">
+<div data-component="MyComponentNamespace:MyComponent" 
+     data-component-options="{{ componentOptions|json_encode }}">
 </div>
 ```
 
-The component name is automatically converted to dash-case for the data attribute. The passed options are merged with the default options that you define as a static property in your component class.
+The passed options are merged with the default options that you define as a static property in your component class.
 
 ## Directory Structure & Component Script Loading
 
-Component scripts are automatically loaded when the corresponding Twig component is used within the page. Your component script should have the same name as the Twig file of your component and should be placed in the same directory. Shopware will automatically collect all component script files and include them into the page if the component is used on a specific page.
+Component scripts are automatically loaded via ES module loading. Your component script should have the same name as the Twig file of your component and should be placed in the same directory. Shopware will automatically collect all component script files and generate an importmap for them. Just make sure that an element within your component template has the `data-component` attribute set.
 
 Example structure:
 
@@ -164,8 +150,8 @@ You can build the options individually from your Twig component properties and o
     jsOptions = {},
 %}
 
-<div data-my-component 
-     data-my-component-options='{{ jsOptions|json_encode }}'>
+<div data-component="MyComponentNamespace:MyComponent"
+     data-component-options='{{ jsOptions|json_encode }}'>
 
     {# Some component logic ... #}
 </div>
@@ -181,8 +167,8 @@ If you want to have an even more component-style approach, you can simply pass t
     custom = true,
 %}
 
-<div data-my-component 
-     data-my-component-options='{{ this.props|json_encode }}'>
+<div data-component="MyComponentNamespace:MyComponent"
+     data-component-options='{{ this.props|json_encode }}'>
 
     {# Some component logic ... #}
 </div>
@@ -200,7 +186,7 @@ In your component you can emit events to inform others about an action and pass 
 ```javascript
 // MyComponent.js
 
-class MyComponent extends ShopwareComponent {
+export default class MyComponent extends ShopwareComponent {
 
     // ...
 
@@ -217,7 +203,7 @@ Other components can the subscribe to this event to react on that.
 ```javascript
 // SomeOtherComponent.js
 
-class SomeOtherComponent extends ShopwareComponent {
+export default class SomeOtherComponent extends ShopwareComponent {
 
     init() {
         window.Shopware.on('MyComponent:DoSomething', (message) => {
@@ -238,7 +224,7 @@ For example the BuyButton component offers an event `BuyButton:PreSubmit` which 
 ```javascript
 // BuyButton.js
 
-class BuyButton extends ShopwareComponent {
+export default class BuyButton extends ShopwareComponent {
 
     // ...
 
@@ -248,7 +234,7 @@ class BuyButton extends ShopwareComponent {
         let requestUrl = this.el.getAttribute('action');
         let formData = window.Shopware.serializeForm(this.el);
 
-        ({ requestUrl, formData } = window.Shopware.emitInterception(`${this.componentName}:PreSubmit`, { requestUrl, formData }));
+        ({ requestUrl, formData } = window.Shopware.emitInterception('BuyButton:PreSubmit', { requestUrl, formData }));
 
         window.Shopware.emit('BuyButton:Submit', requestUrl, formData);
 
@@ -290,13 +276,13 @@ Besides the event system you can also access other component instances directly,
 
 ```javascript
 // Call a method on all instances of a component
-Shopware.callMethod('MyComponent', 'refresh');
+Shopware.callMethod('MyComponentNamespace:MyComponent', 'refresh');
 
 // Get all instances of a component
-const instances = Shopware.getComponentInstances('MyComponent');
+const instances = Shopware.getComponentInstances('MyComponentNamespace:MyComponent');
 
 // Get a specific instance by element
-const instance = Shopware.getComponentInstanceByElement('MyComponent', element);
+const instance = Shopware.getComponentInstanceByElement('MyComponentNamespace:MyComponent', element);
 ```
 
 
@@ -339,7 +325,6 @@ class ReactiveComponent extends ShopwareComponent {
 
 | Property | Description |
 |----------|-------------|
-| `selector` | CSS selector for automatic initialization |
 | `options` | Default component options |
 
 #### Instance Properties
@@ -358,6 +343,7 @@ class ReactiveComponent extends ShopwareComponent {
 | `destroy()` | Override for custom component cleanup |
 | `onContentUpdate(mutationRecord: MutationRecord)` | React to content changes |
 | `onAttributeUpdate(mutationRecord: MutationRecord)` | React to attribute changes |
+| `dispatchEvent(eventName: string, detail: Record, options: EventOptions = { cancelable: true, bubbles: true, composed: false })` | Dispatch a custom browser event on the root element of your component. |
 
 ### Shopware
 
@@ -365,12 +351,11 @@ class ReactiveComponent extends ShopwareComponent {
 
 | Method | Description |
 |--------|-------------|
-| `registerComponent(name, component)` | Register a component |
-| `unregisterComponent(name)` | Unregister a component |
 | `getComponent(name)` | Get a component class |
 | `getComponentInstances(name)` | Get all instances of a specific component |
 | `getComponentInstanceByElement(name, element)` | Get a component instance of a specific element |
 | `emit(eventName, ...args)` | Emit a global event |
+| `emitQueued(eventName, ...args)` | Emit a global event, executed at a safe time prior to control returning to the browser's event loop. |
 | `on(eventName, callback)` | Subscribe to a global event |
 | `intercept(eventName, callback, priority)` | Intercept an interception event |
 | `emitInterception(eventName, ...args)` | Emit an interceptable event |

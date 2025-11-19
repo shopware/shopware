@@ -1,7 +1,6 @@
 ({ Shopware, ShopwareComponent } = window);
 
-class ActiveFilters extends ShopwareComponent {
-    static selector = '[data-component="ActiveFilters"]';
+export default class ActiveFilters extends ShopwareComponent {
 
     init() {
         this.activeFilters = new Map();
@@ -125,6 +124,11 @@ class ActiveFilters extends ShopwareComponent {
 
         return element;
     }
-}
 
-Shopware.registerComponent('ActiveFilters', ActiveFilters);
+    destroy() {
+        this.resetAllButton.removeEventListener('click', this.resetAll.bind(this));
+
+        Shopware.off('Filter:Change', this.handleFilterChange.bind(this));
+        Shopware.off('Filter:Init', this.handleFilterInit.bind(this));
+    }
+}

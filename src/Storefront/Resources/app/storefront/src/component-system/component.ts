@@ -21,9 +21,6 @@ interface EventOptions {
  */
 class ShopwareComponent {
 
-    // Components can define a selector to be used for automatic component initialization.
-    public static selector: string|null = null;
-
     // Components can define default options which will be merged with the options passed to the constructor.
     public static options: Record<string, unknown>;
 
@@ -127,28 +124,17 @@ class ShopwareComponent {
             return dataAttributeOptions;
         }
 
-        const attributeName = this.toDashCase(this.componentName);
-        const optionsAttribute = this.el.getAttribute(`data-${attributeName}-options`);
+        const optionsAttribute = this.el.getAttribute(`data-component-options`);
 
         if (optionsAttribute) {
             try {
                 dataAttributeOptions = JSON.parse(optionsAttribute);
             } catch (error) {
-                console.error(`The data attribute "data-${attributeName}-options" could not be parsed to json.`);
+                console.error(`The data attribute "data-component-options" could not be parsed to json.`);
             }
         }
 
         return dataAttributeOptions;
-    }
-
-    /**
-     * Converts a string to dash case.
-     * 
-     * @param string - The string to convert.
-     * @returns The dash case string.
-     */
-    private toDashCase(string: string): string {
-        return string.replace(/([A-Z])/g, '-$1').replace(/^-/, '').toLowerCase();
     }
 
     /**

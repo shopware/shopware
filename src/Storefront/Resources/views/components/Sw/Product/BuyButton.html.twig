@@ -5,10 +5,10 @@
 %}
 
 {% set attributeDefaults = {
-    'data-component': 'BuyButton',
     'method': 'post',
     'action': path('frontend.checkout.line-item.add'),
-    'data-buy-button-options': jsOptions|json_encode,
+    'data-component': 'Sw:Product:BuyButton',
+    'data-component-options': jsOptions|json_encode,
 } %}
 
 {% set buyButtonCVA = cva({

@@ -1,8 +1,6 @@
 ({ Shopware, ShopwareComponent } = window);
 
-class FilterSorting extends ShopwareComponent {
-
-    static selector = '[data-component="FilterSorting"]';
+export default class FilterSorting extends ShopwareComponent {
 
     init() {
         this.registerEvents();
@@ -15,10 +13,12 @@ class FilterSorting extends ShopwareComponent {
     handleChange(event) {
         const sorting = event.target.value;
 
-        Shopware.emit(`${this.componentName}:Change`, sorting);
+        Shopware.emit(`FilterSorting:Change`, sorting);
 
-        this.dispatchEvent(`${this.componentName}:Change`, { sorting });
+        this.dispatchEvent(`FilterSorting:Change`, { sorting });
+    }
+
+    destroy() {
+        this.el.removeEventListener('change', this.handleChange.bind(this));
     }
 }
-
-Shopware.registerComponent('FilterSorting', FilterSorting);

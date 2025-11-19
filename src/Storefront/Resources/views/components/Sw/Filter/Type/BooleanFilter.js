@@ -1,7 +1,6 @@
 ({ Shopware, ShopwareComponent } = window);
 
-class BooleanFilter extends ShopwareComponent {
-    static selector = '[data-component="BooleanFilter"]';
+export default class BooleanFilter extends ShopwareComponent {
 
     init() {
         this.checkbox = this.el.querySelector('.sw-boolean-filter__input');
@@ -24,12 +23,12 @@ class BooleanFilter extends ShopwareComponent {
         let paramName = this.paramName;
         let label = this.label;
 
-        ({ paramName, value, label } = Shopware.emitInterception(`${this.componentName}:PreChange`, { paramName, value, label }));
+        ({ paramName, value, label } = Shopware.emitInterception(`BooleanFilter:PreChange`, { paramName, value, label }));
 
-        Shopware.emit(`${this.componentName}:Change`, { paramName, value, label });
+        Shopware.emit(`BooleanFilter:Change`, { paramName, value, label });
         Shopware.emit('Filter:Change', { paramName, value, label });
 
-        this.dispatchEvent(`${this.componentName}:Update`, {
+        this.dispatchEvent(`BooleanFilter:Update`, {
             paramName,
             value,
             label,
@@ -48,7 +47,7 @@ class BooleanFilter extends ShopwareComponent {
         this.checkbox.checked = value === 'true' || value === '1';
 
         if (this.checkbox.checked) {
-            Shopware.emit('Filter:Init', {
+            Shopware.emitQueued('Filter:Init', {
                 paramName: this.paramName,
                 value: true,
                 label: this.label,
@@ -60,6 +59,10 @@ class BooleanFilter extends ShopwareComponent {
         const labelEl = this.el.querySelector('label[for="' + this.checkbox.getAttribute('id') + '"]');
         return labelEl ? labelEl.textContent.trim() : this.paramName;
     }
-}
 
-Shopware.registerComponent('BooleanFilter', BooleanFilter);
+    destroy() {
+        this.checkbox.removeEventListener('change', this.handleChange.bind(this));
+
+        Shopware.off(`Filter:Remove:${this.paramName}`, this.handleFilterRemove.bind(this));
+    }
+}

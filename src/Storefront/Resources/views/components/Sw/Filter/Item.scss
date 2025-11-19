@@ -93,6 +93,9 @@
 }
 
 .sw-filter-item__count {
+    --bs-badge-padding-x: 0.5rem;
+    --bs-badge-padding-y: 0.2rem;
+
     &.is--hidden {
         display: none;
     }

@@ -216,11 +216,15 @@
                         </select>
                     {% endblock %}
 
-                    {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
-                    {% block component_address_form_salutation_select_error %}
-                        {% if formViolations.getViolations('/salutationId') is not empty %}
-                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                violationPath: '/salutationId'
+                        {% block component_address_personal_fields_salutation_select %}
+                            {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
+                                label: 'account.personalSalutationLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'personalSalutation',
+                                name: prefix ? prefix ~ '[salutationId]' : 'salutationId',
+                                options: salutationOptions,
+                                autocomplete: 'section-personal honorific-prefix',
+                                violationPath: '/salutationId',
+                                additionalClass: 'col-md-3 col-sm-6',
                             } %}
                         {% endif %}
                     {% endblock %}

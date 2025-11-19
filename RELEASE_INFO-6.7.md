@@ -1,4 +1,6 @@
 # 6.7.5.0 (upcoming)
+### More tech updates
+* ProductStream IDs added to ElasticsearchProductDefinition
 
 ## Features
 
@@ -39,6 +41,21 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 ```
 
 ## Core
+
+### Improved Store API OpenAPI documentation with field descriptions
+
+The OpenAPI schema generator for Store API endpoints now includes descriptions for entity fields, making it easier for developers to understand the available fields and their purposes.
+
+Additionally, available associations for each entity are now automatically listed in the OpenAPI operation descriptions, showing developers which relationships can be loaded.
+
+To add descriptions to fields in your custom entity definitions, use the `setDescription()` method:
+
+```php
+(new ManyToOneAssociationField('group', 'customer_group_id',
+    CustomerGroupDefinition::class, 'id', false))
+    ->addFlags(new ApiAware())
+    ->setDescription('Customer group determining pricing and permissions')
+```
 
 ### Robots.txt parsing
 A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.

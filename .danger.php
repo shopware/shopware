@@ -49,7 +49,7 @@ return (new Config())
         $files = $context->platform->pullRequest->getFiles();
 
         if ($files->matches('RELEASE_INFO-6.7.md')->count() === 0) {
-            $context->warning('The Pull Request doesn\'t contain any release info');
+            $context->warning('The Pull Request doesn\'t contain any release info, if your changes are relevant for external developers please add an entry to the release info file, including the consequences of the change and how it affects external developers.');
         }
     })
 

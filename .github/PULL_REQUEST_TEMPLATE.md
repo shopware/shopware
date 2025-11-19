@@ -28,10 +28,10 @@ If the issue exists only in Jira, include a link to the Jira issue.
 ### 5. Checklist
 
 - [ ] I have written tests and verified that they fail without my change
-- [ ] I have updated developer-facing release notes if this change affects external developers:
-  - Add a short entry to `RELEASE_INFO-6.<major>.md` under “Upcoming” for informational changes.
+- [ ] I have updated developer-facing release notes if this change is **relevant** for external developers:
+  - Add a short entry to `RELEASE_INFO-6.<major>.md` under “Upcoming” for informational changes, including the consequences of the change and how it affects external developers.
   - Add an `UPGRADE` section in `UPGRADE-6.<next-major>.md` for breaking changes (what/why/impact/how to adapt).
-  - See the [Release Notes & Changelog Process](../adr/2025-10-28-changelog-release-info-process.md) for details.
+  - See the [Release Notes & Changelog Process](https://github.com/shopware/shopware/blob/trunk/adr/2025-10-28-changelog-release-info-process.md) for details.
 - [ ] I have written or adjusted the documentation according to my changes
 - [ ] This change has comments for package types, values, functions, and non-obvious lines of code
 - [ ] I have read the contribution requirements and fulfilled them

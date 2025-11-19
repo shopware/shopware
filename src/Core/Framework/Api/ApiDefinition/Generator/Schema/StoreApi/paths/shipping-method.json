@@ -9,7 +9,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch shipping methods",
-                "description": "Perform a filtered search for shipping methods.",
+                "description": "Perform a filtered search for shipping methods.\n\n**Available Associations:**\n- `prices` - Shipping method price configurations (based on current cart and context)\n- `deliveryTime` - Delivery time information (min/max days, unit)\n- `media` - Media/images associated with the shipping method (loaded by default)\n- `availabilityRule` - Availability rule determining when this method is available\n- `tax` - Tax configuration for the shipping method\n\n**Example with associations:**\n```json\n{\n  \"associations\": {\n    \"prices\": {},\n    \"deliveryTime\": {}\n  }\n}\n```\n\nNote: The `prices` association is essential for accessing shipping cost configurations.",
                 "operationId": "readShippingMethod",
                 "parameters": [
                     {
@@ -109,7 +109,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch shipping methods",
-                "description": "Perform a filtered search for shipping methods.",
+                "description": "Perform a filtered search for shipping methods.\n\n**Available Associations:**\n- `prices` - Shipping method price configurations (graduated prices, quantity-based pricing)\n- `deliveryTime` - Delivery time information (min/max days, unit)\n- `media` - Media/images associated with the shipping method (loaded by default)\n- `availabilityRule` - Availability rule determining when this method is available\n- `tax` - Tax configuration for the shipping method\n\nNote: The `prices` association is essential for accessing shipping cost configurations.",
                 "operationId": "readShippingMethodGet",
                 "parameters": [
                     {

@@ -129,6 +129,10 @@ Example usage:
 <one-to-many name="custom_entity" reference="quote_comment" ignore-missing-reference="true" store-api-aware="false" on-delete="set-null" />
 ```
 
+### Translatable product manufacturer links
+
+The `link` property of the product manufacturer entity is now translatable.
+
 ## Administration
 
 ### URL restrictions for product and category SEO URLs
@@ -140,6 +144,11 @@ When creating a SEO URL for a product or category, the URL is now checked for av
 ### Language selector twig blocks
 
 New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added to the language selector to allow custom flag implementations.
+
+### `context.token` is no longer available in twig rendering context
+
+The `context.token` variable is no longer available in twig rendering context to prevent potential security vulnerabilities. If you need to access the token, consider using alternative methods that do not expose it in the rendered HTML.
+Usually inside the Twig storefront there is no need to handle the context token manually, as it is handled automatically via the session handling in the Storefront.
 
 ### Added specific `add-product-by-number` template
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.

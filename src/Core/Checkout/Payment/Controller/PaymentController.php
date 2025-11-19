@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Payment\Controller;
 
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentToken;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle;
@@ -23,7 +22,6 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,49 +70,17 @@ class PaymentController extends AbstractController
             throw PaymentException::missingRequestParameter('_sw_payment_token');
         }
 
-        try {
-            $token = null;
-            $oldToken = null;
-            if (Feature::isActive('v6.8.0.0')) {
-                $token = $this->paymentTokenGenerator->decode($paymentToken);
-            }
-
+        if (!Feature::isActive('v6.8.0.0')) {
             $return = null;
-            Feature::callSilentIfInactive('v6.8.0.0', function () use ($paymentToken, &$token, &$oldToken, &$return): void {
-                if (!$this->tokenFactory) {
-                    throw new ServiceNotFoundException(JWTFactoryV2::class);
-                }
-
-                $oldToken = $this->tokenFactory->parseToken($paymentToken);
-
-                $token = new PaymentToken();
-                $token->jti = $paymentToken;
-                $token->finishUrl = $oldToken->getFinishUrl();
-                $token->errorUrl = $oldToken->getErrorUrl();
-
-                if (!$oldToken->getTransactionId() || !$oldToken->getPaymentMethodId()) {
-                    $this->invalidate($token->jti);
-
-                    $return = $this->handleError(PaymentException::invalidToken($paymentToken), $token);
-
-                    return;
-                }
-
-                $token->paymentMethodId = $oldToken->getPaymentMethodId();
-                $token->transactionId = $oldToken->getTransactionId();
-
-                if ($oldToken->isExpired()) {
-                    $this->invalidate($token->jti);
-
-                    $return = $this->handleError(PaymentException::tokenExpired($paymentToken), $token);
-                }
+            Feature::silent('v6.8.0.0', function () use (&$return, $paymentToken, $request): void {
+                $return = $this->deprecatedBehavior($paymentToken, $request);
             });
 
-            if ($return !== null) {
-                return $return;
-            }
+            return $return;
+        }
 
-            \assert($token instanceof PaymentToken);
+        try {
+            $token = $this->paymentTokenGenerator->decode($paymentToken);
         } catch (JWTException $e) {
             try {
                 // try to decode without validation for graceful error handling
@@ -125,14 +91,7 @@ class PaymentController extends AbstractController
             }
 
             return $this->handleError($e, $token);
-        } catch (PaymentException $e) {
-            // @deprecated tag:v6.8.0 - remove this catch block
-            $this->invalidate($token?->jti);
-
-            throw $e;
         } catch (\Throwable $e) {
-            $this->invalidate($token?->jti);
-
             throw PaymentException::invalidToken($paymentToken, $e);
         }
 
@@ -140,10 +99,10 @@ class PaymentController extends AbstractController
             return $this->handleFinish($token);
         }
 
-        $salesChannelContext = $this->assembleSalesChannelContext($token);
+        $salesChannelContext = $this->assembleSalesChannelContext($token->transactionId, $token->jti ?? $paymentToken);
 
         try {
-            $deprecatedParameter = $oldToken ?? null;
+            $deprecatedParameter = null;
             Feature::silent('v6.8.0.0', function () use (&$deprecatedParameter): void {
                 $deprecatedParameter ??= new TokenStruct();
             });
@@ -156,13 +115,6 @@ class PaymentController extends AbstractController
                 $token,
             );
 
-            Feature::callSilentIfInactive('v6.8.0.0', function () use ($deprecatedParameter): void {
-                $exception = $deprecatedParameter->getException();
-                if ($exception) {
-                    throw $exception;
-                }
-            });
-
             return $this->handleFinish($token);
         } catch (\Throwable $e) {
             return $this->handleError($e, $token);
@@ -171,6 +123,74 @@ class PaymentController extends AbstractController
                 $this->invalidate($token->jti);
             }
         }
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove
+     */
+    private function deprecatedBehavior(string $paymentToken, Request $request): Response
+    {
+        $token = $this->tokenFactory->parseToken($paymentToken);
+
+        if (Feature::isActive('REPEATED_PAYMENT_FINALIZE') && !$this->paymentTokenLifecycle->isConsumable($token->getToken() ?? '')) {
+            $this->handleResponse($token);
+        }
+
+        if ($token->isExpired()) {
+            $token->setException(PaymentException::tokenExpired($paymentToken));
+            if ($token->getToken() !== null) {
+                $this->tokenFactory->invalidateToken($token->getToken());
+            }
+
+            return $this->handleResponse($token);
+        }
+
+        $transactionId = $token->getTransactionId();
+        if (!$transactionId) {
+            $token->setException(PaymentException::invalidToken($token->getToken() ?? ''));
+
+            return $this->handleResponse($token);
+        }
+
+        $salesChannelContext = $this->assembleSalesChannelContext($transactionId, $paymentToken);
+
+        $result = $this->paymentProcessor->finalize(
+            $token,
+            $request,
+            $salesChannelContext
+        );
+
+        return $this->handleResponse($result);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - replaced by handleSuccess and handleError
+     */
+    private function handleResponse(TokenStruct $token): Response
+    {
+        if ($token->getException() === null) {
+            $finishUrl = $token->getFinishUrl();
+            if ($finishUrl) {
+                return new RedirectResponse($finishUrl);
+            }
+
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        }
+
+        if ($token->getErrorUrl() === null) {
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        }
+
+        $url = $token->getErrorUrl();
+
+        $exception = $token->getException();
+        if ($exception instanceof ShopwareException) {
+            return new RedirectResponse(
+                $url . (parse_url($url, \PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $exception->getErrorCode()
+            );
+        }
+
+        return new RedirectResponse($url);
     }
 
     private function handleError(\Throwable $exception, ?PaymentToken $token): Response
@@ -196,17 +216,17 @@ class PaymentController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    private function assembleSalesChannelContext(PaymentToken $token): SalesChannelContext
+    private function assembleSalesChannelContext(string $transactionId, string $tokenString): SalesChannelContext
     {
         $context = Context::createDefaultContext();
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('transactions.id', $token->transactionId))
+            ->addFilter(new EqualsFilter('transactions.id', $transactionId))
             ->addAssociations(['transactions', 'orderCustomer']);
 
         $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
         if (!$order) {
-            throw PaymentException::invalidToken($token->jti ?? '');
+            throw PaymentException::invalidToken($tokenString);
         }
 
         return $this->orderConverter->assembleSalesChannelContext($order, $context);

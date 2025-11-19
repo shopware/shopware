@@ -256,6 +256,7 @@ class NavigationController extends StorefrontController
                                                         'component' => 'Sw:Content:Text',
                                                         'properties' => [
                                                             'text' => 'Hello World',
+                                                            'inline' => true,
                                                         ],
                                                     ],
                                                 ],

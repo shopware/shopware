@@ -1,5 +1,5 @@
-{# 
-@sw-package framework 
+{#
+@sw-package framework
 
 @prop name
 @prop pack = 'default'
@@ -21,36 +21,36 @@
 %}
 
 {% set iconVariants = cva({
-    base: 'icon icon-' ~ pack ~ ' icon-' ~ pack ~ '-' ~ name,
+    base: 'sw-icon sw-icon--' ~ pack ~ ' sw-icon--' ~ pack ~ '-' ~ name,
     variants: {
         size: {
-            fluid: 'icon-fluid',
-            lg: 'icon-lg',
-            sm: 'icon-sm',
-            xs: 'icon-xs',
-            '1x': 'icon-1x',
-            '2x': 'icon-2x',
-            '3x': 'icon-3x',
+            fluid: 'sw-icon--fluid',
+            lg: 'sw-icon--lg',
+            sm: 'sw-icon--sm',
+            xs: 'sw-icon--xs',
+            '1x': 'sw-icon--1x',
+            '2x': 'sw-icon--2x',
+            '3x': 'sw-icon--3x',
         },
         color: {
-            primary: 'icon-primary',
-            secondary: 'icon-secondary',
-            success: 'icon-success',
-            info: 'icon-info',
-            warning: 'icon-warning',
-            danger: 'icon-danger',
-            light: 'icon-light',
-            dark: 'icon-dark',
+            primary: 'text-primary',
+            secondary: 'text-secondary',
+            success: 'text-success',
+            info: 'text-info',
+            warning: 'text-warning',
+            danger: 'text-danger',
+            light: 'text-light',
+            dark: 'text-dark',
         },
         rotation: {
-            90: 'icon-rotate-90',
-            180: 'icon-rotate-180',
-            270: 'icon-rotate-270',
+            90: 'sw-icon--rotate-90',
+            180: 'sw-icon--rotate-180',
+            270: 'sw-icon--rotate-270',
         },
         flip: {
-            horizontal: 'icon-flip-horizontal',
-            vertical: 'icon-flip-vertical',
-            both: 'icon-flip-both',
+            horizontal: 'sw-icon--flip-horizontal',
+            vertical: 'sw-icon--flip-vertical',
+            both: 'sw-icon--flip-both',
         }
     }
 }) %}

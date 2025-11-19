@@ -28,19 +28,13 @@
     padding-right: 2.2rem;
     text-align: left;
 
-    &.btn .icon {
-        color: currentColor;
+    &.btn .sw-icon {
         width: 0.8rem;
         height: 0.8rem;
         margin-left: 0.5rem;
         position: absolute;
         right: 0.8rem;
         top: 0.7rem;
-    }
-
-    &.btn .icon > svg {
-        top: 0.2em !important;
-        fill: currentColor;
     }
 
     &.is--more {
@@ -50,13 +44,13 @@
         --bs-hover-color: var(--bs-primary);
     }
 
-    .icon-default-arrow-head-up {
+    .sw-icon--default-arrow-head-up {
         transition: all 0.3s cubic-bezier(0.65, 0, 0.35, 1);
         opacity: 0;
         transform: translateY(20px);
     }
 
-    .icon-default-arrow-head-down {
+    .sw-icon--default-arrow-head-down {
         transition: all 0.3s cubic-bezier(0.65, 0, 0.35, 1);
         opacity: 1;
         transform: translateY(0);
@@ -76,12 +70,12 @@
         border-bottom-color: var(--bs-body-bg);
         z-index: 1001;
 
-        .icon-default-arrow-head-up {
+        .sw-icon--default-arrow-head-up {
             opacity: 1;
             transform: translateY(0);
         }
 
-        .icon-default-arrow-head-down {
+        .sw-icon--default-arrow-head-down {
             opacity: 0;
             transform: translateY(-20px);
         }
@@ -99,6 +93,9 @@
 }
 
 .sw-filter-item__count {
+    --bs-badge-padding-x: 0.5rem;
+    --bs-badge-padding-y: 0.2rem;
+
     &.is--hidden {
         display: none;
     }

@@ -123,4 +123,36 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
         const relatedCustomFields = wrapper.vm.productCustomFields;
         expect(relatedCustomFields).toHaveProperty('custom_field_1');
     });
+
+    it('should show warning when filters contain product states field', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productStream = { id: 'stream-1' };
+        wrapper.vm.productStreamFilters = [
+            {
+                field: 'states',
+            },
+        ];
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showProductStatesFilterWarning).toBe(true);
+    });
+
+    it('should not show warning when filters do not contain product states', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productStream = { id: 'stream-1' };
+        wrapper.vm.productStreamFilters = [
+            {
+                field: 'stock',
+            },
+        ];
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showProductStatesFilterWarning).toBe(false);
+    });
 });

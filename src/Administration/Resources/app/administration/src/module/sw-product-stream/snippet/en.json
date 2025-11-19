@@ -120,6 +120,7 @@
         "product_visibility": "Product in Sales Channel",
         "percentage": "Percentage ratio price/list price",
         "states": "Product state",
+        "type": "Product type",
         "productStates": {
           "physical": "Physical",
           "digital": "Digital"
@@ -138,7 +139,8 @@
       "titleResult": "Product group",
       "messageSaveSuccess": "Dynamic product group \"{name}\" has been saved.",
       "messageSaveError": "Dynamic product group \"{name}\" could not be saved.",
-      "buttonOpenPreview": "Preview"
+      "buttonOpenPreview": "Preview",
+      "productStatesFilterWarning": "This dynamic product group still uses the deprecated product states filter. It will be removed in v6.8 – please switch to the product type filter instead."
     },
     "previewModal": {
       "title": "Preview",

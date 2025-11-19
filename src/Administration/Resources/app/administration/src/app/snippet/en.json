@@ -892,7 +892,7 @@
       "cartLineItemProductType": {
         "productType": {
           "options": {
-            "download": "Digital",
+            "digital": "Digital",
             "physical": "Physical"
           }
         }

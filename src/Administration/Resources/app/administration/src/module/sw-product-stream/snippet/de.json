@@ -120,6 +120,7 @@
         "product_visibility": "Produkt in Verkaufskanal",
         "percentage": "Prozentuales Verhältnis Preis/Streichpreis",
         "states": "Produktzustand",
+        "type": "Produktart",
         "productStates": {
           "physical": "Physisch",
           "digital": "Digital"
@@ -138,7 +139,8 @@
       "titleResult": "Produkte",
       "messageSaveSuccess": "Die Produktgruppe \"{name}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Die Produktgruppe \"{name}\" konnte nicht gespeichert werden.",
-      "buttonOpenPreview": "Vorschau"
+      "buttonOpenPreview": "Vorschau",
+      "productStatesFilterWarning": "Diese dynamische Produktgruppe verwendet noch den veralteten Produktzustandsfilter. Er wird mit v6.8 entfernt – bitte nutze stattdessen den Produkttyp-Filter."
     },
     "previewModal": {
       "title": "Vorschau",

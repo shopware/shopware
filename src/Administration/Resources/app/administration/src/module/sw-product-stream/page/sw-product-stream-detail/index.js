@@ -143,6 +143,14 @@ export default {
         showCustomFields() {
             return this.productStream && this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        showProductStatesFilterWarning() {
+            if (!this.productStreamFiltersTree) {
+                return false;
+            }
+
+            return this.hasProductStatesFilter(this.productStreamFiltersTree);
+        },
     },
 
     watch: {
@@ -434,6 +442,56 @@ export default {
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
             };
+        },
+
+        normalizeFilterCollection(filters) {
+            if (Array.isArray(filters)) {
+                return filters.filter(Boolean);
+            }
+
+            if (typeof filters.toArray === 'function') {
+                return filters.toArray();
+            }
+
+            if (typeof filters.map === 'function') {
+                return filters.map((filter) => filter);
+            }
+
+            if (typeof filters[Symbol.iterator] === 'function') {
+                return [...filters];
+            }
+
+            return [];
+        },
+
+        hasProductStatesFilter(filters) {
+            return this.normalizeFilterCollection(filters).some((condition) => {
+                if (!condition) {
+                    return false;
+                }
+
+                if (this.isDeprecatedProductStatesField(condition.field)) {
+                    return true;
+                }
+
+                if (condition.queries && this.hasProductStatesFilter(condition.queries)) {
+                    return true;
+                }
+
+                if (condition.children && this.hasProductStatesFilter(condition.children)) {
+                    return true;
+                }
+
+                return false;
+            });
+        },
+
+        isDeprecatedProductStatesField(field) {
+            if (!field || typeof field !== 'string') {
+                return false;
+            }
+
+            return field === 'states' || field === 'product.states';
         },
     },
 };

@@ -651,7 +651,10 @@ export default {
             ]);
 
             // set product "type"
-            Shopware.Store.get('swProductDetail').creationStates = this.creationStates;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                Shopware.Store.get('swProductDetail').creationStates = this.creationStates;
+            }
+
             Shopware.Store.get('swProductDetail').creationType = this.creationType;
 
             // create empty product

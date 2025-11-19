@@ -153,6 +153,15 @@
                     :class="{ 'is--disabled': !acl.can('product_stream.editor') }"
                     :title="$tc('sw-product-stream.detail.titleFilter')"
                 >
+                    <div
+                        v-if="showProductStatesFilterWarning"
+                        class="sw-product-stream-detail__product-type-warning"
+                    >
+                        <mt-banner variant="attention">
+                            {{ $tc('sw-product-stream.detail.productStatesFilterWarning') }}
+                        </mt-banner>
+                    </div>
+
                     {% block sw_product_stream_detail_filter_tree %}
                     <sw-condition-tree
                         v-if="productStream"

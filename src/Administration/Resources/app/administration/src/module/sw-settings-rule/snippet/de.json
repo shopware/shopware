@@ -103,6 +103,7 @@
         "message": "Die Bedingung „Position in dynamischer Produktgruppe” wird nie zutreffen.",
         "action": "Mehr dazu in unserer Dokumentation"
       },
+      "productStatesConditionWarning": "Die Bedingung \"Position mit Produktzustand\" ist veraltet und wird mit v6.8 entfernt. Bitte nutze stattdessen \"Position mit Produkttyp\".",
       "tabGeneral": "Allgemein",
       "tabAssignments": "Zuweisungen",
       "buttonAddAssignment":  "Zuweisung hinzufügen",

@@ -14,6 +14,7 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'filterFactory',
     ],
 
     mixins: [
@@ -25,6 +26,16 @@ export default {
             items: null,
             isLoading: false,
             sortBy: 'status,createdAt',
+            defaultFilters: [
+                'sales-channel-filter',
+                'status-filter',
+                'language-filter',
+                'customer-filter',
+                'product-filter',
+                'points-filter',
+            ],
+            storeKey: 'grid.filter.product_review',
+            activeFilterNumber: 0,
         };
     },
 
@@ -35,6 +46,83 @@ export default {
     },
 
     computed: {
+        listFilterOptions() {
+            return {
+                'sales-channel-filter': {
+                    property: 'salesChannel',
+                    label: this.$tc('sw-review.filters.salesChannelFilter.label'),
+                    placeholder: this.$tc('sw-review.filters.salesChannelFilter.placeholder'),
+                    criteria: this.salesChannelCriteria,
+                },
+                'status-filter': {
+                    property: 'status',
+                    type: 'boolean-filter',
+                    label: this.$tc('sw-review.filters.statusFilter.label'),
+                    optionTrue: this.$tc('sw-review.filters.statusFilter.labelActive'),
+                    optionFalse: this.$tc('sw-review.filters.statusFilter.labelInactive'),
+                },
+                'language-filter': {
+                    property: 'language',
+                    label: this.$tc('sw-review.filters.languageFilter.label'),
+                    placeholder: this.$tc('sw-review.filters.languageFilter.placeholder'),
+                    criteria: this.languageCriteria,
+                },
+                'customer-filter': {
+                    property: 'customer',
+                    label: this.$tc('sw-review.filters.customerFilter.label'),
+                    placeholder: this.$tc('sw-review.filters.customerFilter.placeholder'),
+                    criteria: this.customerCriteria,
+                    labelProperty: 'email',
+                },
+                'product-filter': {
+                    property: 'product',
+                    label: this.$tc('sw-review.filters.productFilter.label'),
+                    placeholder: this.$tc('sw-review.filters.productFilter.placeholder'),
+                    criteria: this.productCriteria,
+                },
+                'points-filter': {
+                    property: 'points',
+                    type: 'number-filter',
+                    label: this.$tc('sw-review.filters.pointsFilter.label'),
+                    fromFieldLabel: null,
+                    toFieldLabel: null,
+                    fromPlaceholder: this.$tc('global.default.from'),
+                    toPlaceholder: this.$tc('global.default.to'),
+                },
+            };
+        },
+
+        listFilters() {
+            return this.filterFactory.create('product_review', this.listFilterOptions);
+        },
+
+        salesChannelCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name'));
+
+            return criteria;
+        },
+
+        languageCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name'));
+
+            return criteria;
+        },
+
+        customerCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            return criteria;
+        },
+
+        productCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name'));
+
+            return criteria;
+        },
+
         columns() {
             return [
                 {
@@ -84,10 +172,12 @@ export default {
         },
 
         criteria() {
-            const criteria = new Criteria(this.page, this.limit)
-                .setTerm(this.term)
-                .addAssociation('customer')
-                .addAssociation('product');
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.setTerm(this.term);
+            criteria.addAssociation('customer');
+            criteria.addAssociation('product');
+            criteria.addAssociation('salesChannel');
+            criteria.addAssociation('language');
 
             this.sortBy.split(',').forEach((sorting) => {
                 criteria.addSorting(Criteria.sort(sorting, this.sortDirection, this.naturalSorting));
@@ -113,8 +203,12 @@ export default {
             this.getList();
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
+
+            const criteria = await Shopware.Service('filterService').mergeWithStoredFilters(this.storeKey, this.criteria);
+
+            this.activeFilterNumber = criteria.filters.length;
 
             const context = {
                 ...Shopware.Context.api,
@@ -122,7 +216,7 @@ export default {
             };
 
             return this.repository
-                .search(this.criteria, context)
+                .search(criteria, context)
                 .then((result) => {
                     this.total = result.total;
                     this.items = result;
@@ -130,6 +224,12 @@ export default {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        updateCriteria(criteria) {
+            this.page = 1;
+            this.criteria.filters = criteria;
+            this.getList();
         },
 
         onDelete(option) {

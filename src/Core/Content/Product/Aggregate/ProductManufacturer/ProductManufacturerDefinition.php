@@ -57,10 +57,9 @@ class ProductManufacturerDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the Product Manufacturer.'),
             (new VersionField())->addFlags(new ApiAware()),
+            (new StringField('link', 'link'))->addFlags(new ApiAware()),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of the media.'),
-            (new StringField('link', 'link'))->addFlags(new ApiAware())->setDescription('URL of the manufacturer\'s portal.'),
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
-            (new TranslatedField('link'))->addFlags(new ApiAware()),
+            (new TranslatedField('link'))->addFlags(new ApiAware())->setDescription('URL of the manufacturer\'s portal.'),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('description'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Payment\Controller;
 
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentToken;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -75,6 +77,7 @@ class PaymentController extends AbstractController
             Feature::silent('v6.8.0.0', function () use (&$return, $paymentToken, $request): void {
                 $return = $this->deprecatedBehavior($paymentToken, $request);
             });
+            \assert($return instanceof Response);
 
             return $return;
         }
@@ -130,6 +133,10 @@ class PaymentController extends AbstractController
      */
     private function deprecatedBehavior(string $paymentToken, Request $request): Response
     {
+        if ($this->tokenFactory === null) {
+            throw new ServiceNotFoundException(JWTFactoryV2::class);
+        }
+
         $token = $this->tokenFactory->parseToken($paymentToken);
 
         if (Feature::isActive('REPEATED_PAYMENT_FINALIZE') && !$this->paymentTokenLifecycle->isConsumable($token->getToken() ?? '')) {

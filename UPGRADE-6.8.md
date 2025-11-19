@@ -399,6 +399,12 @@ Using request attributes:
 Script\Api\ResponseCacheConfiguration::maxAge()` and
 `\Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration::invalidationState()` were removed with no replacement.
 
+## Removal of product manufacturer link column
+
+The column `link` of the table `product_manufacturer` was removed.
+
+Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
+
 </details>
 
 # Administration

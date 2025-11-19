@@ -45,7 +45,12 @@ shopware:
         default: false
         major: false
         toggleable: true
-        description: "Only include rule ids which are relevant for different content in the HTTP cache context key."
+        description: "Deprecated! Not used anymore, use the `CACHE_REWORK` feature flag instead."
+      - name: CACHE_REWORK
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Enable new caching, includes following breaking changes: Only include rule ids which are relevant for different content in the HTTP cache context key; Remove cache states and cache pages for logged in customers or when the cart is filled by default; Enable caching for Store-API."
       - name: DEFERRED_CART_ERRORS
         default: false
         major: false

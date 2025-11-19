@@ -106,7 +106,7 @@ Example usage:
 
 ### Translatable product manufacturer links
 
-The `link` property of product manufacturer can now be set depending on the language.
+The `link` property of the product manufacturer entity is now translatable.
 
 ## Administration
 

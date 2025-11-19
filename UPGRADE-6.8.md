@@ -365,10 +365,9 @@ new DomainRuleStruct($parsed, '/en');
 
 ## Removal of product manufacturer link column
 
-The column `product_manufacturer`.`link` was migrated to `product_manufacturer_translation.link` and then removed.
+The column `link` of the table `product_manufacturer` was removed.
 
-If you're using `manufacturer.link`, please use `manufacturer.translated.link` instead.
-
+Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
 
 </details>
 

@@ -82,7 +82,6 @@ class PaymentController extends AbstractController
             $return = null;
             Feature::callSilentIfInactive('v6.8.0.0', function () use ($paymentToken, &$token, &$oldToken, &$return): void {
                 if (!$this->tokenFactory) {
-                    // @phpstan-ignore-next-line
                     throw new ServiceNotFoundException(JWTFactoryV2::class);
                 }
 

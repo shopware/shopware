@@ -228,7 +228,6 @@ class PaymentProcessor
     private function getOldToken(OrderTransactionEntity $transaction, ?string $finishUrl, ?string $errorUrl, SalesChannelContext $salesChannelContext): string
     {
         if (!$this->tokenFactory) {
-            // @phpstan-ignore-next-line
             throw new ServiceNotFoundException(JWTFactoryV2::class);
         }
 

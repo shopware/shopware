@@ -277,4 +277,95 @@ class JWTGeneratorTest extends TestCase
         static::assertArrayHasKey(RegisteredClaims::NOT_BEFORE, $vars);
         static::assertArrayHasKey(RegisteredClaims::EXPIRATION_TIME, $vars);
     }
+
+    public function testDecodeReturnsStructWhenValidationDisabled(): void
+    {
+        // create a configuration and sign a token that would normally fail validation
+        $config = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText(Random::getAlphanumericString(32)));
+
+        $now = new \DateTimeImmutable();
+        $token = $config->builder()
+            ->issuedAt($now)
+            ->canOnlyBeUsedAfter($now)
+            ->expiresAt($now->modify('+1 hour'))
+            ->identifiedBy('id-disable')
+            ->permittedFor('wrong-aud')
+            ->relatedTo('sub-disable')
+            ->issuedBy('iss-disable')
+            ->withClaim('foo', 'bar')
+            ->getToken($config->signer(), $config->signingKey());
+
+        // Set validation constraints that would fail (aud mismatch)
+        $config = $config->withValidationConstraints(
+            new SignedWith($config->signer(), $config->verificationKey()),
+            new LooseValidAt(SystemClock::fromUTC()),
+            new PermittedFor('expected-aud')
+        );
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator->expects($this->never())->method('validate');
+
+        $jwtStructClass = (new class extends JWTStruct {
+            public string $foo;
+        })::class;
+
+        $generator = new class($config, $dataValidator, $jwtStructClass) extends JWTGenerator {
+            /**
+             * @param class-string<JWTStruct> $jwtStructClass
+             */
+            public function __construct(
+                Configuration $configuration,
+                DataValidator $validator,
+                private readonly string $jwtStructClass
+            ) {
+                parent::__construct($configuration, $validator);
+            }
+
+            protected function getJWTStructClass(): string
+            {
+                return $this->jwtStructClass;
+            }
+        };
+
+        // disable validation; should return struct despite the failing constraints
+        $result = $generator->decode($token->toString(), true);
+        static::assertInstanceOf($jwtStructClass, $result);
+
+        $vars = $result->getVars();
+        static::assertSame('bar', $vars['foo'] ?? null);
+        static::assertSame('iss-disable', $vars[RegisteredClaims::ISSUER] ?? null);
+    }
+
+    public function testDecodeThrowsOnInvalidTokenParseException(): void
+    {
+        $config = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText(Random::getAlphanumericString(32)));
+        $dataValidator = $this->createMock(DataValidator::class);
+
+        $jwtStructClass = (new class extends JWTStruct {
+        })::class;
+
+        $generator = new class($config, $dataValidator, $jwtStructClass) extends JWTGenerator {
+            /**
+             * @param class-string<JWTStruct> $jwtStructClass
+             */
+            public function __construct(
+                Configuration $configuration,
+                DataValidator $validator,
+                private readonly string $jwtStructClass
+            ) {
+                parent::__construct($configuration, $validator);
+            }
+
+            protected function getJWTStructClass(): string
+            {
+                return $this->jwtStructClass;
+            }
+        };
+
+        $this->expectException(JWTException::class);
+        $this->expectExceptionMessageMatches('/Failed to parse JWT/');
+
+        // invalid token that will cause the parser to throw
+        $generator->decode('abc');
+    }
 }

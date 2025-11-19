@@ -16,6 +16,8 @@ class AssignTestStruct extends Struct
 {
     use EntityIdTrait;
 
+    protected string $_uniqueIdentifier;
+
     /**
      * @var mixed
      */
@@ -27,6 +29,8 @@ class AssignTestStruct extends Struct
     protected ?float $float = null;
 
     protected ?string $string = null;
+
+    protected string $notNullableString;
 
     protected ?bool $bool = null;
 
@@ -86,6 +90,11 @@ class AssignTestStruct extends Struct
         $this->string = $value;
     }
 
+    public function setNotNullableString(string $value): void
+    {
+        $this->notNullableString = $value;
+    }
+
     /**
      * @param array<mixed>|null $value
      */
@@ -99,7 +108,7 @@ class AssignTestStruct extends Struct
         $this->date = $value;
     }
 
-    public function setStdClass(?\stdClass $value): void
+    public function setStdClass(\stdClass $value): void
     {
         $this->stdClass = $value;
     }
@@ -157,6 +166,11 @@ class AssignTestStruct extends Struct
     public function getString(): ?string
     {
         return $this->string;
+    }
+
+    public function getNotNullableString(): string
+    {
+        return $this->notNullableString;
     }
 
     public function getBool(): ?bool

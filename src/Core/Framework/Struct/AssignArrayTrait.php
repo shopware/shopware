@@ -17,11 +17,9 @@ trait AssignArrayTrait
      */
     public function assign(array $options/* , bool $recursive = false */)
     {
-        $recursive = \func_num_args() > 2 && func_get_arg(1);
+        $recursive = \func_num_args() >= 2 && func_get_arg(1);
         if ($recursive || Feature::isActive('v6.8.0.0')) {
-            $this->assignRecursive($options);
-
-            return $this;
+            return $this->assignRecursive($options);
         }
 
         foreach ($options as $key => $value) {
@@ -48,10 +46,6 @@ trait AssignArrayTrait
     private function assignRecursive(array $options): self
     {
         foreach ($options as $key => $value) {
-            if ($value === null || $value === []) {
-                continue;
-            }
-
             $propertyName = self::denormalize((string) $key);
             if (!\property_exists($this, $propertyName)) {
                 continue;
@@ -59,7 +53,10 @@ trait AssignArrayTrait
 
             try {
                 $property = new \ReflectionProperty($this, $propertyName);
-                if (!$type = $property->getType()) {
+                if ($value === null
+                    || $value === []
+                    || !($type = $property->getType())
+                ) {
                     $this->assignValue($propertyName, $value);
 
                     continue;
@@ -73,10 +70,11 @@ trait AssignArrayTrait
 
                 if (\is_array($value) && $className = $this->getPropertyClassType([$type], Struct::class)) {
                     $struct = (new \ReflectionClass($className))
-                        ->newInstanceWithoutConstructor()
-                        ->assign($value, true);
+                        ->newInstanceWithoutConstructor();
 
-                    $this->assignValue($propertyName, $struct);
+                    if ($struct instanceof Struct) {
+                        $this->assignValue($propertyName, $struct->assign($value, true));
+                    }
 
                     continue;
                 }
@@ -110,12 +108,21 @@ trait AssignArrayTrait
         $setterMethod = \sprintf('set%s', \ucfirst($propertyName));
 
         if (\method_exists($this, $setterMethod)) {
-            // @phpstan-ignore method.dynamicName (We allow dynamic setter call of all properties)
-            $this->{$setterMethod}($value);
-        } else {
-            // @phpstan-ignore property.dynamicName (We allow dynamic assignment of all properties)
-            $this->{$propertyName} = $value;
+            try {
+                // @phpstan-ignore method.dynamicName (We allow dynamic setter call of all properties)
+                $this->{$setterMethod}($value);
+
+                return;
+            } catch (\Error|\Exception $e) {
+                // Inconsistent nullable setter. Use dynamic property access instead
+                if ($value !== null) {
+                    throw $e;
+                }
+            }
         }
+
+        // @phpstan-ignore property.dynamicName (We allow dynamic assignment of all properties)
+        $this->{$propertyName} = $value;
     }
 
     /**

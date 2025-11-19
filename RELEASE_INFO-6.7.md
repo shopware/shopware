@@ -1,4 +1,6 @@
 # 6.7.5.0 (upcoming)
+### More tech updates
+* ProductStream IDs added to ElasticsearchProductDefinition
 
 ## Features
 
@@ -11,6 +13,10 @@ Now, tax rules are applied **correctly** based on the customer type.
 ### Robots.txt configuration
 The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard.
 For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
+
+### Scheduled Task for cleaning up corrupted media entries
+A new scheduled task `media.cleanup_corrupted_media` has been introduced.
+It detects and removes corrupted media records, such as entries created by interrupted or failed file uploads that have no corresponding file on the filesystem.
 
 ## API
 
@@ -35,6 +41,21 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 ```
 
 ## Core
+
+### Improved Store API OpenAPI documentation with field descriptions
+
+The OpenAPI schema generator for Store API endpoints now includes descriptions for entity fields, making it easier for developers to understand the available fields and their purposes.
+
+Additionally, available associations for each entity are now automatically listed in the OpenAPI operation descriptions, showing developers which relationships can be loaded.
+
+To add descriptions to fields in your custom entity definitions, use the `setDescription()` method:
+
+```php
+(new ManyToOneAssociationField('group', 'customer_group_id',
+    CustomerGroupDefinition::class, 'id', false))
+    ->addFlags(new ApiAware())
+    ->setDescription('Customer group determining pricing and permissions')
+```
 
 ### Robots.txt parsing
 A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.
@@ -80,6 +101,10 @@ See below for the explicit replacements:
 + $fileName = \ReflectionClass(MyClass::class)->getFileName();
 ```
 
+### New constraint to check for existing routes
+
+The new constraint `\Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlocked` checks if a route is available or already taken by another part of the application.
+
 ### Multiple payment finalize calls allowed
 
 With the feature flag `REPEATED_PAYMENT_FINALIZE`, the `/payment-finalize` endpoint can now be called multiple times using the same payment token.
@@ -110,11 +135,20 @@ The `link` property of the product manufacturer entity is now translatable.
 
 ## Administration
 
+### URL restrictions for product and category SEO URLs
+
+When creating a SEO URL for a product or category, the URL is now checked for availability. Before it was possible to override existing URLs like `account` or `maintenance` with SEO URLs. Existing URLs are now blocked to be used as SEO URLs.
+
 ## Storefront
 
 ### Language selector twig blocks
 
 New extensible Twig blocks `layout_header_actions_language_widget_content_inner` and `layout_header_actions_languages_widget_form_items_flag_inner` have been added to the language selector to allow custom flag implementations.
+
+### `context.token` is no longer available in twig rendering context
+
+The `context.token` variable is no longer available in twig rendering context to prevent potential security vulnerabilities. If you need to access the token, consider using alternative methods that do not expose it in the rendered HTML.
+Usually inside the Twig storefront there is no need to handle the context token manually, as it is handled automatically via the session handling in the Storefront.
 
 ### Added specific `add-product-by-number` template
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.

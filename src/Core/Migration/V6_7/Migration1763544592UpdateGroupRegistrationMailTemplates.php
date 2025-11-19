@@ -28,7 +28,7 @@ class Migration1763544592UpdateGroupRegistrationMailTemplates extends MigrationS
         $filesystem = new Filesystem();
 
         $update = new MailUpdate(
-            MailTemplateTypes::MAILTYPE_ORDER_CONFIRM,
+            MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_ACCEPTED,
             $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/en-plain.html.twig'),
             $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/en-html.html.twig'),
             $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/de-plain.html.twig'),
@@ -37,7 +37,7 @@ class Migration1763544592UpdateGroupRegistrationMailTemplates extends MigrationS
         $this->updateMail($update, $connection);
 
         $update = new MailUpdate(
-            MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID,
+            MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_DECLINED,
             $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/en-plain.html.twig'),
             $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/en-html.html.twig'),
             $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/de-plain.html.twig'),

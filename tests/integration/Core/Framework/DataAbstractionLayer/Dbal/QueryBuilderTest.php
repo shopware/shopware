@@ -1,14 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -17,14 +16,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(QueryBuilder::class)]
 class QueryBuilderTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     private QueryBuilder $queryBuilder;
 
     protected function setUp(): void
     {
-        $driver = $this->createMock(Driver::class);
-        $driver->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
-
-        $this->queryBuilder = new QueryBuilder(new Connection([], $driver));
+        $this->queryBuilder = new QueryBuilder(self::getContainer()->get(Connection::class));
     }
 
     /**
@@ -47,12 +45,12 @@ class QueryBuilderTest extends TestCase
             ->setParameter('id', Uuid::randomHex())
             ->setTitle($title);
 
-        $result = $this->queryBuilder->executeQuery()->fetchOne();
-        static::assertNotFalse($result);
+        $this->queryBuilder->executeQuery()->fetchOne();
 
         $sql = $this->queryBuilder->getSQL();
         $matches = [];
         preg_match('/-- (.+)\n/', $sql, $matches);
+        static::assertArrayHasKey(1, $matches);
         static::assertSame($title, $matches[1]);
     }
 }

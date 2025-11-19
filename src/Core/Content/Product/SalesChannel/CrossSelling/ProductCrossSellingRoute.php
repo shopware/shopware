@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -69,7 +70,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         path: '/store-api/product/{productId}/cross-selling',
         name: 'store-api.product.cross-selling',
         methods: [Request::METHOD_POST, Request::METHOD_GET],
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => 'product', PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {

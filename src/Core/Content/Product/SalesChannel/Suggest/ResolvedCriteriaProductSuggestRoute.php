@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Suggest;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
@@ -43,7 +44,7 @@ class ResolvedCriteriaProductSuggestRoute extends AbstractProductSuggestRoute
         path: '/store-api/search-suggest',
         name: 'store-api.search.suggest',
         methods: [Request::METHOD_POST, Request::METHOD_GET],
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => 'product', PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME  , PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {

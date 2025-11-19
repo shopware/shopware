@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -49,7 +50,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         path: '/store-api/product/{productId}/reviews',
         name: 'store-api.product-review.list',
         methods: [Request::METHOD_POST, Request::METHOD_GET],
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => 'product_review', PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductReviewDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {

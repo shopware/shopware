@@ -44,6 +44,10 @@ Selected Store API routes now support HTTP caching with `Cache-Control` headers:
 
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
+### Store API: compressed criteria parameter support
+Criteria be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. Please check
+  the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
+
 ### Add the possibility to specify indexer in context
 
 When you want to specify which indexer should run, you can add the `EntityIndexerRegistry::EXTENSION_INDEXER_ONLY` extension to the context as follows:

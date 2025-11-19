@@ -37,17 +37,11 @@ class Shopware extends EventEmitter {
     // Registry to store all registered components.
     private componentRegistry: Map<string, typeof ShopwareComponent>;
 
-    // Registry to store all selectors for automatic component initialization.
-    private selectorRegistry: Map<string, string>;
-
     // Registry to store all component instances.
     private instanceRegistry: Array<ComponentRegistryEntry>;
 
     // Registry to store all interception events.
     private interceptionRegistry: Map<string, InterceptionRegistryEntry[]>;
-
-    // Flag to check if the shopware instance is loaded.
-    private loaded: boolean = false;
 
     constructor() {
         super();
@@ -55,7 +49,6 @@ class Shopware extends EventEmitter {
         this.setMaxListeners(50)
 
         this.componentRegistry = new Map();
-        this.selectorRegistry = new Map();
         this.instanceRegistry = [];
 
         this.interceptionRegistry = new Map();
@@ -65,7 +58,6 @@ class Shopware extends EventEmitter {
 
         document.addEventListener('DOMContentLoaded', () => {
             this.initializeComponents();
-            this.loaded = true;
         });
 
         // Singleton
@@ -322,7 +314,7 @@ class Shopware extends EventEmitter {
             componentQueue.set(componentName, loadComponent);
         }
 
-        await Promise.all(Array.from(componentQueue.values()));
+        await Promise.allSettled(Array.from(componentQueue.values()));
 
         for (const element of componentElements) {
             const componentName = element.getAttribute('data-component');
@@ -337,6 +329,8 @@ class Shopware extends EventEmitter {
 
             this.initializeComponentOnElement(componentName, component, element);
         }
+
+        this.emitQueued('Components:Initialized');
     }
 
     /**

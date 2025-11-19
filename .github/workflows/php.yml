@@ -54,9 +54,6 @@ jobs:
       - name: Code Style
         run: composer run ecs
 
-      - name: Lint Changelogs
-        run: composer run lint:changelog
-
       - name: Lint Snippets
         run: composer run lint:snippets
 
@@ -123,6 +120,8 @@ jobs:
 
   openapi-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
     env:
       APP_ENV: prod
       APP_URL: http://localhost:8000
@@ -166,12 +165,11 @@ jobs:
           retention-days: 1
 
       - name: Run OpenAPI Snapshot Action
-        uses: patzick/explore-openapi-snapshot@5d02271994580c9e65222c55a6f3dfe19522de05 # v1.1.0
+        if: github.repository == 'shopware/shopware'
+        uses: patzick/explore-openapi-snapshot@7ea174b327803e6d4b5cfe98c3044edf011a874b # v2.0.0
         with:
           schema-file: "./api-types/storeApiSchema.json"
-          project: "shopware-store-api"
-          auth-token: ${{ secrets.EXPLORE_OPENAPI_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          project: "shopware/store-api"
 
       - name: Generate StoreAPI schema
         run: |
@@ -233,6 +231,7 @@ jobs:
           php-version: 8.4
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          keep-composer-tools: true
 
       - name: Start Webserver
         run: symfony server:start -d

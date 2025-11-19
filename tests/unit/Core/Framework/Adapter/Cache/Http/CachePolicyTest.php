@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlDirectives;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
 
 /**
@@ -12,144 +14,67 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
 #[CoversClass(CachePolicy::class)]
 class CachePolicyTest extends TestCase
 {
-    public function testToArray(): void
-    {
-        $policy = new CachePolicy(
-            public: true,
-            maxAge: 600,
-            sMaxAge: 3600,
-            staleWhileRevalidate: 60,
-            staleIfError: 300
-        );
-
-        $array = $policy->toArray();
-
-        static::assertSame([
-            'public' => true,
-            'max_age' => 600,
-            's_maxage' => 3600,
-            'stale_while_revalidate' => 60,
-            'stale_if_error' => 300,
-        ], $array);
-    }
-
-    public function testToArrayWithAllDirectives(): void
-    {
-        $policy = new CachePolicy(
-            public: true,
-            private: false,
-            noCache: true,
-            noStore: true,
-            noTransform: true,
-            mustRevalidate: true,
-            proxyRevalidate: true,
-            immutable: true,
-            maxAge: 600,
-            sMaxAge: 3600,
-            staleWhileRevalidate: 60,
-            staleIfError: 300
-        );
-
-        $array = $policy->toArray();
-
-        static::assertSame([
-            'public' => true,
-            'private' => false,
-            'no_cache' => true,
-            'no_store' => true,
-            'no_transform' => true,
-            'must_revalidate' => true,
-            'proxy_revalidate' => true,
-            'immutable' => true,
-            'max_age' => 600,
-            's_maxage' => 3600,
-            'stale_while_revalidate' => 60,
-            'stale_if_error' => 300,
-        ], $array);
-    }
-
     public function testFromArray(): void
     {
         $data = [
-            'public' => true,
-            'no_cache' => false,
-            'max_age' => 1800,
-            's_maxage' => 7200,
+            'headers' => [
+                'cache_control' => [
+                    'public' => true,
+                    'no_cache' => false,
+                    'max_age' => 1800,
+                    's_maxage' => 7200,
+                ],
+            ],
         ];
 
         $policy = CachePolicy::fromArray($data);
 
-        static::assertTrue($policy->public);
-        static::assertFalse($policy->noCache);
-        static::assertSame(1800, $policy->maxAge);
-        static::assertSame(7200, $policy->sMaxAge);
-        static::assertNull($policy->private);
+        static::assertTrue($policy->cacheControl->public);
+        static::assertFalse($policy->cacheControl->noCache);
+        static::assertSame(1800, $policy->cacheControl->maxAge);
+        static::assertSame(7200, $policy->cacheControl->sMaxAge);
+        static::assertNull($policy->cacheControl->private);
     }
 
-    public function testFromArrayWithAllDirectives(): void
+    public function testFromArrayThrowsException(): void
     {
-        $data = [
-            'public' => true,
-            'private' => false,
-            'no_cache' => true,
-            'no_store' => true,
-            'no_transform' => true,
-            'must_revalidate' => true,
-            'proxy_revalidate' => true,
-            'immutable' => true,
-            'max_age' => 600,
-            's_maxage' => 3600,
-            'stale_while_revalidate' => 60,
-            'stale_if_error' => 300,
-        ];
-
-        $policy = CachePolicy::fromArray($data);
-
-        static::assertTrue($policy->public);
-        static::assertFalse($policy->private);
-        static::assertTrue($policy->noCache);
-        static::assertTrue($policy->noStore);
-        static::assertTrue($policy->noTransform);
-        static::assertTrue($policy->mustRevalidate);
-        static::assertTrue($policy->proxyRevalidate);
-        static::assertTrue($policy->immutable);
-        static::assertSame(600, $policy->maxAge);
-        static::assertSame(3600, $policy->sMaxAge);
-        static::assertSame(60, $policy->staleWhileRevalidate);
-        static::assertSame(300, $policy->staleIfError);
+        self::expectExceptionObject(AdapterException::invalidCachePolicyConfiguration('missing required "headers.cache_control" configuration'));
+        /** @phpstan-ignore argument.type (testing a wrong array shape here) */
+        CachePolicy::fromArray([
+            'headers' => [],
+        ]);
     }
 
     public function testWith(): void
     {
         $policy = new CachePolicy(
+            cacheControl: new CacheControlDirectives(
+                public: false,
+                noStore: true,
+            )
+        );
+
+        $cacheControl = new CacheControlDirectives(
             public: true,
             maxAge: 600,
-            sMaxAge: 3600
         );
 
         $newPolicy = $policy->with(
-            [
-                'public' => false,
-                'max_age' => 1200,
-                'no_store' => true,
-            ]
+            cacheControl: $cacheControl,
         );
 
-        static::assertFalse($newPolicy->public);
-        static::assertSame(1200, $newPolicy->maxAge);
-        static::assertSame(3600, $newPolicy->sMaxAge);
-        static::assertTrue($newPolicy->noStore);
+        static::assertSame($cacheControl, $newPolicy->cacheControl);
     }
 
     public function testNoCache(): void
     {
         $policy = CachePolicy::noCache();
 
-        static::assertFalse($policy->public);
-        static::assertTrue($policy->private);
-        static::assertTrue($policy->noStore);
-        static::assertTrue($policy->mustRevalidate);
-        static::assertSame(0, $policy->maxAge);
-        static::assertSame(0, $policy->sMaxAge);
+        static::assertFalse($policy->cacheControl->public);
+        static::assertTrue($policy->cacheControl->private);
+        static::assertTrue($policy->cacheControl->noStore);
+        static::assertTrue($policy->cacheControl->mustRevalidate);
+        static::assertSame(0, $policy->cacheControl->maxAge);
+        static::assertSame(0, $policy->cacheControl->sMaxAge);
     }
 }

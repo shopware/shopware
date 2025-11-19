@@ -1016,18 +1016,30 @@
                         "type": "object",
                         "additionalProperties": false,
                         "properties": {
-                            "public": { "type": "boolean" },
-                            "private": { "type": "boolean" },
-                            "no_cache": { "type": "boolean" },
-                            "no_store": { "type": "boolean" },
-                            "no_transform": { "type": "boolean" },
-                            "must_revalidate": { "type": "boolean" },
-                            "proxy_revalidate": { "type": "boolean" },
-                            "immutable": { "type": "boolean" },
-                            "max_age": { "type": "integer", "minimum": 0 },
-                            "s_maxage": { "type": "integer", "minimum": 0 },
-                            "stale_while_revalidate": { "type": "integer", "minimum": 0 },
-                            "stale_if_error": { "type": "integer", "minimum": 0 }
+                            "headers": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "cache_control": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "public": { "type": "boolean" },
+                                            "private": { "type": "boolean" },
+                                            "no_cache": { "type": "boolean" },
+                                            "no_store": { "type": "boolean" },
+                                            "no_transform": { "type": "boolean" },
+                                            "must_revalidate": { "type": "boolean" },
+                                            "proxy_revalidate": { "type": "boolean" },
+                                            "immutable": { "type": "boolean" },
+                                            "max_age": { "type": "integer", "minimum": 0 },
+                                            "s_maxage": { "type": "integer", "minimum": 0 },
+                                            "stale_while_revalidate": { "type": "integer", "minimum": 0 },
+                                            "stale_if_error": { "type": "integer", "minimum": 0 }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     "title": "Named cache control policies"

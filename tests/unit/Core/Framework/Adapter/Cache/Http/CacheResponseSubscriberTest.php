@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider;
+use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProviderFactory;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\DefaultPolicies;
@@ -45,6 +46,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type CachePolicyConfig from CachePolicy
+ * @phpstan-import-type DefaultPoliciesConfig from DefaultPolicies
+ * @phpstan-import-type CacheAttributeType from CacheAttribute
  */
 #[CoversClass(CacheResponseSubscriber::class)]
 #[CoversClass(HttpCacheCookieEvent::class)]
@@ -475,15 +480,21 @@ class CacheResponseSubscriberTest extends TestCase
     public function testNotCacheablePages(Request $request): void
     {
         $policyProvider = $this->createCachePolicyProvider(
-            policies: [
-                'uncacheable-policy' => new CachePolicy(
-                    noCache: true,
-                    private: true,
-                ),
+            [
+                'uncacheable-policy' => [
+                    'headers' => [
+                        'cache_control' => [
+                            'no_cache' => true,
+                            'private' => true,
+                        ],
+                    ],
+                ],
             ],
-            defaultPolicies: [
-                'storefront' => new DefaultPolicies(null, 'uncacheable-policy'),
-            ],
+            [
+                'storefront' => [
+                    'uncacheable' => 'uncacheable-policy',
+                ],
+            ]
         );
 
         $subscriber = new CacheResponseSubscriber(
@@ -589,15 +600,21 @@ class CacheResponseSubscriberTest extends TestCase
         $cartService->method('getCart')->willReturn($cart);
 
         $policyProvider = $this->createCachePolicyProvider(
-            policies: [
-                'uncacheable-policy' => new CachePolicy(
-                    noCache: true,
-                    private: true,
-                ),
+            [
+                'uncacheable-policy' => [
+                    'headers' => [
+                        'cache_control' => [
+                            'no_cache' => true,
+                            'private' => true,
+                        ],
+                    ],
+                ],
             ],
-            defaultPolicies: [
-                'storefront' => new DefaultPolicies(null, 'uncacheable-policy'),
-            ],
+            [
+                'storefront' => [
+                    'uncacheable' => 'uncacheable-policy',
+                ],
+            ]
         );
 
         $subscriber = new CacheResponseSubscriber(
@@ -638,7 +655,10 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 
-    #[DisabledFeatures(['HTTP_CACHE_POLICIES'])]
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
     public function testMakeGetsCached(): void
     {
         $subscriber = new CacheResponseSubscriber(
@@ -858,7 +878,14 @@ class CacheResponseSubscriberTest extends TestCase
 
     /**
      * @param array<string, mixed> $requestResponseOptions
-     * @param array<string, mixed> $subscriberConfig
+     * @param array{
+     *     policies?: array<string, CachePolicyConfig>,
+     *     defaultPolicies?: array<string, DefaultPoliciesConfig>,
+     *     routePolicies?: array<string, string>,
+     *     defaultTtl?: int,
+     *     staleWhileRevalidate?: string|null,
+     *     staleIfError?: string|null
+     * } $subscriberConfig
      */
     #[DataProvider('cachePoliciesAppliedProvider')]
     public function testCachePoliciesApplied(
@@ -866,21 +893,10 @@ class CacheResponseSubscriberTest extends TestCase
         array $subscriberConfig,
         string $expectedCacheControl,
     ): void {
-        // Convert array-based policies to objects
-        $policies = [];
-        foreach ($subscriberConfig['policies'] ?? [] as $name => $directives) {
-            $policies[$name] = CachePolicy::fromArray($directives);
-        }
-
-        $defaultPolicies = [];
-        foreach ($subscriberConfig['defaultPolicies'] ?? [] as $area => $defaults) {
-            $defaultPolicies[$area] = DefaultPolicies::fromArray($defaults);
-        }
-
         $policyProvider = $this->createCachePolicyProvider(
-            policies: $policies,
-            routePolicies: $subscriberConfig['routePolicies'] ?? [],
-            defaultPolicies: $defaultPolicies,
+            $subscriberConfig['policies'] ?? [],
+            $subscriberConfig['defaultPolicies'] ?? [],
+            $subscriberConfig['routePolicies'] ?? [],
         );
 
         $subscriber = new CacheResponseSubscriber(
@@ -903,7 +919,7 @@ class CacheResponseSubscriberTest extends TestCase
             if ($key === '_method') {
                 $request->setMethod($value);
             } elseif ($key === 'responseOriginalCacheControl') {
-                $response->headers->set('cache-control', $requestResponseOptions['responseOriginalCacheControl']);
+                $response->headers->set('cache-control', $value);
             } else {
                 $request->attributes->set($key, $value);
             }
@@ -928,9 +944,16 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return iterable<array{
+     * @return iterable<string, array{
      *      requestResponseOptions: array<string, mixed>,
-     *      subscriberConfig: array<string, mixed>,
+     *      subscriberConfig: array{
+     *          policies?: array<string, CachePolicyConfig>,
+     *          defaultPolicies?: array<string, DefaultPoliciesConfig>,
+     *          routePolicies?: array<string, string>,
+     *          defaultTtl?: int,
+     *          staleWhileRevalidate?: string|null,
+     *          staleIfError?: string|null
+     *      },
      *      expectedCacheControl: string
      *  }>
      */
@@ -945,18 +968,50 @@ class CacheResponseSubscriberTest extends TestCase
 
         $basePolicies = [
             'p_default' => [
-                'public' => true,
-                's_maxage' => 200,
+                'headers' => [
+                    'cache_control' => [
+                        'public' => true,
+                        's_maxage' => 200,
+                    ],
+                ],
             ],
             'p_storefront' => [
-                'public' => true,
-                's_maxage' => 100,
+                'headers' => [
+                    'cache_control' => [
+                        'public' => true,
+                        's_maxage' => 100,
+                    ],
+                ],
             ],
             'no_cache_private' => [
-                'private' => true,
-                'no_cache' => true,
-                'max_age' => 0,
-                's_maxage' => 0,
+                'headers' => [
+                    'cache_control' => [
+                        'private' => true,
+                        'no_cache' => true,
+                        'max_age' => 0,
+                        's_maxage' => 0,
+                    ],
+                ],
+            ],
+            // route specific policy
+            'p_route' => [
+                'headers' => [
+                    'cache_control' => [
+                        'public' => true,
+                        's_maxage' => 300,
+                        'stale_while_revalidate' => 10,
+                    ],
+                ],
+            ],
+            // scripts policy with modifier
+            'p_script_blog' => [
+                'headers' => [
+                    'cache_control' => [
+                        'public' => true,
+                        's_maxage' => 600,
+                        'stale_while_revalidate' => 20,
+                    ],
+                ],
             ],
         ];
 
@@ -991,18 +1046,7 @@ class CacheResponseSubscriberTest extends TestCase
             ]),
             'subscriberConfig' => [
                 'defaultTtl' => 100,
-                'policies' => array_merge($basePolicies, [
-                    'p_route' => [
-                        'public' => true,
-                        's_maxage' => 300,
-                        'stale_while_revalidate' => 10,
-                    ],
-                    'p_script_blog' => [
-                        'public' => true,
-                        's_maxage' => 600,
-                        'stale_while_revalidate' => 20,
-                    ],
-                ]),
+                'policies' => $basePolicies,
                 'defaultPolicies' => $defaultPolicies,
                 'routePolicies' => [
                     'frontend.script_endpoint' => 'p_route',
@@ -1021,13 +1065,7 @@ class CacheResponseSubscriberTest extends TestCase
             ]),
             'subscriberConfig' => [
                 'defaultTtl' => 100,
-                'policies' => array_merge($basePolicies, [
-                    'p_route' => [
-                        'public' => true,
-                        's_maxage' => 300,
-                        'stale_while_revalidate' => 10,
-                    ],
-                ]),
+                'policies' => $basePolicies,
                 'defaultPolicies' => $defaultPolicies,
                 'routePolicies' => [
                     'frontend.script_endpoint' => 'p_route',
@@ -1071,13 +1109,7 @@ class CacheResponseSubscriberTest extends TestCase
             ]),
             'subscriberConfig' => [
                 'defaultTtl' => 100,
-                'policies' => array_merge($basePolicies, [
-                    'p_route' => [
-                        'public' => true,
-                        's_maxage' => 300,
-                        'stale_while_revalidate' => 10,
-                    ],
-                ]),
+                'policies' => $basePolicies,
                 'defaultPolicies' => $defaultPolicies,
                 'routePolicies' => [
                     'store-api.product.search' => 'p_route',
@@ -1123,7 +1155,10 @@ class CacheResponseSubscriberTest extends TestCase
         ];
     }
 
-    #[DisabledFeatures(['HTTP_CACHE_POLICIES'])]
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
     public function testStoreApiBehavesLikeStorefrontWithoutFeatureFlag(): void
     {
         $cartService = $this->createMock(CartService::class);
@@ -1183,15 +1218,21 @@ class CacheResponseSubscriberTest extends TestCase
         $cartService->method('getCart')->willReturn($cart);
 
         $policyProvider = $this->createCachePolicyProvider(
-            policies: [
-                'store_api_policy' => new CachePolicy(
-                    public: true,
-                    sMaxAge: 100,
-                ),
+            [
+                'store_api_policy' => [
+                    'headers' => [
+                        'cache_control' => [
+                            'public' => true,
+                            's_maxage' => 100,
+                        ],
+                    ],
+                ],
             ],
-            defaultPolicies: [
-                'store_api' => new DefaultPolicies('store_api_policy'),
-            ],
+            [
+                'store_api' => [
+                    'cacheable' => 'store_api_policy',
+                ],
+            ]
         );
 
         $subscriber = new CacheResponseSubscriber(
@@ -1241,15 +1282,21 @@ class CacheResponseSubscriberTest extends TestCase
         $cartService->method('getCart')->willReturn($cart);
 
         $policyProvider = $this->createCachePolicyProvider(
-            policies: [
-                'store_api_policy' => new CachePolicy(
-                    public: true,
-                    sMaxAge: 100,
-                ),
+            [
+                'store_api_policy' => [
+                    'headers' => [
+                        'cache_control' => [
+                            'public' => true,
+                            's_maxage' => 100,
+                        ],
+                    ],
+                ],
             ],
-            defaultPolicies: [
-                'store_api' => new DefaultPolicies('store_api_policy'),
-            ],
+            [
+                'store_api' => [
+                    'cacheable' => 'store_api_policy',
+                ],
+            ]
         );
 
         $subscriber = new CacheResponseSubscriber(
@@ -1290,16 +1337,16 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<string, CachePolicy> $policies
-     * @param array<string, string> $routePolicies
-     * @param array<string, DefaultPolicies> $defaultPolicies
+     * @param array<string, CachePolicyConfig> $policiesConfig
+     * @param array<string, string> $routePoliciesConfig
+     * @param array<string, DefaultPoliciesConfig> $defaultPoliciesConfig
      */
     private function createCachePolicyProvider(
-        array $policies = [],
-        array $routePolicies = [],
-        array $defaultPolicies = []
+        array $policiesConfig = [],
+        array $defaultPoliciesConfig = [],
+        array $routePoliciesConfig = [],
     ): CachePolicyProvider {
-        return new CachePolicyProvider($policies, $routePolicies, $defaultPolicies);
+        return CachePolicyProviderFactory::create($policiesConfig, $routePoliciesConfig, $defaultPoliciesConfig);
     }
 
     private function createResponseEvent(Request $request, Response $response): ResponseEvent

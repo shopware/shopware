@@ -248,7 +248,7 @@ class UpsertAddressRouteTest extends TestCase
         $addressRepository = $this->createMock(EntityRepository::class);
         $addressRepository
             ->method('searchIds')
-            ->willReturn(new IdSearchResult(1, [['data' => ['address-1'], 'primaryKey' => 'address-1']], new Criteria(), Context::createDefaultContext()));
+            ->willReturn(new IdSearchResult(1, ['address-1' => ['data' => [], 'primaryKey' => 'address-1']], new Criteria(), Context::createDefaultContext()));
 
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setId('test');

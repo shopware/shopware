@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Value object extended for cache attribute in request
  *
- * @phpstan-type CacheAttributeArray array{maxAge?: int, states?: list<string> }
+ * @phpstan-type CacheAttributeArray array{ clientMaxAge?: int, sharedMaxAge?: int, maxAge?: int, states?: list<string> }
  * @phpstan-type CacheAttributeType CacheAttributeArray|true|CacheAttribute
  *
  * @internal
@@ -26,5 +26,37 @@ readonly class CacheAttribute
          */
         public ?array $states = null,
     ) {
+    }
+
+    /**
+     * @param CacheAttributeArray $attributeValue
+     */
+    public static function fromArray(array $attributeValue): self
+    {
+        return new self(
+            maxAge: $attributeValue['clientMaxAge'] ?? null,
+            sMaxAge: $attributeValue['sharedMaxAge'] ?? $attributeValue['maxAge'] ?? null,
+            states: $attributeValue['states'] ?? null,
+        );
+    }
+
+    /**
+     * @param CacheAttributeType $attributeValue
+     */
+    public static function fromAttributeValue(array|bool|CacheAttribute|null $attributeValue): ?self
+    {
+        if ($attributeValue === null || $attributeValue === false) {
+            return null;
+        }
+
+        if ($attributeValue === true) {
+            return new self();
+        }
+
+        if ($attributeValue instanceof CacheAttribute) {
+            return $attributeValue;
+        }
+
+        return self::fromArray($attributeValue);
     }
 }

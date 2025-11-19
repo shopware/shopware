@@ -84,14 +84,14 @@ class SearchKeywordUpdaterTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
+        /** @var Criteria<array<string, string>> $criteria */
         $criteria = new Criteria();
 
         // Delete sales channel de-DE language associations to ensure only default language is used to create keywords.
         $criteria->addFilter(new EqualsFilter('languageId', $this->getDeDeLanguageId()));
 
-        /** @var list<array<string, string>> $salesChannalLanguageIds */
-        $salesChannalLanguageIds = $this->salesChannelLanguageRepository->searchIds($criteria, $context)->getIds();
-        $this->salesChannelLanguageRepository->delete($salesChannalLanguageIds, $context);
+        $salesChannelLanguageIds = $this->salesChannelLanguageRepository->searchIds($criteria, $context)->getIds();
+        $this->salesChannelLanguageRepository->delete($salesChannelLanguageIds, $context);
 
         $this->productRepository->create([$productData], Context::createDefaultContext());
 

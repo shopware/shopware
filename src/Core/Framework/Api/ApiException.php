@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
@@ -201,15 +202,23 @@ class ApiException extends HttpException
     }
 
     /**
-     * @param string[] $fails
+     * @param list<string> $fails
      */
     public static function expectationFailed(array $fails): ShopwareHttpException
     {
         return new ExpectationFailedException($fails);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public static function invalidSyncOperation(string $message): ShopwareHttpException
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+        );
+
         return new InvalidSyncOperationException($message);
     }
 

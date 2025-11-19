@@ -61,8 +61,15 @@ shopware:
         major: true
         toggleable: true
         description: "This allows repeated calls to the /payment/finalize-transaction endpoint with the same token without throwing a 'token expired' exception."
-      - name: HTTP_CACHE_POLICIES
+
+      - name: METEOR_TEXT_EDITOR
         default: false
         major: false
         toggleable: true
-        description: "Enables cache headers logic for store-api.\nThis feature will be standard as of v6.8.0"
+        description: "Enables the Meteor text editor in the administration."
+
+      - name: CACHE_REWORK
+        default: false
+        major: false
+        toggleable: true
+        description: "Enables updated cache logic (cache policies, store api caching).\nThis feature will be standard as of v6.8.0"

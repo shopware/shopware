@@ -84,13 +84,15 @@ readonly class CachePolicyProvider
     {
         $overrides = [];
         if (
-            $cacheAttribute->maxAge !== null && $policy->maxAge !== null) { // don't allow adding max-age to a policy that doesn't have it
+            $cacheAttribute->maxAge !== null && $policy->cacheControl->maxAge !== null) { // don't allow adding max-age to a policy that doesn't have it
             $overrides['max_age'] = $cacheAttribute->maxAge;
         }
-        if ($cacheAttribute->sMaxAge !== null && $policy->sMaxAge !== null) { // don't allow adding s-maxage to a policy that doesn't have it
+        if ($cacheAttribute->sMaxAge !== null && $policy->cacheControl->sMaxAge !== null) { // don't allow adding s-maxage to a policy that doesn't have it
             $overrides['s_maxage'] = $cacheAttribute->sMaxAge;
         }
 
-        return $policy->with($overrides);
+        return $policy->with(
+            cacheControl: $policy->cacheControl->with($overrides),
+        );
     }
 }

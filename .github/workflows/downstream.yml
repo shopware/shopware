@@ -24,13 +24,15 @@ jobs:
     steps:
       - id: sts
         continue-on-error: true
-        uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # 1.0.2
+        uses: shopware/octo-sts-action@main
         with:
           scope: shopware
           identity: ShopwareDownstream
       - name: Rufus
         uses: shopware/github-actions/downstream@main
         if: steps.sts.outputs.token
+        env:
+            NEW_LOGIC: 1
         with:
           repo: shopware/rufus
           workflow: .github/workflows/downstream.yml
@@ -39,20 +41,22 @@ jobs:
           token: ${{ steps.sts.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
-  
+
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
     steps:
       - id: sts
         continue-on-error: true
-        uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # 1.0.2
+        uses: shopware/octo-sts-action@main
         with:
           scope: shopware
           identity: ShopwareDownstream
       - name: Commercial
         uses: shopware/github-actions/downstream@main
         if: steps.sts.outputs.token
+        env:
+            NEW_LOGIC: 1
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream

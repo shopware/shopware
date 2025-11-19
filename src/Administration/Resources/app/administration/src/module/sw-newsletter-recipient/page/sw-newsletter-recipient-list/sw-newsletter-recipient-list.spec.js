@@ -188,7 +188,6 @@ async function createWrapper(options = {}, customStubs = {}) {
                 'sw-label': true,
                 'router-link': true,
                 'sw-sidebar-item': true,
-                'sw-newsletter-recipient-filter-switch': true,
                 'sw-sidebar-collapse': true,
                 'sw-entity-multi-select': true,
                 'sw-sidebar': true,

@@ -3,11 +3,7 @@ import './sw-newsletter-recipient-list.scss';
 
 const {
     Mixin,
-    /**
-     * @deprecated tag:v6.8.0 - EntityCollection will be removed
-     */
-    // eslint-disable-next-line no-unused-vars
-    Data: { Criteria, EntityCollection },
+    Data: { Criteria },
 } = Shopware;
 
 /**
@@ -91,10 +87,10 @@ export default {
 
         statusData() {
             return [
-                { value: 'notSet', label: Shopware.Snippet.tc('sw-newsletter-recipient.list.notSet') },
-                { value: 'direct', label: Shopware.Snippet.tc('sw-newsletter-recipient.list.direct') },
-                { value: 'optIn', label: Shopware.Snippet.tc('sw-newsletter-recipient.list.optIn') },
-                { value: 'optOut', label: Shopware.Snippet.tc('sw-newsletter-recipient.list.optOut') },
+                { value: 'notSet', label: this.$t('sw-newsletter-recipient.list.notSet') },
+                { value: 'direct', label: this.$t('sw-newsletter-recipient.list.direct') },
+                { value: 'optIn', label: this.$t('sw-newsletter-recipient.list.optIn') },
+                { value: 'optOut', label: this.$t('sw-newsletter-recipient.list.optOut') },
             ];
         },
     },

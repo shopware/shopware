@@ -299,12 +299,20 @@
 
                     <div class="sw-cms-el-config-product-slider__tab-settings-rotate-config has--two-elements">
                         {% block sw_cms_element_product_slider_config_settings_rotate %}
-                        <sw-switch-field
-                            v-model:value="element.config.rotate.value"
-                            class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
-                            :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
-                            bordered
-                        />
+                        <sw-cms-inherit-wrapper
+                            field="rotate"
+                            :element="element"
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-switch
+                                    v-model="element.config.rotate.value"
+                                    class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
+                                    :label="$t('sw-cms.elements.general.config.label.autoSlide')"
+                                    :disabled="isInherited"
+                                    bordered
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
                         {% endblock %}
 
                         {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}

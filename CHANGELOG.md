@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.4.2
+*  [#13416 - Improve shop id verification when used with atomic deployments](./changelog/release-6-7-4-2/2025-11-05-improve-shop-id-verification.md)
+*  [https://github.com/shopware/shopware/issues/13305 - Fix positioning of partial review stars](https://github.com/shopware/shopware/issues/13305)
+*  [https://github.com/shopware/shopware/issues/13387 - Add missing system services (Storefront Analytics / Google Analytics)](https://github.com/shopware/shopware/issues/13387)
+*  [https://github.com/shopware/shopware/issues/13434 - Fix: blocked shipping method not switched](https://github.com/shopware/shopware/issues/13434)
+*  [https://github.com/shopware/shopware/issues/13321 - Fix: changing the default address during guest checkout results in a 403 Forbidden error](https://github.com/shopware/shopware/issues/13321)
+
 ## 6.7.4.1
 * [GHSA-2w46-vq8h-98vh](https://github.com/shopware/shopware/security/advisories/GHSA-2w46-vq8h-98vh) - fix: password recovery not expiring on email change
 

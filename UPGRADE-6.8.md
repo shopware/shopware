@@ -363,6 +363,12 @@ $parsed = $parser->parse('Disallow: /admin/', $context);
 new DomainRuleStruct($parsed, '/en');
 ```
 
+## Removal of product manufacturer link column
+
+The column `link` of the table `product_manufacturer` was removed.
+
+Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
+
 </details>
 
 # Administration

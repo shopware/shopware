@@ -216,7 +216,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
     {
         $ruleAreas = $this->ruleResolver->resolveRuleAreas($request, $context);
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             $ruleIds = $context->getRuleIdsByAreas($ruleAreas);
         } else {
             $ruleIds = $context->getRuleIds();

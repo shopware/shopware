@@ -215,7 +215,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     #[DataProvider('providerCurrencyChange')]
-    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
     /**
      * @deprecated tag:v6.8.0 - can be removed as currency cookie is no longer used
      */
@@ -252,7 +252,7 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'currency' => [Defaults::CURRENCY];
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
     public function testStatesGetDeletedOnEmptyState(): void
     {
         $request = new Request();
@@ -351,7 +351,7 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'not found response' => [$salesChannelRequest, new Response('', Response::HTTP_NOT_FOUND)];
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
     public function testNoCachingWhenInvalidateStateMatches(): void
     {
         $cart = new Cart('test');

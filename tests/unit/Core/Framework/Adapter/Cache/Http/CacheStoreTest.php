@@ -62,7 +62,7 @@ class CacheStoreTest extends TestCase
         static::assertEqualsWithDelta(time() + 3, $value, 1);
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
     public function testWriteDoesNotWriteCacheIfCacheStateIsInvalid(): void
     {
         $request = new Request();
@@ -118,7 +118,7 @@ class CacheStoreTest extends TestCase
         $store->write($request, $response);
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
     public function testWriteWithSoftPurgeEnabledDeprecated(): void
     {
         $request = new Request();
@@ -209,7 +209,7 @@ class CacheStoreTest extends TestCase
         static::assertSame(['tag1', 'tag2'], $cacheData['tags']);
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
     public function testWriteWithSoftPurgeDisabledDeprecated(): void
     {
         $request = new Request();
@@ -292,7 +292,7 @@ class CacheStoreTest extends TestCase
         static::assertInstanceOf(Response::class, $cacheData);
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
     public function testLookupWithSoftPurgeAndStaleCacheDeprecated(): void
     {
         $request = new Request();
@@ -391,7 +391,7 @@ class CacheStoreTest extends TestCase
         static::assertCount(1, $bus->getMessages());
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
     public function testLookupWithSoftPurgeAndFreshCacheDeprecated(): void
     {
         $request = new Request();

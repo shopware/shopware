@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CacheControlListenerTest extends TestCase
 {
     #[DataProvider('headerCases')]
-    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_CONTEXT_HASH_RULES_OPTIMIZATION'])]
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
     public function testResponseHeadersDeprecated(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
     {
         $response = new Response();

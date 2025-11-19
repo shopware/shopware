@@ -6,7 +6,9 @@
     <services>
         <service id="Shopware\Core\Framework\Routing\RequestTransformerInterface"
                  class="Shopware\Core\Framework\Routing\RequestTransformer"
-                 public="true"/>
+                 public="true">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader"/>
+        </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\FallbackController" public="true">
             <call method="setContainer">

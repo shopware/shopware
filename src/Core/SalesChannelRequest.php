@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 final class SalesChannelRequest
 {
     public const ATTRIBUTE_IS_SALES_CHANNEL_REQUEST = '_is_sales_channel';
+    public const ATTRIBUTE_IS_STORE_API_REQUEST = '_is_store_api';
 
     public const ATTRIBUTE_THEME_ID = 'theme-id';
     public const ATTRIBUTE_THEME_NAME = 'theme-name';
@@ -15,7 +16,12 @@ final class SalesChannelRequest
 
     public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE = 'sw-maintenance';
 
-    public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST = 'sw-maintenance-ip-whitelist';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITELIST instead.
+     */
+    public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST = self::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITELIST;
+
+    public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITELIST = 'sw-maintenance-ip-whitelist';
 
     /**
      * domain-resolved attributes

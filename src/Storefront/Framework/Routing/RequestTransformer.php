@@ -7,11 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader as CoreDomainLoader;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @phpstan-import-type Domain from AbstractDomainLoader
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
 #[Package('framework')]
@@ -91,7 +91,7 @@ class RequestTransformer implements RequestTransformerInterface
         private readonly RequestTransformerInterface $decorated,
         private readonly AbstractSeoResolver $resolver,
         private readonly array $registeredApiPrefixes,
-        private readonly AbstractDomainLoader $domainLoader
+        private readonly CoreDomainLoader $domainLoader
     ) {
     }
 
@@ -103,11 +103,12 @@ class RequestTransformer implements RequestTransformerInterface
             return $this->decorated->transform($request);
         }
 
-        $salesChannel = $this->findSalesChannel($request);
+        $salesChannel = $this->domainLoader->findDomain($request);
+
         if ($salesChannel === null) {
             // this class and therefore the "isSalesChannelRequired" method is currently not extendable
             // which can cause problems when adding custom paths
-            throw new SalesChannelMappingException($request->getUri());
+            throw StorefrontFrameworkException::salesChannelMappingNotFound($request->getUri());
         }
 
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
@@ -185,7 +186,7 @@ class RequestTransformer implements RequestTransformerInterface
         );
 
         $transformedRequest->attributes->set(
-            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST,
+            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITELIST,
             $salesChannel['maintenanceIpWhitelist']
         );
 
@@ -237,62 +238,18 @@ class RequestTransformer implements RequestTransformerInterface
         $pathInfo = '/' . trim($pathInfo, '/') . '/';
 
         foreach ($this->registeredApiPrefixes as $apiPrefix) {
-            if (str_starts_with($pathInfo, '/' . $apiPrefix . '/')) {
+            if (str_contains($pathInfo, '/' . $apiPrefix . '/')) {
                 return false;
             }
         }
 
         foreach (self::DOES_NOT_REQUIRE_SALESCHANNEL as $prefix) {
-            if (str_starts_with($pathInfo, $prefix)) {
+            if (str_contains($pathInfo, $prefix)) {
                 return false;
             }
         }
 
         return true;
-    }
-
-    /**
-     * @return Domain|null
-     */
-    private function findSalesChannel(Request $request): ?array
-    {
-        $domains = $this->domainLoader->load();
-
-        if (empty($domains)) {
-            return null;
-        }
-
-        // domain urls and request uri should be in same format, all with trailing slash
-        $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
-
-        // direct hit
-        if (\array_key_exists($requestUrl, $domains)) {
-            $domain = $domains[$requestUrl];
-            $domain['url'] = rtrim($domain['url'], '/');
-
-            return $domain;
-        }
-
-        // reduce shops to which base url is the beginning of the request
-        $domains = array_filter($domains, fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl), \ARRAY_FILTER_USE_KEY);
-
-        if (empty($domains)) {
-            return null;
-        }
-
-        // determine most matching shop base url
-        $lastBaseUrl = '';
-        $bestMatch = current($domains);
-        foreach ($domains as $baseUrl => $urlConfig) {
-            if (mb_strlen($baseUrl) > mb_strlen($lastBaseUrl)) {
-                $bestMatch = $urlConfig;
-                $lastBaseUrl = $baseUrl;
-            }
-        }
-
-        $bestMatch['url'] = rtrim($bestMatch['url'], '/');
-
-        return $bestMatch;
     }
 
     /**

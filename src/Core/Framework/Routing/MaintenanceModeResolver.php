@@ -49,7 +49,7 @@ class MaintenanceModeResolver
      */
     private static function getIps(Request $request): array
     {
-        $whitelist = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST) ?? '';
+        $whitelist = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITELIST) ?? '';
 
         /** @var list<string> $allowedIps */
         $allowedIps = Json::decodeToList((string) $whitelist);

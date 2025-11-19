@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\CachedDomainLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;

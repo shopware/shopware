@@ -10,6 +10,8 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,6 +30,8 @@ class ProductDetailRouteTest extends TestCase
 
     private IdsCollection $ids;
 
+    private AbstractDomainLoader $domainLoader;
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
@@ -36,6 +40,7 @@ class ProductDetailRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
 
+        $this->domainLoader = $this->getContainer()->get(DomainLoader::class);
         $this->createData();
     }
 
@@ -102,11 +107,15 @@ class ProductDetailRouteTest extends TestCase
             'apiAlias' => 'converted_unit_set',
         ], $response['product']['measurements']);
 
+        $domain = $this->domainLoader->findDomain($this->browser->getRequest());
+        static::assertNotNull($domain);
+        static::assertArrayHasKey('id', $domain);
+
         // change the default unit to imperial
-        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
-        $salesChannelRepository->update([
+        $salesChannelDomainRepository = static::getContainer()->get('sales_channel_domain.repository');
+        $salesChannelDomainRepository->update([
             [
-                'id' => $this->ids->get('sales-channel'),
+                'id' => $domain['id'],
                 'measurementUnits' => [
                     'system' => 'imperial',
                     'units' => [

@@ -19,8 +19,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,11 +47,13 @@ class StorefrontRoutingTest extends TestCase
 
     protected function setUp(): void
     {
+        $domainLoader = static::getContainer()->get(DomainLoader::class);
+
         $this->requestTransformer = new RequestTransformer(
-            new CoreRequestTransformer(),
+            new CoreRequestTransformer($domainLoader),
             static::getContainer()->get(SeoResolver::class),
             static::getContainer()->getParameter('shopware.routing.registered_api_prefixes'),
-            static::getContainer()->get(DomainLoader::class)
+            $domainLoader
         );
 
         $this->seoUrlReplacer = static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);

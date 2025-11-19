@@ -133,6 +133,15 @@ Example usage:
 
 The `link` property of the product manufacturer entity is now translatable.
 
+### Enrich store-api requests with sales channel domain information and more
+
+The Store API request context now includes additional information about the sales channel domain, such as the domain ID, language ID, and currency ID.
+Also a new flag `\Shopware\Core\SalesChannelRequest::ATTRIBUTE_IS_STORE_API_REQUEST`(`_is_store_api`) is set to the request attribute to indicate if the request was made via the Store API.
+
+### Move Storefront DomainLoader to core
+
+The service `Shopware\Storefront\Framework\Routing\DomainLoader` has been moved from the Storefront to the Core namespace `Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader` to make it accessible for other parts of the system, the core `DomainLoader` will also dispatch a new event `\Shopware\Core\System\SalesChannel\SalesChannelDomain\SalesChannelDomainQueryEvent` so that the loaded domains can be modified.
+
 ## Administration
 
 ### URL restrictions for product and category SEO URLs

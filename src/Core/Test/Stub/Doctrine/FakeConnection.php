@@ -7,6 +7,8 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Shopware\Core\Framework\Log\Package;
@@ -43,5 +45,10 @@ class FakeConnection extends Connection
     public function createQueryBuilder(): QueryBuilder|FakeQueryBuilder
     {
         return new FakeQueryBuilder($this, $this->dbRows);
+    }
+
+    public function getDatabasePlatform(): AbstractPlatform
+    {
+        return new SQLitePlatform();
     }
 }

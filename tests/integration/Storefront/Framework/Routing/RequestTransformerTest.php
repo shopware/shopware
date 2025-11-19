@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Test\Framework\Routing\Helper\ExpectedRequest;
@@ -43,11 +43,13 @@ class RequestTransformerTest extends TestCase
         /** @var list<string> $registeredApiPrefixes */
         $registeredApiPrefixes = static::getContainer()->getParameter('shopware.routing.registered_api_prefixes');
 
+        $domainLoader = static::getContainer()->get(DomainLoader::class);
+
         $this->requestTransformer = new RequestTransformer(
-            new CoreRequestTransformer(),
+            new CoreRequestTransformer($domainLoader),
             static::getContainer()->get(SeoResolver::class),
             $registeredApiPrefixes,
-            static::getContainer()->get(DomainLoader::class)
+            $domainLoader
         );
 
         $this->deLanguageId = $this->getDeDeLanguageId();

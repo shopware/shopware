@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
+namespace Shopware\Tests\Unit\Core\System\SalesChannel\SalesChannelDomain;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -10,8 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
-use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
-use Shopware\Storefront\Framework\Routing\CachedDomainLoaderInvalidator;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\CachedDomainLoader;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\CachedDomainLoaderInvalidator;
 use Shopware\Tests\Unit\Storefront\Theme\MockedCacheInvalidator;
 
 /**

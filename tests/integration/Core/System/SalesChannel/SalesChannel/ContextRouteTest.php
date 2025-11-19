@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -29,6 +31,8 @@ class ContextRouteTest extends TestCase
 
     private IdsCollection $ids;
 
+    private AbstractDomainLoader $domainLoader;
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
@@ -36,6 +40,8 @@ class ContextRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
+
+        $this->domainLoader = $this->getContainer()->get(DomainLoader::class);
     }
 
     public function testFetchingContext(): void
@@ -139,6 +145,14 @@ class ContextRouteTest extends TestCase
                 '/store-api/context'
             );
 
+        $domain = $this->domainLoader->findDomain($this->browser->getRequest());
+
+        static::assertNotNull($domain);
+        static::assertArrayHasKey('url', $domain);
+        static::assertSame('http://localhost', $domain['url']);
+        static::assertArrayHasKey('id', $domain);
+        static::assertIsString($domain['id']);
+
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -160,11 +174,11 @@ class ContextRouteTest extends TestCase
             ],
         ];
 
-        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+        $salesChannelDomainRepository = static::getContainer()->get('sales_channel_domain.repository');
 
-        $salesChannelRepository->update([
+        $salesChannelDomainRepository->update([
             [
-                'id' => $this->ids->get('sales-channel'),
+                'id' => $domain['id'],
                 'measurementUnits' => $measurementSystem,
             ],
         ], Context::createDefaultContext());

@@ -197,8 +197,11 @@ class CategoryRouteTest extends TestCase
         $this->createDomains($context);
 
         $this->browser->request(
-            'POST',
-            '/store-api/category/' . $this->ids->get('category'),
+            method: 'POST',
+            uri: '/store-api/category/' . $this->ids->get('category'),
+            server: [
+                'HTTP_sw-language-id' => self::LANGUAGE_IDS[$actual['activeLanguageCode']],
+            ],
         );
 
         $this->assertLandingPageCmsPage(
@@ -237,8 +240,11 @@ class CategoryRouteTest extends TestCase
         $this->createDomainsWithSystemDefaultParent($context);
 
         $this->browser->request(
-            'POST',
-            '/store-api/category/' . $this->ids->get('category'),
+            method: 'POST',
+            uri: '/store-api/category/' . $this->ids->get('category'),
+            server: [
+                'HTTP_sw-language-id' => self::LANGUAGE_IDS[$actual['activeLanguageCode']],
+            ],
         );
 
         $this->assertLandingPageCmsPage(

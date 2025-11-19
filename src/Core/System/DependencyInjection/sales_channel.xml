@@ -285,5 +285,22 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
             <tag name="shopware.context.gateway.command"/>
         </service>
+
+        <service id="Shopware\Core\System\SalesChannel\SalesChannelDomain\CachedDomainLoader" decorates="Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDomain\CachedDomainLoader.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\SalesChannelDomain\CachedDomainLoaderInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
     </services>
 </container>

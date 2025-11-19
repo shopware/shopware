@@ -2,45 +2,53 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader as CoreDomainLoader;
 
 /**
- * @phpstan-import-type Domain from AbstractDomainLoader
+ * @deprecated tag:v6.8.0 - Will be removed, use Shopware\Core\System\SalesChannel\SalesChannelDomain\CachedDomainLoader instead.
  */
 #[Package('framework')]
 class CachedDomainLoader extends AbstractDomainLoader
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use Shopware\Core\System\SalesChannel\SalesChannelDomain\CachedDomainLoader::CACHE_KEY instead.
+     */
     final public const CACHE_KEY = 'routing-domains';
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly AbstractDomainLoader $decorated,
-        private readonly CacheInterface $cache
+        private readonly CoreDomainLoader $newImplementation
     ) {
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader::getDecorated instead.
+     */
     public function getDecorated(): AbstractDomainLoader
     {
-        return $this->decorated;
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Shopware\Storefront\Framework\Routing\DomainLoader will be removed in v6.8.0.0. Use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader instead.'
+        );
+
+        throw new DecorationPatternException(self::class);
     }
 
     /**
-     * @return array<string, Domain>
+     * @deprecated tag:v6.8.0 - Will be removed, use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader::load instead.
      */
     public function load(): array
     {
-        $value = $this->cache->get(self::CACHE_KEY, fn (ItemInterface $item) => CacheValueCompressor::compress(
-            $this->getDecorated()->load()
-        ));
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Shopware\Storefront\Framework\Routing\DomainLoader::load is deprecated and will be removed in v6.8.0.0. Use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader::load instead.'
+        );
 
-        /** @var array<string, Domain> $value */
-        $value = CacheValueCompressor::uncompress($value);
-
-        return $value;
+        return $this->newImplementation->load();
     }
 }

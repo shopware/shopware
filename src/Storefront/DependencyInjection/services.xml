@@ -57,18 +57,19 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoader" decorates="Shopware\Storefront\Framework\Routing\DomainLoader" decoration-priority="-1000">
-            <argument type="service" id="Shopware\Storefront\Framework\Routing\CachedDomainLoader.inner"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="logger"/>
-        </service>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader"/>
 
-        <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoaderInvalidator">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
-            <tag name="kernel.event_subscriber"/>
+            <deprecated package="shopware/storefront" version="6.8.0.0">The %service_id% service will be removed in v6.8.0.0, please use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader instead</deprecated>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\DomainLoader">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader"/>
+
+            <deprecated package="shopware/storefront" version="6.8.0.0">The %service_id% service will be removed in v6.8.0.0, please use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader instead</deprecated>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\DomainQuerySubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\RequestTransformer"
@@ -77,7 +78,7 @@
             <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
             <argument>%shopware.routing.registered_api_prefixes%</argument>
-            <argument type="service" id="Shopware\Storefront\Framework\Routing\DomainLoader"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">

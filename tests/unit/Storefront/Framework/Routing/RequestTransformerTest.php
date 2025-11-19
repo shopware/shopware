@@ -8,7 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Storefront\Framework\Routing\AbstractDomainLoader;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +33,7 @@ class RequestTransformerTest extends TestCase
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
 
         // should not be called as the sales channel is not required
-        $domainLoader->expects($this->never())->method('load');
+        $domainLoader->expects($this->never())->method('findDomain');
 
         $requestTransformer = new RequestTransformer($decorated, $resolver, $registeredApiPrefixes, $domainLoader);
 
@@ -49,7 +50,7 @@ class RequestTransformerTest extends TestCase
 
         $resolver = $this->createMock(AbstractSeoResolver::class);
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
-        $domainLoader->expects($this->once())->method('load')->willReturn([]);
+        $domainLoader->expects($this->once())->method('findDomain')->willReturn(null);
 
         // no registered api prefixes ==> sales channel is always required
         $registeredApiPrefixes = [];
@@ -89,6 +90,11 @@ class RequestTransformerTest extends TestCase
         yield 'Case with double leading and trailing slashes' => [
             'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com//api//',
+        ];
+
+        yield 'Case with sub domain store-api' => [
+            'registeredApiPrefixes' => [StoreApiRouteScope::ID],
+            'requestUri' => 'http://shopware.com/de/store-api/',
         ];
 
         // Allowedlist paths:

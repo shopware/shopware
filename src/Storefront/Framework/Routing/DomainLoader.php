@@ -2,13 +2,14 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader as CoreDomainLoader;
 
 /**
+ * @deprecated tag:v6.8.0 - Will be removed, use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader instead.
+ *
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
 #[Package('framework')]
@@ -17,52 +18,36 @@ class DomainLoader extends AbstractDomainLoader
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly CoreDomainLoader $newImplementation
+    ) {
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader instead.
+     */
     public function getDecorated(): AbstractDomainLoader
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Shopware\Storefront\Framework\Routing\DomainLoader is deprecated and will be removed in v6.8.0.0. Use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader instead.'
+        );
+
         throw new DecorationPatternException(self::class);
     }
 
     /**
      * @return array<string, Domain>
+     *
+     * @deprecated tag:v6.8.0 - Will be removed, use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader::load instead.
      */
     public function load(): array
     {
-        $query = $this->connection->createQueryBuilder();
-
-        $query->select(
-            'CONCAT(TRIM(TRAILING \'/\' FROM domain.url), \'/\') `key`',
-            'CONCAT(TRIM(TRAILING \'/\' FROM domain.url), \'/\') url',
-            'LOWER(HEX(domain.id)) id',
-            'LOWER(HEX(sales_channel.id)) salesChannelId',
-            'LOWER(HEX(sales_channel.type_id)) typeId',
-            'LOWER(HEX(domain.snippet_set_id)) snippetSetId',
-            'LOWER(HEX(domain.currency_id)) currencyId',
-            'LOWER(HEX(domain.language_id)) languageId',
-            'LOWER(HEX(theme.id)) themeId',
-            'sales_channel.maintenance maintenance',
-            'sales_channel.maintenance_ip_whitelist maintenanceIpWhitelist',
-            'snippet_set.iso as locale',
-            'theme.technical_name as themeName',
-            'parentTheme.technical_name as parentThemeName',
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Shopware\Storefront\Framework\Routing\DomainLoader::load is deprecated and will be removed in v6.8.0.0. Use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader::load instead.'
         );
 
-        $query->from('sales_channel');
-        $query->innerJoin('sales_channel', 'sales_channel_domain', 'domain', 'domain.sales_channel_id = sales_channel.id');
-        $query->innerJoin('domain', 'snippet_set', 'snippet_set', 'snippet_set.id = domain.snippet_set_id');
-        $query->leftJoin('sales_channel', 'theme_sales_channel', 'theme_sales_channel', 'sales_channel.id = theme_sales_channel.sales_channel_id');
-        $query->leftJoin('theme_sales_channel', 'theme', 'theme', 'theme_sales_channel.theme_id = theme.id');
-        $query->leftJoin('theme', 'theme', 'parentTheme', 'theme.parent_theme_id = parentTheme.id');
-        $query->where('sales_channel.type_id = UNHEX(:typeId)');
-        $query->andWhere('sales_channel.active');
-        $query->setParameter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-
-        /** @var array<string, Domain> $domains */
-        $domains = FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
-
-        return $domains;
+        return $this->newImplementation->load();
     }
 }

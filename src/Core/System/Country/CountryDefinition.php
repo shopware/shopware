@@ -114,7 +114,7 @@ class CountryDefinition extends EntityDefinition
             (new BoolField('is_eu', 'isEu'))->addFlags(new ApiAware(), new Required()),
 
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', 'id'))
-                ->addFlags(new ApiAware(), new CascadeDelete()),
+                ->addFlags(new ApiAware(), new CascadeDelete())->setDescription('States/provinces/regions within the country'),
 
             (new TranslationsAssociationField(CountryTranslationDefinition::class, 'country_id'))
                 ->addFlags(new ApiAware(), new Required()),

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -65,5 +66,10 @@ class StorefrontFrameworkException extends HttpException
             self::INVALID_ARGUMENT,
             $message
         );
+    }
+
+    public static function salesChannelMappingException(string $url): self
+    {
+        return new SalesChannelMappingException($url);
     }
 }

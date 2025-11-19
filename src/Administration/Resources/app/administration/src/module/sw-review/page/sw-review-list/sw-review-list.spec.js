@@ -3,6 +3,12 @@
  */
 import { mount } from '@vue/test-utils';
 
+Shopware.Service().register('filterService', () => {
+    return {
+        mergeWithStoredFilters: (storeKey, criteria) => criteria,
+    };
+});
+
 async function createWrapper() {
     return mount(await await wrapTestComponent('sw-review-list', { sync: true }), {
         global: {
@@ -29,18 +35,14 @@ async function createWrapper() {
                             ]);
                         },
                         search: () => {
-                            return Promise.resolve([
-                                {
-                                    id: '1a2b3c',
-                                    entity: 'review',
-                                    customerId: 'd4c3b2a1',
-                                    productId: 'd4c3b2a1',
-                                    salesChannelId: 'd4c3b2a1',
-                                    sourceEntitiy: 'product-review',
-                                },
-                            ]);
+                            return Promise.resolve({
+                                total: 1,
+                            });
                         },
                     }),
+                },
+                filterFactory: {
+                    create: () => [],
                 },
                 searchRankingService: {
                     isValidTerm: (term) => {
@@ -67,6 +69,7 @@ async function createWrapper() {
                 'sw-rating-stars': true,
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
+                'sw-sidebar-filter-panel': true,
                 'sw-time-ago': true,
             },
         },

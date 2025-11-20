@@ -217,7 +217,7 @@ class DocumentException extends HttpException
             'Document with id {{ documentId }} has no generated document with file extension {{ fileExtension }}.',
             [
                 'documentId' => $documentId,
-                'fileExtension' => $fileExtension
+                'fileExtension' => $fileExtension,
             ]
         );
     }

@@ -340,11 +340,11 @@ class DocumentRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        if($expectException) {
+        if ($expectException) {
             /*
              * remove else when v6.7.x is no longer supported
              */
-            if(Feature::isActive('v6.8.0.0')) {
+            if (Feature::isActive('v6.8.0.0')) {
                 static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
                 $data = json_decode((string) $response->getContent(), true);
                 static::assertSame('DOCUMENT__FILETYPE_UNAVAILABLE', $data['errors'][0]['code']);

@@ -36,7 +36,7 @@
                     "schema": {
                       "type": "string"
                     },
-                    "description": "File type that selects the document type renderer (e.g. pdf, html). When no file type is given, the pdf will be used as default."
+                    "description": "File type that selects the document type renderer (e.g. pdf, html). When no file type is given, pdf will be used as default."
                   },
                     {
                         "name": "sw-language-id",
@@ -138,7 +138,7 @@
                 "schema": {
                   "type": "string"
                 },
-                "description": "File type that selects the document type renderer (e.g. pdf, html). When no file type is given, the pdf will be used as default."
+                "description": "File type that selects the document type renderer (e.g. pdf, html). When no file type is given, pdf will be used as default."
               },
               {
                 "name": "sw-language-id",

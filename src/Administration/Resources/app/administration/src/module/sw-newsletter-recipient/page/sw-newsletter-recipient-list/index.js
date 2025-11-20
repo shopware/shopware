@@ -3,11 +3,13 @@ import './sw-newsletter-recipient-list.scss';
 
 const {
     Mixin,
-    Data: { Criteria, EntityCollection },
+    Data: { Criteria },
 } = Shopware;
 
 /**
  * @sw-package after-sales
+ *
+ * @deprecated tag:v6.8.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -31,10 +33,20 @@ export default {
             sortDirection: 'DESC',
             filterSidebarIsOpen: false,
             languageFilters: [],
+            languageFilterValue: [],
             salesChannelFilters: [],
+            salesChannelFilterValue: [],
+            statusFilterValue: [],
             tagFilters: [],
+            tagFilterValue: [],
             internalFilters: {},
+            /**
+             * @deprecated tag:v6.8.0 - tagCollection will be removed
+             */
             tagCollection: null,
+            /**
+             * @deprecated tag:v6.8.0 - searchConfigEntity will be removed
+             */
             searchConfigEntity: 'newsletter_recipient',
         };
     },
@@ -72,6 +84,15 @@ export default {
         emailIdnFilter() {
             return Shopware.Filter.getByName('decode-idn-email');
         },
+
+        statusData() {
+            return [
+                { value: 'notSet', label: this.$t('sw-newsletter-recipient.list.notSet') },
+                { value: 'direct', label: this.$t('sw-newsletter-recipient.list.direct') },
+                { value: 'optIn', label: this.$t('sw-newsletter-recipient.list.optIn') },
+                { value: 'optOut', label: this.$t('sw-newsletter-recipient.list.optOut') },
+            ];
+        },
     },
 
     created() {
@@ -83,19 +104,20 @@ export default {
             this.isLoading = true;
 
             const criteria = new Criteria(1, 100);
-            this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria(1, 25));
-
             try {
                 const [
                     languages,
                     salesChannels,
+                    tags,
                 ] = await Promise.all([
                     this.repositoryFactory.create('language').search(criteria, Shopware.Context.api),
-                    this.salesChannelRepository.search(new Criteria(1, 100)),
+                    this.salesChannelRepository.search(criteria),
+                    this.tagRepository.search(criteria),
                 ]);
 
                 this.languageFilters = languages;
                 this.salesChannelFilters = salesChannels;
+                this.tagFilters = tags;
 
                 await this.getList();
             } finally {
@@ -137,55 +159,47 @@ export default {
             }
         },
 
-        handleTagFilter(filter) {
-            if (filter.length === 0) {
+        async onStatusSelectionChanged(value) {
+            this.statusFilterValue = value;
+            if (this.statusFilterValue.length) {
+                this.internalFilters.status = Criteria.equalsAny('status', this.statusFilterValue);
+            } else {
+                delete this.internalFilters.status;
+            }
+
+            await this.getList();
+        },
+
+        async onLanguageSelectionChanged(value) {
+            this.languageFilterValue = value;
+            if (this.languageFilterValue.length) {
+                this.internalFilters.languageId = Criteria.equalsAny('languageId', this.languageFilterValue);
+            } else {
+                delete this.internalFilters.languageId;
+            }
+
+            await this.getList();
+        },
+
+        async onSalesChannelSelectionChanged(value) {
+            this.salesChannelFilterValue = value;
+            if (this.salesChannelFilterValue.length) {
+                this.internalFilters.salesChannelId = Criteria.equalsAny('salesChannelId', this.salesChannelFilterValue);
+            } else {
+                delete this.internalFilters.salesChannelId;
+            }
+
+            await this.getList();
+        },
+
+        async onTagSelectionChanged(value) {
+            this.tagFilterValue = value;
+            if (this.tagFilterValue.length) {
+                this.internalFilters.tags = Criteria.equalsAny('tags.id', this.tagFilterValue);
+            } else {
                 delete this.internalFilters.tags;
-                return;
             }
 
-            const ids = filter.map((item) => {
-                return item.id;
-            });
-
-            this.internalFilters.tags = Criteria.equalsAny('tags.id', ids);
-        },
-
-        handleBooleanFilter(filter) {
-            if (!Array.isArray(this[filter.group])) {
-                this[filter.group] = [];
-            }
-
-            if (!filter.value) {
-                this[filter.group] = this[filter.group].filter((x) => {
-                    return x !== filter.id;
-                });
-
-                if (this[filter.group].length > 0) {
-                    this.internalFilters[filter.group] = Criteria.equalsAny(filter.group, this[filter.group]);
-                } else {
-                    delete this.internalFilters[filter.group];
-                }
-
-                return;
-            }
-
-            this[filter.group].push(filter.id);
-            this.internalFilters[filter.group] = Criteria.equalsAny(filter.group, this[filter.group]);
-        },
-
-        async onChange(filter) {
-            if (filter === null) {
-                filter = [];
-            }
-
-            if (Array.isArray(filter)) {
-                this.handleTagFilter(filter);
-                await this.getList();
-
-                return;
-            }
-
-            this.handleBooleanFilter(filter);
             await this.getList();
         },
 
@@ -259,6 +273,67 @@ export default {
                     visible: false,
                 },
             ];
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Use dedicated "onTagSelectionChanged" function
+         */
+        handleTagFilter(filter) {
+            if (filter.length === 0) {
+                delete this.internalFilters.tags;
+                return;
+            }
+
+            const ids = filter.map((item) => {
+                return item.id;
+            });
+
+            this.internalFilters.tags = Criteria.equalsAny('tags.id', ids);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Use dedicated "on___SelectionChanged" function
+         */
+        handleBooleanFilter(filter) {
+            if (!Array.isArray(this[filter.group])) {
+                this[filter.group] = [];
+            }
+
+            if (!filter.value) {
+                this[filter.group] = this[filter.group].filter((x) => {
+                    return x !== filter.id;
+                });
+
+                if (this[filter.group].length > 0) {
+                    this.internalFilters[filter.group] = Criteria.equalsAny(filter.group, this[filter.group]);
+                } else {
+                    delete this.internalFilters[filter.group];
+                }
+
+                return;
+            }
+
+            this[filter.group].push(filter.id);
+            this.internalFilters[filter.group] = Criteria.equalsAny(filter.group, this[filter.group]);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Use dedicated "on___SelectionChanged" function
+         */
+        async onChange(filter) {
+            if (filter === null) {
+                filter = [];
+            }
+
+            if (Array.isArray(filter)) {
+                this.handleTagFilter(filter);
+                await this.getList();
+
+                return;
+            }
+
+            this.handleBooleanFilter(filter);
+            await this.getList();
         },
     },
 };

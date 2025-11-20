@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnitTypeEnum;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementEnum;
@@ -18,10 +20,12 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -46,7 +50,8 @@ class ProductSubscriber implements EventSubscriberInterface
         private readonly SystemConfigService $systemConfigService,
         private readonly ProductMeasurementUnitBuilder $measurementUnitBuilder,
         private readonly AbstractMeasurementUnitConverter $measurementUnitConverter,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly Connection $connection
     ) {
     }
 
@@ -58,6 +63,7 @@ class ProductSubscriber implements EventSubscriberInterface
             'sales_channel.' . ProductEvents::PRODUCT_LOADED_EVENT => 'salesChannelLoaded',
             'sales_channel.product.partial_loaded' => 'salesChannelLoaded',
             EntityWriteEvent::class => 'beforeWriteProduct',
+            EntityDeleteEvent::class => 'beforeDeleteProduct',
         ];
     }
 
@@ -156,6 +162,71 @@ class ProductSubscriber implements EventSubscriberInterface
                 }
             }
         }
+    }
+
+    public function beforeDeleteProduct(EntityDeleteEvent $event): void
+    {
+        $deletedProductIds = $event->getIds(ProductDefinition::ENTITY_NAME);
+
+        if (empty($deletedProductIds)) {
+            return;
+        }
+
+        $deletedIds = [];
+        foreach ($deletedProductIds as $id) {
+            $deletedIds[] = \is_string($id) ? $id : $id['id'];
+        }
+
+        $parentIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT parent_id
+             FROM product
+             WHERE id IN (:ids) AND parent_id IS NOT NULL',
+            ['ids' => Uuid::fromHexToBytesList($deletedIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        if (empty($parentIds)) {
+            return;
+        }
+
+        $versionBytes = Uuid::fromHexToBytes($event->getContext()->getVersionId());
+
+        $event->addSuccess(function () use ($parentIds, $versionBytes): void {
+            $this->cleanupConfiguratorSettings($parentIds, $versionBytes);
+        });
+    }
+
+    /**
+     * @param array<string> $parentIds
+     */
+    private function cleanupConfiguratorSettings(array $parentIds, string $versionBytes): void
+    {
+        if (empty($parentIds)) {
+            return;
+        }
+
+        // Clean up configurator settings for parents that no longer have variants using those options
+        $this->connection->executeStatement(
+            'DELETE FROM product_configurator_setting pcs
+             WHERE pcs.product_id IN (:parentIds)
+             AND pcs.product_version_id = :versionId
+             AND NOT EXISTS (
+                 SELECT 1
+                 FROM product_option po
+                 INNER JOIN product p ON p.id = po.product_id AND p.version_id = po.product_version_id
+                 WHERE p.parent_id = pcs.product_id
+                     AND p.version_id = :versionId
+                     AND po.property_group_option_id = pcs.property_group_option_id
+                     AND po.product_version_id = :versionId
+             )',
+            [
+                'parentIds' => $parentIds,
+                'versionId' => $versionBytes,
+            ],
+            [
+                'parentIds' => ArrayParameterType::BINARY,
+            ]
+        );
     }
 
     /**

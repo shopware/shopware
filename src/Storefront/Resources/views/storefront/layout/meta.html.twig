@@ -112,6 +112,8 @@
         {% block layout_head_stylesheet %}
             {% if isHMRMode %}
                 {# CSS will be loaded from the JS automatically #}
+            {% elseif isNewContentStructure %}
+                <link rel="stylesheet" href="{{ asset('css/minimal.css', 'theme') }}">
             {% else %}
                 {% set assets = theme_config('assets.css') %}
                 {% for file in assets %}

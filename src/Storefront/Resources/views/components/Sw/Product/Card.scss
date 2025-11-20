@@ -1,29 +1,60 @@
-.product-card {
+.sw-product-card {
     min-width: 100%;
-    //--bs-card-spacer-y: 1rem;
-    //--bs-card-spacer-x: 1rem;
-    //--bs-card-border-color: var(--bs-border-color);
-    //--bs-card-cap-padding-y: 1rem;
-    //--bs-card-cap-padding-x: 1rem;
-
     --bs-card-spacer-y: 1rem;
     --bs-card-spacer-x: 0;
     --bs-card-border-color: transparent;
     --bs-card-cap-padding-y: 1rem;
     --bs-card-cap-padding-x: 0;
     --bs-card-cap-bg: none;
+    --bs-card-bg: var(--bs-body);
     --sw-product-card-media-height: 200px;
+
+    &.has--border {
+        --bs-card-border-color: var(--bs-border-color);
+        --bs-card-cap-padding-y: 1rem;
+        --bs-card-cap-padding-x: 1rem;
+        --bs-card-spacer-y: 1rem;
+        --bs-card-spacer-x: 1rem;
+
+        .sw-product-card-badges {
+            left: var(--bs-card-spacer-x);
+        }
+    }
+
+    &.is--rounded {
+        --bs-card-border-radius: 0.5rem;
+        overflow: hidden;
+
+        .btn-primary,
+        .btn-detail {
+            --bs-btn-border-radius: 0.5rem;
+        }
+    }
+
+    &.is--media-cover {
+        .sw-product-card__media {
+            object-fit: cover;
+        }
+    }
+
+    &.is--media-contain {
+        .sw-product-card__media {
+            object-fit: contain;
+        }
+    }
 }
 
-.product-card-title {
+.sw-product-card__title {
     // Reset global core styling. No border wanted here.
     border-bottom: none;
     // Reset global core styling. Spacing with margin already defined by --bs-card-title-spacer-y
     padding-bottom: 0;
     font-weight: 600;
+    font-size: $font-size-lg;
+    line-height: $line-height-base;
 }
 
-.product-card-title-link {
+.sw-product-card__title-link {
     color: var(--bs-body-color);
     text-decoration: none;
 
@@ -37,47 +68,8 @@
     }
 }
 
-.product-card-badges {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-}
-
-.product-card-badge {
-    --bs-badge-padding-x: 6px;
-    --bs-badge-padding-y: 4px;
-    --bs-badge-font-size: #{$font-size-sm};
-    --bs-badge-font-weight: 600;
-    --bs-badge-border-radius: 3px;
-    margin: 0;
-    height: auto;
-    line-height: 1;
-    width: max-content;
-}
-
-.product-card-price {
-    font-variant-numeric: tabular-nums;
-}
-
-// Loading indicator
-.product-card-loading-indicator {
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.has-element-loader {
-    .product-card > :not(.product-card-loading-indicator) {
-        visibility: hidden;
-        pointer-events: none;
-    }
-
-    .product-card-loading-indicator {
-        visibility: visible;
-    }
-}
-
-.product-card.is--layout-default {
-    .product-card__inner {
+.sw-product-card.is--layout-default {
+    .sw-product-card__inner {
         flex-direction: column;
     }
 
@@ -86,11 +78,11 @@
     }
 }
 
-.product-card.is--layout-horizontal {
+.sw-product-card.is--layout-horizontal {
     border-bottom: 1px solid var(--bs-border-color);
 
     // Apply .row styling
-    .product-card__inner {
+    .sw-product-card__inner {
         display: flex;
         flex-wrap: wrap;
         margin-top: calc(-1 * var(--bs-gutter-y));
@@ -99,7 +91,7 @@
     }
 
     // Apply .col-3 styling
-    .product-card-header {
+    .sw-product-card__header {
         flex: 0 0 auto;
         width: 25%;
     }
@@ -118,8 +110,12 @@
         display: block;
     }
 
-    .product-card-actions .btn {
+    .sw-product-card-actions .btn {
         max-width: 280px;
+    }
+
+    .sw-product-card-badges {
+        bottom: var(--bs-card-spacer-y);
     }
 }
 

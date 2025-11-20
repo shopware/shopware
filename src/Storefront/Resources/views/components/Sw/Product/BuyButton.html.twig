@@ -48,9 +48,9 @@
 
      {% block buy_button %}
         <twig:Slot name="buy-button">
-            <button class="btn btn-primary">
+            <twig:Sw:Button variant="buy">
                 {{ 'listing.boxAddProduct'|trans|sw_sanitize }}
-            </button>
+            </twig:Sw:Button>
         </twig:Slot>
     {% endblock %}
 </form>

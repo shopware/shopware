@@ -1,0 +1,15 @@
+.sw-product-card-loader {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.has-element-loader {
+    .sw-product-card > :not(.sw-product-card-loader) {
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .sw-product-card-loader {
+        visibility: visible;
+    }
+}

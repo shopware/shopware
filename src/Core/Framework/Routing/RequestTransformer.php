@@ -21,19 +21,24 @@ class RequestTransformer implements RequestTransformerInterface
 
     public function transform(Request $request): Request
     {
+        if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_STORE_API_REQUEST) && $request->attributes->getBoolean(SalesChannelRequest::ATTRIBUTE_IS_STORE_API_REQUEST)) {
+            return $request;
+        }
+
         if (!$this->isStoreApiRequest($request->getPathInfo())) {
             return $request;
         }
 
         $domain = $this->domainLoader->findDomain($request);
 
-        if ($domain === null) {
-            return $request;
-        }
-
         $transformedRequest = $request->duplicate();
 
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_STORE_API_REQUEST, true);
+
+        if ($domain === null) {
+            return $transformedRequest;
+        }
+
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, $domain['locale']);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $domain['snippetSetId']);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $domain['currencyId']);

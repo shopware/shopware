@@ -17,6 +17,21 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(RequestTransformer::class)]
 class RequestTransformerTest extends TestCase
 {
+    public function testTransformReturnsSameRequestIfAlreadyTransformed(): void
+    {
+        $domainLoader = $this->createMock(AbstractDomainLoader::class);
+        $domainLoader->expects($this->never())->method('findDomain');
+
+        $transformer = new RequestTransformer($domainLoader);
+
+        $request = Request::create('https://example.com/' . StoreApiRouteScope::ID . '/foo');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_STORE_API_REQUEST, true);
+
+        $result = $transformer->transform($request);
+
+        static::assertSame($request, $result);
+    }
+
     public function testTransformIgnoresNonStoreApiRequests(): void
     {
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
@@ -31,7 +46,7 @@ class RequestTransformerTest extends TestCase
         static::assertFalse($result->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_STORE_API_REQUEST));
     }
 
-    public function testTransformWithoutMatchingDomainLeavesRequestUntouched(): void
+    public function testTransformWithoutMatchingDomainMarkRequestAsStoreApiRequest(): void
     {
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
         $domainLoader->expects($this->once())->method('findDomain')->willReturn(null);
@@ -41,8 +56,11 @@ class RequestTransformerTest extends TestCase
         $request = Request::create('https://example.com/' . StoreApiRouteScope::ID . '/foo');
         $result = $transformer->transform($request);
 
-        static::assertSame($request, $result);
-        static::assertFalse($result->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST));
+        static::assertTrue($result->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_STORE_API_REQUEST));
+        static::assertFalse($result->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID));
+        static::assertFalse($result->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE));
+        static::assertFalse($result->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
+        static::assertFalse($result->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID));
     }
 
     public function testTransformEnrichesRequestWithDomainInformation(): void

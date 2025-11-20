@@ -15,9 +15,4 @@ class SalesChannelDomainQueryEvent
         public readonly QueryBuilder $queryBuilder,
     ) {
     }
-
-    public function getQueryBuilder(): QueryBuilder
-    {
-        return $this->queryBuilder;
-    }
 }

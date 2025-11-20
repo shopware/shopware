@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -58,7 +58,7 @@ class RequestTransformerTest extends TestCase
 
         $originalRequest = Request::create('http://shopware.com/api');
 
-        static::expectException(SalesChannelMappingException::class);
+        static::expectExceptionObject(StorefrontFrameworkException::salesChannelMappingNotFound($originalRequest->getUri()));
         $requestTransformer->transform($originalRequest);
     }
 

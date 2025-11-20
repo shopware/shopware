@@ -70,6 +70,13 @@ class PluginLifecycleService
     private static bool $registeredListener = false;
 
     /**
+     * For `executeComposerRemoveCommand`, we need to keep the original event dispatcher, because during plugin
+     * deactivation, the kernel is rebooted and the dispatcher replaced with the new one,
+     * but the KernelEvents are triggered on the original event dispatcher.
+     */
+    private EventDispatcherInterface $originalEventDispatcher;
+
+    /**
      * @param EntityRepository<PluginCollection> $pluginRepo
      */
     public function __construct(
@@ -91,6 +98,7 @@ class PluginLifecycleService
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestStack $requestStack,
     ) {
+        $this->originalEventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -735,7 +743,7 @@ class PluginLifecycleService
             ];
 
             if (!self::$registeredListener) {
-                $this->eventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
+                $this->originalEventDispatcher->addListener(KernelEvents::RESPONSE, $this->onResponse(...), \PHP_INT_MAX);
                 self::$registeredListener = true;
             }
         }

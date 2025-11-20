@@ -277,7 +277,11 @@
                       "key": "listing",
                       "source": "product_listing",
                       "config": {
-                        "property": "categoryId"
+                        "property": "categoryId",
+                        "associations": [
+                          "cover",
+                          "manufacturer"
+                        ]
                       }
                     }
                   },
@@ -802,7 +806,11 @@
                 "key": "listing",
                 "source": "product_listing",
                 "config": {
-                  "property": "categoryId"
+                  "property": "categoryId",
+                  "associations": [
+                    "cover",
+                    "manufacturer"
+                  ]
                 }
               }
             },
@@ -904,9 +912,19 @@
               "subheadline": "Up to 50% Off on Tech Products",
               "ctaText": "Shop Now",
               "ctaLink": "/search",
-              "backgroundImage": "/media/summer-sale-hero.jpg",
+              "mediaId": "d2cb2dc264214578a16350c301e40535",
               "textAlign": "center",
               "height": "600px"
+            },
+            "data_requirements": {
+              "media": {
+                "key": "media",
+                "source": "entity",
+                "config": {
+                  "entity": "media",
+                  "property": "mediaId"
+                }
+              }
             }
           },
           {
@@ -1026,9 +1044,19 @@
             "properties": {
               "headline": "Why Choose TechStore",
               "subheadline": "Your Trusted Partner for Premium Technology",
-              "backgroundImage": "/media/about-hero.jpg",
+              "mediaId": "85748bf50c354b1293baa1df939d02ba",
               "textAlign": "center",
               "height": "500px"
+            },
+            "data_requirements": {
+              "media": {
+                "key": "media",
+                "source": "entity",
+                "config": {
+                  "entity": "media",
+                  "property": "mediaId"
+                }
+              }
             }
           },
           {
@@ -1195,9 +1223,19 @@
               "subheadline": "The Future of Home Automation - Launching Q2 2025",
               "ctaText": "Pre-Order Now",
               "ctaLink": "/pre-order",
-              "backgroundImage": "/media/smart-hub-hero.jpg",
+              "mediaId": "e73eedeb51554c7e940b90ea69f42b1b",
               "textAlign": "center",
               "height": "700px"
+            },
+            "data_requirements": {
+              "media": {
+                "key": "media",
+                "source": "entity",
+                "config": {
+                  "entity": "media",
+                  "property": "mediaId"
+                }
+              }
             }
           },
           {
@@ -1467,7 +1505,11 @@
                 "key": "listing",
                 "source": "product_listing",
                 "config": {
-                  "property": "categoryId"
+                  "property": "categoryId",
+                  "associations": [
+                    "cover",
+                    "manufacturer"
+                  ]
                 }
               }
             },
@@ -1484,15 +1526,20 @@
                   "component": "Sw:Filter:Panel",
                   "properties": {},
                   "accepts_context": {
+                    "listing.total": {
+                      "type": "single",
+                      "required": false,
+                      "property_alias": "totalCount"
+                    },
+                    "listing.sorting": {
+                      "type": "single",
+                      "required": false,
+                      "property_alias": "currentSorting"
+                    },
                     "listing.aggregations": {
                       "type": "single",
                       "required": false,
-                      "property_alias": "aggregations"
-                    },
-                    "listing.currentFilters": {
-                      "type": "single",
-                      "required": false,
-                      "property_alias": "currentFilters"
+                      "property_alias": "filterAggregations"
                     },
                     "listing.availableSortings": {
                       "type": "single",

@@ -5,7 +5,7 @@ Demo data and Postman scripts for testing the ContentSystem.
 ## Files
 
 - `sync-api-demo-payload.json` - Built demo payload (generated from `payloads/` directory via `./build-payload.sh`)
-- `sync-api-demo-post-pre-script.js` - Postman pre-request script for authentication and ID resolution
+- `sync-api-postman-pre-script.js` - Postman pre-request script for authentication and ID resolution
 - `payloads/` - Source files split by entity type (categories, products, content-layouts, etc.)
 
 **Rebuild after modifying source files**: `./build-payload.sh` (supports `--skip FILE` for selective builds)
@@ -15,7 +15,7 @@ Demo data and Postman scripts for testing the ContentSystem.
 ### 1. Setup Pre-Request Script
 
 1. Create new Postman request: `POST http://localhost:8000/api/_action/sync`
-2. Copy content from `sync-api-demo-post-pre-script.js` to request's "Pre-request Script" tab
+2. Copy content from `sync-api-postman-pre-script.js` to request's "Pre-request Script" tab
 3. Set authorization: "Bearer Token" with `{{adminToken}}`
 
 ### 2. Import Demo Payload

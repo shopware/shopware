@@ -131,9 +131,9 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
-# Cache improvements
+## Cache improvements
 
-## Only rules relevant for product prices are considered in the `sw-cache-hash`
+### Only rules relevant for product prices are considered in the `sw-cache-hash`
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
 
 If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`. In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
@@ -157,48 +157,17 @@ class ResolveRuleIds implements EventSubscriberInterface
 
 If some custom entity has a relation to a rule, which might alter the storefront, you should add them to either an existing area, or your own are using the DAL flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on the rule association.
 
-## Removed unused `RuleAreas` constants
+### Removed unused `RuleAreas` constants
 The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed
 
-## Removed `sw-states` and `sw-currency` cache cookie handling
+### Removed `sw-states` and `sw-currency` cache cookie handling
 The `sw-states` and `sw-currency` cache cookie handling is removed, which means by default the HTTP-Cache is also active for logged in customers or when the cart is filled.
 Due to the rework of the contained rules in the cache hash (see above), this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
 
 You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
-If your extension is too dynamic you can restore the old behaviour by manually creating a cache key listener in your plugin:
-```php
-class HttpCacheKeyListener implements EventSubscriberInterface
-{
-    public function __construct(
-        private readonly CartService $cartService
-    ) {
-    }
-    
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            HttpCacheCookieEvent::class => 'onCacheCookie',
-        ];
-    }
+To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
 
-    public function onCacheCookie(HttpCacheCookieEvent $event): void
-    {
-        // disable cache for logged in customers
-        if ($event->context->getCustomer() !== null) {
-            $event->isCacheable = false;
-        }
-
-        // disable cache for filled carts
-        $cart = $this->cartService->getCart($event->context->getToken(), $event->context);
-        if ($cart->getLineItems()->count() > 0) {
-            $event->isCacheable = false;
-        }
-    }
-}
-```
-**Note:** Keep in mind that this has severe performance implications and should only be used if absolutely necessary.
-
-For this the following classes and constants were removed:
+The following classes and constants were removed as they are no longer used:
   * `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
   * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
   * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`

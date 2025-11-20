@@ -44,45 +44,14 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 
 ### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
 The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
-You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` (only the HTTP-Cache related breaks) feature flag.
+You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
 
 Due to the rework of the contained rules in the cache hash, this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
 
 You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
-If your extension is too dynamic you can restore the old behaviour by manually creating a cache key listener in your plugin:
-```php
-class HttpCacheKeyListener implements EventSubscriberInterface
-{
-    public function __construct(
-        private readonly CartService $cartService
-    ) {
-    }
-    
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            HttpCacheCookieEvent::class => 'onCacheCookie',
-        ];
-    }
+To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
 
-    public function onCacheCookie(HttpCacheCookieEvent $event): void
-    {
-        // disable cache for logged in customers
-        if ($event->context->getCustomer() !== null) {
-            $event->isCacheable = false;
-        }
-
-        // disable cache for filled carts
-        $cart = $this->cartService->getCart($event->context->getToken(), $event->context);
-        if ($cart->getLineItems()->count() > 0) {
-            $event->isCacheable = false;
-        }
-    }
-}
-```
-**Note:** Keep in mind that this has severe performance implications and should only be used if absolutely necessary.
-
-For this the following classes and constants were deprecated:
+The following classes and constants were deprecated as they will not be used anymore:
 * `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
 * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
 * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`

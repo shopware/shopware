@@ -53,6 +53,6 @@ class ContextDefinitions
 
     public function isEmpty(): bool
     {
-        return empty($this->providers) && empty($this->consumers);
+        return $this->providers === [] && $this->consumers === [];
     }
 }

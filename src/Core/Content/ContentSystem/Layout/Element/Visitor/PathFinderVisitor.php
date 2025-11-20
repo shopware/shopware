@@ -33,7 +33,7 @@ class PathFinderVisitor implements ElementVisitor
         $this->currentPath[] = $element->getId();
 
         // Capture path when target found (only first occurrence)
-        if (empty($this->foundPath) && $element->getId() === $this->targetId) {
+        if ($this->foundPath === [] && $element->getId() === $this->targetId) {
             $this->foundPath = $this->currentPath;
         }
     }

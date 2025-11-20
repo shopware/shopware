@@ -17,11 +17,11 @@ final class SalesChannelRequest
     public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE = 'sw-maintenance';
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITELIST instead.
+     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST instead.
      */
-    public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST = self::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITELIST;
+    public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST = self::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST;
 
-    public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITELIST = 'sw-maintenance-ip-whitelist';
+    public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST = 'sw-maintenance-ip-whitelist';
 
     /**
      * domain-resolved attributes

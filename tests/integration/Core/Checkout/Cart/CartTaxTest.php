@@ -173,6 +173,14 @@ class CartTaxTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
             'currencyId' => $currencyId,
             'shippingMethodId' => $this->ids->get('shipping'),
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => $currencyId,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://localhost',
+                ],
+            ],
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
@@ -250,6 +258,14 @@ class CartTaxTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
             'currencyId' => $currencyId,
             'shippingMethodId' => $this->ids->get('shipping'),
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => $currencyId,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://localhost',
+                ],
+            ],
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));

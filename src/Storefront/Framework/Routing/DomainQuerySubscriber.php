@@ -21,7 +21,7 @@ class DomainQuerySubscriber implements EventSubscriberInterface
 
     public function onSalesChannelDomainQuery(SalesChannelDomainQueryEvent $event): void
     {
-        $query = $event->getQueryBuilder();
+        $query = $event->queryBuilder;
 
         $query->addSelect(
             'LOWER(HEX(theme.id)) themeId',

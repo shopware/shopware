@@ -61,7 +61,7 @@ class RequestTransformerTest extends TestCase
         static::assertSame('currency', $result->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
         static::assertSame('domain-id', $result->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID));
         static::assertTrue($result->attributes->getBoolean(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE));
-        static::assertSame(['127.0.0.1'], $result->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITELIST));
+        static::assertSame(['127.0.0.1'], $result->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST));
         static::assertSame('language', $result->headers->get(PlatformRequest::HEADER_LANGUAGE_ID));
     }
 

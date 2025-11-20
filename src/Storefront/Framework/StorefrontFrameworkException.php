@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
@@ -18,6 +19,7 @@ class StorefrontFrameworkException extends HttpException
     public const APP_REQUEST_NOT_AVAILABLE = 'STOREFRONT__APP_REQUEST_NOT_AVAILABLE';
     public const SALES_CHANNEL_CONTEXT_OBJECT_NOT_FOUND = 'STOREFRONT__SALES_CHANNEL_CONTEXT_OBJECT_NOT_FOUND';
     public const MEDIA_ILLEGAL_FILE_TYPE = 'STOREFRONT__MEDIA_ILLEGAL_FILE_TYPE';
+    public const INVALID_SALES_CHANNEL_MAPPING = 'FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING';
 
     public const INVALID_ARGUMENT = 'STOREFRONT__INVALID_ARGUMENT';
 
@@ -68,8 +70,20 @@ class StorefrontFrameworkException extends HttpException
         );
     }
 
-    public static function salesChannelMappingNotFound(string $url): SalesChannelMappingException
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function salesChannelMappingNotFound(string $url): self|SalesChannelMappingException
     {
-        return new SalesChannelMappingException($url);
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new SalesChannelMappingException($url);
+        }
+
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::INVALID_SALES_CHANNEL_MAPPING,
+            'Unable to find a matching sales channel for the request: "{{url}}". Please make sure the domain mapping is correct.',
+            ['url' => $url]
+        );
     }
 }

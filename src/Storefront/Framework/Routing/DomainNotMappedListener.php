@@ -3,8 +3,10 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -21,8 +23,16 @@ readonly class DomainNotMappedListener
 
     public function __invoke(ExceptionEvent $event): void
     {
-        if (!$event->getThrowable() instanceof SalesChannelMappingException) {
-            return;
+        $exception = $event->getThrowable();
+
+        if (Feature::isActive('v6.8.0.0')) {
+            if (!$exception instanceof StorefrontFrameworkException || $exception->getErrorCode() !== StorefrontFrameworkException::INVALID_SALES_CHANNEL_MAPPING) {
+                return;
+            }
+        } else {
+            if (!$exception instanceof SalesChannelMappingException) {
+                return;
+            }
         }
 
         $debug = $this->container->getParameter('kernel.debug');

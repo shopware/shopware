@@ -79,6 +79,7 @@ class RequestTransformer implements RequestTransformerInterface
         '/payment/finalize-transaction',
         '/installer',
         '/_fragment/',
+        '/robots.txt',
     ];
 
     /**
@@ -99,7 +100,7 @@ class RequestTransformer implements RequestTransformerInterface
         $request = $this->decorated->transform($request);
 
         if (!$this->isSalesChannelRequired($request->getPathInfo())) {
-            return $this->decorated->transform($request);
+            return $request;
         }
 
         $salesChannel = $this->domainLoader->findDomain($request);
@@ -169,8 +170,13 @@ class RequestTransformer implements RequestTransformerInterface
         );
         $transformedRequest->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
 
+        $isStoreApiRequest = $transformedRequest->attributes->getBoolean(SalesChannelRequest::ATTRIBUTE_IS_STORE_API_REQUEST);
+
+        if (!$isStoreApiRequest) {
+            $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
+        }
+
         $transformedRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, $salesChannel['locale']);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $salesChannel['snippetSetId']);
         $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $salesChannel['currencyId']);
@@ -207,7 +213,12 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         $transformedRequest->headers->add($request->headers->all());
-        $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
+
+        // store-api request can override the language id header but normal storefront requests not
+        if (!$isStoreApiRequest || !$transformedRequest->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
+            $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
+        }
+
         $transformedRequest->attributes->set(self::ORIGINAL_REQUEST_URI, $currentRequestUri);
 
         return $transformedRequest;
@@ -237,13 +248,13 @@ class RequestTransformer implements RequestTransformerInterface
         $pathInfo = '/' . trim($pathInfo, '/') . '/';
 
         foreach ($this->registeredApiPrefixes as $apiPrefix) {
-            if (str_contains($pathInfo, '/' . $apiPrefix . '/')) {
+            if (str_starts_with($pathInfo, '/' . $apiPrefix . '/')) {
                 return false;
             }
         }
 
         foreach (self::DOES_NOT_REQUIRE_SALESCHANNEL as $prefix) {
-            if (str_contains($pathInfo, $prefix)) {
+            if (str_starts_with($pathInfo, $prefix)) {
                 return false;
             }
         }

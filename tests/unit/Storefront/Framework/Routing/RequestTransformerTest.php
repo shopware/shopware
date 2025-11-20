@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
@@ -90,11 +89,6 @@ class RequestTransformerTest extends TestCase
         yield 'Case with double leading and trailing slashes' => [
             'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com//api//',
-        ];
-
-        yield 'Case with sub domain store-api' => [
-            'registeredApiPrefixes' => [StoreApiRouteScope::ID],
-            'requestUri' => 'http://shopware.com/de/store-api/',
         ];
 
         // Allowedlist paths:

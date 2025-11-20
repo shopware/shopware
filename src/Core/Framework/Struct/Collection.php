@@ -215,7 +215,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function last()
     {
-        return $this->elements[array_key_last($this->elements)] ?? null;
+        return array_last($this->elements);
     }
 
     /**

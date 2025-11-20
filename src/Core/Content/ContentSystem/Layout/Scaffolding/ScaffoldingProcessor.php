@@ -8,10 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * Orchestrates layout scaffolding execution.
- *
- * Executes scaffolders in priority order during scaffold(),
- * reverse priority order during dismantle().
+ * Orchestrates layout scaffolding in priority order (scaffold: high→low, dismantle: low→high).
  *
  * @internal
  */
@@ -41,15 +38,7 @@ class ScaffoldingProcessor
     }
 
     /**
-     * Applies scaffolding to layout.
-     *
-     * Executes scaffolders in priority order: highest → lowest.
-     *
-     * @param ContentLayoutEntity $layout Layout to scaffold
-     * @param RenderingSpecification $specification Rendering configuration
-     * @param SalesChannelContext $context Sales channel context
-     *
-     * @return ContentLayoutEntity Scaffolded layout
+     * Applies scaffolding to layout (executes scaffolders highest → lowest priority).
      */
     public function scaffold(
         ContentLayoutEntity $layout,
@@ -64,15 +53,7 @@ class ScaffoldingProcessor
     }
 
     /**
-     * Removes scaffolding from hydrated layout.
-     *
-     * Executes scaffolders in REVERSE priority order: lowest → highest.
-     *
-     * @param ContentLayoutEntity $layout Hydrated layout
-     * @param RenderingSpecification $specification Rendering configuration
-     * @param SalesChannelContext $context Sales channel context
-     *
-     * @return ContentLayoutEntity Dismantled layout
+     * Removes scaffolding from hydrated layout (executes scaffolders in REVERSE priority: lowest → highest).
      */
     public function dismantle(
         ContentLayoutEntity $layout,

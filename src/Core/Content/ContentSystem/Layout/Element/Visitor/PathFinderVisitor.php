@@ -6,7 +6,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Finds path from root to target using enter/leave pattern for natural backtracking.
+ * Finds path from root to target using enter/leave pattern.
  *
  * @internal
  */

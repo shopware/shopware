@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * ContentPage with properties extracted for deduplication and efficient serialization.
+ * Decomposed content structure optimized for deduplication and serialization.
  *
  * @final
  */
@@ -15,9 +15,9 @@ use Shopware\Core\Framework\Struct\Struct;
 class DecomposedContentPage extends Struct
 {
     /**
-     * @param array<ContentElement> $skeletons Element skeletons with properties extracted
-     * @param array<string, mixed> $data Extracted property values (deduplicated)
-     * @param array<string, array<string, string>> $assignments Element → property → refId mapping
+     * @param array<ContentElement> $skeletons Element structures without property values
+     * @param array<string, mixed> $data Deduplicated property values
+     * @param array<string, array<string, string>> $assignments Maps elements to property references
      */
     public function __construct(
         protected array $skeletons,

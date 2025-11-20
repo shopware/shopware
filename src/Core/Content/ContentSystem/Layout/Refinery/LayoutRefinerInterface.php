@@ -20,12 +20,6 @@ interface LayoutRefinerInterface
 {
     /**
      * Refines a content layout.
-     *
-     * @param ContentElement $layout The layout to refine
-     * @param RenderingSpecification $specification Rendering specification (layout ID, placeholders, target element)
-     * @param SalesChannelContext $salesChannelContext Sales channel context
-     *
-     * @return ContentElement The refined layout
      */
     public function refine(
         ContentElement $layout,

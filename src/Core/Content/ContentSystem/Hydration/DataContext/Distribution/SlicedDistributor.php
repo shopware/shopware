@@ -6,7 +6,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Chunks collection by slice_size. Uneven divisions → last slice gets remainder.
+ * Chunks collection by slice_size. Last slice gets remainder if uneven.
  *
  * @internal
  */

@@ -13,9 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * Extracts properties from ContentElements with deduplication.
- *
- * Objects with data requirements: Deduplicated by entity ID + config hash
- * Primitives/arrays: NOT deduplicated (arrays treated as atomic units)
+ * Objects: Deduplicated by entity ID + config hash. Primitives/arrays: Not deduplicated.
  *
  * @internal
  */

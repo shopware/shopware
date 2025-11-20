@@ -5,11 +5,8 @@ namespace Shopware\Core\Content\ContentSystem\Layout\Element;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Transparent wrapper for element property values.
- *
- * Prevents mixed arrays (non-Struct + Struct) from crashing StructEncoder's isStructArray() check.
- * The wrapper is removed during JSON serialization via jsonSerialize(), making it transparent
- * in API responses.
+ * Transparent wrapper preventing mixed Struct/non-Struct arrays from crashing StructEncoder.
+ * Removed during JSON serialization.
  *
  * @internal
  */

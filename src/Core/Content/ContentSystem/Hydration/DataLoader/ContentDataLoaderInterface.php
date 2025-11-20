@@ -14,9 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 interface ContentDataLoaderInterface
 {
-    /**
-     * @return string Requirement type identifier (e.g., 'entity', 'product_listing')
-     */
     public static function getRequirementType(): string;
 
     public function load(

@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Analyzes context dependencies to determine which ancestors must be kept during tree pruning.
- * Elements with ContextConsumer definitions depend on their ancestors (ContextProviders) for data.
  *
  * @internal
  */

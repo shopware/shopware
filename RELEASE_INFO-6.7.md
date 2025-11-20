@@ -1,7 +1,4 @@
 # 6.7.5.0 (upcoming)
-### More tech updates
-* ProductStream IDs added to ElasticsearchProductDefinition
-
 ## Features
 
 ### Tax Calculation Logic
@@ -11,10 +8,12 @@ Previously, enabling "Tax-free for B2C" in the country settings also affected B2
 Now, tax rules are applied **correctly** based on the customer type.
 
 ### Robots.txt configuration
+
 The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard.
 For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
 
 ### Scheduled Task for cleaning up corrupted media entries
+
 A new scheduled task `media.cleanup_corrupted_media` has been introduced.
 It detects and removes corrupted media records, such as entries created by interrupted or failed file uploads that have no corresponding file on the filesystem.
 
@@ -58,6 +57,7 @@ To add descriptions to fields in your custom entity definitions, use the `setDes
 ```
 
 ### Robots.txt parsing
+
 A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.
 As part of this change, the constructor for `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` is now deprecated for string parameters. You should use the new parser to create a `ParsedRobots` object to pass to the constructor instead.
 
@@ -140,6 +140,7 @@ The `link` property of the product manufacturer entity is now translatable.
 When creating a SEO URL for a product or category, the URL is now checked for availability. Before it was possible to override existing URLs like `account` or `maintenance` with SEO URLs. Existing URLs are now blocked to be used as SEO URLs.
 
 ## Refactor filters for the newsletter recipients list.
+
 We now use the `<mt-select>` instead `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch`.
 Because of that, we deprecate these twig blocks:
 * `sw_newsletter_recipient_list_sidebar_filter_status_not_set`

@@ -79,6 +79,7 @@ class RequestTransformer implements RequestTransformerInterface
         '/payment/finalize-transaction',
         '/installer',
         '/_fragment/',
+        '/robots.txt',
     ];
 
     /**

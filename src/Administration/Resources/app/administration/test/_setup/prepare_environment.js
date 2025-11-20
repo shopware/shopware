@@ -170,6 +170,10 @@ Shopware.Store.get('session').setAdminLocaleState({
     languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
 });
 
+// disable telemetry
+Shopware.Telemetry.initialize = () => Promise.resolve();
+Shopware.Telemetry.track = () => {};
+
 // Add global mocks
 config.global.mocks = {
     $tc: v => v,
@@ -316,6 +320,14 @@ global.allowedErrors = [
     {
         method: 'warn',
         msg: 'No extension found for origin ""',
+    },
+    {
+        method: 'warn',
+        msg: '[MtCheckbox] The `checked` prop is deprecated and will be removed. Please use v-model (modelValue/update:modelValue) instead.',
+    },
+    {
+        method: 'warn',
+        msg: '[Vue warn]: Invalid prop: custom validator check failed for prop "size".'
     },
     {
         method: 'error',
@@ -562,6 +574,7 @@ afterEach(() => {
     }
 });
 
+// eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });

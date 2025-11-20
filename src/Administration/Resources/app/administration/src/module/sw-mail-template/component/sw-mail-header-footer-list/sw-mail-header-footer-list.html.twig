@@ -3,7 +3,6 @@
     :title="$tc('sw-mail-header-footer.list.textMailHeaderFooterOverview')"
     position-identifier="sw-mail-header-footer-list"
 >
-
     {% block sw_mail_header_footer_list_grid_empty_state %}
     <sw-empty-state
         v-if="!isLoading && !showListing"
@@ -11,7 +10,6 @@
         :subline="$tc('sw-mail-header-footer.list.emptyStateSubTitle')"
         :absolute="false"
     >
-
         {% block sw_mail_header_footer_list_grid_empty_state_icon %}
         <template #icon>
             <img
@@ -20,7 +18,6 @@
             >
         </template>
         {% endblock %}
-
     </sw-empty-state>
     {% endblock %}
 
@@ -85,6 +82,5 @@
         </sw-entity-listing>
     </template>
     {% endblock %}
-
 </mt-card>
 {% endblock %}

@@ -33,7 +33,7 @@ class AnnotatePackageProcessor implements ProcessorInterface
             return $record;
         }
 
-        $packages = $this->packageService->getPackageTrace($exception ?? $record);
+        $packages = $this->packageService->getPackageTrace($exception);
 
         if ($packages !== []) {
             $record->extra[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = $packages;

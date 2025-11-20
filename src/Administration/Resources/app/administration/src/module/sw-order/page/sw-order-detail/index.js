@@ -274,6 +274,8 @@ export default {
                 // clean up recently created version
                 await this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext);
             }
+
+            window.removeEventListener('beforeunload', this.beforeDestroyComponent);
         },
 
         /**

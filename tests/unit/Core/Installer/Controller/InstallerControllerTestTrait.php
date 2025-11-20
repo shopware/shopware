@@ -7,6 +7,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Twig\Environment;
 
 /**
@@ -24,7 +26,10 @@ trait InstallerControllerTestTrait
         $container = new ContainerBuilder();
         $container->set('twig', $twig);
         $requestStack = new RequestStack();
-        $requestStack->push(new Request([], [], ['_route' => 'installer.welcome']));
+        $session = new Session(new MockArraySessionStorage());
+        $request = new Request([], [], ['_route' => 'installer.start']);
+        $request->setSession($session);
+        $requestStack->push($request);
         $container->set('request_stack', $requestStack);
         $container->setParameter('shopware.installer.supportedLanguages', $this->getSupportedLanguages());
         $container->setParameter('shopware.installer.configurationPreselection', $this->getSupportedPreselection());
@@ -53,7 +58,7 @@ trait InstallerControllerTestTrait
         return [
             'menu' => [
                 [
-                    'label' => 'welcome',
+                    'label' => 'start',
                     'active' => true,
                     'isCompleted' => false,
                 ],

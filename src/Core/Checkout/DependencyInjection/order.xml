@@ -132,6 +132,7 @@
         <service id="Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute" public="true">

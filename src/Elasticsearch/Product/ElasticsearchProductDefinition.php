@@ -54,7 +54,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function getMapping(Context $context): array
     {
         $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
-        $salesChannelByLanguage = $this->languageLoader->loadLanguages();
+        $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
         $visibilities = [];
@@ -103,6 +103,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'propertyIds' => self::KEYWORD_FIELD,
             'optionIds' => self::KEYWORD_FIELD,
             'tagIds' => self::KEYWORD_FIELD,
+            'streamIds' => self::KEYWORD_FIELD,
             'autoIncrement' => self::INT_FIELD,
             'manufacturerId' => self::KEYWORD_FIELD,
             'manufacturerNumber' => self::getTextFieldConfig(),
@@ -211,9 +212,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $languageMapping = $this->getLanguageMapping();
 
         foreach ($data as $id => $item) {
-            /** @var array<int|string, array<string, string|null>> $translation */
+            /** @var list<array<string, string|null>> $translation */
             $translation = $item['translation'] ?? [];
-            /** @var array<int, array{id: string, languageId?: string}> $categories */
+            /** @var list<array<string, string|null>> $categories */
             $categories = $item['categories'] ?? [];
 
             $names = ElasticsearchFieldMapper::translated(field: 'name', items: $translation);
@@ -260,7 +261,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     ], $visibility);
                 }, $visibilities),
                 'availableStock' => (int) $item['availableStock'],
-                'productNumber' => $item['productNumber'],
+                'productNumber' => array_filter([$item['productNumber'], $item['parentProductNumber'] ?? null]),
                 'ean' => $item['ean'],
                 'displayGroup' => $item['displayGroup'],
                 'sales' => (int) $item['sales'],
@@ -287,7 +288,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'parentId' => $item['parentId'],
                 'coverId' => $item['coverId'],
                 'childCount' => (int) $item['childCount'],
-                'categories' => ElasticsearchFieldMapper::toManyAssociations(items: $categories ?? [], translatedFields: ['name']),
+                'categories' => ElasticsearchFieldMapper::toManyAssociations(items: $categories, translatedFields: ['name']),
                 'manufacturer' => [
                     'id' => $item['productManufacturerId'],
                     'name' => ElasticsearchFieldMapper::translated(field: 'manufacturerName', items: $translation),
@@ -314,6 +315,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'optionIds' => ElasticsearchIndexingUtils::parseJson($item, 'optionIds'),
                 'propertyIds' => ElasticsearchIndexingUtils::parseJson($item, 'propertyIds'),
                 'tagIds' => ElasticsearchIndexingUtils::parseJson($item, 'tagIds'),
+                'streamIds' => ElasticsearchIndexingUtils::parseJson($item, 'streamIds'),
                 'states' => ElasticsearchIndexingUtils::parseJson($item, 'states'),
                 'customFields' => $customFields,
                 'name' => $names,
@@ -337,7 +339,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     /**
      * @param array<string> $ids
      *
-     * @return array<string, array<string, array<mixed>|string>>
+     * @return array<string, array<string, string|array<int, array<string, string|null>>|null>>
      */
     private function fetchProducts(array $ids, Context $context): array
     {
@@ -359,6 +361,7 @@ SELECT
     IFNULL(p.available_stock, pp.available_stock) AS availableStock,
     IFNULL(p.rating_average, pp.rating_average) AS ratingAverage,
     p.product_number as productNumber,
+    pp.product_number as parentProductNumber,
     p.sales,
     LOWER(HEX(p.manufacturer)) AS productManufacturerId,
     LOWER(HEX(p.delivery_time_id)) as deliveryTimeId,
@@ -376,6 +379,7 @@ SELECT
     IFNULL(p.option_ids, pp.option_ids) AS optionIds,
     IFNULL(p.property_ids, pp.property_ids) AS propertyIds,
     IFNULL(p.tag_ids, pp.tag_ids) AS tagIds,
+    IFNULL(p.stream_ids, pp.stream_ids) AS streamIds,
     LOWER(HEX(IFNULL(p.tax_id, pp.tax_id))) AS taxId,
     IFNULL(p.stock, pp.stock) AS stock,
     IFNULL(p.ean, pp.ean) AS ean,
@@ -409,7 +413,7 @@ SQL;
             ], 'visibilities'),
         ];
 
-        /** @var array<string, array<string, string>> $base */
+        /** @var array<string, array<string, string|null>> $base */
         $base = $this->connection->fetchAllAssociativeIndexed(
             str_replace(array_keys($baseMapping), array_values($baseMapping), $baseSql),
             [
@@ -460,7 +464,7 @@ SQL;
         $translationSql = str_replace(array_keys($translationMapping), array_values($translationMapping), $translationSql);
 
         foreach ($languages as $languageId) {
-            /** @var array<string, array<string, string>> $translations */
+            /** @var array<string, array<string, string|null>> $translations */
             $translations = $this->connection->fetchAllAssociativeIndexed(
                 $translationSql,
                 [
@@ -475,7 +479,7 @@ SQL;
 
             foreach ($translations as $id => $translation) {
                 $translation['languageId'] = $languageId;
-                /** @var array<mixed> $categories */
+                /** @var list<array<string, string|null>> $categories */
                 $categories = $base[$id]['categories'] ?? [];
                 $translatedCategories = ElasticsearchIndexingUtils::parseJson($translation, 'categories');
 

@@ -35,6 +35,10 @@ APP_URL="<shop base url>"
 # optional with default dev setup
 SHOPWARE_ACCESS_KEY_ID="<your-api-client-id>"
 SHOPWARE_SECRET_ACCESS_KEY="<your-api-secret>"
+MAILPIT_BASE_URL=http://localhost:8025
+
+# If you are using a self-signed certificate or OrbStack domains
+SHOPWARE_PLAYWRIGHT_IGNORE_HTTPS_ERRORS=1
 ```
 
 To generate the access key you can use the following symfony command:
@@ -318,18 +322,35 @@ This is expected since there is no baseline image to compare against. Playwright
 
 
 ### Updating Screenshots
-If your UI changes intentionally, you may need to update the reference (base image) screenshots.
-To update the reference screenshot you can use the **--update-snapshots** flag (or **-u**) flag.
+When a visual assertion fails because a UI change is expected, the baseline
+snapshots that live next to the spec file should be refreshed (for example
+`tests/acceptance/tests/Visual/Storefront/Account.spec.ts-snapshots/`).
+Each file name is derived from the value provided to `toHaveScreenshot`/`assertScreenshot` and
+the current operating system and project name are appended automatically by Playwright (for example
+`Account-Login-Page-Visual-linux.png`).
 
-```
-npx playwright test --update-snapshots
-```
+Baseline updates are managed through the Visual Tests GitHub Actions workflow, which can
+regenerate the snapshot assets for you when UI changes are intentional.
 
-You can also update only some specific snapshots using test name:
+When a comparison fails the `*-actual.png`, `*-expected.png`, and `*-diff.png` files are written
+to the `playwright-report` (or `test-results`) directory. Those should be reviewed before the new
+baseline images are committed to ensure the visual change is intentional.
 
-```
-npx playwright test -u "**/test_name*.spec.ts"
-```
+### Updating Expected Screenshots in GitHub Actions
+
+The visual suite can be run from GitHub Actions under **Visual Tests**. Three inputs are provided
+by the workflow dispatch form:
+
+- **Update snapshots** – toggles the `--update-snapshots` flag so baselines are refreshed when
+  differences are detected. When changes are found, a pull request is opened with the updated
+  `*-snapshots/*.png` assets so they can be reviewed and merged.
+- **Report to Currents** – enables the optional [Currents](https://currents.dev/) integration for
+  the execution.
+- **Filter** – passes the provided value through to Playwright's `--grep` option, allowing tests to
+  be included or excluded in the CI run using the same filtering syntax used locally.
+
+When the workflow is triggered, the branch to be validated should be chosen. This allows snapshots
+to be refreshed without running anything locally while still leveraging PR review for the new baselines.
 
 ### Debugging Visual Tests
 The best way to debug visual test failures is by reviewing the "Actual" and "Expected" images in the Playwright HTML report or any other reporting tool you use. The "Diff" view highlights discrepancies between screenshots, making it easier to identify differences.
@@ -344,9 +365,21 @@ These settings can be applied per test or globally in **playwright.config.ts** f
 
 
 ### Best Practices for Visual Testing 
+- **Automatic viewport sizing** – Use `setViewport` to ensure that you capture all the content.
+  - Automatically adjusts the viewport size based on:
+    - Content height of a scrollable container (default: '.sw-card-view__content' )
+    - Content width of a scrollable container (default:  '.sw-data-grid__wrapper' )
+    - Header height (if not inside the scroll container)
+    - Optional extra spacing
+  - Also supports waiting for:
+    - A network request (requestURL)
+    - A specific selector to appear before measuring
+    - Be sure to always use one of the waiting options! If not, the method will wait for the message queue to appear, which causes an unnecessary delay of around 5 seconds.
+- **Selective viewports**
+  - Use `assertScreenshot` to capture only a specific element or a section of the page. (default: '.sw-desktop__content')
 - **Handling dynamic elements:**  
-  - Replace dynamic text content (e.g., usernames, prices) with `***` using `ReplaceElementsForScreenshot` to mask sensitive or frequently changing information.  
-  - Use `HideElementsForScreenshot` for elements where replacing text content is not feasible—such as those with dynamic color or style changes—to hide them while preserving layout integrity.
+  - Replace dynamic text content (e.g., usernames, prices) with `***` using `replaceElements` or use `replaceElementsIndividually` to mask sensitive or frequently changing information with individual text.  
+  - Use `hideElements` for elements where replacing text content is not feasible—such as those with dynamic color or style changes—to hide them while preserving layout integrity.
 - **Ensure environmental consistency** – Match OS versions, time zones, and rendering environments between your local machine and the test runner.
 - **Adjust sensitivity thresholds** – Modify `maxDiffPixels` and `threshold` based on your project’s requirements.
 - **Handle lazy-loaded elements** – Extend `toHaveScreenshot()` with an additional timeout if necessary.

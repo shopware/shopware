@@ -32,7 +32,7 @@ class RedisStub extends \Redis
         return false;
     }
 
-    private function doSet(string $key, mixed $value, mixed $options = null): bool
+    private function doSet(string $key, mixed $value, mixed $options = null): true
     {
         $expire = 0;
 

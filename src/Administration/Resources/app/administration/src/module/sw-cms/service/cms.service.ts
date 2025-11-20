@@ -31,6 +31,9 @@ type CmsSlotData = {
 
 type RuntimeSlot = Entity<'cms_slot'> & {
     config: CmsSlotConfig;
+    translated?: {
+        config: CmsSlotConfig;
+    };
     data: {
         [key: string]: CmsSlotData;
     };
@@ -429,7 +432,9 @@ class CmsService {
                     entityIds.push(val.mediaId);
                 });
             } else {
-                entityIds.push(...configValue);
+                configValue.forEach((id) => {
+                    entityIds.push(id as string);
+                });
             }
 
             entityData.value = entityIds;

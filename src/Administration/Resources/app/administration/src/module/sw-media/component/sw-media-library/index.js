@@ -95,6 +95,18 @@ export default {
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
+
+        allowCreateFolder: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {

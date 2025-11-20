@@ -25,56 +25,56 @@ jobs:
       - name: Check out code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Find all package.json files
-        id: find-packages
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+
+      - name: Validate package.json completeness
+        run: npx esno ./.github/bin/js/package-discovery.ts validate
+
+  check-pinned-dependencies:
+    name: Check pinned dependencies
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+
+      - name: Check for unpinned dependencies
+        run: npx esno ./.github/bin/js/check-pinned-dependencies.ts
+
+  generate-audit-matrix:
+    name: Generate audit matrix
+    needs: [check-package-completeness, check-pinned-dependencies]
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+
+      - name: Generate matrix
+        id: generate-matrix
         run: |
-          # Find all package.json files, excluding node_modules and vendor directories
-          found_packages=$(find . -name "package.json" -not -path "*/node_modules/*" -not -path "*/vendor/*" | sort)
-          
-          # Expected package.json files that should be audited
-          expected_packages="./.github/bin/js/package.json
-          ./src/Administration/Resources/app/administration/eslint-rules/core-rules/package.json
-          ./src/Administration/Resources/app/administration/eslint-rules/deprecation-rules/package.json
-          ./src/Administration/Resources/app/administration/eslint-rules/plugin-rules/package.json
-          ./src/Administration/Resources/app/administration/eslint-rules/test-rules/package.json
-          ./src/Administration/Resources/app/administration/package.json
-          ./src/Administration/Resources/app/administration/twigVuePlugin/package.json
-          ./src/Storefront/Resources/app/administration/package.json
-          ./src/Storefront/Resources/app/storefront/package.json
-          ./tests/acceptance/package.json"
-          
-          echo "Found packages:"
-          echo "$found_packages"
-          echo ""
-          echo "Expected packages:"
-          echo "$expected_packages"
-          
-          # Check if there are any unexpected package.json files
-          unexpected=$(comm -23 <(echo "$found_packages" | sort) <(echo "$expected_packages" | sort))
-          
-          if [ -n "$unexpected" ]; then
-            echo "❌ ERROR: Found unexpected package.json files that are not included in the audit workflow:"
-            echo "$unexpected"
-            echo ""
-            echo "Please add these files to the audit workflow in .github/workflows/npm-audit-check.yml"
-            exit 1
-          fi
-          
-          # Check if any expected files are missing
-          missing=$(comm -13 <(echo "$found_packages" | sort) <(echo "$expected_packages" | sort))
-          
-          if [ -n "$missing" ]; then
-            echo "⚠️  WARNING: Some expected package.json files are missing:"
-            echo "$missing"
-          fi
-          
-          echo "✅ All found package.json files are included in the audit workflow"
+          matrix=$(npx esno ./.github/bin/js/package-discovery.ts matrix)
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
-  audit-tests-acceptance:
-    name: Audit - Tests Acceptance
-    needs: check-package-completeness
-    timeout-minutes: 10
+  audit-packages:
+    name: Audit - ${{ matrix.name }}
+    needs: generate-audit-matrix
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-audit-matrix.outputs.matrix) }}
     steps:
       - name: Check out code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -85,198 +85,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: ./tests/acceptance
+        working-directory: ${{ matrix.workingDirectory }}
 
-      - name: Run audit
+      - name: Run audit (standard)
+        if: ${{ !matrix.hasCustomAuditScript }}
         run: npm audit
-        working-directory: ./tests/acceptance
+        working-directory: ${{ matrix.workingDirectory }}
 
-  audit-github-bin-js:
-    name: Audit - GitHub Bin JS
-    needs: check-package-completeness
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./.github/bin/js
-
-      - name: Run audit
-        run: npm audit
-        working-directory: ./.github/bin/js
-
-  audit-storefront-main:
-    name: Audit - Storefront Main
-    needs: check-package-completeness
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./src/Storefront/Resources/app/storefront
-
-      - name: Run audit
-        run: npm audit
-        working-directory: ./src/Storefront/Resources/app/storefront
-
-  audit-storefront-administration:
-    name: Audit - Storefront Administration
-    needs: check-package-completeness
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./src/Storefront/Resources/app/administration
-
-      - name: Run audit
-        run: npm audit
-        working-directory: ./src/Storefront/Resources/app/administration
-
-  audit-administration-twig-vue-plugin:
-    name: Audit - Administration Twig Vue Plugin
-    needs: check-package-completeness
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./src/Administration/Resources/app/administration/twigVuePlugin
-
-      - name: Run audit
-        run: npm audit
-        working-directory: ./src/Administration/Resources/app/administration/twigVuePlugin
-
-  audit-administration-main:
-    name: Audit - Administration Main
-    needs: check-package-completeness
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./src/Administration/Resources/app/administration
-
-      - name: Run audit
-        # we need to run script which also ignores axios vulnerabilities
+      - name: Run audit (custom script)
+        if: ${{ matrix.hasCustomAuditScript }}
         run: npx esno ./scripts/runNpmAudit.ts
-        working-directory: ./src/Administration/Resources/app/administration
-
-  audit-eslint-deprecation-rules:
-    name: Audit - ESLint Deprecation Rules
-    needs: check-package-completeness
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./src/Administration/Resources/app/administration/eslint-rules/deprecation-rules
-
-      - name: Run audit
-        run: npm audit
-        working-directory: ./src/Administration/Resources/app/administration/eslint-rules/deprecation-rules
-
-  audit-eslint-plugin-rules:
-    name: Audit - ESLint Plugin Rules
-    needs: check-package-completeness
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./src/Administration/Resources/app/administration/eslint-rules/plugin-rules
-
-      - name: Run audit
-        run: npm audit
-        working-directory: ./src/Administration/Resources/app/administration/eslint-rules/plugin-rules
-
-  audit-eslint-core-rules:
-    name: Audit - ESLint Core Rules
-    needs: check-package-completeness
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./src/Administration/Resources/app/administration/eslint-rules/core-rules
-
-      - name: Run audit
-        run: npm audit
-        working-directory: ./src/Administration/Resources/app/administration/eslint-rules/core-rules
-
-  audit-eslint-test-rules:
-    name: Audit - ESLint Test Rules
-    needs: check-package-completeness
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./src/Administration/Resources/app/administration/eslint-rules/test-rules
-
-      - name: Run audit
-        run: npm audit
-        working-directory: ./src/Administration/Resources/app/administration/eslint-rules/test-rules
+        working-directory: ${{ matrix.workingDirectory }}

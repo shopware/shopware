@@ -191,6 +191,10 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = [];
     });
 
+    afterEach(() => {
+        Shopware.Store.get('actionButtons').buttons = [];
+    });
+
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
@@ -453,4 +457,52 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
         expect(eventBusEmitSpy).toHaveBeenCalledWith('sw-media-library-item-updated', wrapper.vm.item.id);
     });
+
+    it('should show action button from apps', async () => {
+        Shopware.Store.get('actionButtons').add({
+            name: 'media-button',
+            entity: 'media',
+            view: 'item',
+            label: 'Navigate to app',
+        });
+
+        const wrapper = await createWrapper({ hasFile: true });
+
+        const actionButton = wrapper.find('.quickaction--custom');
+        expect(actionButton.exists()).toBeTruthy();
+    });
+
+    it('should call the action button method', async () => {
+        const actionButtonMethod = jest.fn();
+        const action = {
+            name: 'media-button',
+            entity: 'media',
+            view: 'item',
+            label: 'Navigate to app',
+            callback: actionButtonMethod,
+        };
+
+        Shopware.Store.get('actionButtons').add(action);
+
+        const wrapper = await createWrapper({ hasFile: true });
+        const actionButton = wrapper.find('.quickaction--custom');
+
+        await actionButton.trigger('click');
+
+        expect(actionButtonMethod).toHaveBeenCalled();
+    });
+
+    it.each([
+        { mimeType: 'video/quicktime', shouldShowWarning: true },
+        { mimeType: 'video/mp4', shouldShowWarning: false },
+    ])(
+        'should show warning banner if video format is not supported (type: $mimeType, shouldShowWarning: $shouldShowWarning)',
+        async ({ mimeType, shouldShowWarning }) => {
+            const wrapper = await createWrapper({ mimeType, hasFile: true });
+            await wrapper.vm.$nextTick();
+
+            const banner = wrapper.find('.sw-media-quickinfo__unsupported-format-banner');
+            expect(banner.exists()).toBe(shouldShowWarning);
+        },
+    );
 });

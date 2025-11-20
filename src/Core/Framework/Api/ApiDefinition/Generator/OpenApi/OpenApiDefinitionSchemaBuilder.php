@@ -482,6 +482,9 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         $description = [];
+        if ($field->getDescription()) {
+            $description[] = $field->getDescription();
+        }
         $flag = $field->getFlag(Since::class);
         if ($flag instanceof Since) {
             $description[] = \sprintf('Added since version: %s.', $flag->getSince());

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestWith;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -228,7 +229,9 @@ class ImportExportTest extends AbstractImportExportTestCase
     #[Group('needsWebserver')]
     public function testMediaWithEncodedUrl(): void
     {
-        $csvContent = \sprintf('url %s', EnvironmentHelper::getVariable('APP_URL')) . '/media/%C3%9Fhopware-log%C3%B6.png';
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+        $csvContent = \sprintf('url %s', $appUrl) . '/media/%C3%9Fhopware-log%C3%B6.png';
 
         $fixturesPath = __DIR__ . '/fixtures/media_encoded_url.csv';
         file_put_contents($fixturesPath, $csvContent);
@@ -1315,7 +1318,22 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         $this->addEventListener($this->listener, MailSentEvent::class, $listenerClosure);
 
-        $progress = $this->import($context, CustomerDefinition::ENTITY_NAME, '/fixtures/customers.csv', 'customers.csv');
+        $profile = $this->cloneDefaultProfile(CustomerDefinition::ENTITY_NAME);
+        $mapping = $profile->getMapping();
+        $mapping[] = [
+            'key' => 'password',
+            'mappedKey' => 'password',
+        ];
+        $this->updateProfileMapping($profile->getId(), $mapping);
+
+        $progress = $this->import(
+            $context,
+            CustomerDefinition::ENTITY_NAME,
+            '/fixtures/customers.csv',
+            'customers.csv',
+            $profile->getId(),
+        );
+
         $this->listener->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
@@ -1336,6 +1354,12 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertTrue($result->has('0a1dea4bd2de43929ac210fd17339dde'));
         $customerWithMultipleAddresses = $result->get('0a1dea4bd2de43929ac210fd17339dde');
 
+        $passwords = \array_values(array_map(fn (CustomerEntity $customer) => $customer->getPassword(), $result->getElements()));
+        static::assertCount(3, $passwords);
+        static::assertNull($passwords[0]);
+        static::assertNull($passwords[1]);
+        static::assertNull($passwords[2]);
+
         static::assertInstanceOf(CustomerAddressCollection::class, $customerWithMultipleAddresses->getAddresses());
         static::assertCount(4, $customerWithMultipleAddresses->getAddresses());
         static::assertInstanceOf(CustomerAddressEntity::class, $customerWithMultipleAddresses->getDefaultBillingAddress());
@@ -1349,7 +1373,13 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertInstanceOf(CustomerAddressEntity::class, $customerWithUpdatedAddresses->getDefaultShippingAddress());
         static::assertSame('shopware AG', $customerWithUpdatedAddresses->getDefaultShippingAddress()->getCompany());
 
-        $progress = $this->export($context, CustomerDefinition::ENTITY_NAME);
+        $progress = $this->export(
+            $context,
+            CustomerDefinition::ENTITY_NAME,
+            null,
+            null,
+            $profile->getId()
+        );
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
@@ -1358,6 +1388,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertStringContainsString('shopware AG', $csv);
         static::assertStringContainsString('en-GB', $csv);
         static::assertStringContainsString('Standard customer group', $csv);
+        static::assertStringNotContainsString('password', $csv);
     }
 
     public function testImportWithCreateAndUpdateConfig(): void
@@ -1809,6 +1840,47 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $second = $invalid[1];
         static::assertSame('d5e8a6d00ce64f369a6aa3e29c4650cf', $second['id']);
         static::assertStringContainsString('CONSTRAINT `fk.product_', $second['_error']);
+    }
+
+    #[TestWith([false])]
+    #[TestWith([true])]
+    public function testUpdateOnlyProfileWithNonExistingRecords(bool $useBatchMode): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM product');
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $profile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
+        $this->updateProfileConfig($profile->getId(), [
+            'createEntities' => false,
+            'updateEntities' => true,
+        ]);
+
+        $progress = $this->import(
+            $context,
+            ProductDefinition::ENTITY_NAME,
+            '/fixtures/products_with_invalid.csv',
+            'products_with_invalid.csv',
+            $profile->getId(),
+            useBatchImport: $useBatchMode,
+        );
+
+        static::assertImportExportFailed($progress);
+
+        $ids = $this->productRepository->searchIds(new Criteria(), Context::createDefaultContext());
+        static::assertCount(0, $ids->getIds());
+
+        $invalid = $this->getInvalidLogContent($progress->getInvalidRecordsLogId());
+        static::assertGreaterThanOrEqual(1, \count($invalid));
+
+        $errorRecord = $invalid[0];
+        static::assertArrayHasKey('_error', $errorRecord);
+        static::assertSame(
+            'The product record was not found. This import profile only allows updates to existing records.',
+            $errorRecord['_error']
+        );
     }
 
     /**

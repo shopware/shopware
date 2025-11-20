@@ -95,6 +95,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         $route = $request->attributes->get('_route');
+        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12968) */
         if ($route === 'frontend.checkout.configure') {
             $this->setCurrencyCookie($request, $response);
         }
@@ -104,6 +105,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         $states = $this->updateSystemState($cart, $context, $request, $response);
 
         // We need to allow it on login, otherwise the state is wrong
+        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12968) */
         if (!($route === 'frontend.account.login' || $request->isMethod(Request::METHOD_GET))) {
             return;
         }
@@ -214,7 +216,7 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
     {
         $ruleAreas = $this->ruleResolver->resolveRuleAreas($request, $context);
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             $ruleIds = $context->getRuleIdsByAreas($ruleAreas);
         } else {
             $ruleIds = $context->getRuleIds();

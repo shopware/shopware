@@ -1,6 +1,5 @@
 {% block sw_review_list %}
 <sw-page class="sw-review-list">
-
     {% block sw_review_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -14,10 +13,8 @@
 
     {% block sw_review_list_smart_bar_header %}
     <template #smart-bar-header>
-
         {% block sw_review_list_smart_bar_header_title %}
         <h2>
-
             {% block sw_review_list_smart_bar_header_title_text %}
             {{ $tc('sw-review.list.textReviewOverview') }}
             {% endblock %}
@@ -140,7 +137,6 @@
     {% block sw_review_list_sidebar %}
     <template #sidebar>
         <sw-sidebar>
-
             {% block sw_review_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"

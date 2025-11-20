@@ -5,6 +5,7 @@
 /* eslint-disable max-len,jest/no-conditional-expect */
 import { mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
+import { MtTextField } from '@shopware-ag/meteor-component-library';
 
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
@@ -62,8 +63,8 @@ async function createWrapper(props) {
                     'sw-upload-listener': true,
                     'sw-simple-search-field': true,
                     'sw-loader': true,
-                    // Looks strange? Try to fix it and add to the count: I
-                    'sw-datepicker-deprecated': await wrapTestComponent('sw-text-field-deprecated'),
+                    // Looks strange? Try to fix it and add to the count: II
+                    'mt-datepicker': MtTextField,
                     'sw-text-editor': {
                         props: ['value'],
                         template:
@@ -79,12 +80,10 @@ async function createWrapper(props) {
                     'sw-extension-component-section': true,
                     'router-link': true,
                     'sw-help-text': true,
-                    'mt-text-field': true,
                     'sw-field-copyable': true,
                     'sw-ai-copilot-badge': true,
                     'mt-skeleton-bar': true,
                     'sw-skeleton-bar-deprecated': true,
-                    'mt-number-field': true,
                     'mt-floating-ui': true,
                     'sw-color-badge': true,
                     'sw-media-upload-v2': true,
@@ -94,7 +93,6 @@ async function createWrapper(props) {
                     'sw-media-modal-delete': true,
                     'sw-media-modal-move': true,
                     'sw-context-button': true,
-                    'mt-checkbox': true,
                     'sw-product-variant-info': true,
                     'sw-app-action-button': true,
                     'sw-time-ago': true,
@@ -354,6 +352,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
         },
         {
+            isMeteorComponent: true,
             testFieldLabel: 'text field',
             customFieldType: 'text',
             customFieldConfigType: 'text',
@@ -410,6 +409,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
         },
         {
+            isMeteorComponent: true,
             testFieldLabel: 'number field int',
             customFieldType: 'int',
             customFieldConfigType: 'number',
@@ -435,6 +435,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
         },
         {
+            isMeteorComponent: true,
             testFieldLabel: 'number field float',
             customFieldType: 'float',
             customFieldConfigType: 'number',
@@ -460,6 +461,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
         },
         {
+            isMeteorComponent: true,
             testFieldLabel: 'datetime field',
             customFieldType: 'datetime',
             customFieldConfigType: 'date',
@@ -485,6 +487,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
         },
         {
+            isMeteorComponent: true,
             testFieldLabel: 'checkbox field',
             customFieldType: 'bool',
             customFieldConfigType: 'checkbox',
@@ -510,7 +513,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
         },
         {
-            isMeteorComponent: false,
+            isMeteorComponent: true,
             testFieldLabel: 'active/inactive switch field',
             customFieldType: 'bool',
             customFieldConfigType: 'switch',
@@ -561,6 +564,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
         },
         {
+            isMeteorComponent: true,
             testFieldLabel: 'colorpicker field',
             customFieldType: 'text',
             customFieldConfigType: 'colorpicker',
@@ -584,6 +588,10 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await customField.find('input[type="text"]').setValue('#48e8e8');
                 await customField.find('input[type="text"]').trigger('change');
                 await flushPromises();
+                // Wait 55ms (because of debounce in colorpicker component)
+                await new Promise((resolve) => {
+                    setTimeout(resolve, 60);
+                });
             },
         },
         {
@@ -1435,7 +1443,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // check if inheritance switch is visible
                 const inheritanceSwitch = isMeteorComponent
-                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    ? wrapper.find('.mt-inheritance-switch')
                     : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
@@ -1501,7 +1509,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // check if inheritance switch is visible
                 const inheritanceSwitch = isMeteorComponent
-                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    ? wrapper.find('.mt-inheritance-switch')
                     : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
@@ -1565,7 +1573,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // check if inheritance switch is visible
                 let inheritanceSwitch = isMeteorComponent
-                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    ? wrapper.find('.mt-inheritance-switch')
                     : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
@@ -1584,6 +1592,18 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 }
                 await flushPromises();
 
+                // Update the reference to the inheritance switch
+                inheritanceSwitch = isMeteorComponent
+                    ? wrapper.find('.mt-inheritance-switch')
+                    : wrapper.find('.sw-inheritance-switch');
+
+                // check if inheritance switches
+                if (isMeteorComponent) {
+                    expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+                } else {
+                    expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+                }
+
                 // check if entity value contains parent value and not undefined
                 entityValueForCustomField = wrapper.vm.entity.customFields[fieldName];
                 expect(entityValueForCustomField).toEqual(entityCustomFieldValueBefore);
@@ -1594,7 +1614,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // check if inheritance switch is not inherit anymore
                 inheritanceSwitch = isMeteorComponent
-                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    ? wrapper.find('.mt-inheritance-switch')
                     : wrapper.find('.sw-inheritance-switch');
                 if (isMeteorComponent) {
                     expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
@@ -1653,7 +1673,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // check if inheritance switch is visible
                 let inheritanceSwitch = isMeteorComponent
-                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    ? wrapper.find('.mt-inheritance-switch')
                     : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
@@ -1681,7 +1701,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // check if inheritance switch is not inherit anymore
                 inheritanceSwitch = isMeteorComponent
-                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    ? wrapper.find('.mt-inheritance-switch')
                     : wrapper.find('.sw-inheritance-switch');
 
                 if (isMeteorComponent) {
@@ -1745,7 +1765,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // check if inheritance switch is visible
                 let inheritanceSwitch = isMeteorComponent
-                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    ? wrapper.find('.mt-inheritance-switch')
                     : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
@@ -1774,7 +1794,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // check if inheritance switch is inherited
                 inheritanceSwitch = isMeteorComponent
-                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    ? wrapper.find('.mt-inheritance-switch')
                     : wrapper.find('.sw-inheritance-switch');
                 if (isMeteorComponent) {
                     expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
@@ -1835,7 +1855,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // check if inheritance switch is visible
                 let inheritanceSwitch = isMeteorComponent
-                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    ? wrapper.find('.mt-inheritance-switch')
                     : wrapper.find('.sw-inheritance-switch');
                 expect(inheritanceSwitch.isVisible()).toBe(true);
 
@@ -1864,7 +1884,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 // check if inheritance switch is inherited
                 inheritanceSwitch = isMeteorComponent
-                    ? wrapper.find('button.mt-field-label__inheritance-switch')
+                    ? wrapper.find('.mt-inheritance-switch')
                     : wrapper.find('.sw-inheritance-switch');
                 if (isMeteorComponent) {
                     expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
@@ -1877,7 +1897,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
     it.each([
         { name: 'default', customFields: { field1: 'de' }, expected: 'de' },
-        { name: 'empty', customFields: { field: null }, expected: undefined },
+        { name: 'empty', customFields: { field: null }, expected: '' },
     ])(
         'should not use the custom field translation as a fallback for input fields: $name',
         async ({ customFields, expected }) => {

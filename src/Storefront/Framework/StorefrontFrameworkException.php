@@ -71,6 +71,19 @@ class StorefrontFrameworkException extends HttpException
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:remove-exception - will be removed, please use \Shopware\Storefront\Framework\StorefrontFrameworkException::salesChannelMappingNotFound
+     */
+    public static function salesChannelMappingException(string $url): self
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'salesChannelMappingException', 'v6.8.0.0', 'salesChannelMappingNotFound')
+        );
+
+        return new SalesChannelMappingException($url);
+    }
+
+    /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      */
     public static function salesChannelMappingNotFound(string $url): self|SalesChannelMappingException

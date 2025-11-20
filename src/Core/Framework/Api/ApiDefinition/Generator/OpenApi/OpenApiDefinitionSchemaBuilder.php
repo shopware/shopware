@@ -45,15 +45,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ */
 #[Package('framework')]
 class OpenApiDefinitionSchemaBuilder
 {
     private readonly CamelCaseToSnakeCaseNameConverter $converter;
-
-    /**
-     * @var array<string, string> Temporary storage for field descriptions during schema generation
-     */
-    private array $fieldDescriptions = [];
 
     /**
      * @internal
@@ -73,9 +71,6 @@ class OpenApiDefinitionSchemaBuilder
         bool $onlyFlat = false,
         string $apiType = DefinitionService::TYPE_JSON_API
     ): array {
-        // Reset field descriptions for each schema generation
-        $this->fieldDescriptions = [];
-
         $schema = [];
         $attributes = [];
         $requiredAttributes = [];
@@ -171,7 +166,8 @@ class OpenApiDefinitionSchemaBuilder
 
         if ($definition->getTranslationDefinition()) {
             foreach ($definition->getTranslationDefinition()->getFields() as $field) {
-                if ($field->getPropertyName() === 'translations' || $field->getPropertyName() === 'id') {
+                $propertyName = $field->getPropertyName();
+                if (\in_array($propertyName, ['translations', 'id'], true)) {
                     continue;
                 }
 
@@ -182,7 +178,7 @@ class OpenApiDefinitionSchemaBuilder
                     && !$field instanceof CreatedAtField
                     && !$field instanceof UpdatedAtField
                     && !$field instanceof FkField) {
-                    $requiredAttributes[] = $field->getPropertyName();
+                    $requiredAttributes[] = $propertyName;
                 }
             }
         }
@@ -291,9 +287,10 @@ class OpenApiDefinitionSchemaBuilder
 
     private function createToOneLinkage(ManyToOneAssociationField|OneToOneAssociationField $field, string $basePath): Property
     {
-        $property = new Property([
+        return new Property([
             'type' => 'object',
             'property' => $field->getPropertyName(),
+            'description' => $field->getDescription(),
             'properties' => [
                 'links' => [
                     'type' => 'object',
@@ -321,14 +318,6 @@ class OpenApiDefinitionSchemaBuilder
                 ],
             ],
         ]);
-
-        // Store the field description for later use in getRelationShipProperty
-        $description = $field->getDescription();
-        if ($description) {
-            $this->fieldDescriptions[$field->getPropertyName()] = $description;
-        }
-
-        return $property;
     }
 
     private function createToManyLinkage(ManyToManyAssociationField|OneToManyAssociationField|AssociationField $field, string $basePath): Property
@@ -339,9 +328,10 @@ class OpenApiDefinitionSchemaBuilder
             $associationEntityName = $field->getToManyReferenceDefinition()->getEntityName();
         }
 
-        $property = new Property([
+        return new Property([
             'type' => 'object',
             'property' => $field->getPropertyName(),
+            'description' => $field->getDescription(),
             'properties' => [
                 'links' => [
                     'type' => 'object',
@@ -371,14 +361,6 @@ class OpenApiDefinitionSchemaBuilder
                 ],
             ],
         ]);
-
-        // Store the field description for later use in getRelationShipProperty
-        $description = $field->getDescription();
-        if ($description) {
-            $this->fieldDescriptions[$field->getPropertyName()] = $description;
-        }
-
-        return $property;
     }
 
     /**
@@ -429,7 +411,7 @@ class OpenApiDefinitionSchemaBuilder
             $definition = new Property([
                 'type' => 'array',
                 'property' => $jsonField->getPropertyName(),
-                'items' => $this->getPropertyAssocsByField($jsonField instanceof ListField ? $jsonField->getFieldType() : null),
+                'items' => $this->getPropertyAssociationsByField($jsonField instanceof ListField ? $jsonField->getFieldType() : null),
             ]);
         } elseif ($jsonField instanceof PriceField) {
             $definition = new Property([
@@ -529,7 +511,7 @@ class OpenApiDefinitionSchemaBuilder
         return $property;
     }
 
-    private function getPropertyAssocsByField(?string $fieldClass): object
+    private function getPropertyAssociationsByField(?string $fieldClass): object
     {
         $property = new \stdClass();
         if ($fieldClass === null) {
@@ -582,11 +564,8 @@ class OpenApiDefinitionSchemaBuilder
     private function isWriteProtected(Field $field): bool
     {
         $writeProtection = $field->getFlag(WriteProtected::class);
-        if ($writeProtection && !$writeProtection->isAllowed(Context::USER_SCOPE)) {
-            return true;
-        }
 
-        return false;
+        return $writeProtection && !$writeProtection->isAllowed(Context::USER_SCOPE);
     }
 
     private function isDeprecated(Field $field): bool
@@ -596,9 +575,8 @@ class OpenApiDefinitionSchemaBuilder
 
     private function getRelationShipEntity(Property $relationship): string
     {
-        /** @var array<mixed> $relationshipData */
-        // @phpstan-ignore varTag.type (the data is a array instead of an property object here)
         $relationshipData = $relationship->properties['data'];
+        \assert(\is_array($relationshipData));
         $type = $relationshipData['type'];
         $entity = '';
 
@@ -616,42 +594,28 @@ class OpenApiDefinitionSchemaBuilder
         $entity = $this->getRelationShipEntity($relationship);
         $entityName = $this->snakeCaseToCamelCase($entity);
 
-        /** @var array<mixed> $relationshipData */
-        // @phpstan-ignore varTag.type (the data is a array instead of an property object here)
         $relationshipData = $relationship->properties['data'];
+        \assert(\is_array($relationshipData));
         $type = $relationshipData['type'];
-
-        // Get description from the stored field descriptions map
-        $description = $this->fieldDescriptions[$relationship->property] ?? null;
 
         // Create a context with OpenAPI 3.1.0 to ensure descriptions work with $ref
         $context = new OpenApiContext(['version' => OpenApi::VERSION_3_1_0]);
 
         if ($type === 'array') {
-            $config = [
+            return new Property([
                 'property' => $relationship->property,
+                'description' => $relationship->description,
                 'type' => 'array',
                 'items' => new Schema(['ref' => '#/components/schemas/' . $entityName]),
                 '_context' => $context,
-            ];
-
-            if ($description) {
-                $config['description'] = $description;
-            }
-
-            return new Property($config);
+            ]);
         }
 
-        $config = [
+        return new Property([
             'property' => $relationship->property,
+            'description' => $relationship->description,
             'ref' => '#/components/schemas/' . $entityName,
             '_context' => $context,
-        ];
-
-        if ($description) {
-            $config['description'] = $description;
-        }
-
-        return new Property($config);
+        ]);
     }
 }

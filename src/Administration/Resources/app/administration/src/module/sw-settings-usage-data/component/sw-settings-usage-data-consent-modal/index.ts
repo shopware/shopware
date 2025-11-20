@@ -7,8 +7,8 @@ import template from './sw-settings-usage-data-consent-modal.html.twig';
 import './sw-settings-usage-data-consent-modal.scss';
 
 type ConsentStruct = {
-    value: boolean,
-}
+    value: boolean;
+};
 
 /**
  * @private

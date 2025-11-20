@@ -27,22 +27,18 @@ class Migration1763544592UpdateGroupRegistrationMailTemplates extends MigrationS
     {
         $filesystem = new Filesystem();
 
-        $update = new MailUpdate(
-            MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_ACCEPTED,
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/en-plain.html.twig'),
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/en-html.html.twig'),
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/de-plain.html.twig'),
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/de-html.html.twig')
-        );
-        $this->updateMail($update, $connection);
+        $acceptedUpdate = new MailUpdate(MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_ACCEPTED);
+        $acceptedUpdate->setEnPlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/en-plain.html.twig'));
+        $acceptedUpdate->setEnHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/en-html.html.twig'));
+        $acceptedUpdate->setDePlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/de-plain.html.twig'));
+        $acceptedUpdate->setDeHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.accepted/de-html.html.twig'));
+        $this->updateMail($acceptedUpdate, $connection);
 
-        $update = new MailUpdate(
-            MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_DECLINED,
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/en-plain.html.twig'),
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/en-html.html.twig'),
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/de-plain.html.twig'),
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/de-html.html.twig')
-        );
-        $this->updateMail($update, $connection);
+        $declinedUpdate = new MailUpdate(MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_DECLINED);
+        $declinedUpdate->setEnPlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/en-plain.html.twig'));
+        $declinedUpdate->setEnHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/en-html.html.twig'));
+        $declinedUpdate->setDePlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/de-plain.html.twig'));
+        $declinedUpdate->setDeHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.group.registration.declined/de-html.html.twig'));
+        $this->updateMail($declinedUpdate, $connection);
     }
 }

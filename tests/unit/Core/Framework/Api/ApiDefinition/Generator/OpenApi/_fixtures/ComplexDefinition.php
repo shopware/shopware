@@ -40,6 +40,9 @@ class ComplexDefinition extends EntityDefinition
                 (new OneToManyAssociationField('simpleManys', SimpleDefinition::class, 'ref_field'))
                     ->addFlags(new ApiAware())
                     ->setDescription('Multiple simple entities'),
+                (new ManyToOneAssociationField('simpleToWithEmptyDescription', 'simpleToId', SimpleDefinition::class))
+                    ->addFlags(new ApiAware())
+                    ->setDescription(''),
             ]
         );
     }

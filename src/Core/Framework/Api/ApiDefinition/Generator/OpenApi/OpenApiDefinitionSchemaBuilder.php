@@ -287,10 +287,9 @@ class OpenApiDefinitionSchemaBuilder
 
     private function createToOneLinkage(ManyToOneAssociationField|OneToOneAssociationField $field, string $basePath): Property
     {
-        return new Property([
+        $property = [
             'type' => 'object',
             'property' => $field->getPropertyName(),
-            'description' => $field->getDescription(),
             'properties' => [
                 'links' => [
                     'type' => 'object',
@@ -317,7 +316,13 @@ class OpenApiDefinitionSchemaBuilder
                     ],
                 ],
             ],
-        ]);
+        ];
+
+        if ($field->getDescription() !== '') {
+            $property['description'] = $field->getDescription();
+        }
+
+        return new Property($property);
     }
 
     private function createToManyLinkage(ManyToManyAssociationField|OneToManyAssociationField|AssociationField $field, string $basePath): Property
@@ -328,10 +333,9 @@ class OpenApiDefinitionSchemaBuilder
             $associationEntityName = $field->getToManyReferenceDefinition()->getEntityName();
         }
 
-        return new Property([
+        $property = [
             'type' => 'object',
             'property' => $field->getPropertyName(),
-            'description' => $field->getDescription(),
             'properties' => [
                 'links' => [
                     'type' => 'object',
@@ -360,7 +364,13 @@ class OpenApiDefinitionSchemaBuilder
                     ],
                 ],
             ],
-        ]);
+        ];
+
+        if ($field->getDescription() !== '') {
+            $property['description'] = $field->getDescription();
+        }
+
+        return new Property($property);
     }
 
     /**
@@ -490,7 +500,7 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         $description = [];
-        if ($field->getDescription()) {
+        if ($field->getDescription() !== '') {
             $description[] = $field->getDescription();
         }
         $flag = $field->getFlag(Since::class);
@@ -596,26 +606,23 @@ class OpenApiDefinitionSchemaBuilder
 
         $relationshipData = $relationship->properties['data'];
         \assert(\is_array($relationshipData));
-        $type = $relationshipData['type'];
 
-        // Create a context with OpenAPI 3.1.0 to ensure descriptions work with $ref
-        $context = new OpenApiContext(['version' => OpenApi::VERSION_3_1_0]);
-
-        if ($type === 'array') {
-            return new Property([
-                'property' => $relationship->property,
-                'description' => $relationship->description,
-                'type' => 'array',
-                'items' => new Schema(['ref' => '#/components/schemas/' . $entityName]),
-                '_context' => $context,
-            ]);
-        }
-
-        return new Property([
+        $property = [
             'property' => $relationship->property,
             'description' => $relationship->description,
-            'ref' => '#/components/schemas/' . $entityName,
-            '_context' => $context,
-        ]);
+            // Create a context with OpenAPI 3.1.0 to ensure descriptions work with $ref
+            '_context' => new OpenApiContext(['version' => OpenApi::VERSION_3_1_0]),
+        ];
+
+        if ($relationshipData['type'] === 'array') {
+            $property['type'] = 'array';
+            $property['items'] = new Schema(['ref' => '#/components/schemas/' . $entityName]);
+
+            return new Property($property);
+        }
+
+        $property['ref'] = '#/components/schemas/' . $entityName;
+
+        return new Property($property);
     }
 }

@@ -144,5 +144,9 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('simpleManys', $properties);
         static::assertArrayHasKey('description', $properties['simpleManys']);
         static::assertSame('Multiple simple entities', $properties['simpleManys']['description']);
+
+        // Test with empty description
+        static::assertArrayHasKey('simpleToWithEmptyDescription', $properties);
+        static::assertArrayNotHasKey('description', $properties['simpleToWithEmptyDescription']);
     }
 }

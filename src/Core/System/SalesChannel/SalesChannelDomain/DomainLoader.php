@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SalesChannel\SalesChannelDomain;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
@@ -55,9 +54,7 @@ class DomainLoader extends AbstractDomainLoader
         $query->from('sales_channel');
         $query->innerJoin('sales_channel', 'sales_channel_domain', 'domain', 'domain.sales_channel_id = sales_channel.id');
         $query->innerJoin('domain', 'snippet_set', 'snippet_set', 'snippet_set.id = domain.snippet_set_id');
-        $query->where('sales_channel.type_id = UNHEX(:typeId)');
         $query->andWhere('sales_channel.active');
-        $query->setParameter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
 
         $this->eventDispatcher->dispatch(new SalesChannelDomainQueryEvent($query));
 

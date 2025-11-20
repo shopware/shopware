@@ -38,7 +38,7 @@ test('Visual: Storefront Product Detail Review',{ tag: '@Visual' }, async ({
     await TestDataService.createProductReview(product.id, { title: 'Excellent', points: 5 });
     await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
 
-    await test.step('Creates a screenshot of the product detail page General tab.', async () => {
+    await test.step('Creates a screenshot of the product detail page reviews tab.', async () => {
         await CheckVisibilityInHome(product.name);
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await StorefrontProductDetail.reviewsTab.click();

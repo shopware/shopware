@@ -128,4 +128,4 @@ jobs:
       - name: Post slack message
         run: |
             SLACK_PAYLOAD=$(jq --null-input --arg version "${{ github.ref_name }}" '{"version": $version, "github_url": "https://github.com/shopware/shopware/releases/tag/\($version)"}');
-            echo curl --silent --request POST --url "${{ secrets.SLACK_RELEASE_WORKFLOW_URL }}" --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"
+            curl --silent --request POST --url "${{ secrets.SLACK_RELEASE_WORKFLOW_URL }}" --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"

@@ -24,7 +24,7 @@
                         "items": { "$ref": "#/components/schemas/LineItem" }
                     },
                     "cover": {
-                        "$ref": "#/components/schemas/ProductMedia"
+                        "$ref": "#/components/schemas/Media"
                     },
                     "dataContextHash": {
                         "type": "string"

@@ -13,7 +13,40 @@ import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 
-import * as MeteorImport from '@shopware-ag/meteor-component-library';
+import {
+    MtBanner,
+    MtLoader,
+    MtProgressBar,
+    MtButton,
+    MtCheckbox,
+    MtColorpicker,
+    MtEmailField,
+    MtEmptyState,
+    MtNumberField,
+    MtPasswordField,
+    MtSelect,
+    MtSlider,
+    MtSwitch,
+    MtTextField,
+    MtTextarea,
+    MtIcon,
+    MtDataTable,
+    MtPagination,
+    MtSkeletonBar,
+    MtToast,
+    MtFloatingUi,
+    MtPopover,
+    MtTextEditorToolbarButton,
+    MtModal,
+    MtModalRoot,
+    MtModalClose,
+    MtModalTrigger,
+    MtModalAction,
+    MtUrlField,
+    MtSearch,
+    MtLink,
+    MtUnitField,
+} from '@shopware-ag/meteor-component-library';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
@@ -387,44 +420,44 @@ export default class VueAdapter extends ViewAdapter {
         /**
          * Initialize all meteor components
          */
-        const meteorComponents: (keyof typeof MeteorImport)[] = [
-            'MtBanner',
-            'MtLoader',
-            'MtProgressBar',
-            'MtButton',
-            'MtCheckbox',
-            'MtColorpicker',
-            'MtEmailField',
-            'MtEmptyState',
-            'MtNumberField',
-            'MtPasswordField',
-            'MtSelect',
-            'MtSlider',
-            'MtSwitch',
-            'MtTextField',
-            'MtTextarea',
-            'MtIcon',
-            'MtDataTable',
-            'MtPagination',
-            'MtSkeletonBar',
-            'MtToast',
-            'MtFloatingUi',
-            'MtPopover',
-            'MtTextEditorToolbarButton',
-            'MtModal',
-            'MtModalRoot',
-            'MtModalClose',
-            'MtModalTrigger',
-            'MtModalAction',
-            'MtUrlField',
-            'MtSearch',
-            'MtLink',
-            'MtUnitField',
-        ];
+        const meteorComponents = {
+            MtBanner,
+            MtLoader,
+            MtProgressBar,
+            MtButton,
+            MtCheckbox,
+            MtColorpicker,
+            MtEmailField,
+            MtEmptyState,
+            MtNumberField,
+            MtPasswordField,
+            MtSelect,
+            MtSlider,
+            MtSwitch,
+            MtTextField,
+            MtTextarea,
+            MtIcon,
+            MtDataTable,
+            MtPagination,
+            MtSkeletonBar,
+            MtToast,
+            MtFloatingUi,
+            MtPopover,
+            MtTextEditorToolbarButton,
+            MtModal,
+            MtModalRoot,
+            MtModalClose,
+            MtModalTrigger,
+            MtModalAction,
+            MtUrlField,
+            MtSearch,
+            MtLink,
+            MtUnitField,
+        } as const;
 
-        meteorComponents.forEach((componentName) => {
+        Object.entries(meteorComponents).forEach(([componentName, component]) => {
             const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            this.app.component(componentNameAsKebabCase, MeteorImport[componentName] as VueComponent);
+            this.app.component(componentNameAsKebabCase, component as VueComponent);
         });
 
         return this.vueComponents;

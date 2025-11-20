@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import './app/assets/scss/all.scss';
+import "inter-ui/inter.css";
 
 // Import the Shopware instance
 void import('src/core/shopware').then(async ({ ShopwareInstance }) => {

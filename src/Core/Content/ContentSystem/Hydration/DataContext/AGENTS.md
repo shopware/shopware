@@ -25,8 +25,8 @@ All distribution configs support `consumer_alias` field. See `DistributionStrate
 Consumers can use dot notation in context keys to access nested properties: `product.cover`, `product.manufacturer.name`, etc.
 
 **Key implementation points**:
-- `ContextPathResolver::parseContextKey()` splits keys into base + path segments
-- `ContextPathResolver::resolvePath()` traverses Struct objects using `getVars()`
+- `ContextPathResolver->parseContextKey()` splits keys into base + path segments
+- `ContextPathResolver->resolvePath()` traverses Struct objects using `getVars()`
 - Only works with Struct instances (all DAL entities)
 - Path resolution happens in `ContextResolutionVisitor::setContextForConsumer()`
 - Direct distribution lookups use base key, then resolve path on retrieved data

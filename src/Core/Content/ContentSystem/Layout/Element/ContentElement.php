@@ -180,12 +180,12 @@ class ContentElement extends Struct
         return $this->contextDefinitions->getAllConsumers();
     }
 
-    public function acceptsContext(string $key): bool
+    public function acceptsContext(string $key, ContextPathResolver $pathResolver): bool
     {
         $acceptedKeys = array_keys($this->contextDefinitions->getAllConsumers());
 
         foreach ($acceptedKeys as $acceptedKey) {
-            if (ContextPathResolver::matches($key, $acceptedKey)) {
+            if ($pathResolver->matches($key, $acceptedKey)) {
                 return true;
             }
         }
@@ -196,12 +196,12 @@ class ContentElement extends Struct
     /**
      * @return array<ContentElement>
      */
-    public function collectConsumers(string $contextKey): array
+    public function collectConsumers(string $contextKey, ContextPathResolver $pathResolver): array
     {
         $consumers = [];
 
         foreach ($this->allSlotElements() as $child) {
-            if ($child->acceptsContext($contextKey)) {
+            if ($child->acceptsContext($contextKey, $pathResolver)) {
                 $consumers[] = $child;
             }
         }

@@ -67,10 +67,10 @@ $all = iterator_to_array($element->allSlotElements());  // DON'T DO THIS
 
 ```php
 // Check if element consumes specific context
-$element->acceptsContext('product');
+$element->acceptsContext('product', $pathResolver);
 
-// Find direct children that consume context (NOT deep descendants)
-$consumers = $element->collectConsumers('product');
+// Find direct children that consume context
+$consumers = $element->collectConsumers('product', $pathResolver);
 
 // Get all context providers/consumers
 $providers = $element->getProvidesContext();

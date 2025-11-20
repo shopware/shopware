@@ -136,26 +136,17 @@
                 {% endblock %}
 
                 {% block sw_cms_element_cross_selling_config_options_speed %}
-                <sw-cms-inherit-wrapper
-                    field="speed"
-                    :element="element"
+                <sw-number-field
+                    v-model:value="element.config.speed.value"
+                    class="sw-cms-el-config-cross-selling__tab-options-speed"
+                    number-type="int"
+                    :min="0"
+                    :max="3600000"
                     :label="$t('sw-cms.elements.general.config.label.speed')"
-                >
-                    <template #default="{ isInherited }">
-                        <mt-number-field
-                            v-model="element.config.speed.value"
-                            class="sw-cms-el-config-cross-selling__tab-options-speed"
-                            number-type="int"
-                            :min="0"
-                            :max="3600000"
-                            :placeholder="$t('sw-cms.elements.general.config.label.speed')"
-                            :help-text="$t('sw-cms.elements.general.config.helpText.speed')"
-                            :disabled="isInherited"
-                        />
-                    </template>
-                </sw-cms-inherit-wrapper>
+                    :placeholder="$t('sw-cms.elements.general.config.label.speed')"
+                    :help-text="$t('sw-cms.elements.general.config.helpText.speed')"
+                />
                 {% endblock %}
-
             </sw-container>
             {% endblock %}
         </template>

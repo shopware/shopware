@@ -46,10 +46,12 @@
 
             {% block media %}
                 <twig:Slot name="media">
-                    <twig:Sw:Media:Display
-                        :media="product.cover.media"
-                        :mediaHeight="mediaHeight"
-                    />
+                    {% if product.cover %}
+                        <twig:Sw:Media:Display
+                            :media="product.cover.media"
+                            :mediaHeight="mediaHeight"
+                        />
+                    {% endif %}
                 </twig:Slot>
             {% endblock %}
 

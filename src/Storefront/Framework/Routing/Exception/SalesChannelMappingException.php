@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Framework\Routing\Exception;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Response;
 

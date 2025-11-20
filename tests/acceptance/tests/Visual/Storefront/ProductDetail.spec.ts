@@ -34,8 +34,8 @@ test('Visual: Storefront Product Detail Review',{ tag: '@Visual' }, async ({
         productNumber: '123',
     });
 
-    await TestDataService.createProductReview(product.id, { title: 'Very Good', points: 4 });
-    await TestDataService.createProductReview(product.id, { title: 'Excellent', points: 5 });
+    await TestDataService.createProductReview(product.id, { title: 'Very Good', points: 4, createdAt: '2025-01-01T12:00:00.213+00:00' });
+    await TestDataService.createProductReview(product.id, { title: 'Excellent', points: 5, createdAt: '2025-01-02T13:00:00.213+00:00' });
     await TestDataService.setSystemConfig({ 'core.basicInformation.useDefaultCookieConsent': false });
 
     await test.step('Creates a screenshot of the product detail page reviews tab.', async () => {

@@ -40,7 +40,7 @@ class ElementTreeUtil
     ): ContentElement {
         $path = $this->findPathToElement($root, $targetId);
 
-        if (empty($path)) {
+        if ($path === []) {
             throw ContentSystemException::elementNotFound($targetId);
         }
 

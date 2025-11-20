@@ -60,7 +60,7 @@ class EntityCollectionLoader implements ContentDataLoaderInterface
 
         $entityIds = array_values(array_filter($entityIds, static fn ($id) => \is_string($id)));
 
-        if (empty($entityIds)) {
+        if ($entityIds === []) {
             return null;
         }
 

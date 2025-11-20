@@ -34,7 +34,7 @@ class SlotContent extends Struct implements \IteratorAggregate, \Countable
 
     public function last(): ?ContentElement
     {
-        if (empty($this->elements)) {
+        if ($this->elements === []) {
             return null;
         }
 
@@ -50,12 +50,12 @@ class SlotContent extends Struct implements \IteratorAggregate, \Countable
 
     public function isEmpty(): bool
     {
-        return empty($this->elements);
+        return $this->elements === [];
     }
 
     public function hasContent(): bool
     {
-        return !empty($this->elements);
+        return $this->elements !== [];
     }
 
     /**

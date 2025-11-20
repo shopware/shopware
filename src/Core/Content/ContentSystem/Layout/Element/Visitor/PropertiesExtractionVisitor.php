@@ -60,7 +60,7 @@ class PropertiesExtractionVisitor implements ElementVisitor
     public function leave(ContentElement $element): void
     {
         // Cleanup: Remove empty assignments to keep response clean
-        if (empty($this->assignments[$element->getId()])) {
+        if ($this->assignments[$element->getId()] === []) {
             unset($this->assignments[$element->getId()]);
         }
     }

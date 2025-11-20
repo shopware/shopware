@@ -18,7 +18,7 @@ class ContextDependencyAnalyzer
      */
     public function requiresParentData(ContentElement $element): bool
     {
-        return !empty($element->getAcceptsContext());
+        return $element->getAcceptsContext() !== [];
     }
 
     /**

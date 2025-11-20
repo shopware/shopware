@@ -54,6 +54,7 @@
 
         {% block sw_order_document_card_grid %}
         <sw-entity-listing
+            v-if="!documentsEmpty"
             :repository="documentRepository"
             :items="documents"
             :is-loading="documentsLoading"

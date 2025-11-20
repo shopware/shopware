@@ -218,17 +218,15 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
 
+        $this->expectException(ServerException::class);
+        $this->expectExceptionMessage('Could not verify the authenticity of the response');
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
             // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
             $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
-
-            static::fail('Exception should be thrown');
-        } catch (ServerException $e) {
-            static::assertSame('Could not verify the authenticity of the response', $e->getMessage());
+        } finally {
+            $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
         }
-
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
     /**
@@ -270,17 +268,15 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, [], $json));
 
+        $this->expectException(ServerException::class);
+        $this->expectExceptionMessage('Could not verify the authenticity of the response');
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
             // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
             $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
-
-            static::fail('Exception should be thrown');
-        } catch (ServerException $e) {
-            static::assertSame('Could not verify the authenticity of the response', $e->getMessage());
+        } finally {
+            $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
         }
-
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
     /**
@@ -310,17 +306,15 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(500));
 
+        $this->expectException(ServerException::class);
+        $this->expectExceptionMessage('Could not verify the authenticity of the response');
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
             // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
             $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
-
-            static::fail('Exception should be thrown');
-        } catch (ServerException $e) {
-            static::assertSame('Could not verify the authenticity of the response', $e->getMessage());
+        } finally {
+            $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
         }
-
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
     public function testPayFinalize(): void
@@ -405,17 +399,15 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('The customer canceled the external payment process. ');
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
             // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
             $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
-
-            static::fail('Exception should be thrown');
-        } catch (PaymentException $e) {
-            static::assertSame(PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL, $e->getErrorCode());
+        } finally {
+            $this->assertOrderTransactionState(OrderTransactionStates::STATE_CANCELLED, $data['transactionId']);
         }
-
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_CANCELLED, $data['transactionId']);
     }
 
     /**
@@ -451,17 +443,15 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
             // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
             $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
-
-            static::fail('Exception should be thrown');
-        } catch (AppException $e) {
-            static::assertSame('The app payment process was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE, $e->getMessage());
+        } finally {
+            $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
         }
-
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
     /**

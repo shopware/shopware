@@ -69,8 +69,8 @@ Elements provide/consume context via string keys. Provider exposes data at prope
 
 ### Context Methods
 
-- `acceptsContext(key)`: Returns true if element consumes this key
-- `collectConsumers(key)`: Finds direct children consuming this key (not deep descendants - context only flows one level)
+- `acceptsContext(key, pathResolver)`: Returns true if element consumes this key
+- `collectConsumers(key, pathResolver)`: Finds direct children consuming this key (not deep descendants - context only flows one level)
 - `getProvidesContext()`: Returns array of ContextProvider definitions
 - `getAcceptsContext()`: Returns array of ContextConsumer definitions
 

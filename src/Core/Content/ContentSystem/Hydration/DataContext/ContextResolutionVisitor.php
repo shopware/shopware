@@ -64,7 +64,7 @@ class ContextResolutionVisitor implements ElementVisitor
         $distributionConfig = $providerElement->getProvidesContext()[$contextKey]->getDistribution();
         $consumerKey = $distributionConfig->getConsumerAlias() ?? $contextKey;
 
-        $consumers = $providerElement->collectConsumers($consumerKey);
+        $consumers = $providerElement->collectConsumers($consumerKey, $this->pathResolver);
 
         if ($consumers === []) {
             return;
@@ -110,7 +110,7 @@ class ContextResolutionVisitor implements ElementVisitor
         $acceptedContexts = $consumer->getAcceptsContext();
 
         foreach ($acceptedContexts as $consumerKey => $consumerDef) {
-            if (!ContextPathResolver::matches($providerKey, $consumerKey)) {
+            if (!$this->pathResolver->matches($providerKey, $consumerKey)) {
                 continue;
             }
 
@@ -121,7 +121,7 @@ class ContextResolutionVisitor implements ElementVisitor
                 continue;
             }
 
-            $path = ContextPathResolver::parseContextKey($consumerKey);
+            $path = $this->pathResolver->parseContextKey($consumerKey);
 
             $resolvedValue = $this->pathResolver->resolvePath(
                 $data,

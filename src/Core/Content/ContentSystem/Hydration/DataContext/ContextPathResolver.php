@@ -17,7 +17,7 @@ class ContextPathResolver
     /**
      * @return array<string>
      */
-    public static function parseContextKey(string $key): array
+    public function parseContextKey(string $key): array
     {
         $segments = explode('.', $key);
         array_shift($segments);
@@ -116,7 +116,7 @@ class ContextPathResolver
      * Enables consumers to access nested properties via path resolution
      * (provider 'product' satisfies consumer 'product.manufacturer.name').
      */
-    public static function matches(string $providerKey, string $consumerKey): bool
+    public function matches(string $providerKey, string $consumerKey): bool
     {
         if ($providerKey === $consumerKey) {
             return true;
@@ -125,7 +125,7 @@ class ContextPathResolver
         return str_starts_with($consumerKey, $providerKey . '.');
     }
 
-    public static function extractBaseKey(string $key): string
+    public function extractBaseKey(string $key): string
     {
         return explode('.', $key)[0];
     }

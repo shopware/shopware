@@ -129,11 +129,28 @@ Example usage:
 <one-to-many name="custom_entity" reference="quote_comment" ignore-missing-reference="true" store-api-aware="false" on-delete="set-null" />
 ```
 
+### Translatable product manufacturer links
+
+The `link` property of the product manufacturer entity is now translatable.
+
 ## Administration
 
 ### URL restrictions for product and category SEO URLs
 
 When creating a SEO URL for a product or category, the URL is now checked for availability. Before it was possible to override existing URLs like `account` or `maintenance` with SEO URLs. Existing URLs are now blocked to be used as SEO URLs.
+
+## Refactor filters for the newsletter recipients list.
+We now use the `<mt-select>` instead `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch`.
+Because of that, we deprecate these twig blocks:
+* `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
+* `sw_newsletter_recipient_list_sidebar_filter_status_direct`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
+
+These blocks will be removed in v6.8.0.0 without replacement. Use the parent blocks instead.
+We also deprecate
+`administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` which will be removed with v6.8.0.0 and
+`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js` which will be private in v6.8.0.0.
 
 ## Storefront
 
@@ -179,6 +196,22 @@ A new `sales-channel:replace:url` command was added to replace the url of a sale
 ```bash
 bin/console sales-channel:replace:url <previous_url> <new_url>
 ```
+
+### Changed `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` feature flag to `CACHE_REWORK`
+
+The `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` feature flag was renamed to `CACHE_REWORK` to better reflect its purpose, as more changes will be toggled by that flag, to enable the new cache behaviour.
+
+To enable the new cache behaviour, set the `CACHE_REWORK` feature flag to `1` in your `.env` file:
+Before:
+```
+CACHE_CONTEXT_HASH_RULES_OPTIMIZATION=1
+```
+
+Now:
+```
+CACHE_REWORK=1
+```
+To not break plugins that might check for the old flag unnecessarily, the old flag will be kept until the next major release, however, the flag has no effect anymore.
 
 ### Staging configuration
 

@@ -137,8 +137,6 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Deserializes a context provider from configuration array.
-     *
      * @param array<string, mixed> $config
      */
     private function deserializeContextProvider(string $key, array $config): ContextProvider

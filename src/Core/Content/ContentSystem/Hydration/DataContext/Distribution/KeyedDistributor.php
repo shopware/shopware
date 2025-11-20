@@ -6,7 +6,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Distributes collection items by key matching consumer 'data_key'. Missing keys → null.
+ * Matches items by consumer 'data_key' property. Missing keys → null.
  *
  * @internal
  */

@@ -55,8 +55,7 @@ class ContentDecomposedRoute extends AbstractContentDecomposedRoute
     )]
     public function load(string $path, Request $request, SalesChannelContext $context): ContentDecomposedRouteResponse
     {
-        // Try factories in priority order (Chain of Responsibility pattern)
-        // Tagged iterator provides factories in priority order (highest first)
+        // Try factories in priority order via Chain of Responsibility (tagged iterator provides highest first)
         $renderingSpecification = null;
         foreach ($this->renderingSpecificationFactories as $factory) {
             $renderingSpecification = $factory->create($path, $request, $context);

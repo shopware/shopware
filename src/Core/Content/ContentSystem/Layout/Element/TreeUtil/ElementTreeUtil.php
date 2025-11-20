@@ -11,9 +11,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PathFinderVisitor
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Tree manipulation utilities for ContentElement trees using hybrid approach:
- * - Visitor pattern for operations with natural state tracking (path finding, counting)
- * - Direct recursion for operations requiring early-exit (search) or complex reconstruction
+ * Tree manipulation utilities using visitor pattern for state tracking and direct recursion for early-exit/reconstruction.
  *
  * @internal
  */
@@ -102,8 +100,6 @@ class ElementTreeUtil
     }
 
     /**
-     * Recursively reconstruct tree from leaf to root (required for immutable elements).
-     *
      * @param array<ContentElement> $pathElements
      */
     private function reconstructFromBottom(
@@ -154,9 +150,6 @@ class ElementTreeUtil
         return null;
     }
 
-    /**
-     * Searches immediate children only, not entire subtree.
-     */
     private function findDirectChild(ContentElement $parent, string $childId): ?ContentElement
     {
         foreach ($parent->allSlotElements() as $child) {

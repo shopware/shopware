@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * Resolves {{variable}} placeholders in single pass (priority 0). Recursive resolution not supported.
+ * Resolves {{variable}} placeholders (priority 0). Single-pass only, no recursion.
  *
  * @internal
  */

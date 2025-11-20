@@ -15,7 +15,7 @@ use function Symfony\Component\String\u;
 class ContentLayoutMetadataDeriver
 {
     /**
-     * Derives entity ID field name from entity type via snake_case → camelCase conversion.
+     * Derives entity ID field name from entity type.
      */
     public function deriveEntityIdField(string $entityType): string
     {
@@ -23,7 +23,7 @@ class ContentLayoutMetadataDeriver
     }
 
     /**
-     * Derives URL path prefix from entity type via snake_case → kebab-case conversion.
+     * Derives URL path prefix from entity type.
      */
     public function derivePathPrefix(string $entityType): string
     {
@@ -31,7 +31,7 @@ class ContentLayoutMetadataDeriver
     }
 
     /**
-     * Wraps entity ID field in Symfony route placeholder syntax.
+     * Creates route placeholder pattern for entity ID field.
      */
     public function deriveRoutePattern(string $entityIdField): string
     {

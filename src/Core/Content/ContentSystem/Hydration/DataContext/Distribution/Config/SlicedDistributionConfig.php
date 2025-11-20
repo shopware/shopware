@@ -6,8 +6,6 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Divides collection into chunks distributed to child elements.
- *
  * @internal
  */
 #[Package('discovery')]

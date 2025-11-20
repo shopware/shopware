@@ -34,9 +34,9 @@ class ContentElement extends Struct
     protected array $nonStructProperties = [];
 
     /**
-     * @param array<string, DataRequirement> $dataRequirements Indexed by key
-     * @param array<string, mixed> $properties Names properties
-     * @param array<string, SlotContent> $slots Named slots containing child elements
+     * @param array<string, DataRequirement> $dataRequirements
+     * @param array<string, mixed> $properties
+     * @param array<string, SlotContent> $slots
      */
     public function __construct(
         protected string $id,

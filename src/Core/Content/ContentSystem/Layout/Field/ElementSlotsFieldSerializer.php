@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Serializes ElementSlots to/from JSON with recursive ContentElement handling.
+ * Serializes ElementSlots to/from JSON.
  *
  * @internal
  */
@@ -84,8 +84,6 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Serializes slots array to format for storage.
-     *
      * @param array<string, SlotContent> $slots
      *
      * @return array<string, array<int, array<string, mixed>>>
@@ -127,7 +125,7 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Deserializes slots data into array by recursively deserializing nested elements.
+     * Deserializes slots data with nested elements.
      *
      * @param array<string, array<int, array<string, mixed>>|array<string, mixed>> $slotsData
      *

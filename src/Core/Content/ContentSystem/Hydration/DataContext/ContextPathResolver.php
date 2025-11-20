@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Struct\Struct;
 class ContextPathResolver
 {
     /**
-     * Extract path segments from a context key (everything after the first dot).
-     *
      * @return array<string>
      */
     public static function parseContextKey(string $key): array
@@ -28,8 +26,6 @@ class ContextPathResolver
     }
 
     /**
-     * Resolve a property path on Struct objects using getVars().
-     *
      * @param array<string> $path
      *
      * @throws ContentSystemException If path cannot be resolved and $required is true

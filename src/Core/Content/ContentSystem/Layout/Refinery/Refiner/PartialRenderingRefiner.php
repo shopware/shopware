@@ -11,10 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * Reduces hydration overhead by pruning layout tree to target element and its dependencies.
+ * Prunes layout tree to target element and dependencies when elementId parameter present.
  *
- * Runs at priority 200 (after placeholder resolution).
- * Only activates when partial rendering is requested via elementId query parameter.
+ * Priority 200 (after placeholder resolution).
  *
  * @internal
  */

@@ -6,7 +6,7 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Distributes collection items by position. Fewer items → consumers get null, more items → ignored.
+ * Position-based distribution. Mismatched counts: null for missing items, extras ignored.
  *
  * @internal
  */

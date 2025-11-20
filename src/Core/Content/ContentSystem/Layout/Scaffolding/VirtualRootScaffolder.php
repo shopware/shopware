@@ -16,13 +16,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * Wraps layout roots with virtual page context root for layout-level data distribution.
+ * Wraps layout roots with temporary virtual root to distribute layout-level data as context.
  *
- * Creates a virtual root element that wraps actual layout roots temporarily during
- * hydration to enable layout-level data requirements to be distributed as context
- * to all root elements. The virtual root is removed after hydration.
- *
- * Priority 100 (outermost layer): Executed first during scaffold, last during dismantle.
+ * Virtual root removed after hydration. Priority 100 (outermost layer).
  *
  * @internal
  */
@@ -99,12 +95,7 @@ class VirtualRootScaffolder implements LayoutScaffolderInterface
         return $dismantledLayout;
     }
 
-    /**
-     * Determines if virtual root scaffolding is required.
-     *
-     * Virtual root is needed when page-level data requirements exist and
-     * the layout has actual content roots to wrap.
-     */
+    // Virtual root needed when page-level data requirements exist and layout has content roots to wrap
     private function requiresVirtualRoot(
         RenderingSpecification $specification,
         ContentLayoutEntity $layout
@@ -123,11 +114,6 @@ class VirtualRootScaffolder implements LayoutScaffolderInterface
     }
 
     /**
-     * Extracts actual layout roots from a hydrated virtual root.
-     *
-     * Unwraps the virtual root to retrieve the actual roots that were
-     * wrapped during hydration. The virtual root itself is discarded.
-     *
      * @throws ContentSystemException If element is not a virtual page context root or data integrity violated
      *
      * @return array<ContentElement>
@@ -171,9 +157,7 @@ class VirtualRootScaffolder implements LayoutScaffolderInterface
     }
 
     /**
-     * Index data requirements by key for ContentElement constructor.
-     *
-     * ContentElement expects data requirements indexed by key for O(1) lookups.
+     * Index data requirements by key for O(1) lookups.
      *
      * @param array<DataRequirement> $requirements
      *
@@ -191,10 +175,7 @@ class VirtualRootScaffolder implements LayoutScaffolderInterface
     }
 
     /**
-     * Create context definitions with broadcast providers for each data requirement.
-     *
-     * Each layout-level data requirement becomes a broadcast provider that
-     * distributes the loaded data to all direct children (actual roots).
+     * Create broadcast providers for layout-level data requirements.
      *
      * @param array<DataRequirement> $layoutDataRequirements
      */

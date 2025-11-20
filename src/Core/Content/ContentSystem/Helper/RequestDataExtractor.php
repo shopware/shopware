@@ -7,10 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Extracts request data for ContentSystem placeholder values.
- *
- * Extracts parameters from both query string and request body, then applies
- * parameter binding configuration to map parameter names to placeholder names.
+ * Extracts and maps request parameters to ContentSystem placeholder values.
  *
  * @internal
  */
@@ -35,8 +32,8 @@ class RequestDataExtractor
     }
 
     /**
-     * Parameters pass through unchanged if no bindings configured.
-     * Only scalar values are included (non-scalar values are skipped).
+     * Parameters pass through unchanged if no bindings configured
+     * Only scalar values are included (non-scalar values are skipped)
      *
      * @param array<string, ParameterBinding>|null $bindings
      * @param array<string, mixed> $requestParameters

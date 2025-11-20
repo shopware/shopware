@@ -98,8 +98,6 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Serializes ContextConsumer to array format.
-     *
      * @return array<string, mixed>
      */
     public function serializeContextConsumer(ContextConsumer $consumer): array

@@ -24,15 +24,10 @@ class SubTreeExtractor
             return null;
         }
 
-        // PHP's __clone creates deep copy including all descendants
+        // PHP's __clone creates deep copy including all descendants for Struct objects
         return clone $target;
     }
 
-    /**
-     * Find element by ID with early-exit optimization.
-     *
-     * Uses direct recursion to enable early return when target is found.
-     */
     private function findElement(ContentElement $root, string $targetId): ?ContentElement
     {
         if ($root->getId() === $targetId) {

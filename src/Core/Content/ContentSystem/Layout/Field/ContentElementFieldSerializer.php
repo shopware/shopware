@@ -133,7 +133,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Deserializes ContentElement from array format (supports recursive element trees).
+     * Deserializes ContentElement from array format.
      *
      * @param array<string, mixed> $data
      */
@@ -185,7 +185,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Serializes ContentElement to array format (supports recursive serialization).
+     * Serializes ContentElement to array format.
      *
      * @return array<string, mixed>
      */
@@ -275,7 +275,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Checks if provider is virtual (auto-generated from redistribute flag, not persisted)
+     * Checks if provider is virtual (auto-generated from redistribute flag).
      *
      * @param array<string, ContextConsumer> $consumers
      */

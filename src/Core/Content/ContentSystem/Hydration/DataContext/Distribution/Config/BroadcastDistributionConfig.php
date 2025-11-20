@@ -6,8 +6,6 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Distributes single entity to all child elements.
- *
  * @internal
  */
 #[Package('discovery')]

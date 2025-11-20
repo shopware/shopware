@@ -8,10 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * Extension point for layout scaffolding.
- *
- * Scaffolders modify layouts before and after processing with symmetric operations.
- * Execute in priority order during scaffold(), reverse order during dismantle().
+ * Extension point for layout scaffolding with symmetric scaffold/dismantle operations.
  *
  * @internal
  */
@@ -19,30 +16,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 interface LayoutScaffolderInterface
 {
     /**
-     * Execution priority.
+     * Execution priority (higher = FIRST during scaffold, LAST during dismantle).
      *
-     * Higher priority executes FIRST during scaffold() and LAST during dismantle().
+     * Examples: 100 (VirtualRootScaffolder), 50 (intermediate), 0 (innermost).
      *
-     * Example priorities:
-     * - 100: VirtualRootScaffolder (outermost layer)
-     * - 50: Custom intermediate scaffolders
-     * - 0: Custom innermost scaffolders
-     *
-     * @return int Priority (0-1000, higher = outer layer)
+     * @return int Priority (0-1000)
      */
     public static function getPriority(): int;
 
     /**
-     * Scaffolds layout before refinement and hydration.
-     *
-     * Called in priority order: highest → lowest.
-     * May modify root elements, inject wrappers, or alter layout metadata.
-     *
-     * @param ContentLayoutEntity $layout Layout to scaffold
-     * @param RenderingSpecification $specification Rendering configuration
-     * @param SalesChannelContext $context Sales channel context
-     *
-     * @return ContentLayoutEntity Scaffolded layout
+     * Scaffolds layout before refinement and hydration (called highest → lowest priority).
      */
     public function scaffold(
         ContentLayoutEntity $layout,
@@ -51,16 +34,9 @@ interface LayoutScaffolderInterface
     ): ContentLayoutEntity;
 
     /**
-     * Dismantles scaffolding after hydration.
+     * Dismantles scaffolding after hydration (called in REVERSE priority: lowest → highest).
      *
-     * Called in REVERSE priority order: lowest → highest.
-     * Must reverse any modifications made during scaffold().
-     *
-     * @param ContentLayoutEntity $layout Hydrated layout to dismantle
-     * @param RenderingSpecification $specification Rendering configuration
-     * @param SalesChannelContext $context Sales channel context
-     *
-     * @return ContentLayoutEntity Dismantled layout
+     * Must reverse modifications made during scaffold().
      */
     public function dismantle(
         ContentLayoutEntity $layout,

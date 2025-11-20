@@ -26,7 +26,7 @@ interface ContentLayoutAssignmentInterface
     /**
      * Returns parameter bindings for placeholder mapping and entity resolution.
      *
-     * NULL = identity mapping (passthrough with same names).
+     * NULL enables identity mapping (passthrough with same names).
      *
      * @return array<string, ParameterBinding>|null
      */

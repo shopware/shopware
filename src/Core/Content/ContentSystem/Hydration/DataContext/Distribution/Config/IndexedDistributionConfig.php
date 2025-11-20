@@ -6,8 +6,6 @@ use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrate
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Distributes collection items by position to child elements.
- *
  * @internal
  */
 #[Package('discovery')]

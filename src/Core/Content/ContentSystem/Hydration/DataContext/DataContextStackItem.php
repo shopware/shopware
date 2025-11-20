@@ -5,8 +5,6 @@ namespace Shopware\Core\Content\ContentSystem\Hydration\DataContext;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Represents a single item on the data context stack.
- *
  * @internal
  */
 #[Package('discovery')]

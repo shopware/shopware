@@ -2,23 +2,23 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 trait AssignArrayTrait
 {
     /**
-     * @deprecated tag:v6.8.0 added parameter $recursive will be removed - recursive will be native
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $fallbackSorting will be added
+     * @deprecated tag:v6.8.0 - reason:return-type-change - will use "strong" return type `self`
      *
      * @param array<array-key, mixed> $options
      *
      * @return $this
      */
-    public function assign(array $options/* , bool $recursive = false */)
+    public function assign(array $options/* , bool $deep = false */)/* : self */
     {
-        $recursive = \func_num_args() >= 2 && func_get_arg(1);
-        if ($recursive || Feature::isActive('v6.8.0.0')) {
+        $deep = \func_num_args() >= 2 && func_get_arg(1);
+        if ($deep) {
             return $this->assignRecursive($options);
         }
 
@@ -45,42 +45,23 @@ trait AssignArrayTrait
      */
     private function assignRecursive(array $options): self
     {
-        foreach ($options as $key => $value) {
-            $propertyName = self::denormalize((string) $key);
-            if (!\property_exists($this, $propertyName)) {
-                continue;
-            }
-
+        foreach ($options as $propertyName => $value) {
             try {
-                $property = new \ReflectionProperty($this, $propertyName);
-                if ($value === null
-                    || $value === []
-                    || !($type = $property->getType())
-                ) {
+                if ($value === null || $value === [] || \is_scalar($value)) {
                     $this->assignValue($propertyName, $value);
 
                     continue;
                 }
 
-                if (\is_array($value) && $className = $this->getPropertyClassType([$type], Collection::class)) {
-                    $this->assignValue($propertyName, $className::createFromAssociative($value));
+                $property = new \ReflectionProperty($this, $propertyName);
+                if (!($type = $property->getType())) {
+                    $this->assignValue($propertyName, $value);
 
                     continue;
                 }
 
-                if (\is_array($value) && $className = $this->getPropertyClassType([$type], Struct::class)) {
-                    $struct = (new \ReflectionClass($className))
-                        ->newInstanceWithoutConstructor();
-
-                    if ($struct instanceof Struct) {
-                        $this->assignValue($propertyName, $struct->assign($value, true));
-                    }
-
-                    continue;
-                }
-
-                if (\is_string($value) && $type instanceof \ReflectionNamedType && is_a($type->getName(), \DateTimeInterface::class, true)) {
-                    $this->assignValue($propertyName, new \DateTime($value));
+                if (\is_array($value) && (!$type instanceof \ReflectionNamedType || !$type->isBuiltin())) {
+                    $this->assignValue($propertyName, $this->createStruct($type, $value));
 
                     continue;
                 }
@@ -94,34 +75,35 @@ trait AssignArrayTrait
         return $this;
     }
 
-    /**
-     * Convert from camelCase to snake_case.
-     */
-    private static function denormalize(string $propertyName): string
+    private function createStruct(\ReflectionType $type, array $value): Struct|array
     {
-        /** @phpstan-ignore-next-line argument.type */
-        return lcfirst(preg_replace_callback('/(^|_|\.)+(.)/', fn ($match) => ($match[1] === '.' ? '_' : '') . strtoupper($match[2]), $propertyName));
+        if (!$className = $this->getPropertyClassType([$type], AssignArrayInterface::class)) {
+            return $value;
+        }
+
+        // Only structs, without constructor parameters can be created and assigned.
+        $struct = new $className();
+        if ($struct instanceof Collection) {
+            $struct->addFromAssociative($value);
+        } else {
+            $struct->assign($value, true);
+        }
+
+        return $struct;
     }
 
     private function assignValue(string $propertyName, mixed $value): void
     {
-        $setterMethod = \sprintf('set%s', \ucfirst($propertyName));
+        try {
+            $setterMethod = 'set' . \ucfirst($propertyName);
+            // @phpstan-ignore method.dynamicName (We allow dynamic setter call of all properties)
+            $this->{$setterMethod}($value);
 
-        if (\method_exists($this, $setterMethod)) {
-            try {
-                // @phpstan-ignore method.dynamicName (We allow dynamic setter call of all properties)
-                $this->{$setterMethod}($value);
-
-                return;
-            } catch (\Error|\Exception $e) {
-                // Inconsistent nullable setter. Use dynamic property access instead
-                if ($value !== null) {
-                    throw $e;
-                }
-            }
+            return;
+        } catch (\Throwable) {
         }
 
-        // @phpstan-ignore property.dynamicName (We allow dynamic assignment of all properties)
+        // @phpstan-ignore property.dynamicName (We allow dynamic property assignment, if class has \AllowDynamicProperties attribute)
         $this->{$propertyName} = $value;
     }
 

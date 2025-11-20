@@ -237,23 +237,22 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     /**
      * @param array<mixed> $associativeData
      */
-    public static function createFromAssociative(array $associativeData): static
+    public function addFromAssociative(array $associativeData): self
     {
-        $collection = new static();
         foreach (\array_filter($associativeData) as $value) {
             if ($value instanceof Struct) {
-                $collection->add($value);
-            } elseif (\is_array($value) && $collection->getExpectedClass()) {
-                $struct = (new \ReflectionClass($collection->getExpectedClass()))
-                    ->newInstanceWithoutConstructor();
+                $this->add($value);
+            } elseif (\is_array($value) && $this->getExpectedClass()) {
+                $className = $this->getExpectedClass();
+                $struct = new $className();
 
-                if ($struct instanceof Struct) {
-                    $collection->add($struct->assign($value, true));
+                if ($struct instanceof AssignArrayInterface) {
+                    $this->add($struct->assign($value, true));
                 }
             }
         }
 
-        return $collection;
+        return $this;
     }
 
     /**

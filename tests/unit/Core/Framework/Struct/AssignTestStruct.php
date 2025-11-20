@@ -57,15 +57,6 @@ class AssignTestStruct extends Struct
 
     protected (\JsonSerializable&\Countable)|null $intersectionType = null;
 
-    /**
-     * Just to test creating an instance without constructor
-     *
-     * @param array<mixed> $data
-     */
-    public function __construct(array $data)
-    {
-    }
-
     public function setNoType(mixed $value): void
     {
         $this->noType = $value;

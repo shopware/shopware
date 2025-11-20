@@ -44,8 +44,15 @@ final class DocumentRoute extends AbstractDocumentRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_entity' => 'document'])]
-    #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}/{fileType}', name: 'store-api.document.download.a11y', methods: ['GET', 'POST'], defaults: ['_entity' => 'document'])]
+    /**
+     * @deprecated tag:v6.8.0 - replace HTTP code 204 with 404 when document is not found
+     */
+    #[Route(
+        path: '/store-api/document/download/{documentId}/{deepLinkCode}/{fileType}',
+        name: 'store-api.document.download',
+        methods: ['GET', 'POST'],
+        defaults: ['_entity' => 'document'],
+    )]
     public function download(
         string $documentId,
         Request $request,
@@ -60,13 +67,21 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
-        $requestedFileType = $request->get('fileType') ?? $fileType;
+        $requestedFileType = $request->query->get('fileType') ?? $fileType;
         $download = $request->query->getBoolean('download');
 
         $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode, $requestedFileType);
 
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The returned HTTP code 204 ("No Content") when a document is not found is deprecated. It will be removed in 6.8.0.0 and replaced with 404.'
+        );
         if ($document === null) {
-            return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+            if (!Feature::isActive('v6.8.0.0')) {
+                return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+            }
+
+            throw DocumentException::documentFileTypeUnavailable($documentId, $fileType);
         }
 
         return $this->createResponse(

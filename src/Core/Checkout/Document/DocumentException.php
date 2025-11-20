@@ -36,6 +36,8 @@ class DocumentException extends HttpException
 
     public const DOCUMENT_ZIP_READ_ERROR = 'DOCUMENT__ZIP_READ_ERROR';
 
+    public const DOCUMENT_FILETYPE_UNAVAILABLE = 'DOCUMENT__FILETYPE_UNAVAILABLE';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new self(
@@ -204,6 +206,19 @@ class DocumentException extends HttpException
             'Cannot read document ZIP file: {{ filePath }}',
             ['filePath' => $filePath],
             $previous
+        );
+    }
+
+    public static function documentFileTypeUnavailable(string $documentId, string $fileExtension): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_FILETYPE_UNAVAILABLE,
+            'Document with id {{ documentId }} has no generated document with file extension {{ fileExtension }}.',
+            [
+                'documentId' => $documentId,
+                'fileExtension' => $fileExtension
+            ]
         );
     }
 }

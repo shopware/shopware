@@ -24,6 +24,8 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 </details>
 
 # API
+### `/store-api/document/download` returns now 404 when no documents are found
+The Store API route `/store-api/document/download` returns now a 404 HTTP status code when no documents are found instead of returning a 204 No Content response.
 
 # Core
 

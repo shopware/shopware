@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -21,12 +22,14 @@ use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -37,10 +40,19 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class DocumentRouteTest extends TestCase
 {
-    use CustomerTestTrait, OrderActionTrait {
-        OrderActionTrait::login insteadof CustomerTestTrait;
-    }
     use IntegrationTestBehaviour;
+
+    /*
+     * import of two traits that both define login() with different parameters.
+     * The conflict is resolved by using insteadof and internal calls inside OrderActionTrait can still use OrderActionTrait::login()
+     * With the alias loginBrowser() the SalesChannelApiTestBehaviour::login() can be called.
+     */
+    use OrderActionTrait, SalesChannelApiTestBehaviour {
+        OrderActionTrait::login insteadof SalesChannelApiTestBehaviour;
+        SalesChannelApiTestBehaviour::login as loginBrowser;
+    }
+
+    private KernelBrowser $browser;
 
     private IdsCollection $ids;
 
@@ -55,6 +67,10 @@ class DocumentRouteTest extends TestCase
 
         $this->createCustomer(null, false, ['id' => $this->ids->get('customer')]);
         $this->createCustomer(null, true, ['id' => $this->ids->get('guest')]);
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel'),
+        ]);
     }
 
     /**
@@ -288,94 +304,143 @@ class DocumentRouteTest extends TestCase
         ];
     }
 
-    /**
-     * @param array<string, string>|array{} $queryParameters
-     * @param array<string, string>|array{} $pathParameters
-     */
     #[DataProvider('provideRequestParameters')]
     public function testDownloadWithDifferentParameterTypesForFileType(
+        string $documentType,
         string $expectedFileType,
         string $expectedContentType,
-        array $queryParameters,
-        array $pathParameters,
+        ?string $queryParameter,
+        ?string $pathParameter,
+        bool $expectException,
     ): void {
-        $customerId = $this->ids->get('customer');
-        $this->createOrder($customerId);
-
-        $salesChannelContext = $this->createSalesChannelContext([], [
-            'customerId' => $customerId,
-        ]);
+        $customerId = $this->loginBrowser($this->browser);
+        $this->createOrder(
+            $customerId,
+            ['salesChannelId' => $this->ids->get('sales-channel')]
+        );
 
         $operation = new DocumentGenerateOperation($this->ids->get('order'));
 
         $document = $this->documentGenerator->generate(
-            InvoiceRenderer::TYPE,
+            $documentType,
             [$operation->getOrderId() => $operation],
             Context::createDefaultContext()
         )->getSuccess()->first();
 
         static::assertInstanceOf(DocumentIdStruct::class, $document);
 
-        $deepLinkCode = $document->getDeepLinkCode();
+        $documentId = $document->getId();
 
-        $request = new Request(
-            $queryParameters,
-            [],
-            $pathParameters
+        $this->browser->request(
+            'GET',
+            '/store-api/document/download/' . $documentId . '/' . $document->getDeepLinkCode()
+            . ($pathParameter ? '/' . $pathParameter : '')
+            . ($queryParameter ? '?fileType=' . $queryParameter : ''),
         );
 
-        $documentRoute = static::getContainer()->get(DocumentRoute::class);
+        $response = $this->browser->getResponse();
 
-        $response = $documentRoute->download(
-            $document->getId(),
-            $request,
-            $salesChannelContext,
-            $deepLinkCode,
-        );
+        if($expectException) {
+            /*
+             * remove else when v6.7.x is no longer supported
+             */
+            if(Feature::isActive('v6.8.0.0')) {
+                static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+                $data = json_decode((string) $response->getContent(), true);
+                static::assertSame('DOCUMENT__FILETYPE_UNAVAILABLE', $data['errors'][0]['code']);
+            } else {
+                static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+            }
 
-        $headers = $response->headers;
+            return;
+        }
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotEmpty($response->getContent());
-        static::assertSame('inline; filename=invoice_1000.' . $expectedFileType, $headers->get('content-disposition'));
-        static::assertSame($expectedContentType, $headers->get('content-type'));
+        static::assertSame('inline; filename=invoice_1000.' . $expectedFileType, $response->headers->get('content-disposition'));
+        static::assertStringContainsString($expectedContentType, (string) $response->headers->get('content-type'));
     }
 
     public static function provideRequestParameters(): \Generator
     {
         yield 'query param fileType = html' => [
+            'documentType' => InvoiceRenderer::TYPE,
             'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
             'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
-            'queryParameters' => ['fileType' => 'html'],
-            'pathParameters' => [],
-        ];
-
-        yield 'query param fileType = pdf' => [
-            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
-            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
-            'queryParameters' => ['fileType' => 'pdf'],
-            'pathParameters' => [],
+            'queryParameter' => HtmlRenderer::FILE_EXTENSION,
+            'pathParameter' => null,
+            'expectException' => false,
         ];
 
         yield 'path param html as fileType' => [
+            'documentType' => InvoiceRenderer::TYPE,
             'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
             'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
-            'queryParameters' => [],
-            'pathParameters' => ['fileType' => 'html'],
+            'queryParameter' => null,
+            'pathParameter' => HtmlRenderer::FILE_EXTENSION,
+            'expectException' => false,
+        ];
+
+        yield 'query param fileType = pdf' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+            'queryParameter' => PdfRenderer::FILE_EXTENSION,
+            'pathParameter' => null,
+            'expectException' => false,
         ];
 
         yield 'path param pdf as fileType' => [
+            'documentType' => InvoiceRenderer::TYPE,
             'expectedFileType' => PdfRenderer::FILE_EXTENSION,
             'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
-            'queryParameters' => [],
-            'pathParameters' => ['fileType' => 'pdf'],
+            'queryParameter' => null,
+            'pathParameter' => PdfRenderer::FILE_EXTENSION,
+            'expectException' => false,
+        ];
+
+        yield 'query param fileType = xml' => [
+            'documentType' => ZugferdRenderer::TYPE,
+            'expectedFileType' => ZugferdRenderer::FILE_EXTENSION,
+            'expectedContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
+            'queryParameter' => ZugferdRenderer::FILE_EXTENSION,
+            'pathParameter' => null,
+            'expectException' => false,
+        ];
+
+        yield 'path param xml as fileType' => [
+            'documentType' => ZugferdRenderer::TYPE,
+            'expectedFileType' => ZugferdRenderer::FILE_EXTENSION,
+            'expectedContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
+            'queryParameter' => null,
+            'pathParameter' => ZugferdRenderer::FILE_EXTENSION,
+            'expectException' => false,
         ];
 
         yield 'without params the fallback should be used' => [
+            'documentType' => InvoiceRenderer::TYPE,
             'expectedFileType' => PdfRenderer::FILE_EXTENSION,
             'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
-            'queryParameters' => [],
-            'pathParameters' => [],
+            'queryParameter' => null,
+            'pathParameter' => null,
+            'expectException' => false,
+        ];
+
+        yield 'invalid query param' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+            'queryParameter' => null,
+            'pathParameter' => 'invalid',
+            'expectException' => true,
+        ];
+
+        yield 'invalid path param' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+            'queryParameter' => 'invalid',
+            'pathParameter' => null,
+            'expectException' => true,
         ];
     }
 }

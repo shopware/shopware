@@ -10,6 +10,24 @@ Now, tax rules are applied **correctly** based on customer type.
 
 ## API
 
+### Add new optional `fileType` param to store-api route `/store-api/document/download/`
+The optional `fileType` parameter was added to the `/store-api/document/download/{documentId}/{deepLinkCode}/{fileType}` route.
+This parameter allows clients to specify the file type for document downloads, for example, PDF and HTML.
+It can be added as a query parameter or as a path param.
+When no fileType is provided, PDF is used as the fallback. ([PR #12944](https://github.com/shopware/shopware/pull/12944))
+
+```
+{{baseurl}}/store-api/document/download/documentId/deepLinkCode/html
+```
+
+```
+{{baseurl}}/store-api/document/download/documentId/deepLinkCode?fileType=html
+```
+
+### Deprecation of returned status code 204 for `/store-api/document/download/` when no documents are found
+The Store API route `/store-api/document/download` will return the standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested file extension, instead of returning a `204` status code.
+This will be changed in v6.8.0.0. ([PR #12944](https://github.com/shopware/shopware/pull/12944))
+
 ## Core
 
 ### new JWT helper

@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
+use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Property;
 use OpenApi\Annotations\Schema;
+use OpenApi\Context as OpenApiContext;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -49,6 +51,11 @@ class OpenApiDefinitionSchemaBuilder
     private readonly CamelCaseToSnakeCaseNameConverter $converter;
 
     /**
+     * @var array<string, string> Temporary storage for field descriptions during schema generation
+     */
+    private array $fieldDescriptions = [];
+
+    /**
      * @internal
      */
     public function __construct()
@@ -66,6 +73,9 @@ class OpenApiDefinitionSchemaBuilder
         bool $onlyFlat = false,
         string $apiType = DefinitionService::TYPE_JSON_API
     ): array {
+        // Reset field descriptions for each schema generation
+        $this->fieldDescriptions = [];
+
         $schema = [];
         $attributes = [];
         $requiredAttributes = [];
@@ -281,7 +291,7 @@ class OpenApiDefinitionSchemaBuilder
 
     private function createToOneLinkage(ManyToOneAssociationField|OneToOneAssociationField $field, string $basePath): Property
     {
-        return new Property([
+        $property = new Property([
             'type' => 'object',
             'property' => $field->getPropertyName(),
             'properties' => [
@@ -311,6 +321,14 @@ class OpenApiDefinitionSchemaBuilder
                 ],
             ],
         ]);
+
+        // Store the field description for later use in getRelationShipProperty
+        $description = $field->getDescription();
+        if ($description) {
+            $this->fieldDescriptions[$field->getPropertyName()] = $description;
+        }
+
+        return $property;
     }
 
     private function createToManyLinkage(ManyToManyAssociationField|OneToManyAssociationField|AssociationField $field, string $basePath): Property
@@ -321,7 +339,7 @@ class OpenApiDefinitionSchemaBuilder
             $associationEntityName = $field->getToManyReferenceDefinition()->getEntityName();
         }
 
-        return new Property([
+        $property = new Property([
             'type' => 'object',
             'property' => $field->getPropertyName(),
             'properties' => [
@@ -353,6 +371,14 @@ class OpenApiDefinitionSchemaBuilder
                 ],
             ],
         ]);
+
+        // Store the field description for later use in getRelationShipProperty
+        $description = $field->getDescription();
+        if ($description) {
+            $this->fieldDescriptions[$field->getPropertyName()] = $description;
+        }
+
+        return $property;
     }
 
     /**
@@ -595,17 +621,37 @@ class OpenApiDefinitionSchemaBuilder
         $relationshipData = $relationship->properties['data'];
         $type = $relationshipData['type'];
 
+        // Get description from the stored field descriptions map
+        $description = $this->fieldDescriptions[$relationship->property] ?? null;
+
+        // Create a context with OpenAPI 3.1.0 to ensure descriptions work with $ref
+        $context = new OpenApiContext(['version' => OpenApi::VERSION_3_1_0]);
+
         if ($type === 'array') {
-            return new Property([
+            $config = [
                 'property' => $relationship->property,
                 'type' => 'array',
                 'items' => new Schema(['ref' => '#/components/schemas/' . $entityName]),
-            ]);
+                '_context' => $context,
+            ];
+
+            if ($description) {
+                $config['description'] = $description;
+            }
+
+            return new Property($config);
         }
 
-        return new Property([
+        $config = [
             'property' => $relationship->property,
             'ref' => '#/components/schemas/' . $entityName,
-        ]);
+            '_context' => $context,
+        ];
+
+        if ($description) {
+            $config['description'] = $description;
+        }
+
+        return new Property($config);
     }
 }

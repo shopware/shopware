@@ -129,6 +129,10 @@ Example usage:
 <one-to-many name="custom_entity" reference="quote_comment" ignore-missing-reference="true" store-api-aware="false" on-delete="set-null" />
 ```
 
+### Translatable product manufacturer links
+
+The `link` property of the product manufacturer entity is now translatable.
+
 ## Administration
 
 ### URL restrictions for product and category SEO URLs
@@ -179,6 +183,22 @@ A new `sales-channel:replace:url` command was added to replace the url of a sale
 ```bash
 bin/console sales-channel:replace:url <previous_url> <new_url>
 ```
+
+### Changed `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` feature flag to `CACHE_REWORK`
+
+The `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` feature flag was renamed to `CACHE_REWORK` to better reflect its purpose, as more changes will be toggled by that flag, to enable the new cache behaviour.
+
+To enable the new cache behaviour, set the `CACHE_REWORK` feature flag to `1` in your `.env` file:
+Before:
+```
+CACHE_CONTEXT_HASH_RULES_OPTIMIZATION=1
+```
+
+Now:
+```
+CACHE_REWORK=1
+```
+To not break plugins that might check for the old flag unnecessarily, the old flag will be kept until the next major release, however, the flag has no effect anymore.
 
 ### Staging configuration
 

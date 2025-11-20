@@ -187,6 +187,7 @@
                         id: idPrefix ~ prefix ~ 'personalSalutation',
                         name: prefix ? prefix ~ '[salutationId]' : 'salutationId',
                         options: salutationOptions,
+                        autocomplete: 'section-personal honorific-prefix',
                         violationPath: '/salutationId',
                         additionalClass: 'col-md-3 col-sm-6',
                     } %}
@@ -206,6 +207,7 @@
                     {% block component_address_form_salutation_select %}
                         <select id="{{ idPrefix ~ prefix }}personalSalutation"
                                 class="form-select{% if formViolations.getViolations('/salutationId') is not empty %} is-invalid{% endif %}"
+                                autocomplete="section-personal honorific-prefix"
                                 name="{% if prefix %}{{ prefix }}[salutationId]{% else %}salutationId{% endif %}">
                             {% for salutation in page.salutations %}
                                 <option value="{{ salutation.id }}"

@@ -1,36 +1,55 @@
 {% block robots_txt %}{% apply remove_leading_spaces %}
     {% block robots_txt_content %}
+        {% set disableDefaults = config('core.basicInformation.robotsDisableDefaults') %}
+
         {% block robots_txt_content_user_agent %}
-            User-agent: *
+            {% if not disableDefaults %}
+                User-agent: *
+            {% endif %}
         {% endblock %}
 
         {% if config('core.staging') %}
             Disallow: /
         {% else %}
             {% block robots_txt_content_default_rules %}
-                Allow: /
+                {% if not disableDefaults %}
+                    Allow: /
 
-                {# Disallow requests with GET parameters to be indexed #}
-                Disallow: /*?
+                    {# Disallow requests with GET parameters to be indexed #}
+                    Disallow: /*?
 
-                {# Allow all theme files to be indexed, including the GET requests with the cache buster #}
-                Allow: /*theme/
+                    {# Allow all theme files to be indexed, including the GET requests with the cache buster #}
+                    Allow: /*theme/
 
-                {# Allow all media files to be indexed, including the GET requests with the cache buster #}
-                Allow: /media/*?ts=
+                    {# Allow all media files to be indexed, including the GET requests with the cache buster #}
+                    Allow: /media/*?ts=
+                {% endif %}
             {% endblock %}
 
             {% block robots_txt_content_domain_rules_container %}
                 {% for domainRules in page.domainRules %}
                     {% block robots_txt_content_domain_rules %}
-                        {% for rule in domainRules.rules %}
+                        {% for directive in domainRules.directives %}
                             {% block robots_txt_content_domain_rules_rule %}
-                                {{ rule.type }}: {{ rule.path }}
+                                {{ directive.type.value }}: {{ directive.value }}
                             {% endblock %}
                         {% endfor %}
                     {% endblock %}
                 {% endfor %}
             {% endblock %}
+
+            {% if page.globalUserAgentBlocks|length > 0 %}
+                {% block robots_txt_content_global_user_agent_blocks %}
+                    {% for globalUserAgentBlock in page.globalUserAgentBlocks %}
+                        {% block robots_txt_content_global_user_agent_block %}
+                            User-agent: {{ globalUserAgentBlock.userAgent }}
+                            {% for globalUserAgentBlockDirective in globalUserAgentBlock.directives %}
+                                {{ globalUserAgentBlockDirective.type.value }}: {{ globalUserAgentBlockDirective.value }}
+                            {% endfor %}
+                        {% endblock %}
+                    {% endfor %}
+                {% endblock %}
+            {% endif %}
 
             {% block robots_txt_content_sitemap_container %}
                 {% for sitemap in page.sitemaps %}

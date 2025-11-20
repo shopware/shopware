@@ -43,12 +43,14 @@ class SyncController extends AbstractController
     #[Route(path: '/api/_action/sync', name: 'api.action.sync', methods: ['POST'])]
     public function sync(Request $request, Context $context): JsonResponse
     {
-        /** @var list<non-falsy-string> $indexingSkips */
-        $indexingSkips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+        $indexingSkips = array_values(array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, ''))));
+
+        $indexingOnlies = array_values(array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_ONLY, ''))));
 
         $behavior = new SyncBehavior(
             $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR),
-            $indexingSkips
+            $indexingSkips,
+            $indexingOnlies
         );
 
         try {

@@ -34,13 +34,13 @@ class StagingExtensionHandlerTest extends TestCase
             $this->createMock(Kernel::class),
             $dataProvider,
             $lifecycle,
-            [],
         );
 
         $handler(new SetupStagingEvent(
             Context::createDefaultContext(),
             $this->createMock(SymfonyStyle::class),
             false,
+            [],
             [],
         ));
     }
@@ -87,7 +87,6 @@ class StagingExtensionHandlerTest extends TestCase
             $this->createMock(Kernel::class),
             $dataProvider,
             $lifecycle,
-            ['ActivePlugin', 'InactiveApp'],
         );
 
         $handler(new SetupStagingEvent(
@@ -95,6 +94,7 @@ class StagingExtensionHandlerTest extends TestCase
             $io,
             false,
             [],
+            ['ActivePlugin', 'InactiveApp'],
         ));
     }
 
@@ -122,7 +122,6 @@ class StagingExtensionHandlerTest extends TestCase
             $this->createMock(Kernel::class),
             $dataProvider,
             $lifecycle,
-            ['MissingExtension'],
         );
 
         $handler(new SetupStagingEvent(
@@ -130,6 +129,7 @@ class StagingExtensionHandlerTest extends TestCase
             $io,
             false,
             [],
+            ['MissingExtension'],
         ));
     }
 
@@ -164,7 +164,6 @@ class StagingExtensionHandlerTest extends TestCase
             $this->createMock(Kernel::class),
             $dataProvider,
             $lifecycle,
-            ['AlreadyInactive'],
         );
 
         $handler(new SetupStagingEvent(
@@ -172,6 +171,7 @@ class StagingExtensionHandlerTest extends TestCase
             $io,
             false,
             [],
+            ['AlreadyInactive'],
         ));
     }
 }

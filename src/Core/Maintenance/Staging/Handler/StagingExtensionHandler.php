@@ -17,20 +17,16 @@ use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 #[Package('framework')]
 readonly class StagingExtensionHandler
 {
-    /**
-     * @param list<string> $extensionsToDisable
-     */
     public function __construct(
         private Kernel $kernel,
         private AbstractExtensionDataProvider $extensionDataProvider,
         private AbstractExtensionLifecycle $extensionLifecycleService,
-        private array $extensionsToDisable = [],
     ) {
     }
 
     public function __invoke(SetupStagingEvent $event): void
     {
-        $extensionsToDisable = array_values(array_unique(array_filter(array_map(static fn ($v) => trim($v), $this->extensionsToDisable))));
+        $extensionsToDisable = array_values(array_unique(array_filter(array_map(static fn ($v) => trim($v), $event->extensionsToDisable))));
         if ($extensionsToDisable === []) {
             return;
         }

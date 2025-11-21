@@ -453,6 +453,10 @@ class PluginLifecycleServiceTest extends TestCase
 
         static::assertEmpty($replacedEventDispatcher->getListeners());
         static::assertCount(1, $this->eventDispatcher->getListeners());
+
+        // need to reset the static properties to avoid side effects in other test cases
+        $reflection = new \ReflectionClass(PluginLifecycleService::class);
+        $reflection->setStaticPropertyValue('pluginToBeDeleted', null);
     }
 
     public function testUpdatePluginWithComposerCommandExecutionDisabledAfterUpdateButInstalledViaComposerDirectly(): void

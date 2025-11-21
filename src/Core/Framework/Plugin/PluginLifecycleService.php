@@ -504,6 +504,14 @@ class PluginLifecycleService
         $this->removePluginComposerDependency($plugin, $context);
     }
 
+    /**
+     * @internal only exists for overriding in tests
+     */
+    protected function isCLI(): bool
+    {
+        return \PHP_SAPI === 'cli';
+    }
+
     private function removePluginComposerDependency(PluginEntity $plugin, Context $context): void
     {
         if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
@@ -731,11 +739,10 @@ class PluginLifecycleService
 
     private function executeComposerRemoveCommand(PluginEntity $plugin, Context $shopwareContext): void
     {
-        if (\PHP_SAPI === 'cli') {
+        if ($this->isCLI()) {
             // only remove the plugin composer dependency directly when running in CLI
             // otherwise do it async in kernel.response
             $this->removePluginComposerDependency($plugin, $shopwareContext);
-        /* @codeCoverageIgnoreStart -> code path can not be executed in unit tests as SAPI will always be CLI */
         } else {
             self::$pluginToBeDeleted = [
                 'plugin' => $plugin,
@@ -747,6 +754,5 @@ class PluginLifecycleService
                 self::$registeredListener = true;
             }
         }
-        /* @codeCoverageIgnoreEnd */
     }
 }

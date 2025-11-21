@@ -30,6 +30,23 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class RequestCriteriaBuilder
 {
+    final public const KNOWN_FIELDS = [
+        'ids',
+        'total-count-mode',
+        'limit',
+        'page',
+        'includes',
+        'excludes',
+        'filter',
+        'grouping',
+        'post-filter',
+        'query',
+        'term',
+        'sort',
+        'aggregations',
+        'associations',
+        'fields',
+    ];
     private const TOTAL_COUNT_MODE_MAPPING = [
         'none' => Criteria::TOTAL_COUNT_MODE_NONE,
         'exact' => Criteria::TOTAL_COUNT_MODE_EXACT,

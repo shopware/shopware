@@ -281,6 +281,11 @@
             <argument type="tagged_iterator" tag="shopware.listing.processor" />
         </service>
 
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompressedCriteriaListingProcessor">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder" />
+            <tag name="shopware.listing.processor" priority="1000"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler" />
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilterHandler" />

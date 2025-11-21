@@ -1,5 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
-import { expect, Request, type Response, Route } from '@playwright/test';
+import { expect, Request, Route } from '@playwright/test';
 
 interface CapturedRequest {
     postData: string;
@@ -15,7 +15,11 @@ test.describe.configure({ mode: 'serial' });
  * Endpoint for Product Analytics API.
  */
 const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
+
+/** Endpoint for Entity Gateway API.
+ */
 const ENTITY_GATEWAY_ENDPOINT = 'usage-data';
+
 const captured: CapturedRequest[] = [];
 
 const requestHandler = async (route: Route) => {
@@ -43,10 +47,9 @@ test('As a merchant, I want explicitly accept both consents from modal.', { tag:
     ShopAdmin,
     AdminYourProfile,
     AdminDataSharing,
+    AdminDataSharingConsentModal,
 }) => {
 
-    let consentResponsePromise: Promise<Response>;
-    let response: Response;
 
     await test.step('Intercept all the API calls to product analytics and entity gateway', async () => {
         await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
@@ -55,15 +58,30 @@ test('As a merchant, I want explicitly accept both consents from modal.', { tag:
 
     await test.step('Accept all consent checkboxes in once via button', async () => {
 
+        // Check modal appeared
+        await ShopAdmin.expects(AdminDataSharingConsentModal.consentModal).toBeVisible();
+
+        // Check modal contents
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareStoreDataHeadline).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareStoreDataText).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareStoreDataCheckbox).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareStoreDataCheckbox).not.toBeChecked();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareUserTrackingDataHeadline).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareUserTrackingDataText).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareUserTrackingDataCheckbox).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareUserTrackingDataCheckbox).not.toBeChecked();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.dataUseDetailsLink).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.privacyPolicyLink).toBeVisible();
+
         // Click on accept all consents button
-        //await AdminDashboard.page.locator('button[data-testid="data-sharing-consent-accept-all-button"]').click();
+        await ShopAdmin.presses(AdminDataSharingConsentModal.shareAllButton);
 
         // Validate both consents are accepted
-        expect(captured.find(r => r.postData.includes('accept-consent'))).toBeGreaterThan(0);
+        expect(captured.find(r => r.postData.includes(`accept-consent`))).toBeGreaterThan(0);
         expect(captured.find(r => r.postData.includes(`${PRODUCT_ANALYTICS_ENDPOINT}`))).toBeGreaterThan(0);
 
         // Check modal is disappeared
-        await ShopAdmin.expects(AdminDashboard.dataSharingConsentBanner).toBeHidden();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.consentModal).toBeHidden();
 
     });
 

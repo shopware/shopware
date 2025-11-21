@@ -34,7 +34,7 @@ class AssignArrayTraitTest extends TestCase
             'randomProperty' => [['id' => 'some-uuid-1'], ['id' => 'some-uuid-2']],
         ];
 
-        $struct = (new AssignTestStruct())->assign($data);
+        $struct = (new AssignTestStruct([]))->assign($data);
 
         static::assertSame($data['id'], $struct->getId());
         static::assertSame($data['id'], $struct->getVars()['_uniqueIdentifier']);
@@ -57,7 +57,7 @@ class AssignArrayTraitTest extends TestCase
         $class = new \stdClass();
         $class->test = 'value';
 
-        $structString = (new AssignTestStruct())->assign(['stdClass' => $class]);
+        $structString = (new AssignTestStruct([]))->assign(['stdClass' => $class]);
 
         static::assertInstanceOf(\stdClass::class, $structString->getStdClass());
         static::assertSame('value', $structString->getStdClass()->test);
@@ -82,7 +82,7 @@ class AssignArrayTraitTest extends TestCase
             'randomProperty' => [['id' => 'some-uuid-1'], ['id' => 'some-uuid-2']],
         ];
 
-        $struct = (new AssignTestStruct())->assign($data, true);
+        $struct = (new AssignTestStruct([]))->assignRecursive($data);
 
         static::assertSame($data['id'], $struct->getId());
         static::assertSame($data['id'], $struct->getVars()['_uniqueIdentifier']);
@@ -110,9 +110,9 @@ class AssignArrayTraitTest extends TestCase
 
     public function testMixedType(): void
     {
-        $structString = (new AssignTestStruct())->assign(['mixedType' => 'string'], true);
-        $structStdClass = (new AssignTestStruct())->assign(['mixedType' => new \stdClass()], true);
-        $structStruct = (new AssignTestStruct())->assign(['mixedType' => ['id' => 'some-uuid']], true);
+        $structString = (new AssignTestStruct([]))->assignRecursive(['mixedType' => 'string']);
+        $structStdClass = (new AssignTestStruct([]))->assignRecursive(['mixedType' => new \stdClass()]);
+        $structStruct = (new AssignTestStruct([]))->assignRecursive(['mixedType' => ['id' => 'some-uuid']]);
 
         static::assertSame('string', $structString->getMixedType());
         static::assertInstanceOf(\stdClass::class, $structStdClass->getMixedType());
@@ -125,7 +125,7 @@ class AssignArrayTraitTest extends TestCase
         $class = new \stdClass();
         $class->test = 'value';
 
-        $structString = (new AssignTestStruct())->assign(['stdClass' => $class], true);
+        $structString = (new AssignTestStruct([]))->assignRecursive(['stdClass' => $class]);
 
         static::assertInstanceOf(\stdClass::class, $structString->getStdClass());
         static::assertSame('value', $structString->getStdClass()->test);
@@ -133,7 +133,7 @@ class AssignArrayTraitTest extends TestCase
 
     public function testSetterCalled(): void
     {
-        $structString = (new AssignTestStruct())->assign(['int' => 1], true);
+        $structString = (new AssignTestStruct([]))->assignRecursive(['int' => 1]);
 
         // Setter will increase input by 1
         static::assertSame(2, $structString->getInt());
@@ -141,7 +141,7 @@ class AssignArrayTraitTest extends TestCase
 
     public function testAssignValueWithoutSetter(): void
     {
-        $structString = (new AssignTestStruct())->assign(['bool' => true], true);
+        $structString = (new AssignTestStruct([]))->assignRecursive(['bool' => true]);
 
         // Bool has no setter method defined
         static::assertTrue($structString->getBool());
@@ -149,10 +149,10 @@ class AssignArrayTraitTest extends TestCase
 
     public function testUnionType(): void
     {
-        $structAssignByArray = (new AssignTestStruct())->assign(['doubleTypeCollection' => [['id' => Uuid::randomHex()]]], true);
-        $structAssign = (new AssignTestStruct())->assign(['doubleTypeCollection' => new AssignTestCollection()], true);
-        $structEntity = (new AssignTestStruct())->assign(['doubleTypeCollection' => new EntityCollection()], true);
-        $structNull = (new AssignTestStruct())->assign(['doubleTypeCollection' => null], true);
+        $structAssignByArray = (new AssignTestStruct([]))->assignRecursive(['doubleTypeCollection' => [['id' => Uuid::randomHex()]]]);
+        $structAssign = (new AssignTestStruct([]))->assignRecursive(['doubleTypeCollection' => new AssignTestCollection()]);
+        $structEntity = (new AssignTestStruct([]))->assignRecursive(['doubleTypeCollection' => new EntityCollection()]);
+        $structNull = (new AssignTestStruct([]))->assignRecursive(['doubleTypeCollection' => null]);
 
         static::assertInstanceOf(AssignTestCollection::class, $structAssignByArray->getDoubleTypeCollection());
         static::assertInstanceOf(AssignTestCollection::class, $structAssign->getDoubleTypeCollection());
@@ -162,8 +162,8 @@ class AssignArrayTraitTest extends TestCase
 
     public function testSetNoTypedValue(): void
     {
-        $structScalar = (new AssignTestStruct())->assign(['noType' => 'some-value'], true);
-        $structObject = (new AssignTestStruct())->assign(['noType' => new \stdClass()], true);
+        $structScalar = (new AssignTestStruct([]))->assignRecursive(['noType' => 'some-value']);
+        $structObject = (new AssignTestStruct([]))->assignRecursive(['noType' => new \stdClass()]);
 
         static::assertSame('some-value', $structScalar->getNoType());
         static::assertInstanceOf(\stdClass::class, $structObject->getNoType());
@@ -173,14 +173,14 @@ class AssignArrayTraitTest extends TestCase
     {
         $data = [
             ['id' => 'first-id'],
-            (new AssignTestStruct())->assign(['id' => 'second-id'], true),
+            (new AssignTestStruct([]))->assignRecursive(['id' => 'second-id']),
             new \stdClass(),
             null,
             [],
             'some-value',
         ];
 
-        $struct = (new AssignTestStruct())->assign(['assignCollection' => $data], true);
+        $struct = (new AssignTestStruct([]))->assignRecursive(['assignCollection' => $data]);
         $collection = $struct->getAssignCollection();
 
         static::assertNotNull($collection);
@@ -197,7 +197,7 @@ class AssignArrayTraitTest extends TestCase
 
     public function testAssignWithWrongType(): void
     {
-        $struct = (new AssignTestStruct())->assign(['int' => 'im-a-string'], true);
+        $struct = (new AssignTestStruct([]))->assignRecursive(['int' => 'im-a-string']);
 
         static::assertNull($struct->getInt());
     }
@@ -205,6 +205,9 @@ class AssignArrayTraitTest extends TestCase
     public function testIntersectionType(): void
     {
         $class = (new class extends Struct implements \JsonSerializable, \Countable {
+            /**
+             * @var array<mixed>
+             */
             protected array $property;
 
             public function count(): int
@@ -218,8 +221,8 @@ class AssignArrayTraitTest extends TestCase
             }
         });
 
-        $structWithInstance = (new AssignTestStruct())->assign(['intersectionType' => new $class()], true);
-        $structWithArray = (new AssignTestStruct())->assign(['intersectionType' => ['property' => ['some string']]], true);
+        $structWithInstance = (new AssignTestStruct([]))->assignRecursive(['intersectionType' => new $class()]);
+        $structWithArray = (new AssignTestStruct([]))->assignRecursive(['intersectionType' => ['property' => ['some string']]]);
 
         static::assertInstanceOf($class::class, $structWithInstance->getIntersectionType());
         static::assertNull($structWithArray->getIntersectionType());
@@ -227,47 +230,47 @@ class AssignArrayTraitTest extends TestCase
 
     public function testSetEmptyValue(): void
     {
-        $struct = new AssignTestStruct();
+        $struct = new AssignTestStruct([]);
         $struct->setArray(['some' => 'value']);
         $struct->setString('some string');
 
         static::assertSame(['some' => 'value'], $struct->getArray());
         static::assertSame('some string', $struct->getString());
 
-        $struct->assign(['array' => [], 'string' => null], true);
+        $updatedStruct = $struct->assignRecursive(['array' => [], 'string' => null]);
 
-        static::assertEmpty($struct->getArray());
-        static::assertNull($struct->getString());
+        static::assertEmpty($updatedStruct->getArray());
+        static::assertNull($updatedStruct->getString());
     }
 
     public function testInconsistentNullableSetter(): void
     {
-        $struct = new AssignTestStruct();
+        $struct = new AssignTestStruct([]);
         $struct->setStdClass(new \stdClass());
 
         static::assertInstanceOf(\stdClass::class, $struct->getStdClass());
 
-        $struct->assign(['stdClass' => null], true);
+        $struct->assignRecursive(['stdClass' => null]);
 
         static::assertNull($struct->getStdClass());
     }
 
     public function testAssignWithDifferentType(): void
     {
-        $struct = new AssignTestStruct();
-        $struct->assign(['stdClass' => new AssignTestStruct()], true);
+        $struct = new AssignTestStruct([]);
+        $struct->assignRecursive(['stdClass' => new AssignTestStruct([])]);
 
         static::assertNull($struct->getStdClass());
     }
 
     public function testAssignNotNullableProperty(): void
     {
-        $struct = new AssignTestStruct();
-        $struct->assign(['notNullableString' => 'some-string'], true);
+        $struct = new AssignTestStruct([]);
+        $struct->assignRecursive(['notNullableString' => 'some-string']);
 
         static::assertSame('some-string', $struct->getNotNullableString());
 
-        $struct->assign(['notNullableString' => null], true);
+        $struct->assignRecursive(['notNullableString' => null]);
 
         static::assertSame('some-string', $struct->getNotNullableString());
     }

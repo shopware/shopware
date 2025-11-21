@@ -49,13 +49,25 @@ class AssignTestStruct extends Struct
 
     protected string|\stdClass|AssignTestStruct|null $mixedType = null;
 
+    // @phpstan-ignore missingType.generics
     protected ?Collection $collection = null;
 
     protected ?AssignTestCollection $assignCollection = null;
 
+    // @phpstan-ignore missingType.generics
     protected AssignTestCollection|EntityCollection|null $doubleTypeCollection = null;
 
     protected (\JsonSerializable&\Countable)|null $intersectionType = null;
+
+    /**
+     * Just to test creating an instance without constructor
+     *
+     * @param array<mixed> $data
+     */
+    public function __construct(
+        private readonly array $data
+    ) {
+    }
 
     public function setNoType(mixed $value): void
     {
@@ -119,6 +131,7 @@ class AssignTestStruct extends Struct
         $this->mixedType = $value;
     }
 
+    // @phpstan-ignore missingType.generics
     public function setCollection(?Collection $value): void
     {
         $this->collection = $value;
@@ -129,6 +142,7 @@ class AssignTestStruct extends Struct
         $this->assignCollection = $value;
     }
 
+    // @phpstan-ignore missingType.generics
     public function setDoubleTypeCollection(AssignTestCollection|EntityCollection|null $value): void
     {
         $this->doubleTypeCollection = $value;
@@ -202,6 +216,7 @@ class AssignTestStruct extends Struct
         return $this->mixedType;
     }
 
+    // @phpstan-ignore missingType.generics
     public function getCollection(): ?Collection
     {
         return $this->collection;
@@ -212,6 +227,7 @@ class AssignTestStruct extends Struct
         return $this->assignCollection;
     }
 
+    // @phpstan-ignore missingType.generics
     public function getDoubleTypeCollection(): AssignTestCollection|EntityCollection|null
     {
         return $this->doubleTypeCollection;
@@ -220,5 +236,13 @@ class AssignTestStruct extends Struct
     public function getIntersectionType(): (\JsonSerializable&\Countable)|null
     {
         return $this->intersectionType;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getData(): array
+    {
+        return $this->data;
     }
 }

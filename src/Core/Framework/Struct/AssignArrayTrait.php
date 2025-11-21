@@ -8,20 +8,12 @@ use Shopware\Core\Framework\Log\Package;
 trait AssignArrayTrait
 {
     /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $fallbackSorting will be added
-     * @deprecated tag:v6.8.0 - reason:return-type-change - will use "strong" return type `self`
-     *
      * @param array<array-key, mixed> $options
      *
      * @return $this
      */
-    public function assign(array $options/* , bool $deep = false */)/* : self */
+    public function assign(array $options)
     {
-        $deep = \func_num_args() >= 2 && func_get_arg(1);
-        if ($deep) {
-            return $this->assignRecursive($options);
-        }
-
         foreach ($options as $key => $value) {
             if ($key === 'id' && method_exists($this, 'setId')) {
                 $this->setId($value);
@@ -40,10 +32,7 @@ trait AssignArrayTrait
         return $this;
     }
 
-    /**
-     * @param array<array-key, mixed> $options
-     */
-    private function assignRecursive(array $options): self
+    public function assignRecursive(array $options): static
     {
         foreach ($options as $propertyName => $value) {
             try {
@@ -75,18 +64,24 @@ trait AssignArrayTrait
         return $this;
     }
 
-    private function createStruct(\ReflectionType $type, array $value): Struct|array
+    /**
+     * @param array<mixed> $value
+     *
+     * @return AssignArrayInterface|array<mixed>
+     */
+    private function createStruct(\ReflectionType $type, array $value): AssignArrayInterface|array
     {
         if (!$className = $this->getPropertyClassType([$type], AssignArrayInterface::class)) {
             return $value;
         }
 
-        // Only structs, without constructor parameters can be created and assigned.
-        $struct = new $className();
+        $struct = (new \ReflectionClass($className))
+            ->newInstanceWithoutConstructor();
+
         if ($struct instanceof Collection) {
             $struct->addFromAssociative($value);
-        } else {
-            $struct->assign($value, true);
+        } elseif ($struct instanceof AssignArrayInterface) {
+            $struct->assignRecursive($value);
         }
 
         return $struct;
@@ -103,7 +98,7 @@ trait AssignArrayTrait
         } catch (\Throwable) {
         }
 
-        // @phpstan-ignore property.dynamicName (We allow dynamic property assignment, if class has \AllowDynamicProperties attribute)
+        // @phpstan-ignore property.dynamicName (We allow dynamic property assignment)
         $this->{$propertyName} = $value;
     }
 

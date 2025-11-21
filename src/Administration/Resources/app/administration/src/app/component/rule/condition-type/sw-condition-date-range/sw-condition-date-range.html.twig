@@ -3,6 +3,7 @@
     {% block sw_condition_date_range_field_use_time %}
     <sw-single-select
         v-model:value="useTime"
+        class="sw-condition-date-range__use-time"
         name="sw-field--useTime"
         size="medium"
         :options="selectValues"
@@ -14,6 +15,7 @@
     {% block sw_condition_date_range_field_from_date %}
     <mt-datepicker
         v-model="fromDate"
+        class="sw-condition-date-range__from-date"
         name="sw-field--fromDate"
         size="medium"
         required
@@ -26,6 +28,7 @@
     {% block sw_condiiton_date_range_field_to_date %}
     <mt-datepicker
         v-model="toDate"
+        class="sw-condition-date-range__to-date"
         name="sw-field--toDate"
         size="medium"
         required
@@ -38,6 +41,7 @@
     {% block sw_condition_date_range_field_timezone %}
     <sw-single-select
         v-model:value="timezone"
+        class="sw*-condition-date-range__timezone"
         name="sw-field--timezone"
         :options="timezoneOptions"
         :disabled="disabled || undefined"

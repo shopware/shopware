@@ -33,10 +33,6 @@ When no fileType is provided, PDF is used as the fallback. ([PR #12944](https://
 {{baseurl}}/store-api/document/download/documentId/deepLinkCode?fileType=html
 ```
 
-### Deprecation of returned status code 204 for `/store-api/document/download/` when no documents are found
-The Store API route `/store-api/document/download` will return the standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested file extension, instead of returning a `204` status code.
-This will be changed in v6.8.0.0. ([PR #12944](https://github.com/shopware/shopware/pull/12944))
-
 ### Add the possibility to specify indexer in context
 
 When you want to specify which indexer should run, you can add the `EntityIndexerRegistry::EXTENSION_INDEXER_ONLY` extension to the context as follows:

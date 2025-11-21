@@ -52,7 +52,7 @@ class RequestDataExtractor
 
         $result = [];
         foreach ($bindings as $paramName => $binding) {
-            if (!isset($scalarParameters[$paramName])) {
+            if (!\array_key_exists($paramName, $scalarParameters)) {
                 continue;
             }
 

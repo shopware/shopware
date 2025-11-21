@@ -88,7 +88,7 @@ class ContextResolutionVisitor implements ElementVisitor
         $distributed = $strategy->distribute($data, $consumerData, $config);
 
         foreach ($consumers as $index => $consumer) {
-            if (isset($distributed[$index])) {
+            if (\array_key_exists($index, $distributed)) {
                 $this->setContextForConsumer($consumer, $consumerKey, $distributed[$index]);
             }
         }

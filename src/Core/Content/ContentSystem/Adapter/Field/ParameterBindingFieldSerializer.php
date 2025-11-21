@@ -104,7 +104,7 @@ class ParameterBindingFieldSerializer extends AbstractFieldSerializer
         $placeholder = $data['placeholder'] ?? null;
         $resolution = null;
 
-        if (isset($data['resolution']) && \is_array($data['resolution'])) {
+        if (\array_key_exists('resolution', $data) && \is_array($data['resolution'])) {
             $resolution = $this->resolutionConfigSerializer->deserializeResolutionConfig($data['resolution']);
         }
 

@@ -110,7 +110,7 @@ class PropertiesExtractionVisitor implements ElementVisitor
         $configHash = $this->generateConfigHash($requirement);
         $refId = $this->generateRefId($value, $configHash);
 
-        if (!isset($this->dataStore[$refId])) {
+        if (!\array_key_exists($refId, $this->dataStore) || $this->dataStore[$refId] === null) {
             $this->dataStore[$refId] = $value;
         }
 
@@ -121,7 +121,7 @@ class PropertiesExtractionVisitor implements ElementVisitor
     {
         $refId = 'object:' . spl_object_id($value);
 
-        if (!isset($this->dataStore[$refId])) {
+        if (!\array_key_exists($refId, $this->dataStore) || $this->dataStore[$refId] === null) {
             $this->dataStore[$refId] = $value;
         }
 

@@ -74,7 +74,7 @@ class EntityLayoutResolver
     ): PlaceholderValues {
         $entityIdPlaceholder = $entityIdField;
         $bindings = $assignment->getParameterBindings();
-        if ($bindings !== null && isset($bindings[$entityIdField])) {
+        if ($bindings !== null && \array_key_exists($entityIdField, $bindings)) {
             $entityIdPlaceholder = $bindings[$entityIdField]->placeholder ?? $entityIdField;
         }
 

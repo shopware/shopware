@@ -22,18 +22,18 @@ class EntityLoaderConfigSerializer implements ContentDataLoaderConfigSerializerI
 
     public function decode(array $data): ContentDataLoaderConfigInterface
     {
-        if (!isset($data['entity']) || !\is_string($data['entity']) || $data['entity'] === '') {
+        if (!\array_key_exists('entity', $data) || !\is_string($data['entity']) || $data['entity'] === '') {
             throw ContentSystemException::invalidFieldValueType('entity', 'non-empty string', \gettype($data['entity'] ?? null));
         }
         $entity = $data['entity'];
 
-        if (!isset($data['property']) || !\is_string($data['property']) || $data['property'] === '') {
+        if (!\array_key_exists('property', $data) || !\is_string($data['property']) || $data['property'] === '') {
             throw ContentSystemException::invalidFieldValueType('property', 'non-empty string', \gettype($data['property']));
         }
         $property = $data['property'];
 
         $associations = [];
-        if (isset($data['associations'])) {
+        if (\array_key_exists('associations', $data) && $data['associations'] !== null) {
             if (!\is_array($data['associations'])) {
                 throw ContentSystemException::invalidFieldValueType('associations', 'array', \gettype($data['associations']));
             }

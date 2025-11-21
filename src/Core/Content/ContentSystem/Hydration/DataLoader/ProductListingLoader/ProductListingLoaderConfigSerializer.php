@@ -23,7 +23,7 @@ class ProductListingLoaderConfigSerializer implements ContentDataLoaderConfigSer
     public function decode(array $data): ContentDataLoaderConfigInterface
     {
         $property = null;
-        if (isset($data['property'])) {
+        if (\array_key_exists('property', $data)) {
             if (!\is_string($data['property']) || $data['property'] === '') {
                 throw ContentSystemException::invalidFieldValueType('property', 'non-empty string', \gettype($data['property']));
             }
@@ -31,7 +31,7 @@ class ProductListingLoaderConfigSerializer implements ContentDataLoaderConfigSer
         }
 
         $associations = [];
-        if (isset($data['associations'])) {
+        if (\array_key_exists('associations', $data) && $data['associations'] !== null) {
             if (!\is_array($data['associations'])) {
                 throw ContentSystemException::invalidFieldValueType('associations', 'array', \gettype($data['associations']));
             }

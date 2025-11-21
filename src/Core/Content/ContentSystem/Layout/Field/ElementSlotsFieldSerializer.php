@@ -137,7 +137,7 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
 
         foreach ($slotsData as $slotName => $slotData) {
             // Handle single element (has 'component' key indicating it's an element, not an array of elements)
-            if (isset($slotData['component'])) {
+            if (\array_key_exists('component', $slotData) && $slotData['component'] !== null) {
                 $element = $this->elementSerializer->decodeElement($slotData);
                 $slots[$slotName] = new SlotContent([$element]);
                 continue;

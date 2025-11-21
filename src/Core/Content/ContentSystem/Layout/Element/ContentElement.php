@@ -85,11 +85,11 @@ class ContentElement extends Struct
      */
     public function getProperty(string $key): mixed
     {
-        if (isset($this->structProperties[$key])) {
+        if (\array_key_exists($key, $this->structProperties)) {
             return $this->structProperties[$key];
         }
 
-        if (isset($this->nonStructProperties[$key])) {
+        if (\array_key_exists($key, $this->nonStructProperties)) {
             return $this->nonStructProperties[$key];
         }
 
@@ -98,7 +98,7 @@ class ContentElement extends Struct
 
     public function hasProperty(string $key): bool
     {
-        return isset($this->structProperties[$key]) || isset($this->nonStructProperties[$key]);
+        return \array_key_exists($key, $this->structProperties) || \array_key_exists($key, $this->nonStructProperties);
     }
 
     public function setProperty(string $key, mixed $value): void

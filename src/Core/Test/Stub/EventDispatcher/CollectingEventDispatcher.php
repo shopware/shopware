@@ -7,8 +7,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @final
- *
- * @codeCoverageIgnore
  */
 class CollectingEventDispatcher implements EventDispatcherInterface
 {

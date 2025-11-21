@@ -63,7 +63,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
         $mediaFolderId = $this->getOrCreateDefaultFolder($context);
         $downloadFolderId = $this->getOrCreateDefaultFolder($context, true);
-        $tags = $this->getIds('tag');
+        $tags = $this->getIds();
 
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $isDownloadFile = $i % 30 === 0;
@@ -135,10 +135,10 @@ class MediaGenerator implements DemodataGeneratorInterface
     /**
      * @return list<string>
      */
-    private function getIds(string $table): array
+    private function getIds(): array
     {
         /** @var list<string> $ids */
-        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM tag LIMIT 500');
 
         return $ids;
     }

@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class ImageCollection extends StoreCollection
 {
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return string
+     */
     protected function getExpectedClass(): ?string
     {
         return ImageStruct::class;

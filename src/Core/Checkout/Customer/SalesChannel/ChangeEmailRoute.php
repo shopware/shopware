@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
@@ -9,6 +10,8 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -36,11 +39,13 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
      * @internal
      *
      * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<CustomerRecoveryCollection> $customerRecoveryRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DataValidator $validator
+        private readonly DataValidator $validator,
+        private readonly EntityRepository $customerRecoveryRepository
     ) {
     }
 
@@ -63,6 +68,12 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
         ];
 
         $this->customerRepository->update([$customerData], $context->getContext());
+
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('customerId', $customer->getId()));
+        $ids = $this->customerRecoveryRepository->searchIds($criteria, $context->getContext())->getIds();
+        if (!empty($ids)) {
+            $this->customerRecoveryRepository->delete(array_map(fn ($id) => ['id' => $id], $ids), $context->getContext());
+        }
 
         return new SuccessResponse();
     }

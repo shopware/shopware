@@ -393,7 +393,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<string>
      */
     private function getMediaIds(string $entity = 'product'): array
     {

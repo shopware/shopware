@@ -20,6 +20,32 @@
       "messageEmptySubline": "Verwalte Bewertungen hier",
       "titleSidebarItemRefresh": "Aktualisieren"
     },
+    "filters": {
+      "salesChannelFilter": {
+        "label": "Verkaufskanal",
+        "placeholder": "Nach Verkaufskanal filtern..."
+      },
+      "statusFilter": {
+        "label": "Freigegeben",
+        "labelActive": "Ja",
+        "labelInactive": "Nein"
+      },
+      "languageFilter": {
+        "label": "Sprache",
+        "placeholder": "Nach Sprache filtern..."
+      },
+      "customerFilter": {
+        "label": "Kunde",
+        "placeholder": "Nach Kunde filtern..."
+      },
+      "productFilter": {
+        "label": "Produkt",
+        "placeholder": "Nach Produkt filtern..."
+      },
+      "pointsFilter": {
+        "label": "Bewertung (Sterne)"
+      }
+    },
     "detail": {
       "textHeadline": "Bewertung",
       "cardTitleReviewInfo": "Bewertung",

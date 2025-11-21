@@ -425,8 +425,8 @@ class CheapestPriceTest extends TestCase
 
         $cheapestPriceQuery = $connection->prepare('UPDATE product SET cheapest_price = :price WHERE id = :id AND version_id = :version');
 
-        /** @var string $prices */
         $prices = file_get_contents(__DIR__ . '/_fixtures/serialized_prices.json');
+        static::assertIsString($prices);
         foreach ($ids->all() as $key => $id) {
             $prices = str_replace(\sprintf('__id_placeholder_%s__', $key), $id, $prices);
         }
@@ -631,7 +631,7 @@ class CheapestPriceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ids: array<string>, rules: array<string>}>
+     * @return iterable<string, array{ids: list<string>, rules: list<string>}>
      */
     public function providerSorting(): iterable
     {
@@ -662,7 +662,7 @@ class CheapestPriceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{from: int, rules?: array<string>, to: int, expected: array<string>}>
+     * @return iterable<string, array{from: int, rules?: list<string>, to: int, expected: list<string>}>
      */
     public function providerFilterPercentage(): iterable
     {
@@ -674,7 +674,7 @@ class CheapestPriceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{from: int, to: int, expected: array<string>, rules?: array<string>}>
+     * @return iterable<string, array{from: int, to: int, expected: list<string>, rules?: list<string>}>
      */
     public function providerFilterPrice(): iterable
     {
@@ -1268,7 +1268,6 @@ class CheapestPriceTest extends TestCase
             $expected = array_reverse($expected);
         }
 
-        /** @var string[] $actual */
         $actual = $result->getIds();
 
         $actualArray = [];
@@ -1280,7 +1279,7 @@ class CheapestPriceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{min: string, max: string, rules: array<string>}>
+     * @return iterable<string, array{min: string, max: string, rules: list<string>}>
      */
     private function providerAggregation(): iterable
     {

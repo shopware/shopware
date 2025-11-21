@@ -35,11 +35,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
 
         $search = $request->get('search');
 
-        if (\is_array($search)) {
-            $term = implode(' ', $search);
-        } else {
-            $term = (string) $search;
-        }
+        $term = \is_array($search) ? implode(' ', $search) : (string) $search;
 
         $term = mb_substr(trim($term), 0, $this->searchTermMaxLength);
 

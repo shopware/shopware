@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
  * @internal
@@ -101,5 +102,13 @@ class RoutingExceptionTest extends TestCase
         static::assertArrayHasKey('missingPrivileges', $decodedMessage);
         static::assertSame('Missing privilege', $decodedMessage['message']);
         static::assertSame($privileges, $decodedMessage['missingPrivileges']);
+    }
+
+    public function testUnexpectedTypeException(): void
+    {
+        $e = RoutingException::unexpectedType(2, 'valid');
+
+        static::assertSame(UnexpectedTypeException::class, $e::class);
+        static::assertSame('Expected argument of type "valid", "int" given', $e->getMessage());
     }
 }

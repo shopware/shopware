@@ -272,7 +272,7 @@ The methods `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` an
 The tracing is not needed anymore since the cache rework for 6.7.0.0.
 For now the methods are still available, but they do nothing.
 
-### Add $value === [] || the correct interface to filterable price definitions
+### Add the correct interface to filterable price definitions
 
 If a price definition should be filterable, explicitly implement the `Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
 

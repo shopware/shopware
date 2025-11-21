@@ -42,22 +42,16 @@ trait AssignArrayTrait
                     continue;
                 }
 
-                $property = new \ReflectionProperty($this, $propertyName);
-                if (!($type = $property->getType())) {
-                    $this->assignValue($propertyName, $value);
-
-                    continue;
-                }
-
-                if (!$type instanceof \ReflectionNamedType || !$type->isBuiltin()) {
+                $type = (new \ReflectionProperty($this, $propertyName))->getType();
+                if ($type !== null && (!$type instanceof \ReflectionNamedType || !$type->isBuiltin())) {
                     $this->assignValue($propertyName, $this->createStruct($type, $value));
 
                     continue;
                 }
 
                 $this->assignValue($propertyName, $value);
-            } catch (\Error|\Exception) {
-                // nth
+            } catch (\Throwable) {
+                // Ignore every error that occurs while trying to set properties´
             }
         }
 

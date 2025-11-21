@@ -256,8 +256,10 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
                 }
             }
 
-            if ($value instanceof $expectedClass) {
+            try {
                 $this->add($value);
+            } catch (\Throwable) {
+                // Try to add, ignore if the type is not the expected one.
             }
         }
 

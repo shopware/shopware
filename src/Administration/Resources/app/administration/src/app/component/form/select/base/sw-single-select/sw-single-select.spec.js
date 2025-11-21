@@ -224,4 +224,61 @@ describe('components/sw-single-select', () => {
         selectionText = wrapper.find('.sw-single-select__selection-text');
         expect(selectionText.text()).toBe('');
     });
+
+    it('should close first dropdown when clicking to open second dropdown', async () => {
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+
+        // Create first dropdown (Payment Status)
+        const firstDropdown = await createSingleSelect({
+            props: {
+                value: 'paid',
+                options: [
+                    { label: 'Paid', value: 'paid' },
+                    { label: 'Open', value: 'open' },
+                    { label: 'Cancelled', value: 'cancelled' },
+                ],
+            },
+            attachTo: container,
+        });
+
+        // Create second dropdown (Delivery Status)
+        const secondDropdown = await createSingleSelect({
+            props: {
+                value: 'shipped',
+                options: [
+                    { label: 'Shipped', value: 'shipped' },
+                    { label: 'Pending', value: 'pending' },
+                    { label: 'Delivered', value: 'delivered' },
+                ],
+            },
+            attachTo: container,
+        });
+
+        await flushPromises();
+
+        // User clicks the first dropdown to open it
+        const firstSelectionElement = firstDropdown.find('.sw-select__selection').element;
+        firstSelectionElement.click();
+        await flushPromises();
+
+        // First dropdown should be open
+        expect(firstDropdown.find('.sw-select-result-list__content').isVisible()).toBe(true);
+
+        // User clicks the second dropdown
+        const secondSelectionElement = secondDropdown.find('.sw-select__selection').element;
+        secondSelectionElement.click();
+        await flushPromises();
+
+        // First dropdown should now be closed
+        expect(firstDropdown.find('.sw-select-result-list__content').exists()).toBe(false);
+
+        // Second dropdown should be open
+        expect(secondDropdown.find('.sw-select-result-list__content').isVisible()).toBe(true);
+
+        // Cleanup
+        firstDropdown.unmount();
+        secondDropdown.unmount();
+        document.body.removeChild(container);
+    });
 });

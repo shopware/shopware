@@ -124,4 +124,29 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('properties', $properties['extensions']);
         static::assertArrayHasKey('extendedJsonField', $properties['extensions']['properties']);
     }
+
+    public function testAssociationDescriptions(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ComplexDefinition::class),
+            '/complex',
+            false
+        );
+
+        $properties = json_decode($schema['Complex']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
+
+        // Test ManyToOne association description
+        static::assertArrayHasKey('simpleTo', $properties);
+        static::assertArrayHasKey('description', $properties['simpleTo']);
+        static::assertSame('A reference to a simple entity', $properties['simpleTo']['description']);
+
+        // Test OneToMany association description
+        static::assertArrayHasKey('simpleManys', $properties);
+        static::assertArrayHasKey('description', $properties['simpleManys']);
+        static::assertSame('Multiple simple entities', $properties['simpleManys']['description']);
+
+        // Test with empty description
+        static::assertArrayHasKey('simpleToWithEmptyDescription', $properties);
+        static::assertArrayNotHasKey('description', $properties['simpleToWithEmptyDescription']);
+    }
 }

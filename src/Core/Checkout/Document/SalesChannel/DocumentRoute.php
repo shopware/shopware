@@ -48,10 +48,10 @@ final class DocumentRoute extends AbstractDocumentRoute
      * @deprecated tag:v6.8.0 - replace HTTP code 204 with 404 when document is not found
      */
     #[Route(
-        path: '/store-api/document/download/{documentId}/{deepLinkCode}/{fileType}',
+        path: '/store-api/document/download/{documentId}/{deepLinkCode}/{fileType?}',
         name: 'store-api.document.download',
         methods: ['GET', 'POST'],
-        defaults: ['_entity' => 'document'],
+        defaults: ['_entity' => 'document', 'fileType' => PdfRenderer::FILE_EXTENSION],
     )]
     public function download(
         string $documentId,

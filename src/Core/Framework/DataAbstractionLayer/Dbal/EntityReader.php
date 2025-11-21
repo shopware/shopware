@@ -812,13 +812,14 @@ class EntityReader implements EntityReaderInterface
             $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
             $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
         } else {
-            // When association is inherited, we need to join the base entity to the local table
+            // When the association is inherited, we need to join the base entity to the local table
+            // the "join column" (column name = property name) contains the id of the parent entity if the association is inherited
             $joinCondition = $root . '.' . $localColumn . ' = ' . EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($association->getPropertyName());
 
             if ($definition->isVersionAware()) {
                 $joinCondition .= ' AND ' . $root . '.' . EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_version_id') . ' = ' . EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.version_id';
             }
-            $query->leftJoin(
+            $query->innerJoin(
                 $root,
                 EntityDefinitionQueryHelper::escape($definition->getEntityName()),
                 EntityDefinitionQueryHelper::escape($definition->getEntityName()),

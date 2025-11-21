@@ -9,7 +9,6 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PlaceholderCollectorVisitor;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
@@ -220,17 +219,6 @@ class ContentElement extends Struct
         foreach ($this->allSlotElements() as $child) {
             $child->replacePlaceholders($specification);
         }
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getPlaceholders(): array
-    {
-        $visitor = new PlaceholderCollectorVisitor();
-        $this->traverse($visitor);
-
-        return $visitor->getPlaceholders();
     }
 
     public function getApiAlias(): string

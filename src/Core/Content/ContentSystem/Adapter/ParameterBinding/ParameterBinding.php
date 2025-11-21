@@ -21,14 +21,4 @@ final readonly class ParameterBinding
         public ?ResolutionConfig $resolution = null
     ) {
     }
-
-    public function getPlaceholder(): string
-    {
-        return $this->placeholder ?? $this->parameterName;
-    }
-
-    public function isResolutionParameter(): bool
-    {
-        return $this->resolution !== null;
-    }
 }

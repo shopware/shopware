@@ -86,7 +86,7 @@ class PromotionDiscountEntity extends Entity
 
     protected ?string $applierKey = null;
 
-    protected string $usageKey;
+    protected ?string $usageKey = null;
 
     protected ?string $pickerKey = null;
 
@@ -258,12 +258,12 @@ class PromotionDiscountEntity extends Entity
         $this->applierKey = $applierKey;
     }
 
-    public function getUsageKey(): string
+    public function getUsageKey(): ?string
     {
         return $this->usageKey;
     }
 
-    public function setUsageKey(string $usageKey): void
+    public function setUsageKey(?string $usageKey): void
     {
         $this->usageKey = $usageKey;
     }

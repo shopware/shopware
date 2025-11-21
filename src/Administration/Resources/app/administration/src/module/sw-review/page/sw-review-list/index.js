@@ -4,6 +4,15 @@ import './sw-review-list.scss';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+const DEFAULT_FILTERS = Object.freeze([
+    'sales-channel-filter',
+    'status-filter',
+    'language-filter',
+    'customer-filter',
+    'product-filter',
+    'points-filter',
+]);
+
 /**
  * @sw-package after-sales
  */
@@ -26,14 +35,7 @@ export default {
             items: null,
             isLoading: false,
             sortBy: 'status,createdAt',
-            defaultFilters: [
-                'sales-channel-filter',
-                'status-filter',
-                'language-filter',
-                'customer-filter',
-                'product-filter',
-                'points-filter',
-            ],
+            defaultFilters: DEFAULT_FILTERS,
             storeKey: 'grid.filter.product_review',
             activeFilterNumber: 0,
         };
@@ -111,9 +113,7 @@ export default {
         },
 
         customerCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            return criteria;
+            return new Criteria(1, 25);
         },
 
         productCriteria() {

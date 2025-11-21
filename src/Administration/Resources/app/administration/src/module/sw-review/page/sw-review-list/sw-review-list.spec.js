@@ -117,4 +117,24 @@ describe('module/sw-review/page/sw-review-list', () => {
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
         expect(editMenuItem.attributes()['allow-edit']).toBe('true');
     });
+
+    it('should have default filters configured', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const defaultFilters = wrapper.vm.defaultFilters;
+        expect(defaultFilters).toEqual([
+            'sales-channel-filter',
+            'status-filter',
+            'language-filter',
+            'customer-filter',
+            'product-filter',
+            'points-filter',
+        ]);
+
+        // Verify that all default filters are present in listFilterOptions
+        defaultFilters.forEach((filterKey) => {
+            expect(wrapper.vm.listFilterOptions).toHaveProperty(filterKey);
+        });
+    });
 });

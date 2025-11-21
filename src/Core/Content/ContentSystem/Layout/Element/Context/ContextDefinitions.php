@@ -20,21 +20,6 @@ class ContextDefinitions
     ) {
     }
 
-    public static function empty(): self
-    {
-        return new self([], []);
-    }
-
-    public function provides(string $key): bool
-    {
-        return \array_key_exists($key, $this->providers);
-    }
-
-    public function accepts(string $key): bool
-    {
-        return \array_key_exists($key, $this->consumers);
-    }
-
     /**
      * @return array<string, ContextProvider>
      */
@@ -49,10 +34,5 @@ class ContextDefinitions
     public function getAllConsumers(): array
     {
         return $this->consumers;
-    }
-
-    public function isEmpty(): bool
-    {
-        return $this->providers === [] && $this->consumers === [];
     }
 }

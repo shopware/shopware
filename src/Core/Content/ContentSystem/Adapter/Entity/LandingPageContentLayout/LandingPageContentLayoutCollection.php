@@ -11,6 +11,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class LandingPageContentLayoutCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'landing_page_content_layout_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return LandingPageContentLayoutEntity::class;

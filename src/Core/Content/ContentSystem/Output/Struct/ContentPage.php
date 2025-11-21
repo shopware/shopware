@@ -18,34 +18,11 @@ class ContentPage extends Struct
      * @param iterable<ContentElement> $elements
      */
     public function __construct(
-        protected string $layoutId,
-        protected iterable $elements,
-        protected string $layoutName,
-        protected ?string $layoutVersion,
+        public string $layoutId,
+        public iterable $elements,
+        public string $layoutName,
+        public ?string $layoutVersion,
     ) {
-    }
-
-    public function getLayoutId(): string
-    {
-        return $this->layoutId;
-    }
-
-    /**
-     * @return iterable<ContentElement>
-     */
-    public function getElements(): iterable
-    {
-        return $this->elements;
-    }
-
-    public function getLayoutName(): string
-    {
-        return $this->layoutName;
-    }
-
-    public function getLayoutVersion(): ?string
-    {
-        return $this->layoutVersion;
     }
 
     public function getApiAlias(): string

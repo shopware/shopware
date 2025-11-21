@@ -22,23 +22,9 @@ class SlotContent extends Struct implements \IteratorAggregate, \Countable
     ) {
     }
 
-    public static function empty(): self
-    {
-        return new self([]);
-    }
-
     public function first(): ?ContentElement
     {
         return $this->elements[0] ?? null;
-    }
-
-    public function last(): ?ContentElement
-    {
-        if ($this->elements === []) {
-            return null;
-        }
-
-        return $this->elements[array_key_last($this->elements)];
     }
 
     public function get(int $index): ?ContentElement
@@ -48,52 +34,12 @@ class SlotContent extends Struct implements \IteratorAggregate, \Countable
         return $reindexed[$index] ?? null;
     }
 
-    public function isEmpty(): bool
-    {
-        return $this->elements === [];
-    }
-
-    public function hasContent(): bool
-    {
-        return $this->elements !== [];
-    }
-
     /**
      * @return array<ContentElement>
      */
     public function all(): array
     {
         return $this->elements;
-    }
-
-    public function add(ContentElement $element): self
-    {
-        $elements = $this->elements;
-        $elements[] = $element;
-
-        return new self($elements);
-    }
-
-    /**
-     * @param callable(ContentElement): bool $predicate
-     */
-    public function filter(callable $predicate): self
-    {
-        $filtered = array_filter($this->elements, $predicate);
-
-        return new self(array_values($filtered));
-    }
-
-    /**
-     * @template T
-     *
-     * @param callable(ContentElement): T $mapper
-     *
-     * @return array<T>
-     */
-    public function map(callable $mapper): array
-    {
-        return array_map($mapper, $this->elements);
     }
 
     public function getIterator(): \Traversable

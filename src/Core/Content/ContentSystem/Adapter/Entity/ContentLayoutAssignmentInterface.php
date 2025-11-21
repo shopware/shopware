@@ -31,12 +31,4 @@ interface ContentLayoutAssignmentInterface
      * @return array<string, ParameterBinding>|null
      */
     public function getParameterBindings(): ?array;
-
-    /**
-     * Returns the ID of the entity this layout is assigned to.
-     *
-     * This generic getter enables polymorphic handling of different entity types
-     * without knowing the specific getter method name (getProductId, getCategoryId, etc.).
-     */
-    public function getAssignedEntityId(): string;
 }

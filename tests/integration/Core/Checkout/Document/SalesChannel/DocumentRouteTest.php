@@ -348,6 +348,7 @@ class DocumentRouteTest extends TestCase
 
         if (!Feature::isActive('v6.8.0.0') && $expectException) {
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
             return;
         }
 

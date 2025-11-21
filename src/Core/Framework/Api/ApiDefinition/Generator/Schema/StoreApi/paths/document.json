@@ -95,7 +95,7 @@
                     "description": "Forbidden. Customer is not logged in."
                   },
                   "404": {
-                    "description": "Not found. Possible error codes: DOCUMENT_NOT_FOUND, DOCUMENT_NOT_FOUND, ORDER_NOT_FOUND. With v6.8.0.0 DOCUMENT_FILETYPE_UNAVAILABLE will be added."
+                    "description": "Document not found."
                   }
                 },
                 "security": [
@@ -197,7 +197,7 @@
                 "description": "Forbidden. Customer is not logged in."
               },
               "404": {
-                "description": "Not found. Possible error codes: DOCUMENT_NOT_FOUND, ORDER_NOT_FOUND. With v6.8.0.0 DOCUMENT_FILETYPE_UNAVAILABLE will be added."
+                "description": "Document not found."
               }
             },
             "security": [

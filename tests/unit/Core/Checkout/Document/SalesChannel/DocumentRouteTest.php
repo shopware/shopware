@@ -338,7 +338,8 @@ class DocumentRouteTest extends TestCase
         if (Feature::isActive('v6.8.0.0')) {
             $this->expectExceptionObject(
                 DocumentException::documentFileTypeUnavailable(
-                    self::DUMMY_DOCUMENT_ID, PdfRenderer::FILE_EXTENSION
+                    self::DUMMY_DOCUMENT_ID,
+                    PdfRenderer::FILE_EXTENSION
                 )
             );
         }
@@ -431,7 +432,8 @@ class DocumentRouteTest extends TestCase
         if (Feature::isActive('v6.8.0.0')) {
             $this->expectExceptionObject(
                 DocumentException::documentFileTypeUnavailable(
-                    self::DUMMY_DOCUMENT_ID, PdfRenderer::FILE_EXTENSION
+                    self::DUMMY_DOCUMENT_ID,
+                    PdfRenderer::FILE_EXTENSION
                 )
             );
         }
@@ -495,7 +497,8 @@ class DocumentRouteTest extends TestCase
         if (Feature::isActive('v6.8.0.0')) {
             $this->expectExceptionObject(
                 DocumentException::documentFileTypeUnavailable(
-                    self::DUMMY_DOCUMENT_ID, PdfRenderer::FILE_EXTENSION
+                    self::DUMMY_DOCUMENT_ID,
+                    PdfRenderer::FILE_EXTENSION
                 )
             );
         }

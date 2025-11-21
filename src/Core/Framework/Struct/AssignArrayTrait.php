@@ -36,7 +36,7 @@ trait AssignArrayTrait
     {
         foreach ($options as $propertyName => $value) {
             try {
-                if ($value === null || $value === [] || \is_scalar($value)) {
+                if (!\is_array($value) || $value === []) {
                     $this->assignValue($propertyName, $value);
 
                     continue;
@@ -49,7 +49,7 @@ trait AssignArrayTrait
                     continue;
                 }
 
-                if (\is_array($value) && (!$type instanceof \ReflectionNamedType || !$type->isBuiltin())) {
+                if (!$type instanceof \ReflectionNamedType || !$type->isBuiltin()) {
                     $this->assignValue($propertyName, $this->createStruct($type, $value));
 
                     continue;

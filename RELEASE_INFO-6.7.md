@@ -148,6 +148,12 @@ Example usage:
 
 The `link` property of the product manufacturer entity is now translatable.
 
+### Add recursive assign method to AssignArrayTrait
+
+A new method `assignRecursive` has been added to `Shopware\Core\Framework\Struct\AssignArrayTrait`. Along with it, the new `Shopware\Core\Framework\Struct\AssignArrayInterface` has been introduced.
+To make full use of `assignRecursive`, every class using `AssignArrayTrait` must also implement the new `AssignArrayInterface`.
+The `assignRecursive` method enables deeply nested, JSON-serialized data structures - for example, a fully serialized `ProductEntity` including associations such as `salesChannels` - to be converted back into a fully populated `ProductEntity` instance, including all nested `Struct` and `Collection` objects.
+
 ## Administration
 
 ### URL restrictions for product and category SEO URLs
@@ -266,7 +272,7 @@ The methods `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` an
 The tracing is not needed anymore since the cache rework for 6.7.0.0.
 For now the methods are still available, but they do nothing.
 
-### Add the correct interface to filterable price definitions
+### Add $value === [] || the correct interface to filterable price definitions
 
 If a price definition should be filterable, explicitly implement the `Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
 

@@ -92,9 +92,9 @@ class MySQLFactoryTest extends TestCase
         // PDO::MYSQL_ATTR_LOCAL_INFILE = 1001 (enable LOAD DATA LOCAL INFILE)
         $customOption = 1001;
         $customValue = 1;
-        
+
         $this->setEnvVars([
-            'DATABASE_URL' => sprintf(
+            'DATABASE_URL' => \sprintf(
                 'mysql://user:pass@localhost:3306/shopware?driverOptions[%d]=%d',
                 $customOption,
                 $customValue
@@ -105,13 +105,13 @@ class MySQLFactoryTest extends TestCase
         $params = $connection->getParams();
 
         static::assertArrayHasKey('driverOptions', $params);
-        
+
         // Verify default options are present
         static::assertArrayHasKey(\PDO::ATTR_STRINGIFY_FETCHES, $params['driverOptions']);
         static::assertTrue($params['driverOptions'][\PDO::ATTR_STRINGIFY_FETCHES]);
         static::assertArrayHasKey(\PDO::ATTR_TIMEOUT, $params['driverOptions']);
         static::assertSame(5, $params['driverOptions'][\PDO::ATTR_TIMEOUT]);
-        
+
         // Verify custom option from DSN is preserved
         static::assertArrayHasKey($customOption, $params['driverOptions']);
         static::assertSame('1', $params['driverOptions'][$customOption]);
@@ -124,14 +124,14 @@ class MySQLFactoryTest extends TestCase
         $customValue = 1;
         $replicaCustomOption = 1004;
         $replicaCustomValue = 1;
-        
+
         $this->setEnvVars([
-            'DATABASE_URL' => sprintf(
+            'DATABASE_URL' => \sprintf(
                 'mysql://user:pass@localhost:3306/shopware?driverOptions[%d]=%d',
                 $customOption,
                 $customValue
             ),
-            'DATABASE_REPLICA_0_URL' => sprintf(
+            'DATABASE_REPLICA_0_URL' => \sprintf(
                 'mysql://replica_user:replica_pass@replica_host:3307/replica_db?driverOptions[%d]=%d',
                 $replicaCustomOption,
                 $replicaCustomValue

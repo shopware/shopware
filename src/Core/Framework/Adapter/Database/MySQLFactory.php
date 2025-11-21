@@ -42,9 +42,9 @@ class MySQLFactory
 
         // Merge driverOptions separately using + to preserve PDO constant keys
         $parameters['driverOptions'] = [
-                \PDO::ATTR_STRINGIFY_FETCHES => true,
-                \PDO::ATTR_TIMEOUT => 5,
-            ] + ($dsnParameters['driverOptions'] ?? []);
+            \PDO::ATTR_STRINGIFY_FETCHES => true,
+            \PDO::ATTR_TIMEOUT => 5,
+        ] + ($dsnParameters['driverOptions'] ?? []);
 
         $initCommands = [
             'SET @@session.time_zone = \'+00:00\'',

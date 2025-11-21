@@ -72,12 +72,13 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode, $requestedFileType);
 
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'The returned HTTP code 204 ("No Content") when a document is not found is deprecated. It will be removed in 6.8.0.0 and replaced with 404.'
-        );
         if ($document === null) {
             if (!Feature::isActive('v6.8.0.0')) {
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    'The returned HTTP code 204 ("No Content") when a document is not found is deprecated. It will be removed in 6.8.0.0 and replaced with 404.'
+                );
+
                 return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
             }
 

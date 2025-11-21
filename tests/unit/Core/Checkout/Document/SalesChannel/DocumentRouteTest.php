@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -36,6 +37,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(DocumentRoute::class)]
 class DocumentRouteTest extends TestCase
 {
+    private const DUMMY_DOCUMENT_ID = 'documentId';
+
     public function testDownloadWithDocumentNotFound(): void
     {
         $generator = $this->createMock(DocumentGenerator::class);
@@ -49,7 +52,7 @@ class DocumentRouteTest extends TestCase
         static::expectException(DocumentException::class);
         static::expectExceptionMessage('The document with id "documentId" is invalid or could not be found.');
 
-        $route->download('documentId', new Request(), $this->createMock(SalesChannelContext::class));
+        $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
     }
 
     public function testDownloadWithOrderNotFound(): void
@@ -74,7 +77,7 @@ class DocumentRouteTest extends TestCase
         static::expectException(DocumentException::class);
         static::expectExceptionMessage('The order with id "test" is invalid or could not be found.');
 
-        $route->download('documentId', new Request(), $this->createMock(SalesChannelContext::class));
+        $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
     }
 
     public function testDownloadWithoutOrderCustomer(): void
@@ -101,7 +104,7 @@ class DocumentRouteTest extends TestCase
         static::expectException(CustomerNotLoggedInException::class);
         static::expectExceptionMessage('Customer is not logged in.');
 
-        $route->download('documentId', new Request(), $this->createMock(SalesChannelContext::class));
+        $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
     }
 
     public function testThrowExceptionForNotGuestOrderForGuest(): void
@@ -141,7 +144,7 @@ class DocumentRouteTest extends TestCase
         static::expectException(CustomerNotLoggedInException::class);
         static::expectExceptionMessage('Customer is not logged in.');
 
-        $route->download('documentId', $request, $context);
+        $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
     public function testThrowExceptionWrongCredentialsForGuestAuthentication(): void
@@ -286,7 +289,7 @@ class DocumentRouteTest extends TestCase
         static::expectException(CustomerNotLoggedInException::class);
         static::expectExceptionMessage('Customer is not logged in.');
 
-        $route->download('documentId', $request, $context);
+        $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
     public function testGuestCanDownload(): void
@@ -332,9 +335,19 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        $response = $route->download('documentId', $request, $context, 'deepLinkCode');
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable(
+                    self::DUMMY_DOCUMENT_ID, PdfRenderer::FILE_EXTENSION
+                )
+            );
+        }
 
-        static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+        $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context, 'deepLinkCode');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+        }
     }
 
     public function testThrowExceptionForNotMatchingCustomer(): void
@@ -375,7 +388,7 @@ class DocumentRouteTest extends TestCase
         static::expectException(CustomerException::class);
         static::expectExceptionMessage('Customer is not logged in.');
 
-        $route->download('documentId', $request, $context);
+        $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
     public function testMatchingCustomerCanDownload(): void
@@ -415,9 +428,19 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        $response = $route->download('documentId', $request, $context);
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable(
+                    self::DUMMY_DOCUMENT_ID, PdfRenderer::FILE_EXTENSION
+                )
+            );
+        }
 
-        static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+        $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+        }
     }
 
     /**
@@ -469,9 +492,19 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        $response = $route->download('documentId', $request, $context);
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable(
+                    self::DUMMY_DOCUMENT_ID, PdfRenderer::FILE_EXTENSION
+                )
+            );
+        }
 
-        static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+        $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+        }
     }
 
     public static function provideRequestParameters(): \Generator

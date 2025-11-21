@@ -331,6 +331,12 @@ class DocumentRouteTest extends TestCase
 
         $documentId = $document->getId();
 
+        if (Feature::isActive('v6.8.0.0') && $expectException) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable($documentId, $expectedFileType)
+            );
+        }
+
         $this->browser->request(
             'GET',
             '/store-api/document/download/' . $documentId . '/' . $document->getDeepLinkCode()
@@ -340,18 +346,8 @@ class DocumentRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        if ($expectException) {
-            /*
-             * remove else when v6.7.x is no longer supported
-             */
-            if (Feature::isActive('v6.8.0.0')) {
-                static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-                $data = json_decode((string) $response->getContent(), true);
-                static::assertSame('DOCUMENT__FILETYPE_UNAVAILABLE', $data['errors'][0]['code']);
-            } else {
-                static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-            }
-
+        if (!Feature::isActive('v6.8.0.0') && $expectException) {
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
             return;
         }
 

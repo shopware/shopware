@@ -42,7 +42,6 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 - [Project overview](#project-overview)
   - [Platform and Framework](#platform-and-framework)
 - [Installation](#installation)
-  - [Extending Shopware](#extending-shopware)
   - [Production setup](#production-setup)
   - [Code Contribution](#code-contribution)
     - [Contribution setup](#contribution-setup)
@@ -51,6 +50,7 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 - [License](#license)
 - [Bugs \& Feedback](#bugs--feedback)
 - [Reporting security issues](#reporting-security-issues)
+- [Extending Shopware](#extending-shopware)
 
 ## Project overview
 
@@ -75,16 +75,6 @@ Shopware is:
 - headless if you need it to be.
 
 ## Installation
-
-### Extending Shopware
-
-There are already a lot of extensions available in the [Shopware store](https://store.shopware.com/).
-
-After setting up [Shopware locally for development](https://developer.shopware.com/docs/guides/installation), you can start with our extension guides in the documentation.
-
-The preferred way of extending Shopware is through the [App System](https://developer.shopware.com/docs/guides/plugins/apps/app-base-guide).
-If the feature you want to implement needs direct access to the Shopware process and the database, you can also use the [plugin system](https://developer.shopware.com/docs/guides/plugins/plugins/plugin-base-guide).    
-You can find an [overview and differentiation in the documentation](https://developer.shopware.com/docs/concepts/extensions).
 
 ### Production setup
 
@@ -140,3 +130,13 @@ If you want to suggest features or how certain parts of Shopware 6 work, we'd be
 ## Reporting security issues
 
 Please have a look at our [security policy](SECURITY.md).
+
+### Extending Shopware
+
+There are already a lot of extensions available in the [Shopware store](https://store.shopware.com/).
+
+After setting up [Shopware locally for development](https://developer.shopware.com/docs/guides/installation), you can start with our extension guides in the documentation.
+
+The preferred way of extending Shopware is through the [App System](https://developer.shopware.com/docs/guides/plugins/apps/app-base-guide).
+If the feature you want to implement needs direct access to the Shopware process and the database, you can also use the [plugin system](https://developer.shopware.com/docs/guides/plugins/plugins/plugin-base-guide).    
+You can find an [overview and differentiation in the documentation](https://developer.shopware.com/docs/concepts/extensions).

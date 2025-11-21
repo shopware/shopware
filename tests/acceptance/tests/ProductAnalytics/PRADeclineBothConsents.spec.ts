@@ -108,23 +108,36 @@ test('As a merchant, I want to make sure no admin events are sent after login if
 
 
 test('As a merchant, I want explicitly decline both consents from modal.', { tag: '@ProductAnalytics' }, async ({
-AdminDashboard,
+    AdminDataSharingConsentModal,
+    ShopAdmin,
 }) => {
 
     await test.step('Intercept all the API calls to product analytics', async () => {
-        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
+        await AdminDataSharingConsentModal.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
     });
 
     await test.step('Check consent checkboxes and decline all in once via button', async () => {
 
+        // Check modal appeared
+        await ShopAdmin.expects(AdminDataSharingConsentModal.consentModal).toBeVisible();
 
-        // Check both consents are declined in the modal
-        // Toggles clearly show state (on/off) and have accessible labels.
+        // Check modal contents
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareStoreDataCheckbox).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareStoreDataCheckbox).not.toBeChecked();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareUserTrackingDataHeadline).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareUserTrackingDataText).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareUserTrackingDataCheckbox).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.shareUserTrackingDataCheckbox).not.toBeChecked();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.dataUseDetailsLink).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharingConsentModal.privacyPolicyLink).toBeVisible();
+
         // Link(s) to the legal page(s) exist and point to the expected URL(s). (assert anchors with href contain the canonical path domain or route).
 
         // Click on deline all button
+        await ShopAdmin.presses(AdminDataSharingConsentModal.shareNothingButton);
 
         // Check modal is disappeared
+        await ShopAdmin.expects(AdminDataSharingConsentModal.consentModal).toBeHidden();
 
     });
 

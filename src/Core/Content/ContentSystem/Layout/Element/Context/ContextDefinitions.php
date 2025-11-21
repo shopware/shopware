@@ -27,12 +27,12 @@ class ContextDefinitions
 
     public function provides(string $key): bool
     {
-        return isset($this->providers[$key]);
+        return \array_key_exists($key, $this->providers);
     }
 
     public function accepts(string $key): bool
     {
-        return isset($this->consumers[$key]);
+        return \array_key_exists($key, $this->consumers);
     }
 
     /**

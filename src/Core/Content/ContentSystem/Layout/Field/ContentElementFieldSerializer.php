@@ -139,16 +139,16 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
      */
     public function decodeElement(array $data): ContentElement
     {
-        if (!isset($data['id']) || !\is_string($data['id'])) {
+        if (!\array_key_exists('id', $data) || !\is_string($data['id'])) {
             throw ContentSystemException::invalidFieldValueType('id', 'string', \gettype($data['id'] ?? null));
         }
 
-        if (!isset($data['component']) || !\is_string($data['component'])) {
+        if (!\array_key_exists('component', $data) || !\is_string($data['component'])) {
             throw ContentSystemException::invalidFieldValueType('component', 'string', \gettype($data['component'] ?? null));
         }
 
         $dataRequirementsField = new DataRequirementsField('data_requirements', 'dataRequirements');
-        $dataRequirements = isset($data['data_requirements']) && \is_array($data['data_requirements'])
+        $dataRequirements = \array_key_exists('data_requirements', $data) && \is_array($data['data_requirements'])
             ? $this->dataRequirementsSerializer->decode($dataRequirementsField, $data['data_requirements'])
             : [];
 
@@ -156,11 +156,11 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         $contextConsumersField = new ContextConsumersField('accepts_context', 'acceptsContext');
 
         // Null default matches decode() return type; ?? [] used below for type safety
-        $providers = isset($data['provides_context']) && \is_array($data['provides_context'])
+        $providers = \array_key_exists('provides_context', $data) && \is_array($data['provides_context'])
             ? $this->contextProvidersSerializer->decode($contextProvidersField, $data['provides_context'])
             : null;
 
-        $consumers = isset($data['accepts_context']) && \is_array($data['accepts_context'])
+        $consumers = \array_key_exists('accepts_context', $data) && \is_array($data['accepts_context'])
             ? $this->contextConsumersSerializer->decode($contextConsumersField, $data['accepts_context'])
             : null;
 
@@ -170,7 +170,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
 
         // Lazy-loaded to break circular dependency
         $slotsField = new ElementSlotsField('slots', 'slots');
-        $slots = isset($data['slots']) && \is_array($data['slots'])
+        $slots = \array_key_exists('slots', $data) && \is_array($data['slots'])
             ? ($this->elementSlotsSerializer->decode($slotsField, $data['slots']) ?? [])
             : [];
 
@@ -311,7 +311,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
                 ? substr($propertyKey, 0, (int) strpos($propertyKey, '.'))
                 : $propertyKey;
 
-            if (isset($propertyKeys[$baseKey])) {
+            if (\array_key_exists($baseKey, $propertyKeys)) {
                 throw ContentSystemException::propertyAliasCollision(
                     $baseKey,
                     $propertyKeys[$baseKey],
@@ -333,7 +333,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
 
             $providerKey = $consumer->consumerAlias ?? $contextKey;
 
-            if (isset($providers[$providerKey])) {
+            if (\array_key_exists($providerKey, $providers)) {
                 throw ContentSystemException::redistributeConflict($contextKey);
             }
 

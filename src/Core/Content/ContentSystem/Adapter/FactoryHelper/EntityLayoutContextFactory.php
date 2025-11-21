@@ -62,7 +62,7 @@ class EntityLayoutContextFactory
         $dataRequirements = $this->transformDataRequirements($layoutData->assignment, $context, $definition);
 
         $params = $this->requestDataExtractor->extractData($request, null);
-        $targetElementId = isset($params['elementId']) && \is_string($params['elementId']) && $params['elementId'] !== ''
+        $targetElementId = \array_key_exists('elementId', $params) && \is_string($params['elementId']) && $params['elementId'] !== ''
             ? $params['elementId']
             : null;
 
@@ -153,7 +153,7 @@ class EntityLayoutContextFactory
             }
 
             $propertyName = $config->property;
-            if (!isset($fieldToPlaceholder[$propertyName])) {
+            if (!\array_key_exists($propertyName, $fieldToPlaceholder)) {
                 $transformed[] = $requirement;
                 continue;
             }

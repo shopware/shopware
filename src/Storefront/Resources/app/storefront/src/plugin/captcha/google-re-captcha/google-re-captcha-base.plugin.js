@@ -99,7 +99,7 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
 
         let ajaxSubmitFound = false;
 
-        for (const plugin of this.formPluginInstances) {
+        for (const [pluginName, plugin] of this.formPluginInstances) {
             if (typeof plugin.sendAjaxFormSubmit === 'function' && plugin.options.useAjax !== false) {
                 ajaxSubmitFound = true;
                 plugin.sendAjaxFormSubmit();

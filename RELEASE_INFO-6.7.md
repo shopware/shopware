@@ -1,4 +1,23 @@
-# 6.7.5.0 (upcoming)
+# 6.7.6.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+## Administration
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+## Critical fixes
+
+# 6.7.5.0
+
 ## Features
 
 ### Tax Calculation Logic
@@ -210,8 +229,6 @@ to:
     {# Your content #}
 {% endblock %}
 ```
-
-## App System
 
 ## Hosting & Configuration
 

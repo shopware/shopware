@@ -229,6 +229,7 @@ class EntityReader implements EntityReaderInterface
                 /**
                  * When the association is filtered or sorted we do a seperate query to load the ids of the association.
                  * Therefore we do not need to add the select here to the main query.
+                 *
                  * @see self::loadManyToManyWithCriteria()
                  */
                 if ($this->isAssociationRestricted($criteria, $field->getPropertyName())) {
@@ -237,6 +238,7 @@ class EntityReader implements EntityReaderInterface
 
                 /**
                  * When the association is not filtered we select the ids of the association directly in the main query.
+                 *
                  * @see self::loadManyToManyOverExtension()
                  */
                 $this->addManyToManySelect($definition, $root, $field, $query, $context);

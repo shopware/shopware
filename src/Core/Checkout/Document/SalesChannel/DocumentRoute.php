@@ -45,9 +45,6 @@ final class DocumentRoute extends AbstractDocumentRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - replace HTTP code 204 with 404 when document is not found
-     */
     #[Route(
         path: '/store-api/document/download/{documentId}/{deepLinkCode}/{fileType?}',
         name: 'store-api.document.download',

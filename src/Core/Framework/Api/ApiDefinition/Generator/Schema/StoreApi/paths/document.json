@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": [],
     "paths": {
-        "/document/download/{documentId}/{deepLinkCode}/{fileType}": {
+        "/document/download/{documentId}/{deepLinkCode}/{fileType?}": {
             "post": {
                 "tags": [
                     "Document",
@@ -88,6 +88,10 @@
                             }
                         }
                     },
+                  /*
+                    * @deprecated tag:v6.8.0 - reason:change response code - DEPRECATED: Returns a no content response when no document is found.
+                    * Will be changed in v6.8.0.0 and returns a 404 response instead.
+                  */
                   "204": {
                     "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
                   },
@@ -165,20 +169,6 @@
                 }
               }
             ],
-            "requestBody": {
-              "required": false,
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/Criteria"
-                      }
-                    ]
-                  }
-                }
-              }
-            },
             "responses": {
               "200": {
                 "description": "Returns the document information and blob to download.",
@@ -190,6 +180,10 @@
                   }
                 }
               },
+              /*
+                * @deprecated tag:v6.8.0 - reason:change response code - DEPRECATED: Returns a no content response when no document is found.
+                * Will be changed in v6.8.0.0 and returns a 404 response instead.
+              */
               "204": {
                 "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
               },

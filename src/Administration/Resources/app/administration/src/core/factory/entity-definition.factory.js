@@ -18,6 +18,7 @@ export default {
     getTranslatedFields,
     getAssociationFields,
     getRequiredFields,
+    getApiAwareFields,
 };
 
 const entityDefinitionRegistry = new Map();
@@ -78,4 +79,8 @@ function getAssociationFields(entityName) {
 
 function getRequiredFields(entityName) {
     return get(entityName).getRequiredFields();
+}
+
+function getApiAwareFields(entityName) {
+    return get(entityName).getApiAwareFields();
 }

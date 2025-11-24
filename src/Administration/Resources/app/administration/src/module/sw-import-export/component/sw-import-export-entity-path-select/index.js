@@ -375,7 +375,9 @@ export default {
                     properties: this.getCustomFields(this.currentEntity || this.entityType),
                 };
             } else {
-                definition = Shopware.EntityDefinition.get(this.currentEntity);
+                definition = {
+                    properties: Shopware.EntityDefinition.getApiAwareFields(this.currentEntity),
+                };
             }
 
             const unprocessedValues = {

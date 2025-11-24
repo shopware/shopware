@@ -8,6 +8,8 @@ export interface Property {
         primary_key?: boolean;
         required?: boolean;
         translatable?: boolean;
+        read_protected?: Array<string>;
+
     };
     required?: boolean;
     type?: string;
@@ -131,6 +133,12 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
     getRequiredFields() {
         return this.filterProperties((property) => {
             return property.flags?.required === true;
+        });
+    }
+
+    getApiAwareFields() {
+        return this.filterProperties((property) => {
+            return property.flags?.read_protected?.length > 0;
         });
     }
 

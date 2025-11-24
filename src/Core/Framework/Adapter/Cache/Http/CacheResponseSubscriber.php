@@ -123,7 +123,13 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         // In Store API we rely on headers to manage caching, as it more explicit and easier to parse on reverse proxy side.
         // As we don't control headers that browser sends, in storefront we have to rely on cookies. For this reason here
         // we have two separate branches of logic.
-        if ($this->isStoreApi($request) && (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0'))) {
+        if ($this->isStoreApi($request)) {
+            if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+                $this->noCache($request, $response, $isStoreApi);
+
+                return;
+            }
+
             $this->applyStoreApiPolicy($request, $response, $cacheAttribute);
 
             return;

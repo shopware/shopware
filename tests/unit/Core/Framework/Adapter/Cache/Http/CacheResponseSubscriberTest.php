@@ -1159,16 +1159,11 @@ class CacheResponseSubscriberTest extends TestCase
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
     #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
-    public function testStoreApiBehavesLikeStorefrontWithoutFeatureFlag(): void
+    public function testStoreApiNoCacheRework(): void
     {
-        $cartService = $this->createMock(CartService::class);
-        $cart = new Cart('test');
-        $cart->add(new LineItem('test', 'test', 'test', 1));
-        $cartService->method('getCart')->willReturn($cart);
-
         $subscriber = new CacheResponseSubscriber(
             [],
-            $cartService,
+            $this->createMock(CartService::class),
             100,
             true,
             new MaintenanceModeResolver($this->eventDispatcher),
@@ -1180,15 +1175,11 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createCachePolicyProvider(),
         );
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
-
-        // Test Store API request without feature flag - should behave like Storefront
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
-        $request->attributes->set('_route', 'store-api.test'); // Set route to allow normal flow
+        $request->attributes->set('_route', 'store-api.test');
 
         $response = new Response();
         $subscriber->setResponseCache(new ResponseEvent(
@@ -1198,16 +1189,7 @@ class CacheResponseSubscriberTest extends TestCase
             $response
         ));
 
-        // Without feature flag, Store API should behave like Storefront and set cookies
-        static::assertSame('public, s-maxage=100, stale-if-error=6, stale-while-revalidate=5', $response->headers->get('cache-control'));
-        static::assertNotEmpty($response->headers->getCookies(), 'Without feature flag, Store API should set cookies like Storefront');
-
-        // Verify the exact cookies that should be set
-        $cookies = $response->headers->getCookies();
-        $cookieNames = array_map(fn (Cookie $cookie) => $cookie->getName(), $cookies);
-
-        static::assertContains(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, $cookieNames, 'Should set system state cookie');
-        static::assertContains(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookieNames, 'Should set context cache cookie');
+        static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 
     public function testStoreApiCachingIgnoresStatesAndCookies(): void

@@ -51,6 +51,7 @@ class DocumentRouteTest extends TestCase
         OrderActionTrait::login insteadof SalesChannelApiTestBehaviour;
         SalesChannelApiTestBehaviour::login as loginBrowser;
     }
+    private const INVALID_FILE_TYPE = 'invalid';
 
     private KernelBrowser $browser;
 
@@ -311,7 +312,6 @@ class DocumentRouteTest extends TestCase
         string $expectedContentType,
         ?string $queryParameter,
         ?string $pathParameter,
-        bool $expectException,
     ): void {
         $customerId = $this->loginBrowser($this->browser);
         $this->createOrder(
@@ -331,12 +331,6 @@ class DocumentRouteTest extends TestCase
 
         $documentId = $document->getId();
 
-        if (Feature::isActive('v6.8.0.0') && $expectException) {
-            $this->expectExceptionObject(
-                DocumentException::documentFileTypeUnavailable($documentId, $expectedFileType)
-            );
-        }
-
         $this->browser->request(
             'GET',
             '/store-api/document/download/' . $documentId . '/' . $document->getDeepLinkCode()
@@ -345,12 +339,6 @@ class DocumentRouteTest extends TestCase
         );
 
         $response = $this->browser->getResponse();
-
-        if (!Feature::isActive('v6.8.0.0') && $expectException) {
-            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-
-            return;
-        }
 
         static::assertNotEmpty($response->getContent());
         static::assertSame('inline; filename=invoice_1000.' . $expectedFileType, $response->headers->get('content-disposition'));
@@ -365,7 +353,6 @@ class DocumentRouteTest extends TestCase
             'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
             'queryParameter' => HtmlRenderer::FILE_EXTENSION,
             'pathParameter' => null,
-            'expectException' => false,
         ];
 
         yield 'path param html as fileType' => [
@@ -374,7 +361,6 @@ class DocumentRouteTest extends TestCase
             'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
             'queryParameter' => null,
             'pathParameter' => HtmlRenderer::FILE_EXTENSION,
-            'expectException' => false,
         ];
 
         yield 'query param fileType = pdf' => [
@@ -383,7 +369,6 @@ class DocumentRouteTest extends TestCase
             'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
             'queryParameter' => PdfRenderer::FILE_EXTENSION,
             'pathParameter' => null,
-            'expectException' => false,
         ];
 
         yield 'path param pdf as fileType' => [
@@ -392,7 +377,6 @@ class DocumentRouteTest extends TestCase
             'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
             'queryParameter' => null,
             'pathParameter' => PdfRenderer::FILE_EXTENSION,
-            'expectException' => false,
         ];
 
         yield 'query param fileType = xml' => [
@@ -401,7 +385,6 @@ class DocumentRouteTest extends TestCase
             'expectedContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
             'queryParameter' => ZugferdRenderer::FILE_EXTENSION,
             'pathParameter' => null,
-            'expectException' => false,
         ];
 
         yield 'path param xml as fileType' => [
@@ -410,7 +393,6 @@ class DocumentRouteTest extends TestCase
             'expectedContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
             'queryParameter' => null,
             'pathParameter' => ZugferdRenderer::FILE_EXTENSION,
-            'expectException' => false,
         ];
 
         yield 'without params the fallback should be used' => [
@@ -419,25 +401,62 @@ class DocumentRouteTest extends TestCase
             'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
             'queryParameter' => null,
             'pathParameter' => null,
-            'expectException' => false,
         ];
+    }
 
+    #[DataProvider('provideInvalidRequestParameters')]
+    public function testDownloadWithInvalidFileTypeShouldThrowException(
+        ?string $queryParameter,
+        ?string $pathParameter,
+    ): void {
+        $customerId = $this->loginBrowser($this->browser);
+        $this->createOrder(
+            $customerId,
+            ['salesChannelId' => $this->ids->get('sales-channel')]
+        );
+
+        $operation = new DocumentGenerateOperation($this->ids->get('order'));
+
+        $document = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
+            Context::createDefaultContext()
+        )->getSuccess()->first();
+
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
+        $documentId = $document->getId();
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable($documentId, self::INVALID_FILE_TYPE)
+            );
+        }
+
+        $this->browser->request(
+            'GET',
+            '/store-api/document/download/' . $documentId . '/' . $document->getDeepLinkCode()
+            . ($pathParameter ? '/' . $pathParameter : '')
+            . ($queryParameter ? '?fileType=' . $queryParameter : ''),
+        );
+
+        $response = $this->browser->getResponse();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        }
+    }
+
+    public static function provideInvalidRequestParameters(): \Generator
+    {
         yield 'invalid query param' => [
-            'documentType' => InvoiceRenderer::TYPE,
-            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
-            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
             'queryParameter' => null,
-            'pathParameter' => 'invalid',
-            'expectException' => true,
+            'pathParameter' => self::INVALID_FILE_TYPE,
         ];
 
         yield 'invalid path param' => [
-            'documentType' => InvoiceRenderer::TYPE,
-            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
-            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
-            'queryParameter' => 'invalid',
+            'queryParameter' => self::INVALID_FILE_TYPE,
             'pathParameter' => null,
-            'expectException' => true,
         ];
     }
 }

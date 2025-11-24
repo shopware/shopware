@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
@@ -50,15 +51,15 @@ final class DocumentRoute extends AbstractDocumentRoute
     #[Route(
         path: '/store-api/document/download/{documentId}/{deepLinkCode}/{fileType?}',
         name: 'store-api.document.download',
-        methods: ['GET', 'POST'],
-        defaults: ['_entity' => 'document', 'fileType' => PdfRenderer::FILE_EXTENSION],
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => DocumentDefinition::ENTITY_NAME],
     )]
     public function download(
         string $documentId,
         Request $request,
         SalesChannelContext $context,
         string $deepLinkCode = '',
-        string $fileType = PdfRenderer::FILE_EXTENSION
+        ?string $fileType = null
     ): Response {
         $this->checkAuth($documentId, $request, $context);
 
@@ -67,18 +68,13 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
-        $requestedFileType = $request->query->get('fileType') ?? $fileType;
+        $fileType = $request->query->get('fileType', $fileType ?? PdfRenderer::FILE_EXTENSION);
         $download = $request->query->getBoolean('download');
 
-        $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode, $requestedFileType);
+        $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode, $fileType);
 
         if ($document === null) {
             if (!Feature::isActive('v6.8.0.0')) {
-                Feature::triggerDeprecationOrThrow(
-                    'v6.8.0.0',
-                    'The returned HTTP code 204 ("No Content") when a document is not found is deprecated. It will be removed in 6.8.0.0 and replaced with 404.'
-                );
-
                 return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
             }
 

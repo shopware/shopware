@@ -49,14 +49,14 @@ final class DocumentRoute extends AbstractDocumentRoute
         path: '/store-api/document/download/{documentId}/{deepLinkCode}/{fileType?}',
         name: 'store-api.document.download',
         methods: [Request::METHOD_GET, Request::METHOD_POST],
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => DocumentDefinition::ENTITY_NAME],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => DocumentDefinition::ENTITY_NAME, 'fileType' => PdfRenderer::FILE_EXTENSION],
     )]
     public function download(
         string $documentId,
         Request $request,
         SalesChannelContext $context,
         string $deepLinkCode = '',
-        ?string $fileType = null
+        string $fileType = PdfRenderer::FILE_EXTENSION
     ): Response {
         $this->checkAuth($documentId, $request, $context);
 
@@ -65,7 +65,7 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
-        $fileType = $request->query->get('fileType', $fileType ?? PdfRenderer::FILE_EXTENSION);
+        $fileType = $request->query->get('fileType') ?? $fileType;
         $download = $request->query->getBoolean('download');
 
         $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode, $fileType);

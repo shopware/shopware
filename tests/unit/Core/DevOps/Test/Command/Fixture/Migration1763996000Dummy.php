@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Fixtures\VX_X;
+namespace Shopware\Tests\Unit\Core\DevOps\Test\Command\Fixture;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;

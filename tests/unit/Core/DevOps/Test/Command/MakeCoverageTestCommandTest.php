@@ -16,9 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Kernel;
-use Shopware\Core\Migration\Fixtures\VX_X\Migration1763996000Dummy;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Tests\Unit\Core\DevOps\System\Command\OpenApiValidationCommandTest;
+use Shopware\Tests\Unit\Core\DevOps\Test\Command\Fixture\Migration1763996000Dummy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -107,9 +107,9 @@ class MakeCoverageTestCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
         static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/System/Command/SystemDumpDatabaseCommandTest.php'));
         static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
-        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Core/Fixtures/VX_X/Migration1763996000DummyTest.php'));
+        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Tests/Unit/Core/DevOps/Test/Command/Fixture/Migration1763996000DummyTest.php'));
         static::assertIsString($devOpsTest = file_get_contents($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
-        static::assertIsString($migrationTest = file_get_contents($this->projectDir . '/tests/migration//Core/Fixtures/VX_X/Migration1763996000DummyTest.php'));
+        static::assertIsString($migrationTest = file_get_contents($this->projectDir . '/tests/migration/Tests/Unit/Core/DevOps/Test/Command/Fixture/Migration1763996000DummyTest.php'));
         static::assertSame($this->getDevOpsTestTemplate(), $devOpsTest);
         static::assertSame($this->getMigrationTestTemplate(), $migrationTest);
 
@@ -146,7 +146,7 @@ class MakeCoverageTestCommandTest extends TestCase
 
         static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/System/Command/SystemDumpDatabaseCommandTest.php'));
         static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
-        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Core/Fixtures/VX_X/Migration1763996000DummyTest.php'));
+        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Tests/Unit/Core/DevOps/Test/Command/Fixture/Migration1763996000DummyTest.php'));
 
         static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/Test/Command/not-a-classTest.php'));
         static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Content/Cms/Subscriber/UnusedMediaSubscriberTest.php'));
@@ -188,14 +188,14 @@ EOF;
         return <<<EOF
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\Fixtures\VX_X;
+namespace Shopware\Tests\Migration\Tests\Unit\Core\DevOps\Test\Command\Fixture;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\Fixtures\VX_X\Migration1763996000Dummy;
+use Shopware\Tests\Unit\Core\DevOps\Test\Command\Fixture\Migration1763996000Dummy;
 
 /**
  * @internal

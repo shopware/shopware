@@ -5,8 +5,6 @@ flag_management:
     - name: phpunit-unit
       paths:
         - src/**
-      ignore:
-        - src/Core/Migration/Fixtures/VX_X # cannot be ignored through annotations/phpunit.xml as MakeCoverageTestCommand is relying on these directives
     - name: jest-admin
       paths:
         - src/Administration/Resources/app/administration/src

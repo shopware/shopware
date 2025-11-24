@@ -40,11 +40,22 @@ export default class ViewItemEvent extends AnalyticsEvent
             return;
         }
 
+        const breadcrumbNodes = document.querySelectorAll('nav[aria-label="breadcrumb"] .breadcrumb-title');
+        const categories = {};
+        breadcrumbNodes.forEach((node, index) => {
+            const key = `item_category${index === 0 ? '' : index + 1}`;
+            categories[key] = node.textContent.trim();
+        });
+
         gtag('event', 'view_item', {
             'items': [{
                 'id': productId,
                 'name': productName,
+                'brand': document.querySelector('div[itemprop="brand"] meta[itemprop="name"]')?.content,
+                ...categories,
             }],
+            'currency': document.querySelector('meta[property="product:price:currency"]')?.content,
+            'value': document.querySelector('meta[property="product:price:amount"]')?.content,
         });
     }
 }

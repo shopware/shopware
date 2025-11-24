@@ -10,6 +10,10 @@
 
 ## Storefront
 
+### Google Analytics 4 Integration Update
+
+The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities. The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure. Furthermore, new events for `add_to_wishlist` and `view_cart` have been implemented to provide a more comprehensive view of user interactions. These changes ensure that tracking data is more detailed and compliant with the latest `GA4` specifications.
+
 ## App System
 
 ## Hosting & Configuration

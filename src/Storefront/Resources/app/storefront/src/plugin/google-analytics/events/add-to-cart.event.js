@@ -43,12 +43,23 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
             return;
         }
 
+        const breadcrumbNodes = document.querySelectorAll('nav[aria-label="breadcrumb"] .breadcrumb-title');
+        const categories = {};
+        breadcrumbNodes.forEach((node, index) => {
+            const key = `item_category${index === 0 ? '' : index + 1}`;
+            categories[key] = node.textContent.trim();
+        });
+
         gtag('event', 'add_to_cart', {
             'items': [{
                 'id': productId,
                 'name': formData.get('product-name'),
-                'quantity': formData.get('lineItems[' + productId + '][quantity]'),
+                'quantity': formData.get(`lineItems[${productId}][quantity]`),
+                'brand': formData.get('brand-name'),
+                ...categories,
             }],
+            'currency': document.querySelector('meta[property="product:price:currency"]')?.content,
+            'value': document.querySelector('meta[property="product:price:amount"]')?.content,
         });
     }
 }

@@ -347,11 +347,13 @@ class CartLineItemController extends StorefrontController
         if ($lineItemData->has('payload')) {
             $payload = $lineItemData->get('payload');
 
-            if (mb_strlen($payload, '8bit') > (1024 * 256)) {
+            if ($payload instanceof RequestDataBag) {
+                $lineItemData->set('payload', $payload->all());
+            } elseif (mb_strlen($payload, '8bit') > (1024 * 256)) {
                 throw RoutingException::invalidRequestParameter('payload');
+            } else {
+                $lineItemData->set('payload', json_decode($payload, true, 512, \JSON_THROW_ON_ERROR));
             }
-
-            $lineItemData->set('payload', json_decode($payload, true, 512, \JSON_THROW_ON_ERROR));
         }
 
         $lineItemArray = $lineItemData->all();

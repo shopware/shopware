@@ -9,12 +9,30 @@ export default class LineItemHelper
         const lineItems = [];
 
         lineItemDataElements.forEach(itemEl => {
-            lineItems.push({
+            const itemData = {
                 id: itemEl.getAttribute('data-id'),
                 name: itemEl.getAttribute('data-name'),
                 quantity: itemEl.getAttribute('data-quantity'),
                 price: itemEl.getAttribute('data-price'),
-                currency: lineItemsContainer.getAttribute('data-currency'),
+                brand: itemEl.getAttribute('data-brand'),
+            };
+
+            const categories = {};
+            for (let i = 0; i < 5; i++) {
+                const attrIndex = i === 0 ? '' : i + 1;
+                const categoryValue = itemEl.getAttribute(`data-category-${attrIndex}`);
+
+                if (categoryValue) {
+                    const key = `item_category${attrIndex}`;
+                    categories[key] = categoryValue;
+                } else {
+                    break;
+                }
+            }
+
+            lineItems.push({
+                ...itemData,
+                ...categories,
             });
         });
 

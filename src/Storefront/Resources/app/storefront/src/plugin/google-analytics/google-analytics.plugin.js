@@ -1,8 +1,9 @@
-import Plugin from 'src/plugin-system/plugin.class';
+import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
+import Storage from 'src/helper/storage/storage.helper';
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
-
 import AddToCartEvent from 'src/plugin/google-analytics/events/add-to-cart.event';
 import AddToCartByNumberEvent from 'src/plugin/google-analytics/events/add-to-cart-by-number.event';
+import AddToWishlistEvent from 'src/plugin/google-analytics/events/add-to-wishlist.event';
 import BeginCheckoutEvent from 'src/plugin/google-analytics/events/begin-checkout.event';
 import BeginCheckoutOnCartEvent from 'src/plugin/google-analytics/events/begin-checkout-on-cart.event';
 import CheckoutProgressEvent from 'src/plugin/google-analytics/events/checkout-progress.event';
@@ -11,11 +12,11 @@ import PurchaseEvent from 'src/plugin/google-analytics/events/purchase.event';
 import RemoveFromCartEvent from 'src/plugin/google-analytics/events/remove-from-cart.event';
 import SearchAjaxEvent from 'src/plugin/google-analytics/events/search-ajax.event';
 import SignUpEvent from 'src/plugin/google-analytics/events/sign-up.event';
-import Storage from 'src/helper/storage/storage.helper';
+import ViewCartEvent from 'src/plugin/google-analytics/events/view-cart.event';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
 import ViewItemListEvent from 'src/plugin/google-analytics/events/view-item-list.event';
 import ViewSearchResultsEvent from 'src/plugin/google-analytics/events/view-search-results';
-import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
+import Plugin from 'src/plugin-system/plugin.class';
 
 /**
  * @package buyers-experience
@@ -50,7 +51,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
 
         /** @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead. */
         this.actionName = window.actionName;
-        
+
         this.activeRoute = window.activeRoute;
         this.events = [];
 
@@ -75,7 +76,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
         }
 
         if (this.trackingUrl.searchParams.get('gclid')) {
-            window.gtagConfig['page_location'] = this.trackingUrl.toString();
+            window.gtagConfig.page_location = this.trackingUrl.toString();
         }
     }
 
@@ -103,6 +104,8 @@ export default class GoogleAnalyticsPlugin extends Plugin
         this.registerEvent(ViewItemEvent);
         this.registerEvent(ViewItemListEvent);
         this.registerEvent(ViewSearchResultsEvent);
+        this.registerEvent(AddToWishlistEvent);
+        this.registerEvent(ViewCartEvent);
     }
 
     /**
@@ -121,7 +124,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
 
         this._updateConsent(updatedCookies);
 
-        if (!Object.prototype.hasOwnProperty.call(updatedCookies, this.cookieEnabledName)) {
+        if (!Object.hasOwn(updatedCookies, this.cookieEnabledName)) {
             return;
         }
 
@@ -165,14 +168,14 @@ export default class GoogleAnalyticsPlugin extends Plugin
 
         const consentUpdateConfig = {};
 
-        if (Object.prototype.hasOwnProperty.call(updatedCookies, this.cookieEnabledName)) {
-            consentUpdateConfig['analytics_storage'] = updatedCookies[this.cookieEnabledName] ? 'granted' : 'denied';
+        if (Object.hasOwn(updatedCookies, this.cookieEnabledName)) {
+            consentUpdateConfig.analytics_storage = updatedCookies[this.cookieEnabledName] ? 'granted' : 'denied';
         }
 
-        if (Object.prototype.hasOwnProperty.call(updatedCookies, this.cookieAdsEnabledName)) {
-            consentUpdateConfig['ad_storage'] = updatedCookies[this.cookieAdsEnabledName] ? 'granted' : 'denied';
-            consentUpdateConfig['ad_user_data'] = updatedCookies[this.cookieAdsEnabledName] ? 'granted' : 'denied';
-            consentUpdateConfig['ad_personalization'] = updatedCookies[this.cookieAdsEnabledName] ? 'granted' : 'denied';
+        if (Object.hasOwn(updatedCookies, this.cookieAdsEnabledName)) {
+            consentUpdateConfig.ad_storage = updatedCookies[this.cookieAdsEnabledName] ? 'granted' : 'denied';
+            consentUpdateConfig.ad_user_data = updatedCookies[this.cookieAdsEnabledName] ? 'granted' : 'denied';
+            consentUpdateConfig.ad_personalization = updatedCookies[this.cookieAdsEnabledName] ? 'granted' : 'denied';
         }
 
         if (Object.keys(consentUpdateConfig).length === 0) {
@@ -186,6 +189,6 @@ export default class GoogleAnalyticsPlugin extends Plugin
      * @private
      */
     _getGclidStorageKey() {
-        return 'google-analytics-' + (window.salesChannelId || '') + '-gclid';
+        return `google-analytics-${window.salesChannelId || ''}-gclid`;
     }
 }

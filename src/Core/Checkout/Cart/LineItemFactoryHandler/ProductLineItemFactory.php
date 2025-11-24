@@ -52,7 +52,7 @@ class ProductLineItemFactory implements LineItemFactoryInterface
         }
 
         if (isset($data['payload'])) {
-            $lineItem->setPayload($data['payload'] ?? []);
+            $lineItem->setPayload(array_merge($lineItem->getPayload(), $data['payload']));
         }
 
         if (isset($data['quantity'])) {

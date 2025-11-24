@@ -13,11 +13,17 @@
             {% endif %}
 
             {% block component_hidden_line_item_information %}
+                {% set categories = lineItem.payload.categoryNames|slice(0, 5) %}
                 <span class="hidden-line-item"
                       data-id="{{ lineItem.productId ?? lineItem.referencedId ?? lineItem.id }}"
                       data-name="{{ lineItem.label }}"
                       data-quantity="{{ lineItem.quantity }}"
-                      data-price="{{ gaPrice }}">
+                      data-price="{{ gaPrice }}"
+                      data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
+                      {% for name in categories %}
+                          data-category-{% if loop.index > 1 %}{{ loop.index }}{% endif %}="{{ name }}"
+                      {% endfor %}
+                >
                 </span>
             {% endblock %}
         {% endfor %}

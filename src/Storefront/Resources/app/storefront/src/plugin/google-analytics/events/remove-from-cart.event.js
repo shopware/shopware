@@ -28,9 +28,26 @@ export default class RemoveFromCart extends AnalyticsEvent
             return;
         }
 
+        const lineItem = closest.closest('.line-item');
+        const categories = {};
+        for (let i = 0; i < 5; i++) {
+            const attrIndex = i === 0 ? '' : i + 1;
+            const categoryValue = lineItem.querySelector(`[data-google-analytics-item-category-${attrIndex}]`)?.value;
+
+            if (categoryValue) {
+                const key = `item_category${attrIndex}`;
+                categories[key] = categoryValue;
+            } else {
+                break;
+            }
+        }
+
+
         gtag('event', 'remove_from_cart', {
             'items': [{
                 'id': closest.getAttribute('data-product-id'),
+                'brand': lineItem.querySelector('[data-google-analytics-item-brand]')?.value,
+                ...categories,
             }],
         });
     }

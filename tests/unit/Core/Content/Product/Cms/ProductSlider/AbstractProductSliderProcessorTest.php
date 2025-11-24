@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Product\Cms\ProductSlider\AbstractProductSliderProcessor;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
@@ -44,6 +45,49 @@ class AbstractProductSliderProcessorTest extends TestCase
 
         $filteredProducts = $processor->publicFilterOutOutOfStockHiddenCloseoutProducts($products);
         static::assertCount(1, $filteredProducts);
+    }
+
+    public function testFilterOutOutOfStockHiddenCloseoutProductsForVariantProducts(): void
+    {
+        $product1Variant1 = (new ProductEntity())->assign(['id' => 'p1v1', 'stock' => 10]);
+        $product1Variant2 = (new ProductEntity())->assign(['id' => 'p1v2', 'stock' => 0]);
+        $product1 = (new ProductEntity())->assign([
+            'id' => 'p1',
+            'isCloseout' => true,
+            'childCount' => 2,
+            'children' => new ProductCollection([$product1Variant1, $product1Variant2]),
+        ]);
+
+        $product2Variant1 = (new ProductEntity())->assign(['id' => 'p2v1', 'stock' => 0]);
+        $product2Variant2 = (new ProductEntity())->assign(['id' => 'p2v2', 'stock' => 0]);
+        $product2 = (new ProductEntity())->assign([
+            'id' => 'p2',
+            'isCloseout' => true,
+            'childCount' => 2,
+            'stock' => 0,
+            'children' => new ProductCollection([$product2Variant1, $product2Variant2]),
+        ]);
+
+        $product3 = (new ProductEntity())->assign([
+            'id' => 'p3',
+            'isCloseout' => true,
+            'stock' => 0,
+        ]);
+
+        $product4 = (new ProductEntity())->assign([
+            'id' => 'p4',
+            'isCloseout' => false,
+            'stock' => 0,
+        ]);
+
+        $products = new ProductCollection([$product1, $product2, $product3, $product4]);
+
+        $processor = new TestAbstractProductSliderProcessor();
+
+        $filteredProducts = $processor->publicFilterOutOutOfStockHiddenCloseoutProducts($products);
+        static::assertCount(2, $filteredProducts);
+        static::assertTrue($filteredProducts->has('p1'));
+        static::assertTrue($filteredProducts->has('p4'));
     }
 }
 

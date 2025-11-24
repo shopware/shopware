@@ -6,7 +6,7 @@ flag_management:
       paths:
         - src/**
       ignore:
-        - src/Core/Migration/Fixture # cannot be ignored through annotations/phpunit.xml as MakeCoverageTestCommand is relying on these directives
+        - src/Core/Migration/Fixtures # cannot be ignored through annotations/phpunit.xml as MakeCoverageTestCommand is relying on these directives
     - name: jest-admin
       paths:
         - src/Administration/Resources/app/administration/src

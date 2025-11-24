@@ -26,9 +26,7 @@
         "placeholder": "Filter by Sales Channel..."
       },
       "statusFilter": {
-        "label": "Approved",
-        "labelActive": "Yes",
-        "labelInactive": "No"
+        "label": "Approved"
       },
       "languageFilter": {
         "label": "Language",

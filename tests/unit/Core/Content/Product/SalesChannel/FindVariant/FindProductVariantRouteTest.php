@@ -74,6 +74,8 @@ class FindProductVariantRouteTest extends TestCase
 
         $context = Context::createDefaultContext();
 
+        $found1Id = $this->ids->get('found1');
+        $found2Id = $this->ids->get('found2');
         $this->productRepositoryMock->method('searchIds')->with(
             $criteria,
             $this->createMock(SalesChannelContext::class),
@@ -82,12 +84,12 @@ class FindProductVariantRouteTest extends TestCase
                 new IdSearchResult(
                     2,
                     [
-                        [
-                            'primaryKey' => $this->ids->get('found1'),
+                        $found1Id => [
+                            'primaryKey' => $found1Id,
                             'data' => [],
                         ],
-                        [
-                            'primaryKey' => $this->ids->get('found2'),
+                        $found2Id => [
+                            'primaryKey' => $found2Id,
                             'data' => [],
                         ],
                     ],
@@ -98,7 +100,7 @@ class FindProductVariantRouteTest extends TestCase
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 
-        static::assertSame($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
+        static::assertSame($found1Id, $response->getFoundCombination()->getVariantId());
         static::assertSame($options, $response->getFoundCombination()->getOptions());
     }
 
@@ -129,6 +131,7 @@ class FindProductVariantRouteTest extends TestCase
 
         $context = Context::createDefaultContext();
 
+        $found1Id = $this->ids->get('found1');
         $this->productRepositoryMock->method('searchIds')
             ->willReturnOnConsecutiveCalls(
                 new IdSearchResult(
@@ -141,8 +144,8 @@ class FindProductVariantRouteTest extends TestCase
                 new IdSearchResult(
                     1,
                     [
-                        [
-                            'primaryKey' => $this->ids->get('found1'),
+                        $found1Id => [
+                            'primaryKey' => $found1Id,
                             'data' => [],
                         ],
                     ],
@@ -153,7 +156,7 @@ class FindProductVariantRouteTest extends TestCase
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 
-        static::assertSame($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
+        static::assertSame($found1Id, $response->getFoundCombination()->getVariantId());
     }
 
     public function testLoadNoVariantFound(): void

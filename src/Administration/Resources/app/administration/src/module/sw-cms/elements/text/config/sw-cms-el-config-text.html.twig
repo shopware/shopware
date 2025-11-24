@@ -44,6 +44,7 @@
                         :disabled="isInherited"
                     >
                         <sw-text-editor
+                            v-if="!feature.isActive('METEOR_TEXT_EDITOR')"
                             :key="isInherited"
                             :value="element.config.content.value"
                             :disabled="isInherited"
@@ -52,6 +53,15 @@
                             enable-transparent-background
                             @update:value="onInput"
                             @blur="onBlur"
+                        />
+
+                        <mt-text-editor
+                            v-else
+                            :key="isInherited + '-meteor'"
+                            :disabled="isInherited"
+                            :model-value="element.config.content.value"
+                            :custom-buttons="customTextEditorButtons"
+                            @update:model-value="onInput"
                         />
 
                         <template #preview="{ demoValue }">

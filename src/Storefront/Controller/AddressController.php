@@ -90,14 +90,17 @@ class AddressController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/address/{addressId}', name: 'frontend.account.address.edit.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/account/address/{addressId}', name: 'frontend.account.address.edit.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_noStore' => true], methods: ['GET'])]
     public function accountEditAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);
 
         $this->hook(new AddressDetailPageLoadedHook($page, $context));
 
-        return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/edit.html.twig', [
+            'page' => $page,
+            'redirectTo' => $request->get('redirectTo') ?: 'frontend.account.address.page',
+        ]);
     }
 
     #[Route(path: '/account/address/default-{type}/{addressId}', name: 'frontend.account.address.set-default-address', defaults: ['_loginRequired' => true], methods: ['POST'])]
@@ -148,8 +151,8 @@ class AddressController extends StorefrontController
     }
 
     #[Route(path: '/account/address/create', name: 'frontend.account.address.create', options: ['seo' => false], defaults: ['_loginRequired' => true], methods: ['POST'])]
-    #[Route(path: '/account/address/{addressId}', name: 'frontend.account.address.edit.save', options: ['seo' => false], defaults: ['_loginRequired' => true], methods: ['POST'])]
-    public function saveAddress(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
+    #[Route(path: '/account/address/{addressId}', name: 'frontend.account.address.edit.save', options: ['seo' => false], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
+    public function saveAddress(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer, Request $request): Response
     {
         /** @var RequestDataBag $address */
         $address = $data->get('address');
@@ -164,7 +167,12 @@ class AddressController extends StorefrontController
 
             $this->addFlash(self::SUCCESS, $this->trans('account.addressSaved'));
 
-            return $this->redirectToRoute('frontend.account.address.page');
+            if (!$request->request->get('redirectTo') && !$request->query->get('redirectTo')) {
+                // address page is not available for guest customers, redirect to cart as only way to get here was a cart error
+                $request->request->set('redirectTo', $customer->getGuest() ? 'frontend.checkout.cart.page' : 'frontend.account.address.page');
+            }
+
+            return $this->createActionResponse($request);
         } catch (ConstraintViolationException $formViolations) {
         }
 

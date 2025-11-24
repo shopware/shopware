@@ -76,7 +76,6 @@ class ProductListingLoader
 
         $aggregations = $this->productRepository->aggregate($clone, $context);
 
-        /** @var list<string> $ids */
         $ids = $idResult->getIds();
         // no products found, no need to continue
         if (empty($ids)) {

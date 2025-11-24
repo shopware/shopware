@@ -20,6 +20,32 @@
       "messageEmptySubline": "Manage reviews here",
       "titleSidebarItemRefresh": "Refresh"
     },
+    "filters": {
+      "salesChannelFilter": {
+        "label": "Sales Channel",
+        "placeholder": "Filter by Sales Channel..."
+      },
+      "statusFilter": {
+        "label": "Approved",
+        "labelActive": "Yes",
+        "labelInactive": "No"
+      },
+      "languageFilter": {
+        "label": "Language",
+        "placeholder": "Filter by Language..."
+      },
+      "customerFilter": {
+        "label": "Customer",
+        "placeholder": "Filter by Customer..."
+      },
+      "productFilter": {
+        "label": "Product",
+        "placeholder": "Filter by Product..."
+      },
+      "pointsFilter": {
+        "label": "Rating (Stars)"
+      }
+    },
     "detail": {
       "textHeadline": "Review",
       "cardTitleReviewInfo": "Review",

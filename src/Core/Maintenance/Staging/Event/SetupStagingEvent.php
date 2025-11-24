@@ -25,9 +25,9 @@ class SetupStagingEvent
     public function __construct(
         public readonly Context $context,
         public readonly SymfonyStyle $io,
-        public readonly bool $disableMailDelivery,
-        public readonly array $domainMappings,
-        public readonly array $extensionsToDisable,
+        public readonly bool $disableMailDelivery = true,
+        public readonly array $domainMappings = [],
+        public readonly array $extensionsToDisable = [],
     ) {
     }
 }

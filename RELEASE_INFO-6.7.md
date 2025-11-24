@@ -1,4 +1,34 @@
-# 6.7.5.0 (upcoming)
+# 6.7.6.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+## Administration
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+### Possibility to disable extensions when setting up staging mode
+
+A new config option `shopware.staging.extensions.disable` was added to allow configuring extensions that should be automatically disabled when the staging mode gets activated via `system:setup:staging` command.
+
+```yaml
+shopware:
+    staging:
+        extensions:
+            disable: ["TheExtensionName", "AnotherExtensionName"]
+```
+
+## Critical fixes
+
+# 6.7.5.0
+
 ## Features
 
 ### Tax Calculation Logic
@@ -201,8 +231,6 @@ to:
     {# Your content #}
 {% endblock %}
 ```
-
-## App System
 
 ## Hosting & Configuration
 

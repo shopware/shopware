@@ -73,9 +73,15 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
     {
         // This breaks atomicity but ensures the queue is drained
         try {
-            /** @var list<string> $tags */
-            $tags = $this->redis->sMembers(self::KEY);
-            $this->redis->del(self::KEY);
+            $tags = [];
+
+            $chunk = $this->redis->sPop(self::KEY, 10000);
+            while (\is_array($chunk) && !empty($chunk)) {
+                foreach ($chunk as $tag) {
+                    $tags[] = (string) $tag;
+                }
+                $chunk = $this->redis->sPop(self::KEY, 10000);
+            }
         } catch (\Throwable $e) {
             $this->logger->error('Could not load and delete tags from Redis. Error: ' . $e->getMessage());
 

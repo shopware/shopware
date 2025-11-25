@@ -33,19 +33,24 @@ class RedisInvalidatorStorageTest extends TestCase
 
         $redis->method('multi')->willReturn($redis);
 
-        $redis->expects($this->exactly(2))
+        $redis->expects($this->once())
             ->method('sMembers')
             ->with('invalidation')
-            ->willReturnOnConsecutiveCalls($redis, ['tag1', 'tag2']);
+            ->willReturn($redis);
 
-        $redis->expects($this->exactly(2))
+        $redis->expects($this->once())
             ->method('del')
             ->with('invalidation')
-            ->willReturnOnConsecutiveCalls($redis, 1);
+            ->willReturn($redis);
 
         $redis->expects($this->once())
             ->method('exec')
             ->willReturn(false);
+
+        $redis->expects($this->exactly(2))
+            ->method('sPop')
+            ->with('invalidation', 10000)
+            ->willReturnOnConsecutiveCalls(['tag1', 'tag2'], []);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
@@ -62,15 +67,11 @@ class RedisInvalidatorStorageTest extends TestCase
         $redis = $this->createMock(\Redis::class);
 
         $redis->method('multi')->willReturn($redis);
-        // First call (in transaction) returns $redis, second call (fallback) throws exception
-        $redis->expects($this->exactly(2))
-            ->method('sMembers')
-            ->willReturnOnConsecutiveCalls(
-                $redis,
-                static::throwException(new \RedisException('Redis is down'))
-            );
 
-        // del is called in transaction (returns redis)
+        $redis->expects($this->once())
+            ->method('sMembers')
+            ->willReturn($redis);
+
         $redis->expects($this->once())
             ->method('del')
             ->willReturn($redis);
@@ -78,6 +79,11 @@ class RedisInvalidatorStorageTest extends TestCase
         $redis->expects($this->once())
             ->method('exec')
             ->willReturn(false);
+
+        $redis->expects($this->once())
+            ->method('sPop')
+            ->with('invalidation', 10000)
+            ->willThrowException(new \RedisException('Redis is down'));
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())

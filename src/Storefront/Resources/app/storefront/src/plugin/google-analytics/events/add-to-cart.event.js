@@ -46,8 +46,11 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         const breadcrumbNodes = document.querySelectorAll('nav[aria-label="breadcrumb"] .breadcrumb-title');
         const categories = {};
         breadcrumbNodes.forEach((node, index) => {
-            const key = `item_category${index === 0 ? '' : index + 1}`;
-            categories[key] = node.textContent.trim();
+            if (index < 5) {
+                // GA4 uses item_category, item_category2, item_category3, etc.
+                const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
+                categories[key] = node.textContent.trim();
+            }
         });
 
         gtag('event', 'add_to_cart', {

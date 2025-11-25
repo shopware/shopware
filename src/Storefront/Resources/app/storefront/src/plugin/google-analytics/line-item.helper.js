@@ -18,12 +18,12 @@ export default class LineItemHelper
             };
 
             const categories = {};
-            for (let i = 0; i < 5; i++) {
-                const attrIndex = i === 0 ? '' : i + 1;
-                const categoryValue = itemEl.getAttribute(`data-category-${attrIndex}`);
+            for (let i = 1; i <= 5; i++) {
+                const categoryValue = itemEl.getAttribute(`data-category-${i}`);
 
                 if (categoryValue) {
-                    const key = `item_category${attrIndex}`;
+                    // GA4 uses item_category, item_category2, item_category3, etc.
+                    const key = i === 1 ? 'item_category' : `item_category${i}`;
                     categories[key] = categoryValue;
                 } else {
                     break;

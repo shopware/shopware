@@ -24,4 +24,29 @@ class RedisInvalidatorStorageTest extends TestCase
         static::assertSame(['bar', 'foo'], $storage->loadAndDelete());
         static::assertSame([], $storage->loadAndDelete());
     }
+
+    public function testLoadAndDeleteFallbackOnTransactionFailure(): void
+    {
+        $redis = $this->createMock(\Redis::class);
+
+        $redis->method('multi')->willReturn($redis);
+
+        $redis->expects(static::exactly(2))
+            ->method('sMembers')
+            ->with('invalidation')
+            ->willReturnOnConsecutiveCalls($redis, ['tag1', 'tag2']);
+
+        $redis->expects(static::exactly(2))
+            ->method('del')
+            ->with('invalidation')
+            ->willReturnOnConsecutiveCalls($redis, 1);
+
+        $redis->expects(static::once())
+            ->method('exec')
+            ->willReturn(false);
+
+        $storage = new RedisInvalidatorStorage($redis);
+
+        static::assertSame(['tag1', 'tag2'], $storage->loadAndDelete());
+    }
 }

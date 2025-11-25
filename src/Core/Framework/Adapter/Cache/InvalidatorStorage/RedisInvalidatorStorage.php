@@ -27,14 +27,27 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
 
     public function loadAndDelete(): array
     {
-        /** @var array{0: list<string>, 1: mixed} $values */
-        $values = $this
-            ->redis
-            ->multi()
-            ->sMembers(self::KEY)
-            ->del(self::KEY)
-            ->exec();
+        try {
+            /** @var array{0: list<string>, 1: mixed}|false $values */
+            $values = $this
+                ->redis
+                ->multi()
+                ->sMembers(self::KEY)
+                ->del(self::KEY)
+                ->exec();
 
-        return $values[0];
+            if ($values !== false) {
+                return $values[0];
+            }
+        } catch (\Throwable) {
+            // If the transaction fails (e.g. OOM), we fall back to sequential execution
+        }
+
+        // This breaks atomicity but ensures the queue is drained
+        /** @var list<string> $tags */
+        $tags = $this->redis->sMembers(self::KEY);
+        $this->redis->del(self::KEY);
+
+        return $tags;
     }
 }

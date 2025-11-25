@@ -112,6 +112,14 @@ class VirtualRootWrapper
     }
 
     /**
+     * Checks if element is the virtual root wrapper.
+     */
+    public function isVirtualRoot(ContentElement $element): bool
+    {
+        return $element->getId() === self::VIRTUAL_ROOT_ID;
+    }
+
+    /**
      * Index data requirements by key for O(1) lookups.
      *
      * @param array<DataRequirement> $requirements

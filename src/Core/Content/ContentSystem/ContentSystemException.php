@@ -16,8 +16,6 @@ class ContentSystemException extends HttpException
 
     public const LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_NOT_FOUND';
 
-    public const PAGE_BUILDING_FAILED = 'CONTENT_SYSTEM__PAGE_BUILDING_FAILED';
-
     public const INVALID_MAP_KEY = 'CONTENT_SYSTEM__INVALID_MAP_KEY';
 
     public const INVALID_MAP_VALUE = 'CONTENT_SYSTEM__INVALID_MAP_VALUE';
@@ -129,17 +127,6 @@ class ContentSystemException extends HttpException
             self::LAYOUT_NOT_FOUND,
             'Content layout with ID "{{ layoutId }}" does not exist. This indicates a configuration error.',
             ['layoutId' => $layoutId]
-        );
-    }
-
-    public static function layoutRefineryFailed(string $layoutId, string $reason, ?\Throwable $previous = null): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::PAGE_BUILDING_FAILED,
-            'Page building failed for layout "{{ layoutId }}": {{ reason }}',
-            ['layoutId' => $layoutId, 'reason' => $reason],
-            $previous
         );
     }
 

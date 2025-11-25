@@ -5,7 +5,7 @@
 - `ContextProvider` - Context exposed to descendants
 - `ContextConsumer` - Context received from ancestors
 - `ContextDefinitions` - Container for providers and consumers
-- `ContextDependencyAnalyzer` - Analyzes dependencies for tree refinement
+- `ContextDependencyAnalyzer` - Analyzes dependencies for tree pruning
 
 ## Constraints
 

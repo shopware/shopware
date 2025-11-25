@@ -13,23 +13,21 @@ Products, Categories, and Landing Pages can have content layouts assigned direct
 - `category/{categoryId}` - Direct category rendering (handled by CategoryContentLayoutContextFactory)
 - `landing-page/{landingPageId}` - Direct landing page rendering (handled by LandingPageContentLayoutContextFactory)
 
-Six-phase pipeline:
+Pipeline:
 1. **Layout Resolution**: Entity ID + sales channel → content layout assignment
 2. **Load**: Layout ID → ContentLayoutEntity
-3. **Scaffold**: Wrap layout structure for rendering
-4. **Refinement**: Layout + placeholder values → refined layout
-5. **Hydration**: Refined layout + data requirements → populated content tree
-6. **Dismantle**: Unwrap scaffolding to restore original structure
+3. **PreHydration Events**: Layout preparation (placeholder resolution, virtual root wrapping)
+4. **Hydration**: Layout + data requirements → populated content tree
+5. **PostHydration Events**: Layout finalization (virtual root cleanup, partial extraction)
 
 ## Data Flow
 
 ```
-Entity ID → ProductContentLayoutContextFactory/CategoryContentLayoutContextFactory/LandingPageContentLayoutContextFactory
-  → RenderingSpecification → LayoutLoader → ScaffoldingProcessor → RefinedLayoutBuilder
-  → ContentElementHydrator → ScaffoldingProcessor → Response
+Entity ID → ContextFactory → RenderingSpecification → LayoutLoader
+  → PreContentHydrationEvent → ContentElementHydrator → AfterContentHydrationEvent → Response
 ```
 
-Direct entity-to-layout lookup. Entity-specific factories query assignment tables (`product_content_layout`, `category_content_layout`, `landing_page_content_layout`) with sales channel fallback (specific → global). Factory creates RenderingSpecification with entity ID as placeholder. Layout is loaded, scaffolded, refined, hydrated, and dismantled before rendering.
+Direct entity-to-layout lookup. Entity-specific factories query assignment tables (`product_content_layout`, `category_content_layout`, `landing_page_content_layout`) with sales channel fallback (specific → global). Factory creates RenderingSpecification with entity ID as placeholder. Layout is loaded, prepared via events, hydrated, and finalized via events before response.
 
 ## Key Classes
 
@@ -43,9 +41,7 @@ Direct entity-to-layout lookup. Entity-specific factories query assignment table
 - `RenderingSpecification` - Complete rendering specification (layout ID + placeholders + request + target element)
 - `PlaceholderValues` - Immutable map of placeholder values
 - `LayoutLoader` - Loads ContentLayoutEntity from repository (Layout/Loader/)
-- `ScaffoldingProcessor` - Orchestrates scaffolder execution (Layout/Scaffolding/)
 - `ContentElement` - Tree structure with slots, data requirements, context (Layout/Element/)
-- `LayoutRefinery` - Single-pass refinement, no recursive placeholders (Layout/Refinery/)
 - `ContentElementHydrator` - Loads data + resolves context (Hydration/)
 - `ContentRouteLoader` - Pipeline orchestrator (SalesChannel/)
 - `ContentRoute` - Store API endpoints (SalesChannel/)
@@ -54,14 +50,14 @@ Direct entity-to-layout lookup. Entity-specific factories query assignment table
 
 ### Factory Pattern
 
-The rendering pipeline (refinement → hydration → output) is independent of the data source. Context factories implementing `RenderingSpecificationFactoryInterface` translate entity IDs into `RenderingSpecification`. Pipeline receives specification and renders content. This enables:
+The rendering pipeline (events → hydration → events) is independent of the data source. Context factories implementing `RenderingSpecificationFactoryInterface` translate entity IDs into `RenderingSpecification`. Pipeline receives specification and renders content. This enables:
 - Chain of Responsibility pattern - factories tried in priority order
 - Future: Email-based, preview-based, admin-based rendering
 - Clean separation: entity concerns in factories, rendering in pipeline
 
 ## Subdirectories
 
-- Layout/: Element tree structure, component system, refinement, scaffolding
+- Layout/: Element tree structure, component system, scaffolding
 - Hydration/: Data loading, context distribution
 - SalesChannel/: Store API endpoints
 - Adapter/: Entity adaptation for CMS-capable entities (Product, Category, Landing Page)

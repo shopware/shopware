@@ -219,7 +219,8 @@ All foreign key checks are now handled directly by the DAL, therefore the follow
 * `LanguageExceptionHandler`
 * `SalesChannelExceptionHandler`
 * `ThemeExceptionHandler`
-  This also means that the following exceptions are not thrown anymore and were removed as well:
+
+This also means that the following exceptions are not thrown anymore and were removed as well:
 * `LanguageOfOrderDeleteException`
 * `LanguageOfNewsletterDeleteException`
 * `LanguageForeignKeyDeleteException`
@@ -346,6 +347,28 @@ Refection has significantly improved in particular since PHP 8.1, therefore the 
 At the same time, the Storefront does not properly use this class.
 Therefore, the class, and the `route` property of `Shopware\Core\Checkout\Cart\Error\CartError` have been removed.
 
+## Removal of string parameter in `DomainRuleStruct` constructor
+
+The deprecated string parameter in the `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` constructor was removed.
+If your plugin or theme instantiates `DomainRuleStruct` with a string parameter, it will no longer work.
+Use `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser::parse()` to create a `ParsedRobots` object instead.
+
+```php
+// Before:
+new DomainRuleStruct('Disallow: /admin/', '/en');
+
+// After:
+$parser = new RobotsDirectiveParser($eventDispatcher);
+$parsed = $parser->parse('Disallow: /admin/', $context);
+new DomainRuleStruct($parsed, '/en');
+```
+
+## Removal of product manufacturer link column
+
+The column `link` of the table `product_manufacturer` was removed.
+
+Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
+
 </details>
 
 # Administration
@@ -405,6 +428,20 @@ The following snippet keys have been removed:
 * `global.sw-condition.condition.lineItemOfTypeRule`
 * `global.sw-condition.condition.promotionCodeOfTypeRule`
 * `global.sw-condition.condition.dayOfWeekRule`
+
+## The following template blocks of the newsletter recipient filter have been removed
+* `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
+* `sw_newsletter_recipient_list_sidebar_filter_status_direct`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
+
+Use the parent blocks instead
+
+## Removement of component sw-newsletter-recipient-filter-switch
+`administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
+
+## File accessibility changed from public to private
+`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
 </details>
 

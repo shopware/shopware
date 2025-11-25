@@ -281,7 +281,7 @@ class Migration1763377575SendEmailAfterPasswordChangeFlow extends MigrationStep
     <p>
         Hallo {{ customer.firstName }} {{ customer.lastName }},<br/>
         <br/>
-        Das Passwort für dein {{ shopName }}-Konto wurde erfolgreich geändert. <br/>
+        Das Passwort für Ihr {{ shopName }}-Konto wurde erfolgreich geändert. <br/>
         <br/>
         Mit freundlichen Grüßen <br/>
         Ihr {{ shopName }}-Team
@@ -295,7 +295,7 @@ MAIL;
         return <<<MAIL
 Hallo {{ customer.firstName }} {{ customer.lastName }},
 
-Das Passwort für dein {{ shopName }}-Konto wurde erfolgreich geändert.
+Das Passwort für Ihr {{ shopName }}-Konto wurde erfolgreich geändert.
 
 Mit freundlichen Grüßen
 Ihr {{ shopName }}-Team

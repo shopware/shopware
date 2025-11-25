@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ContentSystem\EventSubscriber\PostHydration;
 
-use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Event\AfterContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
@@ -36,13 +35,10 @@ class VirtualRootCleanupSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (\count($event->elements) !== 1) {
-            throw ContentSystemException::pathIntegrityViolation(
-                \sprintf(
-                    'Expected exactly 1 virtual root after preparation, found %d roots. This indicates a preparation integrity violation.',
-                    \count($event->elements)
-                )
-            );
+        // VirtualRoot may be legitimately pruned during partial rendering when
+        // target element doesn't need page-level context. Skip cleanup gracefully.
+        if (!$this->virtualRootWrapper->isVirtualRoot($event->elements[0])) {
+            return;
         }
 
         $event->elements = $this->virtualRootWrapper->unwrap($event->elements[0]);

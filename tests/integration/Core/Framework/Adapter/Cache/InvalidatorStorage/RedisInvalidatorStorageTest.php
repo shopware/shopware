@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorSto
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
@@ -33,7 +34,7 @@ class RedisInvalidatorStorageTest extends TestCase
         $client = $factory->create($redisUrl);
         static::assertInstanceOf(\Redis::class, $client);
         $this->redis = $client;
-        $this->storage = new RedisInvalidatorStorage($this->redis);
+        $this->storage = new RedisInvalidatorStorage($this->redis, new NullLogger());
     }
 
     protected function tearDown(): void

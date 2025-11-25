@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -16,7 +17,8 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
      */
     public function __construct(
         /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
-        private $redis
+        private $redis,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -26,6 +28,20 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
     }
 
     public function loadAndDelete(): array
+    {
+        $tags = $this->loadAndDeleteMultiTransaction();
+
+        if ($tags !== null) {
+            return $tags;
+        }
+
+        return $this->loadAndDeleteSequentialFallback();
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    private function loadAndDeleteMultiTransaction(): ?array
     {
         try {
             /** @var array{0: list<string>, 1: mixed}|false $values */
@@ -39,14 +55,32 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
             if ($values !== false) {
                 return $values[0];
             }
-        } catch (\Throwable) {
-            // If the transaction fails (e.g. OOM), we fall back to sequential execution
+        } catch (\Throwable $e) {
+            $this->logger->warning('Redis transaction failed, falling back to sequential execution. Error: ' . $e->getMessage());
+
+            return null;
         }
 
+        $this->logger->warning('Redis transaction failed (exec returned false), falling back to sequential execution.');
+
+        return null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function loadAndDeleteSequentialFallback(): array
+    {
         // This breaks atomicity but ensures the queue is drained
-        /** @var list<string> $tags */
-        $tags = $this->redis->sMembers(self::KEY);
-        $this->redis->del(self::KEY);
+        try {
+            /** @var list<string> $tags */
+            $tags = $this->redis->sMembers(self::KEY);
+            $this->redis->del(self::KEY);
+        } catch (\Throwable $e) {
+            $this->logger->error('Could not load and delete tags from Redis. Error: ' . $e->getMessage());
+
+            throw $e;
+        }
 
         return $tags;
     }

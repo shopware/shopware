@@ -17,6 +17,7 @@
 
         <service id="shopware.cache.invalidator.storage.redis" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage" lazy="true">
             <argument type="service" id="shopware.cache.invalidator.storage.redis_adapter"/>
+            <argument type="service" id="logger"/>
             <tag name="shopware.cache.invalidator.storage" storage="redis"/>
         </service>
 

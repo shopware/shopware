@@ -10,13 +10,19 @@
 - `ContentDecomposedRoute` - Decomposed format endpoint implementation
 - `AbstractContentDecomposedRoute` - Decomposed format decorator base
 - `ContentDecomposedRouteResponse` - Decomposed format response wrapper
-- `ContentRouteLoader` - Pipeline orchestrator (shared by both routes)
+- `ContentSkeletonRoute` - Skeleton format endpoint implementation
+- `AbstractContentSkeletonRoute` - Skeleton format decorator base
+- `ContentSkeletonRouteResponse` - Skeleton format response wrapper
+- `ContentDataRoute` - Data format endpoint implementation
+- `AbstractContentDataRoute` - Data format decorator base
+- `ContentDataRouteResponse` - Data format response wrapper
+- `ContentRouteLoader` - Pipeline orchestrator (shared by all routes)
 
 ## Constraints
 
 ### Pipeline Orchestration
 
-Both endpoints use Chain of Responsibility for factory selection. ContentRouteLoader then orchestrates:
+All endpoints use Chain of Responsibility for factory selection. ContentRouteLoader then orchestrates:
 
 1. **Factory Selection**: Iterate context factories in DI priority order until one returns RenderingSpecification
 2. **PreHydration Events**: Subscribers prepare layout (placeholder resolution, virtual root, partial pruning)
@@ -36,26 +42,42 @@ See `ContentRouteLoader::load()` for pipeline implementation.
 **Decomposed Format:**
 - **Path**: `/store-api/content-decomposed/{path}`
 - **Methods**: GET
-- **Returns**: `DecomposedContentPage` (skeletons + data + assignments)
+- **Returns**: `ContentDecomposedPage` (skeletons + data + assignments)
 - **HTTP Cache**: Enabled (`_httpCache: true`)
 
-Both wildcards: `{path}` matches any URL pattern
+**Skeleton Format:**
+- **Path**: `/store-api/content-skeleton/{path}`
+- **Methods**: GET
+- **Returns**: `ContentSkeletonPage` (elements without hydrated data)
+- **HTTP Cache**: Enabled (`_httpCache: true`)
+
+**Data Format:**
+- **Path**: `/store-api/content-data/{path}`
+- **Methods**: GET
+- **Returns**: `ContentDataPage` (data + assignments only)
+- **HTTP Cache**: Enabled (`_httpCache: true`)
+
+All wildcards: `{path}` matches any URL pattern
 
 ### Request Parameters
 
-Both endpoints accept optional parameters via query string:
+Full and decomposed endpoints accept optional parameters via query string:
 - `elementId`: Request specific element subtree only
 
 ## Quick Reference
 
 - **Endpoints**:
   - `/store-api/content/{path}` → `ContentPage` (full format)
-  - `/store-api/content-decomposed/{path}` → `DecomposedContentPage` (decomposed format)
+  - `/store-api/content-decomposed/{path}` → `ContentDecomposedPage` (decomposed format)
+  - `/store-api/content-skeleton/{path}` → `ContentSkeletonPage` (skeleton format)
+  - `/store-api/content-data/{path}` → `ContentDataPage` (data format)
 - **Pipeline**: Factory Selection → PreHydration Events → Hydration → PostHydration Events
 - **Chain of Responsibility**: Factories tried in DI priority order, first non-null wins
 - **404s**: Throw `ContentSystemException` with specific codes
 - **HTTP cache**: Enabled, cached by sales channel + URL + customer group
-- **Extension**: Decorate `AbstractContentRoute` or `AbstractContentDecomposedRoute`, or add new context factory
+- **Extension**: Decorate `AbstractContentRoute`, `AbstractContentDecomposedRoute`, `AbstractContentSkeletonRoute`, or `AbstractContentDataRoute`
 - **Response formats**:
   - `ContentPage`: layoutId, elements (array), layoutName, layoutVersion
-  - `DecomposedContentPage`: layoutId, skeletons, data, assignments, layoutName, layoutVersion
+  - `ContentDecomposedPage`: layoutId, skeletons, data, assignments, layoutName, layoutVersion
+  - `ContentSkeletonPage`: layoutId, elements (array), layoutName, layoutVersion
+  - `ContentDataPage`: layoutId, data, assignments, layoutName, layoutVersion

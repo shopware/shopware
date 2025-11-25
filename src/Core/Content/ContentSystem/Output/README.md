@@ -17,11 +17,12 @@ Output operates on fully hydrated ContentElement trees. Unlike event subscribers
 
 ## Response Format Transformation
 
-ContentPage provides lazy transformation to DecomposedContentPage via `getDecomposedContentPage()`:
-- **ContentPage**: Full element trees with properties embedded
-- **DecomposedContentPage**: Skeletons + deduplicated data + assignments
+ContentPage provides lazy transformations to alternative formats:
+- `getContentDecomposedPage()` → **ContentDecomposedPage**: Skeletons + deduplicated data + assignments
+- `getContentSkeletonPage()` → **ContentSkeletonPage**: Element trees without hydrated data
+- `getContentDataPage()` → **ContentDataPage**: Data + assignments without skeleton
 
-ContentDecomposedRoute uses this transformation, ContentRoute returns ContentPage directly.
+Routes use these transformations: ContentRoute returns ContentPage directly, others transform.
 
 ## Partial Rendering
 
@@ -68,4 +69,4 @@ Module designed for extensibility via tagged services or event subscribers. Pote
 
 ## Subdirectories
 
-- Struct/: Data structures (ContentPage, DecomposedContentPage)
+- Struct/: Data structures (ContentPage, ContentDecomposedPage, ContentSkeletonPage, ContentDataPage)

@@ -7,9 +7,11 @@
 - `SubTreeExtractor` - Extracts element sub-tree for partial rendering
 - `RenderingSpecification` - Rendering configuration (layout ID, placeholders, target element)
 - `ContentPage` (Struct/) - Full format response (elements with embedded properties)
-- `DecomposedContentPage` (Struct/) - Decomposed format response (skeletons + data + assignments)
+- `ContentDecomposedPage` (Struct/) - Decomposed format response (skeletons + data + assignments)
+- `ContentSkeletonPage` (Struct/) - Skeleton format response (elements without data)
+- `ContentDataPage` (Struct/) - Data format response (data + assignments only)
 
-**Terminology clarification for LLMs:** DecomposedContentPage is NOT about partial rendering (that's `?elementId` parameter). It's about response format - decomposed format separates element structure from property data for deduplication.
+**Terminology clarification for LLMs:** ContentDecomposedPage is NOT about partial rendering (that's `?elementId` parameter). It's about response format - decomposed format separates element structure from property data for deduplication.
 
 ## Constraints
 
@@ -59,10 +61,12 @@ See `ContentRouteLoader::applyPartialRendering()` - iterates roots, returns firs
 - **Pipeline**: After hydration, before response serialization
 - **Input**: Fully hydrated ContentElement tree
 - **Output**: Transformed ContentElement tree (or subtree)
-- **Query param**: `?elementId=xyz` for partial rendering (NOT related to DecomposedContentPage)
+- **Query param**: `?elementId=xyz` for partial rendering (NOT related to ContentDecomposedPage)
 - **Response formats**:
   - `ContentPage`: Full format (`/store-api/content/{path}`)
-  - `DecomposedContentPage`: Decomposed format (`/store-api/content-decomposed/{path}`)
+  - `ContentDecomposedPage`: Decomposed format (`/store-api/content-decomposed/{path}`)
+  - `ContentSkeletonPage`: Skeleton format (`/store-api/content-skeleton/{path}`)
+  - `ContentDataPage`: Data format (`/store-api/content-data/{path}`)
 - **Operations**: Read-only extraction/filtering, no mutations
 - **No database**: All data already loaded during hydration
 - **Extension**: Via tagged services or event subscribers

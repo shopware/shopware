@@ -7,7 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Decorator base for Store API content route.
+ * This route returns layout metadata with fully hydrated element trees.
  */
 #[Package('discovery')]
 abstract class AbstractContentRoute

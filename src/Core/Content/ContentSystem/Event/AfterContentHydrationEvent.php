@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Event;
 
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Content\ContentSystem\RenderingMode;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
@@ -45,6 +46,7 @@ class AfterContentHydrationEvent extends Event implements ShopwareEvent
         public readonly string $layoutName,
         public readonly ?string $layoutVersionId,
         public readonly RenderingSpecification $specification,
+        public readonly RenderingMode $mode,
         public readonly SalesChannelContext $salesChannelContext
     ) {
     }

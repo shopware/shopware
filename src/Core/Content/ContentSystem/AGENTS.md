@@ -9,7 +9,7 @@
 - **Event Subscribers**: `EventSubscriber/PreHydration/`, `EventSubscriber/PostHydration/`
 - **Specification**: `RenderingSpecification`, `PlaceholderValues`
 - **Hydration**: `Hydration/ContentElementHydrator`
-- **Store API**: `SalesChannel/ContentRoute`, `SalesChannel/ContentRouteLoader`
+- **Store API**: `SalesChannel/ContentRoute`, `SalesChannel/ContentDecomposedRoute`, `SalesChannel/ContentSkeletonRoute`, `SalesChannel/ContentDataRoute`, `SalesChannel/ContentRouteLoader`
 
 ## Quick Reference
 

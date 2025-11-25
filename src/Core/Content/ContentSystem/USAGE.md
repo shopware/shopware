@@ -52,11 +52,13 @@ Products, Categories, and Landing Pages can render directly using ContentSystem 
 
 **Endpoints:**
 
-Two endpoints available with different response formats:
+Four endpoints available with different response formats:
 - `/store-api/content/{path}` - Returns full element trees (simpler integration)
 - `/store-api/content-decomposed/{path}` - Returns decomposed format with deduplicated data (optimized payloads)
+- `/store-api/content-skeleton/{path}` - Returns layout structure without hydrated data (client-side hydration)
+- `/store-api/content-data/{path}` - Returns data and assignments without skeleton (data refresh)
 
-Both endpoints support the same path patterns and functionality. Choose based on your client integration needs.
+Full and decomposed endpoints support partial rendering via `elementId` parameter. Skeleton and data endpoints are designed for split rendering workflows where clients cache the layout structure.
 
 **Supported path patterns:**
 - `product/{productId}` - Product detail pages

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Content\ContentSystem\RenderingMode;
 use Shopware\Core\Content\ContentSystem\RenderingSpecificationFactoryInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -14,11 +15,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
+ * Returns content data and assignments without skeleton structure.
+ *
+ * Runs full pipeline (including hydration) but returns only the data
+ * and element-to-property assignments. Useful when client already has
+ * the skeleton and only needs refreshed data.
+ *
  * @final
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
-class ContentRoute extends AbstractContentRoute
+class ContentDataRoute extends AbstractContentDataRoute
 {
     /**
      * @param iterable<RenderingSpecificationFactoryInterface> $renderingSpecificationFactories
@@ -27,33 +34,28 @@ class ContentRoute extends AbstractContentRoute
      */
     public function __construct(
         private readonly ContentRouteLoader $contentRouteLoader,
+        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
         private readonly iterable $renderingSpecificationFactories,
     ) {
     }
 
-    public function getDecorated(): AbstractContentRoute
+    public function getDecorated(): AbstractContentDataRoute
     {
         throw new DecorationPatternException(self::class);
     }
 
     #[Route(
-        path: '/store-api/content/{path}',
-        name: 'store-api.content.detail',
+        path: '/store-api/content-data/{path}',
+        name: 'store-api.content.data',
         requirements: ['path' => '.+'],
         defaults: [
             '_httpCache' => true,
-            'excludes' => [
-                'content_element' => [
-                    'dataRequirements',
-                    'contextDefinitions',
-                ],
-            ],
         ],
         methods: ['GET']
     )]
-    public function load(string $path, Request $request, SalesChannelContext $context): ContentRouteResponse
+    public function load(string $path, Request $request, SalesChannelContext $context): ContentDataRouteResponse
     {
-        // Try factories in priority order via Chain of Responsibility (tagged iterator provides highest first)
+        // Try factories in priority order via Chain of Responsibility
         $renderingSpecification = null;
         foreach ($this->renderingSpecificationFactories as $factory) {
             $renderingSpecification = $factory->create($path, $request, $context);
@@ -69,6 +71,6 @@ class ContentRoute extends AbstractContentRoute
 
         $contentPage = $this->contentRouteLoader->load($renderingSpecification, RenderingMode::FULL, $context);
 
-        return new ContentRouteResponse($contentPage);
+        return new ContentDataRouteResponse($contentPage->getContentDataPage($this->configSerializerProvider));
     }
 }

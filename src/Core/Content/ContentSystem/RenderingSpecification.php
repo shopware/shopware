@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem;
 
+use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -17,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 final readonly class RenderingSpecification
 {
     /**
-     * @param array<Layout\Element\DataRequirement\DataRequirement> $dataRequirements
+     * @param array<DataRequirement> $dataRequirements
      */
     public function __construct(
         public string $layoutId,

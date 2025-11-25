@@ -4,9 +4,9 @@
     "paths": [],
     "components": {
         "schemas": {
-            "ContentPage": {
+            "ContentSkeletonPage": {
                 "type": "object",
-                "description": "Layout metadata with fully hydrated element trees.",
+                "description": "Layout metadata with element trees before hydration.",
                 "properties": {
                     "layoutId": {
                         "type": "string",
@@ -20,11 +20,12 @@
                     },
                     "elements": {
                         "type": "array",
+                        "description": "Pre-hydration element trees without loaded data",
                         "items": { "$ref": "#/components/schemas/ContentElement" }
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["content_page"]
+                        "enum": ["content_skeleton_page"]
                     }
                 },
                 "required": ["apiAlias", "layoutId", "layoutName", "elements"]

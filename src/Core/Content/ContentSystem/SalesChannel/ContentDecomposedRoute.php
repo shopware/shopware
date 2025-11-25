@@ -51,7 +51,7 @@ class ContentDecomposedRoute extends AbstractContentDecomposedRoute
                 ],
             ],
         ],
-        methods: ['GET', 'POST']
+        methods: ['GET']
     )]
     public function load(string $path, Request $request, SalesChannelContext $context): ContentDecomposedRouteResponse
     {

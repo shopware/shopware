@@ -48,7 +48,7 @@ class ContentRoute extends AbstractContentRoute
                 ],
             ],
         ],
-        methods: ['GET', 'POST']
+        methods: ['GET']
     )]
     public function load(string $path, Request $request, SalesChannelContext $context): ContentRouteResponse
     {

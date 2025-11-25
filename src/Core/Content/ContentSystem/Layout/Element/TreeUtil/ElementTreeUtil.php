@@ -125,12 +125,12 @@ class ElementTreeUtil
         }
 
         return new ContentElement(
-            id: $currentElement->getId(),
-            component: $currentElement->getComponent(),
-            dataRequirements: $currentElement->getDataRequirements(),
-            properties: $currentElement->getProperties(),
-            slots: [$slotName => new SlotContent([$child])],
-            contextDefinitions: new ContextDefinitions(
+            $currentElement->getId(),
+            $currentElement->getComponent(),
+            $currentElement->getDataRequirements(),
+            $currentElement->getProperties(),
+            [$slotName => new SlotContent([$child])],
+            new ContextDefinitions(
                 $currentElement->getProvidesContext(),
                 $currentElement->getAcceptsContext()
             )

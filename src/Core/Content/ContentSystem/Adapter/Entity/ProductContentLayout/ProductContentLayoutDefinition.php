@@ -72,19 +72,15 @@ class ProductContentLayoutDefinition extends EntityDefinition implements Content
     {
         return [
             new DataRequirement(
-                key: 'product',
-                source: 'entity',
-                config: new EntityLoaderConfig(
-                    entity: 'product',
-                    property: 'productId',
-                    associations: [
-                        'manufacturer.media',
-                        'options.group',
-                        'properties.group',
-                        'mainCategories.category',
-                        'media.media',
-                    ]
-                )
+                'product',
+                'entity',
+                new EntityLoaderConfig('product', 'productId', [
+                    'manufacturer.media',
+                    'options.group',
+                    'properties.group',
+                    'mainCategories.category',
+                    'media.media',
+                ])
             ),
         ];
     }

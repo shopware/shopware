@@ -175,12 +175,12 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             : [];
 
         return new ContentElement(
-            id: $data['id'],
-            component: $data['component'],
-            dataRequirements: $dataRequirements ?? [],
-            properties: $data['properties'] ?? [],
-            slots: $slots,
-            contextDefinitions: $contextDefinitions
+            $data['id'],
+            $data['component'],
+            $dataRequirements ?? [],
+            $data['properties'] ?? [],
+            $slots,
+            $contextDefinitions
         );
     }
 
@@ -338,8 +338,8 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             }
 
             $providers[$providerKey] = new ContextProvider(
-                type: $consumer->type,
-                config: new BroadcastDistributionConfig(consumerAlias: null)
+                $consumer->type,
+                new BroadcastDistributionConfig(null)
             );
         }
 

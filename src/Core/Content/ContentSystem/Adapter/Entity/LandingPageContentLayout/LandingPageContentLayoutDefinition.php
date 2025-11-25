@@ -71,15 +71,7 @@ class LandingPageContentLayoutDefinition extends EntityDefinition implements Con
     public function getPageDataRequirements(SalesChannelContext $context): array
     {
         return [
-            new DataRequirement(
-                key: 'landing_page',
-                source: 'entity',
-                config: new EntityLoaderConfig(
-                    entity: 'landing_page',
-                    property: 'landingPageId',
-                    associations: []
-                )
-            ),
+            new DataRequirement('landing_page', 'entity', new EntityLoaderConfig('landing_page', 'landingPageId', [])),
         ];
     }
 

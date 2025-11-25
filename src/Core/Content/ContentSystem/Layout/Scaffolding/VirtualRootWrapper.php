@@ -145,6 +145,6 @@ class VirtualRootWrapper
             );
         }
 
-        return new ContextDefinitions(providers: $providers, consumers: []);
+        return new ContextDefinitions($providers, []);
     }
 }

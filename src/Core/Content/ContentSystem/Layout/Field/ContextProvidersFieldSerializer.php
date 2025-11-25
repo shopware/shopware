@@ -145,10 +145,7 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
 
         if ($type === ContextType::Single) {
             // Single context provider uses broadcast strategy
-            return new ContextProvider(
-                type: $type,
-                config: BroadcastDistributionConfig::fromArray($config)
-            );
+            return new ContextProvider($type, BroadcastDistributionConfig::fromArray($config));
         }
 
         // Collection context provider - determine distribution strategy
@@ -163,9 +160,6 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
             DistributionStrategy::Broadcast => BroadcastDistributionConfig::fromArray($config),
         };
 
-        return new ContextProvider(
-            type: $type,
-            config: $distributionConfig
-        );
+        return new ContextProvider($type, $distributionConfig);
     }
 }

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\String\UnicodeString;
 
 /**
  * @internal
@@ -50,6 +51,8 @@ class ProductListingDataLoader implements ContentDataLoaderInterface
         if (!\is_string($navigationId)) {
             return null;
         }
+
+        $navigationId = (new UnicodeString($navigationId))->lower()->toString();
 
         $criteria = $this->buildCriteria($element, $config);
 

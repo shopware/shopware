@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\String\UnicodeString;
 
 /**
  * @internal
@@ -58,7 +59,9 @@ class EntityCollectionLoader implements ContentDataLoaderInterface
             return null;
         }
 
-        $entityIds = array_values(array_filter($entityIds, static fn ($id) => \is_string($id)));
+        $entityIds = \array_filter($entityIds, static fn ($id) => \is_string($id));
+        $entityIds = \array_map(static fn ($entityId) => (new UnicodeString($entityId))->lower()->toString(), $entityIds);
+        $entityIds = \array_values($entityIds);
 
         if ($entityIds === []) {
             return null;

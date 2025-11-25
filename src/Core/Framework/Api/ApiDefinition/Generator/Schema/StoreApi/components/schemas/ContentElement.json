@@ -1,0 +1,63 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentSlotContent": {
+                "type": "object",
+                "description": "Container for content elements within a named slot",
+                "properties": {
+                    "elements": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/ContentElement" }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["content_element_slot_content"]
+                    }
+                },
+                "required": ["apiAlias", "elements"]
+            },
+            "ContentElement": {
+                "type": "object",
+                "description": "Content element node in layout tree",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique element identifier"
+                    },
+                    "component": {
+                        "type": "string",
+                        "description": "Element component type (e.g., Sw:Grid, Sw:Content:Text, Sw:Product:Card)"
+                    },
+                    "properties": {
+                        "type": "object",
+                        "description": "Element properties keyed by property name",
+                        "additionalProperties": true
+                    },
+                    "slots": {
+                        "description": "Named slots containing child elements",
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "$ref": "#/components/schemas/ContentSlotContent"
+                                }
+                            }
+                        ]
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["content_element"]
+                    }
+                },
+                "required": ["apiAlias", "id", "component"]
+            }
+        }
+    }
+}

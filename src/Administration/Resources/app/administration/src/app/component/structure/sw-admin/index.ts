@@ -1,4 +1,5 @@
 import type { Toast } from '@shopware-ag/meteor-component-library/dist/esm/components/feedback-indicator/mt-toast/mt-toast';
+import { useSnackbar } from '@shopware-ag/meteor-component-library';
 import template from './sw-admin.html.twig';
 
 const { Component } = Shopware;
@@ -26,6 +27,7 @@ export default Shopware.Component.wrapComponentConfig({
     data(): {
         channel: BroadcastChannel | null;
         toasts: Toast[];
+        snackbar: Snackbar;
     } {
         return {
             channel: null,
@@ -43,6 +45,10 @@ export default Shopware.Component.wrapComponentConfig({
          */
         overrideComponents() {
             return Component.getOverrideComponents();
+        },
+
+        snackbar() {
+            return useSnackbar();
         },
     },
 

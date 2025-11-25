@@ -26,7 +26,7 @@ class PartialRenderingExtractionSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            AfterContentHydrationEvent::class => ['onAfterContentHydration', 500],
+            AfterContentHydrationEvent::class => ['onAfterContentHydration', 1000],
         ];
     }
 

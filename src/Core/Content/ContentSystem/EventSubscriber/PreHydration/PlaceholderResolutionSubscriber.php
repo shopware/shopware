@@ -20,7 +20,7 @@ class PlaceholderResolutionSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PreContentHydrationEvent::class => ['onPreContentHydration', 500],
+            PreContentHydrationEvent::class => ['onPreContentHydration', 3000],
         ];
     }
 

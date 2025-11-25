@@ -25,7 +25,7 @@ class VirtualRootCleanupSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            AfterContentHydrationEvent::class => ['onAfterContentHydration', 1000],
+            AfterContentHydrationEvent::class => ['onAfterContentHydration', 5000],
         ];
     }
 

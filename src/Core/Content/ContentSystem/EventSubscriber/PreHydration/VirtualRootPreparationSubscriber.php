@@ -25,7 +25,7 @@ class VirtualRootPreparationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PreContentHydrationEvent::class => ['onPreContentHydration', 1000],
+            PreContentHydrationEvent::class => ['onPreContentHydration', 5000],
         ];
     }
 

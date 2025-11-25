@@ -26,7 +26,7 @@ class PartialRenderingPreparationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PreContentHydrationEvent::class => ['onPreContentHydration', 200],
+            PreContentHydrationEvent::class => ['onPreContentHydration', 1000],
         ];
     }
 

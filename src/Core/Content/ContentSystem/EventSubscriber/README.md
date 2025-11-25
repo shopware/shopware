@@ -10,9 +10,9 @@ Subscribers execute in two phases around the hydration process:
 flowchart TB
     subgraph pre["PreHydration (before data loading)"]
         direction TB
-        P1["VirtualRootPreparation (1000)"]
-        P2["PlaceholderResolution (500)"]
-        P3["PartialRenderingPreparation (200)"]
+        P1["VirtualRootPreparation (5000)"]
+        P2["PlaceholderResolution (3000)"]
+        P3["PartialRenderingPreparation (1000)"]
         P1 --> P2 --> P3
     end
 
@@ -20,8 +20,8 @@ flowchart TB
 
     subgraph post["PostHydration (after data loading)"]
         direction TB
-        A1["VirtualRootCleanup (1000)"]
-        A2["PartialRenderingExtraction (500)"]
+        A1["VirtualRootCleanup (5000)"]
+        A2["PartialRenderingExtraction (1000)"]
         A1 --> A2
     end
 
@@ -29,6 +29,20 @@ flowchart TB
 ```
 
 Higher priority numbers execute first. All subscribers modify `$event->elements` (an array of ContentElement objects). This is the only mutable property on the events.
+
+## Priority Ranges
+
+Priorities are organized into reserved ranges for core and extension use.
+
+**Extensions:**
+- `>= 6000`: Run BEFORE core processing
+- `< 1000` and `>= 0`: Run AFTER core processing
+- `< 0`: Absolute last (use sparingly)
+
+**Core (RESERVED - do not use in extensions):**
+- `>= 5000`: Structure (scaffolding, wrapping)
+- `>= 3000`: Transform (overrides, placeholders)
+- `>= 1000`: Pruning (filtering, partial render)
 
 ## Built-in Subscribers
 
@@ -41,6 +55,14 @@ Higher priority numbers execute first. All subscribers modify `$event->elements`
 ## Extension Points
 
 Add custom subscribers by implementing `EventSubscriberInterface`. Subscribe to `PreContentHydrationEvent` or `AfterContentHydrationEvent` with a priority. Modify `$event->elements` in the handler.
+
+**Example priorities by use case (suggestions only):**
+
+- Modify raw layout before core: `PreContentHydrationEvent` at `>= 8000`
+- Add custom data requirements: `PreContentHydrationEvent` at `500-800`
+- Add computed properties: `AfterContentHydrationEvent` at `500-800`
+- Analytics/tracking injection: `AfterContentHydrationEvent` at `100-200`
+- Response transformation: `AfterContentHydrationEvent` at `< 0`
 
 ## Subdirectories
 

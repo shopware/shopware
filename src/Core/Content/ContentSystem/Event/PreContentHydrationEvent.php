@@ -16,6 +16,20 @@ use Symfony\Contracts\EventDispatcher\Event;
  * Replaces scaffolding and refinery processes. Subscribers can modify
  * the elements array before data loading begins.
  *
+ * ## Priority Ranges
+ *
+ * Subscriber priorities determine execution order (higher = earlier).
+ *
+ * **Extensions:**
+ * - >= 6000: Run BEFORE core processing
+ * - < 1000 and >= 0: Run AFTER core processing
+ * - < 0: Absolute last (use sparingly)
+ *
+ * **Core (RESERVED - do not use in extensions):**
+ * - >= 5000: Structure (e.g. scaffolding, wrapping)
+ * - >= 3000: Transform (e.g. overrides, placeholders)
+ * - >= 1000: Pruning (e.g. filtering, partial render)
+ *
  * @internal
  */
 #[Package('discovery')]

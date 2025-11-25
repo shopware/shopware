@@ -462,7 +462,7 @@ class EntityWriterTest extends TestCase
         static::assertSame('_THE_TITLE_', $productTranslation['name'], print_r($productTranslation, true));
         static::assertSame('<p>html</p>', $productTranslation['description']);
         static::assertSame('Another Company', $productManufacturerTranslation['name']);
-        static::assertSame('http://www.shopware.com', $productManufacturer['link']);
+        static::assertSame('http://www.shopware.com', $productManufacturerTranslation['link']);
     }
 
     public function testUpdateWritesDefaultColumnsIfOmmitted(): void

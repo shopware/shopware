@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,7 +49,7 @@ class ResponseHeaderListenerTest extends TestCase
 
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
     }
 
     public function testNotFoundPage(): void
@@ -58,14 +59,14 @@ class ResponseHeaderListenerTest extends TestCase
             $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
-            $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
+            $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM);
 
             $browser->request('GET', $_SERVER['APP_URL'] . '/not-found');
             $response = $browser->getResponse();
 
             static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
             static::assertFalse($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
-            static::assertFalse($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
+            static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
         } finally {
             $this->toggleNotFoundSubscriber(true);
         }

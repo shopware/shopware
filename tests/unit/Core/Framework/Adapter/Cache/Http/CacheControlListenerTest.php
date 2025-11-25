@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -85,5 +88,39 @@ class CacheControlListenerTest extends TestCase
             'private, no-store',
             'no-store, private', // Symfony sorts the cache-control
         ];
+    }
+
+    public function testStoreApiHeadersNotModified(): void
+    {
+        $response = new Response();
+        $response->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, 'foo');
+        $response->headers->set('cache-control', 'public, s-maxage=64000');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+
+        $subscriber = new CacheControlListener(false);
+
+        $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
+
+        static::assertSame('public, s-maxage=64000', $response->headers->get('cache-control'));
+        static::assertTrue($response->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
+    }
+
+    #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
+    public function testStoreApiHeadersWithoutFeatureFlags(): void
+    {
+        $response = new Response();
+        $response->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, 'foo');
+        $response->headers->set('cache-control', 'public, s-maxage=64000');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+
+        $subscriber = new CacheControlListener(false);
+        $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
+
+        static::assertSame('no-cache, private', $response->headers->get('cache-control'));
+        static::assertFalse($response->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
     }
 }

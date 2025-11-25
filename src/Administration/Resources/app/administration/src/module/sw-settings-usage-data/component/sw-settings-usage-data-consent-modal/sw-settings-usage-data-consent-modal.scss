@@ -59,5 +59,8 @@
 }
 
 .sw-settings-usage-data-consent-modal__footer {
-    text-align: end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--scale-size-8);
+    justify-content: flex-end;
 }

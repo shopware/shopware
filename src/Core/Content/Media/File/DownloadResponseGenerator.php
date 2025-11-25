@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Media\File;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\UnableToGenerateTemporaryUrl;
 use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
@@ -53,7 +52,7 @@ class DownloadResponseGenerator
             $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));
 
             return new RedirectResponse($url);
-        } catch (UnableToGenerateTemporaryUrl) {
+        } catch (\Throwable) {
         }
 
         return $this->getDefaultResponse($media, $context, $fileSystem);

@@ -154,6 +154,39 @@ class DownloadResponseGeneratorTest extends TestCase
         yield 'public / local' => [false, 'local', new RedirectResponse('foobar.txt')];
     }
 
+    public function testGetResponseUsingAzureBlobStorageWithUnsupportedAuth(): void
+    {
+        $fileSystem = $this->createMock(Filesystem::class);
+        $fileSystem->method('temporaryUrl')->willThrowException(new \Exception('UnableToGenerateSasException'));
+
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setFileName('foobar');
+        $media->setFileExtension('txt');
+        $media->setPrivate(true);
+        $media->setPath('foobar.txt');
+
+        $generator = $this->createMock(AbstractMediaUrlGenerator::class);
+        $generator->method('generate')->willReturn([$media->getId() => 'foobar.txt']);
+
+        $downloadResponseGenerator = new DownloadResponseGenerator(
+            $fileSystem,
+            $fileSystem,
+            $this->mediaService,
+            'php',
+            $generator,
+            ''
+        );
+
+        $streamInterface = $this->createMock(StreamInterface::class);
+        $streamInterface->method('detach')->willReturn(fopen('php://temp', 'r'));
+        $this->mediaService->method('loadFileStream')->willReturn($streamInterface);
+
+        $response = $downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
+
+        AssertResponseHelper::assertResponseEquals(self::getExpectedStreamResponse(), $response);
+    }
+
     /**
      * @return Filesystem&MockObject
      */

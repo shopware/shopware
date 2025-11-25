@@ -72,16 +72,9 @@ class CategoryContentLayoutDefinition extends EntityDefinition implements Conten
     {
         return [
             new DataRequirement(
-                key: 'category',
-                source: 'entity',
-                config: new EntityLoaderConfig(
-                    entity: 'category',
-                    property: 'categoryId',
-                    associations: [
-                        'media',
-                        'translations',
-                    ]
-                )
+                'category',
+                'entity',
+                new EntityLoaderConfig('category', 'categoryId', ['media', 'translations'])
             ),
         ];
     }

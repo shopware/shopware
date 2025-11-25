@@ -159,16 +159,12 @@ class EntityLayoutContextFactory
             }
 
             $newConfig = new EntityLoaderConfig(
-                entity: $config->entity,
-                property: $fieldToPlaceholder[$propertyName],
-                associations: $config->associations
+                $config->entity,
+                $fieldToPlaceholder[$propertyName],
+                $config->associations
             );
 
-            $transformed[] = new DataRequirement(
-                key: $requirement->key,
-                source: $requirement->source,
-                config: $newConfig
-            );
+            $transformed[] = new DataRequirement($requirement->key, $requirement->source, $newConfig);
         }
 
         return $transformed;

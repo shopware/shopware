@@ -7,6 +7,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -211,7 +212,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
-        static::assertFalse($this->browser->getResponse()->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertFalse($this->browser->getResponse()->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
+        }
 
         $this->browser->request('GET', '/store-api/script/cache-script?query-param=1');
         static::assertNotFalse($this->browser->getResponse()->getContent());
@@ -230,7 +233,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
-        static::assertFalse($this->browser->getResponse()->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertFalse($this->browser->getResponse()->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
+        }
 
         $this->browser->request('GET', '/store-api/script/cache-script?query-param=2');
         static::assertNotFalse($this->browser->getResponse()->getContent());

@@ -83,7 +83,7 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
                 $chunk = $this->redis->sPop(self::KEY, 10000);
             }
         } catch (\Throwable $e) {
-            $this->logger->error('Could not load and delete tags from Redis. Error: ' . $e->getMessage());
+            $this->logger->error('Sequential fallback: Could not load and delete tags from Redis. Error: ' . $e->getMessage());
 
             throw $e;
         }

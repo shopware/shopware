@@ -92,7 +92,7 @@ class RedisInvalidatorStorageTest extends TestCase
 
         $logger->expects($this->once())
             ->method('error')
-            ->with('Could not load and delete tags from Redis. Error: Redis is down');
+            ->with('Sequential fallback: Could not load and delete tags from Redis. Error: Redis is down');
 
         $storage = new RedisInvalidatorStorage($redis, $logger);
 

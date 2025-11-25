@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * Layout metadata with fully hydrated element trees.
+ *
  * @final
  */
 #[Package('discovery')]
@@ -25,17 +27,12 @@ class ContentPage extends Struct
     ) {
     }
 
-    public function getApiAlias(): string
-    {
-        return 'content_page';
-    }
-
     /**
      * Lazily creates decomposed version with extracted properties.
      */
-    public function getDecomposedContentPage(
+    public function getContentDecomposedPage(
         DataLoaderConfigSerializerProvider $configSerializerProvider
-    ): DecomposedContentPage {
+    ): ContentDecomposedPage {
         $skeletons = [];
         $visitor = new PropertiesExtractionVisitor($configSerializerProvider);
 
@@ -45,13 +42,40 @@ class ContentPage extends Struct
             $skeletons[] = $skeleton;
         }
 
-        return new DecomposedContentPage(
-            skeletons: $skeletons,
-            data: $visitor->getData(),
-            assignments: $visitor->getAssignments(),
-            layoutId: $this->layoutId,
-            layoutName: $this->layoutName,
-            layoutVersion: $this->layoutVersion
+        return new ContentDecomposedPage(
+            $skeletons,
+            $visitor->getData(),
+            $visitor->getAssignments(),
+            $this->layoutId,
+            $this->layoutName,
+            $this->layoutVersion
         );
+    }
+
+    /**
+     * Creates skeleton version without hydrated data.
+     */
+    public function getContentSkeletonPage(): ContentSkeletonPage
+    {
+        return new ContentSkeletonPage(
+            $this->layoutId,
+            $this->elements,
+            $this->layoutName,
+            $this->layoutVersion
+        );
+    }
+
+    /**
+     * Creates data version with hydrated data and assignments to the skeleton but without the skeleton.
+     */
+    public function getContentDataPage(
+        DataLoaderConfigSerializerProvider $configSerializerProvider
+    ): ContentDataPage {
+        return $this->getContentDecomposedPage($configSerializerProvider)->getContentDataPage();
+    }
+
+    public function getApiAlias(): string
+    {
+        return 'content_page';
     }
 }

@@ -7,7 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Store API route for decomposed content elements.
+ * This route returns layout metadata with element skeletons, deduplicated property data, and element-to-data mappings.
  */
 #[Package('discovery')]
 abstract class AbstractContentDecomposedRoute

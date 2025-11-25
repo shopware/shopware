@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Content\ContentSystem\RenderingMode;
 use Shopware\Core\Content\ContentSystem\RenderingSpecificationFactoryInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -69,8 +70,8 @@ class ContentDecomposedRoute extends AbstractContentDecomposedRoute
             throw ContentSystemException::noFactoryCanHandle($path);
         }
 
-        $contentPage = $this->contentRouteLoader->load($renderingSpecification, $context);
+        $contentPage = $this->contentRouteLoader->load($renderingSpecification, RenderingMode::FULL, $context);
 
-        return new ContentDecomposedRouteResponse($contentPage->getDecomposedContentPage($this->configSerializerProvider));
+        return new ContentDecomposedRouteResponse($contentPage->getContentDecomposedPage($this->configSerializerProvider));
     }
 }

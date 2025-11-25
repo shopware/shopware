@@ -4,8 +4,9 @@
     "paths": [],
     "components": {
         "schemas": {
-            "DecomposedContentPage": {
+            "ContentDecomposedPage": {
                 "type": "object",
+                "description": "Layout metadata with element skeletons, deduplicated property data, and element-to-data mappings.",
                 "properties": {
                     "layoutId": {
                         "type": "string",
@@ -29,7 +30,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["decomposed_content_page"]
+                        "enum": ["content_decomposed_page"]
                     }
                 },
                 "required": ["apiAlias", "layoutId", "layoutName", "skeletons", "data", "assignments"]

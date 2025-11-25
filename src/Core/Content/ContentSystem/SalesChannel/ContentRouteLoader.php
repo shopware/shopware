@@ -7,6 +7,7 @@ use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader;
 use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Content\ContentSystem\RenderingMode;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -27,9 +28,13 @@ class ContentRouteLoader
 
     /**
      * Loads and renders content from a specification.
+     *
+     * For RenderingMode::SKELETON mode, hydration is skipped (elements have no hydrated properties).
+     * For RenderingMode::FULL mode, complete hydration runs.
      */
     public function load(
         RenderingSpecification $specification,
+        RenderingMode $mode,
         SalesChannelContext $salesChannelContext
     ): ContentPage {
         $layoutEntity = $this->layoutLoader->load($specification->layoutId, $salesChannelContext->getContext());
@@ -40,24 +45,28 @@ class ContentRouteLoader
             $layoutEntity->getName(),
             $layoutEntity->getVersionId(),
             $specification,
+            $mode,
             $salesChannelContext
         );
         $this->eventDispatcher->dispatch($preHydrationEvent);
-        $preparedElements = $preHydrationEvent->elements;
+        $elements = $preHydrationEvent->elements;
 
-        $hydratedElementsGenerator = $this->hydrationService->hydrate(
-            $preparedElements,
-            $salesChannelContext,
-            $specification->request
-        );
-        $hydratedElements = array_values(iterator_to_array($hydratedElementsGenerator, false));
+        if ($mode !== RenderingMode::SKELETON) {
+            $hydratedElementsGenerator = $this->hydrationService->hydrate(
+                $elements,
+                $salesChannelContext,
+                $specification->request
+            );
+            $elements = array_values(iterator_to_array($hydratedElementsGenerator, false));
+        }
 
         $afterHydrationEvent = new AfterContentHydrationEvent(
-            $hydratedElements,
+            $elements,
             $layoutEntity->getId(),
             $layoutEntity->getName(),
             $layoutEntity->getVersionId(),
             $specification,
+            $mode,
             $salesChannelContext
         );
         $this->eventDispatcher->dispatch($afterHydrationEvent);

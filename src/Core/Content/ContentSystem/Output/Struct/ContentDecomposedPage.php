@@ -7,12 +7,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Decomposed content structure optimized for deduplication and serialization.
+ * Layout metadata with element skeletons, deduplicated property data, and element-to-data mappings.
  *
  * @final
  */
 #[Package('discovery')]
-class DecomposedContentPage extends Struct
+class ContentDecomposedPage extends Struct
 {
     /**
      * @param array<ContentElement> $skeletons Element structures without property values
@@ -31,6 +31,20 @@ class DecomposedContentPage extends Struct
 
     public function getApiAlias(): string
     {
-        return 'decomposed_content_page';
+        return 'content_decomposed_page';
+    }
+
+    /**
+     * Extracts data and assignments without skeleton structure.
+     */
+    public function getContentDataPage(): ContentDataPage
+    {
+        return new ContentDataPage(
+            $this->layoutId,
+            $this->data,
+            $this->assignments,
+            $this->layoutName,
+            $this->layoutVersion
+        );
     }
 }

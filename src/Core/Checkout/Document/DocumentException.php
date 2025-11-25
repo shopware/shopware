@@ -209,15 +209,15 @@ class DocumentException extends HttpException
         );
     }
 
-    public static function documentFileTypeUnavailable(string $documentId, string $fileExtension): self
+    public static function documentFileTypeUnavailable(string $documentId, array $fileExtensions): self
     {
         return new self(
             Response::HTTP_NOT_FOUND,
             self::DOCUMENT_FILETYPE_UNAVAILABLE,
-            'Document with id {{ documentId }} has no generated document with file extension {{ fileExtension }}.',
+            'Document with id {{ documentId }} has no generated document with file extension {{ fileExtensions }}.',
             [
                 'documentId' => $documentId,
-                'fileExtension' => $fileExtension,
+                'fileExtensions' => implode(',',$fileExtensions),
             ]
         );
     }

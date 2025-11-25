@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Document\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
@@ -45,18 +44,13 @@ final class DocumentRoute extends AbstractDocumentRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(
-        path: '/store-api/document/download/{documentId}/{deepLinkCode}/{fileType?}',
-        name: 'store-api.document.download',
-        methods: [Request::METHOD_GET, Request::METHOD_POST],
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => DocumentDefinition::ENTITY_NAME, 'fileType' => PdfRenderer::FILE_EXTENSION],
-    )]
+    #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_entity' => 'document'])]
     public function download(
         string $documentId,
         Request $request,
         SalesChannelContext $context,
         string $deepLinkCode = '',
-        string $fileType = PdfRenderer::FILE_EXTENSION
+        ?string $fileType = null
     ): Response {
         $this->checkAuth($documentId, $request, $context);
 
@@ -65,17 +59,29 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
-        $fileType = $request->query->get('fileType') ?? $fileType;
         $download = $request->query->getBoolean('download');
 
-        $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode, $fileType);
+        $requestedFileTypes = !$fileType ? $this->getRequestedFileTypes($request) : [$fileType];
+
+        foreach ($requestedFileTypes as $requestedFileType) {
+            $document = $this->documentGenerator->readDocument(
+                $documentId,
+                $context->getContext(),
+                $deepLinkCode,
+                $requestedFileType
+            );
+
+            if($document !== null) {
+                break;
+            }
+        }
 
         if ($document === null) {
             if (!Feature::isActive('v6.8.0.0')) {
                 return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
             }
 
-            throw DocumentException::documentFileTypeUnavailable($documentId, $fileType);
+            throw DocumentException::documentFileTypeUnavailable($documentId, $requestedFileTypes);
         }
 
         return $this->createResponse(
@@ -162,5 +168,19 @@ final class DocumentRoute extends AbstractDocumentRoute
         } else {
             throw DocumentException::guestNotAuthenticated();
         }
+    }
+
+    private function getRequestedFileTypes(Request $request): array
+    {
+        $fileTypes = [];
+        $request->setFormat('pdf', ['application/pdf']);
+        $requestedFileTypes = $request->getAcceptableContentTypes();
+        foreach ($requestedFileTypes as $mimeType) {
+            if($fileType = $request->getFormat($mimeType)) {
+                $fileTypes[] = $fileType;
+            }
+        }
+
+        return $fileTypes;
     }
 }

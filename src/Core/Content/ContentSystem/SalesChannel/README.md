@@ -16,8 +16,6 @@ Store API entry point for content system. Four routes provide different response
 - `AbstractContentDataRoute` - Abstract route base for data format
 - `ContentDataRoute` - Data format endpoint implementation
 - `ContentDataRouteResponse` - Data format response wrapper
-- `ContentRouteLoader` - Pipeline orchestrator (shared)
-- `RenderingSpecificationResolver` - Resolves path to RenderingSpecification via factories
 
 ## Endpoints
 
@@ -44,19 +42,13 @@ Four endpoints share pipeline but differ in response format:
 Full and decomposed endpoints accept optional parameters via query string:
 - `elementId`: String - Request only specific element and its descendants (partial rendering)
 
-## Pipeline Orchestration
+## Pipeline
 
-All routes delegate to context factories via Chain of Responsibility pattern to create RenderingSpecification. ContentRouteLoader then orchestrates:
+Routes delegate to `ContentPipeline` (module root) which orchestrates layout loading, event dispatch, and hydration. Each route transforms the resulting `ContentPage` to its response format.
 
-1. **Factory Selection**: Iterate context factories in DI priority order, first non-null RenderingSpecification wins
-2. **Load**: LayoutLoader loads ContentLayoutEntity from repository
-3. **PreHydration Events**: Subscribers prepare layout (placeholder resolution, virtual root wrapping, partial pruning)
-4. **Hydration**: ContentElementHydrator loads data + resolves context
-5. **PostHydration Events**: Subscribers finalize layout (virtual root cleanup, partial extraction)
+Partial rendering via `?elementId` parameter is handled by event subscribers in the pipeline.
 
-If `elementId` query parameter is present, partial rendering subscribers prune before hydration and extract after.
-
-**Response Format Difference:**
+**Response Format Transformation:**
 - ContentRoute returns `ContentPage` directly (full element trees)
 - ContentDecomposedRoute calls `ContentPage::getContentDecomposedPage()` for decomposed format
 - ContentSkeletonRoute uses `RenderingMode::SKELETON` to skip hydration, returns `ContentSkeletonPage`

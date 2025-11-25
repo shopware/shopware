@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
+use Shopware\Core\Content\ContentSystem\ContentPipeline;
 use Shopware\Core\Content\ContentSystem\RenderingMode;
+use Shopware\Core\Content\ContentSystem\RenderingSpecificationResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -27,8 +29,8 @@ class ContentSkeletonRoute extends AbstractContentSkeletonRoute
      * @internal
      */
     public function __construct(
-        private readonly ContentRouteLoader $contentRouteLoader,
         private readonly RenderingSpecificationResolver $specificationResolver,
+        private readonly ContentPipeline $contentPipeline,
     ) {
     }
 
@@ -56,7 +58,7 @@ class ContentSkeletonRoute extends AbstractContentSkeletonRoute
     public function load(string $path, Request $request, SalesChannelContext $context): ContentSkeletonRouteResponse
     {
         $renderingSpecification = $this->specificationResolver->resolve($path, $request, $context);
-        $contentPage = $this->contentRouteLoader->load($renderingSpecification, RenderingMode::SKELETON, $context);
+        $contentPage = $this->contentPipeline->load($renderingSpecification, RenderingMode::SKELETON, $context);
 
         return new ContentSkeletonRouteResponse($contentPage->getContentSkeletonPage());
     }

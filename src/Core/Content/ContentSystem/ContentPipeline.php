@@ -1,14 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ContentSystem\SalesChannel;
+namespace Shopware\Core\Content\ContentSystem;
 
 use Shopware\Core\Content\ContentSystem\Event\AfterContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader;
 use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
-use Shopware\Core\Content\ContentSystem\RenderingMode;
-use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -17,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('discovery')]
-class ContentRouteLoader
+class ContentPipeline
 {
     public function __construct(
         private readonly LayoutLoader $layoutLoader,

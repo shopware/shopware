@@ -1,5 +1,3 @@
-# SalesChannel
-
 @README.md
 
 ## Source Code References
@@ -16,21 +14,8 @@
 - `ContentDataRoute` - Data format endpoint implementation
 - `AbstractContentDataRoute` - Data format decorator base
 - `ContentDataRouteResponse` - Data format response wrapper
-- `ContentRouteLoader` - Pipeline orchestrator (shared by all routes)
-- `RenderingSpecificationResolver` - Factory selection via Chain of Responsibility
 
 ## Constraints
-
-### Pipeline Orchestration
-
-All endpoints delegate to `RenderingSpecificationResolver` for factory selection. ContentRouteLoader then orchestrates:
-
-1. **Factory Selection**: Iterate context factories in DI priority order until one returns RenderingSpecification
-2. **PreHydration Events**: Subscribers prepare layout (placeholder resolution, virtual root, partial pruning)
-3. **Hydration**: ContentElementHydrator loads data + resolves context
-4. **PostHydration Events**: Subscribers finalize layout (virtual root cleanup, partial extraction)
-
-See `ContentRouteLoader::load()` for pipeline implementation.
 
 ### Endpoint Details
 
@@ -72,8 +57,6 @@ Full and decomposed endpoints accept optional parameters via query string:
   - `/store-api/content-decomposed/{path}` → `ContentDecomposedPage` (decomposed format)
   - `/store-api/content-skeleton/{path}` → `ContentSkeletonPage` (skeleton format)
   - `/store-api/content-data/{path}` → `ContentDataPage` (data format)
-- **Pipeline**: Factory Selection → PreHydration Events → Hydration → PostHydration Events
-- **Chain of Responsibility**: Factories tried in DI priority order, first non-null wins
 - **404s**: Throw `ContentSystemException` with specific codes
 - **HTTP cache**: Enabled, cached by sales channel + URL + customer group
 - **Extension**: Decorate `AbstractContentRoute`, `AbstractContentDecomposedRoute`, `AbstractContentSkeletonRoute`, or `AbstractContentDataRoute`

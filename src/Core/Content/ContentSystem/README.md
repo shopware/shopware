@@ -43,7 +43,8 @@ Direct entity-to-layout lookup. Entity-specific factories query assignment table
 - `LayoutLoader` - Loads ContentLayoutEntity from repository (Layout/Loader/)
 - `ContentElement` - Tree structure with slots, data requirements, context (Layout/Element/)
 - `ContentElementHydrator` - Loads data + resolves context (Hydration/)
-- `ContentRouteLoader` - Pipeline orchestrator (SalesChannel/)
+- `ContentPipeline` - Pipeline orchestrator (module root)
+- `RenderingSpecificationResolver` - Factory selection via Chain of Responsibility (module root)
 - `ContentRoute` - Store API endpoints (SalesChannel/)
 
 ## Architecture

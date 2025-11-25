@@ -22,7 +22,7 @@ Runs AFTER hydration completes:
 - Context resolved
 - Tree fully populated
 
-See `ContentRouteLoader::load()` for pipeline order.
+See `ContentPipeline::load()` for pipeline order.
 
 ### Read-Only Operations
 
@@ -52,7 +52,7 @@ See `SubTreeExtractor::extract()` for implementation.
 
 ### Multi-Root Extraction
 
-See `ContentRouteLoader::applyPartialRendering()` - iterates roots, returns first match.
+Partial rendering iterates roots and returns first match via `SubTreeExtractor`.
 
 **Edge case:** If same elementId exists in multiple roots, only first occurrence returned.
 

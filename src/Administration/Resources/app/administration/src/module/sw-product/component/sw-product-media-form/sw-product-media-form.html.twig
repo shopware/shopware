@@ -55,7 +55,7 @@
             class="sw-product-media-form__grid sw-product-media-form__column"
             :style="gridAutoRows"
         >
-            {%  block sw_product_media_form_grid_items %}
+            {% block sw_product_media_form_grid_items %}
             <sw-product-image
                 v-for="mediaItem in mediaItems"
                 :key="mediaItem.id"

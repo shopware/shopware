@@ -16,6 +16,20 @@ use Symfony\Contracts\EventDispatcher\Event;
  * Replaces dismantling and extraction processes. Subscribers can
  * transform the hydrated elements before response serialization.
  *
+ * ## Priority Ranges
+ *
+ * Subscriber priorities determine execution order (higher = earlier).
+ *
+ * **Extensions:**
+ * - >= 6000: Run BEFORE core processing
+ * - < 1000 and >= 0: Run AFTER core processing
+ * - < 0: Absolute last (use sparingly)
+ *
+ * **Core (RESERVED - do not use in extensions):**
+ * - >= 5000: Restoration (e.g. unwrapping scaffolding)
+ * - >= 3000: Enrichment (e.g. computed data)
+ * - >= 1000: Extraction (e.g. partial render, output)
+ *
  * @internal
  */
 #[Package('discovery')]

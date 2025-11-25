@@ -691,6 +691,11 @@ export default class VueAdapter extends ViewAdapter {
      * Initialises the standard locales.
      */
     initLocales() {
+        /**
+         * Snippet registration should be done with
+         * reactivity in mind. So that updates later
+         * from the locale factory are reflected in the i18n instance.
+         */
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
         const fallbackLocale = Shopware.Context.app.fallbackLocale as FallbackLocale;

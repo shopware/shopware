@@ -277,10 +277,15 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <!-- Rendering Specification Resolver -->
+        <service id="Shopware\Core\Content\ContentSystem\SalesChannel\RenderingSpecificationResolver">
+            <argument type="tagged_iterator" tag="content_system.context_factory"/>
+        </service>
+
         <!-- Content Route - Returns full ContentPage for Storefront rendering -->
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader"/>
-            <argument type="tagged_iterator" tag="content_system.context_factory"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\RenderingSpecificationResolver"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>
@@ -288,7 +293,7 @@
         <!-- Content Decomposed Route - Returns ContentDecomposedPage for API consumption -->
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentDecomposedRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader"/>
-            <argument type="tagged_iterator" tag="content_system.context_factory"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\RenderingSpecificationResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
         </service>
 
@@ -297,7 +302,7 @@
         <!-- Content Skeleton Route - Returns ContentSkeletonPage without hydration -->
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentSkeletonRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader"/>
-            <argument type="tagged_iterator" tag="content_system.context_factory"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\RenderingSpecificationResolver"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentSkeletonRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentSkeletonRoute"/>
@@ -305,8 +310,8 @@
         <!-- Content Data Route - Returns ContentDataPage with data + assignments only -->
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentDataRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\SalesChannel\RenderingSpecificationResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
-            <argument type="tagged_iterator" tag="content_system.context_factory"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentDataRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentDataRoute"/>

@@ -17,12 +17,13 @@
 - `AbstractContentDataRoute` - Data format decorator base
 - `ContentDataRouteResponse` - Data format response wrapper
 - `ContentRouteLoader` - Pipeline orchestrator (shared by all routes)
+- `RenderingSpecificationResolver` - Factory selection via Chain of Responsibility
 
 ## Constraints
 
 ### Pipeline Orchestration
 
-All endpoints use Chain of Responsibility for factory selection. ContentRouteLoader then orchestrates:
+All endpoints delegate to `RenderingSpecificationResolver` for factory selection. ContentRouteLoader then orchestrates:
 
 1. **Factory Selection**: Iterate context factories in DI priority order until one returns RenderingSpecification
 2. **PreHydration Events**: Subscribers prepare layout (placeholder resolution, virtual root, partial pruning)

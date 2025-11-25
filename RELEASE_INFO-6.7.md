@@ -6,6 +6,27 @@
 
 ## Core
 
+### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
+The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
+You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
+
+Due to the rework of the contained rules in the cache hash, this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
+
+You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
+
+The following classes and constants were deprecated as they will not be used anymore:
+* `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was deprecated:
+* `shopware.cache.invalidation.http_cache`
+
 ## Administration
 
 ## Storefront

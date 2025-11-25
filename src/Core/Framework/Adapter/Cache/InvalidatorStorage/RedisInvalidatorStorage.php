@@ -77,9 +77,7 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
 
             $chunk = $this->redis->sPop(self::KEY, 10000);
             while (\is_array($chunk) && !empty($chunk)) {
-                foreach ($chunk as $tag) {
-                    $tags[] = (string) $tag;
-                }
+                $tags[] = $chunk;
                 $chunk = $this->redis->sPop(self::KEY, 10000);
             }
         } catch (\Throwable $e) {
@@ -88,6 +86,6 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
             throw $e;
         }
 
-        return $tags;
+        return array_values(array_merge([], ...$tags));
     }
 }

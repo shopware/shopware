@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
-use Shopware\Core\Content\ContentSystem\ContentSystemException;
+use Shopware\Core\Content\ContentSystem\Event\AfterContentHydrationEvent;
+use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator;
-use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader;
-use Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder;
-use Shopware\Core\Content\ContentSystem\Layout\Scaffolding\ScaffoldingProcessor;
 use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
-use Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -22,102 +20,53 @@ class ContentRouteLoader
 {
     public function __construct(
         private readonly LayoutLoader $layoutLoader,
-        private readonly ScaffoldingProcessor $scaffoldingProcessor,
-        private readonly RefinedLayoutBuilder $refinedLayoutBuilder,
         private readonly ContentElementHydrator $hydrationService,
-        private readonly SubTreeExtractor $subTreeExtractor
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
     /**
      * Loads and renders content from a specification.
-     *
-     * @throws ContentSystemException When layout not found or pipeline phase fails
      */
     public function load(
         RenderingSpecification $specification,
         SalesChannelContext $salesChannelContext
     ): ContentPage {
-        // 1. Load layout entity
-        $layoutEntity = $this->layoutLoader->load(
-            $specification->layoutId,
-            $salesChannelContext->getContext()
-        );
+        $layoutEntity = $this->layoutLoader->load($specification->layoutId, $salesChannelContext->getContext());
 
-        $scaffoldedLayout = $this->scaffoldingProcessor->scaffold(
-            $layoutEntity,
+        $preHydrationEvent = new PreContentHydrationEvent(
+            $layoutEntity->getLayout(),
+            $layoutEntity->getId(),
+            $layoutEntity->getName(),
+            $layoutEntity->getVersionId(),
             $specification,
             $salesChannelContext
         );
+        $this->eventDispatcher->dispatch($preHydrationEvent);
+        $preparedElements = $preHydrationEvent->elements;
 
-        try {
-            $refinedLayout = $this->refinedLayoutBuilder->refine(
-                $scaffoldedLayout,
-                $specification,
-                $salesChannelContext
-            );
-        } catch (\Throwable $e) {
-            throw ContentSystemException::layoutRefineryFailed(
-                $specification->layoutId,
-                $e->getMessage(),
-                $e
-            );
-        }
-
-        $hydratedElements = iterator_to_array(
-            $this->hydrationService->hydrate(
-                iterator_to_array($refinedLayout->elements, false),
-                $salesChannelContext,
-                $specification->request
-            ),
-            false
+        $hydratedElementsGenerator = $this->hydrationService->hydrate(
+            $preparedElements,
+            $salesChannelContext,
+            $specification->request
         );
+        $hydratedElements = array_values(iterator_to_array($hydratedElementsGenerator, false));
 
-        $hydratedLayout = clone $scaffoldedLayout;
-        $hydratedLayout->setLayout($hydratedElements);
-
-        $finalLayout = $this->scaffoldingProcessor->dismantle(
-            $hydratedLayout,
+        $afterHydrationEvent = new AfterContentHydrationEvent(
+            $hydratedElements,
+            $layoutEntity->getId(),
+            $layoutEntity->getName(),
+            $layoutEntity->getVersionId(),
             $specification,
             $salesChannelContext
         );
-
-        $outputElements = $this->extractPartialRenderingTarget(
-            $finalLayout->getLayout(),
-            $specification->targetElementId
-        );
+        $this->eventDispatcher->dispatch($afterHydrationEvent);
 
         return new ContentPage(
-            layoutId: $specification->layoutId,
-            elements: $outputElements,
-            layoutName: $refinedLayout->layoutEntity->getName(),
-            layoutVersion: $refinedLayout->layoutEntity->getVersionId()
+            $specification->layoutId,
+            $afterHydrationEvent->elements,
+            $afterHydrationEvent->layoutName,
+            $afterHydrationEvent->layoutVersionId
         );
-    }
-
-    /**
-     * Extracts target element + descendants for partial rendering
-     * (removes parent elements that were kept for context distribution)
-     *
-     * @param array<ContentElement> $elements
-     *
-     * @throws ContentSystemException If target element not found
-     *
-     * @return array<ContentElement>
-     */
-    private function extractPartialRenderingTarget(array $elements, ?string $targetElementId): array
-    {
-        if ($targetElementId === null || $targetElementId === '') {
-            return $elements;
-        }
-
-        foreach ($elements as $element) {
-            $targetElement = $this->subTreeExtractor->extract($element, $targetElementId);
-            if ($targetElement !== null) {
-                return [$targetElement];
-            }
-        }
-
-        throw ContentSystemException::elementNotFound($targetElementId);
     }
 }

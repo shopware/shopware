@@ -10,10 +10,10 @@ Post-hydration content transformation before response. Extracts sub-trees and pr
 ## Pipeline Position
 
 ```
-Entity ID → Load → Scaffold → Refinement → Hydration → Dismantle → **Output** → Response
+Entity ID → Load → PreHydration Events → Hydration → PostHydration Events → **Output** → Response
 ```
 
-Output operates on fully hydrated, dismantled ContentElement trees. Unlike Layout/Refinery (pre-hydration) or Hydration (data loading), Output works with populated trees after scaffolding removal and prepares them for response serialization.
+Output operates on fully hydrated ContentElement trees. Unlike event subscribers (layout preparation) or Hydration (data loading), Output works with populated trees and prepares them for response serialization.
 
 ## Response Format Transformation
 
@@ -25,7 +25,7 @@ ContentDecomposedRoute uses this transformation, ContentRoute returns ContentPag
 
 ## Partial Rendering
 
-Extract specific element and descendants from full tree, discard ancestors and siblings. Used when client needs portion of page (AJAX updates, lazy loading). Two-phase process: PartialRenderingRefiner prunes pre-hydration to keep context path, SubTreeExtractor extracts post-dismantle.
+Extract specific element and descendants from full tree, discard ancestors and siblings. Used when client needs portion of page (AJAX updates, lazy loading). Two-phase process: event subscribers prune pre-hydration to keep context path, then extract post-hydration.
 
 Request via `?elementId=hero` parameter:
 
@@ -64,9 +64,7 @@ Output does NOT modify element properties or load additional data. All data conc
 
 ## Extension Potential
 
-Module designed for extensibility via tagged services (similar to Layout/Refinery pattern). Potential additions: metadata enrichment, permission-based filtering, client-specific transformations.
-
-Currently only partial rendering implemented via SubTreeExtractor.
+Module designed for extensibility via tagged services or event subscribers. Potential additions: metadata enrichment, permission-based filtering, client-specific transformations.
 
 ## Subdirectories
 

@@ -29,26 +29,41 @@
             <argument type="service" id="content_layout.repository"/>
         </service>
 
-        <!-- Layout Scaffolding -->
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\ScaffoldingProcessor">
-            <argument type="tagged_iterator" tag="content_system.layout_scaffolder" default-priority-method="getPriority"/>
+        <!-- Scaffolding Services -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper"/>
+
+        <!-- Output Services -->
+        <service id="Shopware\Core\Content\ContentSystem\Output\PartialRenderer">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Element\TreeUtil\ElementTreeUtil"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootScaffolder">
-            <tag name="content_system.layout_scaffolder"/>
+        <!-- Event Subscribers (Hydration Pipeline) -->
+        <!-- Pre-Hydration Subscribers -->
+        <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration\VirtualRootPreparationSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
-        <!-- Layout Refinement Services -->
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Refinery\Refiner\PlaceholderResolutionRefiner">
-            <tag name="content_system.layout_refiner" priority="0"/>
+        <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration\PlaceholderResolutionSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Refinery\LayoutRefinery">
-            <argument type="tagged_iterator" tag="content_system.layout_refiner"/>
+        <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration\PartialRenderingPreparationSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\PartialRenderer"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Refinery\LayoutRefinery"/>
+        <!-- Post-Hydration Subscribers -->
+        <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PostHydration\VirtualRootCleanupSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\VirtualRootWrapper"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PostHydration\PartialRenderingExtractionSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\PartialRenderer"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- Field Serializers -->
@@ -215,12 +230,6 @@
 
         <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer"/>
 
-        <!-- Partial Rendering Refiner (Pre-Hydration Pruning) -->
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Refinery\Refiner\PartialRenderingRefiner">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Element\TreeUtil\ElementTreeUtil"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer"/>
-            <tag name="content_system.layout_refiner" priority="200"/>
-        </service>
 
         <!-- Output Services (Post-Hydration Processing) -->
         <service id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
@@ -264,10 +273,8 @@
         <!-- Store-API Route -->
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRouteLoader" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Scaffolding\ScaffoldingProcessor"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Refinery\RefinedLayoutBuilder"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <!-- Content Route - Returns full ContentPage for Storefront rendering -->

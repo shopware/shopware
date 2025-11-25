@@ -4,20 +4,18 @@ Content layout tree structure and processing. Layouts are reusable templates con
 
 ## Architecture
 
-Five responsibilities:
+Four responsibilities:
 
 1. **Element Structure** (Element/): ContentElement tree with slots, visitor pattern for traversal
-2. **Scaffolding** (Scaffolding/): Pre/post-hydration layout wrapping for temporary structural modifications
-3. **Refinement** (Refinery/): Transform layout with resolved data (single-pass only)
-4. **DAL Definitions** (Entity/, Field/): Database schema and custom field types
-5. **Loading** (Loader/): ContentLayoutEntity retrieval from repository
+2. **Scaffolding** (Scaffolding/): Layout wrapping utilities (virtual root wrapper)
+3. **DAL Definitions** (Entity/, Field/): Database schema and custom field types
+4. **Loading** (Loader/): ContentLayoutEntity retrieval from repository
 
 ## Key Classes
 
 - `ContentElement` - Tree aggregate root, slots for nesting (Element/)
 - `LayoutLoader` - Loads ContentLayoutEntity from repository (Loader/)
-- `ScaffoldingProcessor` - Orchestrates scaffolder execution (Scaffolding/)
-- `LayoutRefinery` - Single-pass refinement orchestrator (Refinery/)
+- `VirtualRootWrapper` - Wraps/unwraps layout with virtual root (Scaffolding/)
 - `ContentLayoutEntity` - Layout DAL entity (Entity/)
 
 ## Content Element Tree
@@ -53,7 +51,6 @@ Each field has corresponding serializer. These aren't architectural modules - th
 
 - Element/: ContentElement tree structure, visitor pattern
 - Loader/: ContentLayoutEntity loading from repository
-- Scaffolding/: Pre/post-hydration layout wrapping
-- Refinery/: Layout refinement (single-pass constraint!)
+- Scaffolding/: Layout wrapping utilities (VirtualRootWrapper)
 - Entity/: DAL definitions (ContentLayoutDefinition)
 - Field/: Custom DAL field types and serializers

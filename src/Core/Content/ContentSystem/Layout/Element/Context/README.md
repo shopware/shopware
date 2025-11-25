@@ -7,7 +7,7 @@ Context provider and consumer definitions for content elements.
 - `ContextProvider` - Defines what context an element exposes to descendants
 - `ContextConsumer` - Defines what context an element receives from ancestors
 - `ContextDefinitions` - Container holding providers and consumers for an element
-- `ContextDependencyAnalyzer` - Analyzes context dependency chains for tree refinement
+- `ContextDependencyAnalyzer` - Analyzes context dependencies for tree pruning
 
 ## Redistribution Shorthand
 

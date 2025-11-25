@@ -14,15 +14,16 @@
 
 ## Constraints
 
-### Three-Phase Pipeline Orchestration
+### Pipeline Orchestration
 
-Both endpoints use Chain of Responsibility for factory selection. ContentRouteLoader then orchestrates these phases sequentially:
+Both endpoints use Chain of Responsibility for factory selection. ContentRouteLoader then orchestrates:
 
-1. **Factory Selection**: Iterate context factories (ProductContentLayoutContextFactory, CategoryContentLayoutContextFactory, LandingPageContentLayoutContextFactory) in DI priority order until one returns RenderingSpecification
-2. **Refinement**: RefinedLayoutBuilder builds layout, LayoutRefinery refines
+1. **Factory Selection**: Iterate context factories in DI priority order until one returns RenderingSpecification
+2. **PreHydration Events**: Subscribers prepare layout (placeholder resolution, virtual root, partial pruning)
 3. **Hydration**: ContentElementHydrator loads data + resolves context
+4. **PostHydration Events**: Subscribers finalize layout (virtual root cleanup, partial extraction)
 
-See `ContentRoute::load()` and `ContentDecomposedRoute::load()` for factory iteration. See `ContentRouteLoader::load()` for pipeline implementation.
+See `ContentRouteLoader::load()` for pipeline implementation.
 
 ### Endpoint Details
 
@@ -50,7 +51,7 @@ Both endpoints accept optional parameters via query string or POST body (query t
 - **Endpoints**:
   - `/store-api/content/{path}` → `ContentPage` (full format)
   - `/store-api/content-decomposed/{path}` → `DecomposedContentPage` (decomposed format)
-- **Pipeline**: Factory Selection → Refinement → Hydration (MUST be sequential)
+- **Pipeline**: Factory Selection → PreHydration Events → Hydration → PostHydration Events
 - **Chain of Responsibility**: Factories tried in DI priority order, first non-null wins
 - **404s**: Throw `ContentSystemException` with specific codes
 - **HTTP cache**: Enabled, cached by sales channel + URL + customer group

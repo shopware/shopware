@@ -65,5 +65,5 @@ See `ContentRouteLoader::applyPartialRendering()` - iterates roots, returns firs
   - `DecomposedContentPage`: Decomposed format (`/store-api/content-decomposed/{path}`)
 - **Operations**: Read-only extraction/filtering, no mutations
 - **No database**: All data already loaded during hydration
-- **Extension**: Future tagged service pattern (similar to Refinery)
+- **Extension**: Via tagged services or event subscribers
 - **Common use**: AJAX updates (partial), deduplication (decomposed format)

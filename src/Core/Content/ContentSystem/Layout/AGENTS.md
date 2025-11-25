@@ -5,8 +5,7 @@
 ## Source Code References
 
 - `ContentElement` (Element/) - Tree aggregate root
-- `LayoutRefinery` (Refinery/) - Single-pass refinement orchestrator
-- `RefinedLayoutBuilder` (Refinery/) - Builds RefinedLayout from ContentLayoutEntity
+- `VirtualRootWrapper` (Scaffolding/) - Virtual root wrap/unwrap utilities
 - `ContentLayoutEntity` (Entity/) - Layout DAL entity
 - Custom field types (Field/) - DAL serialization infrastructure
 
@@ -23,11 +22,9 @@ ContentElement contains:
 
 Elements form tree via slots. Use visitor pattern for traversal.
 
-### Single-Pass Refinery Constraint
+### Single-Pass Placeholder Resolution
 
-**NO recursive placeholder resolution. Extension refiners adding placeholders MUST resolve them in the same pass.**
-
-System won't re-run placeholder resolution. See Refinery/AGENTS.md for details.
+**NO recursive placeholder resolution.** Placeholders are resolved once during `PlaceholderResolutionSubscriber` execution. See `EventSubscriber/AGENTS.md` for details.
 
 ## Custom DAL Fields (Field/ Directory)
 
@@ -45,6 +42,5 @@ These are **technical infrastructure, not domain concepts**. Only interact with 
 - **Tree structure**: Aggregate root with slots, visitor pattern for traversal
 - **Generator**: `allSlotElements()` for memory-efficient traversal of direct slot elements
 - **Property access**: Use `hasProperty()` or null coalescing
-- **Placeholders**: `{{key}}` syntax, replaced during refinement
+- **Placeholders**: `{{key}}` syntax, resolved via event subscribers
 - **Custom fields**: DAL infrastructure in Field/, not architectural modules
-- **Refinement**: Single-pass constraint (see Refinery/AGENTS.md)

@@ -101,7 +101,7 @@ See `ContentElement::traverse()` for implementation. Executes `enter()` before c
 
 ### Placeholder Syntax
 
-Properties may contain `{{placeholder}}` strings before refinement.
+Properties may contain `{{placeholder}}` strings before placeholder resolution.
 
 ### replacePlaceholders() Method
 
@@ -120,4 +120,4 @@ Replaces placeholders with values from ResolvedData. Only scalar values replaced
 - **Context redistribution**: `ContextConsumer::$redistribute` auto-generates provider (see ContextConsumer class)
 - **Data requirements**: Key determines property storage after hydration
 - **Visitor**: Depth-first, enter/leave hooks, don't mutate during traversal
-- **Placeholders**: `{{key}}` syntax, replaced during refinement
+- **Placeholders**: `{{key}}` syntax, resolved via event subscribers

@@ -10,103 +10,38 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinition
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
-use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * Wraps layout roots with temporary virtual root to distribute layout-level data as context.
+ * Handles virtual root wrapping and unwrapping for page-level context distribution.
  *
- * Virtual root removed after hydration. Priority 100 (outermost layer).
+ * Virtual root is a temporary structural modification (scaffolding) that wraps actual layout
+ * roots to enable page-level data requirements to be distributed as broadcast context.
  *
  * @internal
  */
 #[Package('discovery')]
-class VirtualRootScaffolder implements LayoutScaffolderInterface
+class VirtualRootWrapper
 {
     private const VIRTUAL_ROOT_ID = '__page_context_root__';
     private const VIRTUAL_ROOT_TYPE = 'Sw:Internal:PageContext';
     private const VIRTUAL_ROOT_SLOT_NAME = '__page_roots__';
 
-    public static function getPriority(): int
+    /**
+     * Determines if virtual root wrapping is required.
+     *
+     * Virtual root is needed when page-level data requirements exist and layout has content roots to wrap.
+     *
+     * @param array<ContentElement> $elements
+     */
+    public function requiresWrapping(RenderingSpecification $specification, array $elements): bool
     {
-        return 100;
-    }
-
-    public function scaffold(
-        ContentLayoutEntity $layout,
-        RenderingSpecification $specification,
-        SalesChannelContext $context
-    ): ContentLayoutEntity {
-        if (!$this->requiresVirtualRoot($specification, $layout)) {
-            return $layout;
-        }
-
-        $actualRoots = $layout->getLayout();
-
-        // Virtual root contains layout-level data requirements, exposes loaded data
-        // as broadcast context providers, and has actual roots as children in a single slot
-        $virtualRoot = new ContentElement(
-            id: self::VIRTUAL_ROOT_ID,
-            component: self::VIRTUAL_ROOT_TYPE,
-            dataRequirements: $this->indexDataRequirements($specification->dataRequirements),
-            properties: $specification->placeholderValues->all(),
-            slots: [
-                self::VIRTUAL_ROOT_SLOT_NAME => new SlotContent($actualRoots),
-            ],
-            contextDefinitions: $this->createContextDefinitions($specification->dataRequirements)
-        );
-
-        $scaffoldedLayout = clone $layout;
-        $scaffoldedLayout->setLayout([$virtualRoot]);
-
-        return $scaffoldedLayout;
-    }
-
-    public function dismantle(
-        ContentLayoutEntity $layout,
-        RenderingSpecification $specification,
-        SalesChannelContext $context
-    ): ContentLayoutEntity {
-        if (!$this->requiresVirtualRoot($specification, $layout)) {
-            return $layout;
-        }
-
-        $roots = $layout->getLayout();
-
-        // Should have exactly one virtual root after scaffolding
-        if (\count($roots) !== 1) {
-            throw ContentSystemException::pathIntegrityViolation(
-                \sprintf(
-                    'Expected exactly 1 virtual root after scaffolding, found %d roots. This indicates a scaffolding integrity violation.',
-                    \count($roots)
-                )
-            );
-        }
-
-        $virtualRoot = $roots[0];
-
-        $actualRoots = $this->extractActualRoots($virtualRoot);
-
-        $dismantledLayout = clone $layout;
-        $dismantledLayout->setLayout($actualRoots);
-
-        return $dismantledLayout;
-    }
-
-    // Virtual root needed when page-level data requirements exist and layout has content roots to wrap
-    private function requiresVirtualRoot(
-        RenderingSpecification $specification,
-        ContentLayoutEntity $layout
-    ): bool {
-        // No data requirements = no need for virtual root
         if ($specification->dataRequirements === []) {
             return false;
         }
 
-        // Empty layout = nothing to wrap
-        if ($layout->getLayout() === []) {
+        if ($elements === []) {
             return false;
         }
 
@@ -114,11 +49,33 @@ class VirtualRootScaffolder implements LayoutScaffolderInterface
     }
 
     /**
-     * @throws ContentSystemException If element is not a virtual page context root or data integrity violated
+     * Creates virtual root wrapper containing actual layout roots.
+     *
+     * Virtual root contains layout-level data requirements, exposes loaded data
+     * as broadcast context providers, and has actual roots as children in a single slot.
+     *
+     * @param array<ContentElement> $actualRoots
+     */
+    public function wrap(array $actualRoots, RenderingSpecification $specification): ContentElement
+    {
+        return new ContentElement(
+            self::VIRTUAL_ROOT_ID,
+            self::VIRTUAL_ROOT_TYPE,
+            $this->indexDataRequirements($specification->dataRequirements),
+            $specification->placeholderValues->all(),
+            [self::VIRTUAL_ROOT_SLOT_NAME => new SlotContent($actualRoots)],
+            $this->createContextDefinitions($specification->dataRequirements)
+        );
+    }
+
+    /**
+     * Extracts actual roots from virtual root wrapper with validation.
+     *
+     * @throws ContentSystemException If element is not a virtual root or data integrity violated
      *
      * @return array<ContentElement>
      */
-    private function extractActualRoots(ContentElement $virtualRoot): array
+    public function unwrap(ContentElement $virtualRoot): array
     {
         if ($virtualRoot->getId() !== self::VIRTUAL_ROOT_ID) {
             throw ContentSystemException::pathIntegrityViolation(
@@ -134,7 +91,6 @@ class VirtualRootScaffolder implements LayoutScaffolderInterface
         $slots = $virtualRoot->getSlots();
         $pageRootsSlot = $slots[self::VIRTUAL_ROOT_SLOT_NAME] ?? null;
 
-        // Virtual root should always have the page roots slot
         if ($pageRootsSlot === null) {
             throw ContentSystemException::pathIntegrityViolation(
                 \sprintf(
@@ -146,7 +102,6 @@ class VirtualRootScaffolder implements LayoutScaffolderInterface
 
         $extractedRoots = $pageRootsSlot->all();
 
-        // Extracted roots should never be empty if virtual root was properly created
         if ($extractedRoots === []) {
             throw ContentSystemException::pathIntegrityViolation(
                 'Virtual page context root slot is empty - roots were lost during hydration'
@@ -185,8 +140,8 @@ class VirtualRootScaffolder implements LayoutScaffolderInterface
 
         foreach ($layoutDataRequirements as $requirement) {
             $providers[$requirement->key] = new ContextProvider(
-                type: ContextType::Single,
-                config: new BroadcastDistributionConfig()
+                ContextType::Single,
+                new BroadcastDistributionConfig()
             );
         }
 

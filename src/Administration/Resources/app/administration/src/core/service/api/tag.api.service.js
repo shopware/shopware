@@ -3,9 +3,6 @@
  */
 import ApiService from '../api.service';
 
-const { Service } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class TagApiService extends ApiService {
     constructor(httpClient, loginService) {
@@ -67,6 +64,7 @@ export default class TagApiService extends ApiService {
             const repository = this.getRepository(property.entity);
 
             do {
+                const { Criteria } = Shopware.Data;
                 const criteria = new Criteria(page, limit);
                 criteria.addFilter(Criteria.equalsAny('tags.id', ids));
 
@@ -96,6 +94,6 @@ export default class TagApiService extends ApiService {
     }
 
     getRepository(entity) {
-        return Service('repositoryFactory').create(entity);
+        return Shopware.Service('repositoryFactory').create(entity);
     }
 }

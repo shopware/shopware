@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Extracts and maps request parameters to ContentSystem placeholder values.
+ * Extracts query parameters from request and maps them to ContentSystem placeholder values.
  *
  * @internal
  */
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 class RequestDataExtractor
 {
     /**
-     * Merges request body and query parameters (query takes precedence).
+     * Extracts query parameters from request.
      *
      * @param array<string, ParameterBinding>|null $bindings Parameter name mappings (null = pass through all)
      *
@@ -23,12 +23,7 @@ class RequestDataExtractor
      */
     public function extractData(Request $request, ?array $bindings): array
     {
-        $requestParameters = array_merge(
-            $request->request->all(),
-            $request->query->all()
-        );
-
-        return $this->applyParameterBindings($bindings, $requestParameters);
+        return $this->applyParameterBindings($bindings, $request->query->all());
     }
 
     /**

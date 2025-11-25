@@ -158,7 +158,7 @@ Use these in element properties and data requirements. See [Example: Product Det
 
 ### Additional Parameters
 
-Beyond URL path segments, you can pass additional parameters to your layouts via query string or request body. These parameters become available as placeholders throughout your layout.
+Beyond URL path segments, you can pass additional parameters to your layouts via query string. These parameters become available as placeholders throughout your layout.
 
 **Query string example:**
 ```
@@ -183,8 +183,6 @@ Makes `{{page}}` and `{{limit}}` available as placeholders:
 - Filter values (`category`, `brand`, `priceRange`)
 - Display preferences (`view`, `sort`)
 - Feature flags (`showReviews`, `hidePrice`)
-
-**Request body:** POST requests work the same way - parameters in the request body become placeholders. Query string parameters take precedence if the same parameter appears in both locations.
 
 **Parameter bindings:** Additional parameters are also affected by parameter bindings (see [Parameter Bindings](#parameter-bindings)). If configured, the system maps parameter names to different placeholder names.
 
@@ -475,7 +473,7 @@ Fields:
 
 After loading, access via element's `listing` property → ProductListingResult
 
-Pagination, filters, and sorting are controlled via request parameters (query string or POST body), not config. See [Additional Parameters](#additional-parameters) for details.
+Pagination, filters, and sorting are controlled via request parameters (query string), not config. See [Additional Parameters](#additional-parameters) for details.
 
 ### Multiple Data Requirements
 

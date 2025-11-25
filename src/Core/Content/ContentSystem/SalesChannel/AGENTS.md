@@ -29,13 +29,13 @@ See `ContentRouteLoader::load()` for pipeline implementation.
 
 **Full Format:**
 - **Path**: `/store-api/content/{path}`
-- **Methods**: GET, POST
+- **Methods**: GET
 - **Returns**: `ContentPage` (full element trees)
 - **HTTP Cache**: Enabled (`_httpCache: true`)
 
 **Decomposed Format:**
 - **Path**: `/store-api/content-decomposed/{path}`
-- **Methods**: GET, POST
+- **Methods**: GET
 - **Returns**: `DecomposedContentPage` (skeletons + data + assignments)
 - **HTTP Cache**: Enabled (`_httpCache: true`)
 
@@ -43,7 +43,7 @@ Both wildcards: `{path}` matches any URL pattern
 
 ### Request Parameters
 
-Both endpoints accept optional parameters via query string or POST body (query takes precedence):
+Both endpoints accept optional parameters via query string:
 - `elementId`: Request specific element subtree only
 
 ## Quick Reference

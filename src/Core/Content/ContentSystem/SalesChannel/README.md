@@ -16,17 +16,17 @@ Store API entry point for content system. Two routes provide different response 
 
 Two endpoints share pipeline but differ in response format:
 
-**Full Format:** `GET|POST /store-api/content/{path}?elementId={id}`
+**Full Format:** `GET /store-api/content/{path}?elementId={id}`
 - Returns `ContentPage` with complete element trees (properties embedded)
 - Simpler client integration, larger payloads
 
-**Decomposed Format:** `GET|POST /store-api/content-decomposed/{path}?elementId={id}`
+**Decomposed Format:** `GET /store-api/content-decomposed/{path}?elementId={id}`
 - Returns `DecomposedContentPage` with skeletons + deduplicated data + assignments
 - Optimized for deduplication, requires client reconstruction
 
 ## Request Parameters
 
-Both endpoints accept optional parameters via query string or POST body (query takes precedence):
+Both endpoints accept optional parameters via query string:
 - `elementId`: String - Request only specific element and its descendants (partial rendering)
 
 ## Pipeline Orchestration

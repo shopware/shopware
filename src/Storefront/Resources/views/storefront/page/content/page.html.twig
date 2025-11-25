@@ -1,0 +1,9 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_main_inner %}
+    {% if feature('STOREFRONT_COMPONENTS') and contentPage %}
+        <div class="container-main">
+            <twig:Sw:Content:Page :page="contentPage"/>
+        </div>
+    {% endif %}
+{% endblock %}

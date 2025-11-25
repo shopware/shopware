@@ -84,10 +84,11 @@
     // Apply .row styling
     .sw-product-card__inner {
         display: flex;
-        flex-wrap: wrap;
+        padding-bottom: 20px;
         margin-top: calc(-1 * var(--bs-gutter-y));
         margin-right: calc(-.5 * var(--bs-gutter-x));
         margin-left: calc(-.5 * var(--bs-gutter-x));
+        gap: 2rem;
     }
 
     // Apply .col-3 styling
@@ -100,6 +101,10 @@
     .sw-product-card__content {
         flex: 0 0 auto;
         width: 75%;
+    }
+
+    .sw-product-card__footer {
+        padding-bottom: 0;
     }
 
     .stretched-link::after {

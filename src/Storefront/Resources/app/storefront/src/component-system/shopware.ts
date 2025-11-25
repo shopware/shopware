@@ -74,7 +74,11 @@ class Shopware extends EventEmitter {
      * @param componentName - The name of the component.
      * @returns The component class.
      */
-    public async getComponent(componentName: string): Promise<typeof ShopwareComponent | undefined> {
+    public async getComponent(componentName: string | null | undefined): Promise<typeof ShopwareComponent | undefined> {
+        if (!componentName) {
+            return undefined;
+        }
+
         let component = this.componentRegistry.get(componentName);
         if (component) {
             return component;
@@ -353,23 +357,26 @@ class Shopware extends EventEmitter {
      */
     private async handleAddedNodes(addedNodes: NodeList): Promise<void> {
         const elements = Array.from(addedNodes);
-        
+
         for (const element of elements) {
             if (!(element instanceof Element)) {
                 continue;
             }
 
             const componentName = element.getAttribute('data-component');
-            if (!componentName) {
-                continue;
-            }
-
             const component = await this.getComponent(componentName);
-            if (!component) {
-                continue;
+
+            if (componentName && component) {
+                this.initializeComponentOnElement(componentName, component, element);
             }
 
-            this.initializeComponentOnElement(componentName, component, element);
+            /**
+             * MutationObserver only triggers for direct children of the added nodes.
+             * For nested elements, we need to handle them recursively.
+             */
+            if (element.childNodes && element.childNodes.length > 0) {
+                this.handleAddedNodes(element.childNodes);
+            }
         }
     }
 
@@ -379,14 +386,20 @@ class Shopware extends EventEmitter {
      * @param removedNodes - The removed nodes.
      */
     private handleRemovedNodes(removedNodes: NodeList): void {
-        Array.from(removedNodes).forEach(node => {
+        const elements = Array.from(removedNodes);
+
+        for (const node of elements) {
             this.instanceRegistry.forEach((entry, index) => {
                 if (entry.element === node) {
                     entry.component.destroy();
                     this.instanceRegistry.splice(index, 1);
                 }
             });
-        });
+
+            if (node.childNodes && node.childNodes.length > 0) {
+                this.handleRemovedNodes(node.childNodes);
+            }
+        }
     }
 }
 

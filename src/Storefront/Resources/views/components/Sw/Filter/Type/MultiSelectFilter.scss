@@ -81,13 +81,14 @@
     top: 0;
     left: 1.813rem;
 
-    .icon {
+    .sw-icon {
         width: 0.625rem;
         height: 0.625rem;
         color: var(--bs-white);
 
         svg {
-            top: 0;
+            top: -0.25rem;
+            position: relative;
         }
     }
 }

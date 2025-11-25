@@ -56,6 +56,7 @@ export default class MultiSelectFilter extends ShopwareComponent {
 
     handleOptionChange(event) {
         const inputElement = event.target;
+        const removedOptions = [];
         let option = inputElement.value;
         let value = inputElement.checked;
         let paramName = this.paramName;
@@ -67,9 +68,10 @@ export default class MultiSelectFilter extends ShopwareComponent {
             this.activeOptions.push(option);
         } else {
             this.activeOptions = this.activeOptions.filter(o => o !== option);
+            removedOptions.push(option);
         }
 
-        const eventData = { paramName, value, option, label, activeOptions: this.activeOptions };
+        const eventData = { paramName, value, option, label, activeOptions: this.activeOptions, removedOptions };
 
         Shopware.emit(`MultiSelectFilter:Change`, eventData);
         Shopware.emit('Filter:Change', eventData);

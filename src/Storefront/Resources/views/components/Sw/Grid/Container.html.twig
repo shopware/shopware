@@ -18,8 +18,6 @@
     slots = [],
 %}
 
-{% set attributeDefaults = {} %}
-
 {% set gridCVA = cva({
     base: 'grid-container',
     defaultVariants: {
@@ -203,6 +201,26 @@
     }
 }) %}
 
+{% set attributeDefaults = {
+    'class': gridCVA.apply({ 
+        align, 
+        alignContent, 
+        justify, 
+        justifyContent, 
+        centered, 
+        columns, 
+        columnsSm, 
+        columnsMd, 
+        columnsLg, 
+        columnsXl, 
+        rows, 
+        rowsSm, 
+        rowsMd, 
+        rowsLg, 
+        rowsXl 
+    }),
+} %}
+
 {% set gridStyle = '' %}
 {% set columnSetting = '' %}
 {% set rowSetting = '' %}
@@ -224,8 +242,8 @@
 {% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; margin-bottom: ' ~ gap ~ 'px; ' : gridStyle %}
 
 <div
-     class="{{ gridCVA.apply({ align, alignContent, justify, justifyContent, centered, columns, columnsSm, columnsMd, columnsLg, columnsXl, rows, rowsSm, rowsMd, rowsLg, rowsXl }, attributes.render('class')) }}"
-     {% if gridStyle %} style="{{ gridStyle|trim }}"{% endif %}>
+    {{ attributes.defaults(attributeDefaults) }}
+    {% if gridStyle %} style="{{ gridStyle|trim }}"{% endif %}>
 
      {% block content %}
         {% for name, slot in slots %}

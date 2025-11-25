@@ -35,7 +35,7 @@
                             "id": "hero-image",
                             "component": "Sw:Media:Image",
                             "properties": {
-                              "mediaId": "019AB4D485FC760794FDC03673DA7145"
+                              "mediaId": "{{ media_id }}"
                             },
                             "data_requirements": {
                               "media": {
@@ -81,7 +81,8 @@
                                   "id": "alert-content",
                                   "component": "Sw:Content:Text",
                                   "properties": {
-                                    "text": "Hello World"
+                                    "text": "Custom text element",
+                                    "inline": true
                                   }
                                 }
                               ]
@@ -97,7 +98,7 @@
                 "id": "homepage-product-listing",
                 "component": "Sw:Product:Listing",
                 "properties": {
-                  "categoryId": "019aa1790464713f871d5faee825370e"
+                  "categoryId": "{{ category_id }}"
                 },
                 "data_requirements": {
                   "listing": {
@@ -162,8 +163,8 @@
         "payload": [
           {
             "id": "0199b96101fe70ec851e971788686901",
-            "categoryId": "019aa1790464713f871d5faee825370e",
-            "salesChannelId": "019aa17b180472928a12178c2e507342",
+            "categoryId": "{{ category_id }}",
+            "salesChannelId": "{{ salesChannelId }}",
             "contentLayoutId": "daf166acd4bd45caa657c579f523d743",
             "parameterBindings": {
               "categoryId": {

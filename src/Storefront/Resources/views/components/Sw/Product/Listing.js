@@ -14,14 +14,32 @@ export default class ProductListing extends ShopwareComponent {
 
     init() {
         this.activeParams = {};
+        this.activeListingId = window.activeNavigationId;
+        this.elementId = this.el.getAttribute('data-element-id') || null;
+
+        this.domParser = new DOMParser();
 
         // Create the debounced load function.
-        this.debouncedLoad = this.debounce(() => {
-            const url = new URL(window.location);
-            const query = new URLSearchParams(this.activeParams).toString();
+        this.debouncedLoad = this.debounce(async () => {
+            const productGrid = this.el.querySelector('.product-listing__grid');
+            const pagination = this.el.querySelector('.product-listing__pagination');
+            productGrid.classList.add('has-element-loader');
 
-            window.location.href = `${url.pathname}${query.length > 0 ? '?' : ''}${query}`;
-        }, 1000);
+            const location = new URL(window.location);
+            const params = { ...this.activeParams };
+            const query = new URLSearchParams(params).toString();
+            const url = `${location.protocol}//${location.host}/content/category/${this.activeListingId}?${query}`;
+
+            const response = await fetch(url);
+            const html = await response.text();
+            const doc = this.domParser.parseFromString(html, 'text/html');
+            const grid = doc.querySelector('.product-listing__grid');
+            const pagi = doc.querySelector('.product-listing__pagination');
+
+            productGrid.replaceWith(grid);
+            pagination.replaceWith(pagi);
+            productGrid.classList.remove('has-element-loader');
+        }, 200);
 
         this.getStateFromUrl();
         this.registerEvents();
@@ -35,10 +53,30 @@ export default class ProductListing extends ShopwareComponent {
         Shopware.on('Filter:Remove', this.handleFilterRemove.bind(this));
     }
 
-    handleFilterChange({ paramName, value, activeOptions }) {
-        // Multiselect Filters
-        if (activeOptions && Array.isArray(activeOptions)) {
-            value = activeOptions.join('|');
+    handleFilterChange({ paramName, value, activeOptions, removedOptions }) {
+
+        if (activeOptions || removedOptions) {
+            const currentOptions = this.activeParams[paramName] ? this.activeParams[paramName].split('|') : [];
+
+            // Multiselect Filter - Remove options.
+            if (removedOptions && removedOptions.length > 0) {
+                for (const option of removedOptions) {
+                    if (currentOptions.includes(option)) {
+                        currentOptions.splice(currentOptions.indexOf(option), 1);
+                    }
+                }
+            }
+
+            // Multiselect Filter - Add options.
+            if (activeOptions && activeOptions.length > 0) {
+                for (const option of activeOptions) {
+                    if (!currentOptions.includes(option)) {
+                        currentOptions.push(option);
+                    }
+                }
+            }
+
+            value = currentOptions.join('|');
         }
 
         // Delete the filter parameter if it is empty.

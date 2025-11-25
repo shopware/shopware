@@ -4,22 +4,16 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
-use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
@@ -29,24 +23,19 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  */
 #[Package('framework')]
-readonly class CacheResponseSubscriber implements EventSubscriberInterface
+class CacheResponseSubscriber implements EventSubscriberInterface
 {
     /**
-     * @param array<string> $cookies
-     *
      * @internal
      */
     public function __construct(
-        private array $cookies,
-        private CartService $cartService,
-        private int $defaultTtl,
-        private bool $httpCacheEnabled,
-        private MaintenanceModeResolver $maintenanceResolver,
-        private RequestStack $requestStack,
-        private ?string $staleWhileRevalidate,
-        private ?string $staleIfError,
-        private EventDispatcherInterface $dispatcher,
-        private CacheRelevantRulesResolver $ruleResolver,
+        private readonly CartService $cartService,
+        private readonly int $defaultTtl,
+        private readonly bool $httpCacheEnabled,
+        private readonly MaintenanceModeResolver $maintenanceResolver,
+        private readonly ?string $staleWhileRevalidate,
+        private readonly ?string $staleIfError,
+        private readonly CacheHashService $cacheHashService,
     ) {
     }
 
@@ -60,8 +49,6 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
                 ['setResponseCache', -1500],
                 ['setResponseCacheHeader', 1500],
             ],
-            CustomerLoginEvent::class => 'onCustomerLogin',
-            CustomerLogoutEvent::class => 'onCustomerLogout',
         ];
     }
 
@@ -97,31 +84,29 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         $route = $request->attributes->get('_route');
         /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12968) */
         if ($route === 'frontend.checkout.configure') {
-            $this->setCurrencyCookie($request, $response);
+            if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+                $this->setCurrencyCookie($request, $response);
+            }
         }
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        $states = $this->updateSystemState($cart, $context, $request, $response);
-
-        // We need to allow it on login, otherwise the state is wrong
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12968) */
-        if (!($route === 'frontend.account.login' || $request->isMethod(Request::METHOD_GET))) {
-            return;
+        /** @deprecated tag:v6.8.0 - states can be removed */
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
+            $states = [];
+        } else {
+            $states = $this->updateSystemState($cart, $context, $request, $response);
         }
 
-        if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
-            $newValue = $this->buildCacheHash($request, $context);
+        // The cache hash reflects the internal state of the context to properly cache pages
+        // when multiple permutations exist (e.g. different currencies etc)
+        // therefore, it needs to be applied to every request (including POST), especially when POST-requests mutate the context,
+        // even when the response is not cached itself, so that the cache-hash on the client is updated for the next request
+        $this->cacheHashService->applyCacheHash($request, $context, $cart, $response);
 
-            if ($request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
-                $cookie = Cookie::create(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
-                $cookie->setSecureDefault($request->isSecure());
-
-                $response->headers->setCookie($cookie);
-            }
-        } elseif ($request->cookies->has(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE)) {
-            $response->headers->removeCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
-            $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
+        if (!$request->isMethod(Request::METHOD_GET)
+        ) {
+            return;
         }
 
         /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
@@ -134,17 +119,22 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
             $cache = [];
         }
 
-        if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
-            return;
+        /** @deprecated tag:v6.8.0 - can be removed when cache states are always empty */
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
+                return;
+            }
         }
 
         $maxAge = $cache['maxAge'] ?? $this->defaultTtl;
 
         $response->setSharedMaxAge($maxAge);
-        $response->headers->set(
-            HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER,
-            implode(',', $cache['states'] ?? [])
-        );
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            $response->headers->set(
+                HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER,
+                implode(',', $cache['states'] ?? [])
+            );
+        }
 
         if ($this->staleIfError !== null) {
             $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
@@ -174,29 +164,6 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
     }
 
-    public function onCustomerLogin(CustomerLoginEvent $event): void
-    {
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
-            return;
-        }
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $event->getSalesChannelContext());
-    }
-
-    public function onCustomerLogout(CustomerLogoutEvent $event): void
-    {
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
-            return;
-        }
-
-        $context = clone $event->getSalesChannelContext();
-        $context->assign(['customer' => null]);
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-    }
-
     /**
      * @param list<string> $cacheStates
      * @param list<string> $states
@@ -210,41 +177,6 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         return false;
-    }
-
-    private function buildCacheHash(Request $request, SalesChannelContext $context): string
-    {
-        $ruleAreas = $this->ruleResolver->resolveRuleAreas($request, $context);
-
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
-            $ruleIds = $context->getRuleIdsByAreas($ruleAreas);
-        } else {
-            $ruleIds = $context->getRuleIds();
-        }
-
-        $ruleIds = array_unique($ruleIds);
-        sort($ruleIds);
-
-        $parts = [
-            HttpCacheCookieEvent::RULE_IDS => $ruleIds,
-            HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
-            HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
-            HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
-            HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
-        ];
-
-        foreach ($this->cookies as $cookie) {
-            if (!$request->cookies->has($cookie)) {
-                continue;
-            }
-
-            $parts[$cookie] = $request->cookies->get($cookie);
-        }
-
-        $event = new HttpCacheCookieEvent($request, $context, $parts);
-        $this->dispatcher->dispatch($event);
-
-        return Hasher::hash($event->getParts());
     }
 
     /**
@@ -314,6 +246,9 @@ readonly class CacheResponseSubscriber implements EventSubscriberInterface
         return $states;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - can be removed when currency cookie is removed
+     */
     private function setCurrencyCookie(Request $request, Response $response): void
     {
         $currencyId = $request->get(SalesChannelContextService::CURRENCY_ID);

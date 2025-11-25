@@ -21,3 +21,11 @@
 - **Package**: `#[Package('discovery')]`
 - **Main API endpoint**: `/store-api/content/{path}`
 - **DAL**: Use Criteria API + EntityDefinition, NOT Doctrine ORM
+
+## Store API Schema
+
+Update OpenAPI schema files when modifying endpoints or response structures.
+
+- **Location**: `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/`
+- **Files**: `paths/content.json`, `components/schemas/Content*.json`
+- **Validate**: `jq '.' <file>.json`

@@ -1,0 +1,198 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/content/{path}": {
+            "post": {
+                "tags": ["Content"],
+                "summary": "Fetch rendered content layout",
+                "description": "Loads and renders content with full element trees. Supports product/{productId}, category/{categoryId}, and landing-page/{landingPageId} path patterns.",
+                "operationId": "readContent",
+                "parameters": [
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "description": "Content path pattern",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "elementId": {
+                                        "description": "Request only specific element and its descendants (partial rendering)",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rendered content page",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            },
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch rendered content layout",
+                "description": "Loads and renders content with full element trees. Supports product/{productId}, category/{categoryId}, and landing-page/{landingPageId} path patterns.",
+                "operationId": "readContentGet",
+                "parameters": [
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "description": "Content path pattern",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    },
+                    {
+                        "name": "elementId",
+                        "in": "query",
+                        "description": "Request only specific element and its descendants (partial rendering)",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rendered content page",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        },
+        "/content-decomposed/{path}": {
+            "post": {
+                "tags": ["Content"],
+                "summary": "Fetch rendered content layout (decomposed format)",
+                "description": "Loads and renders content with decomposed format: skeletons + deduplicated data + assignments. Optimized for bandwidth efficiency.",
+                "operationId": "readContentDecomposed",
+                "parameters": [
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "description": "Content path pattern",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "elementId": {
+                                        "description": "Request only specific element and its descendants (partial rendering)",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rendered content page (decomposed format)",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/DecomposedContentPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            },
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch rendered content layout (decomposed format)",
+                "description": "Loads and renders content with decomposed format: skeletons + deduplicated data + assignments. Optimized for bandwidth efficiency.",
+                "operationId": "readContentDecomposedGet",
+                "parameters": [
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "description": "Content path pattern",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    },
+                    {
+                        "name": "elementId",
+                        "in": "query",
+                        "description": "Request only specific element and its descendants (partial rendering)",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rendered content page (decomposed format)",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/DecomposedContentPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        }
+    }
+}

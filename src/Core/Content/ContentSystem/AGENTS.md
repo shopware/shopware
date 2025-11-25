@@ -9,7 +9,8 @@
 - **Event Subscribers**: `EventSubscriber/PreHydration/`, `EventSubscriber/PostHydration/`
 - **Specification**: `RenderingSpecification`, `PlaceholderValues`
 - **Hydration**: `Hydration/ContentElementHydrator`
-- **Store API**: `SalesChannel/ContentRoute`, `SalesChannel/ContentDecomposedRoute`, `SalesChannel/ContentSkeletonRoute`, `SalesChannel/ContentDataRoute`, `SalesChannel/ContentRouteLoader`
+- **Store API**: `SalesChannel/ContentRoute`, `SalesChannel/ContentDecomposedRoute`, `SalesChannel/ContentSkeletonRoute`, `SalesChannel/ContentDataRoute`
+- **Pipeline**: `ContentPipeline`, `RenderingSpecificationResolver`
 
 ## Quick Reference
 
@@ -29,3 +30,20 @@ Update OpenAPI schema files when modifying endpoints or response structures.
 - **Location**: `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/`
 - **Files**: `paths/content.json`, `components/schemas/Content*.json`
 - **Validate**: `jq '.' <file>.json`
+
+## Constraints
+
+### Pipeline Orchestration
+
+`ContentPipeline` orchestrates rendering via `RenderingSpecificationResolver`:
+
+1. **Factory Selection**: Iterate context factories in DI priority order until one returns RenderingSpecification
+2. **PreHydration Events**: Subscribers prepare layout (placeholder resolution, virtual root, partial pruning)
+3. **Hydration**: ContentElementHydrator loads data + resolves context
+4. **PostHydration Events**: Subscribers finalize layout (virtual root cleanup, partial extraction)
+
+See `ContentPipeline::load()` for implementation.
+
+### Chain of Responsibility
+
+`RenderingSpecificationResolver` implements Chain of Responsibility pattern. Factories tagged with `content_system.context_factory` are tried in DI priority order. First non-null `RenderingSpecification` wins. Throws `ContentSystemException` if no factory handles the path.

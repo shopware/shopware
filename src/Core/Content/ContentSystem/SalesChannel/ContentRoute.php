@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
+use Shopware\Core\Content\ContentSystem\ContentPipeline;
 use Shopware\Core\Content\ContentSystem\RenderingMode;
+use Shopware\Core\Content\ContentSystem\RenderingSpecificationResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -22,8 +24,8 @@ class ContentRoute extends AbstractContentRoute
      * @internal
      */
     public function __construct(
-        private readonly ContentRouteLoader $contentRouteLoader,
         private readonly RenderingSpecificationResolver $specificationResolver,
+        private readonly ContentPipeline $contentPipeline,
     ) {
     }
 
@@ -50,7 +52,7 @@ class ContentRoute extends AbstractContentRoute
     public function load(string $path, Request $request, SalesChannelContext $context): ContentRouteResponse
     {
         $renderingSpecification = $this->specificationResolver->resolve($path, $request, $context);
-        $contentPage = $this->contentRouteLoader->load($renderingSpecification, RenderingMode::FULL, $context);
+        $contentPage = $this->contentPipeline->load($renderingSpecification, RenderingMode::FULL, $context);
 
         return new ContentRouteResponse($contentPage);
     }

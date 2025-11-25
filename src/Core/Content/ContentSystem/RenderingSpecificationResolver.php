@@ -1,10 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ContentSystem\SalesChannel;
+namespace Shopware\Core\Content\ContentSystem;
 
-use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Content\ContentSystem\RenderingSpecification;
-use Shopware\Core\Content\ContentSystem\RenderingSpecificationFactoryInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;

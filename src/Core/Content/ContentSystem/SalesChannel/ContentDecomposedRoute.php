@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
+use Shopware\Core\Content\ContentSystem\ContentPipeline;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Content\ContentSystem\RenderingMode;
+use Shopware\Core\Content\ContentSystem\RenderingSpecificationResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -23,8 +25,8 @@ class ContentDecomposedRoute extends AbstractContentDecomposedRoute
      * @internal
      */
     public function __construct(
-        private readonly ContentRouteLoader $contentRouteLoader,
         private readonly RenderingSpecificationResolver $specificationResolver,
+        private readonly ContentPipeline $contentPipeline,
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider
     ) {
     }
@@ -53,7 +55,7 @@ class ContentDecomposedRoute extends AbstractContentDecomposedRoute
     public function load(string $path, Request $request, SalesChannelContext $context): ContentDecomposedRouteResponse
     {
         $renderingSpecification = $this->specificationResolver->resolve($path, $request, $context);
-        $contentPage = $this->contentRouteLoader->load($renderingSpecification, RenderingMode::FULL, $context);
+        $contentPage = $this->contentPipeline->load($renderingSpecification, RenderingMode::FULL, $context);
 
         return new ContentDecomposedRouteResponse($contentPage->getContentDecomposedPage($this->configSerializerProvider));
     }

@@ -45,7 +45,6 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
         $products = $config->get('products');
         \assert($products instanceof FieldConfig);
         $criteria = new Criteria($products->getArrayValue());
-        $criteria->addAssociation('children');
 
         $collection = new CriteriaCollection();
         $collection->add(self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);

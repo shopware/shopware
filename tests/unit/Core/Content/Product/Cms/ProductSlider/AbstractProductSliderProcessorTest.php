@@ -58,36 +58,26 @@ class AbstractProductSliderProcessorTest extends TestCase
             'children' => new ProductCollection([$product1Variant1, $product1Variant2]),
         ]);
 
-        $product2Variant1 = (new ProductEntity())->assign(['id' => 'p2v1', 'stock' => 0]);
-        $product2Variant2 = (new ProductEntity())->assign(['id' => 'p2v2', 'stock' => 0]);
         $product2 = (new ProductEntity())->assign([
             'id' => 'p2',
             'isCloseout' => true,
-            'childCount' => 2,
             'stock' => 0,
-            'children' => new ProductCollection([$product2Variant1, $product2Variant2]),
         ]);
 
         $product3 = (new ProductEntity())->assign([
             'id' => 'p3',
-            'isCloseout' => true,
-            'stock' => 0,
-        ]);
-
-        $product4 = (new ProductEntity())->assign([
-            'id' => 'p4',
             'isCloseout' => false,
             'stock' => 0,
         ]);
 
-        $products = new ProductCollection([$product1, $product2, $product3, $product4]);
+        $products = new ProductCollection([$product1, $product2, $product3]);
 
         $processor = new TestAbstractProductSliderProcessor();
 
         $filteredProducts = $processor->publicFilterOutOutOfStockHiddenCloseoutProducts($products);
         static::assertCount(2, $filteredProducts);
         static::assertTrue($filteredProducts->has('p1'));
-        static::assertTrue($filteredProducts->has('p4'));
+        static::assertTrue($filteredProducts->has('p3'));
     }
 }
 

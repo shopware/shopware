@@ -194,13 +194,24 @@
                         </p>
 
                         <div class="sw-cms-el-config-image-slider__setting-auto-slide-container sw-cms-el-config-image-slider__setting-option">
-                            <div class="sw-cms-el-config-image-slider__setting-slide">
-                                <sw-switch-field
-                                    v-model:value="element.config.autoSlide.value"
-                                    class="sw-cms-el-config-image-slider__setting-auto-slide"
-                                    :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
-                                    bordered
-                                />
+                            <div class="sw-cms-el-config-image-slider__setting-auto-slide-switch">
+                                {% block sw_cms_element_image_slider_config_settings_auto_slide %}
+                                <sw-cms-inherit-wrapper
+                                    field="autoSlide"
+                                    :element="element"
+                                >
+                                    <template #default="{ isInherited }">
+                                        <mt-switch
+                                            v-model="element.config.autoSlide.value"
+                                            class="sw-cms-el-config-image-slider__setting-auto-slide"
+                                            :label="$t('sw-cms.elements.general.config.label.autoSlide')"
+                                            :disabled="isInherited"
+                                            bordered
+                                            @update:model-value="onChangeAutoSlide"
+                                        />
+                                    </template>
+                                </sw-cms-inherit-wrapper>
+                                {% endblock %}
                             </div>
 
                             <div class="sw-cms-el-config-image-slider__setting-delay">
@@ -218,6 +229,42 @@
                             </div>
                         </div>
                     </mt-banner>
+
+                    <sw-cms-inherit-wrapper
+                        field="isDecorative"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                class="sw-cms-el-config-image-slider__settings-is-decorative"
+                                :model-value="element.config.isDecorative.value"
+                                :label="$t('sw-cms.elements.image.config.label.isDecorative')"
+                                :help-text="$t('sw-cms.elements.image.config.label.isDecorativeHelpText')"
+                                :disabled="isInherited"
+                                bordered
+                                @update:model-value="onChangeIsDecorative"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+
+                    {% block sw_cms_element_image_slider_config_settings_use_fetch_priority_on_first_item %}
+                    <sw-cms-inherit-wrapper
+                        field="useFetchPriorityOnFirstItem"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                class="sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item"
+                                :model-value="element.config.useFetchPriorityOnFirstItem.value"
+                                :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
+                                :help-text="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItemHelpText')"
+                                :disabled="isInherited"
+                                bordered
+                                @update:model-value="onChangeUseFetchPriorityOnFirstItem"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+                    {% endblock %}
 
                     {% block sw_cms_element_image_slider_config_settings_links %}
                     <div class="sw-cms-el-config-image-slider__settings-links sw-cms-el-config-image-slider__setting-option">

@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
-use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\RenderingMode;
-use Shopware\Core\Content\ContentSystem\RenderingSpecificationFactoryInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -21,13 +19,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class ContentRoute extends AbstractContentRoute
 {
     /**
-     * @param iterable<RenderingSpecificationFactoryInterface> $renderingSpecificationFactories
-     *
      * @internal
      */
     public function __construct(
         private readonly ContentRouteLoader $contentRouteLoader,
-        private readonly iterable $renderingSpecificationFactories,
+        private readonly RenderingSpecificationResolver $specificationResolver,
     ) {
     }
 
@@ -53,20 +49,7 @@ class ContentRoute extends AbstractContentRoute
     )]
     public function load(string $path, Request $request, SalesChannelContext $context): ContentRouteResponse
     {
-        // Try factories in priority order via Chain of Responsibility (tagged iterator provides highest first)
-        $renderingSpecification = null;
-        foreach ($this->renderingSpecificationFactories as $factory) {
-            $renderingSpecification = $factory->create($path, $request, $context);
-
-            if ($renderingSpecification !== null) {
-                break;
-            }
-        }
-
-        if ($renderingSpecification === null) {
-            throw ContentSystemException::noFactoryCanHandle($path);
-        }
-
+        $renderingSpecification = $this->specificationResolver->resolve($path, $request, $context);
         $contentPage = $this->contentRouteLoader->load($renderingSpecification, RenderingMode::FULL, $context);
 
         return new ContentRouteResponse($contentPage);

@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\SalesChannel;
 
-use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\RenderingMode;
-use Shopware\Core\Content\ContentSystem\RenderingSpecificationFactoryInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -26,13 +24,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class ContentSkeletonRoute extends AbstractContentSkeletonRoute
 {
     /**
-     * @param iterable<RenderingSpecificationFactoryInterface> $renderingSpecificationFactories
-     *
      * @internal
      */
     public function __construct(
         private readonly ContentRouteLoader $contentRouteLoader,
-        private readonly iterable $renderingSpecificationFactories,
+        private readonly RenderingSpecificationResolver $specificationResolver,
     ) {
     }
 
@@ -59,21 +55,7 @@ class ContentSkeletonRoute extends AbstractContentSkeletonRoute
     )]
     public function load(string $path, Request $request, SalesChannelContext $context): ContentSkeletonRouteResponse
     {
-        // Try factories in priority order via Chain of Responsibility
-        $renderingSpecification = null;
-        foreach ($this->renderingSpecificationFactories as $factory) {
-            $renderingSpecification = $factory->create($path, $request, $context);
-
-            if ($renderingSpecification !== null) {
-                break;
-            }
-        }
-
-        if ($renderingSpecification === null) {
-            throw ContentSystemException::noFactoryCanHandle($path);
-        }
-
-        // Load with SKELETON mode (skips hydration), transform to skeleton output
+        $renderingSpecification = $this->specificationResolver->resolve($path, $request, $context);
         $contentPage = $this->contentRouteLoader->load($renderingSpecification, RenderingMode::SKELETON, $context);
 
         return new ContentSkeletonRouteResponse($contentPage->getContentSkeletonPage());

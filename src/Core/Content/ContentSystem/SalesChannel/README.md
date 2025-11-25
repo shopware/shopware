@@ -17,6 +17,7 @@ Store API entry point for content system. Four routes provide different response
 - `ContentDataRoute` - Data format endpoint implementation
 - `ContentDataRouteResponse` - Data format response wrapper
 - `ContentRouteLoader` - Pipeline orchestrator (shared)
+- `RenderingSpecificationResolver` - Resolves path to RenderingSpecification via factories
 
 ## Endpoints
 

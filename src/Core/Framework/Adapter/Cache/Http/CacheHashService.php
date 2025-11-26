@@ -139,6 +139,15 @@ class CacheHashService
             return true;
         }
 
+        // check if cache relevant cookies are set
+        foreach ($this->cookies as $cookie) {
+            if (!$request->cookies->has($cookie)) {
+                continue;
+            }
+
+            return true;
+        }
+
         return false;
     }
 }

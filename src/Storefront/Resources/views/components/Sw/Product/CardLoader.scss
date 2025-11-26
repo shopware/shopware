@@ -1,12 +1,21 @@
 .sw-product-card-loader {
     visibility: hidden;
+    z-index: 2;
     pointer-events: none;
 }
 
 .has-element-loader {
-    .sw-product-card > :not(.sw-product-card-loader) {
+    .sw-product-card__content {
         visibility: hidden;
         pointer-events: none;
+    }
+
+    .sw-product-card__header {
+        background: var(--bs-gray-300);
+    }
+
+    .sw-product-card__media {
+        opacity: 0;
     }
 
     .sw-product-card-loader {

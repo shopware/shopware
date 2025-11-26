@@ -57,6 +57,7 @@
 
 {% set attributeDefaults = {
     'aria-hidden': true,
+    class: iconVariants.apply({size, color, rotation, flip}),
 } %}
 
 {%- if themeIconConfig[pack] is defined -%}
@@ -65,6 +66,6 @@
     {% set icon = source('@' ~ namespace ~ '/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
 {%- endif -%}
 
-<span {{ attributes.defaults(attributeDefaults) }} class="{{ iconVariants.apply({size, color, rotation, flip}) }}">
+<span {{ attributes.defaults(attributeDefaults) }}>
     {{ icon|sw_icon_cache|raw }}
 </span>

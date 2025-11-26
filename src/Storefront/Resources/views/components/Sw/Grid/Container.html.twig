@@ -202,22 +202,22 @@
 }) %}
 
 {% set attributeDefaults = {
-    'class': gridCVA.apply({ 
-        align, 
-        alignContent, 
-        justify, 
-        justifyContent, 
-        centered, 
-        columns, 
-        columnsSm, 
-        columnsMd, 
-        columnsLg, 
-        columnsXl, 
-        rows, 
-        rowsSm, 
-        rowsMd, 
-        rowsLg, 
-        rowsXl 
+    'class': gridCVA.apply({
+        align,
+        alignContent,
+        justify,
+        justifyContent,
+        centered,
+        columns,
+        columnsSm,
+        columnsMd,
+        columnsLg,
+        columnsXl,
+        rows,
+        rowsSm,
+        rowsMd,
+        rowsLg,
+        rowsXl
     }),
 } %}
 
@@ -239,7 +239,7 @@
 
 {% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
-{% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; margin-bottom: ' ~ gap ~ 'px; ' : gridStyle %}
+{% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ '; margin-bottom: ' ~ gap ~ '; ' : gridStyle %}
 
 <div
     {{ attributes.defaults(attributeDefaults) }}

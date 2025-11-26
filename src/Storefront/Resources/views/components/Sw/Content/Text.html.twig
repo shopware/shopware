@@ -3,8 +3,6 @@
     inline = false,
 %}
 
-{% set attributeDefaults = {} %}
-
 {% set textVariants = cva({
     base: 'sw-text',
     variants: {
@@ -15,6 +13,10 @@
     },
 }) %}
 
-<div {{ attributes.defaults(attributeDefaults) }} class="{{ textVariants.apply({ inline }) }}">
+{% set attributeDefaults = {
+    class: textVariants.apply({ inline }),
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
     {{ text|sw_sanitize|raw }}
 </div>

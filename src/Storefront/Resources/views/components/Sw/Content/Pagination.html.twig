@@ -9,19 +9,20 @@
     useHref = false,
 %}
 
-{% set attributeDefaults = {
-    class: 'sw-pagination sw-pagination__' ~ scope,
-    'aria-label': ('general.pagination.title'|trans|striptags),
-    'data-component': 'Sw:Content:Pagination',
-} %}
-
 {% set paginationOptions = {
     'useHref': useHref,
 } %}
 
+{% set attributeDefaults = {
+    class: 'sw-pagination sw-pagination__' ~ scope,
+    'aria-label': ('general.pagination.title'|trans|striptags),
+    'data-component': 'Sw:Content:Pagination',
+    'data-pagination-options': paginationOptions|json_encode
+} %}
+
 {% set totalPages = totalPages ?? (total / (limit ?: 1))|round(0, 'ceil') %}
 
-<nav {{ attributes.defaults(attributeDefaults) }} data-pagination-options="{{ paginationOptions|json_encode }}">
+<nav {{ attributes.defaults(attributeDefaults) }}>
     {% block content %}
         {% if totalPages > 1 %}
             <ul class="sw-pagination__list pagination">

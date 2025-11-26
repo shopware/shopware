@@ -4,7 +4,11 @@
     horizontal = false,
 %}
 
-<div class="sw-product-card-actions{% if not horizontal %} d-grid{% endif %}">
+{% set attributeDefaults = {
+    class: 'sw-product-card-actions' ~ (not horizontal ? ' d-grid' : ''),
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
     {% set isAvailable = not product.isCloseout or (product.stock >= product.minPurchase) %}
     {% set displayFrom = product.calculatedPrices.count > 1 %}
     {% set displayBuyButton = isAvailable and not displayFrom and product.childCount <= 0 %}

@@ -1,7 +1,10 @@
 .sw-product-card-badges {
     position: absolute;
-    left: 0;
-    bottom: calc(var(--bs-card-spacer-x) / 2);
+    left: 0.5rem;
+    top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .sw-product-card-badges__badge {

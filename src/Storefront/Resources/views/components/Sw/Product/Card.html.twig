@@ -1,6 +1,6 @@
 {% props
     product,
-    mediaHeight = 240,
+    mediaHeight = 'auto',
     defaultRoute = seoUrl('frontend.detail.page', { productId: product.id }),
     slots = [],
     layout = 'default',
@@ -34,9 +34,13 @@
     }
 }) %}
 
+{% set attributeDefaults = {
+    class: cardCVA.apply({ layout, mediaObjectFit, border, rounded }),
+} %}
+
 {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
-<div class="{{ cardCVA.apply({ layout, mediaObjectFit, border, rounded }, attributes.render('class')) }}">
+<div {{ attributes.defaults(attributeDefaults) }}>
 
     <div class="sw-product-card__inner d-flex h-100">
 
@@ -88,14 +92,14 @@
 
                 {% if config('core.listing.showReview') and product.ratingAverage %}
                     <twig:Slot name="rating">
-                        <twig:Sw:Rating:Stars class="mb-2" :stars="product.ratingAverage" />
+                        <twig:Sw:Rating:Stars :stars="product.ratingAverage" />
                     </twig:Slot>
                 {% endif %}
 
                 {% if not displayParent %}
                     <twig:Slot name="variants">
                         {% if product.variation is not null %}
-                            <twig:Sw:Product:Variants :variants="product.variation" />
+                            <twig:Sw:Product:Variants :productVariants="product.variation" />
                         {% endif %}
                     </twig:Slot>
                 {% endif %}

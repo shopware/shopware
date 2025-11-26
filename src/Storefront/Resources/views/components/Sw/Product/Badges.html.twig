@@ -2,7 +2,12 @@
     product,
 %}
 
-<div class="sw-product-card-badges d-flex gap-1">
+{% set attributeDefaults = {
+    class: 'sw-product-card-badges'
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+
     {% set price = product.calculatedPrice %}
     {% if product.calculatedPrices.count > 0 %}
         {% set price = product.calculatedPrices.last %}

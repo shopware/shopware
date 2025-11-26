@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
@@ -27,6 +28,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('after-sales')]
 final class DocumentRoute extends AbstractDocumentRoute
 {
+    public const ACCEPT_WILDCARD = '*/*';
+
     /**
      * @internal
      *
@@ -44,7 +47,12 @@ final class DocumentRoute extends AbstractDocumentRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_entity' => 'document'])]
+    #[Route(
+        path: '/store-api/document/download/{documentId}/{deepLinkCode}',
+        name: 'store-api.document.download',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => DocumentDefinition::ENTITY_NAME]
+    )]
     public function download(
         string $documentId,
         Request $request,
@@ -63,6 +71,8 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         $requestedFileTypes = !$fileType ? $this->getRequestedFileTypes($request) : [$fileType];
 
+        $document = null;
+
         foreach ($requestedFileTypes as $requestedFileType) {
             $document = $this->documentGenerator->readDocument(
                 $documentId,
@@ -71,7 +81,7 @@ final class DocumentRoute extends AbstractDocumentRoute
                 $requestedFileType
             );
 
-            if($document !== null) {
+            if ($document !== null) {
                 break;
             }
         }
@@ -170,17 +180,39 @@ final class DocumentRoute extends AbstractDocumentRoute
         }
     }
 
+    /**
+     * @return array<string>
+     */
     private function getRequestedFileTypes(Request $request): array
     {
-        $fileTypes = [];
-        $request->setFormat('pdf', ['application/pdf']);
+        $request->setFormat(PdfRenderer::FILE_EXTENSION, [PdfRenderer::FILE_CONTENT_TYPE]);
         $requestedFileTypes = $request->getAcceptableContentTypes();
+        $fileTypes = [];
+
+        if (empty($requestedFileTypes)) {
+            return $this->getDefaultFileTypes();
+        }
+
         foreach ($requestedFileTypes as $mimeType) {
-            if($fileType = $request->getFormat($mimeType)) {
+            if ($mimeType === self::ACCEPT_WILDCARD) {
+                return $this->getDefaultFileTypes();
+            }
+
+            if ($fileType = $request->getFormat($mimeType)) {
                 $fileTypes[] = $fileType;
+            } else {
+                $fileTypes[] = $mimeType;
             }
         }
 
         return $fileTypes;
+    }
+
+    /**
+     * @return array<string>
+     */
+    private function getDefaultFileTypes(): array
+    {
+        return [PdfRenderer::FILE_EXTENSION];
     }
 }

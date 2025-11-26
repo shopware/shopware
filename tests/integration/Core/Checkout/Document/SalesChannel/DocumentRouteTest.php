@@ -51,7 +51,9 @@ class DocumentRouteTest extends TestCase
         OrderActionTrait::login insteadof SalesChannelApiTestBehaviour;
         SalesChannelApiTestBehaviour::login as loginBrowser;
     }
-    private const INVALID_FILE_TYPE = 'invalid';
+    private const INVALID_MIME_TYPE = 'invalid/type';
+
+    private const ACCEPT_WILDCARD = '*/*';
 
     private KernelBrowser $browser;
 
@@ -305,13 +307,12 @@ class DocumentRouteTest extends TestCase
         ];
     }
 
-    #[DataProvider('provideRequestParameters')]
-    public function testDownloadWithDifferentParameterTypesForFileType(
+    #[DataProvider('provideRequestAcceptHeaderValues')]
+    public function testDownloadWithMimeTypesInAcceptHeader(
         string $documentType,
         string $expectedFileType,
-        string $expectedContentType,
-        ?string $queryParameter,
-        ?string $pathParameter,
+        string $acceptHeader,
+        string $expectedResponseContentType,
     ): void {
         $customerId = $this->loginBrowser($this->browser);
         $this->createOrder(
@@ -333,81 +334,68 @@ class DocumentRouteTest extends TestCase
 
         $this->browser->request(
             'GET',
-            '/store-api/document/download/' . $documentId . '/' . $document->getDeepLinkCode()
-            . ($pathParameter ? '/' . $pathParameter : '')
-            . ($queryParameter ? '?fileType=' . $queryParameter : ''),
+            '/store-api/document/download/' . $documentId . '/' . $document->getDeepLinkCode(),
+            [],
+            [],
+            ['HTTP_ACCEPT' => $acceptHeader]
         );
 
         $response = $this->browser->getResponse();
 
         static::assertNotEmpty($response->getContent());
-        static::assertSame('inline; filename=invoice_1000.' . $expectedFileType, $response->headers->get('content-disposition'));
-        static::assertStringContainsString($expectedContentType, (string) $response->headers->get('content-type'));
+        static::assertSame(
+            'inline; filename=invoice_1000.' . $expectedFileType,
+            $response->headers->get('content-disposition')
+        );
+        static::assertStringContainsString(
+            $expectedResponseContentType,
+            (string) $response->headers->get('content-type')
+        );
     }
 
-    public static function provideRequestParameters(): \Generator
+    public static function provideRequestAcceptHeaderValues(): \Generator
     {
-        yield 'query param fileType = html' => [
+        yield 'accept header "text/html" returns html document' => [
             'documentType' => InvoiceRenderer::TYPE,
             'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
-            'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
-            'queryParameter' => HtmlRenderer::FILE_EXTENSION,
-            'pathParameter' => null,
+            'acceptHeader' => HtmlRenderer::FILE_CONTENT_TYPE,
+            'expectedResponseContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
         ];
 
-        yield 'path param html as fileType' => [
-            'documentType' => InvoiceRenderer::TYPE,
-            'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
-            'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
-            'queryParameter' => null,
-            'pathParameter' => HtmlRenderer::FILE_EXTENSION,
-        ];
-
-        yield 'query param fileType = pdf' => [
+        yield 'accept header "application/pdf" returns pdf document' => [
             'documentType' => InvoiceRenderer::TYPE,
             'expectedFileType' => PdfRenderer::FILE_EXTENSION,
-            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
-            'queryParameter' => PdfRenderer::FILE_EXTENSION,
-            'pathParameter' => null,
+            'acceptHeader' => PdfRenderer::FILE_CONTENT_TYPE,
+            'expectedResponseContentType' => PdfRenderer::FILE_CONTENT_TYPE,
         ];
 
-        yield 'path param pdf as fileType' => [
-            'documentType' => InvoiceRenderer::TYPE,
-            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
-            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
-            'queryParameter' => null,
-            'pathParameter' => PdfRenderer::FILE_EXTENSION,
-        ];
-
-        yield 'query param fileType = xml' => [
+        yield 'accept header "application/xml" returns xml document' => [
             'documentType' => ZugferdRenderer::TYPE,
             'expectedFileType' => ZugferdRenderer::FILE_EXTENSION,
-            'expectedContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
-            'queryParameter' => ZugferdRenderer::FILE_EXTENSION,
-            'pathParameter' => null,
+            'acceptHeader' => ZugferdRenderer::FILE_CONTENT_TYPE,
+            'expectedResponseContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
         ];
 
-        yield 'path param xml as fileType' => [
-            'documentType' => ZugferdRenderer::TYPE,
-            'expectedFileType' => ZugferdRenderer::FILE_EXTENSION,
-            'expectedContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
-            'queryParameter' => null,
-            'pathParameter' => ZugferdRenderer::FILE_EXTENSION,
-        ];
-
-        yield 'without params the fallback should be used' => [
+        yield 'accept header with order "text/html;q=0.4,application/pdf;q=0.7, application/xml;q=0.1" returns pdf' => [
             'documentType' => InvoiceRenderer::TYPE,
             'expectedFileType' => PdfRenderer::FILE_EXTENSION,
-            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
-            'queryParameter' => null,
-            'pathParameter' => null,
+            'acceptHeader' => HtmlRenderer::FILE_CONTENT_TYPE . ';q=0.4, '
+                . PdfRenderer::FILE_CONTENT_TYPE . ';q=0.7, '
+                . ZugferdRenderer::FILE_CONTENT_TYPE . ';q=0.1',
+            'expectedResponseContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+        ];
+
+        yield 'accept header with wildcard should return pdf' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'acceptHeader' => self::ACCEPT_WILDCARD,
+            'expectedResponseContentType' => PdfRenderer::FILE_CONTENT_TYPE,
         ];
     }
 
-    #[DataProvider('provideInvalidRequestParameters')]
-    public function testDownloadWithInvalidFileTypeShouldThrowException(
-        ?string $queryParameter,
-        ?string $pathParameter,
+    #[DataProvider('provideInvalidAcceptHeaderValues')]
+    public function testDownloadWithInvalidAcceptHeaderMimeTypeShouldThrowException(
+        string $acceptHeader
     ): void {
         $customerId = $this->loginBrowser($this->browser);
         $this->createOrder(
@@ -429,34 +417,36 @@ class DocumentRouteTest extends TestCase
 
         if (Feature::isActive('v6.8.0.0')) {
             $this->expectExceptionObject(
-                DocumentException::documentFileTypeUnavailable($documentId, self::INVALID_FILE_TYPE)
+                DocumentException::documentFileTypeUnavailable($documentId, [self::INVALID_MIME_TYPE])
             );
         }
 
         $this->browser->request(
             'GET',
-            '/store-api/document/download/' . $documentId . '/' . $document->getDeepLinkCode()
-            . ($pathParameter ? '/' . $pathParameter : '')
-            . ($queryParameter ? '?fileType=' . $queryParameter : ''),
+            '/store-api/document/download/' . $documentId . '/' . $document->getDeepLinkCode(),
+            [],
+            [],
+            [
+                'HTTP_ACCEPT' => $acceptHeader,
+            ]
         );
 
         $response = $this->browser->getResponse();
 
         if (!Feature::isActive('v6.8.0.0')) {
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        } else {
+            static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+            static::assertNotEmpty($response->getContent());
+            $responseContent = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame('DOCUMENT__FILETYPE_UNAVAILABLE', $responseContent['errors'][0]['code']);
         }
     }
 
-    public static function provideInvalidRequestParameters(): \Generator
+    public static function provideInvalidAcceptHeaderValues(): \Generator
     {
         yield 'invalid query param' => [
-            'queryParameter' => null,
-            'pathParameter' => self::INVALID_FILE_TYPE,
-        ];
-
-        yield 'invalid path param' => [
-            'queryParameter' => self::INVALID_FILE_TYPE,
-            'pathParameter' => null,
+            'acceptHeader' => self::INVALID_MIME_TYPE,
         ];
     }
 }

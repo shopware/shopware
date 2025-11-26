@@ -29,15 +29,6 @@
                             "type": "string"
                         }
                     },
-                  {
-                    "name": "fileType",
-                    "required": false,
-                    "in": "path",
-                    "schema": {
-                      "type": "string"
-                    },
-                    "description": "File type that selects the document type renderer (e.g. pdf, html). When no file type is given, pdf will be used as default."
-                  },
                     {
                         "name": "sw-language-id",
                         "in": "header",
@@ -78,20 +69,27 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "Returns the document information and blob to download.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Document"
-                                }
-                            }
+                  "200": {
+                    "description": "Success",
+                    "content": {
+                      "application/pdf": {
+                        "schema": {
+                          "type": "string",
+                          "format": "binary"
                         }
-                    },
-                  /*
-                    * @deprecated tag:v6.8.0 - reason:change response code - DEPRECATED: Returns a no content response when no document is found.
-                    * Will be changed in v6.8.0.0 and returns a 404 response instead.
-                  */
+                      },
+                      "text/html": {
+                        "schema": {
+                          "type": "string"
+                        }
+                      },
+                      "application/xml": {
+                        "schema": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
                   "204": {
                     "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
                   },
@@ -171,24 +169,31 @@
             ],
             "responses": {
               "200": {
-                "description": "Returns the document information and blob to download.",
+                "description": "Success",
                 "content": {
-                  "application/json": {
+                  "application/pdf": {
                     "schema": {
-                      "$ref": "#/components/schemas/Document"
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  },
+                  "text/html": {
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  "application/xml": {
+                    "schema": {
+                      "type": "string"
                     }
                   }
                 }
               },
-              /*
-                * @deprecated tag:v6.8.0 - reason:change response code - DEPRECATED: Returns a no content response when no document is found.
-                * Will be changed in v6.8.0.0 and returns a 404 response instead.
-              */
               "204": {
                 "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
               },
               "403": {
-                "description": "Forbidden. Customer is not logged in."
+                "description": "Forbidden."
               },
               "404": {
                 "description": "Document not found."

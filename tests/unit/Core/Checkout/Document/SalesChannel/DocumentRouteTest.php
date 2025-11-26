@@ -339,7 +339,7 @@ class DocumentRouteTest extends TestCase
             $this->expectExceptionObject(
                 DocumentException::documentFileTypeUnavailable(
                     self::DUMMY_DOCUMENT_ID,
-                    PdfRenderer::FILE_EXTENSION
+                    [PdfRenderer::FILE_EXTENSION],
                 )
             );
         }
@@ -433,7 +433,7 @@ class DocumentRouteTest extends TestCase
             $this->expectExceptionObject(
                 DocumentException::documentFileTypeUnavailable(
                     self::DUMMY_DOCUMENT_ID,
-                    PdfRenderer::FILE_EXTENSION
+                    [PdfRenderer::FILE_EXTENSION],
                 )
             );
         }
@@ -498,7 +498,7 @@ class DocumentRouteTest extends TestCase
             $this->expectExceptionObject(
                 DocumentException::documentFileTypeUnavailable(
                     self::DUMMY_DOCUMENT_ID,
-                    PdfRenderer::FILE_EXTENSION
+                    [PdfRenderer::FILE_EXTENSION],
                 )
             );
         }

@@ -209,6 +209,9 @@ class DocumentException extends HttpException
         );
     }
 
+    /**
+     * @param array<string> $fileExtensions
+     */
     public static function documentFileTypeUnavailable(string $documentId, array $fileExtensions): self
     {
         return new self(
@@ -217,7 +220,7 @@ class DocumentException extends HttpException
             'Document with id {{ documentId }} has no generated document with file extension {{ fileExtensions }}.',
             [
                 'documentId' => $documentId,
-                'fileExtensions' => implode(',',$fileExtensions),
+                'fileExtensions' => implode(',', $fileExtensions),
             ]
         );
     }

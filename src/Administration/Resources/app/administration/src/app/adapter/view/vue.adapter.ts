@@ -455,10 +455,15 @@ export default class VueAdapter extends ViewAdapter {
             MtUnitField,
         } as const;
 
-        Object.entries(meteorComponents).forEach(([componentName, component]) => {
-            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            this.app.component(componentNameAsKebabCase, component as VueComponent);
-        });
+        Object.entries(meteorComponents).forEach(
+            ([
+                componentName,
+                component,
+            ]) => {
+                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+                this.app.component(componentNameAsKebabCase, component as VueComponent);
+            },
+        );
 
         return this.vueComponents;
     }

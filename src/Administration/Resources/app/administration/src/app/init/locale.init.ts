@@ -15,15 +15,18 @@ export default function initializeLocaleService() {
     }
 
     // Load locales and snippets parallel to speed up the boot process
-    void snippetService.getLocales().then(locales => {
-        Object.values(locales).forEach((locale) => {
-            localeFactory.register(locale, {});
-        });
+    void snippetService
+        .getLocales()
+        .then((locales) => {
+            Object.values(locales).forEach((locale) => {
+                localeFactory.register(locale, {});
+            });
 
-        return snippetService.getSnippets(localeFactory);
-    }).catch(error => {
-        console.error('Error loading locales or snippets:', error);
-    })
+            return snippetService.getSnippets(localeFactory);
+        })
+        .catch((error) => {
+            console.error('Error loading locales or snippets:', error);
+        });
 
     return localeFactory;
 }

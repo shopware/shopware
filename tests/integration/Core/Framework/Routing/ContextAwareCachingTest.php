@@ -109,8 +109,10 @@ class ContextAwareCachingTest extends TestCase
 
         $response = $browser->getResponse();
 
+        // Language header should always be present in storefront requests
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
+
         // Check that context headers are not present for non-store-api routes
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_CURRENCY_ID));
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_HASH));
     }

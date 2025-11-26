@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,7 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 class CacheControlListenerTest extends TestCase
 {
     #[DataProvider('headerCases')]
-    public function testResponseHeaders(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
+    public function testResponseHeadersDeprecated(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
     {
         $response = new Response();
         $response->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, 'foo');
@@ -36,6 +38,22 @@ class CacheControlListenerTest extends TestCase
         if (!$reverseProxyEnabled) {
             static::assertFalse($response->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
         }
+    }
+
+    #[DataProvider('headerCases')]
+    public function testResponseHeaders(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
+    {
+        $response = new Response();
+
+        if ($beforeHeader) {
+            $response->headers->set('cache-control', $beforeHeader);
+        }
+
+        $subscriber = new CacheControlListener($reverseProxyEnabled);
+
+        $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
+
+        static::assertSame($afterHeader, $response->headers->get('cache-control'));
     }
 
     /**

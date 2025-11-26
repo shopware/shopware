@@ -25,8 +25,8 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
         taxId,
         taxName,
         customerSurname: 'Schmitz-Rimpler',
-        fromDate: yesterday.toISOString().split('.')[0] + '+00:00',
-        toDate: today.toISOString().split('.')[0] + '+00:00',
+        fromDate: yesterday.toISOString().split('.')[0],
+        toDate: today.toISOString().split('.')[0],
         quantity: 5,
         isAdminOrder: false,
         stock: 10,
@@ -64,7 +64,7 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
         await AdminRuleDetail.conditionFilterModalCloseButtonX.click();
 
         await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Date range')).toBeVisible();
-        await ShopAdmin.expects(AdminRuleDetail.conditionDateRangeOperator).toHaveText('Excluding timestamp');
+        await ShopAdmin.expects(AdminRuleDetail.conditionDateRangeOperator.first()).toHaveText('Excluding timestamp');
         await ShopAdmin.expects(AdminRuleDetail.conditionDateRangeDateFieldFirst).toHaveValue((testConfig.fromDate.split('T')[0]).split('-').reverse().join('/'));
         await ShopAdmin.expects(AdminRuleDetail.conditionDateRangeDateFieldSecond).toHaveValue((testConfig.toDate.split('T')[0]).split('-').reverse().join('/'));
 
@@ -82,6 +82,6 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
         await ShopAdmin.expects(AdminRuleDetail.conditionTimeRangeValueSecond).toHaveValue(testConfig.toDate.split('T')[1].substring(0, 5));
 
         await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Order created by administrator (flow)')).toBeVisible();
-        await ShopAdmin.expects(AdminRuleDetail.conditionOrderCreatedByAdminValue).toHaveValue(testConfig.isAdminOrder ? 'Yes' : 'No');
+        await ShopAdmin.expects(AdminRuleDetail.conditionOrderCreatedByAdminValue).toHaveValue('No');
     });
 });

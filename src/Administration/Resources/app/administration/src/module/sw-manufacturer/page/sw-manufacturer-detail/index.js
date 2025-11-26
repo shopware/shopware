@@ -20,6 +20,7 @@ export default {
         'repositoryFactory',
         'acl',
         'mediaDefaultFolderService',
+        'feature',
     ],
 
     mixins: [
@@ -115,7 +116,11 @@ export default {
             };
         },
 
-        ...mapPropertyErrors('manufacturer', ['name']),
+        ...mapPropertyErrors('manufacturer', [
+            'description',
+            'link',
+            'name',
+        ]),
     },
 
     watch: {

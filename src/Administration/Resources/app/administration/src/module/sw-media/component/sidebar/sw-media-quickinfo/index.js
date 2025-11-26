@@ -60,6 +60,7 @@ export default {
             arPlacement: 'horizontal',
             defaultArPlacement: 'horizontal',
             arPlacementOptions: [],
+            showCoverSelectionModal: false,
         };
     },
 
@@ -107,6 +108,18 @@ export default {
 
         showUnsupportedFormatWarning() {
             return shouldShowUnsupportedFormatWarning(this.item.mimeType);
+        },
+
+        isVideoMedia() {
+            return this.item?.mediaType?.name === 'VIDEO' || this.item?.mimeType?.startsWith('video/') === true;
+        },
+
+        hasVideoCover() {
+            return this.item?.metaData?.video?.coverMediaId ?? null;
+        },
+
+        actionListKey() {
+            return this.hasVideoCover ? 'has-cover' : 'no-cover';
         },
     },
 
@@ -389,6 +402,75 @@ export default {
                 mimeType,
                 fileSize,
             });
+        },
+
+        openCoverSelectionModal() {
+            if (!this.acl.can('media.editor')) {
+                return;
+            }
+
+            this.showCoverSelectionModal = true;
+        },
+
+        closeCoverSelectionModal() {
+            this.showCoverSelectionModal = false;
+        },
+
+        async onCoverSelectionChange(selection) {
+            const [media] = selection;
+            this.closeCoverSelectionModal();
+
+            if (!media || !this.isImage(media)) {
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-media-item.notification.coverSelectionInvalid.message'),
+                });
+
+                return;
+            }
+
+            await this.persistCoverMedia(media.id);
+        },
+
+        async removeVideoCover() {
+            await this.persistCoverMedia(null);
+        },
+
+        async persistCoverMedia(coverMediaId) {
+            if (!this.isVideoMedia || !this.item?.id) {
+                return;
+            }
+
+            this.item.isLoading = true;
+
+            try {
+                await this.mediaService.assignVideoCover(this.item.id, coverMediaId);
+
+                const snippetKey = coverMediaId
+                    ? 'global.sw-media-media-item.notification.coverSaveSuccess.message'
+                    : 'global.sw-media-media-item.notification.coverRemoveSuccess.message';
+
+                this.createNotificationSuccess({
+                    message: this.$tc(snippetKey),
+                });
+
+                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+            } catch {
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-media-item.notification.coverSaveError.message'),
+                });
+            } finally {
+                this.item.isLoading = false;
+            }
+        },
+
+        isImage(media) {
+            const typeName = media?.mediaType?.name;
+
+            if (typeName) {
+                return typeName === 'IMAGE';
+            }
+
+            return media?.mimeType?.startsWith('image/') ?? false;
         },
     },
 };

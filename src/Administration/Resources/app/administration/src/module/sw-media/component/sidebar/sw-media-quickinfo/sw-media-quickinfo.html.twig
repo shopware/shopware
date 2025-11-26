@@ -20,7 +20,10 @@
 
         <template #content>
             {% block sw_media_quickinfo_quickactions_content %}
-            <ul class="sw-media-sidebar__quickactions-list">
+            <ul
+                :key="actionListKey"
+                class="sw-media-sidebar__quickactions-list"
+            >
                 {% block sw_media_quickinfo_quickactions_replace %}
                 <li
                     v-if="!item.private"
@@ -85,6 +88,54 @@
                         class="sw-media-sidebar__quickactions-icon"
                     />
                     {{ $tc('sw-media.sidebar.actions.move') }}
+                </li>
+                {% endblock %}
+
+                {% block sw_media_quickinfo_quickactions_set_cover %}
+                <li
+                    v-if="isVideoMedia"
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('media.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    class="quickaction--set-cover"
+                    :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
+                    @click="openCoverSelectionModal"
+                    @keydown.enter="openCoverSelectionModal"
+                >
+                    <mt-icon
+                        size="16px"
+                        name="regular-image"
+                        class="sw-media-sidebar__quickactions-icon"
+                    />
+                    {{ $tc('sw-media.sidebar.actions.setCover') }}
+                </li>
+                {% endblock %}
+
+                {% block sw_media_quickinfo_quickactions_remove_cover %}
+                <li
+                    v-if="isVideoMedia && hasVideoCover"
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('media.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    class="quickaction--remove-cover"
+                    :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
+                    @click="removeVideoCover"
+                    @keydown.enter="removeVideoCover"
+                >
+                    <mt-icon
+                        size="16px"
+                        name="regular-times"
+                        class="sw-media-sidebar__quickactions-icon"
+                    />
+                    {{ $tc('sw-media.sidebar.actions.removeCover') }}
                 </li>
                 {% endblock %}
 
@@ -423,6 +474,16 @@
         :items-to-move="[item]"
         @media-move-modal-close="closeModalMove"
         @media-move-modal-items-move="onFolderMoved"
+    />
+    {% endblock %}
+
+    {% block sw_media_quickinfo_cover_modal %}
+    <sw-media-modal-v2
+        v-if="showCoverSelectionModal"
+        :allow-multi-select="false"
+        file-accept="image/*"
+        @modal-close="closeCoverSelectionModal"
+        @media-modal-selection-change="onCoverSelectionChange"
     />
     {% endblock %}
 

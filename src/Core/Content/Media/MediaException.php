@@ -250,6 +250,16 @@ class MediaException extends HttpException
         );
     }
 
+    public static function mediaFileTypeNotSupported(string $mediaId, string $expectedType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_FILE_TYPE_NOT_SUPPORTED,
+            'Media with id {{ mediaId }} must be of type "{{ expectedType }}".',
+            ['mediaId' => $mediaId, 'expectedType' => $expectedType]
+        );
+    }
+
     public static function couldNotRenameFile(string $mediaId, string $oldFileName): self
     {
         return new self(

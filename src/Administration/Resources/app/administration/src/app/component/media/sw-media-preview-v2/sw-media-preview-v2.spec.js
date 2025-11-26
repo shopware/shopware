@@ -282,4 +282,76 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
             expect(warningIcon.exists()).toBe(shouldShowWarning);
         },
     );
+
+    it('uses video cover poster and preload none when cover exists', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    mimeType: 'video/mp4',
+                    url: 'video-url',
+                    extensions: {
+                        videoCoverMedia: { url: 'cover-url' },
+                    },
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const videoElement = wrapper.find('video');
+        expect(videoElement.attributes('poster')).toBe('cover-url');
+        expect(videoElement.attributes('preload')).toBe('none');
+    });
+
+    it('falls back to metadata preload when no cover exists', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    mimeType: 'video/mp4',
+                    url: 'video-url',
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const videoElement = wrapper.find('video');
+        expect(videoElement.attributes('poster')).toBeUndefined();
+        expect(videoElement.attributes('preload')).toBe('metadata');
+    });
+
+    it('fetches cover media when only metadata id exists', async () => {
+        const coverMedia = { id: 'cover-id', url: 'cover-url' };
+        const getMock = jest.fn().mockResolvedValue(coverMedia);
+
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    id: 'video-id',
+                    mimeType: 'video/mp4',
+                    metaData: {
+                        video: {
+                            coverMediaId: 'cover-id',
+                        },
+                    },
+                },
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => Promise.resolve(),
+                            get: getMock,
+                            search: () => Promise.resolve(),
+                        }),
+                    },
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(getMock).toHaveBeenCalledWith('cover-id', Shopware.Context.api);
+        expect(wrapper.vm.videoCoverMedia).toEqual(coverMedia);
+    });
 });

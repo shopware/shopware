@@ -50,6 +50,7 @@ export default {
             showModalReplace: false,
             showModalDelete: false,
             showModalMove: false,
+            showCoverSelectionModal: false,
         };
     },
 
@@ -77,6 +78,14 @@ export default {
 
         fileSizeFilter() {
             return Shopware.Filter.getByName('fileSize');
+        },
+
+        isVideoMedia() {
+            return this.isVideo(this.item);
+        },
+
+        hasVideoCover() {
+            return this.getCoverMediaId(this.item) !== null;
         },
 
         extensionSdkButtons() {
@@ -238,6 +247,85 @@ export default {
                 mimeType,
                 fileSize,
             });
+        },
+
+        openCoverSelectionModal() {
+            this.showCoverSelectionModal = true;
+        },
+
+        closeCoverSelectionModal() {
+            this.showCoverSelectionModal = false;
+        },
+
+        async onCoverSelectionChange(selection) {
+            const [media] = selection;
+            this.closeCoverSelectionModal();
+
+            if (!media || !this.isImage(media)) {
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-media-item.notification.coverSelectionInvalid.message'),
+                });
+
+                return;
+            }
+
+            await this.persistCoverMedia(media.id);
+        },
+
+        async removeCoverMedia() {
+            await this.persistCoverMedia(null);
+        },
+
+        async persistCoverMedia(coverMediaId) {
+            if (!this.isVideoMedia || !this.item?.id) {
+                return;
+            }
+
+            try {
+                this.item.isLoading = true;
+
+                await this.mediaService.assignVideoCover(this.item.id, coverMediaId);
+
+                const snippetKey = coverMediaId
+                    ? 'global.sw-media-media-item.notification.coverSaveSuccess.message'
+                    : 'global.sw-media-media-item.notification.coverRemoveSuccess.message';
+
+                this.createNotificationSuccess({
+                    message: this.$tc(snippetKey),
+                });
+
+                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+            } catch {
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-media-item.notification.coverSaveError.message'),
+                });
+            } finally {
+                this.item.isLoading = false;
+            }
+        },
+
+        getCoverMediaId(item) {
+            return item?.metaData?.video?.coverMediaId ?? null;
+        },
+
+        isVideo(item) {
+            const typeName = item?.mediaType?.name;
+
+            if (typeName) {
+                return typeName === 'VIDEO';
+            }
+
+            return item?.mimeType?.startsWith('video/') ?? false;
+        },
+
+        isImage(item) {
+            const typeName = item?.mediaType?.name;
+
+            if (typeName) {
+                return typeName === 'IMAGE';
+            }
+
+            return item?.mimeType?.startsWith('image/') ?? false;
         },
     },
 };

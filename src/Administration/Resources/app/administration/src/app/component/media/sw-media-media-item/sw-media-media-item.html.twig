@@ -102,6 +102,28 @@
             </sw-context-menu-item>
             {% endblock %}
 
+            {% block sw_media_media_item_context_item_set_cover %}
+            <sw-context-menu-item
+                v-if="isVideoMedia"
+                :disabled="!allowEdit"
+                class="sw-media-context-item__set-video-cover-action"
+                @click="openCoverSelectionModal"
+            >
+                {{ $tc('global.sw-media-media-item.labelContextMenuSetCover') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_media_media_item_context_item_remove_cover %}
+            <sw-context-menu-item
+                v-if="isVideoMedia && hasVideoCover"
+                :disabled="!allowEdit"
+                class="sw-media-context-item__remove-video-cover-action"
+                @click="removeCoverMedia"
+            >
+                {{ $tc('global.sw-media-media-item.labelContextMenuRemoveCover') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
             <template v-if="extensionSdkButtons.length > 0">
                 <sw-app-action-button
                     v-for="action in extensionSdkButtons"
@@ -151,6 +173,16 @@
             :items-to-move="[item]"
             @media-move-modal-close="closeModalMove"
             @media-move-modal-items-move="onMediaItemMoved"
+        />
+        {% endblock %}
+
+        {% block sw_media_media_item_cover_modal %}
+        <sw-media-modal-v2
+            v-if="showCoverSelectionModal && allowEdit && isVideoMedia"
+            :allow-multi-select="false"
+            file-accept="image/*"
+            @modal-close="closeCoverSelectionModal"
+            @media-modal-selection-change="onCoverSelectionChange"
         />
         {% endblock %}
     </template>

@@ -21,6 +21,7 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
         '^shopware\/conflicts$' => 'The shopware conflicts packages should be required in any version, so use `*` constraint',
         '^shopware\/core$' => 'The shopware core packages should be required in any version, so use `*` constraint, the version constraint will be automatically synced during the release process',
         '^ext-.*$' => 'PHP extension version ranges should be required in any version, so use `*` constraint',
+        '^roave\/backward-compatibility-check$' => 'We use our own fork',
     ],
 ];
 

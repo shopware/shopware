@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-readonly class KeyedDistributionConfig implements DistributionConfig
+final readonly class KeyedDistributionConfig implements DistributionConfig
 {
     public function __construct(
         public string $keyProperty = 'data_key',

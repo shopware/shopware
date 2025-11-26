@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
  * Handles partial rendering by pruning and extracting target elements.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class PartialRenderer

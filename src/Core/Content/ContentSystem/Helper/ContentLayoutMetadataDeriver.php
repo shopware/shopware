@@ -10,6 +10,8 @@ use function Symfony\Component\String\u;
  * Derives ContentSystem metadata from entity type using conventional patterns.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class ContentLayoutMetadataDeriver

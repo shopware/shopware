@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * Finds path from root to target using enter/leave pattern.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class PathFinderVisitor implements ElementVisitor

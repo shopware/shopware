@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\Request;
  * for creation of the rendering specification.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class LandingPageContentLayoutContextFactory extends AbstractRenderingSpecificationFactory

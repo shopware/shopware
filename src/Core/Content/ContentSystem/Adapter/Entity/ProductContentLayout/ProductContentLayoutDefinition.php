@@ -20,6 +20,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @internal
+ *
+ * @final
+ */
 #[Package('discovery')]
 class ProductContentLayoutDefinition extends EntityDefinition implements ContentLayoutAssignableDefinitionInterface
 {

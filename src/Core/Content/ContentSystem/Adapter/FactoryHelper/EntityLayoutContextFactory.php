@@ -29,6 +29,8 @@ use Symfony\Component\Routing\RouteCollection;
  * data requirement transformation, specification assembly.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class EntityLayoutContextFactory

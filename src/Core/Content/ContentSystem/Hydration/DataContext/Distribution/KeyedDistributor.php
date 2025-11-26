@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * Matches items by consumer 'data_key' property. Missing keys → null.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class KeyedDistributor implements DistributionStrategyInterface

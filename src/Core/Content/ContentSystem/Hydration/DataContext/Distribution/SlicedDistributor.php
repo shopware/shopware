@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * Chunks collection by slice_size. Last slice gets remainder if uneven.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class SlicedDistributor implements DistributionStrategyInterface

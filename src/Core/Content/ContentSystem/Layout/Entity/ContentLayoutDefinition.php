@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class ContentLayoutDefinition extends EntityDefinition
@@ -36,7 +38,7 @@ class ContentLayoutDefinition extends EntityDefinition
         return ContentLayoutCollection::class;
     }
 
-    public function since(): ?string
+    public function since(): string
     {
         return '6.7.0.0';
     }

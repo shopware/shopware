@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-readonly class BroadcastDistributionConfig implements DistributionConfig
+final readonly class BroadcastDistributionConfig implements DistributionConfig
 {
     public function __construct(
         public ?string $consumerAlias = null

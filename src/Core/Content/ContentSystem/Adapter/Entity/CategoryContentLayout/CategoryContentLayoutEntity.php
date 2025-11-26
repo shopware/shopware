@@ -10,6 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ *
+ * @final
+ */
 #[Package('discovery')]
 class CategoryContentLayoutEntity extends Entity implements ContentLayoutAssignmentInterface
 {

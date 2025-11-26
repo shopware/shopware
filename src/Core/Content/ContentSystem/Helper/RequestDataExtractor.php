@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
  * Extracts query parameters from request and maps them to ContentSystem placeholder values.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class RequestDataExtractor

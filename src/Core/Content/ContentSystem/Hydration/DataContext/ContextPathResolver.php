@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * Resolves nested property paths on Struct objects for context distribution.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class ContextPathResolver

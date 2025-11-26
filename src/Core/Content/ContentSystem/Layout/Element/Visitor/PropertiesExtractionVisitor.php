@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * Objects: Deduplicated by entity ID + config hash. Primitives/arrays: Not deduplicated.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class PropertiesExtractionVisitor implements ElementVisitor

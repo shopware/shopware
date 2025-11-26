@@ -8,15 +8,15 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class ContextDefinitions
+final readonly class ContextDefinitions
 {
     /**
      * @param array<string, ContextProvider> $providers Indexed by context key
      * @param array<string, ContextConsumer> $consumers Indexed by context key
      */
     public function __construct(
-        private readonly array $providers = [],
-        private readonly array $consumers = []
+        private array $providers = [],
+        private array $consumers = []
     ) {
     }
 

@@ -16,6 +16,8 @@ use Symfony\Component\String\UnicodeString;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class ProductListingDataLoader extends AbstractContentDataLoader

@@ -11,8 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * Specifies everything needed for layout refinement and rendering:
  * which layout to use, placeholder values, optional target element, and page-level data requirements.
- *
- * @internal
  */
 #[Package('discovery')]
 final readonly class RenderingSpecification

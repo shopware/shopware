@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * Extracts target element with descendants from hydrated content (post-hydration operation).
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class SubTreeExtractor

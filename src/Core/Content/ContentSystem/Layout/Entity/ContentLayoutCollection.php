@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * @final
  *
  * @extends EntityCollection<ContentLayoutEntity>

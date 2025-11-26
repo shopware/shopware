@@ -9,14 +9,14 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class ContextConsumer
+final readonly class ContextConsumer
 {
     public function __construct(
-        public readonly ContextType $type,
-        public readonly bool $required,
-        public readonly bool $redistribute = false,
-        public readonly ?string $consumerAlias = null,
-        public readonly ?string $propertyAlias = null
+        public ContextType $type,
+        public bool $required,
+        public bool $redistribute = false,
+        public ?string $consumerAlias = null,
+        public ?string $propertyAlias = null
     ) {
     }
 

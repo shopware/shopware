@@ -7,9 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @implements \IteratorAggregate<int, ContentElement>
- *
  * @internal
+ *
+ * @final
+ *
+ * @implements \IteratorAggregate<int, ContentElement>
  */
 #[Package('discovery')]
 class SlotContent extends Struct implements \IteratorAggregate, \Countable

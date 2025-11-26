@@ -4,6 +4,58 @@
       "mainMenuItemGeneral": "Daten teilen",
       "textHeadline": "Daten teilen",
       "description": "Lege fest Nutzungsdaten mit uns zu teilen, um Shopware zu verbessern."
+    },
+    "consent-modal": {
+      "title": "Hilf uns, besser zu werden",
+      "intro": "Indem Du Shop- und Nutzungsdaten teilst, hilfst Du uns zu verstehen, wie die Administration genutzt wird und Verbesserungen zu entwickeln, die Deine tägliche Arbeit erleichtern.",
+      "promises": {
+        "gdpr-compliant": "DSGVO-konform",
+        "securely-processed": "Sicher gespeicherte Daten",
+        "no-third-party": "Keine Weitergabe an Dritte"
+      },
+      "store-data": {
+        "title": "Shopdaten",
+        "description": "Kombinierte Daten aus {order}, {diagnostic} und {store} helfen uns, Funktionen zu verbessern. Bitte bestätige, dass Du berechtigt bist, im Namen Deines Unternehmens zuzustimmen.",
+        "emphasizes": {
+          "order": "Bestellungen",
+          "diagnostic": "Diagnosedaten",
+          "store": "Shop-Daten"
+        },
+        "help-text": {
+          "order": "<strong>Bestelldaten</strong> in Shopware beziehen sich auf detaillierte Informationen zu den von Kunden auf der Plattform getätigten Bestellungen. Dazu gehören Angaben wie bestellte Produkte, Mengen, Preise, Herkunft, Zahlungsarten, Versand usw. Wir analysieren diese Daten, um Trends und Muster zu verstehen, die uns helfen, Funktionen zu verbessern und neue Services zur Steigerung des Geschäftserfolgs zu entwickeln. Wir sammeln keine persönlichen Daten von deinen Kunden, die zur Identifizierung einer einzelnen Person verwendet werden können.",
+          "diagnostic": "<strong>Diagnosedaten</strong> in Shopware beziehen sich auf Informationen im Zusammenhang mit dem Systemzustand, Fehlermeldungen und Leistungskennzahlen der Plattform. Dazu gehören Details wie Systemprotokolle, Fehlermeldungen, Serverantwortzeiten und andere technische Indikatoren. Die Analyse dieser Daten hilft uns dabei, häufig auftretende Probleme oder Sicherheitslücken schnell zu identifizieren, anzugehen und Lösungen zu implementieren, um die Integrität der Plattform aufrechtzuerhalten.",
+          "store": "<strong>Shopdaten</strong> in Shopware beziehen sich auf alle Informationen im Zusammenhang mit Deinem Online-Shop, wie Produkte, Angebote, Preise, Bilder, Beschreibungen usw., sowie Metadaten zur Einrichtung deines Shops, wie Themes und Plugins. Wir sammeln keine persönlichen Daten, die zur Identifizierung eines Admin-Nutzers oder eines Besuchers im Online-Shop verwendet werden können. Mit Hilfe von zusammengefassten Shopdaten können wir Erkenntnisse mithilfe von maschinellem Lernen liefern, wie aufkommende Markttrends, die es Dir ermöglichen, Produktangebote oder Marketingstrategien entsprechend anzupassen."
+        },
+        "label-checkbox": "Shopdaten teilen"
+      },
+      "user-data": {
+        "title": "Meine Daten",
+        "description": "Wir erheben {data}, wie Du mit der Administration interagierst, um deren Benutzerfreundlichkeit und Leistung zu verbessern.",
+        "emphasizes": {
+          "data": "deine Daten"
+        },
+        "help-text": {
+          "data": "<strong>Nutzungsdaten</strong> in Shopware beziehen sich auf Informationen darüber, wie Admin-Nutzer und Besucher des Online-Shops mit unserer Plattform interagieren. Dazu gehören Details wie Interaktionen mit verschiedenen Shopware-Admin-Modulen, angesehene Seiten, Besuchsdauer, Klickpfade und Benutzeraktionen innerhalb der Plattform und des Online-Shops. Durch die Auswertung der Nutzungsdaten können wir Bereiche der Plattform identifizieren, die häufig besucht oder vermieden werden, um die Nutzung von Funktionen zu messen, was zu potenziellen Verbesserungen im Layout, Design und der Funktionalität führt."
+        },
+        "label-checkbox": "Meine Daten teilen"
+      },
+      "opt-out-info": "Du kannst jederzeit in den Einstellungen und Profileinstellungen widersprechen.",
+      "external-links": {
+        "label": "Alle Einzelheiten findest Du unter {data-use-details} und in unserer {privacy-policy}.",
+        "data-use-details": {
+          "label": "shopware.com/de/rechtliches/data-use-details/",
+          "link": "https://www.shopware.com/de/rechtliches/data-use-details/"
+        },
+        "privacy-policy": {
+          "label": "Datenschutzrichtlinie",
+          "link": "https://www.shopware.com/de/datenschutz/"
+        }
+      },
+      "actions": {
+        "share-all-data": "Alles teilen",
+        "share-nothing": "Nichts teilen",
+        "save-preferences": "Einstellungen speichern"
+      }
     }
   },
   "sw-settings-usage-data-general": {

@@ -62,9 +62,9 @@ export default class TagApiService extends ApiService {
             bulkMergeProgress.total = 0;
 
             const repository = this.getRepository(property.entity);
+            const { Criteria } = Shopware.Data;
 
             do {
-                const { Criteria } = Shopware.Data;
                 const criteria = new Criteria(page, limit);
                 criteria.addFilter(Criteria.equalsAny('tags.id', ids));
 

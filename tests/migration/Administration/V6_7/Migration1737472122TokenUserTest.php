@@ -32,6 +32,7 @@ class Migration1737472122TokenUserTest extends TestCase
         static::assertFalse($this->tableExists());
 
         $migration = new Migration1737472122TokenUser();
+        static::assertSame(1737472122, $migration->getCreationTimestamp());
         $migration->update($this->connection);
         $migration->update($this->connection);
 

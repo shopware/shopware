@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingLoader;
 
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderInterface;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\UnicodeString;
@@ -17,11 +18,16 @@ use Symfony\Component\String\UnicodeString;
  * @internal
  */
 #[Package('discovery')]
-class ProductListingDataLoader implements ContentDataLoaderInterface
+class ProductListingDataLoader extends AbstractContentDataLoader
 {
     public function __construct(
         private readonly AbstractProductListingRoute $listingRoute
     ) {
+    }
+
+    public function getDecorated(): AbstractContentDataLoader
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public static function getRequirementType(): string

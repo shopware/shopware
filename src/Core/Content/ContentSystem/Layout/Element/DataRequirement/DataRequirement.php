@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement;
 
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderConfigInterface;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -14,7 +14,7 @@ readonly class DataRequirement
     public function __construct(
         public string $key,
         public string $source,
-        public ContentDataLoaderConfigInterface $config
+        public AbstractContentDataLoaderConfig $config
     ) {
     }
 }

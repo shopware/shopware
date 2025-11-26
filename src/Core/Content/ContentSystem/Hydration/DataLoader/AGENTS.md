@@ -4,9 +4,9 @@
 
 ## Source Code References
 
-- **Interface**: `ContentDataLoaderInterface`
-- **Config Interface**: `ContentDataLoaderConfigInterface`
-- **Serializer Interface**: `ContentDataLoaderConfigSerializerInterface`
+- **Abstract Class**: `AbstractContentDataLoader`
+- **Config Abstract Class**: `AbstractContentDataLoaderConfig`
+- **Serializer Abstract Class**: `AbstractContentDataLoaderConfigSerializer`
 - **Serializer Provider**: `DataLoaderConfigSerializerProvider`
 - **Built-in Loaders**: `EntityLoader/EntityLoader`, `EntityCollectionLoader/EntityCollectionLoader`, `ProductListingLoader/ProductListingDataLoader`
 - **Registry**: `DataLoaderProvider`
@@ -41,13 +41,13 @@ new DataRequirement(key: 'data', source: 'weather', config: [])  // Must match
 
 ### Config Schema Documentation
 
-Create config class implementing `ContentDataLoaderConfigInterface` with `@phpstan-type`. Create serializer implementing `ContentDataLoaderConfigSerializerInterface`. See `EntityLoaderConfig` and `EntityLoaderConfigSerializer` for example.
+Create config class extending `AbstractContentDataLoaderConfig` with `@phpstan-type`. Create serializer extending `AbstractContentDataLoaderConfigSerializer`. See `EntityLoaderConfig` and `EntityLoaderConfigSerializer` for example.
 
 ## Extension Pattern
 
-1. Create config class implementing `ContentDataLoaderConfigInterface`
-2. Create serializer implementing `ContentDataLoaderConfigSerializerInterface`
-3. Implement `ContentDataLoaderInterface`
+1. Create config class extending `AbstractContentDataLoaderConfig`
+2. Create serializer extending `AbstractContentDataLoaderConfigSerializer`
+3. Extend `AbstractContentDataLoader`
 4. Register serializer in DI with source tag
 5. Return `null` for missing data (don't throw)
 6. Use `$context->getContext()` for entity queries
@@ -56,7 +56,7 @@ See `EntityLoader/` directory for complete example.
 
 ## Quick Reference
 
-- **Interface**: `ContentDataLoaderInterface::load(ContentElement, DataRequirement, SalesChannelContext, Request): mixed`
+- **Abstract Class**: `AbstractContentDataLoader::load(ContentElement, DataRequirement, SalesChannelContext, Request): mixed`
 - **Registration**: `#[AutoconfigureTag('content_system.data_loader', ['source' => 'id'])]`
 - **Built-in sources**: `entity`, `entity_collection`, `product_listing`
 - **Config**: Separate config class + serializer

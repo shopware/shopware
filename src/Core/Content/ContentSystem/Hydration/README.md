@@ -37,7 +37,7 @@ Elements declare data needs via DataRequirement objects. Each requirement contai
 
 - `key`: Property key where loaded data is stored
 - `source`: Loader identifier ("entity", "product_listing", custom)
-- `config`: Loader-specific configuration (ContentDataLoaderConfigInterface, serialized to/from array)
+- `config`: Loader-specific configuration (AbstractContentDataLoaderConfig, serialized to/from array)
 
 All data requirements invoke their respective data loaders during hydration. The `source` field identifies which loader to use.
 
@@ -64,5 +64,5 @@ Must load data before context resolution because providers may expose loaded dat
 
 ## Subdirectories
 
-- DataLoader/: Data fetching (ContentDataLoaderInterface implementations)
+- DataLoader/: Data fetching (AbstractContentDataLoader implementations)
 - DataContext/: Context distribution (DataContextResolver, DistributionStrategy)

@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 final class RenderingSpecificationResolver
 {
     /**
-     * @param iterable<RenderingSpecificationFactoryInterface> $factories
+     * @param iterable<AbstractRenderingSpecificationFactory> $factories
      */
     public function __construct(
         private readonly iterable $factories

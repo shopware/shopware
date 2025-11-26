@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 class DataLoaderProvider
 {
     /**
-     * @param ServiceLocator<ContentDataLoaderInterface> $locator
+     * @param ServiceLocator<AbstractContentDataLoader> $locator
      */
     public function __construct(
         private readonly ServiceLocator $locator
@@ -23,7 +23,7 @@ class DataLoaderProvider
     /**
      * @throws ContentSystemException
      */
-    public function get(string $type): ContentDataLoaderInterface
+    public function get(string $type): AbstractContentDataLoader
     {
         if (!$this->locator->has($type)) {
             throw ContentSystemException::dataLoaderNotRegistered($type, 'unknown', 'unknown');

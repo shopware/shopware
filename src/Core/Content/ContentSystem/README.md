@@ -51,7 +51,7 @@ Direct entity-to-layout lookup. Entity-specific factories query assignment table
 
 ### Factory Pattern
 
-The rendering pipeline (events → hydration → events) is independent of the data source. Context factories implementing `RenderingSpecificationFactoryInterface` translate entity IDs into `RenderingSpecification`. Pipeline receives specification and renders content. This enables:
+The rendering pipeline (events → hydration → events) is independent of the data source. Context factories extending `AbstractRenderingSpecificationFactory` translate entity IDs into `RenderingSpecification`. Pipeline receives specification and renders content. This enables:
 - Chain of Responsibility pattern - factories tried in priority order
 - Future: Email-based, preview-based, admin-based rendering
 - Clean separation: entity concerns in factories, rendering in pipeline

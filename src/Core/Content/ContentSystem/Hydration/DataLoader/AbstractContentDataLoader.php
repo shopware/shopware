@@ -9,14 +9,23 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @internal
+ * Abstract base for loading data for content elements.
+ *
+ * Implementations fetch data based on DataRequirement configuration
+ * and store results in element properties.
  */
 #[Package('discovery')]
-interface ContentDataLoaderInterface
+abstract class AbstractContentDataLoader
 {
-    public static function getRequirementType(): string;
+    abstract public function getDecorated(): AbstractContentDataLoader;
 
-    public function load(
+    /**
+     * Returns the requirement type identifier for DI service location.
+     * This method is used by the ServiceLocator for indexing.
+     */
+    abstract public static function getRequirementType(): string;
+
+    abstract public function load(
         ContentElement $element,
         DataRequirement $requirement,
         SalesChannelContext $context,

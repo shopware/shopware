@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 class DataLoaderConfigSerializerProvider
 {
     /**
-     * @param ServiceLocator<ContentDataLoaderConfigSerializerInterface> $locator
+     * @param ServiceLocator<AbstractContentDataLoaderConfigSerializer> $locator
      */
     public function __construct(
         private readonly ServiceLocator $locator
@@ -23,7 +23,7 @@ class DataLoaderConfigSerializerProvider
     /**
      * @param array<string, mixed> $data
      */
-    public function decode(string $source, array $data): ContentDataLoaderConfigInterface
+    public function decode(string $source, array $data): AbstractContentDataLoaderConfig
     {
         if (!$this->locator->has($source)) {
             throw ContentSystemException::configSerializerNotRegistered($source);
@@ -35,7 +35,7 @@ class DataLoaderConfigSerializerProvider
     /**
      * @return array<string, mixed>
      */
-    public function encode(string $source, ContentDataLoaderConfigInterface $config): array
+    public function encode(string $source, AbstractContentDataLoaderConfig $config): array
     {
         if (!$this->locator->has($source)) {
             throw ContentSystemException::configSerializerNotRegistered($source);

@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Content\ContentSystem\Adapter;
 
+use Shopware\Core\Content\ContentSystem\AbstractRenderingSpecificationFactory;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutCollection;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
-use Shopware\Core\Content\ContentSystem\RenderingSpecificationFactoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('discovery')]
-class CategoryContentLayoutContextFactory implements RenderingSpecificationFactoryInterface
+class CategoryContentLayoutContextFactory extends AbstractRenderingSpecificationFactory
 {
     /**
      * @param EntityRepository<CategoryContentLayoutCollection> $repository
@@ -31,6 +32,11 @@ class CategoryContentLayoutContextFactory implements RenderingSpecificationFacto
         private readonly CategoryContentLayoutDefinition $definition,
         private readonly EntityLayoutContextFactory $contextFactory
     ) {
+    }
+
+    public function getDecorated(): AbstractRenderingSpecificationFactory
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function create(string $path, Request $request, SalesChannelContext $context): ?RenderingSpecification

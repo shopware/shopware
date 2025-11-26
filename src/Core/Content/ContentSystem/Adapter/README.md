@@ -39,7 +39,7 @@ LayoutSearchHelper queries with priority: sales channel specific → global.
 
 ## Implementation
 
-Factories implement RenderingSpecificationFactoryInterface. ContentRoute tries factories in DI priority order (Chain of Responsibility). Entity factories check path prefix, query layout assignment, return RenderingSpecification or null.
+Factories extend AbstractRenderingSpecificationFactory. ContentRoute tries factories in DI priority order (Chain of Responsibility). Entity factories check path prefix, query layout assignment, return RenderingSpecification or null.
 
 ## Subdirectories
 

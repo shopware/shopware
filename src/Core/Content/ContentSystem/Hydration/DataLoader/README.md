@@ -4,9 +4,9 @@ Data fetching for content elements. Dispatches to loader implementations based o
 
 ## Key Classes
 
-- `ContentDataLoaderInterface` - Loader contract
-- `ContentDataLoaderConfigInterface` - Config object contract
-- `ContentDataLoaderConfigSerializerInterface` - Serializer contract
+- `AbstractContentDataLoader` - Loader base class
+- `AbstractContentDataLoaderConfig` - Config base class
+- `AbstractContentDataLoaderConfigSerializer` - Serializer base class
 - `DataLoaderProvider` - Dispatcher, selects loader by source identifier
 - `DataLoaderConfigSerializerProvider` - Serializer registry
 - `EntityLoader` - Single entity loading via EntityRepository
@@ -17,7 +17,7 @@ Data fetching for content elements. Dispatches to loader implementations based o
 
 Elements declare DataRequirements with `source` identifier (e.g., "entity", "product_listing"). DataLoaderProvider dispatches to registered loader by source. Loaders tagged in DI with source identifier.
 
-Extensions implement ContentDataLoaderInterface, tag with source identifier, handle specific data fetching.
+Extensions extend AbstractContentDataLoader, tag with source identifier, handle specific data fetching.
 
 ## Built-in Loaders
 
@@ -50,4 +50,4 @@ Loaders receive element (for context), requirement (what to load), context (sale
 
 ## Extension Point
 
-Extensions implement ContentDataLoaderInterface for custom data sources (API calls, calculations, etc.). Register via DI tag with unique source identifier. Elements declare requirements with that source.
+Extensions extend AbstractContentDataLoader for custom data sources (API calls, calculations, etc.). Register via DI tag with unique source identifier. Elements declare requirements with that source.

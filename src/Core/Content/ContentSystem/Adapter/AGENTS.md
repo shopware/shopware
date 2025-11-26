@@ -4,7 +4,7 @@
 
 ## Source Code References
 
-- `RenderingSpecificationFactoryInterface` - Factory contract (root ContentSystem/)
+- `AbstractRenderingSpecificationFactory` - Factory base class (root ContentSystem/)
 - `ProductContentLayoutContextFactory` - Product entity factory
 - `CategoryContentLayoutContextFactory` - Category entity factory
 - `LandingPageContentLayoutContextFactory` - Landing page entity factory
@@ -42,4 +42,4 @@ Entity factories should have priority 100. Higher priority factories run first i
 - **Priority**: Higher runs first (entity factories at 100)
 - **Database**: Single query with sales channel fallback (specific → global)
 - **Exceptions**: Throw only when factory should handle but fails
-- **Extension**: Implement interface, tag with DI priority > 0
+- **Extension**: Extend abstract class, tag with DI priority > 0

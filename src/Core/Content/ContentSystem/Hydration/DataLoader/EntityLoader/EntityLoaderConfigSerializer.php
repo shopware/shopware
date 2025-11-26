@@ -3,9 +3,10 @@
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderConfigInterface;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderConfigSerializerInterface;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @phpstan-import-type EntityLoaderConfigData from EntityLoaderConfig
@@ -13,14 +14,19 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class EntityLoaderConfigSerializer implements ContentDataLoaderConfigSerializerInterface
+class EntityLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer
 {
+    public function getDecorated(): AbstractContentDataLoaderConfigSerializer
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
     public static function getSource(): string
     {
         return 'entity';
     }
 
-    public function decode(array $data): ContentDataLoaderConfigInterface
+    public function decode(array $data): AbstractContentDataLoaderConfig
     {
         if (!\array_key_exists('entity', $data) || !\is_string($data['entity']) || $data['entity'] === '') {
             throw ContentSystemException::invalidFieldValueType('entity', 'non-empty string', \gettype($data['entity'] ?? null));
@@ -52,7 +58,7 @@ class EntityLoaderConfigSerializer implements ContentDataLoaderConfigSerializerI
     /**
      * @return EntityLoaderConfigData
      */
-    public function encode(ContentDataLoaderConfigInterface $config): array
+    public function encode(AbstractContentDataLoaderConfig $config): array
     {
         if (!$config instanceof EntityLoaderConfig) {
             throw ContentSystemException::invalidFieldValueType('config', EntityLoaderConfig::class, $config::class);

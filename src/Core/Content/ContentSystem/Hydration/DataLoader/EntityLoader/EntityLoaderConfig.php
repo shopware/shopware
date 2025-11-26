@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader;
 
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderConfigInterface;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @phpstan-type EntityLoaderConfigData array{
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-final readonly class EntityLoaderConfig implements ContentDataLoaderConfigInterface
+final class EntityLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
      * @param non-empty-string $entity
@@ -23,9 +24,14 @@ final readonly class EntityLoaderConfig implements ContentDataLoaderConfigInterf
      * @param list<non-empty-string> $associations
      */
     public function __construct(
-        public string $entity,
-        public string $property,
-        public array $associations
+        public readonly string $entity,
+        public readonly string $property,
+        public readonly array $associations
     ) {
+    }
+
+    public function getDecorated(): AbstractContentDataLoaderConfig
+    {
+        throw new DecorationPatternException(self::class);
     }
 }

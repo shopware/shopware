@@ -3,9 +3,10 @@
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ProductListingLoader;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderConfigInterface;
-use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderConfigSerializerInterface;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @phpstan-import-type ProductListingLoaderConfigData from ProductListingLoaderConfig
@@ -13,14 +14,19 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class ProductListingLoaderConfigSerializer implements ContentDataLoaderConfigSerializerInterface
+class ProductListingLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer
 {
+    public function getDecorated(): AbstractContentDataLoaderConfigSerializer
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
     public static function getSource(): string
     {
         return 'product_listing';
     }
 
-    public function decode(array $data): ContentDataLoaderConfigInterface
+    public function decode(array $data): AbstractContentDataLoaderConfig
     {
         $property = null;
         if (\array_key_exists('property', $data)) {
@@ -50,7 +56,7 @@ class ProductListingLoaderConfigSerializer implements ContentDataLoaderConfigSer
     /**
      * @return ProductListingLoaderConfigData
      */
-    public function encode(ContentDataLoaderConfigInterface $config): array
+    public function encode(AbstractContentDataLoaderConfig $config): array
     {
         if (!$config instanceof ProductListingLoaderConfig) {
             throw ContentSystemException::invalidFieldValueType('config', ProductListingLoaderConfig::class, $config::class);

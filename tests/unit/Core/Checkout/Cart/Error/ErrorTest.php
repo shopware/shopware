@@ -119,14 +119,14 @@ class ErrorTest extends TestCase
         yield PromotionsOnCartPriceZeroError::class => [new PromotionsOnCartPriceZeroError(['foo', 'bar'])];
         yield PromotionCartAddedInformationError::class => [new PromotionCartAddedInformationError(self::createLineItem())];
         yield PromotionCartDeletedInformationError::class => [new PromotionCartDeletedInformationError(self::createLineItem())];
-        yield ShippingMethodBlockedError::class => [new ShippingMethodBlockedError('foo', Uuid::randomHex(), 'reason')];
+        yield ShippingMethodBlockedError::class => [new ShippingMethodBlockedError(id: Uuid::randomHex(), name: 'foo', reason: 'reason')];
         yield MinOrderQuantityError::class => [new MinOrderQuantityError(Uuid::randomHex(), 'foo', 5)];
         yield ProductNotFoundError::class => [new ProductNotFoundError(Uuid::randomHex())];
         yield ProductOutOfStockError::class => [new ProductOutOfStockError(Uuid::randomHex(), 'foo')];
         yield ProductStockReachedError::class => [new ProductStockReachedError(Uuid::randomHex(), 'foo', 1)];
         yield PurchaseStepsError::class => [new PurchaseStepsError(Uuid::randomHex(), 'foo', 5)];
-        yield PaymentMethodChangedError::class => [new PaymentMethodChangedError('foo', 'bar', Uuid::randomHex(), Uuid::randomHex(), 'reason')];
-        yield ShippingMethodChangedError::class => [new ShippingMethodChangedError('foo', 'bar', Uuid::randomHex(), Uuid::randomHex(), 'reason')];
+        yield PaymentMethodChangedError::class => [new PaymentMethodChangedError(oldPaymentMethodId: Uuid::randomHex(), oldPaymentMethodName: 'foo', newPaymentMethodId: Uuid::randomHex(), newPaymentMethodName: 'bar', reason: 'reason')];
+        yield ShippingMethodChangedError::class => [new ShippingMethodChangedError(oldShippingMethodId: Uuid::randomHex(), oldShippingMethodName: 'foo', newShippingMethodId: Uuid::randomHex(), newShippingMethodName: 'bar', reason: 'reason')];
     }
 
     private static function createCustomerAddress(): CustomerAddressEntity

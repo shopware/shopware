@@ -31,7 +31,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * - >= 3000: Transform (e.g. overrides, placeholders)
  * - >= 1000: Pruning (e.g. filtering, partial render)
  *
- * @internal
+ * @final
  */
 #[Package('discovery')]
 class PreContentHydrationEvent extends Event implements ShopwareEvent

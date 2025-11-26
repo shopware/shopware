@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * Resolves provider/consumer data flow with hierarchical context scoping.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class DataContextResolver

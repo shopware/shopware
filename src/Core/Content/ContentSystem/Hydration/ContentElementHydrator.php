@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
  * Loads data and resolves context for content elements.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class ContentElementHydrator

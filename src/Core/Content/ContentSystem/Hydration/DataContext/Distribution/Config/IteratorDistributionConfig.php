@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-readonly class IteratorDistributionConfig implements DistributionConfig
+final readonly class IteratorDistributionConfig implements DistributionConfig
 {
     public function __construct(
         public ?string $consumerAlias = null

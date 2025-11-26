@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
  * Unlike other strategies, this modifies element tree structure.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class IteratorDistributor implements DistributionStrategyInterface

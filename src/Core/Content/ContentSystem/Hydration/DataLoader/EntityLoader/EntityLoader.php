@@ -19,6 +19,8 @@ use Symfony\Component\String\UnicodeString;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class EntityLoader extends AbstractContentDataLoader

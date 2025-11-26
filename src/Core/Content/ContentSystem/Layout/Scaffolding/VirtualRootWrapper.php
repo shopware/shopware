@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class VirtualRootWrapper
+final class VirtualRootWrapper
 {
     private const VIRTUAL_ROOT_ID = '__page_context_root__';
     private const VIRTUAL_ROOT_TYPE = 'Sw:Internal:PageContext';

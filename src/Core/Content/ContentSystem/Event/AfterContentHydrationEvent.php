@@ -31,7 +31,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * - >= 3000: Enrichment (e.g. computed data)
  * - >= 1000: Extraction (e.g. partial render, output)
  *
- * @internal
+ * @final
  */
 #[Package('discovery')]
 class AfterContentHydrationEvent extends Event implements ShopwareEvent

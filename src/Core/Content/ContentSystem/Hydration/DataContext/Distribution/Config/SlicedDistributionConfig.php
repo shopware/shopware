@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-readonly class SlicedDistributionConfig implements DistributionConfig
+final readonly class SlicedDistributionConfig implements DistributionConfig
 {
     public function __construct(
         public int $sliceSize,

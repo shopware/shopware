@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class ElementTreeUtil
+final class ElementTreeUtil
 {
     /**
      * @return list<string> Element IDs from root to target (inclusive), empty array if not found

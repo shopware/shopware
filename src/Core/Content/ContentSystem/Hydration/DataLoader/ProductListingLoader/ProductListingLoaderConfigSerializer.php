@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  * @phpstan-import-type ProductListingLoaderConfigData from ProductListingLoaderConfig
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class ProductListingLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer

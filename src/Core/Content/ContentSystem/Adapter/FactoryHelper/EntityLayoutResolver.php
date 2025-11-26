@@ -23,6 +23,8 @@ use Symfony\Component\HttpFoundation\Request;
  * Resolves content layout assignments and processes placeholders for entity-based rendering.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class EntityLayoutResolver

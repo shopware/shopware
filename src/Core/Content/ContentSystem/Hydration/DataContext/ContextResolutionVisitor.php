@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
  * Visitor implementing direct-children-only context distribution.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class ContextResolutionVisitor implements ElementVisitor

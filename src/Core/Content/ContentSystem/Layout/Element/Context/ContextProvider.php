@@ -10,11 +10,11 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class ContextProvider
+final readonly class ContextProvider
 {
     public function __construct(
-        public readonly ContextType $type,
-        public readonly DistributionConfig $config
+        public ContextType $type,
+        public DistributionConfig $config
     ) {
     }
 

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * Position-based distribution. Mismatched counts: null for missing items, extras ignored.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class IndexedDistributor implements DistributionStrategyInterface

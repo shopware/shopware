@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Log\Package;
  * Loads ContentLayoutEntity from repository.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class LayoutLoader

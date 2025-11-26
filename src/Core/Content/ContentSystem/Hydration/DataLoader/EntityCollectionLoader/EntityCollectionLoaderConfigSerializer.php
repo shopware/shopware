@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  *
  * @internal
  *
+ * @final
+ *
  * @phpstan-ignore shopware.decorationPattern (delegation, not decoration)
  */
 #[Package('discovery')]

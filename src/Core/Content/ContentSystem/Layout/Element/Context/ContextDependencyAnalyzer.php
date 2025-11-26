@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * Analyzes context dependencies to determine which ancestors must be kept during tree pruning.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class ContextDependencyAnalyzer

@@ -13,6 +13,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class ContentPipeline

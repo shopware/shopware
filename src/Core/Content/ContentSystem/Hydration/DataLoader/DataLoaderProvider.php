@@ -8,6 +8,8 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
 class DataLoaderProvider

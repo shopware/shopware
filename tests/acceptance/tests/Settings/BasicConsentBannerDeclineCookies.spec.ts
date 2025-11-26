@@ -5,9 +5,7 @@ test(
     ShopCustomer,
     StorefrontHome,
     TestDataService,
-    InstanceMeta,
 }) => {
-    test.skip(InstanceMeta.isSaaS, 'Cache invalidation does not happen immediately on SaaS');
 
     await TestDataService.setSystemConfig({'core.basicInformation.acceptAllCookies': true});
     const product = await TestDataService.createBasicProduct();
@@ -34,6 +32,7 @@ test(
     await test.step('Navigate to the product page and verify the cookie banner', async () => {
         const productListItemLocators = await StorefrontHome.getListingItemByProductName(product.name);
         await productListItemLocators.productName.click();
+        await StorefrontHome.page.reload();
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();
     });
 });

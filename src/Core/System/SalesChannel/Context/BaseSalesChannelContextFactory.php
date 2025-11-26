@@ -81,8 +81,6 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
 
-        $domainId = \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null;
-
         if (!Feature::isActive('v6.8.0.0')) {
             $criteria->getAssociation('languages')
                 ->addFilter(new EqualsFilter('id', $context->getLanguageId()))

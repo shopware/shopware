@@ -1,0 +1,47 @@
+{
+    "_hash": "da75a59e6a5335841d93b7165e069865d224f17614c28c2ebd773d2c8e08b5aa",
+    "patches": {
+        "roave/backward-compatibility-check": [
+            {
+                "package": "roave/backward-compatibility-check",
+                "description": "Skip experimental annotations",
+                "url": "patches/skip-experimental.patch",
+                "sha256": "5f4212f8f82889aff9b11b0deff4310dfbe987820c132da71535605ecf8ad9f4",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            },
+            {
+                "package": "roave/backward-compatibility-check",
+                "description": "Skip optional construct parameters",
+                "url": "patches/skip-optional-construct-parameters.patch",
+                "sha256": "9b45e7e1b86ae22be45695a9e632aff74227e7bcf6a794f6a97d3b968dc7af87",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            },
+            {
+                "package": "roave/backward-compatibility-check",
+                "description": "Add exclude errors",
+                "url": "patches/add-exclude-errors.patch",
+                "sha256": "755b3bf8c6775210e476f723c9194a749c1feba9e085a0015e0e78b136fc28eb",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            },
+            {
+                "package": "roave/backward-compatibility-check",
+                "description": "Add exclude files",
+                "url": "patches/add-exclude-files.patch",
+                "sha256": "404b53b50bf12d3a4f7cfbbe112291f54179f8e2adaa3f4da2e6f06cb96097fd",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            }
+        ]
+    }
+}

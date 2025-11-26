@@ -17,7 +17,7 @@
     },
     "require": {
         "roave/backward-compatibility-check": "^8.0",
-        "cweagans/composer-patches": "^1.7"
+        "cweagans/composer-patches": "^2.0"
     },
     "extra": {
         "patches": {

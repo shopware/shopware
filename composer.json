@@ -194,7 +194,7 @@
         "opis/json-schema": "^2.3.0",
         "phpat/phpat": "0.12.0",
         "phpbench/phpbench": "^1.2.15",
-        "phpdocumentor/reflection-docblock": "^5.3.0",
+        "phpdocumentor/reflection-docblock": "^5.6.4",
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpdoc-parser": "^2.0.0",

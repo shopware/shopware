@@ -25,7 +25,7 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 
 # API
 ### Returned status code for `/store-api/document/download/` when no documents are found changed
-The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested file extension, instead of returning a `204` status code.
+The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
 # Core
 

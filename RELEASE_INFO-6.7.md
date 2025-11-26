@@ -4,6 +4,10 @@
 
 ## API
 
+### document download `/store-api/document/download/`
+The endpoint now selects the document file type based on the `Accept` header.
+When no `Accept` header is set or with `*/*`, `PDF` will be returned. ([PR #12944](https://github.com/shopware/shopware/pull/12944))
+
 ## Core
 
 ### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
@@ -69,20 +73,6 @@ A new scheduled task `media.cleanup_corrupted_media` has been introduced.
 It detects and removes corrupted media records, such as entries created by interrupted or failed file uploads that have no corresponding file on the filesystem.
 
 ## API
-
-### Add new optional `fileType` param to store-api route `/store-api/document/download/`
-The optional `fileType` parameter was added to the `/store-api/document/download/{documentId}/{deepLinkCode}/{fileType}` route.
-This parameter allows clients to specify the file type for document downloads, for example, PDF and HTML.
-It can be added as a query parameter or as a path param.
-When no fileType is provided, PDF is used as the fallback. ([PR #12944](https://github.com/shopware/shopware/pull/12944))
-
-```
-{{baseurl}}/store-api/document/download/documentId/deepLinkCode/html
-```
-
-```
-{{baseurl}}/store-api/document/download/documentId/deepLinkCode?fileType=html
-```
 
 ### Add the possibility to specify indexer in context
 

@@ -1,211 +1,159 @@
 {
-    "openapi": "3.1.0",
-    "info": [],
-    "paths": {
-        "/document/download/{documentId}/{deepLinkCode}/{fileType?}": {
-            "post": {
-                "tags": [
-                    "Document",
-                    "Endpoints supporting Criteria "
-                ],
-                "summary": "Download generated document",
-                "description": "Returns blob file of a generated document to download.",
-                "operationId": "download",
-                "parameters": [
-                    {
-                        "name": "documentId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
-                        "name": "deepLinkCode",
-                        "required": true,
-                        "in": "path",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
-                        "name": "sw-include-search-info",
-                        "in": "header",
-                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "0",
-                                "1"
-                            ],
-                            "default": "1"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": false,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                  "200": {
-                    "description": "Success",
-                    "content": {
-                      "application/pdf": {
-                        "schema": {
-                          "type": "string",
-                          "format": "binary"
-                        }
-                      },
-                      "text/html": {
-                        "schema": {
-                          "type": "string"
-                        }
-                      },
-                      "application/xml": {
-                        "schema": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  },
-                  "204": {
-                    "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
-                  },
-                  "403": {
-                    "description": "Forbidden. Customer is not logged in."
-                  },
-                  "404": {
-                    "description": "Document not found."
-                  }
-                },
-                "security": [
-                    {
-                        "ApiKey": [],
-                        "ContextToken": []
-                    }
-                ]
-            },
-          "get": {
-            "tags": [
-              "Document",
-              "Endpoints supporting Criteria "
-            ],
-            "summary": "Download generated document",
-            "description": "Returns blob file of a generated document to download.",
-            "operationId": "downloadGet",
-            "parameters": [
-              {
-                "name": "documentId",
-                "in": "path",
-                "required": true,
-                "schema": {
-                  "type": "string",
-                  "pattern": "^[0-9a-f]{32}$"
-                }
-              },
-              {
-                "name": "deepLinkCode",
-                "required": true,
-                "in": "path",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              {
-                "name": "fileType",
-                "required": false,
-                "in": "path",
-                "schema": {
-                  "type": "string"
-                },
-                "description": "File type that selects the document type renderer (e.g. pdf, html). When no file type is given, pdf will be used as default."
-              },
-              {
-                "name": "sw-language-id",
-                "in": "header",
-                "description": "Instructs Shopware to return the response in the given language.",
-                "required": false,
-                "schema": {
-                  "type": "string",
-                  "pattern": "^[0-9a-f]{32}$"
-                }
-              },
-              {
-                "name": "sw-include-search-info",
-                "in": "header",
-                "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
-                "required": false,
-                "schema": {
-                  "type": "string",
-                  "enum": [
-                    "0",
-                    "1"
-                  ],
-                  "default": "1"
-                }
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "Success",
-                "content": {
-                  "application/pdf": {
-                    "schema": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  },
-                  "text/html": {
-                    "schema": {
-                      "type": "string"
-                    }
-                  },
-                  "application/xml": {
-                    "schema": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "204": {
-                "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
-              },
-              "403": {
-                "description": "Forbidden."
-              },
-              "404": {
-                "description": "Document not found."
-              }
-            },
-            "security": [
-              {
-                "ApiKey": [],
-                "ContextToken": []
-              }
-            ]
-          }
-        }
-    }
+		"openapi": "3.1.0",
+		"info": [],
+		"paths": {
+				"/document/download/{documentId}/{deepLinkCode}": {
+						"post": {
+								"tags": [
+										"Document"
+								],
+								"summary": "Download generated document",
+								"description": "Returns generated document to download.",
+								"operationId": "download",
+								"parameters": [
+										{
+												"name": "documentId",
+												"in": "path",
+												"required": true,
+												"schema": {
+														"type": "string",
+														"pattern": "^[0-9a-f]{32}$"
+												}
+										},
+										{
+												"name": "deepLinkCode",
+												"required": true,
+												"in": "path",
+												"schema": {
+														"type": "string"
+												}
+										},
+										{
+												"name": "sw-language-id",
+												"in": "header",
+												"description": "If a document is rendered on the fly the provided language id is added to fallback languages while the order language has priority. It does not change already generated documents.",
+												"required": false,
+												"schema": {
+														"type": "string",
+														"pattern": "^[0-9a-f]{32}$"
+												}
+										}
+								],
+								"responses": {
+									"200": {
+										"description": "Success",
+										"content": {
+											"application/pdf": {
+												"schema": {
+													"type": "string",
+													"format": "binary"
+												}
+											},
+											"text/html": {
+												"schema": {
+													"type": "string"
+												}
+											},
+											"application/xml": {
+												"schema": {
+													"type": "string"
+												}
+											}
+										}
+									},
+									"204": {
+										"description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
+									},
+									"403": {
+										"description": "Forbidden."
+									},
+									"404": {
+										"description": "Document not found."
+									}
+								},
+								"security": [
+										{
+												"ApiKey": [],
+												"ContextToken": []
+										}
+								]
+						},
+					"get": {
+						"tags": [
+							"Document",
+							"Endpoints supporting Criteria "
+						],
+						"summary": "Download generated document",
+						"description": "Returns generated document to download.",
+						"operationId": "downloadGet",
+						"parameters": [
+							{
+								"name": "documentId",
+								"in": "path",
+								"required": true,
+								"schema": {
+									"type": "string",
+									"pattern": "^[0-9a-f]{32}$"
+								}
+							},
+							{
+								"name": "deepLinkCode",
+								"required": true,
+								"in": "path",
+								"schema": {
+									"type": "string"
+								}
+							},
+							{
+								"name": "sw-language-id",
+								"in": "header",
+								"description": "If a document is rendered on the fly the provided language id is added to fallback languages while the order language has priority. It does not change already generated documents.",
+								"required": false,
+								"schema": {
+									"type": "string",
+									"pattern": "^[0-9a-f]{32}$"
+								}
+							}
+						],
+						"responses": {
+							"200": {
+								"description": "Success",
+								"content": {
+									"application/pdf": {
+										"schema": {
+											"type": "string",
+											"format": "binary"
+										}
+									},
+									"text/html": {
+										"schema": {
+											"type": "string"
+										}
+									},
+									"application/xml": {
+										"schema": {
+											"type": "string"
+										}
+									}
+								}
+							},
+							"204": {
+								"description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
+							},
+							"403": {
+								"description": "Forbidden."
+							},
+							"404": {
+								"description": "Document not found."
+							}
+						},
+						"security": [
+							{
+								"ApiKey": [],
+								"ContextToken": []
+							}
+						]
+					}
+				}
+		}
 }

@@ -61,7 +61,7 @@ class SnippetApiService extends ApiService {
                         // when already instantiated
                         if (Shopware.Snippet?.setLocaleMessage) {
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                            Shopware.Snippet?.setLocaleMessage?.(localeKey, snippets);
+                            Shopware.Snippet.setLocaleMessage?.(localeKey, snippets);
                         }
                     },
                 );

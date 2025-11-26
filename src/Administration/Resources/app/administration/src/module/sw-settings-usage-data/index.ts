@@ -10,6 +10,14 @@ Shopware.Component.register('sw-settings-usage-data', () => import('./page/sw-se
  * @private
  */
 Shopware.Component.register('sw-settings-usage-data-general', () => import('./component/sw-settings-usage-data-general'));
+/**
+ * @sw-package framework
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-usage-data-consent-modal',
+    () => import('./component/sw-settings-usage-data-consent-modal'),
+);
 
 /**
  * @sw-package framework

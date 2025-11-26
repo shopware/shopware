@@ -211,6 +211,18 @@
                         }
                     }
                 },
+                "extensions": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "disable": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
                 "sales_channel": {
                     "type": "object",
                     "additionalProperties": false,

@@ -1,0 +1,191 @@
+<mt-modal-root
+    :is-open="showConsentModal"
+>
+    <mt-modal
+        width="s"
+        :title="$t('sw-settings-usage-data.consent-modal.title')"
+    >
+        <template #default>
+            <div class="sw-settings-usage-data-consent-modal__content">
+                <img
+                    class="sw-setting-usage-data-consent-modal__icon-union"
+                    :src="unionPath"
+                    alt=""
+                >
+
+                <h3 class="sw-setting-usage-data-consent-modal__heading">
+                    {{ $t('sw-settings-usage-data.consent-modal.title') }}
+                </h3>
+
+                <p>{{ $t('sw-settings-usage-data.consent-modal.intro') }}</p>
+
+                <ul class="sw-settings-usage-data-consent-modal__features">
+                    <li>
+                        <mt-icon
+                            name="solid-check-circle"
+                            color="var(--color-icon-positive-default)"
+                            size="var(--scale-size-16)"
+                        />
+                        {{ $t('sw-settings-usage-data.consent-modal.promises.gdpr-compliant') }}
+                    </li>
+                    <li>
+                        <mt-icon
+                            name="solid-check-circle"
+                            color="var(--color-icon-positive-default)"
+                            size="var(--scale-size-16)"
+                        />
+                        {{ $t('sw-settings-usage-data.consent-modal.promises.securely-processed') }}
+                    </li>
+                    <li>
+                        <mt-icon
+                            name="solid-check-circle"
+                            color="var(--color-icon-positive-default)"
+                            size="var(--scale-size-16)"
+                        />
+                        {{ $t('sw-settings-usage-data.consent-modal.promises.no-third-party') }}
+                    </li>
+                </ul>
+
+                <div
+                    v-if="showStoreDataConsent"
+                    class="sw-settings-usage-data-consent-modal__subcard"
+                >
+                    <h4>{{ $tc('sw-settings-usage-data.consent-modal.store-data.title') }}</h4>
+
+                    <i18n-t
+                        tag="p"
+                        keypath="sw-settings-usage-data.consent-modal.store-data.description"
+                    >
+
+                        <template #order>
+                            <span
+                                v-tooltip="{ message: $t('sw-settings-usage-data.consent-modal.store-data.help-text.order')}"
+                                class="sw-settings-usage-data-consent-modal__emphasis"
+                            >
+                                {{ $t('sw-settings-usage-data.consent-modal.store-data.emphasizes.order') }}
+                            </span>
+                        </template>
+
+                        <template #diagnostic>
+                            <span
+                                v-tooltip="{ message: $t('sw-settings-usage-data.consent-modal.store-data.help-text.diagnostic')}"
+                                class="sw-settings-usage-data-consent-modal__emphasis"
+                            >
+                                {{ $t('sw-settings-usage-data.consent-modal.store-data.emphasizes.diagnostic') }}
+                            </span>
+                        </template>
+
+                        <template #store>
+                            <span
+                                v-tooltip="{ message: $t('sw-settings-usage-data.consent-modal.store-data.help-text.store')}"
+                                class="sw-settings-usage-data-consent-modal__emphasis"
+                            >
+                                {{ $t('sw-settings-usage-data.consent-modal.store-data.emphasizes.store') }}
+                            </span>
+                        </template>
+                    </i18n-t>
+
+                    <mt-switch
+                        v-model="storeDataConsent"
+                        :label="$t('sw-settings-usage-data.consent-modal.store-data.label-checkbox')"
+                    />
+                </div>
+
+                <div class="sw-settings-usage-data-consent-modal__subcard">
+                    <h4>{{ $t('sw-settings-usage-data.consent-modal.user-data.title') }}</h4>
+
+                    <i18n-t
+                        tag="p"
+                        keypath="sw-settings-usage-data.consent-modal.user-data.description"
+                    >
+
+                        <template #data>
+                            <span
+                                v-tooltip="{ message: $t('sw-settings-usage-data.consent-modal.user-data.help-text.data')}"
+                                class="sw-settings-usage-data-consent-modal__emphasis"
+                            >
+                                {{ $t('sw-settings-usage-data.consent-modal.user-data.emphasizes.data') }}
+                            </span>
+                        </template>
+                    </i18n-t>
+
+                    <mt-switch
+                        v-model="userDataConsent"
+                        :label="$t('sw-settings-usage-data.consent-modal.user-data.label-checkbox')"
+                    />
+
+                </div>
+
+                <p>{{ $tc('sw-settings-usage-data.consent-modal.opt-out-info') }}</p>
+
+                <i18n-t
+                    tag="p"
+                    keypath="sw-settings-usage-data.consent-modal.external-links.label"
+                >
+                    <template #data-use-details>
+                        <mt-link
+                            :to="$t('sw-settings-usage-data.consent-modal.external-links.data-use-details.link')"
+                            type="external"
+                            target="_blank"
+                        >
+                            {{ $t('sw-settings-usage-data.consent-modal.external-links.data-use-details.label') }}
+                        </mt-link>
+                    </template>
+                    <template #privacy-policy>
+                        <mt-link
+                            :to="$t('sw-settings-usage-data.consent-modal.external-links.privacy-policy.link')"
+                            type="external"
+                            target="_blank"
+                        >
+                            {{ $t('sw-settings-usage-data.consent-modal.external-links.privacy-policy.label') }}
+                        </mt-link>
+                    </template>
+                </i18n-t>
+            </div>
+        </template>
+
+        <template #footer>
+            <div class="sw-settings-usage-data-consent-modal__footer">
+                <template v-if="showSavePreferences">
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        @click="savePreferences"
+                    >
+                        {{ $t('sw-settings-usage-data.consent-modal.actions.save-preferences') }}
+                    </mt-modal-action>
+                </template>
+                <template v-else>
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        @click="shareNothing"
+                    >
+                        <template #iconFront="{ size }">
+                            <mt-icon
+                                name="solid-times"
+                                :size="size"
+                            />
+                        </template>
+                        {{ $t('sw-settings-usage-data.consent-modal.actions.share-nothing') }}
+                    </mt-modal-action>
+
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        @click="shareAll"
+                    >
+                        <template #iconFront="{ size }">
+                            <mt-icon
+                                name="solid-checkmark"
+                                :size="size"
+                            />
+                        </template>
+
+                        {{ $t('sw-settings-usage-data.consent-modal.actions.share-all-data') }}
+                    </mt-modal-action>
+                </template>
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>

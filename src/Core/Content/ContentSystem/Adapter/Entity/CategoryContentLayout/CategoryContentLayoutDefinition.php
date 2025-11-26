@@ -53,6 +53,11 @@ class CategoryContentLayoutDefinition extends EntityDefinition implements Conten
         return CategoryContentLayoutCollection::class;
     }
 
+    public function since(): string
+    {
+        return '6.7.0.0';
+    }
+
     public function getContentLayoutEntityIdField(): string
     {
         return $this->getMetadataDeriver()->deriveEntityIdField($this->getContentLayoutEntityType());

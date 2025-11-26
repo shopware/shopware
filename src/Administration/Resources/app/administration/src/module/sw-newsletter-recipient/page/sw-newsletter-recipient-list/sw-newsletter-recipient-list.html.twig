@@ -212,40 +212,27 @@
                     </template>
 
                     <template #content>
+                        <mt-select
+                            :enable-multi-selection="true"
+                            :model-value="statusFilterValue"
+                            :options="statusData"
+                            @update:model-value="onStatusSelectionChanged"
+                        />
+
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_newsletter_recipient_list_sidebar_filter_status` instead. #}
                         {% block sw_newsletter_recipient_list_sidebar_filter_status_not_set %}
-                        <sw-newsletter-recipient-filter-switch
-                            id="notSet"
-                            group="status"
-                            :label="$tc('sw-newsletter-recipient.list.notSet')"
-                            @update:value="onChange"
-                        />
                         {% endblock %}
 
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_newsletter_recipient_list_sidebar_filter_status` instead. #}
                         {% block sw_newsletter_recipient_list_sidebar_filter_status_direct %}
-                        <sw-newsletter-recipient-filter-switch
-                            id="direct"
-                            group="status"
-                            :label="$tc('sw-newsletter-recipient.list.direct')"
-                            @update:value="onChange"
-                        />
                         {% endblock %}
 
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_newsletter_recipient_list_sidebar_filter_status` instead. #}
                         {% block sw_newsletter_recipient_list_sidebar_filter_status_opt_in %}
-                        <sw-newsletter-recipient-filter-switch
-                            id="optIn"
-                            group="status"
-                            :label="$tc('sw-newsletter-recipient.list.optIn')"
-                            @update:value="onChange"
-                        />
                         {% endblock %}
 
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_newsletter_recipient_list_sidebar_filter_status` instead. #}
                         {% block sw_newsletter_recipient_list_sidebar_filter_status_opt_out %}
-                        <sw-newsletter-recipient-filter-switch
-                            id="optOut"
-                            group="status"
-                            :label="$tc('sw-newsletter-recipient.list.optOut')"
-                            @update:value="onChange"
-                        />
                         {% endblock %}
                     </template>
                 </sw-sidebar-collapse>
@@ -259,17 +246,14 @@
 
                     <template #content>
                         {% block sw_newsletter_recipient_list_sidebar_filter_language_items %}
-                        <div
-                            v-for="(item, index) in languageFilters"
-                            :key="index"
-                        >
-                            <sw-newsletter-recipient-filter-switch
-                                :id="item.id"
-                                group="languageId"
-                                :label="item.name"
-                                @update:value="onChange"
-                            />
-                        </div>
+                        <mt-select
+                            :enable-multi-selection="true"
+                            :model-value="languageFilterValue"
+                            :options="languageFilters"
+                            label-property="name"
+                            value-property="id"
+                            @update:model-value="onLanguageSelectionChanged"
+                        />
                         {% endblock %}
                     </template>
                 </sw-sidebar-collapse>
@@ -283,17 +267,14 @@
 
                     <template #content>
                         {% block sw_newsletter_recipient_list_sidebar_filter_sales_channel_items %}
-                        <div
-                            v-for="(item, index) in salesChannelFilters"
-                            :key="index"
-                        >
-                            <sw-newsletter-recipient-filter-switch
-                                :id="item.id"
-                                group="salesChannelId"
-                                :label="item.translated.name"
-                                @update:value="onChange"
-                            />
-                        </div>
+                        <mt-select
+                            :enable-multi-selection="true"
+                            :model-value="salesChannelFilterValue"
+                            :options="salesChannelFilters"
+                            label-property="name"
+                            value-property="id"
+                            @update:model-value="onSalesChannelSelectionChanged"
+                        />
                         {% endblock %}
                     </template>
                 </sw-sidebar-collapse>
@@ -307,9 +288,13 @@
 
                     <template #content>
                         {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags_select %}
-                        <sw-entity-multi-select
-                            v-model:entity-collection="tagCollection"
-                            @update:entity-collection="onChange"
+                        <mt-select
+                            :enable-multi-selection="true"
+                            :model-value="tagFilterValue"
+                            :options="tagFilters"
+                            label-property="name"
+                            value-property="id"
+                            @update:model-value="onTagSelectionChanged"
                         />
                         {% endblock %}
                     </template>

@@ -1,12 +1,6 @@
 @import "~scss/variables";
 
 .sw-order-document-card {
-    &.sw-order-document-card--is-empty {
-        .mt-card__content {
-            min-height: 390px;
-        }
-    }
-
     .sw-order-document-card__static-icon {
         top: 25px;
         position: absolute;

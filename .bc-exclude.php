@@ -39,8 +39,25 @@ return [
         // Domain exceptions should not be extended in 3rd party code
         preg_quote('ADDED: Parameter domain was added to Method invalidDomain() of class Shopware\Core\System\SystemConfig\SystemConfigException', '/'),
 
+        // Type widening from string to ParsedRobots|string is backward compatible - all existing string usage continues to work
+        preg_quote('CHANGED: The parameter $rules of Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct#__construct() changed from string to Shopware\Storefront\Page\Robots\Parser\ParsedRobots|string', '/'),
+
         // Should have been internal in the first place, all the other changelog classes were internal and already removed
         preg_quote('REMOVED: Class Shopware\Core\Framework\Changelog\ChangelogSection has been deleted'),
         preg_quote('REMOVED: Class Shopware\Core\Framework\Changelog\ChangelogKeyword has been deleted'),
+
+        // JWTGenerator not released yet
+        preg_quote('ADDED: Parameter disableValidation was added to Method decode() of class Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator'),
+        preg_quote('ADDED: Parameter jwt was added to Method getTokenLifetime() of class Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator'),
+        preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\JWT\SalesChannel\JWTGenerator#getTokenLifetime() increased from 0 to 1'),
+
+        // consumed not released yet
+        preg_quote('REMOVED: Property Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct#$consumed was removed'),
+        preg_quote('REMOVED: Method Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct#isConsumed() was removed'),
+        preg_quote('REMOVED: Method Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct#setConsumed() was removed'),
+
+        // Fix for promotion discount entity property initialization error - necessary to prevent runtime errors
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#$usageKey changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $usageKey of Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#setUsageKey() changed from string to string|null', '/'),
     ],
 ];

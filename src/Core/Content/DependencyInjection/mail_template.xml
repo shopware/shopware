@@ -38,6 +38,8 @@
         <service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+            <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailDataProvider"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -125,6 +127,18 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Mail\DataProvider\OrderProvider">
+            <argument type="service" id="order.repository"/>
+
+            <tag name="shopware.mail.data_provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Mail\Service\MailDataProvider">
+            <argument type="tagged" tag="shopware.mail.data_provider"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
     </services>
 </container>

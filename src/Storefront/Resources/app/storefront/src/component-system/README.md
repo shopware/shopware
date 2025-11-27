@@ -9,7 +9,7 @@ For Twig components that have to implement interactive funcationality via JavaSc
 1. **Automatic initialization**  
     If the component is implemented properly it will automatically be initialized on the corresponding elements. Even if the DOM tree changes and elements are added or removed, the component will automatically be initiallized on added elements or destroyed for removed elements. No more manual re-initialization of plugins that have to work in conjunction after dynamic DOM changes.
 
-2. **No registration needed**
+2. **No registration needed**  
     The component system uses native ES module loading that does everyhting for you, if you follow the conventions. The script will automatically be loaded and initialized on corresponding elements just based on the component's name.
 
 3. **Better events instead of overrides**  

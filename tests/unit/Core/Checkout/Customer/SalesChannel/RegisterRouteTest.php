@@ -661,6 +661,7 @@ class RegisterRouteTest extends TestCase
                 'countryId' => $countryId,
                 'id' => Uuid::randomHex(),
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'salutationId' => $salutationId,
             ],
             'salutationId' => $salutationId,
             'lastName' => 'Mustermann',
@@ -773,6 +774,7 @@ class RegisterRouteTest extends TestCase
             'shippingAddress' => [
                 'id' => Uuid::randomHex(),
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'salutationId' => $salutationId,
             ],
             'salutationId' => $salutationId,
             'lastName' => 'Mustermann',

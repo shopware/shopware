@@ -13,6 +13,7 @@
       "INVALID_URL": "Please enter a valid url.",
       "INVALID_MAIL": "Please enter a valid email address.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again.",
+      "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "The URL {path} conflicts with the existing route {blockedSegment} and cannot be used.",
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
       "DUPLICATED_NAME": "This name is already in use.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",

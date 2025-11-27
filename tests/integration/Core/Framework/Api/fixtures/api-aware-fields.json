@@ -718,6 +718,7 @@
     "product_manufacturer.createdAt",
     "product_manufacturer.updatedAt",
     "product_manufacturer.translated",
+    "product_manufacturer_translation.link",
     "product_manufacturer_translation.name",
     "product_manufacturer_translation.description",
     "product_manufacturer_translation.customFields",

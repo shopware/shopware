@@ -144,6 +144,17 @@
                 @click="onRefresh"
             />
             {% endblock %}
+
+            {% block sw_review_list_sidebar_filter %}
+            <sw-sidebar-filter-panel
+                entity="product_review"
+                :store-key="storeKey"
+                :filters="listFilters"
+                :defaults="defaultFilters"
+                :active-filter-number="activeFilterNumber"
+                @criteria-changed="updateCriteria"
+            />
+            {% endblock %}
         </sw-sidebar>
     </template>
     {% endblock %}

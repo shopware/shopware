@@ -12,19 +12,19 @@ const utils = Shopware.Utils;
  */
 
 function isIllegalFileNameException(error) {
-    return error.response.data.errors.some((err) => {
+    return error.response?.data?.errors?.some((err) => {
         return err.code === 'CONTENT__MEDIA_ILLEGAL_FILE_NAME';
     });
 }
 
 function isDuplicationException(error) {
-    return error.response.data.errors.some((err) => {
+    return error.response?.data?.errors?.some((err) => {
         return err.code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
     });
 }
 
 function isIllegalUrlException(error) {
-    return error.response.data.errors.some((err) => {
+    return error.response?.data?.errors?.some((err) => {
         return err.code === 'CONTENT__MEDIA_ILLEGAL_URL';
     });
 }
@@ -126,7 +126,7 @@ export default {
             }
 
             if (action === UploadEvents.UPLOAD_FAILED) {
-                if (isDuplicationException(payload.error)) {
+                if (isDuplicationException(payload?.error)) {
                     this.$emit(UploadEvents.UPLOAD_FAILED, payload);
                     return;
                 }

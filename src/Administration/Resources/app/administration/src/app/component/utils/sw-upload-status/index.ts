@@ -24,6 +24,7 @@ type ApiError = {
 };
 
 type UploadError = {
+    code?: string;
     response: {
         data: {
             errors: ApiError[];
@@ -57,23 +58,27 @@ type MediaUploadEvent = {
     uploadTag: string;
 };
 
-// see MediaException.php for reference
-const ErrorCodes = {
+const ResponseErrorCodes = {
     ILLEGAL_FILE_NAME: 'CONTENT__MEDIA_ILLEGAL_FILE_NAME',
     ILLEGAL_URL: 'CONTENT__MEDIA_ILLEGAL_URL',
     ILLEGAL_FILE_TYPE: 'CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED',
     DUPLICATED_FILE_NAME: 'CONTENT__MEDIA_DUPLICATED_FILE_NAME',
-};
+} as const;
+
+const ClientErrorCodes = {
+    REQUEST_CANCELED: 'ECONNABORTED',
+} as const;
 
 const IgnoredErrors = [
-    ErrorCodes.DUPLICATED_FILE_NAME, // Handled by sw-duplicated-media-v2
-];
+    ResponseErrorCodes.DUPLICATED_FILE_NAME, // Handled by sw-duplicated-media-v2
+] as const;
 
 const ErrorMessages = {
-    [ErrorCodes.ILLEGAL_FILE_NAME]: 'global.sw-media-upload.notification.illegalFilename.message',
-    [ErrorCodes.ILLEGAL_URL]: 'global.sw-media-upload.notification.illegalFileUrl.message',
-    [ErrorCodes.ILLEGAL_FILE_TYPE]: 'global.sw-media-upload.notification.fileTypeNotSupported.message',
-};
+    [ResponseErrorCodes.ILLEGAL_FILE_NAME]: 'global.sw-media-upload.notification.illegalFilename.message',
+    [ResponseErrorCodes.ILLEGAL_URL]: 'global.sw-media-upload.notification.illegalFileUrl.message',
+    [ResponseErrorCodes.ILLEGAL_FILE_TYPE]: 'global.sw-media-upload.notification.fileTypeNotSupported.message',
+    [ClientErrorCodes.REQUEST_CANCELED]: 'global.sw-media-upload.notification.requestCanceled.message',
+} as const;
 
 /**
  * This component listens to media upload events and shows a snackbar displaying the upload progress.
@@ -224,11 +229,13 @@ export default Shopware.Component.wrapComponentConfig({
             const { payload } = event;
             const found = this.findByTargetId(payload.targetId ?? '');
 
-            if (!found || !payload.error) {
+            if (!found) {
                 return;
             }
 
-            if (payload.error.response.data.errors?.find((error) => error.code === ErrorCodes.DUPLICATED_FILE_NAME)) {
+            if (payload?.error?.response?.data?.errors?.find(
+                (error) => error.code === ResponseErrorCodes.DUPLICATED_FILE_NAME))
+            {
                 found.fileInfo.status = UploadStatus.PENDING;
             } else {
                 found.fileInfo.status = UploadStatus.FAILED;
@@ -261,23 +268,30 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
         showErrorNotification(payload: UploadFailedPayload) {
-            payload.error.response.data.errors?.forEach((error) => {
-                if (IgnoredErrors.includes(error.code)) {
-                    return;
-                }
+            const messageSnippets = [];
 
-                const snippetKey = ErrorMessages[error.code as keyof typeof ErrorMessages];
+            if (!payload?.error?.response && ErrorMessages[payload.error?.code as keyof typeof ErrorMessages]) {
+                messageSnippets.push(ErrorMessages[payload.error.code as keyof typeof ErrorMessages]);
+            } else {
+                payload?.error?.response?.data?.errors?.forEach((error) => {
+                    if (IgnoredErrors.includes(error.code as typeof IgnoredErrors[number])) {
+                        return;
+                    }
 
-                if (!snippetKey) {
-                    return; // Covered by the main snackbar
-                }
+                    const snippetKey = ErrorMessages[error.code as keyof typeof ErrorMessages];
 
-                this.snackbar.addSnackbar({
-                    id: `media-upload-error-${payload.targetId}`,
-                    variant: 'error',
-                    duration: 5000,
-                    message: this.$t(snippetKey, { fileName: payload.fileName }, 0),
-                } as Snackbar);
+                    if (!snippetKey) {
+                        return;
+                    }
+
+                    messageSnippets.push(snippetKey);
+                });
+            }
+
+            messageSnippets.forEach((snippet) => {
+                this.createNotificationError({
+                    message: this.$t(snippet, { fileName: payload.fileName }),
+                });
             });
         },
     },

@@ -473,6 +473,9 @@
         },
         "illegalFileType": {
           "message": "Die Datei \"{name}\" konnte nicht hochgeladen werden. Der Dateityp wird nicht unterstützt."
+        },
+        "requestCanceled": {
+          "message": "Das Hochladen wurde abgebrochen."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"

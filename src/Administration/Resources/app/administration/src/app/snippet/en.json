@@ -473,6 +473,9 @@
         },
         "illegalFileType": {
           "message": "The file \"{name}\" could not be uploaded. This file type is not supported."
+        },
+        "requestCanceled": {
+          "message": "The upload has been cancelled."
         }
       },
       "caption": "Drag files here to upload"

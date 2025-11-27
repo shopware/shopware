@@ -4,6 +4,10 @@
     pointer-events: none;
 }
 
+.sw-product-card-loader__cta {
+    --bs-btn-disabled-bg: var(--bs-secondary-bg-subtle);
+}
+
 .has-element-loader {
     .sw-product-card__content {
         visibility: hidden;

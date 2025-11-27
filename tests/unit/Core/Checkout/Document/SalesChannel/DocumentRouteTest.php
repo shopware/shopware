@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Document\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -11,8 +12,10 @@ use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -36,6 +39,7 @@ use Symfony\Component\HttpFoundation\Response;
 class DocumentRouteTest extends TestCase
 {
     private const DUMMY_DOCUMENT_ID = 'documentId';
+    private const ACCEPT_WILDCARD = '*/*';
 
     public function testDownloadWithDocumentNotFound(): void
     {
@@ -441,5 +445,201 @@ class DocumentRouteTest extends TestCase
         if (!Feature::isActive('v6.8.0.0')) {
             static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
         }
+    }
+
+    public function testDownloadShouldThrowExceptionWhenDocumentMediaFileIsNotFound(): void {
+        $customerID = Uuid::randomHex();
+
+        $customer = new CustomerEntity();
+        $customer->setId($customerID);
+        $customer->setGuest(false);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomerId($customerID);
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setOrder($order);
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $generator = $this->createMock(DocumentGenerator::class);
+
+        $route = new DocumentRoute(
+            $generator,
+            $documentRepository,
+            new GuestAuthenticator(),
+        );
+
+        $request = new Request();
+        $request->headers->set('Accept', 'application/pdf');
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable(
+                    self::DUMMY_DOCUMENT_ID, [PdfRenderer::FILE_EXTENSION]
+                )
+            );
+        }
+
+        $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+        }
+    }
+
+    #[DataProvider('provideAcceptHeaderThatFallbacksToDefaultFileType')]
+    public function testDownloadShouldFallbackToDefaultFileType(
+        ?string $acceptHeader
+    ){
+        $customerID = Uuid::randomHex();
+
+        $customer = new CustomerEntity();
+        $customer->setId($customerID);
+        $customer->setGuest(false);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomerId($customerID);
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setOrder($order);
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $generator = $this->createMock(DocumentGenerator::class);
+
+        $route = new DocumentRoute(
+            $generator,
+            $documentRepository,
+            new GuestAuthenticator(),
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $request = new Request();
+        if($acceptHeader) {
+            $request->headers->set('Accept', $acceptHeader);
+        }
+
+        $generator->expects($this->once())
+            ->method('readDocument')
+            ->with(
+                self::DUMMY_DOCUMENT_ID,
+                $context->getContext(),
+                '',
+                PdfRenderer::FILE_EXTENSION,
+            );
+
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable(
+                    self::DUMMY_DOCUMENT_ID, [PdfRenderer::FILE_EXTENSION]
+                )
+            );
+        }
+
+        $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+        }
+
+    }
+
+    public static function provideAcceptHeaderThatFallbacksToDefaultFileType(): \Generator
+    {
+        yield 'Accept header with wildcart' => [
+            'acceptHeader' => self::ACCEPT_WILDCARD,
+        ];
+        yield 'Accept header not set' => [
+            'acceptHeader' => null,
+        ];
+    }
+
+    public function testDownloadShouldUseRequestedFileType(){
+        $customerID = Uuid::randomHex();
+
+        $customer = new CustomerEntity();
+        $customer->setId($customerID);
+        $customer->setGuest(false);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomerId($customerID);
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setOrder($order);
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $generator = $this->createMock(DocumentGenerator::class);
+
+        $route = new DocumentRoute(
+            $generator,
+            $documentRepository,
+            new GuestAuthenticator(),
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $request = new Request();
+        $request->headers->set('Accept', ZugferdRenderer::FILE_CONTENT_TYPE);
+
+        $generator->expects($this->once())
+            ->method('readDocument')
+            ->with(
+                self::DUMMY_DOCUMENT_ID,
+                $context->getContext(),
+                '',
+                ZugferdRenderer::FILE_EXTENSION,
+            );
+
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable(
+                    self::DUMMY_DOCUMENT_ID, [ZugferdRenderer::FILE_EXTENSION]
+                )
+            );
+        }
+
+        $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+        }
+
     }
 }

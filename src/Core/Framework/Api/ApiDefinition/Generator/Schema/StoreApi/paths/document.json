@@ -1,128 +1,165 @@
-  {
-      "openapi": "3.1.0",
-      "info": [],
-      "paths": {
-          "/document/download/{documentId}/{deepLinkCode}": {
-              "post": {
-                  "tags": [
-                      "Document"
-                  ],
-                  "summary": "Download generated document",
-                  "description": "Returns generated document to download.",
-                  "operationId": "download",
-                  "parameters": [
-                      {
-                          "name": "documentId",
-                          "in": "path",
-                          "required": true,
-                          "schema": {
-                              "type": "string",
-                              "pattern": "^[0-9a-f]{32}$"
-                          }
-                      },
-                      {
-                          "name": "deepLinkCode",
-                          "required": true,
-                          "in": "path",
-                          "schema": {
-                              "type": "string"
-                          }
-                      },
-                      {
-                          "name": "sw-language-id",
-                          "in": "header",
-                          "description": "If a document is rendered on the fly the provided language id is added to fallback languages while the order language has priority. It does not change already generated documents.",
-                          "required": false,
-                          "schema": {
-                              "type": "string",
-                              "pattern": "^[0-9a-f]{32}$"
-                          }
-                      }
-                  ],
-                  "responses": {
-                      "200": {
-                          "description": "Success",
-                          "content": {
-                              "application/pdf": {
-                                  "schema": {
-                                      "type": "string",
-                                      "format": "binary"
-                                  }
-                              },
-                              "text/html": {
-                                    "schema": {
-                                      "type": "string"
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/document/download/{documentId}/{deepLinkCode}": {
+            "post": {
+                "tags": [
+                    "Document"
+                ],
+                "summary": "Download generated document",
+                "description": "Returns generated document to download.",
+                "operationId": "download",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "deepLinkCode",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "If a document is rendered on the fly the provided language id is added to fallback languages while the order language has priority. It does not change already generated documents.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "zipcode": {
+                                        "type": "string"
                                     }
-                              },
-                              "application/xml": {
+                                },
+                              "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            },
+                            "text/html": {
                                   "schema": {
                                     "type": "string"
                                   }
-                              }
-                          }
-                      },
-                      "204": {
-                          "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
-                      },
-                      "403": {
-                          "description": "Forbidden."
-                      },
-                      "404": {
-                          "description": "Document not found."
-                      }
-                  },
-                  "security": [
-                      {
-                          "ApiKey": [],
-                          "ContextToken": []
-                      }
-                  ]
-              },
-              "get": {
-                  "tags": [
-                    "Document"
-                  ],
-                  "summary": "Download generated document",
-                  "description": "Returns generated document to download.",
-                  "operationId": "downloadGet",
-                  "parameters": [
-                      {
-                          "name": "documentId",
-                          "in": "path",
-                          "required": true,
-                          "schema": {
-                              "type": "string",
-                              "pattern": "^[0-9a-f]{32}$"
-                          }
-                      },
-                      {
-                          "name": "deepLinkCode",
-                          "required": true,
-                          "in": "path",
-                          "schema": {
-                              "type": "string"
-                          }
-                      },
-                      {
-                          "name": "sw-language-id",
-                          "in": "header",
-                          "description": "If a document is rendered on the fly the provided language id is added to fallback languages while the order language has priority. It does not change already generated documents.",
-                          "required": false,
-                          "schema": {
-                              "type": "string",
-                              "pattern": "^[0-9a-f]{32}$"
+                            },
+                            "application/xml": {
+                                "schema": {
+                                  "type": "string"
+                                }
+                            }
                         }
+                    },
+                    "204": {
+                        "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
+                    },
+                    "403": {
+                        "description": "Forbidden."
+                    },
+                    "404": {
+                        "description": "Document not found."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": [],
+                        "ContextToken": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                  "Document"
+                ],
+                "summary": "Download generated document",
+                "description": "Returns generated document to download.",
+                "operationId": "downloadGet",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "deepLinkCode",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
+                    },
+                    {
+                        "name": "zipcode",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "If a document is rendered on the fly the provided language id is added to fallback languages while the order language has priority. It does not change already generated documents.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
                       }
-                  ],
-                  "responses": {
-                      "200": {
-                          "description": "Success",
-                          "content": {
-                              "application/pdf": {
-                                  "schema": {
-                                      "type": "string",
-                                      "format": "binary"
-                                  }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
                             },
                             "text/html": {
                                 "schema": {
@@ -134,25 +171,25 @@
                                     "type": "string"
                                 }
                             }
-                          }
-                      },
-                      "204": {
-                          "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
-                      },
-                      "403": {
-                          "description": "Forbidden."
-                      },
-                      "404": {
-                          "description": "Document not found."
-                      }
-                  },
-                  "security": [
-                      {
-                          "ApiKey": [],
-                          "ContextToken": []
-                      }
-                  ]
-              }
-          }
-      }
-  }
+                        }
+                    },
+                    "204": {
+                        "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
+                    },
+                    "403": {
+                        "description": "Forbidden."
+                    },
+                    "404": {
+                        "description": "Document not found."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": [],
+                        "ContextToken": []
+                    }
+                ]
+            }
+        }
+    }
+}

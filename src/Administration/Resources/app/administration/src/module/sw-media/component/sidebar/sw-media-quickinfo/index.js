@@ -121,6 +121,10 @@ export default {
         actionListKey() {
             return this.hasVideoCover ? 'has-cover' : 'no-cover';
         },
+
+        canManageVideoCover() {
+            return this.isVideoMedia && this.isPlayable;
+        },
     },
 
     watch: {

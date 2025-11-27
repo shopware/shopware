@@ -93,7 +93,7 @@
 
                 {% block sw_media_quickinfo_quickactions_set_cover %}
                 <li
-                    v-if="isVideoMedia"
+                    v-if="canManageVideoCover"
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
                         disabled: acl.can('media.editor'),
@@ -117,7 +117,7 @@
 
                 {% block sw_media_quickinfo_quickactions_remove_cover %}
                 <li
-                    v-if="isVideoMedia && hasVideoCover"
+                    v-if="canManageVideoCover && hasVideoCover"
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
                         disabled: acl.can('media.editor'),

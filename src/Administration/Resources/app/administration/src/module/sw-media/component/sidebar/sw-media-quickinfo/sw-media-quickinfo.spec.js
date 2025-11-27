@@ -416,6 +416,26 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         },
     );
 
+    it('shows cover actions only for playable video formats', async () => {
+        global.activeAclRoles = ['media.editor'];
+
+        const playableWrapper = await createWrapper({
+            mimeType: 'video/mp4',
+            mediaType: { name: 'VIDEO' },
+        });
+        await playableWrapper.vm.$nextTick();
+
+        expect(playableWrapper.find('.quickaction--set-cover').exists()).toBe(true);
+
+        const unsupportedWrapper = await createWrapper({
+            mimeType: 'video/x-msvideo',
+            mediaType: { name: 'VIDEO' },
+        });
+        await unsupportedWrapper.vm.$nextTick();
+
+        expect(unsupportedWrapper.find('.quickaction--set-cover').exists()).toBe(false);
+    });
+
     it('should build augmented reality tooltip', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

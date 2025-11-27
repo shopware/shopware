@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -40,15 +41,14 @@ class VideoCoverCleanupSubscriber implements EventSubscriberInterface
 
     public function removeDanglingCoverReferences(EntityDeleteEvent $event): void
     {
-        $deletedIds = $event->getIds(MediaDefinition::ENTITY_NAME);
+        $deletedIds = array_values($event->getIds(MediaDefinition::ENTITY_NAME));
         if ($deletedIds === []) {
             return;
         }
 
         $criteria = (new Criteria())
-            ->addAssociation('mediaType')
             ->addFilter(new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('metaData', null)]))
-            ->addFilter(new EqualsFilter('mediaType.name', 'VIDEO'));
+            ->addFilter(new ContainsFilter('mimeType', 'video/'));
 
         $mediaWithMetaData = $this->mediaRepository->search($criteria, $event->getContext());
 

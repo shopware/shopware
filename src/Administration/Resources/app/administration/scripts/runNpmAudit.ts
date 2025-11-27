@@ -39,13 +39,30 @@ try {
   );
 
   if (remaining > 0) {
-    console.error(`❌ Remaining vulnerabilities detected: ${remaining}`);
+    console.error(`❌ Remaining vulnerabilities detected: ${remaining}\n`);
     Object.values(audit.vulnerabilities)
       .filter((pkg: any) => pkg.via.length > 0)
       .forEach((pkg: any) => {
+        console.error(`Package: ${pkg.name || 'unknown'}`);
+        console.error(`Severity: ${pkg.severity || 'unknown'}`);
+        console.error(`Range: ${pkg.range || 'N/A'}`);
         pkg.via.forEach((v: any) => {
-          console.error(`- ${v.title} (${v.source})`);
+          // Handle both string and object types in via array
+          if (typeof v === 'string') {
+            console.error(`  - Dependency issue: ${v}`);
+          } else if (v && typeof v === 'object') {
+            const title = v.title || 'Unknown vulnerability';
+            const source = v.source || 'N/A';
+            const url = v.url || (v.source ? `https://github.com/advisories/GHSA-${v.source}` : null);
+
+            console.error(`  - ${title}`);
+            console.error(`    Advisory ID: ${source}`);
+            if (url) {
+              console.error(`    URL: ${url}`);
+            }
+          }
         });
+        console.error('');
       });
     process.exit(1);
   } else {

@@ -145,7 +145,6 @@ class CacheInvalidationSubscriber
     public function invalidateCmsPageIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes and http cache pages where a cms page was loaded, the id is assigned as tag
-        /** @var list<string> $ids */
         $ids = array_map(EntityCacheKeyGenerator::buildCmsTag(...), $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME));
         $this->cacheInvalidator->invalidate($ids);
     }
@@ -179,7 +178,6 @@ class CacheInvalidationSubscriber
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
     {
         // invalidates the landing page route, if the corresponding landing page changed
-        /** @var list<string> $ids */
         $ids = array_map(LandingPageRoute::buildName(...), $event->getIds());
         $this->cacheInvalidator->invalidate($ids);
     }

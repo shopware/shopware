@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -119,12 +117,11 @@ class UserController extends AbstractController
     {
         $this->validateScope($request);
 
-        /** @var AdminApiSource $source */
         $source = $context->getSource();
 
-        if (
-            !$source->isAllowed('user:update')
-            && $source->getUserId() !== $userId
+        if ((!$source instanceof AdminApiSource)
+            || (!$source->isAllowed('user:update')
+            && $source->getUserId() !== $userId)
         ) {
             throw new PermissionDeniedException();
         }
@@ -154,30 +151,22 @@ class UserController extends AbstractController
         $this->validateScope($request);
 
         $data = $request->request->all();
-
-        /** @var AdminApiSource $source */
-        $source = $context->getSource();
-
         if (!isset($data['id'])) {
             $data['id'] = null;
         }
         $data['id'] = $userId ?: $data['id'];
 
-        if (
-            !$source->isAllowed('user:update')
-            && $source->getUserId() !== $data['id']
+        $source = $context->getSource();
+        if ((!$source instanceof AdminApiSource)
+            || (!$source->isAllowed('user:update')
+            && $source->getUserId() !== $data['id'])
         ) {
             throw new PermissionDeniedException();
         }
 
-        /** @var EntityWrittenContainerEvent $events */
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->userRepository->upsert([$data], $context));
-
-        /** @var EntityWrittenEvent $event */
-        $event = $events->getEventByEntityName(UserDefinition::ENTITY_NAME);
-
-        $eventIds = $event->getIds();
-        $entityId = array_pop($eventIds);
+        $eventIds = $events->getEventByEntityName(UserDefinition::ENTITY_NAME)?->getIds() ?? [];
+        $entityId = array_last($eventIds);
 
         return $factory->createRedirectResponse($this->userRepository->getDefinition(), $entityId, $request, $context);
     }
@@ -199,14 +188,10 @@ class UserController extends AbstractController
             $data['id'] = $roleId ?? null;
         }
 
-        /** @var EntityWrittenContainerEvent $events */
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->roleRepository->upsert([$data], $context));
-
-        /** @var EntityWrittenEvent $event */
-        $event = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME);
-
-        $eventIds = $event->getIds();
-        $entityId = array_pop($eventIds);
+        $eventIds = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME)?->getIds() ?? [];
+        $entityId = array_last($eventIds);
+        \assert($entityId !== null);
 
         return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $entityId, $request, $context);
     }
@@ -252,15 +237,15 @@ class UserController extends AbstractController
             return;
         }
 
-        if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
+        if (!$this->hasScope($request)) {
             throw ApiException::invalidScopeAccessToken(UserVerifiedScope::IDENTIFIER);
         }
     }
 
-    private function hasScope(Request $request, string $scopeIdentifier): bool
+    private function hasScope(Request $request): bool
     {
         $scopes = array_flip($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES));
 
-        return isset($scopes[$scopeIdentifier]);
+        return isset($scopes[UserVerifiedScope::IDENTIFIER]);
     }
 }

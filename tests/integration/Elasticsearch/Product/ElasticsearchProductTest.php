@@ -2029,7 +2029,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{from: int, to: int, expected: string[], rules?: string[]}>
+     * @return iterable<string, array{from: int, to: int, expected: list<string>, rules?: list<string>}>
      */
     public function providerCheapestPriceFilter(): iterable
     {
@@ -2099,7 +2099,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ids: string[], rules: string[]}>
+     * @return iterable<string, array{ids: list<string>, rules: list<string>}>
      */
     public function cheapestPriceSortingProvider(): iterable
     {
@@ -2917,7 +2917,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{min: float, max: float, rules: string[]}>
+     * @return iterable<string, array{min: float, max: float, rules: list<string>}>
      */
     private function providerCheapestPriceAggregation(): iterable
     {

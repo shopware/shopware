@@ -3,11 +3,14 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * @template IDStructure of string|array<string, string> = string
+ *
  * @final
  */
 #[Package('framework')]
@@ -21,12 +24,12 @@ class IdSearchResult extends Struct
     protected array $data;
 
     /**
-     * @var list<string>|list<array<string, string>>
+     * @var list<IDStructure>
      */
     protected array $ids;
 
     /**
-     * @param array<array<string, mixed>> $data
+     * @param array<string, array{primaryKey: IDStructure, data: array<string, mixed>}> $data
      */
     public function __construct(
         private readonly int $total,
@@ -36,11 +39,11 @@ class IdSearchResult extends Struct
     ) {
         $this->ids = array_column($data, 'primaryKey');
 
-        $this->data = array_map(fn ($row) => $row['data'], $data);
+        $this->data = array_map(static fn ($row) => $row['data'], $data);
     }
 
     /**
-     * @param array<string> $ids
+     * @param array<IDStructure> $ids
      */
     public static function fromIds(
         array $ids,
@@ -71,14 +74,17 @@ class IdSearchResult extends Struct
         $id = $this->ids[0];
 
         if (!\is_string($id)) {
-            throw new \RuntimeException('Calling IdSearchResult::firstId() is not supported for mapping entities.');
+            throw DataAbstractionLayerException::invalidCriteriaIds(
+                $this->ids,
+                \sprintf('Calling "%s" is not supported for entities with combined primary keys. Use "getIds()" instead.', __METHOD__)
+            );
         }
 
         return $id;
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<IDStructure>
      */
     public function getIds(): array
     {
@@ -136,14 +142,14 @@ class IdSearchResult extends Struct
         $score = $this->getDataFieldOfId($id, '_score');
 
         if ($score === null) {
-            throw new \RuntimeException('No score available for id ' . $id);
+            throw DataAbstractionLayerException::scoreNotFound($id);
         }
 
         return (float) $score;
     }
 
     /**
-     * @param string|array<string, string> $primaryKey
+     * @param IDStructure $primaryKey
      */
     public function has(string|array $primaryKey): bool
     {

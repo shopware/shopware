@@ -134,12 +134,27 @@ Component.register('sw-theme-manager-detail', {
             return Object.values(this.structuredThemeFields).length > 0 && !this.isLoading;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - This method will be removed.
+         */
         hasMoreThanOneTab() {
             return Object.values(this.structuredThemeFields.tabs).length > 1;
         },
 
         isDefaultTheme() {
             return this.theme.id === this.defaultTheme.id;
+        },
+
+        tabItems() {
+            const tabs = this.structuredThemeFields?.tabs || {};
+            const entries = Object.entries(tabs);
+
+            const items = entries.map(([name, tab]) => ({
+                name,
+                label: this.getTabLabel(tab.labelSnippetKey, tab.label) || name,
+            }));
+
+            return items;
         }
     },
 

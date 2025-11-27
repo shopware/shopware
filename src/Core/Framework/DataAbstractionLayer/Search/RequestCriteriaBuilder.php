@@ -30,6 +30,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class RequestCriteriaBuilder
 {
+    /**
+     * State indicating that no explicit limit was provided in the request.
+     * When this state is set, the criteria limit comes from a static fallback value,
+     * and dynamic system configuration should be preferred instead.
+     */
+    public const STATE_NO_EXPLICIT_LIMIT_IN_REQUEST = 'no-explicit-limit-in-request';
+
     final public const KNOWN_FIELDS = [
         'ids',
         'total-count-mode',
@@ -47,6 +54,7 @@ class RequestCriteriaBuilder
         'associations',
         'fields',
     ];
+
     private const TOTAL_COUNT_MODE_MAPPING = [
         'none' => Criteria::TOTAL_COUNT_MODE_NONE,
         'exact' => Criteria::TOTAL_COUNT_MODE_EXACT,
@@ -149,6 +157,7 @@ class RequestCriteriaBuilder
 
             if ($criteria->getLimit() === null && $maxLimit !== null) {
                 $criteria->setLimit($maxLimit);
+                $criteria->addState(self::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
             }
 
             if (isset($payload['page'])) {

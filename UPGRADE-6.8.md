@@ -131,7 +131,9 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
-## Only rules relevant for product prices are considered in the `sw-cache-hash`
+## Cache improvements
+
+### Only rules relevant for product prices are considered in the `sw-cache-hash`
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
 
 If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`. In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
@@ -155,8 +157,27 @@ class ResolveRuleIds implements EventSubscriberInterface
 
 If some custom entity has a relation to a rule, which might alter the storefront, you should add them to either an existing area, or your own are using the DAL flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on the rule association.
 
-## Removed unused `RuleAreas` constants
+### Removed unused `RuleAreas` constants
 The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed
+
+### Removed `sw-states` and `sw-currency` cache cookie handling
+The `sw-states` and `sw-currency` cache cookie handling is removed, which means by default the HTTP-Cache is also active for logged in customers or when the cart is filled.
+Due to the rework of the contained rules in the cache hash (see above), this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
+
+You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
+
+The following classes and constants were removed as they are no longer used:
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was removed:
+* `shopware.cache.invalidation.http_cache`
 
 ## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
 * For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.
@@ -399,6 +420,12 @@ Using request attributes:
 Script\Api\ResponseCacheConfiguration::maxAge()` and
 `\Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration::invalidationState()` were removed with no replacement.
 
+## Removal of product manufacturer link column
+
+The column `link` of the table `product_manufacturer` was removed.
+
+Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
+
 </details>
 
 # Administration
@@ -458,6 +485,20 @@ The following snippet keys have been removed:
 * `global.sw-condition.condition.lineItemOfTypeRule`
 * `global.sw-condition.condition.promotionCodeOfTypeRule`
 * `global.sw-condition.condition.dayOfWeekRule`
+
+## The following template blocks of the newsletter recipient filter have been removed
+* `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
+* `sw_newsletter_recipient_list_sidebar_filter_status_direct`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
+
+Use the parent blocks instead
+
+## Removement of component sw-newsletter-recipient-filter-switch
+`administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
+
+## File accessibility changed from public to private
+`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
 </details>
 

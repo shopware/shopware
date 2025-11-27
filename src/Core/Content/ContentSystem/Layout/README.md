@@ -40,7 +40,8 @@ ContentLayoutEntity can contain multiple root elements (`array<ContentElement>`)
 ## Custom DAL Fields
 
 Field/ contains custom DAL field types for serializing complex structures:
-- `ContentElementField`: Serializes element trees
+- `ContentElementField`: Serializes a single ContentElement
+- `ContentElementListField`: Serializes arrays of ContentElement (multi-root layouts)
 - `ElementSlotsField`: Serializes slot arrays (`array<string, SlotContent>`)
 - `DataRequirementsField`: Serializes data requirements
 - `ContextProvidersField`, `ContextConsumersField`: Serializes context definitions

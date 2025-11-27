@@ -14,11 +14,34 @@
         background: var(--bs-gray-300);
     }
 
+    .sw-product-card-badges,
+    .product-wishlist-btn {
+        display: none;
+    }
+
     .sw-product-card__media {
         opacity: 0;
     }
 
     .sw-product-card-loader {
         visibility: visible;
+    }
+}
+
+.is--layout-horizontal {
+    .sw-product-card-loader {
+        padding-bottom: 1rem;
+        top: 0;
+        left: var(--sw-product-card-horizontal-img-width);
+        width: calc(100% - var(--sw-product-card-horizontal-img-width));
+        padding-left: 1rem;
+    }
+
+    .sw-product-card-loader__text {
+        flex-grow: 1;
+    }
+
+    .sw-product-card-loader__cta {
+        max-width: 280px;
     }
 }

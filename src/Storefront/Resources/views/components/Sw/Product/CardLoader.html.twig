@@ -14,15 +14,15 @@
 } %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>
-    <h5 class="placeholder-{{ animationType }}">
+    <h5 class="sw-product-card-loader__title placeholder-{{ animationType }}">
         <span class="placeholder placeholder-lg col-11"></span>
     </h5>
-    <p class="card-text placeholder-{{ animationType }}">
+    <p class="sw-product-card-loader__text card-text placeholder-{{ animationType }}">
         <span class="placeholder placeholder-sm col-4"></span>
         <span class="placeholder placeholder-sm col-6"></span>
     </p>
 
-    <a class="btn btn-light bg-secondary-subtle disabled placeholder col-12"
+    <a class="sw-product-card-loader__cta btn btn-light bg-secondary-subtle disabled placeholder col-12"
        style="--bs-btn-disabled-bg: var(--bs-secondary-bg-subtle);"
        aria-disabled="true">
     </a>

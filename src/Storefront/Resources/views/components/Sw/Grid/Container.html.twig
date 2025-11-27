@@ -239,7 +239,7 @@
 
 {% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
-{% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ '; margin-bottom: ' ~ gap ~ '; ' : gridStyle %}
+{% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; margin-bottom: ' ~ gap ~ 'px; ' : gridStyle %}
 
 <div
     {{ attributes.defaults(attributeDefaults) }}

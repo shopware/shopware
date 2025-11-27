@@ -65,6 +65,10 @@
                 </twig:Slot>
             {% endblock %}
 
+            {% if config('core.cart.wishlistEnabled') %}
+                <twig:Sw:Product:WishlistButton :productId="product.id" />
+            {% endif %}
+
             <twig:Slot name="header-bottom"></twig:Slot>
         </div>
 

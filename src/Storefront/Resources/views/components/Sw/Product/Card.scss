@@ -69,6 +69,16 @@
     }
 }
 
+.sw-product-card__media {
+    transition: all 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.sw-product-card__header:has(+ .sw-product-card__content .sw-product-card__title-link:hover) {
+    .sw-product-card__media {
+        transform: scale(105%);
+    }
+}
+
 .sw-product-card.is--layout-default {
     .sw-product-card__inner {
         flex-direction: column;

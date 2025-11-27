@@ -30,6 +30,7 @@ class CacheHashService
         private readonly ExtensionDispatcher $extensions,
         private readonly CacheRelevantRulesResolver $ruleResolver,
         private readonly array $cookies,
+        private readonly ?string $cacheHashSecret,
         private readonly EventDispatcherInterface $dispatcher,
     ) {
     }
@@ -71,6 +72,11 @@ class CacheHashService
                 $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
             }
 
+            if ($request->cookies->has(HttpCacheKeyGenerator::CONTEXT_CACHE_HASH_SIGNATURE)) {
+                $response->headers->removeCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_HASH_SIGNATURE);
+                $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_HASH_SIGNATURE);
+            }
+
             return;
         }
 
@@ -81,6 +87,8 @@ class CacheHashService
             $cookie->setSecureDefault($request->isSecure());
 
             $response->headers->setCookie($cookie);
+
+            $this->signCacheHash($newValue, $request, $response);
         }
 
         $response->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
@@ -140,5 +148,19 @@ class CacheHashService
         }
 
         return false;
+    }
+
+    private function signCacheHash(string $newValue, Request $request, Response $response): void
+    {
+        if (!$this->cacheHashSecret) {
+            return;
+        }
+
+        $signature = '0x' . hash_hmac('sha256', $newValue . $request->cookies->get('session-', ''), $this->cacheHashSecret);
+
+        $cookie = Cookie::create(HttpCacheKeyGenerator::CONTEXT_CACHE_HASH_SIGNATURE, $signature);
+        $cookie->setSecureDefault($request->isSecure());
+
+        $response->headers->setCookie($cookie);
     }
 }

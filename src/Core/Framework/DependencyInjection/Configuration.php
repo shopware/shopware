@@ -911,6 +911,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('reverse_proxy')
                     ->children()
                         ->booleanNode('enabled')->end()
+                        ->scalarNode('cache_hash_secret')->defaultNull()->end()
                         ->booleanNode('use_varnish_xkey')->defaultFalse()->end()
                         ->arrayNode('hosts')->performNoDeepMerging()
                             ->scalarPrototype()->end()

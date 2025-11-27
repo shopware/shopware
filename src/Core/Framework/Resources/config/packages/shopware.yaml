@@ -9,9 +9,10 @@ shopware:
         cookies: []
         soft_purge: false
         reverse_proxy:
-            enabled: false
+            enabled: true
+            cache_hash_secret: "S3CRET"
             ban_method: "BAN" # This can defer from used reverse proxy
-            hosts: [ "http://varnish" ]
+            hosts: [ "http://sw_varnish" ]
             max_parallel_invalidations: 2
             purge_all:
             fastly:

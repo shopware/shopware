@@ -1,10 +1,13 @@
-{# @TODO: Naming conflict "variants" vs. UX component varians #}
 {% props
-    variants,
+    productVariants,
 %}
 
-<div class="sw-product-variants fs-6 d-flex flex-wrap text-light-emphasis">
-    {%- for variant in variants -%}
+{% set attributeDefaults = {
+    class: 'sw-product-variants fs-6 d-flex flex-wrap text-light-emphasis',
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {%- for variant in productVariants -%}
         <span class="sw-product-variants__variant me-1">
             {{ variant.group }}: {{ variant.option }}{% if variants|last != variant %},{% endif %}
         </span>

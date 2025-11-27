@@ -1,0 +1,17 @@
+.sw-product-card .product-wishlist-btn {
+    --bs-btn-border-radius: 0;
+    --bs-btn-bg: rgba(255, 255, 255, 0.8);
+    margin-top: 10px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+
+    .icon {
+        color: currentColor;
+
+        svg {
+            top: 0;
+        }
+    }
+}

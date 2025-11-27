@@ -27,6 +27,11 @@
     }
 }) %}
 
+{% set attributeDefaults = {
+    class: alert.apply({ variant, size }),
+    role: 'alert'
+} %}
+
 {% set defaultIcons = {
     primary: 'info',
     secondary: 'info',
@@ -38,7 +43,7 @@
     dark: 'info',
 } %}
 
-<div role="alert" {{ attributes.defaults({ class: alert.apply({ variant, size }) }) }}>
+<div {{ attributes.defaults(attributeDefaults) }}>
 
     {% block icon %}
         {% if icon is not false and icon|length > 0 %}

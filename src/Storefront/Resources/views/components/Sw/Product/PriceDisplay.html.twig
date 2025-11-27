@@ -3,6 +3,10 @@
     showTaxInfo = false,
 %}
 
+{% set attributeDefaults = {
+    class: 'sw-product-price-display mb-3 card-text',
+} %}
+
 {% block component_product_box_price_info %}
     {% set cheapest = product.calculatedCheapestPrice %}
 
@@ -23,7 +27,7 @@
         {% set hasDifferentPrice = totalVariants|filter(variant => variant.default != null)|length > 0 %}
     {% endif %}
 
-    <div class="sw-product-price-display mb-3 card-text">
+    <div {{ attributes.defaults(attributeDefaults) }}>
 
         {% if referencePrice is not null %}
             <p class="sw-product-price-display__reference-price">

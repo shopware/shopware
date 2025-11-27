@@ -8,34 +8,21 @@
     animationType = 'wave',
 %}
 
-<div class="sw-product-card-loader position-absolute top-0 start-0 bottom-0 d-flex flex-column" aria-hidden="true">
-    <div class="card-img-top">
-        <svg class="bd-placeholder-img"
-             height="220"
-             preserveAspectRatio="xMidYMid slice"
-             role="img"
-             width="100%"
-             xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="var(--bs-secondary-bg-subtle)"></rect>
-        </svg>
-    </div>
+{% set attributeDefaults = {
+    class: 'sw-product-card-loader position-absolute start-0 bottom-0 d-flex flex-column w-100 pt-3',
+    'aria-hidden': true,
+} %}
 
-    <div class="card-body pb-2">
-        <h5 class="placeholder-{{ animationType }}">
-            <span class="placeholder placeholder-lg col-11"></span>
-        </h5>
-        <p class="card-text placeholder-{{ animationType }}">
-            <span class="placeholder placeholder-sm col-7"></span>
-            <span class="placeholder placeholder-sm col-4"></span>
-            <span class="placeholder placeholder-sm col-4"></span>
-            <span class="placeholder placeholder-sm col-6"></span>
-            <span class="placeholder placeholder-sm col-8"></span>
-        </p>
-    </div>
+<div {{ attributes.defaults(attributeDefaults) }}>
+    <h5 class="sw-product-card-loader__title placeholder-{{ animationType }}">
+        <span class="placeholder placeholder-lg col-11"></span>
+    </h5>
+    <p class="sw-product-card-loader__text card-text placeholder-{{ animationType }}">
+        <span class="placeholder placeholder-sm col-4"></span>
+        <span class="placeholder placeholder-sm col-6"></span>
+    </p>
 
-    <div class="card-footer border-0">
-        <a class="btn btn-light bg-secondary-subtle disabled placeholder col-12"
-           style="--bs-btn-disabled-bg: var(--bs-secondary-bg-subtle);"
-           aria-disabled="true">
-        </a>
-    </div>
+    <a class="sw-product-card-loader__cta btn btn-light bg-secondary-subtle disabled placeholder col-12"
+       aria-disabled="true">
+    </a>
 </div>

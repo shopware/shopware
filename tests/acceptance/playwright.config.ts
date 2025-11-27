@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
 import dotenv from 'dotenv';
+import { currentsReporter, CurrentsConfig } from '@currents/playwright';
 
 // Read from default ".env" file.
 dotenv.config();
@@ -43,6 +44,15 @@ if (process.env['ADMIN_URL']) {
     process.env['ADMIN_URL'] = process.env['APP_URL'] + 'admin/';
 }
 
+// const currentsConfig: CurrentsConfig = {
+//     recordKey: process.env.CURRENTS_RECORD_KEY || 'WLB6egT1kbikJKEV', // set in CI or .env
+//     projectId: process.env.CURRENTS_PROJECT_ID || '9Xnv0u',
+//     coverage: {
+//         // optionally list Playwright project names to include
+//         projects: ['Coverage'],
+//     },
+// };
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -57,7 +67,7 @@ export default defineConfig({
     /* There are still some issues with running the tests in parallel */
     workers: process.env.CI ? 1 : 1,
 
-    reporter: 'html',
+    reporter: [['html', {}], currentsReporter()] as any,
 
     timeout: 60_000,
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -121,6 +131,14 @@ export default defineConfig({
             },
             dependencies: [],
             grep: /@Visual/,
+        },
+        {
+            name: 'Coverage',
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            dependencies: [],
+            grep: /@Coverage/,
         },
     ],
 

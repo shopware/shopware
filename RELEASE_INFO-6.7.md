@@ -1,6 +1,4 @@
-# 6.7.5.0 (upcoming)
-### More tech updates
-* ProductStream IDs added to ElasticsearchProductDefinition
+# 6.7.6.0 (upcoming)
 
 ## Features
 
@@ -10,20 +8,6 @@
   and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
   together with other HTTP caching improvements.
 - Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
-
-### Tax Calculation Logic
-
-The tax-free detection logic if the cart changed to handle B2B and B2C customers separately.
-Previously, enabling "Tax-free for B2C" in the country settings also affected B2B customers.
-Now, tax rules are applied **correctly** based on the customer type.
-
-### Robots.txt configuration
-The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard.
-For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
-
-### Scheduled Task for cleaning up corrupted media entries
-A new scheduled task `media.cleanup_corrupted_media` has been introduced.
-It detects and removes corrupted media records, such as entries created by interrupted or failed file uploads that have no corresponding file on the filesystem.
 
 ## API
 
@@ -44,27 +28,28 @@ Selected Store API routes now support HTTP caching with `Cache-Control` headers:
 
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
-### Add the possibility to specify indexer in context
-
-When you want to specify which indexer should run, you can add the `EntityIndexerRegistry::EXTENSION_INDEXER_ONLY` extension to the context as follows:
-
-```php
-$context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_ONLY,
-    new ArrayEntity([
-        ProductIndexer::STOCK_UPDATER // Only execute STOCK_UPDATER.
-    ]),
-);
-```
-
-When making a call to the Sync API, specify the required indexer in the header:
-
-```bash
-curl -X POST "http://localhost:8000/api/_action/sync" \
--H "indexing-only: product.stock" \
-#...
-```
-
 ## Core
+
+### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
+The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
+You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
+
+Due to the rework of the contained rules in the cache hash, this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
+
+You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
+
+The following classes and constants were deprecated as they will not be used anymore:
+* `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was deprecated:
+* `shopware.cache.invalidation.http_cache`
 
 ### HTTP Caching Policies
 
@@ -155,6 +140,90 @@ Policies are resolved in order (highest to lowest priority):
 - `ResponseCacheConfiguration::maxAge()` - use `sharedMaxAge()` instead
 - `ResponseCacheConfiguration::invalidationState()` - deprecated, no replacement (state logic only applies to Storefront)
 
+## Administration
+
+## Storefront
+
+## App System
+
+### App Script caching control
+
+As before, app developers can control caching via in app scripts using syntax `{% do response.cache.<directive> %}`, which map to `ResponseCacheConfiguration` methods.
+Next changes were made to `ResponseCacheConfiguration` methods:
+- added `sharedMaxAge(seconds)` - set shared (reverse proxy/CDN) cache TTL, equivalent to `s-maxage` cache control directive.
+- added `clientMaxAge(seconds)` - set client-side (browser) cache TTL, equivalent to `max-age` cache control directive. Has effect only if `CACHE_REWORK` feature flag is enabled.
+- deprecated `maxAge(seconds)` - use sharedMaxAge() instead.
+
+Admins can override policies per script using `route_policies` with `route#hook` pattern in configuration (see HTTP caching policies description in the Core section).
+
+## Hosting & Configuration
+
+### Possibility to disable extensions when setting up staging mode
+
+A new config option `shopware.staging.extensions.disable` was added to allow configuring extensions that should be automatically disabled when the staging mode gets activated via `system:setup:staging` command.
+
+```yaml
+shopware:
+    staging:
+        extensions:
+            disable: ["TheExtensionName", "AnotherExtensionName"]
+```
+
+### Deprecated HTTP cache configuration
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable.
+- `shopware.http.cache.default_ttl` parameter.
+- `shopware.http_cache.stale_while_revalidate` parameter.
+- `shopware.http_cache.stale_if_error` parameter.
+
+Deprecated parameters will have no effect when `CACHE_REWORK` feature flag is enabled, and will be removed in 6.8.0.0.
+
+## Critical fixes
+
+# 6.7.5.0
+
+## Features
+
+### Tax Calculation Logic
+
+The tax-free detection logic if the cart changed to handle B2B and B2C customers separately.
+Previously, enabling "Tax-free for B2C" in the country settings also affected B2B customers.
+Now, tax rules are applied **correctly** based on the customer type.
+
+### Robots.txt configuration
+
+The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard.
+For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
+
+### Scheduled Task for cleaning up corrupted media entries
+
+A new scheduled task `media.cleanup_corrupted_media` has been introduced.
+It detects and removes corrupted media records, such as entries created by interrupted or failed file uploads that have no corresponding file on the filesystem.
+
+## API
+
+### Add the possibility to specify indexer in context
+
+When you want to specify which indexer should run, you can add the `EntityIndexerRegistry::EXTENSION_INDEXER_ONLY` extension to the context as follows:
+
+```php
+$context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_ONLY,
+    new ArrayEntity([
+        ProductIndexer::STOCK_UPDATER // Only execute STOCK_UPDATER.
+    ]),
+);
+```
+
+When making a call to the Sync API, specify the required indexer in the header:
+
+```bash
+curl -X POST "http://localhost:8000/api/_action/sync" \
+-H "indexing-only: product.stock" \
+#...
+```
+
+## Core
+
 ### Improved Store API OpenAPI documentation with field descriptions
 
 The OpenAPI schema generator for Store API endpoints now includes descriptions for entity fields, making it easier for developers to understand the available fields and their purposes.
@@ -170,7 +239,23 @@ To add descriptions to fields in your custom entity definitions, use the `setDes
     ->setDescription('Customer group determining pricing and permissions')
 ```
 
+### Allow overwriting Doctrine wrapperClass on Primary/Replica setups
+
+It's now possible to overwrite the `wrapperClass` of the `Doctrine\DBAL\Connection` instance.
+This is useful if you want to use e.g. `Doctrine MySQL Comeback` to automatically reconnect if the MySQL connection is lost.
+
+```bash
+composer require facile-it/doctrine-mysql-come-back ^3.0
+```
+
+Then specify the `wrapperClass` in the `.env` file:
+
+```
+DATABASE_URL=mysql://root:root@database/shopware?driverOptions[x_reconnect_attempts]=5&wrapperClass=Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection
+```
+
 ### Robots.txt parsing
+
 A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.
 As part of this change, the constructor for `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` is now deprecated for string parameters. You should use the new parser to create a `ParsedRobots` object to pass to the constructor instead.
 
@@ -252,6 +337,20 @@ The `link` property of the product manufacturer entity is now translatable.
 
 When creating a SEO URL for a product or category, the URL is now checked for availability. Before it was possible to override existing URLs like `account` or `maintenance` with SEO URLs. Existing URLs are now blocked to be used as SEO URLs.
 
+## Refactor filters for the newsletter recipients list.
+
+We now use the `<mt-select>` instead `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch`.
+Because of that, we deprecate these twig blocks:
+* `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
+* `sw_newsletter_recipient_list_sidebar_filter_status_direct`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
+
+These blocks will be removed in v6.8.0.0 without replacement. Use the parent blocks instead.
+We also deprecate
+`administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` which will be removed with v6.8.0.0 and
+`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js` which will be private in v6.8.0.0.
+
 ## Storefront
 
 ### Language selector twig blocks
@@ -286,28 +385,7 @@ to:
 {% endblock %}
 ```
 
-## App System
-
-### App Script caching control
-
-As before, app developers can control caching via in app scripts using syntax `{% do response.cache.<directive> %}`, which map to `ResponseCacheConfiguration` methods.
-Next changes were made to `ResponseCacheConfiguration` methods:
-- added `sharedMaxAge(seconds)` - set shared (reverse proxy/CDN) cache TTL, equivalent to `s-maxage` cache control directive.
-- added `clientMaxAge(seconds)` - set client-side (browser) cache TTL, equivalent to `max-age` cache control directive. Has effect only if `CACHE_REWORK` feature flag is enabled.
-- deprecated `maxAge(seconds)` - use sharedMaxAge() instead.
-
-Admins can override policies per script using `route_policies` with `route#hook` pattern in configuration (see HTTP caching policies description in the Core section).
-
 ## Hosting & Configuration
-
-### Deprecated HTTP cache configuration
-
-- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable.
-- `shopware.http.cache.default_ttl` parameter.
-- `shopware.http_cache.stale_while_revalidate` parameter.
-- `shopware.http_cache.stale_if_error` parameter.
-
-Deprecated parameters will have no effect when `CACHE_REWORK` feature flag is enabled, and will be removed in 6.8.0.0.
 
 ### Sales Channel Replace URL Command
 

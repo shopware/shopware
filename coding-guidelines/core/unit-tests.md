@@ -87,7 +87,7 @@ Furthermore, the intention of this document is to keep you aware of the downside
 
 In a well-designed and testable system, it is relatively easy to isolate individual classes or modules and distinguish them between the components that contain the core business logic, which should be extensively unit tested, and the portions responsible for interfacing with the external environment and generating side effects. These side-effect-prone elements should be substituted in the unit tests. In fact, it is advisable to perform integration testing since their primary purpose is to abstract and facilitate the replacement of side effects in tests.
 
-This kind of abstraction follows when you apply the principles of [Domain Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html) and [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/) (aka Ports & Adapters)
+This kind of abstraction follows when you apply the principles of [Domain Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html) and [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture) (aka Ports & Adapters)
 
 The absence of such abstraction in the existing `shopware/platform` codebase is one of the reasons why it is so hard to write "good" unit tests for shopware, but that does not mean that we should keep designing our code as we used and keep writing "bad" (meaning unit tests tightly coupled to the implementation) unit tests.
 However, it's the opposite; we start designing our code in a way that makes it easy to write "good" unit test that does not rely that much on a "magic" mock framework.

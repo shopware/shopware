@@ -598,6 +598,8 @@ shopware:
             show_banner: true
         sales_channel:
             domain_rewrite: []
+        extensions:
+            disable: []
         elasticsearch:
             check_for_existence: true
 

@@ -74,17 +74,19 @@ export default {
         },
 
         mediaItems() {
-            // two rows with columnCount columns
+            // Two rows with columnCount columns
             const columnCount = this.columnCount * 2;
-            if (this.currentCount >= columnCount) {
-                return this.entityMediaItems;
+            const items = [...this.entityMediaItems];
+
+            // Add placeholders only if we have less items than two rows
+            if (this.currentCount < columnCount) {
+                items.splice(this.currentCount, 0, ...this.createPlaceholders(columnCount - this.currentCount));
             }
 
-            const items = [...this.entityMediaItems];
-            items.splice(this.currentCount, 0, ...this.createPlaceholders(columnCount - this.currentCount));
             items.forEach((item, index) => {
                 item.position = index;
             });
+
             return items;
         },
 
@@ -173,6 +175,7 @@ export default {
             if (validDrop !== true || dropData.position > this.currentCount || dragData.position > this.currentCount) {
                 return;
             }
+
             this.$emit('item-sort', dragData, dropData);
         },
 

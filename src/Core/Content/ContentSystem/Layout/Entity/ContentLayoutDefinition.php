@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Layout\Entity;
 
-use Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementField;
+use Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementListField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -49,7 +49,7 @@ class ContentLayoutDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new StringField('name', 'name', 255))->addFlags(new ApiAware(), new Required()),
             (new StringField('version', 'version', 20))->addFlags(new ApiAware(), new Required()),
-            (new ContentElementField('layout', 'layout'))->addFlags(new ApiAware(), new Required()),
+            (new ContentElementListField('layout', 'layout'))->addFlags(new ApiAware(), new Required()),
             (new JsonField('schema', 'schema'))->addFlags(new ApiAware()),
         ]);
     }

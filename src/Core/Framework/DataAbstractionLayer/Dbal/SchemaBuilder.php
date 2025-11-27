@@ -13,6 +13,7 @@ use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingField;
 use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsField;
 use Shopware\Core\Content\ContentSystem\Adapter\Field\ResolutionConfigField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementField;
+use Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementListField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContextConsumersField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\DataRequirementsField;
@@ -132,6 +133,7 @@ class SchemaBuilder
         MeasurementUnitsField::class => Types::JSON,
 
         ContentElementField::class => Types::JSON,
+        ContentElementListField::class => Types::JSON,
         DataRequirementsField::class => Types::JSON,
         ElementSlotsField::class => Types::JSON,
         ContextProvidersField::class => Types::JSON,

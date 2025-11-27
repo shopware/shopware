@@ -30,7 +30,8 @@ Elements form tree via slots. Use visitor pattern for traversal.
 
 Field/ contains custom DAL field types for persisting complex structures:
 
-- `ContentElementField` - Serializes element trees to JSON
+- `ContentElementField` - Serializes a single ContentElement to JSON
+- `ContentElementListField` - Serializes arrays of ContentElement to JSON
 - `ElementSlotsField` - Serializes slot arrays (`array<string, SlotContent>`)
 - `DataRequirementsField` - Serializes data requirement maps
 - `ContextProvidersField`/`ContextConsumersField` - Serializes context definitions

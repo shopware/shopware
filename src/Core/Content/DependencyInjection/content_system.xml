@@ -103,6 +103,13 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementListFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementFieldSerializer"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Content\ContentSystem\Adapter\Field\CriteriaFilterFieldSerializer">
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>

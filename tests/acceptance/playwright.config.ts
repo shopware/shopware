@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
 import dotenv from 'dotenv';
-import { currentsReporter, CurrentsConfig } from '@currents/playwright';
+import { currentsReporter } from '@currents/playwright';
 
 // Read from default ".env" file.
 dotenv.config();
@@ -43,15 +43,6 @@ if (process.env['ADMIN_URL']) {
 } else {
     process.env['ADMIN_URL'] = process.env['APP_URL'] + 'admin/';
 }
-
-// const currentsConfig: CurrentsConfig = {
-//     recordKey: process.env.CURRENTS_RECORD_KEY || 'WLB6egT1kbikJKEV', // set in CI or .env
-//     projectId: process.env.CURRENTS_PROJECT_ID || '9Xnv0u',
-//     coverage: {
-//         // optionally list Playwright project names to include
-//         projects: ['Coverage'],
-//     },
-// };
 
 /**
  * See https://playwright.dev/docs/test-configuration.

@@ -78,7 +78,6 @@
     "jest-junit": "16.0.0",
     "license-checker-rseidelsohn": "4.3.0",
     "lodash.get": "4.4.2",
-    "nyc": "^17.1.0",
     "prettier": "3.5.3",
     "stylelint": "16.16.0",
     "stylelint-config-recommended-scss": "14.1.0",

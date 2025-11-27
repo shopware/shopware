@@ -2,7 +2,7 @@ name: Add or remove needs-triage label
 
 on:
   pull_request_target:
-    types: [opened]
+    types: [opened, ready_for_review]
   issues:
     types: [opened]
 
@@ -11,17 +11,24 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Wait 5 minutes
+        if: ${{ github.event_name == 'issues' || (github.event_name == 'pull_request_target' && !github.event.action != 'ready_for_review') }}
         run: sleep 5m
       - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
         with:
           script: |
             console.debug(context.payload);
+
+            if (context.eventName == "pull_request_target" && context.payload.pull_request.draft) {
+              console.debug("PR is a draft. Skipping label management.");
+              return;
+            }
+
             const issue = context.payload.issue || context.payload.pull_request;
             if (issue && issue.state === "closed") {
               console.debug("Issue or PR is closed. Skipping label management.");
               return;
             }
-            
+
             const issue_number = context.payload.number ?? context.payload.issue.number;
 
             // get labels via api
@@ -38,7 +45,7 @@ jobs:
             // Check if the issue has either a domain/ label or a service/ label
             const hasRequiredLabel = labels.data.some(label => label.name.startsWith('domain/') || label.name.startsWith('service/'));
             const hasNeedsTriageLabel = labels.data.some(label => label.name === 'needs-triage');
-            
+
             // if no required label and no needs-triage label, add needs-triage
             if (!hasRequiredLabel && !hasNeedsTriageLabel) {
               console.debug('add needs-triage label');

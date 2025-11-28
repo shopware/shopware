@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,6 +24,8 @@ class ReverseProxyCache implements StoreInterface
      * @internal
      *
      * @param string[] $states
+     *
+     * @deprecated tag:v6.8.0 - Parameter $states will be removed
      */
     public function __construct(
         private readonly AbstractReverseProxyGateway $gateway,
@@ -59,10 +62,12 @@ class ReverseProxyCache implements StoreInterface
             $response->headers->remove(CacheStore::TAG_HEADER);
         }
 
-        $states = $response->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, '');
-        $states = array_unique(array_filter(array_merge(explode(',', $states), $this->states)));
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            $states = $response->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, '');
+            $states = array_unique(array_filter(array_merge(explode(',', $states), $this->states)));
 
-        $response->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, \implode(',', $states));
+            $response->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, \implode(',', $states));
+        }
 
         $this->gateway->tag(\array_values($tags), $request->getPathInfo(), $response);
 

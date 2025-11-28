@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\DateTime as DateTimeConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Timezone;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -16,6 +17,8 @@ class DateRangeRule extends Rule
 {
     final public const RULE_NAME = 'dateRange';
 
+    private const DATETIME_FORMAT = 'Y-m-d\TH:i:s';
+
     /**
      * @internal
      */
@@ -23,6 +26,7 @@ class DateRangeRule extends Rule
         protected \DateTimeInterface|string|null $fromDate = null,
         protected \DateTimeInterface|string|null $toDate = null,
         protected bool $useTime = false,
+        protected \DateTimeZone|string|null $timezone = null,
     ) {
         parent::__construct();
     }
@@ -35,16 +39,29 @@ class DateRangeRule extends Rule
         if (\is_string($this->toDate)) {
             $this->toDate = new \DateTime($this->toDate);
         }
+        if (\is_string($this->timezone)) {
+            $this->timezone = new \DateTimeZone($this->timezone);
+        }
     }
 
     public function match(RuleScope $scope): bool
     {
-        if (\is_string($this->toDate) || \is_string($this->fromDate)) {
-            throw RuleException::invalidDateRangeUsage('fromDate or toDate cannot be a string at this point');
+        if (\is_string($this->toDate) || \is_string($this->fromDate) || \is_string($this->timezone)) {
+            throw RuleException::invalidDateRangeUsage('fromDate, toDate and timezone cannot be a string at this point');
         }
         $toDate = $this->toDate;
         $fromDate = $this->fromDate;
+        $timezone = $this->timezone;
         $now = $scope->getCurrentTime();
+
+        if ($timezone) {
+            if ($fromDate) {
+                $fromDate = new \DateTime($fromDate->format('Y-m-d H:i:s'), $timezone);
+            }
+            if ($toDate) {
+                $toDate = new \DateTime($toDate->format('Y-m-d H:i:s'), $timezone);
+            }
+        }
 
         if (!$this->useTime && $fromDate) {
             $fromDate = (new \DateTime())
@@ -73,9 +90,10 @@ class DateRangeRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'fromDate' => [new NotBlank(), new DateTimeConstraint(format: \DateTime::ATOM)],
-            'toDate' => [new NotBlank(), new DateTimeConstraint(format: \DateTime::ATOM)],
+            'fromDate' => [new NotBlank(), new DateTimeConstraint(format: self::DATETIME_FORMAT)],
+            'toDate' => [new NotBlank(), new DateTimeConstraint(format: self::DATETIME_FORMAT)],
             'useTime' => [new NotNull(), new Type('bool')],
+            'timezone' => [new Timezone()],
         ];
     }
 }

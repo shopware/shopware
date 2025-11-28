@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
 
@@ -26,6 +27,7 @@ use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
  */
 #[CoversClass(JWTFactoryV2::class)]
 #[Package('checkout')]
+#[DisabledFeatures(['v6.8.0.0'])]
 class JWTFactoryV2Test extends TestCase
 {
     private JWTFactoryV2 $tokenFactory;
@@ -54,10 +56,8 @@ class JWTFactoryV2Test extends TestCase
         } else {
             $this->connection
                 ->expects($this->once())
-                ->method('fetchAssociative')
-                ->willReturn(
-                    ['token' => $token, 'consumed' => '0']
-                );
+                ->method('fetchOne')
+                ->willReturn([1]);
         }
 
         $tokenStruct = $this->tokenFactory->parseToken($token);

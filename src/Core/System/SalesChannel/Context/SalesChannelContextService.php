@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -117,7 +118,21 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
 
             $currentRequest = $this->requestStack->getCurrentRequest();
+
+            if ($currentRequest !== null) {
+                // Update attributes and headers of the current request
+                $currentRequest->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
+                $currentRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+                $currentRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
+            }
+
             $requestSession = $currentRequest?->hasSession() ? $currentRequest->getSession() : null;
+
+            // Remove imitating user id from session, if there is no customer
+            if ($requestSession && $context->getImitatingUserId() && !$context->getCustomerId()) {
+                $requestSession->remove(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID);
+                $context->setImitatingUserId(null);
+            }
 
             // skip cart calculation on ESI sub-requests if it has already been done.
             $esiRequest = $currentRequest?->attributes->has('_sw_esi') ?? false;

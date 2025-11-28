@@ -12,8 +12,6 @@ const UploadEvents = {
     UPLOAD_CANCELED: 'media-upload-cancel',
 };
 
-const { Criteria } = Shopware.Data;
-
 /**
  * Gateway for the API end point "media"
  * @class
@@ -269,6 +267,8 @@ class MediaApiService extends ApiService {
     }
 
     async getDefaultFolderId(entity) {
+        const { Criteria } = Shopware.Data;
+
         if (this.cacheDefaultFolder[entity]) {
             return this.cacheDefaultFolder[entity];
         }

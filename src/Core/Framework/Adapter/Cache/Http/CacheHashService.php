@@ -109,11 +109,9 @@ class CacheHashService
         ];
 
         foreach ($this->cookies as $cookie) {
-            if (!$request->cookies->has($cookie)) {
-                continue;
+            if ($request->cookies->has($cookie)) {
+                $parts[$cookie] = $request->cookies->get($cookie);
             }
-
-            $parts[$cookie] = $request->cookies->get($cookie);
         }
 
         $event = new HttpCacheCookieEvent($request, $context, $parts);
@@ -141,11 +139,9 @@ class CacheHashService
 
         // check if cache relevant cookies are set
         foreach ($this->cookies as $cookie) {
-            if (!$request->cookies->has($cookie)) {
-                continue;
+            if ($request->cookies->has($cookie)) {
+                return true;
             }
-
-            return true;
         }
 
         return false;

@@ -2,11 +2,7 @@
 import { execSync } from "child_process";
 
 // IDs of advisories to ignore
-const ignored = [
-  1103617, // axios - we cannot upgrade to 1.x due to breaking changes
-  1107599, // axios - we cannot upgrade to 1.x due to breaking changes
-  1108262, // axios - we cannot upgrade to 1.x due to breaking changes
-];
+const ignored: number[] = [];
 let auditRaw = "";
 
 try {

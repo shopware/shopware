@@ -83,10 +83,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $isStoreApi = $this->isStoreApi($request);
+        $area = $this->isStoreApi($request) ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT;
 
         if (!$this->maintenanceResolver->shouldBeCached($request)) {
-            $this->noCache($request, $response, $isStoreApi);
+            $this->noCache($request, $response, $area);
 
             return;
         }
@@ -97,7 +97,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             // To still be able to serve 404 pages fast, we don't load the full context and cache the rendered html on application side
             // as we don't have the full context the state handling is broken as no customer or cart is available, even if the customer is logged in
             // @see \Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber::onError
-            $this->noCache($request, $response, $isStoreApi);
+            $this->noCache($request, $response, $area);
 
             return;
         }
@@ -107,17 +107,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $cacheAttributeValue = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
         $cacheAttribute = CacheAttribute::fromAttributeValue($cacheAttributeValue);
 
-        // In Store API we rely on headers to manage caching, as it more explicit and easier to parse on reverse proxy side.
-        // As we don't control headers that browser sends, in storefront we have to rely on cookies. For this reason here
-        // we have two separate branches of logic.
-        if ($this->isStoreApi($request)) {
-            if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
-                $this->noCache($request, $response, $isStoreApi);
-
-                return;
-            }
-
-            $this->applyStoreApiPolicy($request, $response, $cacheAttribute);
+        // Preventing applying cache headers to the routes that are marked for caching, but feature flag is disabled
+        if ($area === self::POLICY_AREA_STORE_API && !Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+            $this->noCache($request, $response, $area);
 
             return;
         }
@@ -147,13 +139,13 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         if (!$request->isMethod(Request::METHOD_GET)
         ) {
-            $this->noCache($request, $response, $isStoreApi);
+            $this->noCache($request, $response, $area);
 
             return;
         }
 
         if ($cacheAttribute === null) {
-            $this->noCache($request, $response, $isStoreApi);
+            $this->noCache($request, $response, $area);
 
             return;
         }
@@ -161,7 +153,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         /** @deprecated tag:v6.8.0 - can be removed when cache states are always empty */
         if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             if ($this->hasInvalidationState($cacheAttribute->states ?? [], $states)) {
-                $this->noCache($request, $response, $isStoreApi);
+                $this->noCache($request, $response, $area);
 
                 return;
             }
@@ -190,7 +182,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->applyPolicy($request, $response, self::POLICY_AREA_STOREFRONT, true, $cacheAttribute);
+        $this->applyPolicy($request, $response, $area, true, $cacheAttribute);
     }
 
     public function setResponseCacheHeader(ResponseEvent $event): void
@@ -212,24 +204,13 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
     }
 
-    private function noCache(Request $request, Response $response, bool $storeApi): void
+    private function noCache(Request $request, Response $response, string $area): void
     {
         if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
             // do nothing for backwards compatibility
             return;
         }
-        $this->applyPolicy($request, $response, $storeApi ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT, false, null);
-    }
-
-    private function applyStoreApiPolicy(Request $request, Response $response, ?CacheAttribute $cacheAttribute): void
-    {
-        if (!$request->isMethod(Request::METHOD_GET) || $cacheAttribute === null) {
-            $this->noCache($request, $response, true);
-
-            return;
-        }
-
-        $this->applyPolicy($request, $response, self::POLICY_AREA_STORE_API, true, $cacheAttribute);
+        $this->applyPolicy($request, $response, $area, false, null);
     }
 
     private function applyPolicy(Request $request, Response $response, string $area, bool $cacheable, ?CacheAttribute $cacheAttribute): void

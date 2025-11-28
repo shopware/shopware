@@ -450,12 +450,9 @@ class CacheResponseSubscriberTest extends TestCase
 
         // determine if storefront route
         $routeScope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-        $isStorefront = \in_array(StorefrontRouteScope::ID, $routeScope, true);
 
-        if (!$isStorefront) {
-            $this->cacheHashService->expects($this->never())
-                ->method('applyCacheHash');
-        }
+        $this->cacheHashService->expects($this->once())
+            ->method('applyCacheHash');
 
         $subscriber->setResponseCache(new ResponseEvent(
             $this->createMock(HttpKernelInterface::class),
@@ -469,9 +466,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         // Check cookies absence for non-storefront routes
         static::assertIsArray($routeScope);
-        if (!$isStorefront) {
-            static::assertEmpty($response->headers->getCookies(), 'Should not have cookies');
-        }
+        static::assertEmpty($response->headers->getCookies(), 'Should not have cookies');
     }
 
     /**
@@ -678,20 +673,6 @@ class CacheResponseSubscriberTest extends TestCase
                 'defaultPolicies' => $defaultPolicies,
             ],
             'expectedCacheControl' => 'max-age=0, no-cache, private, s-maxage=0',
-        ];
-
-        yield 'Store API endpoints without SalesChannelContext are ignored by subscriber' => [
-            'requestResponseOptions' => [
-                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => null,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
-                PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
-                'responseOriginalCacheControl' => 'must-revalidate, no-cache, private',
-            ],
-            'subscriberConfig' => [
-                'policies' => $basePolicies,
-                'defaultPolicies' => $defaultPolicies,
-            ],
-            'expectedCacheControl' => 'must-revalidate, no-cache, private',
         ];
     }
 

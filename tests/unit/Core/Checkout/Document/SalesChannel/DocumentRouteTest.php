@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
@@ -572,16 +573,16 @@ class DocumentRouteTest extends TestCase
 
     public static function provideAcceptHeaderThatFallbacksToDefaultFileType(): \Generator
     {
-        yield 'Accept header with wildcart' => [
+        yield 'Accept header with wildcart: ' . self::ACCEPT_WILDCARD => [
             'acceptHeader' => self::ACCEPT_WILDCARD,
         ];
-        yield 'Accept header not set' => [
+        yield 'Accept header not set should use default fileType' => [
             'acceptHeader' => null,
         ];
     }
 
     #[DataProvider('provideAcceptHeaderValues')]
-    public function testDownloadWithRequestedHeaderMimeTypes(
+    public function testDownloadWithAcceptHeaderMimeTypes(
         string $acceptHeader,
         string $expectedFileExtension
     ){

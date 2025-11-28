@@ -393,10 +393,9 @@ class DocumentRouteTest extends TestCase
         ];
     }
 
-    #[DataProvider('provideInvalidAcceptHeaderValues')]
-    public function testDownloadWithInvalidAcceptHeaderMimeTypeShouldThrowException(
-        string $acceptHeader
-    ): void {
+
+    public function testDownloadWithInvalidAcceptHeaderMimeTypeShouldThrowException(): void
+    {
         $customerId = $this->loginBrowser($this->browser);
         $this->createOrder(
             $customerId,
@@ -427,7 +426,7 @@ class DocumentRouteTest extends TestCase
             [],
             [],
             [
-                'HTTP_ACCEPT' => $acceptHeader,
+                'HTTP_ACCEPT' => self::INVALID_MIME_TYPE,
             ]
         );
 
@@ -441,12 +440,5 @@ class DocumentRouteTest extends TestCase
             $responseContent = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertSame('DOCUMENT__FILETYPE_UNAVAILABLE', $responseContent['errors'][0]['code']);
         }
-    }
-
-    public static function provideInvalidAcceptHeaderValues(): \Generator
-    {
-        yield 'invalid query param' => [
-            'acceptHeader' => self::INVALID_MIME_TYPE,
-        ];
     }
 }

@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -39,6 +41,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         private readonly DocumentGenerator $documentGenerator,
         private readonly EntityRepository $documentRepository,
         private readonly GuestAuthenticator $guestAuthenticator,
+        private readonly iterable $renderers,
     ) {
     }
 
@@ -58,7 +61,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         Request $request,
         SalesChannelContext $context,
         string $deepLinkCode = '',
-        ?string $fileType = null
+        string $fileType = PdfRenderer::FILE_EXTENSION
     ): Response {
         $this->checkAuth($documentId, $request, $context);
 
@@ -69,11 +72,17 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         $download = $request->query->getBoolean('download');
 
-        $requestedFileTypes = !$fileType ? $this->getRequestedFileTypes($request) : [$fileType];
+        $supportedFileTypes = $this->getSupportedFileTypes();
+        $this->registerFileTypes($supportedFileTypes, $request);
+        $requestedFileTypes = $this->getRequestedFileTypes($request) ?: [$fileType];
 
         $document = null;
 
         foreach ($requestedFileTypes as $requestedFileType) {
+            if (!isset($supportedFileTypes[$requestedFileType])){
+                continue;
+            }
+
             $document = $this->documentGenerator->readDocument(
                 $documentId,
                 $context->getContext(),
@@ -181,17 +190,46 @@ final class DocumentRoute extends AbstractDocumentRoute
     }
 
     /**
+     * @return array
+     *
+     * returns a fileType => mimeType mapping
+     */
+    private function getSupportedFileTypes(): array
+    {
+        $supportedFileTypes = [];
+        $renderers = $this->renderers instanceof \Traversable ? iterator_to_array($this->renderers) : $this->renderers;
+
+        foreach ($renderers as $fileType => $renderer) {
+            $supportedFileTypes[$fileType] = $renderer->getContentType();
+        }
+
+        /*
+         * Zugferd xml is not rendered by a file renderer
+         * its generated in the document renderer itself
+         * therefor its not registered by document_type.renderer key="xml" and needs to be done manually
+         *
+         */
+        $supportedFileTypes[ZugferdRenderer::FILE_EXTENSION] = ZugferdRenderer::FILE_CONTENT_TYPE;
+
+
+
+        return $supportedFileTypes;
+    }
+
+    private function registerFileTypes(array $supportedFileTypes, Request $request):void
+    {
+        foreach ($supportedFileTypes as $fileType => $mimeType) {
+            $request->setFormat($fileType, [$mimeType]);
+        }
+    }
+
+    /**
      * @return array<string>
      */
     private function getRequestedFileTypes(Request $request): array
     {
-        $request->setFormat(PdfRenderer::FILE_EXTENSION, [PdfRenderer::FILE_CONTENT_TYPE]);
         $requestedFileTypes = $request->getAcceptableContentTypes();
         $fileTypes = [];
-
-        if (empty($requestedFileTypes)) {
-            return $this->getDefaultFileTypes();
-        }
 
         foreach ($requestedFileTypes as $mimeType) {
             if ($mimeType === self::ACCEPT_WILDCARD) {
@@ -204,7 +242,6 @@ final class DocumentRoute extends AbstractDocumentRoute
                 $fileTypes[] = $mimeType;
             }
         }
-
         return $fileTypes;
     }
 

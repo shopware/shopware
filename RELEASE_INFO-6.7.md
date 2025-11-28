@@ -7,7 +7,7 @@
 ### Document download `/store-api/document/download/`
 The endpoint now selects the document file type based on the `Accept` header.
 When no `Accept` header is set or with `*/*`, `PDF` will be returned.
-Handle both status code `204` (6.7) and `404` (6.8) when documents are not available. ([PR #12944](https://github.com/shopware/shopware/pull/12944))
+Handle both status code `204` (6.7) and `404` (6.8) when documents are not available. (PR #12944)
 
 ## Core
 

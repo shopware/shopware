@@ -40,6 +40,7 @@ class DocumentRouteTest extends TestCase
 {
     private const DUMMY_DOCUMENT_ID = 'documentId';
     private const ACCEPT_WILDCARD = '*/*';
+    private const CUSTOM_MIME_TYPE = 'application/custom-type';
 
     public function testDownloadWithDocumentNotFound(): void
     {
@@ -579,7 +580,11 @@ class DocumentRouteTest extends TestCase
         ];
     }
 
-    public function testDownloadShouldUseRequestedFileType(){
+    #[DataProvider('provideAcceptHeaderValues')]
+    public function testDownloadWithRequestedHeaderMimeTypes(
+        string $acceptHeader,
+        string $expectedFileExtension
+    ){
         $customerID = Uuid::randomHex();
 
         $customer = new CustomerEntity();
@@ -615,7 +620,7 @@ class DocumentRouteTest extends TestCase
         $context->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
-        $request->headers->set('Accept', ZugferdRenderer::FILE_CONTENT_TYPE);
+        $request->headers->set('Accept', $acceptHeader);
 
         $generator->expects($this->once())
             ->method('readDocument')
@@ -623,14 +628,14 @@ class DocumentRouteTest extends TestCase
                 self::DUMMY_DOCUMENT_ID,
                 $context->getContext(),
                 '',
-                ZugferdRenderer::FILE_EXTENSION,
+                $expectedFileExtension,
             );
 
 
         if (Feature::isActive('v6.8.0.0')) {
             $this->expectExceptionObject(
                 DocumentException::documentFileTypeUnavailable(
-                    self::DUMMY_DOCUMENT_ID, [ZugferdRenderer::FILE_EXTENSION]
+                    self::DUMMY_DOCUMENT_ID, [$expectedFileExtension]
                 )
             );
         }
@@ -640,6 +645,18 @@ class DocumentRouteTest extends TestCase
         if (!Feature::isActive('v6.8.0.0')) {
             static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
         }
+    }
 
+    public static function provideAcceptHeaderValues(): \Generator
+    {
+        yield 'with MimeType ' . ZugferdRenderer::FILE_CONTENT_TYPE  => [
+            'acceptHeader' => ZugferdRenderer::FILE_CONTENT_TYPE,
+            'expectedFileExtension' => ZugferdRenderer::FILE_EXTENSION,
+        ];
+
+        yield 'custom MimeTypes which have no mapping in X should pass requested MimeType that needs to be handled by custom Renderers' => [
+            'acceptHeader' => self::CUSTOM_MIME_TYPE,
+            'expectedFileExtension' => self::CUSTOM_MIME_TYPE,
+        ];
     }
 }

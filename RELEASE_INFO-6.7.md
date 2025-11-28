@@ -2,6 +2,9 @@
 
 ## Features
 
+### Send email on customer password change
+A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.
+
 ## API
 
 ## Core
@@ -71,9 +74,6 @@ For a detailed guide on how to use the new features and extend the functionality
 
 A new scheduled task `media.cleanup_corrupted_media` has been introduced.
 It detects and removes corrupted media records, such as entries created by interrupted or failed file uploads that have no corresponding file on the filesystem.
-
-### Send email on customer password change
-There's a new flow: when a customer changes their password in the storefront, they now get a confirmation email. This helps spot any suspicious account activity faster.
 
 ## API
 

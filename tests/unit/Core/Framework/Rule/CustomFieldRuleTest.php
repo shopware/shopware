@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\CustomFieldRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -140,6 +141,26 @@ class CustomFieldRuleTest extends TestCase
         $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
 
         static::assertSame(84.03, $value);
+    }
+
+    public function testPriceFieldReturnsNullWhenCurrencyNotInCollection(): void
+    {
+        $priceCollection = new PriceCollection([
+            new Price(Uuid::randomHex(), 50.0, 60.0, false),
+        ]);
+
+        $renderedField = [
+            'type' => CustomFieldTypes::PRICE,
+            'name' => self::CUSTOM_FIELD_NAME,
+            'config' => [],
+        ];
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+
+        $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
+
+        static::assertNull($value);
     }
 
     /**

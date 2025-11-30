@@ -26,21 +26,4 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
     {
         return $this->consumerAlias;
     }
-
-    public function toArray(): array
-    {
-        return [
-            'distribution' => 'sliced',
-            'slice_size' => $this->sliceSize,
-            'consumer_alias' => $this->consumerAlias,
-        ];
-    }
-
-    public static function fromArray(array $data): self
-    {
-        return new self(
-            sliceSize: $data['slice_size'] ?? 10,
-            consumerAlias: $data['consumer_alias'] ?? null
-        );
-    }
 }

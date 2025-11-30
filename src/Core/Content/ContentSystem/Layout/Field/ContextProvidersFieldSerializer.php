@@ -5,12 +5,18 @@ namespace Shopware\Core\Content\ContentSystem\Layout\Field;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\BroadcastDistributionConfig;
+use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\DistributionConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\IndexedDistributionConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\IteratorDistributionConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\KeyedDistributionConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\SlicedDistributionConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrategy;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
+use Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\BroadcastDistributionConfigSerializer;
+use Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\IndexedDistributionConfigSerializer;
+use Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\IteratorDistributionConfigSerializer;
+use Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\KeyedDistributionConfigSerializer;
+use Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\SlicedDistributionConfigSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -26,7 +32,39 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Serializes context providers map to/from JSON.
+ * @phpstan-type BroadcastProviderData array{
+ *   type: 'single'|'collection',
+ *   strategy: 'broadcast',
+ *   distribution: 'broadcast',
+ *   consumer_alias: string|null
+ * }
+ * @phpstan-type IndexedProviderData array{
+ *   type: 'single'|'collection',
+ *   strategy: 'indexed',
+ *   distribution: 'indexed',
+ *   consumer_alias: string|null
+ * }
+ * @phpstan-type KeyedProviderData array{
+ *   type: 'single'|'collection',
+ *   strategy: 'keyed',
+ *   distribution: 'keyed',
+ *   key_property: string,
+ *   consumer_alias: string|null
+ * }
+ * @phpstan-type SlicedProviderData array{
+ *   type: 'single'|'collection',
+ *   strategy: 'sliced',
+ *   distribution: 'sliced',
+ *   slice_size: int,
+ *   consumer_alias: string|null
+ * }
+ * @phpstan-type IteratorProviderData array{
+ *   type: 'single'|'collection',
+ *   strategy: 'iterator',
+ *   distribution: 'iterator',
+ *   consumer_alias: string|null
+ * }
+ * @phpstan-type ContextProviderData BroadcastProviderData|IndexedProviderData|KeyedProviderData|SlicedProviderData|IteratorProviderData
  *
  * @internal
  */
@@ -35,7 +73,12 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
 {
     public function __construct(
         ValidatorInterface $validator,
-        DefinitionInstanceRegistry $definitionRegistry
+        DefinitionInstanceRegistry $definitionRegistry,
+        private readonly BroadcastDistributionConfigSerializer $broadcastSerializer,
+        private readonly IndexedDistributionConfigSerializer $indexedSerializer,
+        private readonly IteratorDistributionConfigSerializer $iteratorSerializer,
+        private readonly KeyedDistributionConfigSerializer $keyedSerializer,
+        private readonly SlicedDistributionConfigSerializer $slicedSerializer,
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -96,31 +139,56 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
 
         $providers = [];
         foreach ($value as $key => $config) {
-            if (!\is_array($config)) {
+            if (!\is_string($key) || !\is_array($config)) {
                 continue;
             }
-            $providers[$key] = $this->deserializeContextProvider($key, $config);
+            /** @var ContextProviderData $config */
+            $providers[$key] = $this->deserializeContextProvider($config);
         }
 
         return $providers;
     }
 
     /**
-     * Public for ContentElementFieldSerializer to serialize nested providers.
-     *
-     * Note: Uses DistributionConfig::toArray() which must remain for runtime usage.
-     *
-     * @return array<string, mixed>
+     * @return ContextProviderData
      */
     public function serializeContextProvider(ContextProvider $provider): array
     {
-        return \array_merge(
-            [
-                'type' => $provider->type->value,
-                'strategy' => $provider->config->getStrategy()->value,
+        $type = $provider->type->value;
+        $config = $provider->config;
+
+        return match (true) {
+            $config instanceof BroadcastDistributionConfig => [
+                'type' => $type,
+                'strategy' => 'broadcast',
+                ...$this->broadcastSerializer->encode($config),
             ],
-            $provider->config->toArray()
-        );
+            $config instanceof IndexedDistributionConfig => [
+                'type' => $type,
+                'strategy' => 'indexed',
+                ...$this->indexedSerializer->encode($config),
+            ],
+            $config instanceof KeyedDistributionConfig => [
+                'type' => $type,
+                'strategy' => 'keyed',
+                ...$this->keyedSerializer->encode($config),
+            ],
+            $config instanceof SlicedDistributionConfig => [
+                'type' => $type,
+                'strategy' => 'sliced',
+                ...$this->slicedSerializer->encode($config),
+            ],
+            $config instanceof IteratorDistributionConfig => [
+                'type' => $type,
+                'strategy' => 'iterator',
+                ...$this->iteratorSerializer->encode($config),
+            ],
+            default => throw ContentSystemException::invalidFieldValueType(
+                'distribution_config',
+                'DistributionConfig subtype',
+                $config::class
+            ),
+        };
     }
 
     protected function getConstraints(Field $field): array
@@ -137,29 +205,27 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @param array<string, mixed> $config
+     * @param ContextProviderData $config
      */
-    private function deserializeContextProvider(string $key, array $config): ContextProvider
+    private function deserializeContextProvider(array $config): ContextProvider
     {
-        $type = ContextType::from($config['type'] ?? 'single');
+        return new ContextProvider(
+            ContextType::from($config['type']),
+            $this->decodeDistributionConfig($config)
+        );
+    }
 
-        if ($type === ContextType::Single) {
-            // Single context provider uses broadcast strategy
-            return new ContextProvider($type, BroadcastDistributionConfig::fromArray($config));
-        }
-
-        // Collection context provider - determine distribution strategy
-        $strategyName = $config['distribution'] ?? 'broadcast';
-        $strategy = DistributionStrategy::from($strategyName);
-
-        $distributionConfig = match ($strategy) {
-            DistributionStrategy::Indexed => IndexedDistributionConfig::fromArray($config),
-            DistributionStrategy::Keyed => KeyedDistributionConfig::fromArray($config),
-            DistributionStrategy::Sliced => SlicedDistributionConfig::fromArray($config),
-            DistributionStrategy::Iterator => IteratorDistributionConfig::fromArray($config),
-            DistributionStrategy::Broadcast => BroadcastDistributionConfig::fromArray($config),
+    /**
+     * @param ContextProviderData $config
+     */
+    private function decodeDistributionConfig(array $config): DistributionConfig
+    {
+        return match (DistributionStrategy::from($config['distribution'])) {
+            DistributionStrategy::Broadcast => $this->broadcastSerializer->decode($config),
+            DistributionStrategy::Indexed => $this->indexedSerializer->decode($config),
+            DistributionStrategy::Iterator => $this->iteratorSerializer->decode($config),
+            DistributionStrategy::Keyed => $this->keyedSerializer->decode($config),
+            DistributionStrategy::Sliced => $this->slicedSerializer->decode($config),
         };
-
-        return new ContextProvider($type, $distributionConfig);
     }
 }

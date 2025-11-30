@@ -17,14 +17,4 @@ interface DistributionConfig
      * Consumer property name override. Null = use provider's context key.
      */
     public function getConsumerAlias(): ?string;
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function toArray(): array;
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    public static function fromArray(array $data): self;
 }

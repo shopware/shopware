@@ -19,6 +19,8 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * @phpstan-import-type ContentElementData from ContentElementFieldSerializer
+ *
  * @internal
  */
 #[Package('discovery')]

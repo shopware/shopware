@@ -27,19 +27,4 @@ final readonly class IteratorDistributionConfig implements DistributionConfig
     {
         return $this->consumerAlias;
     }
-
-    public function toArray(): array
-    {
-        return [
-            'distribution' => 'iterator',
-            'consumer_alias' => $this->consumerAlias,
-        ];
-    }
-
-    public static function fromArray(array $data): self
-    {
-        return new self(
-            consumerAlias: $data['consumer_alias'] ?? null
-        );
-    }
 }

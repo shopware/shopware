@@ -20,6 +20,14 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * @phpstan-type ContextConsumerData array{
+ *   type: 'single'|'collection',
+ *   required: bool,
+ *   redistribute?: bool,
+ *   consumer_alias?: string|null,
+ *   property_alias?: string|null
+ * }
+ *
  * @internal
  */
 #[Package('discovery')]
@@ -98,7 +106,7 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ContextConsumerData
      */
     public function serializeContextConsumer(ContextConsumer $consumer): array
     {
@@ -137,6 +145,8 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
 
     /**
      * Creates ContextConsumer from config array, validates consumer_alias requires redistribute
+     *
+     * Accepts loose array from JSON decode - performs runtime validation.
      *
      * @param array<string, mixed> $config
      */

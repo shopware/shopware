@@ -23,6 +23,19 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * @phpstan-import-type ContextConsumerData from ContextConsumersFieldSerializer
+ * @phpstan-import-type DataRequirementData from DataRequirementsFieldSerializer
+ *
+ * @phpstan-type ContentElementData array{
+ *   id: string,
+ *   component: string,
+ *   properties: array<string, mixed>,
+ *   data_requirements?: array<string, DataRequirementData>,
+ *   slots?: array<string, list<array<string, mixed>>>,
+ *   provides_context?: array<string, array<string, mixed>>,
+ *   accepts_context?: array<string, ContextConsumerData>
+ * }
+ *
  * @internal
  */
 #[Package('discovery')]
@@ -92,8 +105,6 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Deserializes ContentElement from array format.
-     *
      * @param array<string, mixed> $data
      */
     public function decodeElement(array $data): ContentElement
@@ -144,9 +155,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Serializes ContentElement to array format.
-     *
-     * @return array<string, mixed>
+     * @return ContentElementData
      */
     public function serializeContentElement(ContentElement $element): array
     {
@@ -158,10 +167,9 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
 
         $dataRequirements = $element->getDataRequirements();
         if ($dataRequirements !== []) {
-            $serializedRequirements = [];
-            foreach ($dataRequirements as $key => $requirement) {
-                $serializedRequirements[$key] = $this->dataRequirementsSerializer->serializeDataRequirement($requirement);
-            }
+            $serializedRequirements = array_map(function ($requirement) {
+                return $this->dataRequirementsSerializer->serializeDataRequirement($requirement);
+            }, $dataRequirements);
             $array['data_requirements'] = $serializedRequirements;
         }
 
@@ -189,10 +197,9 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         }
 
         if ($consumers !== []) {
-            $serializedConsumers = [];
-            foreach ($consumers as $key => $consumer) {
-                $serializedConsumers[$key] = $this->contextConsumersSerializer->serializeContextConsumer($consumer);
-            }
+            $serializedConsumers = array_map(function ($consumer) {
+                return $this->contextConsumersSerializer->serializeContextConsumer($consumer);
+            }, $consumers);
             $array['accepts_context'] = $serializedConsumers;
         }
 

@@ -25,19 +25,4 @@ final readonly class BroadcastDistributionConfig implements DistributionConfig
     {
         return $this->consumerAlias;
     }
-
-    public function toArray(): array
-    {
-        return [
-            'distribution' => 'broadcast',
-            'consumer_alias' => $this->consumerAlias,
-        ];
-    }
-
-    public static function fromArray(array $data): self
-    {
-        return new self(
-            consumerAlias: $data['consumer_alias'] ?? null
-        );
-    }
 }

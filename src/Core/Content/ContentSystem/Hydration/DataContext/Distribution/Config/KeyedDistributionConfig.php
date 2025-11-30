@@ -26,21 +26,4 @@ final readonly class KeyedDistributionConfig implements DistributionConfig
     {
         return $this->consumerAlias;
     }
-
-    public function toArray(): array
-    {
-        return [
-            'distribution' => 'keyed',
-            'key_property' => $this->keyProperty,
-            'consumer_alias' => $this->consumerAlias,
-        ];
-    }
-
-    public static function fromArray(array $data): self
-    {
-        return new self(
-            keyProperty: $data['key_property'] ?? 'data_key',
-            consumerAlias: $data['consumer_alias'] ?? null
-        );
-    }
 }

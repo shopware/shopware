@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution;
 
+use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\DistributionConfig;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrategyInterface;
 use Shopware\Core\Framework\Log\Package;
 
@@ -26,7 +27,7 @@ class IteratorDistributor implements DistributionStrategyInterface
      *
      * @return array<int, mixed>
      */
-    public function distribute(mixed $data, array $consumers, array $config): array
+    public function distribute(mixed $data, array $consumers, DistributionConfig $config): array
     {
         if (!\is_array($data)) {
             return [];

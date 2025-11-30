@@ -20,6 +20,12 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * @phpstan-type DataRequirementData array{
+ *   key: string,
+ *   source: string,
+ *   config: array<string, mixed>
+ * }
+ *
  * @internal
  */
 #[Package('discovery')]
@@ -47,23 +53,25 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
 
         $value = $data->getValue();
 
-        if (\is_array($value)) {
-            $serialized = [];
-            foreach ($value as $key => $requirement) {
-                if ($requirement instanceof DataRequirement) {
-                    $serialized[$key] = $this->serializeDataRequirement($requirement);
-                } else {
-                    $serialized[$key] = $requirement;
-                }
-            }
-            $value = $serialized;
+        if ($value === null) {
+            yield $field->getStorageName() => null;
+
+            return;
         }
 
-        if ($value !== null) {
-            $value = Json::encode($value);
+        if (!\is_array($value)) {
+            yield $field->getStorageName() => Json::encode($value);
+
+            return;
         }
 
-        yield $field->getStorageName() => $value;
+        $serialized = array_map(function ($requirement) {
+            return $requirement instanceof DataRequirement
+                ? $this->serializeDataRequirement($requirement)
+                : $requirement;
+        }, $value);
+
+        yield $field->getStorageName() => Json::encode($serialized);
     }
 
     /**
@@ -91,9 +99,7 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Public for ContentElementFieldSerializer to serialize nested requirements.
-     *
-     * @return array<string, mixed>
+     * @return DataRequirementData
      */
     public function serializeDataRequirement(DataRequirement $requirement): array
     {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataContext;
 
+use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\DistributionConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Framework\Log\Package;
@@ -41,7 +42,7 @@ class ContextResolutionVisitor implements ElementVisitor
                         $contextKey,
                         $data,
                         $distribution,
-                        $distributionConfig->toArray()
+                        $distributionConfig
                     );
                 }
             }
@@ -53,15 +54,12 @@ class ContextResolutionVisitor implements ElementVisitor
         // No-op: direct-children-only distribution requires no cleanup
     }
 
-    /**
-     * @param array<string, mixed> $config
-     */
     private function distributeContextToChildren(
         ContentElement $providerElement,
         string $contextKey,
         mixed $data,
         string $distribution,
-        array $config
+        DistributionConfig $config
     ): void {
         $distributionConfig = $providerElement->getProvidesContext()[$contextKey]->getDistribution();
         $consumerKey = $distributionConfig->getConsumerAlias() ?? $contextKey;

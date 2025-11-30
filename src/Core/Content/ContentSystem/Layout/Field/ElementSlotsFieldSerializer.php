@@ -19,7 +19,9 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Serializes ElementSlots to/from JSON.
+ * @phpstan-import-type ContentElementData from ContentElementFieldSerializer
+ *
+ * @phpstan-type SlotsData array<string, list<ContentElementData>>
  *
  * @internal
  */
@@ -86,7 +88,7 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
     /**
      * @param array<string, SlotContent> $slots
      *
-     * @return array<string, array<int, array<string, mixed>>>
+     * @return SlotsData
      */
     public function serializeSlots(array $slots): array
     {
@@ -125,9 +127,7 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Deserializes slots data with nested elements.
-     *
-     * @param array<string, array<int, array<string, mixed>>|array<string, mixed>> $slotsData
+     * @param array<string, ContentElementData|list<ContentElementData>> $slotsData
      *
      * @return array<string, SlotContent>
      */
@@ -138,11 +138,13 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
         foreach ($slotsData as $slotName => $slotData) {
             // Handle single element (has 'component' key indicating it's an element, not an array of elements)
             if (\array_key_exists('component', $slotData) && $slotData['component'] !== null) {
+                /** @var ContentElementData $slotData */
                 $element = $this->elementSerializer->decodeElement($slotData);
                 $slots[$slotName] = new SlotContent([$element]);
                 continue;
             }
 
+            /** @var list<ContentElementData> $slotData */
             $elements = [];
             foreach ($slotData as $elementData) {
                 if (!\is_array($elementData)) {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataContext;
 
+use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\DistributionConfig;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -14,9 +15,8 @@ interface DistributionStrategyInterface
 
     /**
      * @param array<int, array<string, mixed>> $consumers
-     * @param array<string, mixed> $config
      *
      * @return array<int, mixed>
      */
-    public function distribute(mixed $data, array $consumers, array $config): array;
+    public function distribute(mixed $data, array $consumers, DistributionConfig $config): array;
 }

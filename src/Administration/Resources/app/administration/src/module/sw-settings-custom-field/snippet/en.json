@@ -80,7 +80,10 @@
         "tooltipAllowCartExpose": "Activate, to make this custom field available in the payload of shopping cart line items. This is required in order to initially use this custom field in the Rule Builder or custom templates.",
         "tooltipCartExposeDisabled": "This setting can currently not be changed, because the custom field is in use by one or more conditions in the Rule Builder.",
         "labelStoreApiAware": "Visible in Store API",
-        "tooltipStoreApiAware": "When active, this field will be available in the Store API. This option can be disabled to store custom data only internally and not make it available via the Store API."
+        "tooltipStoreApiAware": "When active, this field will be available in the Store API. This option can be disabled to store custom data only internally and not make it available via the Store API.",
+        "labelAllowSearchable": "Searchable",
+        "tooltipAllowSearchable": "When active, this custom field will be indexed and can be used in search configurations. Disable this option to reduce index storage size if the field does not need to be searchable.",
+        "bannerSearchableEnabled": "To include this custom field in search configuration for existing products, rebuild the search index or update the products manually."
       },
       "list": {
         "labelCustomFieldLabel": "Label",

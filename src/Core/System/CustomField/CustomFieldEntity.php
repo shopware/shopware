@@ -36,6 +36,8 @@ class CustomFieldEntity extends Entity
 
     protected bool $storeApiAware = true;
 
+    protected bool $searchable = false;
+
     public function getName(): string
     {
         return $this->name;
@@ -140,5 +142,15 @@ class CustomFieldEntity extends Entity
     public function setStoreApiAware(bool $storeApiAware): void
     {
         $this->storeApiAware = $storeApiAware;
+    }
+
+    public function isSearchable(): bool
+    {
+        return $this->searchable;
+    }
+
+    public function setSearchable(bool $searchable): void
+    {
+        $this->searchable = $searchable;
     }
 }

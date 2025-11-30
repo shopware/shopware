@@ -205,6 +205,14 @@ For a detailed guide on how to use the new features and extend the functionality
 A new scheduled task `media.cleanup_corrupted_media` has been introduced.
 It detects and removes corrupted media records, such as entries created by interrupted or failed file uploads that have no corresponding file on the filesystem.
 
+### Configurable Custom Field Searchability
+
+Custom fields are now **not searchable by default**. To make a custom field searchable, you need to enable the "Searchable" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields.
+
+This change helps optimize index storage size and improve search performance, especially for stores with many custom fields. Only custom fields explicitly marked as searchable are indexed in Elasticsearch and available in search configurations.
+
+**Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results. A banner notification will remind you of this requirement.
+
 ## API
 
 ### Add the possibility to specify indexer in context

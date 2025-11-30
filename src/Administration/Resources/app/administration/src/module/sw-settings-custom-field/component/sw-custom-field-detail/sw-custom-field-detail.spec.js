@@ -92,6 +92,8 @@ async function createWrapper(props = defaultProps, privileges = []) {
                     'router-link': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
+                    'mt-switch': await wrapTestComponent('mt-switch'),
+                    'mt-banner': await wrapTestComponent('mt-banner'),
                 },
             },
         },
@@ -186,5 +188,148 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
 
         expect(wrapper.find('.sw-custom-field-detail__technical-name .mt-field__error').exists()).toBe(true);
         expect(wrapper.find('.sw-custom-field-detail__technical-name .mt-field__error').text()).toBe('test');
+    });
+
+    it('should set searchable to false by default for new custom fields', async () => {
+        const wrapper = await createWrapper(defaultProps, ['custom_field.editor']);
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.searchable).toBe(false);
+    });
+
+    it('should preserve searchable value for existing custom fields', async () => {
+        const existingField = {
+            ...customFieldFixture,
+            _isNew: false,
+            searchable: true,
+        };
+
+        const wrapper = await createWrapper({
+            currentCustomField: existingField,
+            set: {},
+        }, ['custom_field.editor']);
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.searchable).toBe(true);
+        expect(wrapper.vm.originalSearchable).toBe(true);
+    });
+
+    it('should show searchable toggle', async () => {
+        const wrapper = await createWrapper(defaultProps, ['custom_field.editor']);
+        await flushPromises();
+
+        const searchableToggle = wrapper.find('.sw-custom-field-detail__allow-searchable');
+        expect(searchableToggle.exists()).toBe(true);
+    });
+
+    it('should show banner when enabling searchable on existing product custom field', async () => {
+        const existingProductField = {
+            ...customFieldFixture,
+            _isNew: false,
+            searchable: false,
+        };
+
+        const wrapper = await createWrapper({
+            currentCustomField: existingProductField,
+            set: {
+                relations: [{ entityName: 'product' }],
+            },
+        }, ['custom_field.editor']);
+        await flushPromises();
+
+        expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
+
+        // Enable searchable
+        wrapper.vm.currentCustomField.searchable = true;
+        await flushPromises();
+
+        expect(wrapper.vm.showSearchableChangeBanner).toBe(true);
+    });
+
+    it('should not show banner for new custom fields', async () => {
+        const wrapper = await createWrapper({
+            currentCustomField: {
+                ...customFieldFixture,
+                _isNew: true,
+                searchable: false,
+            },
+            set: {
+                relations: [{ entityName: 'product' }],
+            },
+        }, ['custom_field.editor']);
+        await flushPromises();
+
+        wrapper.vm.currentCustomField.searchable = true;
+        await flushPromises();
+
+        expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
+    });
+
+    it('should not show banner for non-product custom fields', async () => {
+        const existingCustomerField = {
+            ...customFieldFixture,
+            _isNew: false,
+            searchable: false,
+        };
+
+        const wrapper = await createWrapper({
+            currentCustomField: existingCustomerField,
+            set: {
+                relations: [{ entityName: 'customer' }],
+            },
+        }, ['custom_field.editor']);
+        await flushPromises();
+
+        wrapper.vm.currentCustomField.searchable = true;
+        await flushPromises();
+
+        expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
+    });
+
+    it('should hide banner when disabling searchable again', async () => {
+        const existingProductField = {
+            ...customFieldFixture,
+            _isNew: false,
+            searchable: false,
+        };
+
+        const wrapper = await createWrapper({
+            currentCustomField: existingProductField,
+            set: {
+                relations: [{ entityName: 'product' }],
+            },
+        }, ['custom_field.editor']);
+        await flushPromises();
+
+        // Enable searchable
+        wrapper.vm.currentCustomField.searchable = true;
+        await flushPromises();
+        expect(wrapper.vm.showSearchableChangeBanner).toBe(true);
+
+        // Disable searchable again
+        wrapper.vm.currentCustomField.searchable = false;
+        await flushPromises();
+        expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
+    });
+
+    it('should not show banner when searchable was already true', async () => {
+        const existingProductField = {
+            ...customFieldFixture,
+            _isNew: false,
+            searchable: true,
+        };
+
+        const wrapper = await createWrapper({
+            currentCustomField: existingProductField,
+            set: {
+                relations: [{ entityName: 'product' }],
+            },
+        }, ['custom_field.editor']);
+        await flushPromises();
+
+        wrapper.vm.currentCustomField.searchable = true;
+        await flushPromises();
+
+        expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
     });
 });

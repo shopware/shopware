@@ -44,6 +44,8 @@ export default {
         return {
             fieldTypes: {},
             disableCartExpose: true,
+            showSearchableChangeBanner: false,
+            originalSearchable: null,
         };
     },
 
@@ -107,6 +109,14 @@ export default {
         ]),
     },
 
+    watch: {
+        'currentCustomField.searchable'(newValue) {
+            if (!this.currentCustomField._isNew && this.originalSearchable !== null) {
+                this.showSearchableChangeBanner = newValue === true && this.originalSearchable === false;
+            }
+        },
+    },
+
     created() {
         this.createdComponent();
     },
@@ -129,6 +139,15 @@ export default {
 
             if (!this.currentCustomField.config.hasOwnProperty('customFieldPosition')) {
                 this.currentCustomField.config.customFieldPosition = 1;
+            }
+
+            if (this.currentCustomField.searchable === undefined) {
+                this.currentCustomField.searchable = false;
+            }
+
+            // Store original searchable value from database for comparison
+            if (!this.currentCustomField._isNew) {
+                this.originalSearchable = this.currentCustomField.searchable;
             }
 
             if (!this.currentCustomField.allowCartExpose) {

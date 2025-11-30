@@ -95,10 +95,12 @@ class CustomFieldUpdaterTest extends TestCase
                     [
                         'name' => 'test_newly_created_field',
                         'type' => CustomFieldTypes::INT,
+                        'searchable' => true,
                     ],
                     [
                         'name' => 'test_newly_created_field_text',
                         'type' => CustomFieldTypes::TEXT,
+                        'searchable' => true,
                     ],
                 ],
             ],
@@ -138,10 +140,12 @@ class CustomFieldUpdaterTest extends TestCase
                     [
                         'name' => 'test_later_created_field',
                         'type' => CustomFieldTypes::INT,
+                        'searchable' => true,
                     ],
                     [
                         'name' => 'test_later_created_field_text',
                         'type' => CustomFieldTypes::TEXT,
+                        'searchable' => true,
                     ],
                 ],
             ],

@@ -34,33 +34,28 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @phpstan-type BroadcastProviderData array{
  *   type: 'single'|'collection',
- *   strategy: 'broadcast',
  *   distribution: 'broadcast',
  *   consumer_alias: string|null
  * }
  * @phpstan-type IndexedProviderData array{
  *   type: 'single'|'collection',
- *   strategy: 'indexed',
  *   distribution: 'indexed',
  *   consumer_alias: string|null
  * }
  * @phpstan-type KeyedProviderData array{
  *   type: 'single'|'collection',
- *   strategy: 'keyed',
  *   distribution: 'keyed',
  *   key_property: string,
  *   consumer_alias: string|null
  * }
  * @phpstan-type SlicedProviderData array{
  *   type: 'single'|'collection',
- *   strategy: 'sliced',
  *   distribution: 'sliced',
  *   slice_size: int,
  *   consumer_alias: string|null
  * }
  * @phpstan-type IteratorProviderData array{
  *   type: 'single'|'collection',
- *   strategy: 'iterator',
  *   distribution: 'iterator',
  *   consumer_alias: string|null
  * }
@@ -160,27 +155,22 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
         return match (true) {
             $config instanceof BroadcastDistributionConfig => [
                 'type' => $type,
-                'strategy' => 'broadcast',
                 ...$this->broadcastSerializer->encode($config),
             ],
             $config instanceof IndexedDistributionConfig => [
                 'type' => $type,
-                'strategy' => 'indexed',
                 ...$this->indexedSerializer->encode($config),
             ],
             $config instanceof KeyedDistributionConfig => [
                 'type' => $type,
-                'strategy' => 'keyed',
                 ...$this->keyedSerializer->encode($config),
             ],
             $config instanceof SlicedDistributionConfig => [
                 'type' => $type,
-                'strategy' => 'sliced',
                 ...$this->slicedSerializer->encode($config),
             ],
             $config instanceof IteratorDistributionConfig => [
                 'type' => $type,
-                'strategy' => 'iterator',
                 ...$this->iteratorSerializer->encode($config),
             ],
             default => throw ContentSystemException::invalidFieldValueType(

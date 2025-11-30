@@ -27,6 +27,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -185,6 +188,16 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
     {
         $constraints = [
             new Type('array'),
+            new All([
+                new Collection(
+                    fields: [
+                        'type' => [new NotBlank(), new Choice(['single', 'collection'])],
+                        'distribution' => [new NotBlank(), new Choice(['broadcast', 'indexed', 'keyed', 'sliced', 'iterator'])],
+                    ],
+                    allowExtraFields: true,
+                    allowMissingFields: false
+                ),
+            ]),
         ];
 
         if ($field->is(Required::class)) {

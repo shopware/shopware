@@ -8,13 +8,14 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequi
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -45,8 +46,8 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        if (!$field instanceof StorageAware) {
-            throw ContentSystemException::invalidFieldType(StorageAware::class, $field::class);
+        if (!$field instanceof DataRequirementsField) {
+            throw ContentSystemException::invalidFieldType(DataRequirementsField::class, $field::class);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
@@ -114,6 +115,17 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
     {
         $constraints = [
             new Type('array'),
+            new All([
+                new Collection(
+                    fields: [
+                        'key' => [new Type('string')],
+                        'source' => [new NotBlank(), new Type('string')],
+                        'config' => [new Type('array')],
+                    ],
+                    allowExtraFields: false,
+                    allowMissingFields: true,
+                ),
+            ]),
         ];
 
         if ($field->is(Required::class)) {

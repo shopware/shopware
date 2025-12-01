@@ -71,7 +71,8 @@ class DeleteAdminFilesAfterBuildCommand extends Command
         $progressBar->advance(25);
         $progressBar->finish();
 
-        $io->info('All unnecessary files of the administration after the build process have been deleted.');
+        $io->newLine();
+        $io->success('All unnecessary files of the administration after the build process have been deleted.');
 
         return Command::SUCCESS;
     }

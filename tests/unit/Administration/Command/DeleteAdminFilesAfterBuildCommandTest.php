@@ -34,6 +34,7 @@ class DeleteAdminFilesAfterBuildCommandTest extends TestCase
         $commandTester->setInputs(['no']);
         $commandTester->execute([]);
 
+        $commandTester->assertCommandIsSuccessful();
         static::assertStringContainsString('Command aborted!', $commandTester->getDisplay());
     }
 
@@ -48,6 +49,7 @@ class DeleteAdminFilesAfterBuildCommandTest extends TestCase
         $commandTester->setInputs(['yes']);
         $commandTester->execute([]);
 
+        $commandTester->assertCommandIsSuccessful();
         static::assertStringContainsString('All unnecessary files of the administration after the build process have been deleted.', $commandTester->getDisplay());
     }
 }

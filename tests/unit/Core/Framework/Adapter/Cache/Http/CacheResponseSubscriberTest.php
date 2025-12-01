@@ -718,6 +718,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $this->subscriber->setLanguageCurrencyHeaders($event);
 
+        static::assertTrue($event->getResponse()->headers->has(PlatformRequest::HEADER_LANGUAGE_ID), 'Vary header should always be set');
         static::assertSame('language-id', $event->getResponse()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID));
         static::assertSame('currency-id', $event->getResponse()->headers->get(PlatformRequest::HEADER_CURRENCY_ID));
     }

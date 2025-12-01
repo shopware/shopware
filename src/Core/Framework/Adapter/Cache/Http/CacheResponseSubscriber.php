@@ -213,10 +213,14 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
         $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
 
-        $vary = $response->getVary();
-        $vary[] = PlatformRequest::HEADER_LANGUAGE_ID;
-        $vary[] = PlatformRequest::HEADER_CURRENCY_ID;
-        $response->setVary(array_unique($vary));
+        $newVaryArray = array_merge($response->getVary(), [
+            PlatformRequest::HEADER_LANGUAGE_ID,
+            PlatformRequest::HEADER_CURRENCY_ID,
+            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
+        ]);
+        $newVaryArray = array_unique(array_map(fn (string $v) => \trim($v), $newVaryArray));
+
+        $response->setVary($newVaryArray);
     }
 
     public function setResponseCacheHeader(ResponseEvent $event): void

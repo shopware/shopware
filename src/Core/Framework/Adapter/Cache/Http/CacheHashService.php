@@ -35,13 +35,6 @@ class CacheHashService
 
     public function applyCacheHash(Request $request, SalesChannelContext $context, Cart $cart, Response $response): void
     {
-        $newVaryArray = array_merge($response->getVary(), [
-            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-        ]);
-        $newVaryArray = array_unique(array_map(fn (string $v) => \trim($v), $newVaryArray));
-
-        $response->setVary($newVaryArray);
-
         $isCacheHashRequired = $this->extensions->publish(
             CacheHashRequiredExtension::NAME,
             new CacheHashRequiredExtension($request, $context, $cart),

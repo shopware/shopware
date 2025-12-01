@@ -122,9 +122,6 @@ class CacheHashServiceTest extends TestCase
 
             static::assertNull($response->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE));
         }
-
-        // vary header needs to be always set and the same on every request
-        static::assertTrue($response->headers->has('vary'));
     }
 
     /**

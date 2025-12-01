@@ -7,10 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
 
 #[AsCommand(
@@ -20,41 +19,22 @@ use Symfony\Component\Finder\Finder;
 #[Package('framework')]
 class DeleteAdminFilesAfterBuildCommand extends Command
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure(): void
-    {
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $helper = $this->getHelper('question');
-        \assert($helper instanceof QuestionHelper);
+        $io = new SymfonyStyle($input, $output);
 
-        $question = new ConfirmationQuestion('This will delete all files unnecessary to build the administration. Do you want to continue? (y/n)');
+        if (!$io->confirm('This will delete all files unnecessary to build the administration. Do you want to continue?', false)) {
+            $io->warning('Command aborted!');
 
-        if (!$helper->ask($input, $output, $question)) {
-            $output->writeln('Command aborted!');
-
-            return 0;
+            return Command::SUCCESS;
         }
 
         $adminDir = \dirname((string) (new \ReflectionClass(Administration::class))->getFileName());
         $output->writeln('Deleting unnecessary files of the administration after the build process...');
         $progressBar = new ProgressBar($output, 100);
 
-        $finder = new Finder();
-
-        // Find all files in Administration/Resources/app/administration/src/module except for de-DE.json and en-GB.json
-        $finder->in($adminDir . '/Resources/app/administration/src/module')
-            ->notName('de-DE.json')
-            ->notName('en-GB.json')
-            ->files();
-
-        foreach ($finder as $file) {
-            unlink($file->getRealPath());
-        }
+        // Delete all module files except for de-DE.json and en-GB.json
+        $this->deleteModuleFiles($adminDir);
         $progressBar->advance(25);
 
         $this->deleteEmptyDirectories($adminDir . '/Resources/app/administration/src/module');
@@ -80,7 +60,7 @@ class DeleteAdminFilesAfterBuildCommand extends Command
         $this->removeDirectory($adminDir . '/Resources/app/administration/src/meta');
         $this->removeDirectory($adminDir . '/Resources/app/administration/src/scripts');
         $this->removeDirectory($adminDir . '/Resources/app/administration/patches');
-        unlink($adminDir . '/Resources/app/administration/package-lock.json');
+        $this->deletePackageLockFile($adminDir);
         $progressBar->advance(25);
 
         $this->removeDirectory($adminDir . '/Resources/app/administration/static');
@@ -91,13 +71,15 @@ class DeleteAdminFilesAfterBuildCommand extends Command
         $progressBar->advance(25);
         $progressBar->finish();
 
-        $output->writeln('');
-        $output->writeln('All unnecessary files of the administration after the build process have been deleted.');
+        $io->info('All unnecessary files of the administration after the build process have been deleted.');
 
-        return 0;
+        return Command::SUCCESS;
     }
 
-    private function deleteEmptyDirectories(string $dir): void
+    /**
+     * Recursively deletes empty directories.
+     */
+    protected function deleteEmptyDirectories(string $dir): void
     {
         if (!is_dir($dir)) {
             return;
@@ -124,7 +106,38 @@ class DeleteAdminFilesAfterBuildCommand extends Command
         }
     }
 
-    private function removeDirectory(string $dir): void
+    /**
+     * Delete all files in Administration/Resources/app/administration/src/module,
+     * except for de-DE.json and en-GB.json
+     */
+    protected function deleteModuleFiles(string $adminDir): void
+    {
+        $finder = new Finder();
+
+        $finder->in($adminDir . '/Resources/app/administration/src/module')
+            ->notName('de-DE.json')
+            ->notName('en-GB.json')
+            ->files();
+
+        foreach ($finder as $file) {
+            unlink($file->getRealPath());
+        }
+    }
+
+    protected function deletePackageLockFile(string $adminDir): void
+    {
+        $packageLockPath = $adminDir . '/Resources/app/administration/package-lock.json';
+
+        if (\is_file($packageLockPath)) {
+            \unlink($packageLockPath);
+        }
+    }
+
+    /**
+     * Recursively deletes a directory and all its contents.
+     * Prevents deletion of directories containing '/snippet' in their path.
+     */
+    protected function removeDirectory(string $dir): void
     {
         if (!is_dir($dir) || str_contains('/snippet', $dir)) {
             return;

@@ -26,10 +26,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     public function testShouldBeRun(array $productExportRow, bool $expectedResult, bool $expectsReset): void
     {
         $connection = $this->createMock(Connection::class);
-        $salesChannelId = '8fdd4e21be6b4ad59656fb856d0375e7';
 
         $connection->method('fetchFirstColumn')
-            ->willReturn([Uuid::fromHexToBytes($salesChannelId)]);
+            ->willReturn([Uuid::randomHex()]);
 
         $connection->method('fetchAllAssociative')
             ->willReturn([$productExportRow]);

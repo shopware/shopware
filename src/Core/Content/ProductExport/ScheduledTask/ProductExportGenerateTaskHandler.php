@@ -65,9 +65,9 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
      */
     private function fetchSalesChannelIds(): array
     {
-        $salesChannelIds = $this->connection->fetchFirstColumn(
+        return $this->connection->fetchFirstColumn(
             <<<'SQL'
-                SELECT `id`
+                SELECT LOWER(HEX(id))
                 FROM `sales_channel`
                 WHERE `type_id` = :typeId
                   AND `active` = 1
@@ -75,12 +75,6 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT)],
             ['typeId' => ParameterType::BINARY]
         );
-
-        /** @var list<string> $salesChannelIds */
-        return array_values(array_map(
-            static fn (string $id): string => Uuid::fromBytesToHex($id),
-            array_filter($salesChannelIds, static fn ($id): bool => \is_string($id))
-        ));
     }
 
     /**
@@ -93,22 +87,22 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
                 SELECT
-                    LOWER(HEX(pe.id)) AS id,
-                    pe.generated_at,
-                    pe.interval,
-                    pe.is_running,
-                    pe.updated_at,
-                    pe.created_at
-                FROM product_export pe
-                INNER JOIN sales_channel sc
-                    ON sc.id = pe.sales_channel_id
-                INNER JOIN sales_channel_domain scd
-                    ON scd.id = pe.sales_channel_domain_id
-                WHERE pe.generate_by_cronjob = 1
-                  AND sc.active = 1
+                    LOWER(HEX(product_export.id)) AS id,
+                    product_export.generated_at,
+                    product_export.interval,
+                    product_export.is_running,
+                    product_export.updated_at,
+                    product_export.created_at
+                FROM product_export
+                INNER JOIN sales_channel
+                    ON sales_channel.id = product_export.sales_channel_id
+                INNER JOIN sales_channel_domain
+                    ON sales_channel_domain.id = product_export.sales_channel_domain_id
+                WHERE product_export.generate_by_cronjob = 1
+                  AND sales_channel.active = 1
                   AND (
-                        pe.storefront_sales_channel_id = :salesChannelId
-                        OR scd.sales_channel_id = :salesChannelId
+                        product_export.storefront_sales_channel_id = :salesChannelId
+                        OR sales_channel_domain.sales_channel_id = :salesChannelId
                   )
             SQL,
             ['salesChannelId' => Uuid::fromHexToBytes($salesChannelId)],
@@ -129,7 +123,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
     /**
      * @param array<string, mixed> $productExport
      */
-    private function shouldBeRun(array &$productExport, \DateTimeImmutable $now): bool
+    private function shouldBeRun(array $productExport, \DateTimeImmutable $now): bool
     {
         if ($productExport['is_running']) {
             // If a previous run was aborted unexpectedly, the flag may be stuck.
@@ -143,11 +137,11 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                     ['id' => Uuid::fromHexToBytes($productExport['id'])],
                     ['id' => ParameterType::BINARY]
                 );
-                $productExport['is_running'] = 1;
-            // Fall through to the time-based checks
-            } else {
-                return false;
+
+                return true;
             }
+
+            return false;
         }
 
         if ($productExport['generated_at'] === null) {

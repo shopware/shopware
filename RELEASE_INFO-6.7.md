@@ -35,6 +35,10 @@ Additionally, the following configuration was deprecated:
 
 The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities. The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure. Furthermore, new events for `add_to_wishlist` and `view_cart` have been implemented to provide a more comprehensive view of user interactions. These changes ensure that tracking data is more detailed and compliant with the latest `GA4` specifications.
 
+### The email validation supports IDN email addresses
+
+The domain part of email addresses may now contain internationalized domain names (IDN). The Storefront validation will properly check these domains. The form validation in PHP may still deny IDN emails addresses, but the default Shopware forms already allow them.
+
 ## App System
 
 ## Hosting & Configuration
@@ -233,6 +237,7 @@ New extensible Twig blocks `layout_header_actions_language_widget_content_inner`
 
 The `context.token` variable is no longer available in twig rendering context to prevent potential security vulnerabilities. If you need to access the token, consider using alternative methods that do not expose it in the rendered HTML.
 Usually inside the Twig storefront there is no need to handle the context token manually, as it is handled automatically via the session handling in the Storefront.
+
 
 ### Added specific `add-product-by-number` template
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.

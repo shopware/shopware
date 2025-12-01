@@ -12,6 +12,11 @@
     .sw-select-selection-list .sw-select-selection-list__item-holder {
         max-width: 16rem;
     }
+
+    .sw-block-field__block {
+        min-height: 48px;
+        height: auto;
+    }
 }
 
 .sw-multi-tag-select-validation-popover {

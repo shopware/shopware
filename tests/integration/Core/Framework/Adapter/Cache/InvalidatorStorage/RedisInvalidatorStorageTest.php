@@ -62,12 +62,12 @@ class RedisInvalidatorStorageTest extends TestCase
 
         $this->storage->store($tags);
 
-        static::assertSame(50000, $this->redis->sCard('invalidation'));
+        static::assertSame(50000, $this->redis->scard('invalidation'));
 
         $loadedTags = $this->storage->loadAndDelete();
 
         static::assertCount(50000, $loadedTags);
-        static::assertSame(0, $this->redis->sCard('invalidation'));
+        static::assertSame(0, $this->redis->scard('invalidation'));
     }
 
     public function testMultipleStoreAndLoadCycles(): void

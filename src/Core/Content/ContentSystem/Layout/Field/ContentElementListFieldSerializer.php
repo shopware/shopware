@@ -14,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -131,10 +133,22 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
         return $elements;
     }
 
-    protected function getConstraints(Field $field): array
+    /**
+     * @return list<Constraint>
+     */
+    public function buildConstraints(Field $field): array
     {
+        if (!$field instanceof ContentElementListField) {
+            throw ContentSystemException::invalidFieldType(ContentElementListField::class, $field::class);
+        }
+
+        $contentElementField = new ContentElementField('', '');
+
         $constraints = [
             new Type('array'),
+            new All(
+                $this->contentElementSerializer->buildConstraints($contentElementField)
+            ),
         ];
 
         if ($field->is(Required::class)) {
@@ -142,5 +156,10 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
         }
 
         return $constraints;
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        return $this->buildConstraints($field);
     }
 }

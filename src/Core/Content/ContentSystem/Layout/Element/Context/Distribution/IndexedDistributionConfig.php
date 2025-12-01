@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @phpstan-type IndexedDistributionConfigData array{
@@ -64,6 +65,13 @@ final readonly class IndexedDistributionConfig implements DistributionConfig
         return [
             'distribution' => 'indexed',
             'consumer_alias' => $this->consumerAlias,
+        ];
+    }
+
+    public static function buildConstraints(): array
+    {
+        return [
+            'consumer_alias' => [new Type('string')],
         ];
     }
 }

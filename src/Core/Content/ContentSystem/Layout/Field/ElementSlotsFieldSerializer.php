@@ -7,15 +7,18 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -42,8 +45,8 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        if (!$field instanceof StorageAware) {
-            throw ContentSystemException::invalidFieldType(StorageAware::class, $field::class);
+        if (!$field instanceof ElementSlotsField) {
+            throw ContentSystemException::invalidFieldType(ElementSlotsField::class, $field::class);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
@@ -113,10 +116,18 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
         return $data;
     }
 
-    protected function getConstraints(Field $field): array
+    /**
+     * @return list<Constraint>
+     */
+    public function buildConstraints(Field $field): array
     {
         $constraints = [
             new Type('array'),
+            // Each slot value must be an array containing content elements
+            new All([
+                new Type('array'),
+                new Callback($this->validateSlotElements(...)),
+            ]),
         ];
 
         if ($field->is(Required::class)) {
@@ -124,6 +135,38 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
         }
 
         return $constraints;
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        return $this->buildConstraints($field);
+    }
+
+    /**
+     * Validates each content element within a slot.
+     * This enables deep validation of the recursive ContentElement tree structure.
+     */
+    private function validateSlotElements(mixed $value, ExecutionContextInterface $context): void
+    {
+        if (!\is_array($value)) {
+            return;
+        }
+
+        $contentElementField = new ContentElementField('', '');
+        $elementConstraints = $this->elementSerializer->buildConstraints($contentElementField);
+
+        foreach ($value as $index => $elementData) {
+            $violations = $context->getValidator()->validate($elementData, $elementConstraints);
+
+            foreach ($violations as $violation) {
+                $propertyPath = $violation->getPropertyPath();
+                $path = "[$index]" . ($propertyPath !== '' ? ".$propertyPath" : '');
+
+                $context->buildViolation((string) $violation->getMessage())
+                    ->atPath($path)
+                    ->addViolation();
+            }
+        }
     }
 
     /**

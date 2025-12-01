@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraint;
 
 /**
  * @phpstan-import-type BroadcastDistributionConfigData from BroadcastDistributionConfig
@@ -25,9 +26,6 @@ interface DistributionConfig
 
     public function getStrategy(): DistributionStrategy;
 
-    /**
-     * Consumer property name override. Null = use provider's context key.
-     */
     public function getConsumerAlias(): ?string;
 
     /**
@@ -43,4 +41,11 @@ interface DistributionConfig
      * @return DistributionConfigData
      */
     public function toArray(): array;
+
+    /**
+     * Returns validation constraints for this distribution config's fields.
+     *
+     * @return array<string, list<Constraint>>
+     */
+    public static function buildConstraints(): array;
 }

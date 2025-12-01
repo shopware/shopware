@@ -13,21 +13,69 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class ContentElementField extends JsonField
 {
+    private StringField $idField;
+
+    private StringField $componentField;
+
+    private JsonField $propertiesField;
+
+    private DataRequirementsField $dataRequirementsField;
+
+    private ElementSlotsField $slotsField;
+
+    private ContextProvidersField $providesContextField;
+
+    private ContextConsumersField $acceptsContextField;
+
     public function __construct(
         string $storageName,
         string $propertyName
     ) {
-        $propertyMapping = [
-            (new StringField('id', 'id'))->addFlags(new Required()),
-            (new StringField('component', 'component'))->addFlags(new Required()),
-            new JsonField('properties', 'properties'),
-            new DataRequirementsField('data_requirements', 'dataRequirements'),
-            new ElementSlotsField('slots', 'slots'),
-            new ContextProvidersField('provides_context', 'providesContext'),
-            new ContextConsumersField('accepts_context', 'acceptsContext'),
-        ];
+        $this->idField = new StringField('id', 'id');
+        $this->idField->addFlags(new Required());
 
-        parent::__construct($storageName, $propertyName, $propertyMapping);
+        $this->componentField = new StringField('component', 'component');
+        $this->componentField->addFlags(new Required());
+
+        $this->propertiesField = new JsonField('properties', 'properties');
+        $this->dataRequirementsField = new DataRequirementsField('data_requirements', 'dataRequirements');
+        $this->slotsField = new ElementSlotsField('slots', 'slots');
+        $this->providesContextField = new ContextProvidersField('provides_context', 'providesContext');
+        $this->acceptsContextField = new ContextConsumersField('accepts_context', 'acceptsContext');
+
+        parent::__construct($storageName, $propertyName, [
+            $this->idField,
+            $this->componentField,
+            $this->propertiesField,
+            $this->dataRequirementsField,
+            $this->slotsField,
+            $this->providesContextField,
+            $this->acceptsContextField,
+        ]);
+    }
+
+    /**
+     * @return array{
+     *     id: StringField,
+     *     component: StringField,
+     *     properties: JsonField,
+     *     dataRequirements: DataRequirementsField,
+     *     slots: ElementSlotsField,
+     *     providesContext: ContextProvidersField,
+     *     acceptsContext: ContextConsumersField
+     * }
+     */
+    public function getNamedPropertyMapping(): array
+    {
+        return [
+            'id' => $this->idField,
+            'component' => $this->componentField,
+            'properties' => $this->propertiesField,
+            'dataRequirements' => $this->dataRequirementsField,
+            'slots' => $this->slotsField,
+            'providesContext' => $this->providesContextField,
+            'acceptsContext' => $this->acceptsContextField,
+        ];
     }
 
     protected function getSerializerClass(): string

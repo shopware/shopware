@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\ContentSystem\Layout\Field;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextConsumer;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
@@ -15,9 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @phpstan-type ContextConsumerData array{
@@ -33,13 +36,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Package('discovery')]
 class ContextConsumersFieldSerializer extends AbstractFieldSerializer
 {
-    public function __construct(
-        ValidatorInterface $validator,
-        DefinitionInstanceRegistry $definitionRegistry
-    ) {
-        parent::__construct($validator, $definitionRegistry);
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -130,10 +126,26 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
         return $data;
     }
 
-    protected function getConstraints(Field $field): array
+    /**
+     * @return list<Constraint>
+     */
+    public function buildConstraints(Field $field): array
     {
         $constraints = [
             new Type('array'),
+            new All([
+                new Collection(
+                    fields: [
+                        'type' => [new NotBlank(), new Choice(ContextType::values())],
+                        'required' => [new Type('bool')],
+                        'redistribute' => new Optional([new Type('bool')]),
+                        'consumer_alias' => new Optional([new Type('string')]),
+                        'property_alias' => new Optional([new Type('string')]),
+                    ],
+                    allowExtraFields: false,
+                    allowMissingFields: false
+                ),
+            ]),
         ];
 
         if ($field->is(Required::class)) {
@@ -141,6 +153,11 @@ class ContextConsumersFieldSerializer extends AbstractFieldSerializer
         }
 
         return $constraints;
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        return $this->buildConstraints($field);
     }
 
     /**

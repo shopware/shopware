@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @phpstan-type BroadcastDistributionConfigData array{
@@ -53,6 +54,13 @@ final readonly class BroadcastDistributionConfig implements DistributionConfig
         return [
             'distribution' => 'broadcast',
             'consumer_alias' => $this->consumerAlias,
+        ];
+    }
+
+    public static function buildConstraints(): array
+    {
+        return [
+            'consumer_alias' => [new Type('string')],
         ];
     }
 }

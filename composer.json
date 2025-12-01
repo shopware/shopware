@@ -95,7 +95,6 @@
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
         "horstoeko/zugferd": "^1.0.104",
-        "lcobucci/clock": "^3.1.0",
         "lcobucci/jwt": "^5.5",
         "league/flysystem": "^3.13.0",
         "league/flysystem-local": "^3.29.0",

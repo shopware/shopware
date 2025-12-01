@@ -56,12 +56,6 @@ function get(entityName) {
  * @param schema
  */
 function add(entityName, schema) {
-    if (entityName === 'customer') {
-        // TODO: REMOVE AFTER DEBUG
-        console.log('entityDefinitionRegistry', schema);
-        // TODO: REMOVE AFTER DEBUG
-    }
-
     entityDefinitionRegistry.set(entityName, new EntityDefinition(schema));
 }
 

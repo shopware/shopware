@@ -13,6 +13,10 @@ on:
         type: string
         default: ""
 
+permissions:
+    contents: read
+    id-token: write
+
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
@@ -33,9 +37,11 @@ jobs:
           # TODO: enable them in nightly/queue again with help of shopware/github-actions#67
           # - name: "Platform"
           #   major: "major"
+          #   no-currents: true
           #   php-version: 8.2
           # - name: "Platform"
           #   major: "major"
+          #   no-currents: true
           #   php-version: 8.4
           - name: "Install"
             major: ''
@@ -54,7 +60,7 @@ jobs:
           workers: 1
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
-          use-currents: ${{ inputs.nightly == 'true' && matrix.php-version == '8.2' && !matrix.major && 'true' || '' }}
+          use-currents: ${{ inputs.nightly == 'true' && matrix.no-currents != 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
 
@@ -102,7 +108,7 @@ jobs:
           echo 'EOF' >> $GITHUB_OUTPUT
 
   phpunit:
-    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
+    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}"
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
@@ -121,7 +127,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.test.path != '' && 'opensearchproject/opensearch:2' || 'alpine' }}
+        image: ${{ matrix.test.path != '' &&  matrix.opensearch || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -231,7 +237,9 @@ jobs:
       fail-fast: false
       matrix:
         language: [ "javascript" ]
-
+    permissions:
+        contents: read
+        security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
@@ -330,7 +338,12 @@ jobs:
 
       - name: Require shopware
         working-directory: old-shopware
-        run: composer require shopware/core:${{ matrix.update.version }}
+        run: |
+          # Note: We expect to see vulnerabilities in the older versions we're using here.
+          jq '.config.audit = { "block-insecure": false }' composer.json > composer.json.new
+          mv composer.json.new composer.json
+          
+          composer require shopware/core:${{ matrix.update.version }}
 
       - name: Install
         working-directory: old-shopware
@@ -390,7 +403,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:2"
+        image: "opensearchproject/opensearch:3"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -448,7 +461,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:2"
+        image: "opensearchproject/opensearch:3"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
@@ -528,7 +541,7 @@ jobs:
 
       services:
           elasticsearch:
-              image: "opensearchproject/opensearch:2"
+              image: "opensearchproject/opensearch:3"
               env:
                   discovery.type: single-node
                   plugins.security.disabled: "true"

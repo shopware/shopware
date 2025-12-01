@@ -57,8 +57,7 @@ describe('module/sw-users-permissions/components/sw-user-sso-access-key-create-m
 
         expect(accessKeyField.find('input').attributes('value')).toBe('abdcefghi');
 
-        expect(secretAccessKeyField.attributes('copyable')).toBeDefined();
-        expect(secretAccessKeyField.attributes('copyable')).toBe('false');
+        expect(secretAccessKeyField.attributes('copyable')).toBeUndefined();
 
         const secretAccessKeyFieldInput = secretAccessKeyField.find('input');
         expect(secretAccessKeyFieldInput.attributes('type')).toBe('password');

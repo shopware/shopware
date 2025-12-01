@@ -12,10 +12,15 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class Random
 {
+    /**
+     * @param int<1, max> $length
+     *
+     * @return non-empty-string
+     */
     public static function getBytes(int $length): string
     {
-        if ($length <= 0) {
-            throw new \DomainException('Length should be >= 1');
+        if ($length < 1) {
+            throw UtilException::lengthMustBeGreaterThanZero();
         }
 
         return random_bytes($length);
@@ -31,26 +36,33 @@ class Random
     public static function getInteger(int $min, int $max): int
     {
         if ($min > $max) {
-            throw new \DomainException(
-                'The min parameter must be lower than max parameter'
-            );
+            throw UtilException::minMustNotBeGreaterThanMax();
         }
 
         return random_int($min, $max);
     }
 
+    /**
+     * @param int<1, max> $length
+     *
+     * @return non-empty-string
+     */
     public static function getString(int $length, ?string $charlist = null): string
     {
         if ($length < 1) {
-            throw new \DomainException('Length should be >= 1');
+            throw UtilException::lengthMustBeGreaterThanZero();
         }
 
         // charlist is empty or not provided
         if (empty($charlist)) {
-            $numBytes = ceil($length * 0.75);
-            $bytes = static::getBytes((int) $numBytes);
+            /** @var int<1, max> $numBytes */
+            $numBytes = (int) ceil($length * 0.75);
+            $bytes = static::getBytes($numBytes);
 
-            return mb_substr(rtrim(base64_encode($bytes), '='), 0, $length, '8bit');
+            /** @var non-empty-string $result phpstan does not understand that some content of $bytes will remain */
+            $result = mb_substr(rtrim(base64_encode($bytes), '='), 0, $length, '8bit');
+
+            return $result;
         }
 
         $listLen = mb_strlen($charlist, '8bit');
@@ -64,23 +76,31 @@ class Random
             $pos = static::getInteger(0, $listLen - 1);
             $result .= $charlist[$pos];
         }
+        \assert($result !== '');
 
         return $result;
     }
 
     /**
      * @see https://tools.ietf.org/html/rfc4648
+     *
+     * @param int<1, max> $length
+     *
+     * @return non-empty-string
      */
     public static function getBase64UrlString(int $length): string
     {
-        $numBytes = ceil($length * 0.75);
-        $bytes = static::getBytes((int) $numBytes);
-
-        $base64 = mb_substr(rtrim(base64_encode($bytes), '='), 0, $length, '8bit');
+        // getString without a charlist returns a base64 encoded string
+        $base64 = static::getString($length);
 
         return str_replace(['+', '/'], ['-', '_'], $base64);
     }
 
+    /**
+     * @param int<1, max> $length
+     *
+     * @return non-empty-string
+     */
     public static function getAlphanumericString(int $length): string
     {
         $charlist = implode('', range('a', 'z')) . implode('', range('A', 'Z')) . implode('', range(0, 9));
@@ -88,7 +108,10 @@ class Random
         return static::getString($length, $charlist);
     }
 
-    public static function getRandomArrayElement(array $array)
+    /**
+     * @param array<int, mixed> $array
+     */
+    public static function getRandomArrayElement(array $array): mixed
     {
         return $array[self::getInteger(0, \count($array) - 1)];
     }

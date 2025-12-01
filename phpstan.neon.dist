@@ -10,11 +10,14 @@ parameters:
         - tests
 
     bootstrapFiles:
-        - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
-    # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
+        - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
     symfony:
         constantHassers: false
         containerXmlPath: 'var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
+    scanDirectories:
+        - var/cache/static_phpstan_dev/Symfony/Config
+    scanFiles:
+        - vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php
 
     excludePaths:
         # vendor patches over autoload files
@@ -187,3 +190,7 @@ parameters:
             message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
             paths:
                 - tests/**
+
+        - # RedisArray has missing methods in the stub. See https://github.com/phpredis/phpredis/discussions/2736
+            message: '#Call to an undefined method Predis\\ClientInterface\|Redis\|RedisArray\|RedisCluster\|Relay\\Cluster\|Relay\\Relay::#'
+            identifier: method.notFound

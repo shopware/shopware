@@ -11,7 +11,8 @@
                  itemtype="https://schema.org/SiteNavigationElement"
                  data-navbar="true"
                  data-navbar-options="{{ navbarOptions|json_encode }}"
-                 aria-label="{{ 'header.navigationAriaLabel'|trans|striptags }}">
+                 aria-label="{{ 'header.navigationAriaLabel'|trans|striptags }}"
+            >
                 <div class="collapse navbar-collapse" id="main_nav">
                     <ul class="navbar-nav main-navigation-menu-list flex-wrap">
                         {% set homeLabel = context.salesChannel.translated.homeName|default('general.homeLink'|trans) %}
@@ -39,9 +40,9 @@
 
                                 {% block layout_navbar_menu_item %}
                                     {% if not itemSkipped %}
-                                        <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static{% endif %}">
+                                        <li class="nav-item nav-item-{{ id }} dropdown position-static">
                                             {% block layout_navbar_menu_item_link %}
-                                                <a class="nav-link nav-item-{{ id }}-link root main-navigation-link p-2{% if hasChildren %} dropdown-toggle{% endif %}"
+                                                <a class="nav-link nav-item-{{ id }}-link root main-navigation-link p-2 {% if hasChildren %}dropdown-toggle{% else %}no-dropdown{% endif %}"
                                                    href="{{ category.seoUrl ?: '#' }}"
                                                    {% if hasChildren %}data-bs-toggle="dropdown"{% endif %}
                                                    {% if category.type != 'folder' and category.shouldOpenInNewTab %}target="_blank"{% endif %}

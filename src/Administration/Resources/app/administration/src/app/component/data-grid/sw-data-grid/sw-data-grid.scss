@@ -339,6 +339,15 @@
                 background-color: var(--color-background-brand-default);
             }
         }
+
+        &.is--clickable {
+            cursor: pointer;
+
+            .sw-data-grid__cell--actions,
+            .sw-data-grid__cell--selection {
+                cursor: default;
+            }
+        }
     }
 
     .sw-data-grid__cell--actions {

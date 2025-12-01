@@ -226,6 +226,16 @@
         {% block sw_media_quickinfo_preview_content %}
         <template #content>
             <div>
+                {% block sw_media_quickinfo_unsupported_format_banner %}
+                <mt-banner
+                    v-if="showUnsupportedFormatWarning"
+                    variant="attention"
+                    class="sw-media-quickinfo__unsupported-format-banner"
+                >
+                    {{ $t('global.sw-media-preview-v2.warningUnsupportedFormat', { format: item.mimeType }) }}
+                </mt-banner>
+                {% endblock %}
+
                 {% block sw_media_quickinfo_preview_item %}
                 <sw-media-preview-v2
                     class="sw-media-quickinfo__media-preview"

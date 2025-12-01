@@ -99,7 +99,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         );
 
         try {
-            /** @var list<string> $newMatches */
             $newMatches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
         } catch (UnmappedFieldException) {
             // invalid filter, remove all mappings
@@ -214,9 +213,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             }
 
             foreach ($matches->getIds() as $id) {
-                if (!\is_string($id)) {
-                    continue;
-                }
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,

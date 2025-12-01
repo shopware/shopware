@@ -57,7 +57,7 @@ class RangeAggregationTest extends TestCase
     }
 
     /**
-     * @return array<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
+     * @return iterable<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
      */
     public static function rangeAggregationDataProvider(): iterable
     {

@@ -2,9 +2,11 @@
  * @sw-package framework
  */
 import './app/assets/scss/all.scss';
+import 'inter-ui/inter.css';
+import { ShopwareInstance } from 'src/core/shopware';
 
-// Import the Shopware instance
-void import('src/core/shopware').then(async ({ ShopwareInstance }) => {
+// IIFE
+void (async () => {
     // Set the global Shopware instance
     window.Shopware = ShopwareInstance;
 
@@ -17,7 +19,6 @@ void import('src/core/shopware').then(async ({ ShopwareInstance }) => {
     // Import the main file
     await import('src/app/main');
 
-    // Start the main application and fingers crossed
-    // that everything works as expected
+    // Start the main application
     window.startApplication();
-});
+})();

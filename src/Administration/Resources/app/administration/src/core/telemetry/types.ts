@@ -18,11 +18,11 @@ type AnalyticsEvents = {
         [key: string]: TrackableType;
     };
     identify: {
-        userId: string;
-        deviceId: string;
-        locale: string;
-        permissions: string[];
+        userId: string | null;
+        locale: string | null;
+        isAdmin: boolean | null;
     };
+    reset: object;
 };
 
 type EventTypes = keyof AnalyticsEvents;

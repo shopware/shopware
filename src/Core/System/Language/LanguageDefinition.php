@@ -123,9 +123,9 @@ class LanguageDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Required()),
             (new CustomFields())->addFlags(new ApiAware()),
             (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware()),
-            (new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            (new ManyToOneAssociationField('translationCode', 'translation_code_id', LocaleDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            (new ChildrenAssociationField(self::class))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Locale defining regional settings (date, time, number formats)'),
+            (new ManyToOneAssociationField('translationCode', 'translation_code_id', LocaleDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Locale used for translating content'),
+            (new ChildrenAssociationField(self::class))->addFlags(new ApiAware())->setDescription('Child languages inheriting from this parent language'),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelLanguageDefinition::class, 'language_id', 'sales_channel_id'),
 
             // api relevant associations, restrict delete

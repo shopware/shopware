@@ -21,7 +21,7 @@ async function createWrapper(additionalOptions = {}) {
             },
             global: {
                 stubs: {
-                    'sw-text-field-deprecated': {
+                    'mt-text-field': {
                         template: '<div class="sw-text-field"><slot name="label"></slot><slot></slot></div>',
                     },
                     'sw-contextual-field': true,

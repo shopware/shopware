@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\CreateFromTrait;
@@ -64,8 +65,13 @@ abstract class Error extends \Exception implements \JsonSerializable
      */
     abstract public function getParameters(): array;
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed without replacement
+     */
     public function getRoute(): ?ErrorRoute
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, 'getRoute', 'v6.8.0.0'));
+
         return null;
     }
 
@@ -108,12 +114,14 @@ abstract class Error extends \Exception implements \JsonSerializable
         $data['block'] = $this->blockOrder();
         $data['blockResubmit'] = $this->blockResubmit();
 
-        if ($route = $this->getRoute()) {
-            $data['route'] = [
-                'key' => $route->getKey(),
-                'params' => $route->getParams(),
-            ];
-        }
+        Feature::callSilentIfInactive('v6.8.0.0', function () use (&$data): void {
+            if ($route = $this->getRoute()) {
+                $data['route'] = [
+                    'key' => $route->getKey(),
+                    'params' => $route->getParams(),
+                ];
+            }
+        });
 
         unset($data['file'], $data['line']);
 

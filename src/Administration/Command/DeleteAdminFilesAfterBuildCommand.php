@@ -24,7 +24,7 @@ class DeleteAdminFilesAfterBuildCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         if (!$io->confirm('This will delete all files unnecessary to build the administration. Do you want to continue?', false)) {
-            $io->warning('Command aborted!');
+            $io->text('Command aborted!');
 
             return Command::SUCCESS;
         }
@@ -72,7 +72,7 @@ class DeleteAdminFilesAfterBuildCommand extends Command
         $progressBar->finish();
 
         $io->newLine();
-        $io->success('All unnecessary files of the administration after the build process have been deleted.');
+        $io->text('All unnecessary files of the administration after the build process have been deleted.');
 
         return Command::SUCCESS;
     }

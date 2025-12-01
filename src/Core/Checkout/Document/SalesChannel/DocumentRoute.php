@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
-use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
+use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -36,6 +36,7 @@ final class DocumentRoute extends AbstractDocumentRoute
      * @internal
      *
      * @param EntityRepository<DocumentCollection> $documentRepository
+     * @param AbstractDocumentTypeRenderer[] $renderers
      */
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
@@ -79,7 +80,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         $document = null;
 
         foreach ($requestedFileTypes as $requestedFileType) {
-            if (!isset($supportedFileTypes[$requestedFileType])){
+            if (!isset($supportedFileTypes[$requestedFileType])) {
                 continue;
             }
 
@@ -97,6 +98,10 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         if ($document === null) {
             if (!Feature::isActive('v6.8.0.0')) {
+                /*
+                 * this response code needs to be removed also in the api-schema-docs:
+                 * src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/paths/document.json
+                 */
                 return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
             }
 
@@ -190,7 +195,7 @@ final class DocumentRoute extends AbstractDocumentRoute
     }
 
     /**
-     * @return array
+     * @return array<string>
      *
      * returns a fileType => mimeType mapping
      */
@@ -206,17 +211,18 @@ final class DocumentRoute extends AbstractDocumentRoute
         /*
          * Zugferd xml is not rendered by a file renderer
          * its generated in the document renderer itself
-         * therefor its not registered by document_type.renderer key="xml" and needs to be done manually
+         * therefor it's not registered by document_type.renderer key="xml" and needs to be done manually
          *
          */
         $supportedFileTypes[ZugferdRenderer::FILE_EXTENSION] = ZugferdRenderer::FILE_CONTENT_TYPE;
 
-
-
         return $supportedFileTypes;
     }
 
-    private function registerFileTypes(array $supportedFileTypes, Request $request):void
+    /**
+     * @param array<string> $supportedFileTypes
+     */
+    private function registerFileTypes(array $supportedFileTypes, Request $request): void
     {
         foreach ($supportedFileTypes as $fileType => $mimeType) {
             $request->setFormat($fileType, [$mimeType]);
@@ -239,9 +245,11 @@ final class DocumentRoute extends AbstractDocumentRoute
             if ($fileType = $request->getFormat($mimeType)) {
                 $fileTypes[] = $fileType;
             } else {
+                // keep unmapped mime type for exception output
                 $fileTypes[] = $mimeType;
             }
         }
+
         return $fileTypes;
     }
 

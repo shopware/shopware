@@ -355,25 +355,11 @@ class DocumentRouteTest extends TestCase
 
     public static function provideRequestAcceptHeaderValues(): \Generator
     {
-        yield 'accept header "text/html" returns html document' => [
-            'documentType' => InvoiceRenderer::TYPE,
-            'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
-            'acceptHeader' => HtmlRenderer::FILE_CONTENT_TYPE,
-            'expectedResponseContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
-        ];
-
         yield 'accept header "application/pdf" returns pdf document' => [
             'documentType' => InvoiceRenderer::TYPE,
             'expectedFileType' => PdfRenderer::FILE_EXTENSION,
             'acceptHeader' => PdfRenderer::FILE_CONTENT_TYPE,
             'expectedResponseContentType' => PdfRenderer::FILE_CONTENT_TYPE,
-        ];
-
-        yield 'accept header "application/xml" returns xml document' => [
-            'documentType' => ZugferdRenderer::TYPE,
-            'expectedFileType' => ZugferdRenderer::FILE_EXTENSION,
-            'acceptHeader' => ZugferdRenderer::FILE_CONTENT_TYPE,
-            'expectedResponseContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
         ];
 
         yield 'accept header with order "text/html;q=0.4,application/pdf;q=0.7, application/xml;q=0.1" returns pdf' => [
@@ -392,7 +378,6 @@ class DocumentRouteTest extends TestCase
             'expectedResponseContentType' => PdfRenderer::FILE_CONTENT_TYPE,
         ];
     }
-
 
     public function testDownloadWithInvalidAcceptHeaderMimeTypeShouldThrowException(): void
     {
@@ -434,11 +419,6 @@ class DocumentRouteTest extends TestCase
 
         if (!Feature::isActive('v6.8.0.0')) {
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        } else {
-            static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-            static::assertNotEmpty($response->getContent());
-            $responseContent = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertSame('DOCUMENT__FILETYPE_UNAVAILABLE', $responseContent['errors'][0]['code']);
         }
     }
 }

@@ -9,7 +9,6 @@ test('Customer should see unavailable filter disabled based on selected filter',
     CheckVisibilityInHome,
     InstanceMeta,
 }) => {
-    // 'Potential flaky because of github issue #11628'
     test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup(
@@ -168,7 +167,6 @@ test('Customer should see unavailable filter options disabled when filtering by 
     CheckVisibilityInHome,
     InstanceMeta,
 }) => {
-    // 'Potential flaky because of github issue #11628'
     test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup();
@@ -178,7 +176,7 @@ test('Customer should see unavailable filter options disabled when filtering by 
         description: 'Color Description Manufacturer',
     });
     const parentProductColor = await TestDataService.createBasicProduct({ manufacturerId: colorManufacturer.id, variantListingConfig: { displayParent: true } });
-    const colorVariantProduct = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
+    await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
         description: 'Variant description',
     });
     const freeShipManufacturer = await TestDataService.createBasicManufacturer({

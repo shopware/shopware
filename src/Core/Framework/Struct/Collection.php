@@ -246,14 +246,12 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
             return $this;
         }
 
-        foreach (\array_filter($associativeData) as $value) {
-            if (\is_array($value)) {
-                $struct = (new \ReflectionClass($expectedClass))
-                    ->newInstanceWithoutConstructor();
+        $baseObject = (new \ReflectionClass($expectedClass))->newInstanceWithoutConstructor();
+        $hasNecessaryInterface = $baseObject instanceof AssignArrayInterface;
 
-                if ($struct instanceof AssignArrayInterface) {
-                    $value = $struct->assignRecursive($value);
-                }
+        foreach (\array_filter($associativeData) as $value) {
+            if ($hasNecessaryInterface && \is_array($value)) {
+                $value = (clone $baseObject)->assignRecursive($value);
             }
 
             try {

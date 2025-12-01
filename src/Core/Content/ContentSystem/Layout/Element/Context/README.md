@@ -38,7 +38,7 @@ Equivalent to explicit provider:
 }
 ```
 
-Virtual providers generated at parse-time by `ContentElementFieldSerializer`, not persisted to database.
+Virtual providers not persisted to database.
 
 ## Consumer Alias
 
@@ -100,8 +100,3 @@ See `Distribution/` subdirectory for implementation.
 ## Subdirectory
 
 - `Distribution/` - Distribution config value objects (DistributionConfig interface and implementations)
-
-## See Also
-
-- `Layout/Field/` - Serialization implementation (parse-time expansion)
-- `Hydration/DataContext/` - Runtime context resolution using these configs

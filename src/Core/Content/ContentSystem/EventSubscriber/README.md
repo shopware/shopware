@@ -11,9 +11,10 @@ flowchart TB
     subgraph pre["PreHydration (before data loading)"]
         direction TB
         P1["VirtualRootPreparation (5000)"]
-        P2["PlaceholderResolution (3000)"]
-        P3["PartialRenderingPreparation (1000)"]
-        P1 --> P2 --> P3
+        P2["RedistributeExpansion (4000)"]
+        P3["PlaceholderResolution (3000)"]
+        P4["PartialRenderingPreparation (1000)"]
+        P1 --> P2 --> P3 --> P4
     end
 
     H["Hydration"]
@@ -49,6 +50,8 @@ Priorities are organized into reserved ranges for core and extension use.
 **Virtual Root** - `VirtualRootPreparationSubscriber` wraps layout roots with a temporary container to enable layout-level context distribution. `VirtualRootCleanupSubscriber` removes the wrapper after hydration.
 
 **Partial Rendering** - `PartialRenderingPreparationSubscriber` prunes the tree to the target element when `targetElementId` is specified. `PartialRenderingExtractionSubscriber` extracts only the target subtree for the response.
+
+**Redistribute Expansion** - `RedistributeExpansionSubscriber` expands `redistribute: true` flags on context consumers into broadcast providers, enabling elements to automatically re-provide received context to descendants.
 
 **Placeholder Resolution** - `PlaceholderResolutionSubscriber` resolves `{{variable}}` placeholders in element properties with values from the specification.
 

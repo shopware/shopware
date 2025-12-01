@@ -1,17 +1,5 @@
 @README.md
 
-## Constraints
+## Notes
 
-### Parse-Time Redistribution Expansion
-
-`ContentElementFieldSerializer::expandRedistributeFlags()` generates virtual providers from `redistribute: true` during deserialization.
-
-**Key Methods:**
-
-- `expandRedistributeFlags(array $providers, array $consumers): array` - Generates virtual providers from redistribute flags
-- `isVirtualProvider(string $providerKey, array $consumers): bool` - Identifies auto-generated providers
-
-**Validation Rules:**
-- Rejects dotted paths (e.g., `product.cover`) with redistribute
-- Detects conflicts with explicit providers for same key
-- Throws exceptions for invalid configurations
+Redistribution expansion (generating virtual providers from `redistribute: true` flags) has been moved to runtime. See `EventSubscriber/PreHydration/RedistributeExpansionSubscriber` for the current implementation.

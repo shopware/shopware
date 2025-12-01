@@ -197,11 +197,13 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('CACHE_REWORK')) {
-            $this->contextAwareCacheService?->addContextHeaders(
-                $event->getRequest(),
-                $event->getResponse(),
-                $context,
-            );
+            if ($this->isStoreApi($event->getRequest())) {
+                $this->contextAwareCacheService?->addContextHeaders(
+                    $event->getRequest(),
+                    $event->getResponse(),
+                    $context,
+                );
+            }
 
             return;
         }

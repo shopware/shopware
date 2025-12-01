@@ -198,7 +198,7 @@ jobs:
           auth: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
           target-branch: ${{ matrix.target-branch }}
           pull-request: ${{ github.event.pull_request.url }}
-          bp-branch-name: ${{ format('{0}-backport-{1}', github.event.pull_request.head.ref, matrix.target-branch) }}
+          bp-branch-name: "${{ format('{0}-backport-{1}', github.event.pull_request.head.ref, matrix.target-branch) }}"
           title: >-
             ${{ format('{0} (backport: {1}) ', github.event.pull_request.title, matrix.target-branch) }}
           body-prefix: | # Reference original PR, as well as the related issue, if available

@@ -72,18 +72,9 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 ## Core
 
 ### Automatic indexer execution for plugin migrations
-The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
 
-This ensures that the `product.indexer` is executed exactly once when the migration is run during a plugin installation or update:
-```php
-class SomeCustomMigrationFromPlugin extends MigrationStep
-{
-    public function update(Connection $connection): void
-    {
-        $this->registerIndexer($connection, 'product.indexer');
-    }
-}
-```
+The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+This ensures that registered indexers are executed when plugin migrations have run.
 
 ### Improved Store API OpenAPI documentation with field descriptions
 

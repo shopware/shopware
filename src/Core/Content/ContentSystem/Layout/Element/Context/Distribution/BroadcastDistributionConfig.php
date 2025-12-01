@@ -1,0 +1,58 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution;
+
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @phpstan-type BroadcastDistributionConfigData array{
+ *   distribution: 'broadcast',
+ *   consumer_alias: string|null
+ * }
+ *
+ * @internal
+ */
+#[Package('discovery')]
+final readonly class BroadcastDistributionConfig implements DistributionConfig
+{
+    public function __construct(
+        public ?string $consumerAlias = null
+    ) {
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public static function fromArray(array $data): DistributionConfig
+    {
+        return new self(
+            consumerAlias: isset($data['consumer_alias']) && \is_string($data['consumer_alias']) ? $data['consumer_alias'] : null
+        );
+    }
+
+    public function getStrategy(): DistributionStrategy
+    {
+        return DistributionStrategy::Broadcast;
+    }
+
+    public function getConsumerAlias(): ?string
+    {
+        return $this->consumerAlias;
+    }
+
+    public function distribute(mixed $data, array $consumers): array
+    {
+        return array_fill(0, \count($consumers), $data);
+    }
+
+    /**
+     * @return BroadcastDistributionConfigData
+     */
+    public function toArray(): array
+    {
+        return [
+            'distribution' => 'broadcast',
+            'consumer_alias' => $this->consumerAlias,
+        ];
+    }
+}

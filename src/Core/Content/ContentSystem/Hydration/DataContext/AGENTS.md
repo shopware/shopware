@@ -8,18 +8,6 @@
 
 Context distributed only to immediate children. Deeper descendants require explicit re-providing. See `ContextResolutionVisitor::enter()` and `distributeContextToChildren()` for implementation.
 
-### Distribution Strategies
-
-Five strategies control how provider data distributes to direct children:
-
-1. **Broadcast**: All children receive identical data (use for: shared data like product detail)
-2. **Indexed**: Position-based, child[N] gets data[N] (use for: fixed-position layouts)
-3. **Keyed**: Children receive by matching `data_key` property (use for: named sections like "featured", "sale")
-4. **Sliced**: Data split into chunks across children (use for: column layouts)
-5. **Iterator**: Round-robin distribution (use for: even distribution across slots)
-
-All distribution configs support `consumer_alias` field. See `DistributionStrategyInterface` implementations for details.
-
 ### Context Path Resolution
 
 Consumers can use dot notation in context keys to access nested properties: `product.cover`, `product.manufacturer.name`, etc.
@@ -56,5 +44,5 @@ Consumers can use dot notation in context keys to access nested properties: `pro
 - **Path requirements**: Only Struct objects, `getVars()` used for traversal, arbitrary depth supported
 - **Error handling**: `required: true` throws exception, `required: false` returns null
 - **Implementation**: See ContextResolutionVisitor for visitor pattern, ContextPathResolver for path logic
-- **Interface**: All strategies implement DistributionStrategyInterface
+- **Value objects**: Each DistributionConfig subclass implements `distribute()` directly (located in `Layout/Element/Context/Distribution/`)
 - **Redistribution shorthand**: `redistribute: true` in consumer auto-generates broadcast provider (parse-time, implemented in `ContentElementFieldSerializer`)

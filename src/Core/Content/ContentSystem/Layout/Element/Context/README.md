@@ -85,6 +85,23 @@ Element receives `product.cover` from parent but stores as `cover` property. Use
 
 **Implementation:** `ContextConsumer::$propertyAlias` applied in `ContextResolutionVisitor::setContextForConsumer()`.
 
+## Distribution Strategies
+
+Distribution configs (value objects with `distribute()` method) control how provider data distributes to consumers:
+
+- `BroadcastDistributionConfig` - All children receive identical data
+- `IndexedDistributionConfig` - Position-based: child[N] gets data[N]
+- `KeyedDistributionConfig` - Children receive by matching `data_key` property
+- `SlicedDistributionConfig` - Data split into chunks across children
+- `IteratorDistributionConfig` - Round-robin distribution
+
+See `Distribution/` subdirectory for implementation.
+
+## Subdirectory
+
+- `Distribution/` - Distribution config value objects (DistributionConfig interface and implementations)
+
 ## See Also
 
 - `Layout/Field/` - Serialization implementation (parse-time expansion)
+- `Hydration/DataContext/` - Runtime context resolution using these configs

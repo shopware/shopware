@@ -6,6 +6,7 @@
 - `ContextConsumer` - Context received from ancestors
 - `ContextDefinitions` - Container for providers and consumers
 - `ContextDependencyAnalyzer` - Analyzes dependencies for tree pruning
+- `Distribution/` - Distribution config value objects (DistributionConfig interface and 5 implementations)
 
 ## Constraints
 

@@ -65,4 +65,4 @@ Must load data before context resolution because providers may expose loaded dat
 ## Subdirectories
 
 - DataLoader/: Data fetching (AbstractContentDataLoader implementations)
-- DataContext/: Context distribution (DataContextResolver, DistributionStrategy)
+- DataContext/: Context distribution (DataContextResolver)

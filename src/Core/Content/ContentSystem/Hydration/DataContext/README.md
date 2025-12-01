@@ -11,7 +11,6 @@ Avoids tight coupling because intermediate elements don't need to know about con
 ## Key Classes
 
 - `DataContextResolver` - Entry point, orchestrates distribution
-- `DistributionStrategy` - Determines which consumers receive which context
 - `ContextResolutionVisitor` - Traverses tree, resolves context
 - `ContextType` - Context type identifier
 
@@ -122,4 +121,4 @@ Cycles through consumers distributing items round-robin. Useful for even distrib
 
 ## Subdirectory
 
-- Distribution/: DistributionStrategy implementations and config
+None.

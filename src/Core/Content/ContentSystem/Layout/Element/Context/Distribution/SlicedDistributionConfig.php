@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @phpstan-type SlicedDistributionConfigData array{
@@ -74,6 +76,14 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
             'distribution' => 'sliced',
             'slice_size' => $this->sliceSize,
             'consumer_alias' => $this->consumerAlias,
+        ];
+    }
+
+    public static function buildConstraints(): array
+    {
+        return [
+            'slice_size' => [new NotBlank(), new Type('int')],
+            'consumer_alias' => [new Type('string')],
         ];
     }
 }

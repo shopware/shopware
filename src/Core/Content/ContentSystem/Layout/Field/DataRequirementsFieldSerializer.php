@@ -14,9 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -111,19 +113,22 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
         ];
     }
 
-    protected function getConstraints(Field $field): array
+    /**
+     * @return list<Constraint>
+     */
+    public function buildConstraints(Field $field): array
     {
         $constraints = [
             new Type('array'),
             new All([
                 new Collection(
                     fields: [
-                        'key' => [new Type('string')],
+                        'key' => new Optional([new Type('string')]),
                         'source' => [new NotBlank(), new Type('string')],
-                        'config' => [new Type('array')],
+                        'config' => new Optional([new Type('array')]),
                     ],
                     allowExtraFields: false,
-                    allowMissingFields: true,
+                    allowMissingFields: false,
                 ),
             ]),
         ];
@@ -133,6 +138,11 @@ class DataRequirementsFieldSerializer extends AbstractFieldSerializer
         }
 
         return $constraints;
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        return $this->buildConstraints($field);
     }
 
     /**

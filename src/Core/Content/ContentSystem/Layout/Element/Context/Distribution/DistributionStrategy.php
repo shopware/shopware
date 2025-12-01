@@ -15,4 +15,12 @@ enum DistributionStrategy: string
     case Keyed = 'keyed';
     case Sliced = 'sliced';
     case Iterator = 'iterator';
+
+    /**
+     * @return list<string>
+     */
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

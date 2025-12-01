@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @phpstan-type KeyedDistributionConfigData array{
@@ -87,6 +89,14 @@ final readonly class KeyedDistributionConfig implements DistributionConfig
             'distribution' => 'keyed',
             'key_property' => $this->keyProperty,
             'consumer_alias' => $this->consumerAlias,
+        ];
+    }
+
+    public static function buildConstraints(): array
+    {
+        return [
+            'key_property' => [new NotBlank(), new Type('string')],
+            'consumer_alias' => [new Type('string')],
         ];
     }
 }

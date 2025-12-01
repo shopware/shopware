@@ -15,7 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -194,10 +197,55 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         return $array;
     }
 
-    protected function getConstraints(Field $field): array
+    /**
+     * Build constraints for this field. Can be called by parent serializers to compose constraints.
+     *
+     * @return list<Constraint>
+     */
+    public function buildConstraints(Field $field): array
     {
+        if (!$field instanceof ContentElementField) {
+            throw ContentSystemException::invalidFieldType(ContentElementField::class, $field::class);
+        }
+
+        $nestedFields = $field->getNamedPropertyMapping();
+
+        $dataRequirementsConstraints = $this->dataRequirementsSerializer->buildConstraints($nestedFields['dataRequirements']);
+        $slotsConstraints = $this->elementSlotsSerializer->buildConstraints($nestedFields['slots']);
+        $providesContextConstraints = $this->contextProvidersSerializer->buildConstraints($nestedFields['providesContext']);
+        $acceptsContextConstraints = $this->contextConsumersSerializer->buildConstraints($nestedFields['acceptsContext']);
+
+        $dataRequirementsField = $nestedFields['dataRequirements']->is(Required::class)
+            ? $dataRequirementsConstraints
+            : new Optional($dataRequirementsConstraints);
+
+        $slotsField = $nestedFields['slots']->is(Required::class)
+            ? $slotsConstraints
+            : new Optional($slotsConstraints);
+
+        $providesContextField = $nestedFields['providesContext']->is(Required::class)
+            ? $providesContextConstraints
+            : new Optional($providesContextConstraints);
+
+        $acceptsContextField = $nestedFields['acceptsContext']->is(Required::class)
+            ? $acceptsContextConstraints
+            : new Optional($acceptsContextConstraints);
+
         $constraints = [
             new Type('array'),
+            new Collection(
+                fields: [
+                    'id' => [new NotBlank(), new Type('string')],
+                    'component' => [new NotBlank(), new Type('string')],
+                    'properties' => new Optional([new Type('array')]),
+                    'data_requirements' => $dataRequirementsField,
+                    'slots' => $slotsField,
+                    'provides_context' => $providesContextField,
+                    'accepts_context' => $acceptsContextField,
+                ],
+                allowExtraFields: false,
+                allowMissingFields: false
+            ),
         ];
 
         if ($field->is(Required::class)) {
@@ -205,6 +253,11 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         }
 
         return $constraints;
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        return $this->buildConstraints($field);
     }
 
     /**

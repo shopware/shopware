@@ -46,23 +46,31 @@ abstract class JWTGenerator
     /**
      * @return T
      */
-    public function decode(string $token): JWTStruct
+    public function decode(string $token, bool $disableValidation = false): JWTStruct
     {
         if (!$token) {
             throw JWTException::invalidJwt('JWT cannot be empty');
         }
 
-        $jwt = $this->configuration->parser()->parse($token);
+        try {
+            $jwt = $this->configuration->parser()->parse($token);
+        } catch (\Exception $e) {
+            throw JWTException::invalidJwt('Failed to parse JWT: ' . $e->getMessage(), $e);
+        }
         if (!$jwt instanceof UnencryptedToken) {
             throw JWTException::invalidJwt('JWT is not an unencrypted token');
+        }
+
+        $structClass = $this->getJWTStructClass();
+        $claims = $jwt->claims()->all();
+        if ($disableValidation) {
+            return new ($structClass)($claims);
         }
 
         if (!$this->configuration->validator()->validate($jwt, ...$this->getTokenValidationConstraints())) {
             throw JWTException::invalidJwt('JWT validation failed');
         }
 
-        $structClass = $this->getJWTStructClass();
-        $claims = $jwt->claims()->all();
         $this->validator->validate($claims, $this->getStructConstraints());
 
         return new ($structClass)($claims);
@@ -75,10 +83,15 @@ abstract class JWTGenerator
     {
         $now = new DatePoint();
 
+        $jwt->iat ??= $now;
+        $jwt->nbf ??= $now;
+        $jwt->exp ??= $now->modify(\sprintf('+%d seconds', $this->getTokenLifetime($jwt)));
+        $jwt->jti ??= Uuid::randomHex();
+
         $builder = $this->configuration->builder()
-            ->issuedAt($jwt->iat ?? $now)
-            ->canOnlyBeUsedAfter($jwt->nbf ?? $now)
-            ->expiresAt($jwt->exp ?? $now->modify(\sprintf('+%d seconds', $this->getTokenLifetime())));
+            ->issuedAt($jwt->iat)
+            ->canOnlyBeUsedAfter($jwt->nbf)
+            ->expiresAt($jwt->exp);
 
         foreach ($jwt->getVars() as $key => $value) {
             if (!$value && \in_array($key, RegisteredClaims::ALL, true) || \in_array($key, RegisteredClaims::DATE_CLAIMS, true)) {
@@ -86,7 +99,7 @@ abstract class JWTGenerator
             }
 
             if ($key === RegisteredClaims::ID) {
-                $builder = $builder->identifiedBy($value ?: Uuid::randomHex());
+                $builder = $builder->identifiedBy($value);
                 continue;
             }
 
@@ -128,8 +141,10 @@ abstract class JWTGenerator
 
     /**
      * lifetime in seconds (default is 1h)
+     *
+     * @param T $jwt
      */
-    protected function getTokenLifetime(): int
+    protected function getTokenLifetime(JWTStruct $jwt): int
     {
         return 3600;
     }

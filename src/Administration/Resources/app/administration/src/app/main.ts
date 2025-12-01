@@ -57,8 +57,6 @@ import 'src/app/decorator';
 /** Import Meteor Component Library styles */
 // eslint-disable-next-line import/no-unresolved
 import '@shopware-ag/meteor-component-library/styles.css';
-// eslint-disable-next-line import/no-unresolved
-import '@shopware-ag/meteor-component-library/font.css';
 
 import ChangesetGenerator from '../core/data/changeset-generator.data';
 import ErrorResolver from '../core/data/error-resolver.data';

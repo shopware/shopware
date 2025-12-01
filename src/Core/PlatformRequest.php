@@ -42,7 +42,7 @@ final class PlatformRequest
     public const HEADER_EXPECT_PACKAGES = 'sw-expect-packages';
 
     /**
-     * Context hash header used for cache differentiation on user-independent routes, @see ContextAwareCacheHeadersService
+     * Context hash header used for cache differentiation on user-independent routes
      *
      * The hash is used to differentiate cache entries for the same route when the context
      * changes (e.g., different language, currency, or rules). This ensures that
@@ -55,7 +55,7 @@ final class PlatformRequest
      *
      * Header has to be included in every request to ensure cache hits.
      *
-     * @deprecated tag:v6.8.0 - Will be removed, HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE will be used instead
+     * @deprecated tag:v6.8.0 - Will be removed, use HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE instead
      */
     public const HEADER_CONTEXT_HASH = 'sw-context-hash';
 

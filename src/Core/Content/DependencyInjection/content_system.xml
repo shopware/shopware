@@ -74,21 +74,9 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <!-- Distribution Config Serializers -->
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\BroadcastDistributionConfigSerializer"/>
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\IndexedDistributionConfigSerializer"/>
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\IteratorDistributionConfigSerializer"/>
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\KeyedDistributionConfigSerializer"/>
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\SlicedDistributionConfigSerializer"/>
-
         <service id="Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersFieldSerializer">
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\BroadcastDistributionConfigSerializer"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\IndexedDistributionConfigSerializer"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\IteratorDistributionConfigSerializer"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\KeyedDistributionConfigSerializer"/>
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\SlicedDistributionConfigSerializer"/>
             <tag name="shopware.field_serializer"/>
         </service>
 
@@ -209,29 +197,7 @@
         </service>
 
         <!-- Data Context Resolution -->
-        <!-- Distribution Strategies -->
-        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\BroadcastDistributor">
-            <tag name="content_system.distribution_strategy"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\IndexedDistributor">
-            <tag name="content_system.distribution_strategy"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\IteratorDistributor">
-            <tag name="content_system.distribution_strategy"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\KeyedDistributor">
-            <tag name="content_system.distribution_strategy"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\SlicedDistributor">
-            <tag name="content_system.distribution_strategy"/>
-        </service>
-
         <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\DataContextResolver">
-            <argument type="tagged_iterator" tag="content_system.distribution_strategy"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolver"/>
         </service>
 

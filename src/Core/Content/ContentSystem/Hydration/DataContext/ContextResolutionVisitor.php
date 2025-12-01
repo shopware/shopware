@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataContext;
 
-use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\DistributionConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Framework\Log\Package;
 
@@ -17,11 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class ContextResolutionVisitor implements ElementVisitor
 {
-    /**
-     * @param iterable<DistributionStrategyInterface> $strategies
-     */
     public function __construct(
-        private readonly iterable $strategies,
         private readonly ContextPathResolver $pathResolver
     ) {
     }
@@ -31,18 +27,15 @@ class ContextResolutionVisitor implements ElementVisitor
         $providesContext = $element->getProvidesContext();
 
         if ($providesContext !== []) {
-            foreach ($providesContext as $contextKey => $providerDef) {
+            foreach ($providesContext as $contextKey => $contextProvider) {
                 $data = $element->getProperty($contextKey);
-                $distributionConfig = $providerDef->getDistribution();
-                $distribution = $distributionConfig->getStrategy()->value;
 
                 if ($data !== null) {
                     $this->distributeContextToChildren(
                         $element,
                         $contextKey,
                         $data,
-                        $distribution,
-                        $distributionConfig
+                        $contextProvider->distributionConfig
                     );
                 }
             }
@@ -58,11 +51,9 @@ class ContextResolutionVisitor implements ElementVisitor
         ContentElement $providerElement,
         string $contextKey,
         mixed $data,
-        string $distribution,
         DistributionConfig $config
     ): void {
-        $distributionConfig = $providerElement->getProvidesContext()[$contextKey]->getDistribution();
-        $consumerKey = $distributionConfig->getConsumerAlias() ?? $contextKey;
+        $consumerKey = $config->getConsumerAlias() ?? $contextKey;
 
         $consumers = $providerElement->collectConsumers($consumerKey, $this->pathResolver);
 
@@ -70,39 +61,18 @@ class ContextResolutionVisitor implements ElementVisitor
             return;
         }
 
-        $strategy = $this->findStrategy($distribution);
-
-        if ($strategy === null) {
-            foreach ($consumers as $consumer) {
-                $this->setContextForConsumer($consumer, $consumerKey, $data);
-            }
-
-            return;
-        }
-
         $consumerData = array_map(fn (ContentElement $element) => [
             'component' => $element->getComponent(),
-            'data_key' => $element->getProperties()['data_key'] ?? null,
+            'properties' => $element->getProperties(),
         ], $consumers);
 
-        $distributed = $strategy->distribute($data, $consumerData, $config);
+        $distributed = $config->distribute($data, $consumerData);
 
         foreach ($consumers as $index => $consumer) {
             if (\array_key_exists($index, $distributed)) {
                 $this->setContextForConsumer($consumer, $consumerKey, $distributed[$index]);
             }
         }
-    }
-
-    private function findStrategy(string $distribution): ?DistributionStrategyInterface
-    {
-        foreach ($this->strategies as $strategy) {
-            if ($strategy->supports($distribution)) {
-                return $strategy;
-            }
-        }
-
-        return null;
     }
 
     private function setContextForConsumer(ContentElement $consumer, string $providerKey, mixed $data): void

@@ -15,18 +15,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class DataContextResolver
 {
-    /**
-     * @param iterable<DistributionStrategyInterface> $strategies
-     */
     public function __construct(
-        private readonly iterable $strategies,
         private readonly ContextPathResolver $pathResolver
     ) {
     }
 
     public function resolve(ContentElement $element): void
     {
-        $visitor = new ContextResolutionVisitor($this->strategies, $this->pathResolver);
+        $visitor = new ContextResolutionVisitor($this->pathResolver);
         $element->traverse($visitor);
     }
 }

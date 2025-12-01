@@ -4,20 +4,14 @@ namespace Shopware\Core\Content\ContentSystem\Layout\Field;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\BroadcastDistributionConfig;
-use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\DistributionConfig;
-use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\IndexedDistributionConfig;
-use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\IteratorDistributionConfig;
-use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\KeyedDistributionConfig;
-use Shopware\Core\Content\ContentSystem\Hydration\DataContext\Distribution\Config\SlicedDistributionConfig;
-use Shopware\Core\Content\ContentSystem\Hydration\DataContext\DistributionStrategy;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
-use Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\BroadcastDistributionConfigSerializer;
-use Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\IndexedDistributionConfigSerializer;
-use Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\IteratorDistributionConfigSerializer;
-use Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\KeyedDistributionConfigSerializer;
-use Shopware\Core\Content\ContentSystem\Layout\Field\HelperSerializer\SlicedDistributionConfigSerializer;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
@@ -32,9 +26,12 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * PHPStan currently doesn't support a syntax like
+ * array{type: 'single'|'collection'}&BroadcastDistributionConfigData or
+ * array{type: 'single'|'collection', ...BroadcastDistributionConfigData}
+ *
  * @phpstan-type BroadcastProviderData array{
  *   type: 'single'|'collection',
  *   distribution: 'broadcast',
@@ -43,6 +40,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @phpstan-type IndexedProviderData array{
  *   type: 'single'|'collection',
  *   distribution: 'indexed',
+ *   consumer_alias: string|null
+ * }
+ * @phpstan-type IteratorProviderData array{
+ *   type: 'single'|'collection',
+ *   distribution: 'iterator',
  *   consumer_alias: string|null
  * }
  * @phpstan-type KeyedProviderData array{
@@ -57,30 +59,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *   slice_size: int,
  *   consumer_alias: string|null
  * }
- * @phpstan-type IteratorProviderData array{
- *   type: 'single'|'collection',
- *   distribution: 'iterator',
- *   consumer_alias: string|null
- * }
- * @phpstan-type ContextProviderData BroadcastProviderData|IndexedProviderData|KeyedProviderData|SlicedProviderData|IteratorProviderData
+ * @phpstan-type ContextProviderData BroadcastProviderData|IndexedProviderData|IteratorProviderData|KeyedProviderData|SlicedProviderData
  *
  * @internal
  */
 #[Package('discovery')]
 class ContextProvidersFieldSerializer extends AbstractFieldSerializer
 {
-    public function __construct(
-        ValidatorInterface $validator,
-        DefinitionInstanceRegistry $definitionRegistry,
-        private readonly BroadcastDistributionConfigSerializer $broadcastSerializer,
-        private readonly IndexedDistributionConfigSerializer $indexedSerializer,
-        private readonly IteratorDistributionConfigSerializer $iteratorSerializer,
-        private readonly KeyedDistributionConfigSerializer $keyedSerializer,
-        private readonly SlicedDistributionConfigSerializer $slicedSerializer,
-    ) {
-        parent::__construct($validator, $definitionRegistry);
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -140,7 +125,7 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
             if (!\is_string($key) || !\is_array($config)) {
                 continue;
             }
-            /** @var ContextProviderData $config */
+
             $providers[$key] = $this->deserializeContextProvider($config);
         }
 
@@ -152,35 +137,20 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
      */
     public function serializeContextProvider(ContextProvider $provider): array
     {
+        // The simpler code: return ['type' => $provider->type->value, ...$provider->distributionConfig] was omitted
+        // because PHPStan was not able to infer to discriminate the return types
+        // (naturally because DistributionConfig::toArray uses a union type)
+
+        $config = $provider->distributionConfig;
         $type = $provider->type->value;
-        $config = $provider->config;
 
         return match (true) {
-            $config instanceof BroadcastDistributionConfig => [
-                'type' => $type,
-                ...$this->broadcastSerializer->encode($config),
-            ],
-            $config instanceof IndexedDistributionConfig => [
-                'type' => $type,
-                ...$this->indexedSerializer->encode($config),
-            ],
-            $config instanceof KeyedDistributionConfig => [
-                'type' => $type,
-                ...$this->keyedSerializer->encode($config),
-            ],
-            $config instanceof SlicedDistributionConfig => [
-                'type' => $type,
-                ...$this->slicedSerializer->encode($config),
-            ],
-            $config instanceof IteratorDistributionConfig => [
-                'type' => $type,
-                ...$this->iteratorSerializer->encode($config),
-            ],
-            default => throw ContentSystemException::invalidFieldValueType(
-                'distribution_config',
-                'DistributionConfig subtype',
-                $config::class
-            ),
+            $config instanceof BroadcastDistributionConfig => ['type' => $type, ...$config->toArray()],
+            $config instanceof IndexedDistributionConfig => ['type' => $type, ...$config->toArray()],
+            $config instanceof IteratorDistributionConfig => ['type' => $type, ...$config->toArray()],
+            $config instanceof KeyedDistributionConfig => ['type' => $type, ...$config->toArray()],
+            $config instanceof SlicedDistributionConfig => ['type' => $type, ...$config->toArray()],
+            default => throw ContentSystemException::invalidFieldType(DistributionConfig::class, $config::class),
         };
     }
 
@@ -208,7 +178,7 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @param ContextProviderData $config
+     * @param array<string, mixed> $config
      */
     private function deserializeContextProvider(array $config): ContextProvider
     {
@@ -219,16 +189,16 @@ class ContextProvidersFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @param ContextProviderData $config
+     * @param array<string, mixed> $config
      */
     private function decodeDistributionConfig(array $config): DistributionConfig
     {
         return match (DistributionStrategy::from($config['distribution'])) {
-            DistributionStrategy::Broadcast => $this->broadcastSerializer->decode($config),
-            DistributionStrategy::Indexed => $this->indexedSerializer->decode($config),
-            DistributionStrategy::Iterator => $this->iteratorSerializer->decode($config),
-            DistributionStrategy::Keyed => $this->keyedSerializer->decode($config),
-            DistributionStrategy::Sliced => $this->slicedSerializer->decode($config),
+            DistributionStrategy::Broadcast => BroadcastDistributionConfig::fromArray($config),
+            DistributionStrategy::Indexed => IndexedDistributionConfig::fromArray($config),
+            DistributionStrategy::Iterator => IteratorDistributionConfig::fromArray($config),
+            DistributionStrategy::Keyed => KeyedDistributionConfig::fromArray($config),
+            DistributionStrategy::Sliced => SlicedDistributionConfig::fromArray($config),
         };
     }
 }

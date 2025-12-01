@@ -123,7 +123,6 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
     {
         $constraints = [
             new Type('array'),
-            // Each slot value must be an array containing content elements
             new All([
                 new Type('array'),
                 new Callback($this->validateSlotElements(...)),
@@ -170,7 +169,7 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @param array<string, ContentElementData|list<ContentElementData>> $slotsData
+     * @param array<string, list<ContentElementData>> $slotsData
      *
      * @return array<string, SlotContent>
      */
@@ -179,15 +178,6 @@ class ElementSlotsFieldSerializer extends AbstractFieldSerializer
         $slots = [];
 
         foreach ($slotsData as $slotName => $slotData) {
-            // Handle single element (has 'component' key indicating it's an element, not an array of elements)
-            if (\array_key_exists('component', $slotData) && $slotData['component'] !== null) {
-                /** @var ContentElementData $slotData */
-                $element = $this->elementSerializer->decodeElement($slotData);
-                $slots[$slotName] = new SlotContent([$element]);
-                continue;
-            }
-
-            /** @var list<ContentElementData> $slotData */
             $elements = [];
             foreach ($slotData as $elementData) {
                 if (!\is_array($elementData)) {

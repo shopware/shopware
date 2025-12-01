@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,6 +45,7 @@ class ContextAwareCacheHeadersServiceTest extends TestCase
      * @param array<string, string> $existingHeaders
      * @param array<string> $expectedVaryHeaders
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     #[DataProvider('provideTestCases')]
     public function testAddContextHeaders(array $existingHeaders, array $expectedVaryHeaders, SalesChannelContext $context): void
     {

@@ -144,6 +144,10 @@ Policies are resolved in order (highest to lowest priority):
 
 ## Storefront
 
+### The email validation supports IDN email addresses
+
+The domain part of email addresses may now contain internationalized domain names (IDN). The Storefront validation will properly check these domains. The form validation in PHP may still deny IDN emails addresses, but the default Shopware forms already allow them.
+
 ## App System
 
 ### App Script caching control
@@ -223,6 +227,11 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 ```
 
 ## Core
+
+### Automatic indexer execution for plugin migrations
+
+The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+This ensures that registered indexers are executed when plugin migrations have run.
 
 ### Improved Store API OpenAPI documentation with field descriptions
 
@@ -361,6 +370,7 @@ New extensible Twig blocks `layout_header_actions_language_widget_content_inner`
 
 The `context.token` variable is no longer available in twig rendering context to prevent potential security vulnerabilities. If you need to access the token, consider using alternative methods that do not expose it in the rendered HTML.
 Usually inside the Twig storefront there is no need to handle the context token manually, as it is handled automatically via the session handling in the Storefront.
+
 
 ### Added specific `add-product-by-number` template
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.

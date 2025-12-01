@@ -62,6 +62,28 @@ class RedisInvalidatorStorageTest extends TestCase
         static::assertSame(['tag1', 'tag2'], $storage->loadAndDelete());
     }
 
+    public function testLoadAndDeleteFallbackOnTransactionException(): void
+    {
+        $redis = $this->createMock(\Redis::class);
+
+        $redis->method('multi')
+            ->willThrowException(new \RedisException('Redis OOM'));
+
+        $redis->expects($this->exactly(2))
+            ->method('sPop')
+            ->with('invalidation', 10000)
+            ->willReturnOnConsecutiveCalls(['tag1', 'tag2'], []);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with('Redis transaction failed, falling back to sequential execution. Error: Redis OOM');
+
+        $storage = new RedisInvalidatorStorage($redis, $logger);
+
+        static::assertSame(['tag1', 'tag2'], $storage->loadAndDelete());
+    }
+
     public function testLoadAndDeleteFallbackFailure(): void
     {
         $redis = $this->createMock(\Redis::class);

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\Extension\CacheHashRequiredExtens
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-class CacheHashService
+class CacheHeadersService
 {
     /**
      * @param array<string> $cookies
@@ -31,6 +32,21 @@ class CacheHashService
         private readonly array $cookies,
         private readonly EventDispatcherInterface $dispatcher,
     ) {
+    }
+
+    public function applyCacheHeaders(SalesChannelContext $context, Response $response): void
+    {
+        $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
+        $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
+
+        $newVaryArray = array_merge($response->getVary(), [
+            PlatformRequest::HEADER_LANGUAGE_ID,
+            PlatformRequest::HEADER_CURRENCY_ID,
+            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
+        ]);
+        $newVaryArray = array_unique(array_map(fn (string $v) => \trim($v), $newVaryArray));
+
+        $response->setVary($newVaryArray);
     }
 
     public function applyCacheHash(Request $request, SalesChannelContext $context, Cart $cart, Response $response): void

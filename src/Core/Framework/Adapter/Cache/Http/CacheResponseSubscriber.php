@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -52,9 +51,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
          * @deprecated tag:v6.8.0 - Will be removed, use cache policies instead
          */
         private readonly ?string $staleIfError,
-        private readonly CacheHashService $cacheHashService,
+        private readonly CacheHeadersService $cacheHeadersService,
         private readonly CachePolicyProvider $policyProvider,
-        private readonly ?ContextAwareCacheHeadersService $contextAwareCacheService = null,
     ) {
     }
 
@@ -67,22 +65,23 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             KernelEvents::RESPONSE => [
                 ['setResponseCache', -1500],
                 ['setResponseCacheHeader', 1500],
-                ['setLanguageCurrencyHeaders', 1499],
             ],
         ];
     }
 
     public function setResponseCache(ResponseEvent $event): void
     {
-        if (!$this->httpCacheEnabled) {
-            return;
-        }
-
         $response = $event->getResponse();
         $request = $event->getRequest();
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         if (!$context instanceof SalesChannelContext) {
+            return;
+        }
+
+        $this->cacheHeadersService->applyCacheHeaders($context, $response);
+
+        if (!$this->httpCacheEnabled) {
             return;
         }
 
@@ -138,7 +137,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         // when multiple permutations exist (e.g. different currencies etc)
         // therefore, it needs to be applied to every request (including POST), especially when POST-requests mutate the context,
         // even when the response is not cached itself, so that the cache-hash on the client is updated for the next request
-        $this->cacheHashService->applyCacheHash($request, $context, $cart, $response);
+        $this->cacheHeadersService->applyCacheHash($request, $context, $cart, $response);
 
         if (!$request->isMethod(Request::METHOD_GET)
         ) {
@@ -186,41 +185,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         $this->applyPolicy($request, $response, $area, true, $cacheAttribute);
-    }
-
-    public function setLanguageCurrencyHeaders(ResponseEvent $event): void
-    {
-        $context = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-
-        if (!$context instanceof SalesChannelContext) {
-            return;
-        }
-
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('CACHE_REWORK')) {
-            if ($this->isStoreApi($event->getRequest())) {
-                $this->contextAwareCacheService?->addContextHeaders(
-                    $event->getRequest(),
-                    $event->getResponse(),
-                    $context,
-                );
-            }
-
-            return;
-        }
-
-        $response = $event->getResponse();
-
-        $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
-        $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
-
-        $newVaryArray = array_merge($response->getVary(), [
-            PlatformRequest::HEADER_LANGUAGE_ID,
-            PlatformRequest::HEADER_CURRENCY_ID,
-            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-        ]);
-        $newVaryArray = array_unique(array_map(fn (string $v) => \trim($v), $newVaryArray));
-
-        $response->setVary($newVaryArray);
     }
 
     public function setResponseCacheHeader(ResponseEvent $event): void

@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
-use Shopware\Core\Framework\Adapter\Cache\Http\CacheHashService;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheHeadersService;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
@@ -30,8 +30,8 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(CacheHashService::class)]
-class CacheHashServiceTest extends TestCase
+#[CoversClass(CacheHeadersService::class)]
+class CacheHeadersServiceTest extends TestCase
 {
     use EventDispatcherBehaviour;
 
@@ -40,7 +40,7 @@ class CacheHashServiceTest extends TestCase
      */
     private static array $hashes = [];
 
-    private CacheHashService $cacheHashService;
+    private CacheHeadersService $cacheHeadersService;
 
     private EventDispatcher $eventDispatcher;
 
@@ -49,7 +49,7 @@ class CacheHashServiceTest extends TestCase
         $this->eventDispatcher = new EventDispatcher();
         $extensionDispatcher = new ExtensionDispatcher($this->eventDispatcher);
 
-        $this->cacheHashService = new CacheHashService(
+        $this->cacheHeadersService = new CacheHeadersService(
             $extensionDispatcher,
             new CacheRelevantRulesResolver($extensionDispatcher),
             [],
@@ -78,7 +78,7 @@ class CacheHashServiceTest extends TestCase
 
         $response = new Response();
 
-        $this->cacheHashService->applyCacheHash($request, $salesChannelContext, $cart, $response);
+        $this->cacheHeadersService->applyCacheHash($request, $salesChannelContext, $cart, $response);
 
         if ($hasCookie) {
             static::assertTrue($response->headers->has('set-cookie'));
@@ -152,7 +152,7 @@ class CacheHashServiceTest extends TestCase
 
         $response = new Response();
 
-        $this->cacheHashService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
+        $this->cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
         static::assertEmpty($cookies);
@@ -162,7 +162,7 @@ class CacheHashServiceTest extends TestCase
         $salesChannelContextMock->method('getCurrencyId')->willReturn('foo');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
 
-        $this->cacheHashService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
+        $this->cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
         static::assertNotEmpty($cookies);
@@ -175,7 +175,7 @@ class CacheHashServiceTest extends TestCase
         $salesChannelContextMock->method('getCurrencyId')->willReturn('bar');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
 
-        $this->cacheHashService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
+        $this->cacheHeadersService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
 
         $cookies = $response->headers->getCookies();
         static::assertNotEmpty($cookies);
@@ -195,7 +195,7 @@ class CacheHashServiceTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
         $firstResponse = new Response();
-        $this->cacheHashService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $firstResponse);
+        $this->cacheHeadersService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $firstResponse);
 
         $firstCacheCookie = $firstResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
         static::assertInstanceOf(Cookie::class, $firstCacheCookie);
@@ -208,7 +208,7 @@ class CacheHashServiceTest extends TestCase
         });
 
         $secondResponse = new Response();
-        $this->cacheHashService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $secondResponse);
+        $this->cacheHeadersService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $secondResponse);
 
         $secondCacheCookie = $secondResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
         static::assertInstanceOf(Cookie::class, $secondCacheCookie);
@@ -226,7 +226,7 @@ class CacheHashServiceTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
         $firstResponse = new Response();
-        $this->cacheHashService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $firstResponse);
+        $this->cacheHeadersService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $firstResponse);
 
         $firstCacheCookie = $firstResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
         static::assertInstanceOf(Cookie::class, $firstCacheCookie);
@@ -236,12 +236,33 @@ class CacheHashServiceTest extends TestCase
         });
 
         $secondResponse = new Response();
-        $this->cacheHashService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $secondResponse);
+        $this->cacheHeadersService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $secondResponse);
 
         $secondCacheCookie = $secondResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
         static::assertInstanceOf(Cookie::class, $secondCacheCookie);
 
         static::assertNotSame($firstCacheCookie->getValue(), $secondCacheCookie->getValue());
         static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $secondCacheCookie->getValue());
+    }
+
+    public function testSetLanguageCurrencyHeaders(): void
+    {
+        $response = new Response();
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->expects($this->once())->method('getLanguageId')->willReturn('language-id');
+        $context->expects($this->once())->method('getCurrencyId')->willReturn('currency-id');
+
+        $this->cacheHeadersService->applyCacheHeaders($context, $response);
+
+        static::assertSame('language-id', $response->headers->get(PlatformRequest::HEADER_LANGUAGE_ID));
+        static::assertSame('currency-id', $response->headers->get(PlatformRequest::HEADER_CURRENCY_ID));
+
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID), 'Vary header should always be set');
+        $vary = $response->headers->all('vary');
+        static::assertCount(3, $vary);
+        static::assertContains(PlatformRequest::HEADER_LANGUAGE_ID, $vary);
+        static::assertContains(PlatformRequest::HEADER_CURRENCY_ID, $vary);
+        static::assertContains(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $vary);
     }
 }

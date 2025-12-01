@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -12,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
 #[Package('framework')]
 readonly class ContextAwareCacheHeadersService
@@ -24,6 +27,11 @@ readonly class ContextAwareCacheHeadersService
 
     public function addContextHeaders(Request $request, Response $response, SalesChannelContext $context): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         // Add context headers to response
         $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
         $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());

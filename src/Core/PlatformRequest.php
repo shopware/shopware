@@ -53,7 +53,9 @@ final class PlatformRequest
      * header together with HEADER_LANGUAGE_ID and HEADER_CURRENCY_ID to ensure proper
      * cache separation by reverse proxies and CDNs.
      *
-     * Header has to be include in every request to ensure cache hits.
+     * Header has to be included in every request to ensure cache hits.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed, HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE will be used instead
      */
     public const HEADER_CONTEXT_HASH = 'sw-context-hash';
 

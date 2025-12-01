@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Adapter\Cache\Http\Extension\CacheHashRequiredExtens
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,24 +35,8 @@ class CacheHashService
 
     public function applyCacheHash(Request $request, SalesChannelContext $context, Cart $cart, Response $response): void
     {
-        if ($request->headers->has(PlatformRequest::HEADER_CURRENCY_ID)) {
-            $response->headers->set(
-                PlatformRequest::HEADER_CURRENCY_ID,
-                $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID)
-            );
-        }
-
-        if ($request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
-            $response->headers->set(
-                PlatformRequest::HEADER_LANGUAGE_ID,
-                $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
-            );
-        }
-
         $newVaryArray = array_merge($response->getVary(), [
             HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-            PlatformRequest::HEADER_CURRENCY_ID,
-            PlatformRequest::HEADER_LANGUAGE_ID,
         ]);
         $newVaryArray = array_unique(array_map(fn (string $v) => \trim($v), $newVaryArray));
 

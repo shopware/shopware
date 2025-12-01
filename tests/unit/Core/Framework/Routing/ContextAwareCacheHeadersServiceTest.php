@@ -23,6 +23,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
 #[CoversClass(ContextAwareCacheHeadersService::class)]
 class ContextAwareCacheHeadersServiceTest extends TestCase

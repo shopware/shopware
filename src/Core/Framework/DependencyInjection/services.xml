@@ -689,9 +689,5 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersSubscriber">
-            <argument type="service" id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
     </services>
 </container>

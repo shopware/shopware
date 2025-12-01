@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -52,7 +53,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
          */
         private readonly ?string $staleIfError,
         private readonly CacheHashService $cacheHashService,
-        private CachePolicyProvider $policyProvider,
+        private readonly CachePolicyProvider $policyProvider,
+        private readonly ?ContextAwareCacheHeadersService $contextAwareCacheService = null,
     ) {
     }
 
@@ -65,6 +67,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             KernelEvents::RESPONSE => [
                 ['setResponseCache', -1500],
                 ['setResponseCacheHeader', 1500],
+                ['setLanguageCurrencyHeaders', 1499],
             ],
         ];
     }
@@ -183,6 +186,35 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         $this->applyPolicy($request, $response, $area, true, $cacheAttribute);
+    }
+
+    public function setLanguageCurrencyHeaders(ResponseEvent $event): void
+    {
+        $context = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        if (!$context instanceof SalesChannelContext) {
+            return;
+        }
+
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('CACHE_REWORK')) {
+            $this->contextAwareCacheService?->addContextHeaders(
+                $event->getRequest(),
+                $event->getResponse(),
+                $context,
+            );
+
+            return;
+        }
+
+        $response = $event->getResponse();
+
+        $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
+        $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
+
+        $vary = $response->getVary();
+        $vary[] = PlatformRequest::HEADER_LANGUAGE_ID;
+        $vary[] = PlatformRequest::HEADER_CURRENCY_ID;
+        $response->setVary(array_unique($vary));
     }
 
     public function setResponseCacheHeader(ResponseEvent $event): void

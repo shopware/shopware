@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
+use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
@@ -93,10 +93,11 @@ class PromotionCodeServiceTest extends TestCase
             $connection
         );
 
-        $codeService->addIndividualCodes($promotionId, 10, $context);
+        $codes = $codeService->addIndividualCodes($promotionId, 10, $context);
 
         static::assertNotEmpty($individualCodeRepository->upserts[0]);
         static::assertCount(10, $individualCodeRepository->upserts[0]);
+        static::assertCount(10, $codes);
     }
 
     public function testAddIndividualCodes(): void
@@ -107,11 +108,7 @@ class PromotionCodeServiceTest extends TestCase
         $promotion->setId('promotionId');
         $promotion->setIndividualCodePattern('%s');
 
-        $code = new PromotionIndividualCodeEntity();
-        $code->setId(Uuid::randomHex());
-        $code->setCode('code');
         $codes = new PromotionIndividualCodeCollection([]);
-
         $promotion->setIndividualCodes($codes);
 
         /** @var StaticEntityRepository<PromotionCollection> */
@@ -132,9 +129,43 @@ class PromotionCodeServiceTest extends TestCase
 
         $promotionId = Uuid::randomHex();
 
-        $codeService->addIndividualCodes($promotionId, 10, $context);
+        $codes = $codeService->addIndividualCodes($promotionId, 10, $context);
 
         static::assertNotEmpty($individualCodeRepository->upserts[0]);
         static::assertCount(10, $individualCodeRepository->upserts[0]);
+        static::assertCount(10, $codes);
+    }
+
+    public function testCodesNeedSufficientComplexity(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $promotion = new PromotionEntity();
+        $promotion->setId('promotionId');
+        $promotion->setIndividualCodePattern('%d');
+
+        $codes = new PromotionIndividualCodeCollection([]);
+        $promotion->setIndividualCodes($codes);
+
+        /** @var StaticEntityRepository<PromotionCollection> */
+        $promotionRepository = new StaticEntityRepository([
+            new PromotionCollection([$promotion]),
+            [],
+        ]);
+        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> */
+        $individualCodeRepository = new StaticEntityRepository([new PromotionIndividualCodeCollection([])]);
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
+        $codeService = new PromotionCodeService(
+            $promotionRepository,
+            $individualCodeRepository,
+            $connection
+        );
+
+        $promotionId = Uuid::randomHex();
+        $this->expectException(PatternNotComplexEnoughException::class);
+
+        $codes = $codeService->addIndividualCodes($promotionId, 6, $context);
     }
 }

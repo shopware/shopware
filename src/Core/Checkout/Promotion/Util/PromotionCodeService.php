@@ -90,7 +90,12 @@ class PromotionCodeService
         return array_diff($codes, $codeBlacklist);
     }
 
-    public function addIndividualCodes(string $promotionId, int $amount, Context $context): void
+    /**
+     * @throws PromotionException
+     *
+     * @return string[]
+     */
+    public function addIndividualCodes(string $promotionId, int $amount, Context $context): array
     {
         $criteria = (new Criteria([$promotionId]))
             ->addAssociation('individualCodes');
@@ -107,9 +112,7 @@ class PromotionCodeService
         }
 
         if ($promotion->getIndividualCodes() === null) {
-            $this->replaceIndividualCodes($promotionId, $pattern, $amount, $context);
-
-            return;
+            return $this->replaceIndividualCodes($promotionId, $pattern, $amount, $context);
         }
 
         $newCodes = $this->generateIndividualCodes(
@@ -120,12 +123,16 @@ class PromotionCodeService
 
         $codeEntries = $this->prepareCodeEntities($promotionId, $newCodes);
         $this->individualCodesRepository->upsert($codeEntries, $context);
+
+        return $newCodes;
     }
 
     /**
      * @throws PromotionException
+     *
+     * @return string[]
      */
-    public function replaceIndividualCodes(string $promotionId, string $pattern, int $amount, Context $context): void
+    public function replaceIndividualCodes(string $promotionId, string $pattern, int $amount, Context $context): array
     {
         if ($this->isCodePatternAlreadyInUse($pattern, $promotionId, $context)) {
             throw PromotionException::patternAlreadyInUse();
@@ -138,6 +145,8 @@ class PromotionCodeService
         $this->resetPromotionCodes($promotionId, $context);
 
         $this->individualCodesRepository->upsert($codeEntries, $context);
+
+        return $codes;
     }
 
     public function resetPromotionCodes(string $promotionId, Context $context): void

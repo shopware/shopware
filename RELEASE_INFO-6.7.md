@@ -6,6 +6,10 @@
 
 ## Core
 
+### `PromotionCodeService` now returns the generated codes
+
+The return type of `PromotionCodeService::addIndividualCodes()` and `PromotionCodeService::replaceIndividualCodes()` has been changed from `void` to `string[]`. These methods now return an array of generated codes to the caller.
+
 ### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
 The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
 You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.

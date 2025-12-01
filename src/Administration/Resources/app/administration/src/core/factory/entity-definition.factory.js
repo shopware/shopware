@@ -18,7 +18,6 @@ export default {
     getTranslatedFields,
     getAssociationFields,
     getRequiredFields,
-    getApiAwareFields,
 };
 
 const entityDefinitionRegistry = new Map();
@@ -57,6 +56,12 @@ function get(entityName) {
  * @param schema
  */
 function add(entityName, schema) {
+    if (entityName === 'customer') {
+        // TODO: REMOVE AFTER DEBUG
+        console.log('entityDefinitionRegistry', schema);
+        // TODO: REMOVE AFTER DEBUG
+    }
+
     entityDefinitionRegistry.set(entityName, new EntityDefinition(schema));
 }
 
@@ -79,8 +84,4 @@ function getAssociationFields(entityName) {
 
 function getRequiredFields(entityName) {
     return get(entityName).getRequiredFields();
-}
-
-function getApiAwareFields(entityName) {
-    return get(entityName).getApiAwareFields();
 }

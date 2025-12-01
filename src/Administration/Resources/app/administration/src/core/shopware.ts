@@ -236,7 +236,6 @@ class ShopwareClass implements CustomShopwareProperties {
         getTranslatedFields: EntityDefinitionFactory.getTranslatedFields,
         getAssociationFields: EntityDefinitionFactory.getAssociationFields,
         getRequiredFields: EntityDefinitionFactory.getRequiredFields,
-        getApiAwareFields: EntityDefinitionFactory.getApiAwareFields,
     };
 
     public ExtensionAPI = ExtensionApi;

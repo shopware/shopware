@@ -8,8 +8,6 @@ export interface Property {
         primary_key?: boolean;
         required?: boolean;
         translatable?: boolean;
-        read_protected?: Array<string>;
-
     };
     required?: boolean;
     type?: string;
@@ -53,9 +51,20 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
 
     readonly properties: Properties;
 
-    constructor({ entity, properties }: { entity: Entity<EntityName>; properties: Properties }) {
-        this.entity = entity;
-        this.properties = properties;
+    readonly readProtected: boolean;
+
+    readonly writeProtected: boolean;
+
+    constructor(schema: {
+        entity: Entity<EntityName>,
+        properties: Properties,
+        ['read-protected']: boolean,
+        ['write-protected']: boolean
+    }) {
+        this.entity = schema.entity;
+        this.properties = schema.properties;
+        this.readProtected = schema['read-protected'];
+        this.writeProtected = schema['write-protected'];
     }
 
     getEntity() {
@@ -133,12 +142,6 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
     getRequiredFields() {
         return this.filterProperties((property) => {
             return property.flags?.required === true;
-        });
-    }
-
-    getApiAwareFields() {
-        return this.filterProperties((property) => {
-            return property.flags?.read_protected?.length > 0;
         });
     }
 

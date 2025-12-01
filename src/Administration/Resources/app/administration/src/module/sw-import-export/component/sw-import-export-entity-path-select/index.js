@@ -369,17 +369,7 @@ export default {
                 return [];
             }
 
-            let definition;
-            if (isCustomField) {
-                definition = {
-                    properties: this.getCustomFields(this.currentEntity || this.entityType),
-                };
-            } else {
-                definition = {
-                    properties: Shopware.EntityDefinition.getApiAwareFields(this.currentEntity),
-                };
-            }
-
+            const definition = this.getDefinition(isCustomField);
             const unprocessedValues = {
                 definition: definition,
                 options: [],
@@ -424,6 +414,37 @@ export default {
     },
 
     methods: {
+        getDefinition(isCustomField) {
+            if (isCustomField) {
+                return  {
+                    properties: this.getCustomFields(this.currentEntity || this.entityType),
+                };
+            }
+
+            // if entity is read or write protected, do not provide any property
+            const definition = Shopware.EntityDefinition.get(this.currentEntity);
+            if (definition.readProtected || definition.writeProtected) {
+                return  {
+                    properties: {},
+                };
+            }
+
+            // Filter out properties which are not AdminApiSourceAware
+            const properties = definition.filterProperties((property) => {
+                const length = property?.flags?.read_protected?.length || 0;
+                if (length === 0) {
+                    return false;
+                }
+
+                const awareKey = 'Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource';
+                return !!property?.flags?.read_protected[0]?.includes(awareKey);
+            });
+
+            return {
+                properties: properties,
+            };
+        },
+
         isSelected(item) {
             return this.getKey(item, this.valueProperty) === this.value;
         },

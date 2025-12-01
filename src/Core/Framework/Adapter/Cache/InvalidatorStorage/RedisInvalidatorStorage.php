@@ -52,18 +52,18 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
                 ->del(self::KEY)
                 ->exec();
 
-            if ($values !== false) {
-                return $values[0];
+            if ($values === false) {
+                $this->logger->warning('Redis transaction failed (exec returned false), falling back to sequential execution.');
+
+                return null;
             }
+
+            return $values[0];
         } catch (\Throwable $e) {
             $this->logger->warning('Redis transaction failed, falling back to sequential execution. Error: ' . $e->getMessage());
 
             return null;
         }
-
-        $this->logger->warning('Redis transaction failed (exec returned false), falling back to sequential execution.');
-
-        return null;
     }
 
     /**
@@ -77,7 +77,9 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
 
             $chunk = $this->redis->sPop(self::KEY, 10000);
             while (\is_array($chunk) && !empty($chunk)) {
-                $tags[] = $chunk;
+                foreach ($chunk as $tag) {
+                    $tags[] = (string) $tag;
+                }
                 $chunk = $this->redis->sPop(self::KEY, 10000);
             }
         } catch (\Throwable $e) {
@@ -86,6 +88,6 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
             throw $e;
         }
 
-        return array_values(array_merge([], ...$tags));
+        return $tags;
     }
 }

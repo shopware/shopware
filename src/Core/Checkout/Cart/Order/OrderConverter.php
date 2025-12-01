@@ -81,7 +81,6 @@ class OrderConverter
         CheckoutPermissions::PIN_MANUAL_PROMOTIONS => true,
         CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS => true,
         CheckoutPermissions::SKIP_CART_PERSISTENCE => true,
-        CheckoutPermissions::SKIP_PRIMARY_ORDER_IDS => true,
         CheckoutPermissions::AUTOMATIC_PROMOTION_DELETION_NOTICES => true,
     ];
 

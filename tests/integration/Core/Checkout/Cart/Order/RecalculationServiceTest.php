@@ -31,6 +31,8 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -47,6 +49,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
@@ -1371,6 +1374,151 @@ class RecalculationServiceTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testRecalculateSameAmount(): void
+    {
+        // create order
+        $product1Id = Uuid::randomHex();
+        $product2Id = Uuid::randomHex();
+        $cart = new Cart(Uuid::randomHex());
+        $cart = $this->addProduct($cart, $product1Id);
+        $cart = $this->addProduct($cart, $product2Id);
+        $order = $this->persistCart($cart);
+
+        $orderId = $order['orderId'];
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociations(['transactions', 'primaryOrderTransaction', 'lineItems']);
+        $newOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->get($orderId);
+
+        static::assertInstanceOf(OrderEntity::class, $newOrder);
+        static::assertInstanceOf(OrderTransactionEntity::class, $newOrder->getPrimaryOrderTransaction());
+        static::assertSame(249.98, $newOrder->getAmountTotal());
+        static::assertSame(249.98, $newOrder->getPrimaryOrderTransaction()->getAmount()->getTotalPrice());
+        static::assertInstanceOf(OrderTransactionCollection::class, $newOrder->getTransactions());
+        static::assertCount(1, $newOrder->getTransactions());
+        static::assertSame($newOrder->getTransactions()->last()?->getId(), $newOrder->getPrimaryOrderTransaction()->getId());
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        // recalculate order
+        $errors = static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+        static::assertEmpty($errors);
+
+        $this->orderRepository->merge($versionId, Context::createDefaultContext());
+
+        $newOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->get($orderId);
+
+        static::assertInstanceOf(OrderEntity::class, $newOrder);
+        static::assertInstanceOf(OrderTransactionEntity::class, $newOrder->getPrimaryOrderTransaction());
+        static::assertSame(249.98, $newOrder->getAmountTotal());
+        static::assertSame(249.98, $newOrder->getPrimaryOrderTransaction()->getAmount()->getTotalPrice());
+        static::assertInstanceOf(OrderTransactionCollection::class, $newOrder->getTransactions());
+        static::assertCount(1, $newOrder->getTransactions());
+        static::assertSame($newOrder->getTransactions()->last()?->getId(), $newOrder->getPrimaryOrderTransaction()->getId());
+    }
+
+    public function testUpdateLineItemPriceAndTaxRate(): void
+    {
+        // create order
+        $product1Id = Uuid::randomHex();
+        $product2Id = Uuid::randomHex();
+        $cart = new Cart(Uuid::randomHex());
+        $cart = $this->addProduct($cart, $product1Id);
+        $cart = $this->addProduct($cart, $product2Id);
+        $order = $this->persistCart($cart);
+
+        $orderId = $order['orderId'];
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociations(['transactions', 'primaryOrderTransaction', 'lineItems', 'deliveries.positions.orderLineItem']);
+        $newOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->get($orderId);
+
+        static::assertInstanceOf(OrderEntity::class, $newOrder);
+        static::assertInstanceOf(OrderTransactionEntity::class, $newOrder->getPrimaryOrderTransaction());
+        static::assertSame(249.98, $newOrder->getAmountTotal());
+        static::assertSame(249.98, $newOrder->getPrimaryOrderTransaction()->getAmount()->getTotalPrice());
+        static::assertInstanceOf(OrderTransactionCollection::class, $newOrder->getTransactions());
+        static::assertCount(1, $newOrder->getTransactions());
+        static::assertSame($newOrder->getTransactions()->last()?->getId(), $newOrder->getPrimaryOrderTransaction()->getId());
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $idsCriteria = new Criteria();
+        $idsCriteria->addFilter(new EqualsFilter('orderId', $orderId));
+        $idsCriteria->addFilter(new EqualsAnyFilter('productId', [$product1Id, $product2Id]));
+        $lineItemIds = static::getContainer()->get('order_line_item.repository')->searchIds($idsCriteria, Context::createDefaultContext())->getIds();
+
+        static::assertCount(2, $lineItemIds);
+
+        $data = [
+            'id' => $orderId,
+            'versionId' => $versionId,
+            'lineItems' => [
+                [
+                    'id' => $lineItemIds[0],
+                    'versionId' => $versionId,
+                    'priceDefinition' => [
+                        'price' => 42.01,
+                        'taxRules' => [
+                            [
+                                'taxRate' => 19,
+                                'percentage' => 100,
+                            ],
+                        ],
+                        'type' => 'quantity',
+                    ],
+                ],
+                [
+                    'id' => $lineItemIds[1],
+                    'versionId' => $versionId,
+                    'priceDefinition' => [
+                        'price' => 45.45,
+                        'taxRules' => [
+                            [
+                                'taxRate' => 10,
+                                'percentage' => 100,
+                            ],
+                        ],
+                        'type' => 'quantity',
+                    ],
+                ],
+            ],
+        ];
+
+        $this->orderRepository->upsert([$data], $versionContext);
+
+        // recalculate order
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+        $recalculation = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
+        static::assertInstanceOf(OrderEntity::class, $recalculation);
+
+        $shippingCostsTaxes = $recalculation->getShippingCosts()->getCalculatedTaxes();
+        static::assertCount(2, $shippingCostsTaxes);
+        static::assertTrue($shippingCostsTaxes->has('19'));
+        static::assertTrue($shippingCostsTaxes->has('10'));
+
+        $this->orderRepository->merge($versionId, Context::createDefaultContext());
+
+        $newOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->get($orderId);
+
+        static::assertInstanceOf(OrderEntity::class, $newOrder);
+        static::assertInstanceOf(OrderTransactionEntity::class, $newOrder->getPrimaryOrderTransaction());
+        static::assertSame(109.99, $newOrder->getAmountTotal());
+        static::assertSame(109.99, $newOrder->getPrimaryOrderTransaction()->getAmount()->getTotalPrice());
+        static::assertInstanceOf(OrderTransactionCollection::class, $newOrder->getTransactions());
+        static::assertCount(2, $newOrder->getTransactions());
+        static::assertSame($newOrder->getTransactions()->last()?->getId(), $newOrder->getPrimaryOrderTransaction()->getId());
+
+        $calculatedTaxes = $newOrder->getShippingCosts()->getCalculatedTaxes();
+        static::assertCount(2, $calculatedTaxes);
+        static::assertTrue($calculatedTaxes->has('19'));
+        static::assertTrue($calculatedTaxes->has('10'));
     }
 
     protected function getValidCountryIdWithTaxes(): string

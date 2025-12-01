@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\CheckoutPermissions;
@@ -85,7 +86,10 @@ class RecalculationService
         $cart = $this->orderConverter->convertToCart($order, $context);
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
-        $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries($cart->getLineItems()->count() > 0);
+        $conversionContext = $this->getOrderConversionContext()
+            ->setIncludeDeliveries($cart->getLineItems()->count() > 0)
+            ->setIncludeTransactions($this->hasPriceChanged($cart->getPrice(), $recalculatedCart->getPrice()));
+
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext(), true);
@@ -140,7 +144,10 @@ class RecalculationService
             $this->addLineItemToDeliveryPosition($recalculatedLineItem, $recalculatedCart);
         }
 
-        $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries(true);
+        $conversionContext = $this->getOrderConversionContext()
+            ->setIncludeDeliveries(true)
+            ->setIncludeTransactions($this->hasPriceChanged($cart->getPrice(), $recalculatedCart->getPrice()));
+
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext());
@@ -166,7 +173,9 @@ class RecalculationService
             $this->addLineItemToDeliveryPosition($recalculatedLineItem, $recalculatedCart);
         }
 
-        $conversionContext = $this->getOrderConversionContext();
+        $conversionContext = $this->getOrderConversionContext()
+            ->setIncludeTransactions($this->hasPriceChanged($cart->getPrice(), $recalculatedCart->getPrice()));
+
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext());
@@ -184,7 +193,9 @@ class RecalculationService
         $cart->add($promotionLineItem);
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
-        $conversionContext = $this->getOrderConversionContext();
+        $conversionContext = $this->getOrderConversionContext()
+            ->setIncludeTransactions($this->hasPriceChanged($cart->getPrice(), $recalculatedCart->getPrice()));
+
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext());
@@ -235,7 +246,10 @@ class RecalculationService
 
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
-        $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries(!$skipAutomaticPromotions);
+        $conversionContext = $this->getOrderConversionContext()
+            ->setIncludeDeliveries(!$skipAutomaticPromotions)
+            ->setIncludeTransactions($this->hasPriceChanged($cart->getPrice(), $recalculatedCart->getPrice()));
+
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 
         $this->upsertRecalculatedOrder($orderData, $order, $salesChannelContext->getContext(), true);
@@ -460,5 +474,26 @@ class RecalculationService
             ->setIncludeBillingAddress(false)
             ->setIncludeTransactions(false)
             ->setIncludePersistentData(false);
+    }
+
+    private function hasPriceChanged(CartPrice $original, CartPrice $recalculated): bool
+    {
+        if ($original->getTotalPrice() !== $recalculated->getTotalPrice()) {
+            return true;
+        }
+
+        if ($original->getNetPrice() !== $recalculated->getNetPrice()) {
+            return true;
+        }
+
+        if ($original->getTaxStatus() !== $recalculated->getTaxStatus()) {
+            return true;
+        }
+
+        if ($original->getCalculatedTaxes()->getKeys() !== $recalculated->getCalculatedTaxes()->getKeys()) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -19,16 +19,4 @@ final readonly class ContextConsumer
         public ?string $propertyAlias = null
     ) {
     }
-
-    /**
-     * Returns the provider key that this consumer generates when redistribute is enabled.
-     */
-    public function getGeneratedProviderKey(string $consumerKey): ?string
-    {
-        if (!$this->redistribute) {
-            return null;
-        }
-
-        return $this->consumerAlias ?? $consumerKey;
-    }
 }

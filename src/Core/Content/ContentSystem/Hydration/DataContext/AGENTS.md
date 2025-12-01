@@ -45,4 +45,4 @@ Consumers can use dot notation in context keys to access nested properties: `pro
 - **Error handling**: `required: true` throws exception, `required: false` returns null
 - **Implementation**: See ContextResolutionVisitor for visitor pattern, ContextPathResolver for path logic
 - **Value objects**: Each DistributionConfig subclass implements `distribute()` directly (located in `Layout/Element/Context/Distribution/`)
-- **Redistribution shorthand**: `redistribute: true` in consumer auto-generates broadcast provider (parse-time, implemented in `ContentElementFieldSerializer`)
+- **Redistribution shorthand**: `redistribute: true` in consumer auto-generates broadcast provider (runtime, see `EventSubscriber/PreHydration/RedistributeExpansionSubscriber`)

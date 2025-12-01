@@ -35,4 +35,15 @@ final readonly class ContextDefinitions
     {
         return $this->consumers;
     }
+
+    /**
+     * @param array<string, ContextProvider> $additionalProviders
+     */
+    public function withAddedProviders(array $additionalProviders): self
+    {
+        return new self(
+            array_merge($this->providers, $additionalProviders),
+            $this->consumers
+        );
+    }
 }

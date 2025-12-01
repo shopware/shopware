@@ -4,7 +4,7 @@
 
 ## Source Code References
 
-- **PreHydration subscribers**: `PreHydration/VirtualRootPreparationSubscriber`, `PreHydration/PlaceholderResolutionSubscriber`, `PreHydration/PartialRenderingPreparationSubscriber`
+- **PreHydration subscribers**: `PreHydration/VirtualRootPreparationSubscriber`, `PreHydration/RedistributeExpansionSubscriber`, `PreHydration/PlaceholderResolutionSubscriber`, `PreHydration/PartialRenderingPreparationSubscriber`
 - **PostHydration subscribers**: `PostHydration/VirtualRootCleanupSubscriber`, `PostHydration/PartialRenderingExtractionSubscriber`
 - **Business logic services**: `Layout/Scaffolding/VirtualRootWrapper`, `Output/PartialRenderer`
 

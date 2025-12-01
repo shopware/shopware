@@ -10,9 +10,9 @@
 
 ## Constraints
 
-### Parse-Time Redistribution
+### Runtime Redistribution Expansion
 
-`redistribute: true` generates virtual `ContextProvider` at deserialization, filtered during serialization:
+`redistribute: true` generates virtual `ContextProvider` at runtime via `RedistributeExpansionSubscriber`:
 
 ```php
 // JSON input (persisted to database)
@@ -20,16 +20,12 @@
   "product": {"type": "single", "required": true, "redistribute": true}
 }
 
-// After deserialization (runtime)
+// After RedistributeExpansionSubscriber runs (priority 4000)
 // Virtual ContextProvider auto-generated for "product" key with broadcast strategy
-// Element has BOTH consumer AND provider in runtime
-
-// On serialization back to JSON (database write)
-// Serializer uses getGeneratedProviderKey() to detect virtual provider
-// Virtual provider filtered out, only "redistribute: true" persists
+// Element has BOTH consumer AND provider at runtime
 ```
 
-**Critical**: Virtual providers never persisted to database. Serializer in `ContentElementFieldSerializer` recreates them on every deserialization.
+**Critical**: Virtual providers never persisted to database. `RedistributeExpansionSubscriber` generates them on every request during PreHydration phase.
 
 ### Consumer Alias Validation
 
@@ -37,9 +33,9 @@
 
 ### Property Alias Validation
 
-Property alias constraints validated at serialization:
+Property alias constraints validated at runtime during PreHydration:
 - No dots allowed: `ContextConsumersFieldSerializer::deserializeContextConsumer()` throws `propertyAliasWithDotNotation`
-- Uniqueness per element: `ContentElementFieldSerializer::expandRedistributeFlags()` throws `propertyAliasCollision`
+- Uniqueness per element: `RedistributeExpansionSubscriber::validatePropertyAliases()` throws `propertyAliasCollision`
 
 Applied in `ContextResolutionVisitor::setContextForConsumer()` after path resolution.
 

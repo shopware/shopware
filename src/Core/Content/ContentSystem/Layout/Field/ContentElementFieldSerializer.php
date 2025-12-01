@@ -4,10 +4,7 @@ namespace Shopware\Core\Content\ContentSystem\Layout\Field;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinitions;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -134,9 +131,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             ? $this->contextConsumersSerializer->decode($contextConsumersField, $data['accepts_context'])
             : null;
 
-        $providers = $this->expandRedistributeFlags($providers ?? [], $consumers ?? []);
-
-        $contextDefinitions = new ContextDefinitions($providers, $consumers ?? []);
+        $contextDefinitions = new ContextDefinitions($providers ?? [], $consumers ?? []);
 
         // Lazy-loaded to break circular dependency
         $slotsField = new ElementSlotsField('slots', 'slots');
@@ -183,17 +178,10 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         if ($providers !== []) {
             $serializedProviders = [];
             foreach ($providers as $key => $provider) {
-                // Skip virtual providers - they'll be regenerated on deserialization
-                if ($this->isVirtualProvider($key, $consumers)) {
-                    continue;
-                }
-
                 $serializedProviders[$key] = $this->contextProvidersSerializer->serializeContextProvider($provider);
             }
 
-            if ($serializedProviders !== []) {
-                $array['provides_context'] = $serializedProviders;
-            }
+            $array['provides_context'] = $serializedProviders;
         }
 
         if ($consumers !== []) {
@@ -238,77 +226,5 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         }
 
         return $serialized;
-    }
-
-    /**
-     * Checks if provider is virtual (auto-generated from redistribute flag).
-     *
-     * @param array<string, ContextConsumer> $consumers
-     */
-    private function isVirtualProvider(string $providerKey, array $consumers): bool
-    {
-        foreach ($consumers as $consumerKey => $consumer) {
-            $generatedKey = $consumer->getGeneratedProviderKey($consumerKey);
-
-            if ($generatedKey === $providerKey) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Generates virtual broadcast providers from consumer redistribute flags (parse-time only)
-     *
-     * @param array<string, ContextProvider> $providers
-     * @param array<string, ContextConsumer> $consumers
-     *
-     * @return array<string, ContextProvider>
-     */
-    private function expandRedistributeFlags(array $providers, array $consumers): array
-    {
-        $propertyKeys = [];
-
-        foreach ($consumers as $contextKey => $consumer) {
-            $propertyKey = $consumer->propertyAlias ?? $contextKey;
-
-            $baseKey = str_contains($propertyKey, '.')
-                ? substr($propertyKey, 0, (int) strpos($propertyKey, '.'))
-                : $propertyKey;
-
-            if (\array_key_exists($baseKey, $propertyKeys)) {
-                throw ContentSystemException::propertyAliasCollision(
-                    $baseKey,
-                    $propertyKeys[$baseKey],
-                    $contextKey
-                );
-            }
-
-            $propertyKeys[$baseKey] = $contextKey;
-        }
-
-        foreach ($consumers as $contextKey => $consumer) {
-            if (!$consumer->redistribute) {
-                continue;
-            }
-
-            if (str_contains($contextKey, '.')) {
-                throw ContentSystemException::redistributeWithDottedPath($contextKey);
-            }
-
-            $providerKey = $consumer->consumerAlias ?? $contextKey;
-
-            if (\array_key_exists($providerKey, $providers)) {
-                throw ContentSystemException::redistributeConflict($contextKey);
-            }
-
-            $providers[$providerKey] = new ContextProvider(
-                $consumer->type,
-                new BroadcastDistributionConfig(null)
-            );
-        }
-
-        return $providers;
     }
 }

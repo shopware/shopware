@@ -50,6 +50,10 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration\RedistributeExpansionSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\ContentSystem\EventSubscriber\PreHydration\PartialRenderingPreparationSubscriber">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\PartialRenderer"/>
             <tag name="kernel.event_subscriber"/>

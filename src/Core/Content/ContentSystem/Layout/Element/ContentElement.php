@@ -179,6 +179,16 @@ class ContentElement extends Struct
         return $this->contextDefinitions->getAllConsumers();
     }
 
+    public function getContextDefinitions(): ContextDefinitions
+    {
+        return $this->contextDefinitions;
+    }
+
+    public function setContextDefinitions(ContextDefinitions $contextDefinitions): void
+    {
+        $this->contextDefinitions = $contextDefinitions;
+    }
+
     public function acceptsContext(string $key, ContextPathResolver $pathResolver): bool
     {
         $acceptedKeys = array_keys($this->contextDefinitions->getAllConsumers());

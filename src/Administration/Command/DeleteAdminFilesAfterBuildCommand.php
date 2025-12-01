@@ -19,6 +19,13 @@ use Symfony\Component\Finder\Finder;
 #[Package('framework')]
 class DeleteAdminFilesAfterBuildCommand extends Command
 {
+    /**
+     * {@inheritdoc}
+     */
+    protected function configure(): void
+    {
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);

@@ -27,7 +27,7 @@
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
         "cocur/slugify": "^4.3.0",
-        "doctrine/dbal": "^4.3.1",
+        "doctrine/dbal": "~4.3.1",
         "meyfa/php-svg": "^0.16.1",
         "scssphp/scssphp": "v1.12.0",
         "shopware/core": "*",

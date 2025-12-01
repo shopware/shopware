@@ -4,12 +4,15 @@ namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\PlatformRequest;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
 class ContextAwareCachingTest extends TestCase
 {
@@ -18,6 +21,9 @@ class ContextAwareCachingTest extends TestCase
 
     public function testContextHeadersInStoreApiResponse(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('CACHE_REWORK', $this);
+
         $browser = $this->createCustomSalesChannelBrowser();
 
         // Make a request to a store-api endpoint
@@ -41,6 +47,9 @@ class ContextAwareCachingTest extends TestCase
 
     public function testCurrencyAndLanguageUpdate(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('CACHE_REWORK', $this);
+
         $defaultLanguageId = Defaults::LANGUAGE_SYSTEM;
         $defaultCurrencyId = Defaults::CURRENCY;
         $newLanguageId = $this->getDeDeLanguageId();
@@ -84,6 +93,9 @@ class ContextAwareCachingTest extends TestCase
 
     public function testContextHashIsConsistentForSameContext(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('CACHE_REWORK', $this);
+
         $browser = $this->createCustomSalesChannelBrowser();
 
         // Make two requests with the same context
@@ -102,6 +114,9 @@ class ContextAwareCachingTest extends TestCase
 
     public function testNonStoreApiRouteDoesNotHaveContextHeaders(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('CACHE_REWORK', $this);
+
         $browser = $this->createCustomSalesChannelBrowser();
 
         // Make a request to a non-store-api endpoint

@@ -14,6 +14,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 class BeforeSalesChannelContextAssembledEvent extends Event
 {
     /**
+     * @param array<string, array<string, bool>|string|null> $options
+     *
      * @internal
      */
     public function __construct(
@@ -33,11 +35,17 @@ class BeforeSalesChannelContextAssembledEvent extends Event
         return $this->context;
     }
 
+    /**
+     * @return array<string, array<string, bool>|string|null>
+     */
     public function getOptions(): array
     {
         return $this->options;
     }
 
+    /**
+     * @param array<string, array<string, bool>|string|null> $options
+     */
     public function setOptions(array $options): void
     {
         $this->options = $options;

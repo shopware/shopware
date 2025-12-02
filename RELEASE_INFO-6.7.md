@@ -32,26 +32,6 @@ It's intended to work with the new HTTP caching policy system, and should increa
 Criteria be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. Please check
 the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
-### Add the possibility to specify indexer in context
-
-When you want to specify which indexer should run, you can add the `EntityIndexerRegistry::EXTENSION_INDEXER_ONLY` extension to the context as follows:
-
-```php
-$context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_ONLY,
-    new ArrayEntity([
-        ProductIndexer::STOCK_UPDATER // Only execute STOCK_UPDATER.
-    ]),
-);
-```
-
-When making a call to the Sync API, specify the required indexer in the header:
-
-```bash
-curl -X POST "http://localhost:8000/api/_action/sync" \
--H "indexing-only: product.stock" \
-#...
-```
-
 ## Core
 
 ### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching

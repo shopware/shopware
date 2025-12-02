@@ -96,4 +96,18 @@ class DateRangeRule extends Rule
             'timezone' => [new Timezone()],
         ];
     }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+
+        if ($this->fromDate instanceof \DateTimeInterface) {
+            $data['fromDate'] = $this->fromDate->format(self::DATETIME_FORMAT);
+        }
+        if ($this->toDate instanceof \DateTimeInterface) {
+            $data['toDate'] = $this->toDate->format(self::DATETIME_FORMAT);
+        }
+
+        return $data;
+    }
 }

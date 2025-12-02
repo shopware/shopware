@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -262,5 +263,27 @@ class DateRangeRuleTest extends TestCase
                 true,
             ],
         ];
+    }
+
+    public function testSerializationAndValidation(): void
+    {
+        $rule = new DateRangeRule(
+            new \DateTime('2024-01-15 10:30:45'),
+            new \DateTime('2024-01-31 23:59:59'),
+            true,
+            new \DateTimeZone('UTC')
+        );
+
+        $serialized = (string) json_encode($rule);
+        $data = json_decode($serialized, true);
+
+        static::assertSame('2024-01-15T10:30:45', $data['fromDate']);
+        static::assertSame('2024-01-31T23:59:59', $data['toDate']);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $constraints = $rule->getConstraints();
+
+        static::assertCount(0, $validator->validate($data['fromDate'], $constraints['fromDate']));
+        static::assertCount(0, $validator->validate($data['toDate'], $constraints['toDate']));
     }
 }

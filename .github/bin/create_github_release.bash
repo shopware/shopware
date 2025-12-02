@@ -18,7 +18,6 @@ TRACE="${TRACE:-}"
 
 TASK="${1}"
 PLATFORM_TAG="${2}"
-PLATFORM_DIR="${CI_PROJECT_DIR:-$(pwd)}"
 GITHUB_SYNC_TOKEN="${GITHUB_SYNC_TOKEN:-"${GITHUB_TOKEN}"}"
 REPOSITORY_API_URL='https://api.github.com/repos/shopware/shopware'
 
@@ -31,18 +30,13 @@ print_usage() {
 
 draft_release_payload() {
   local platform_tag; export platform_tag="${1}"
-  local platform_version; export platform_version="${platform_tag#v*}"
-  local platform_major; export platform_major=$(echo "${platform_version}" | cut -d. -f1,2)
-  local release_message_header; export release_message_header="See the [UPGRADE.md](./UPGRADE-${platform_major}.md) for all important technical changes."
-  local changelog_entries; export changelog_entries=$(sed -n "/## ${platform_version}/, /##/{ /## ${platform_version}/! { /##/! p } }" "${PLATFORM_DIR}/CHANGELOG.md")
 
   jq -nc '{
     tag_name: env.platform_tag,
     name: "Release \(env.platform_tag)",
-    body: ([env.release_message_header, env.changelog_entries] | join("\n\n")),
     draft: true,
     prerelease: false,
-    generate_release_notes: false
+    generate_release_notes: true
   }'
 }
 

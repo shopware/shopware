@@ -96,6 +96,11 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 
 ## Core
 
+### Automatic indexer execution for plugin migrations
+
+The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+This ensures that registered indexers are executed when plugin migrations have run.
+
 ### Improved Store API OpenAPI documentation with field descriptions
 
 The OpenAPI schema generator for Store API endpoints now includes descriptions for entity fields, making it easier for developers to understand the available fields and their purposes.

@@ -8,7 +8,9 @@ use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
+use OpenSearchDSL\Query\TermLevel\PrefixQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
+use OpenSearchDSL\Query\TermLevel\TermsQuery;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -41,7 +43,9 @@ class TokenQueryBuilder
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly CustomFieldService $customFieldService,
-        private readonly AbstractKeyValueStorage $storage
+        private readonly AbstractKeyValueStorage $storage,
+        private readonly int $minGram = 4,
+        private readonly int $maxGram = 5
     ) {
     }
 
@@ -113,27 +117,50 @@ class TokenQueryBuilder
             $searchField = $config->getField() . '.search';
             $operator = $config->isAndLogic() ? 'and' : 'or';
 
-            $tokenCount = \count(\explode(' ', $token));
+            $tokens = \explode(' ', $token);
+            $tokenCount = \count($tokens);
 
+            // apply exact match
+            $queries[] = $tokenCount === 1
+                ? new TermQuery($config->getField(), $token, ['boost' => 1])
+                : new TermsQuery($config->getField(), $tokens, ['boost' => 1]);
+
+            $lastWord = array_last($tokens);
+            $maxExpansions = $this->getMaxExpansions($lastWord);
+
+            // apply fuzzy search
             $queries[] = new MatchQuery($searchField, $token, [
-                'boost' => $config->getRanking(),
+                'boost' => 0.8,
                 'fuzziness' => $config->getFuzziness($token),
                 'operator' => $operator,
+                'fuzzy_transpositions' => true, // treats "ab" and "ba" as a single edit
+                'max_expansions' => $maxExpansions, // limit the number of variations
+                'prefix_length' => 1, // reduce noise
             ]);
 
-            if ($config->usePrefixMatch()) {
-                // Prefix match
+            // apply match phrase prefix for compound tokens
+            if ($config->usePrefixMatch() && $tokenCount > 1) {
                 $queries[] = new MatchPhrasePrefixQuery($searchField, $token, [
-                    'boost' => 0.6 * $config->getRanking(),
+                    'boost' => 0.6,
                     'slop' => 3,
-                    'max_expansions' => 10,
+                    'max_expansions' => $maxExpansions,
                 ]);
             }
 
-            if ($config->tokenize() && $tokenCount === 1) {
-                // ngram search
-                $queries[] = new MatchQuery($config->getField() . '.ngram', $token, [
-                    'boost' => 0.4 * $config->getRanking(),
+            $tokenLength = mb_strlen($token);
+
+            // apply ngram search if tokenize is enabled and token length is between minGram and maxGram
+            if ($config->tokenize() && $tokenCount === 1 && $tokenLength >= $this->minGram && $tokenLength <= $this->maxGram) {
+                $queries[] = new TermQuery($config->getField() . '.ngram', $token, [
+                    'boost' => 0.4,
+                ]);
+            }
+
+            // apply prefix search on a single token
+            if ($tokenCount === 1 && ($tokenLength < $this->minGram || $tokenLength > $this->maxGram)) {
+                // Prefix search on single tokens smaller than minGram or bigger than maxGram
+                $queries[] = new PrefixQuery($config->getField(), $token, [
+                    'boost' => 0.4,
                 ]);
             }
 
@@ -142,6 +169,8 @@ class TokenQueryBuilder
             foreach ($queries as $query) {
                 $dismax->addQuery($query);
             }
+
+            $dismax->addParameter('boost', $config->getRanking());
 
             return $dismax;
         }
@@ -244,5 +273,23 @@ class TokenQueryBuilder
     private function isSortableTranslatedField(TranslatedField $field): bool
     {
         return $field->useForSorting() && (Feature::isActive('v6.8.0.0') || $this->storage->has(ElasticsearchOptimizeSwitch::FLAG));
+    }
+
+    /**
+     * @see https://docs.opensearch.org/1.1/opensearch/query-dsl/full-text#options for max_expansions
+     */
+    private function getMaxExpansions(string $lastWord): int
+    {
+        $len = mb_strlen($lastWord);
+
+        if ($len <= 3) {
+            return 5;
+        }
+
+        if ($len <= 6) {
+            return 10;
+        }
+
+        return 20;
     }
 }

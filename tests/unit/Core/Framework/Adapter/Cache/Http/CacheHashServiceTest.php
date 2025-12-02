@@ -276,8 +276,6 @@ class CacheHashServiceTest extends TestCase
      */
     public static function languageAndCurrencyHeaderProvider(): iterable
     {
-        $request =
-
         yield 'no header' => [
             new Request(),
             [
@@ -316,5 +314,50 @@ class CacheHashServiceTest extends TestCase
                 PlatformRequest::HEADER_CURRENCY_ID => 'bar',
             ],
         ];
+    }
+
+    public function testCustomCacheRelevantCookiesInfluenceTheStateCookie(): void
+    {
+        $extensionDispatcher = new ExtensionDispatcher($this->eventDispatcher);
+        $cacheHashService = new CacheHashService(
+            $extensionDispatcher,
+            new CacheRelevantRulesResolver($extensionDispatcher),
+            ['my-custom-cookie'],
+            $this->eventDispatcher,
+        );
+
+        $request = new Request();
+        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
+        $salesChannelContextMock->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
+
+        $response = new Response();
+
+        $cacheHashService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
+
+        $cookies = $response->headers->getCookies();
+        static::assertEmpty($cookies);
+
+        $request->cookies->set('my-custom-cookie', 'foo');
+
+        $cacheHashService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
+
+        $cookies = $response->headers->getCookies();
+        static::assertNotEmpty($cookies);
+        // assert cache hash exist when customCookie is set
+        static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
+        $firstHash = $cookies[0]->getValue();
+
+        $request->cookies->set('my-custom-cookie', 'bar');
+
+        $cacheHashService->applyCacheHash($request, $salesChannelContextMock, new Cart('cart'), $response);
+
+        $cookies = $response->headers->getCookies();
+        static::assertNotEmpty($cookies);
+        static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
+        $secondHash = $cookies[0]->getValue();
+        // assert cache hash is different when custom cookie is different
+        static::assertNotSame($firstHash, $secondHash);
     }
 }

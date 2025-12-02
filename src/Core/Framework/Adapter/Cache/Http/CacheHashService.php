@@ -109,11 +109,9 @@ class CacheHashService
         ];
 
         foreach ($this->cookies as $cookie) {
-            if (!$request->cookies->has($cookie)) {
-                continue;
+            if ($request->cookies->has($cookie)) {
+                $parts[$cookie] = $request->cookies->get($cookie);
             }
-
-            $parts[$cookie] = $request->cookies->get($cookie);
         }
 
         $event = new HttpCacheCookieEvent($request, $context, $parts);
@@ -137,6 +135,13 @@ class CacheHashService
         if ($salesChannelContext->getCurrencyId() !== $salesChannelContext->getSalesChannel()->getCurrencyId()) {
             // cache hash is required for non-default currency
             return true;
+        }
+
+        // check if cache relevant cookies are set
+        foreach ($this->cookies as $cookie) {
+            if ($request->cookies->has($cookie)) {
+                return true;
+            }
         }
 
         return false;

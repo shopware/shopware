@@ -75,11 +75,67 @@
             }
         },
         "mediaHeight": {
-            "control": "number",
-            "description": "Height of the product media (thumbnail)",
+            "control": "text",
+            "description": "Height of the product media (thumbnail).",
             "table": {
                 "defaultValue": {
-                    "summary": 240
+                    "summary": "auto"
+                }
+            }
+        },
+        "mediaObjectFit": {
+            "control": "select",
+            "options": ["cover", "contain"],
+            "description": "Object fit of the product media (thumbnail).",
+            "table": {
+                "defaultValue": {
+                    "summary": "contain"
+                }
+            }
+        },
+        "mediaSizes": {
+            "control": "text",
+            "description": "Sizes of the product media (thumbnail).",
+            "table": {
+                "defaultValue": {
+                    "summary": "(max-width: 400px) 96vw, 400px"
+                }
+            }
+        },
+        "border": {
+            "control": "boolean",
+            "description": "Whether the card should have a border.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "rounded": {
+            "control": "boolean",
+            "description": "Whether the card should have rounded corners.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "layout": {
+            "control": "select",
+            "options": ["default", "horizontal"],
+            "description": "Layout of the card.",
+            "table": {
+                "defaultValue": {
+                    "summary": "default"
+                }
+            }
+        },
+        "showTaxInfo": {
+            "control": "boolean",
+            "description": "Whether the card should show the tax info.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
                 }
             }
         }
@@ -89,7 +145,13 @@
             "name": "Card",
             "args": {
                 "product": {},
-                "mediaHeight": 240
+                "mediaHeight": "auto",
+                "mediaObjectFit": "contain",
+                "mediaSizes": "(max-width: 400px) 96vw, 400px",
+                "layout": "default",
+                "showTaxInfo": false,
+                "border": false,
+                "rounded": false
             }
         }
     ]

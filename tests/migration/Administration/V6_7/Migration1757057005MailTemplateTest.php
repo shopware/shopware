@@ -24,6 +24,12 @@ class Migration1757057005MailTemplateTest extends MailTemplateMigrationTestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testCreationTimestamp(): void
+    {
+        $migration = new Migration1757057005MailTemplate();
+        static::assertSame(1757057005, $migration->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         // prepare the test

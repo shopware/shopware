@@ -288,14 +288,31 @@ export default class FormValidation {
 
     /**
      * Checks if the value is a valid email address.
+     * Supports IDN
      *
      * @param {string} value
      * @returns {boolean}
      */
     validateEmail(value) {
         const emailRegEx = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        let emailAddress = value;
 
-        return emailRegEx.test(value);
+        if (emailAddress.includes('@')) {
+            const [user, domain] = emailAddress.split('@');
+
+            // eslint-disable-next-line no-control-regex
+            if (domain && /[^\u0000-\u007F]/.test(domain)) {
+                try {
+                    const url = new URL(`https://${domain}`);
+                    const asciiDomain = url.hostname;
+                    emailAddress = `${user}@${asciiDomain}`;
+                } catch (e) {
+                    // If URL parsing fails, fall back to standard validation
+                }
+            }
+        }
+
+        return emailRegEx.test(emailAddress);
     }
 
     /**

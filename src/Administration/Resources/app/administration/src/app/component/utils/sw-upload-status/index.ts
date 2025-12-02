@@ -13,7 +13,7 @@ type FileInfo = {
     size: number;
     name: string;
     targetId: string;
-    status: typeof UploadStatus[keyof typeof UploadStatus];
+    status: (typeof UploadStatus)[keyof typeof UploadStatus];
 };
 
 type ApiError = {
@@ -43,7 +43,7 @@ type UploadFailedPayload = {
     error: UploadError;
 };
 
-type MediaUploadAction = typeof UploadEvents[keyof typeof UploadEvents];
+type MediaUploadAction = (typeof UploadEvents)[keyof typeof UploadEvents];
 
 type MediaUploadPayload = {
     data?: unknown;
@@ -99,7 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             uploads: new Map<string, FileInfo>(),
             snackbarItem: null as Snackbar | null,
-        }
+        };
     },
     computed: {
         snackbar() {
@@ -131,8 +131,8 @@ export default Shopware.Component.wrapComponentConfig({
         uploadComplete() {
             return (
                 this.uploadProgress >= 100 ||
-                this.uploadCount === Array.from(this.uploads.values())
-                    .filter((info) => info.status === UploadStatus.FAILED).length
+                this.uploadCount ===
+                    Array.from(this.uploads.values()).filter((info) => info.status === UploadStatus.FAILED).length
             );
         },
         snackbarConfig(): Snackbar {
@@ -149,8 +149,9 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.uploadComplete) {
                 Object.assign(config, {
                     uploadState: this.hasFailedUploads ? 'error' : 'success',
-                    errorMessage: this.hasFailedUploads ?
-                        this.$t('global.sw-media-upload.snackbar.errorMessage', { count: uploadCount }) : undefined,
+                    errorMessage: this.hasFailedUploads
+                        ? this.$t('global.sw-media-upload.snackbar.errorMessage', { count: uploadCount })
+                        : undefined,
                     duration: 0,
                 });
             }
@@ -233,9 +234,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            if (payload?.error?.response?.data?.errors?.find(
-                (error) => error.code === ResponseErrorCodes.DUPLICATED_FILE_NAME))
-            {
+            if (
+                payload?.error?.response?.data?.errors?.find(
+                    (error) => error.code === ResponseErrorCodes.DUPLICATED_FILE_NAME,
+                )
+            ) {
                 found.fileInfo.status = UploadStatus.PENDING;
             } else {
                 found.fileInfo.status = UploadStatus.FAILED;
@@ -263,7 +266,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (this.uploadComplete) {
-                this.snackbarItem  = null;
+                this.snackbarItem = null;
                 this.uploads.clear();
             }
         },
@@ -274,7 +277,7 @@ export default Shopware.Component.wrapComponentConfig({
                 messageSnippets.push(ErrorMessages[payload.error.code as keyof typeof ErrorMessages]);
             } else {
                 payload?.error?.response?.data?.errors?.forEach((error) => {
-                    if (IgnoredErrors.includes(error.code as typeof IgnoredErrors[number])) {
+                    if (IgnoredErrors.includes(error.code as (typeof IgnoredErrors)[number])) {
                         return;
                     }
 
@@ -295,4 +298,4 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
     },
-})
+});

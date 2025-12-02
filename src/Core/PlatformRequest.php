@@ -3,7 +3,6 @@
 namespace Shopware\Core;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService;
 
 #[Package('framework')]
 final class PlatformRequest

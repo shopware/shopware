@@ -488,7 +488,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
-        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
+        $result->method('first')->willReturn($customerEntity);
 
         $salutationId = Uuid::randomHex();
         /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */

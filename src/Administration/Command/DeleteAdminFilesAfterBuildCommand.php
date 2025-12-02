@@ -10,6 +10,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 #[AsCommand(
@@ -19,6 +20,15 @@ use Symfony\Component\Finder\Finder;
 #[Package('framework')]
 class DeleteAdminFilesAfterBuildCommand extends Command
 {
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly Filesystem $filesystem
+    ) {
+        parent::__construct();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -41,7 +51,15 @@ class DeleteAdminFilesAfterBuildCommand extends Command
         $progressBar = new ProgressBar($output, 100);
 
         // Delete all module files except for de-DE.json and en-GB.json
-        $this->deleteModuleFiles($adminDir);
+        $finder = new Finder();
+        $finder->in($adminDir . '/Resources/app/administration/src/module')
+            ->notName('de-DE.json')
+            ->notName('en-GB.json')
+            ->files();
+
+        foreach ($finder as $file) {
+            $this->filesystem->remove($file->getRealPath());
+        }
         $progressBar->advance(25);
 
         $this->deleteEmptyDirectories($adminDir . '/Resources/app/administration/src/module');
@@ -67,7 +85,7 @@ class DeleteAdminFilesAfterBuildCommand extends Command
         $this->removeDirectory($adminDir . '/Resources/app/administration/src/meta');
         $this->removeDirectory($adminDir . '/Resources/app/administration/src/scripts');
         $this->removeDirectory($adminDir . '/Resources/app/administration/patches');
-        $this->deletePackageLockFile($adminDir);
+        $this->filesystem->remove($adminDir . '/Resources/app/administration/package-lock.json');
         $progressBar->advance(25);
 
         $this->removeDirectory($adminDir . '/Resources/app/administration/static');
@@ -87,57 +105,30 @@ class DeleteAdminFilesAfterBuildCommand extends Command
     /**
      * Recursively deletes empty directories.
      */
-    protected function deleteEmptyDirectories(string $dir): void
+    private function deleteEmptyDirectories(string $dir): void
     {
         if (!is_dir($dir)) {
             return;
         }
 
-        $files = scandir($dir);
-        if (!$files) {
+        try {
+            $finder = new Finder();
+            $finder->in($dir)->directories()->depth(0);
+
+            foreach ($finder as $subDir) {
+                $this->deleteEmptyDirectories($subDir->getRealPath());
+            }
+
+            // Check if directory is empty after processing subdirectories
+            $checkFinder = new Finder();
+            $checkFinder->in($dir)->depth(0);
+
+            if ($checkFinder->count() === 0) {
+                $this->filesystem->remove($dir);
+            }
+        } catch (\UnexpectedValueException) {
+            // Directory is not readable or accessible
             return;
-        }
-
-        foreach ($files as $file) {
-            if ($file === '.' || $file === '..') {
-                continue;
-            }
-
-            $path = $dir . '/' . $file;
-            if (is_dir($path)) {
-                $this->deleteEmptyDirectories($path);
-            }
-        }
-
-        if (\count(scandir($dir) ?: []) === 2) {
-            rmdir($dir);
-        }
-    }
-
-    /**
-     * Delete all files in Administration/Resources/app/administration/src/module,
-     * except for de-DE.json and en-GB.json
-     */
-    protected function deleteModuleFiles(string $adminDir): void
-    {
-        $finder = new Finder();
-
-        $finder->in($adminDir . '/Resources/app/administration/src/module')
-            ->notName('de-DE.json')
-            ->notName('en-GB.json')
-            ->files();
-
-        foreach ($finder as $file) {
-            unlink($file->getRealPath());
-        }
-    }
-
-    protected function deletePackageLockFile(string $adminDir): void
-    {
-        $packageLockPath = $adminDir . '/Resources/app/administration/package-lock.json';
-
-        if (\is_file($packageLockPath)) {
-            \unlink($packageLockPath);
         }
     }
 
@@ -145,30 +136,28 @@ class DeleteAdminFilesAfterBuildCommand extends Command
      * Recursively deletes a directory and all its contents.
      * Prevents deletion of directories containing '/snippet' in their path.
      */
-    protected function removeDirectory(string $dir): void
+    private function removeDirectory(string $dir): void
     {
-        if (!is_dir($dir) || str_contains('/snippet', $dir)) {
+        if (!is_dir($dir) || str_contains($dir, '/snippet')) {
             return;
         }
 
-        $files = scandir($dir);
-        if (!$files) {
+        try {
+            $finder = new Finder();
+            $finder->in($dir)->depth(0);
+
+            foreach ($finder as $item) {
+                if ($item->isDir()) {
+                    $this->removeDirectory($item->getRealPath());
+                } else {
+                    $this->filesystem->remove($item->getRealPath());
+                }
+            }
+
+            $this->filesystem->remove($dir);
+        } catch (\UnexpectedValueException) {
+            // Directory is not readable or accessible
             return;
         }
-
-        foreach ($files as $file) {
-            if ($file === '.' || $file === '..') {
-                continue;
-            }
-
-            $path = $dir . '/' . $file;
-            if (is_dir($path)) {
-                $this->removeDirectory($path);
-            } else {
-                unlink($path);
-            }
-        }
-
-        rmdir($dir);
     }
 }

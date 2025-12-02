@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute;
-use Shopware\Core\Framework\Adapter\Cache\Http\CacheHashService;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheHeadersService;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProvider;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProviderFactory;
@@ -56,13 +56,13 @@ class CacheResponseSubscriberTest extends TestCase
 
     private CartService&MockObject $cartService;
 
-    private CacheHashService&MockObject $cacheHashService;
+    private CacheHeadersService&MockObject $cacheHeadersService;
 
     protected function setUp(): void
     {
         $this->eventDispatcher = new EventDispatcher();
         $this->cartService = $this->createMock(CartService::class);
-        $this->cacheHashService = $this->createMock(CacheHashService::class);
+        $this->cacheHeadersService = $this->createMock(CacheHeadersService::class);
 
         $this->subscriber = new CacheResponseSubscriber(
             $this->cartService,
@@ -71,7 +71,7 @@ class CacheResponseSubscriberTest extends TestCase
             new MaintenanceModeResolver($this->eventDispatcher),
             '5',
             '6',
-            $this->cacheHashService,
+            $this->cacheHeadersService,
             $this->createCachePolicyProvider(),
         );
     }
@@ -98,7 +98,7 @@ class CacheResponseSubscriberTest extends TestCase
             new MaintenanceModeResolver($this->eventDispatcher),
             null,
             null,
-            $this->createMock(CacheHashService::class),
+            $this->createMock(CacheHeadersService::class),
             $this->createCachePolicyProvider(),
         );
 
@@ -143,7 +143,7 @@ class CacheResponseSubscriberTest extends TestCase
             new MaintenanceModeResolver($this->eventDispatcher),
             null,
             null,
-            $this->createMock(CacheHashService::class),
+            $this->createMock(CacheHeadersService::class),
             $this->createCachePolicyProvider(),
         );
 
@@ -154,7 +154,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $event = $this->createResponseEvent($request, $response);
 
-        $this->cacheHashService->expects($this->never())
+        $this->cacheHeadersService->expects($this->never())
             ->method('applyCacheHash');
 
         $subscriber->setResponseCacheHeader($event);
@@ -171,7 +171,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $event = $this->createResponseEvent($request, $response);
 
-        $this->cacheHashService->expects($this->never())
+        $this->cacheHeadersService->expects($this->never())
             ->method('applyCacheHash');
 
         $this->subscriber->setResponseCacheHeader($event);
@@ -210,7 +210,7 @@ class CacheResponseSubscriberTest extends TestCase
             ->willReturn($cart);
 
         if ($shouldBeCached) {
-            $this->cacheHashService->expects($this->once())
+            $this->cacheHeadersService->expects($this->once())
                 ->method('applyCacheHash');
         }
 
@@ -293,7 +293,7 @@ class CacheResponseSubscriberTest extends TestCase
         $request = new Request([], [], ['_route' => 'admin.dashboard.index']);
         $response = new Response();
 
-        $this->cacheHashService->expects($this->never())
+        $this->cacheHeadersService->expects($this->never())
             ->method('applyCacheHash');
 
         $this->subscriber->setResponseCache(new ResponseEvent(
@@ -314,7 +314,7 @@ class CacheResponseSubscriberTest extends TestCase
             $response = new Response();
         }
 
-        $this->cacheHashService->expects($this->never())
+        $this->cacheHeadersService->expects($this->never())
             ->method('applyCacheHash');
 
         $this->subscriber->setResponseCache(new ResponseEvent(
@@ -387,7 +387,7 @@ class CacheResponseSubscriberTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
         $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled');
 
-        $this->cacheHashService->expects($this->once())
+        $this->cacheHeadersService->expects($this->once())
             ->method('applyCacheHash');
 
         $response = new Response();
@@ -432,7 +432,7 @@ class CacheResponseSubscriberTest extends TestCase
             new MaintenanceModeResolver($this->eventDispatcher),
             $subscriberConfig['staleWhileRevalidate'] ?? null,
             $subscriberConfig['staleIfError'] ?? null,
-            $this->cacheHashService,
+            $this->cacheHeadersService,
             $policyProvider,
         );
 
@@ -450,12 +450,9 @@ class CacheResponseSubscriberTest extends TestCase
 
         // determine if storefront route
         $routeScope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-        $isStorefront = \in_array(StorefrontRouteScope::ID, $routeScope, true);
 
-        if (!$isStorefront) {
-            $this->cacheHashService->expects($this->never())
-                ->method('applyCacheHash');
-        }
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHash');
 
         $subscriber->setResponseCache(new ResponseEvent(
             $this->createMock(HttpKernelInterface::class),
@@ -469,9 +466,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         // Check cookies absence for non-storefront routes
         static::assertIsArray($routeScope);
-        if (!$isStorefront) {
-            static::assertEmpty($response->headers->getCookies(), 'Should not have cookies');
-        }
+        static::assertEmpty($response->headers->getCookies(), 'Should not have cookies');
     }
 
     /**
@@ -679,20 +674,6 @@ class CacheResponseSubscriberTest extends TestCase
             ],
             'expectedCacheControl' => 'max-age=0, no-cache, private, s-maxage=0',
         ];
-
-        yield 'Store API endpoints without SalesChannelContext are ignored by subscriber' => [
-            'requestResponseOptions' => [
-                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => null,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
-                PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
-                'responseOriginalCacheControl' => 'must-revalidate, no-cache, private',
-            ],
-            'subscriberConfig' => [
-                'policies' => $basePolicies,
-                'defaultPolicies' => $defaultPolicies,
-            ],
-            'expectedCacheControl' => 'must-revalidate, no-cache, private',
-        ];
     }
 
     /**
@@ -707,7 +688,7 @@ class CacheResponseSubscriberTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
         $request->attributes->set('_route', 'store-api.test');
 
-        $this->cacheHashService->expects($this->never())
+        $this->cacheHeadersService->expects($this->never())
             ->method('applyCacheHash');
 
         $response = new Response();
@@ -719,6 +700,26 @@ class CacheResponseSubscriberTest extends TestCase
         ));
 
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
+    }
+
+    public function testSetResponseCacheAppliesHeaders(): void
+    {
+        // request without sales channel context should not apply headers
+        $event = $this->createResponseEvent(new Request(), new Response());
+
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHeaders');
+
+        $this->subscriber->setResponseCache($event);
+
+        // request with sales channel context should apply headers
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, self::createMock(SalesChannelContext::class));
+        $event = $this->createResponseEvent($request, new Response());
+
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHeaders');
+        $this->subscriber->setResponseCache($event);
     }
 
     /**

@@ -1,0 +1,9 @@
+.sw-settings-usage-data-consent-check-list {
+    display: flex;
+    flex-direction: column;
+    row-gap: var(--scale-size-16);
+    padding: var(--scale-size-24) var(--scale-size-16);
+    background-color: var(--color-elevation-surface-sunken);
+    border-radius: var(--border-radius-m);
+    font-size: var(--font-size-xs);
+}

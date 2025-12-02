@@ -281,8 +281,13 @@ class SearchKeywordUpdater implements ResetInterface
         $query->select('configField.field', 'configField.tokenize', 'configField.ranking', 'LOWER(HEX(config.language_id)) as language_id');
         $query->from('product_search_config', 'config');
         $query->join('config', 'product_search_config_field', 'configField', 'config.id = configField.product_search_config_id');
+        $query->leftJoin('configField', 'custom_field', 'custom_field', 'configField.custom_field_id = custom_field.id AND custom_field.active = 1');
+        $query->leftJoin('custom_field', 'custom_field_set_relation', 'cfsr', 'custom_field.set_id = cfsr.set_id AND cfsr.entity_name = \'product\'');
         $query->andWhere('config.language_id IN (:languageIds)');
         $query->andWhere('configField.searchable = 1');
+        $query->andWhere(
+            '(configField.custom_field_id IS NULL OR (custom_field.searchable = 1 AND cfsr.entity_name = \'product\'))'
+        );
 
         $query->setParameter('languageIds', Uuid::fromHexToBytesList([$languageId, Defaults::LANGUAGE_SYSTEM]), ArrayParameterType::BINARY);
 

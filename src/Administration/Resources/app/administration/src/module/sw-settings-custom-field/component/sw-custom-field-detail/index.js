@@ -111,8 +111,10 @@ export default {
 
     watch: {
         'currentCustomField.searchable'(newValue) {
-            if (!this.currentCustomField._isNew && this.originalSearchable !== null) {
+            if (!this.currentCustomField._isNew && this.originalSearchable !== null && this.isProductCustomField) {
                 this.showSearchableChangeBanner = newValue === true && this.originalSearchable === false;
+            } else {
+                this.showSearchableChangeBanner = false;
             }
         },
     },

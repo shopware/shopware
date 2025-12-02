@@ -117,6 +117,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 'sw-external-link': true,
                 'sw-media-quickinfo-usage': true,
                 'sw-media-modal-move': true,
+                'sw-media-modal-v2': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
             },

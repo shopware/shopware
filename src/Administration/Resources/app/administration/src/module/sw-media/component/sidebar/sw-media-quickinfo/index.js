@@ -118,10 +118,6 @@ export default {
             return this.item?.metaData?.video?.coverMediaId ?? null;
         },
 
-        actionListKey() {
-            return this.hasVideoCover ? 'has-cover' : 'no-cover';
-        },
-
         canManageVideoCover() {
             return this.isVideoMedia && this.isPlayable;
         },

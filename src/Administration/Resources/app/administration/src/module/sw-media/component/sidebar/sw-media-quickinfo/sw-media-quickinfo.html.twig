@@ -21,7 +21,7 @@
         <template #content>
             {% block sw_media_quickinfo_quickactions_content %}
             <ul
-                :key="actionListKey"
+                :key="item.id"
                 class="sw-media-sidebar__quickactions-list"
             >
                 {% block sw_media_quickinfo_quickactions_replace %}

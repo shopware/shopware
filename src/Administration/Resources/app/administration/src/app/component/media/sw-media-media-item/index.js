@@ -33,6 +33,13 @@ export default {
 
     inject: ['mediaService'],
 
+    props: {
+        item: {
+            type: Object,
+            required: true,
+        },
+    },
+
     emits: [
         'media-item-rename-success',
         'media-item-play',

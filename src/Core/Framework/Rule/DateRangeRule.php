@@ -97,9 +97,9 @@ class DateRangeRule extends Rule
         ];
     }
 
-    public function assign(array $data): static
+    public function assign(array $options)
     {
-        parent::assign($data);
+        parent::assign($options);
 
         try {
             // convert string dates to DateTime objects

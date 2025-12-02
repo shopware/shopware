@@ -15,10 +15,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('framework')]
 /**
  * @internal
  */
+#[Package('framework')]
 class CacheHashService
 {
     /**

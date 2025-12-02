@@ -1,7 +1,4 @@
 .sw-settings-usage-data-consent-modal__content {
-    font-size: var(--font-size-xs);
-    text-align: center;
-
     .sw-setting-usage-data-consent-modal__icon-union {
         margin: 0 auto var(--scale-size-16);
         max-width: var(--scale-size-72);
@@ -9,52 +6,29 @@
 
     .sw-setting-usage-data-consent-modal__heading {
         margin: 0;
+        text-align: center;
         font-size: var(--font-size-2xl);
         font-weight: var(--font-weight-bold);
         line-height: var(--font-line-height-2xl); /* 128.571% */
     }
 
-    .sw-settings-usage-data-consent-modal__features {
-        display: flex;
-        flex-direction: column;
-        row-gap: var(--scale-size-16);
+    .sw-setting-usage-data-consent-modal__intro {
+        text-align: center;
+        font-size: var(--font-size-xs);
+    }
+
+    .sw-settings-usage-data-consent-check-list {
         margin: var(--scale-size-24) 0;
-        padding: var(--scale-size-24) var(--scale-size-16);
-        background-color: var(--color-elevation-surface-sunken);
-        border-radius: var(--border-radius-m);
-        text-align: start;
     }
 
-    .sw-settings-usage-data-consent-modal__subcard {
-        padding: var(--scale-size-16) var(--scale-size-24);
+    .sw-settings-usage-data-consent-modal-sub-card {
         margin-bottom: var(--scale-size-16);
-        border-radius: var(--border-radius-m);
-        border: 1px solid var(--color-border-primary-default);
-        text-align: start;
-
-        h4 {
-            font-size: var(--font-size-s);
-            line-height: var(--font-line-height-s);
-            margin: 0;
-        }
-
-        .mt-switch {
-            margin-top: var(--scale-size-16);
-            margin-bottom: 0;
-        }
     }
 
-    .sw-settings-usage-data-consent-modal__emphasis {
-        cursor: pointer;
-        text-decoration: underline;
-
-        &:hover {
-            color: var(--color-text-brand-hover);
-        }
-    }
-
-    .sw-settings-usage-data-consent-modal__legal {
+    .sw-setting-usage-data-consent-modal__legal {
         margin-top: var(--scale-size-24);
+        text-align: center;
+        font-size: var(--font-size-xs);
     }
 }
 

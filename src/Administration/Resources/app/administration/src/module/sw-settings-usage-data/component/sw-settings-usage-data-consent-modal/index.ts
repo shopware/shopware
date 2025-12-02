@@ -6,6 +6,10 @@ import { MtModal, MtModalAction, MtModalRoot } from '@shopware-ag/meteor-compone
 import template from './sw-settings-usage-data-consent-modal.html.twig';
 import './sw-settings-usage-data-consent-modal.scss';
 
+import SwSettingsUsageDataStoreDataConsentCard from './subcomponents/sw-settings-usage-data-store-data-consent-card';
+import SwSettingsUsageDataUserDataConsentCard from './subcomponents/sw-settings-usage-data-user-data-consent-card';
+import SwSettingsUsageDataConsentCheckList from './subcomponents/sw-settings-usage-data-consent-check-list';
+
 type ConsentStruct = {
     value: boolean;
 };
@@ -20,6 +24,9 @@ export default Shopware.Component.wrapComponentConfig({
         MtModal,
         MtModalRoot,
         MtModalAction,
+        SwSettingsUsageDataStoreDataConsentCard,
+        SwSettingsUsageDataUserDataConsentCard,
+        SwSettingsUsageDataConsentCheckList,
     },
 
     props: {

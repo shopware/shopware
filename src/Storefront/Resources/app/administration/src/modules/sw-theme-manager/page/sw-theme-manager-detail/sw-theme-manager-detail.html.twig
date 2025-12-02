@@ -131,6 +131,22 @@
                         :items="tabItems"
                     >
 
+                        <template
+                            v-if="!feature.isActive('V6_8_0_0')"
+                            #default="{ active }"
+                        >
+                            <sw-tabs-item
+                                v-if="hasMoreThanOneTab"
+                                v-for="(tab, tabName) in structuredThemeFields.tabs"
+                                :key="tabName"
+                                :title="getTabLabel(tab.labelSnippetKey, tab.label)"
+                                :name="tabName"
+                                :active="active === tabName"
+                            >
+                                {{ getTabLabel(tab.labelSnippetKey, tab.label) }}
+                            </sw-tabs-item>
+                        </template>
+
                         <template #content="{ active }">
                             <template v-if="active === 'default'">
                                 <template v-if="isDerived">

@@ -1,0 +1,27 @@
+.sw-settings-usage-data-consent-modal-sub-card {
+    padding: var(--scale-size-16) var(--scale-size-24);
+    border-radius: var(--border-radius-m);
+    border: 1px solid var(--color-border-primary-default);
+    text-align: start;
+    font-size: var(--font-size-xs);
+
+    h4 {
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        margin: 0;
+    }
+
+    .mt-switch {
+        margin-top: var(--scale-size-16);
+        margin-bottom: 0;
+    }
+
+    .sw-settings-usage-data-consent-modal-sub-card__tooltip {
+        cursor: help;
+        text-decoration: underline;
+
+        &:hover {
+            color: var(--color-text-brand-hover);
+        }
+    }
+}

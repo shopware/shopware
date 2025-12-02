@@ -5,6 +5,7 @@ test(
     ShopCustomer,
     StorefrontHome,
     TestDataService,
+    CheckVisibilityInHome,
 }) => {
 
     const COOKIE_BANNER_VISIBILITY_TIMEOUT = 15_000;
@@ -16,6 +17,7 @@ test(
 
     await test.step('Navigate to homepage and verify cookie banner', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
+        await CheckVisibilityInHome(product.name)();
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible({ timeout: COOKIE_BANNER_VISIBILITY_TIMEOUT });
         await ShopCustomer.expects(StorefrontHome.consentAcceptAllCookiesButton).toBeVisible({ timeout: COOKIE_BANNER_VISIBILITY_TIMEOUT });
     });

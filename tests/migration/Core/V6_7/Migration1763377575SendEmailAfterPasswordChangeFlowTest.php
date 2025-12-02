@@ -51,7 +51,7 @@ class Migration1763377575SendEmailAfterPasswordChangeFlowTest extends TestCase
             'eventName' => CustomerPasswordChangedEvent::EVENT_NAME,
         ]);
         static::assertCount(1, $flowTemplate);
-        static::assertSame('Send password change notification to customers', $flowTemplate[0]['name']);
+        static::assertSame('Customer password changed', $flowTemplate[0]['name']);
     }
 
     private function rollback(Connection $connection): void

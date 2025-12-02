@@ -36,7 +36,7 @@
             class="sw-users-permissions-role-detail__button-save"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            :disabled="isLoading || !acl.can('users_and_permissions.editor') || undefined"
+            :disabled="isLoading || !acl.can('users_and_permissions.editor')"
             variant="primary"
             @update:process-success="saveFinish"
             @click.prevent="onSave"

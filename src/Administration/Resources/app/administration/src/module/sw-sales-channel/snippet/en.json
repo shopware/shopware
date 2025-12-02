@@ -1,0 +1,319 @@
+{
+  "global": {
+    "error-codes": {
+      "DUPLICATED_PRODUCT_EXPORT_FILE_NAME": "This file name is already in use. Please choose another one."
+    }
+  },
+  "sw-sales-channel": {
+    "general": {
+      "tooltipOpenStorefront": "Open storefront",
+      "titleMenuItems": "Sales Channels",
+      "titleMenuMoreItems": "More",
+      "manageSalesChannels": "Manage Sales Channels",
+      "addSalesChannel": "Add Sales Channel"
+    },
+    "list": {
+      "title": "Sales Channels",
+      "subTitle": "Sales Channels let you sell items to your customers through social media, storefronts, marketplaces or in person.",
+      "placeholderSearchBar": "Search Sales Channels...",
+      "buttonAddSalesChannel": "Add Sales Channel",
+      "columnName": "Sales Channel",
+      "columnType": "Type",
+      "columnStatus": "Status",
+      "columnCreatedAt": "Created at",
+      "columnFavourite": "My favourites",
+      "status": {
+        "maintenance": "Maintenance",
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "contextMenuEdit": "Edit",
+      "productsLabel": "Products",
+      "productsCount": "products | product | products"
+    },
+    "modal": {
+      "title": "Add Sales Channel",
+      "buttonAddChannel": "Add Sales Channel",
+      "titleDetailPrefix": "{name} - details",
+      "buttonShowDetails": "Show details",
+      "buttonBack": "Back",
+      "titleDescription": "Information",
+      "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first."
+    },
+    "detail": {
+      "messageSaveSuccess": "Sales Channel \"{name}\" saved.",
+      "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
+      "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
+      "messageMeasurementUnitsSetError": "Could not load system configuration for product measurements.",
+      "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
+      "buttonSave": "Save",
+      "buttonCreateNewApiKeys": "Create new API key",
+      "tabBase": "General",
+      "tabTheme": "Theme",
+      "tabAnalytics": "Analytics",
+      "tabProductComparison": "Template",
+      "tabProducts": "Products",
+      "titleProductComparisonTemplate": "Template",
+      "titleProductComparisonPreview": "Preview",
+      "titleProductComparisonPreviewErrors": "Errors during generation",
+      "labelAccessKeyField": "API access key",
+      "messageAPIError": "Unable to generate API access key.",
+      "titleGeneralSettings": "General settings",
+      "labelInputName": "Name",
+      "labelInputActive": "Active",
+      "labelInputShippingMethods": "Shipping methods",
+      "labelInputPaymentMethods": "Payment methods",
+      "labelInputCountries": "Countries",
+      "countryMultiSelectHelpText": "If not all available countries are shown, type in a name to access undisplayed countries. Countries may be created or edited in Settings/Countries.",
+      "helpTextTaxCalculation": {
+        "label": "If a tax provider is activated, these settings may be overwritten. You can check this in {link}.",
+        "linkText": "settings"
+      },
+      "labelInputTaxCalculation": "Tax calculation",
+      "labelOptionTaxVertical": "Vertical",
+      "labelOptionTaxHorizontal": "Horizontal",
+      "labelInputCurrencies": "Currencies",
+      "labelInputLanguages": "Languages",
+      "labelInputUrl": "URL",
+      "labelInputCategories": "Categories",
+      "titleOptionsCard": "Options",
+      "labelInputDefaultShippingMethod": "Default shipping method",
+      "labelInputDefaultPaymentMethod": "Default payment method",
+      "labelInputDefaultCountry": "Default country",
+      "labelInputDefaultCurrency": "Default currency",
+      "labelInputDefaultLanguage": "Default language",
+      "tooltipDisabledShippingMethod": "This shipping method must be activated in order to be selected as the default shipping method.",
+      "tooltipDisabledPaymentMethod": "This payment method must be activated in order to be selected as the default payment method.",
+      "tooltipDisabledCountry": "This country must be activated in order to be selected as the default country.",
+      "warningDisabledCountries": "The country <b>{name}</b> is not active. | The countries <b>{name}</b> and <b>{addition}</b> are not active.",
+      "warningDisabledPaymentMethod": "Some of the payment methods assigned to this Sales Channel are currently not available. Please check your <a href=\"{paymentSettingsLink}\">settings</a> for these payment methods:<br/> <b>{separatedList}</b>",
+      "warningDisabledShippingMethod": "The shipping method <b>{name}</b> is not active. | The shipping methods <b>{name}</b> and <b>{addition}</b> are not active.",
+      "warningDisabledAddition": "{amount} others",
+      "warningUnservedLanguage": "The language <b>{list}</b> is not assigned to a domain. In order to use this language in your Sales Channel, create a respective domain first. | The languages <b>{list}</b> are not assigned to any domain. In order to use these languages in your Sales Channel, create the respective domains first.",
+      "textDeleteInfo": "Careful, you are about to delete this Sales Channel permanently! If you proceed, the Sales Channel and all its settings will no longer be available. However, deleting the Sales Channel will not affect existing orders and categories.",
+      "buttonDelete": "Delete Sales Channel",
+      "deleteModalTitle": "Delete Sales Channel",
+      "textConfirmDelete": "Are you sure you want to delete this Sales Channel?",
+      "buttonConfirmDelete": "Delete",
+      "textHeadline": "New Sales Channel",
+      "placeholderName": "Enter Sales Channel name...",
+      "placeholderInputCategories": "Add categories...",
+      "titleDomains": "Domains",
+      "titleDomainItem": "URL {index}",
+      "labelInputCurrency": "Currency",
+      "labelInputLanguage": "Language",
+      "labelInputSnippet": "Snippet",
+      "buttonDeleteDomain": "Delete domain",
+      "messageDeleteDomainError": "The domain \"{url}\" could not be deleted because it is linked to existing product exports.",
+      "foreignKeyDelete": "This sales channel cannot be deleted because it is still in use by {assignment}.",
+      "buttonAddDomain": "Add domain",
+      "deleteDomainModalTitle": "Delete domain",
+      "textConfirmDeleteDomain": "Are you sure you want to delete this domain? The Sales Channel will no longer be accessible by \"{url}\"",
+      "buttonConfirmDeleteDomain": "Delete",
+      "customerGroup": "Customer group",
+      "favouriteLabel": "Mark Sales Channel as favourite",
+      "navigation": "Navigation",
+      "navigationCategoryId": "Entry point main navigation",
+      "navigationCategoryDepth": "Navigation levels",
+      "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customisable link\" or \"structuring element\".",
+      "footerCategory": "Entry point footer navigation",
+      "serviceCategory": "Entry point footer service navigation",
+      "titleOptionsApiKey": "API access",
+      "textDeleteSalesChannelWarning": "Removing this Sales Channel will be permanent.",
+      "buttonCopyApiKeyButton": "Copy API key",
+      "titleStatus": "Status",
+      "titleGeneralInformation": "General information",
+      "titleAccount": "Account",
+      "titleDeleteSalesChannel": "Delete Sales Channel",
+      "titleProductSync": "Product sync",
+      "titleSyncedProducts": "Synced products",
+      "titleCategoryMapping": "Category mapping",
+      "titleTemplate": "Template",
+      "titleDomainHeadline": "Create domain URLs",
+      "buttonEditDomain": "Edit domain",
+      "titleCreateDomain": "Create domain",
+      "titleEditDomain": "Edit domain \"{name}\"",
+      "textDomainDescription": "Each selected language must have its own domain, in order to work in your online Sales Channel. You can also add custom domains here.",
+      "textApiAccessDescription": "In order to get API access, you need the API key shown below. Generating the key anew will overwrite the old key and by that terminate all existing access routes that were set up with it. <strong>This action cannot be undone.</strong>",
+      "textActiveDescription": "Switching off a Sales Channel will make it inaccessible to visitors as well as API connections.",
+      "columnDomainUrl": "URL",
+      "columnDomainLanguage": "Language",
+      "columnDomainSnippetSet": "Snippet set",
+      "maintenanceModeTitle": "Maintenance mode",
+      "maintenanceModeDescription": "In maintenance mode the Sales Channel will be invisible to visitors. However, you will be able to access it, using white listed IPs. This way you can safely work on the Sales Channel data, while blocking visitors at a maintenance mode screen.",
+      "labelMaintenanceActive": "Maintenance",
+      "ipAddressAllowlist": "IP addresses allowlist",
+      "ipAddressAllowlistHelpText": "Add IP addresses to the allowlist in order to allow selective access to your shop. You may add IPv4 and IPv6 addresses as needed.",
+      "basicinformationLink": "Change default maintenance layout here",
+      "columnDomainCurrency": "Currency",
+      "columnDomainUnitSystem": "Unit system",
+      "products": {
+        "titleEmptyState": "No more products found",
+        "titleEmptyStateTable": "No matching products found",
+        "buttonAddProducts": "Add {productCount} products | Add {productCount} product | Add {productCount} products",
+        "columnProductName": "Product name",
+        "columnActive": "Active",
+        "columnProductNumber": "Product number",
+        "inheritVariantNotRemovableTooltip": "The sales channel assignment of this variant product is inherited by its main product."
+      },
+      "productComparison": {
+        "inputHeaderLabel": "Header row",
+        "inputBodyLabel": "Product row",
+        "inputFooterLabel": "Footer row",
+        "buttonTestLabel": "Test template",
+        "buttonPreviewLabel": "Generate preview",
+        "settings": "Product export",
+        "fileName": "Filename",
+        "placeholderFileName": "shopware.csv",
+        "lastGenerationLabel": "Last generated at: ",
+        "notYetGenerated": "This export has not been generated yet.",
+        "encoding": "Encoding",
+        "placeholderSelectEncoding": "Please select an encoding format...",
+        "fileFormat": "File format",
+        "placeholderSelectFileFormat": "Please select a file format...",
+        "accessKey": "Access key",
+        "accessUrl": "Export URL",
+        "buttonCreateNewAccessKey": "Create a new access key",
+        "productStream": "Dynamic product group",
+        "fileFormatLabels": {
+          "csv": "CSV",
+          "xml": "XML"
+        },
+        "includeVariants": "Export variants as discrete products",
+        "interval": "Interval",
+        "generateByCronjob": "Generate via scheduler",
+        "notificationMessageValidateSuccessful": "No errors occurred.",
+        "intervalLabels": {
+          "0": "Live",
+          "120": "2 minutes",
+          "300": "5 minutes",
+          "600": "10 minutes",
+          "900": "15 minutes",
+          "1800": "30 minutes",
+          "3600": "1 hour",
+          "7200": "2 hours",
+          "14400": "4 hours",
+          "28800": "8 hours",
+          "43200": "12 hours",
+          "86400": "1 day",
+          "172800": "2 days",
+          "259200": "3 days",
+          "345600": "4 days",
+          "432000": "5 days",
+          "518400": "6 days",
+          "604800": "1 week"
+        },
+        "storefront": "Storefront Sales Channel",
+        "storefrontDomain": "Storefront domain",
+        "storefrontDomainLanguage": {
+          "label": "Language",
+          "help": "Automatically selected by Sales Channel domain"
+        },
+        "storefrontDomainCurrency": {
+          "label": "Currency"
+        },
+        "storefrontSalesChannelCustomerGroup": {
+          "label": "Customer Group",
+          "help": "Automatically selected by Sales Channel"
+        },
+        "messageAccessKeyChanged": "Access key and export URL are active only after saving the Sales Channel.",
+        "templates": {
+          "label": "Template",
+          "placeholderSelectTemplate": "Select a template...",
+          "template-label": {
+            "billiger-de": "billiger.de (CSV)",
+            "idealo": "idealo.de (CSV)",
+            "google-product-search-de": "Google Shopping (XML)"
+          },
+          "modal-title": "Apply template",
+          "modal-message": "If you apply the template, existing data in this Sales Channel will be overwritten. Settings and template tabs will be subject to these changes.",
+          "modal-confirm": "Apply template",
+          "message": {
+            "template-applied-message": "Template data has been applied, but not yet saved. Please save this Sales Channel to keep the changes."
+          }
+        },
+        "cliCommand": "CLI Command to generate the product export"
+      },
+      "hreflang": {
+        "title": "Hreflang",
+        "titleCard": "Hreflang integration",
+        "titleDescription": "The hreflang meta tag is used to uniquely assign a content to a language. Google explicitly shows the respective languages in their search results.",
+        "enableCheckbox": "Enable hreflang",
+        "defaultDomain": "Default domain for hreflang",
+        "domainSettings": {
+          "label": "Hreflang localisation",
+          "byIso": "Localisation according to ISO standard",
+          "byIsoHelpText": "The localization is done via the exact ISO. In addition to the language, the country of destination is also supplied.",
+          "byAbbreviation": "Localisation according to language",
+          "byAbbreviationHelpText": "Localisation is only done via the language. Here, several countries of destination are addressed via the output language"
+        }
+      },
+      "analytics": {
+        "cardTitle": "Google Analytics",
+        "headline": "Google Analytics integration",
+        "description": "With the help of Google Analytics you can collect and analyse your shop's data. In order to make use of this function, a Google Account is necessary. If you don't yet own a Google Analytics account, you may want to sign up here: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. After successfully signing-up you will receive a tracking ID, which is to be filled in below to activate the integration.",
+        "fields": {
+          "trackingId": {
+            "label": "Tracking ID",
+            "placeHolder": "Enter tracking ID...",
+            "helpText": "When logged into your Google Analytics account, you will receive a tracking ID in the format `G-XXXXXXXXXX`. If you want to use the Google Tag Manager, then use an ID which starts with `GTM-`. The storefront then automatically includes the Google Tag Manager script: `https://www.googletagmanager.com/gtm.js?id=...`. Otherwise, it uses `https://www.googletagmanager.com/gtag/js?id=...`."
+          },
+          "active": {
+            "label": "Activate Google Analytics"
+          },
+          "trackOrders": {
+            "label": "Track orders"
+          },
+          "anonymizeIp": {
+            "label": "Anonymise IP"
+          }
+        }
+      },
+      "titleShippingPayment": "Payment and shipping",
+      "labelTaxCalculation": "Tax calculation",
+      "descriptionTaxCalculation": "Changing this setting could lead to accounting problems with external payment providers. Check back on how VAT is calculated by payment providers you employ, before you make any changes.",
+      "taxCalculation": {
+        "verticalName": "Column by column (vertical) calculation",
+        "verticalDescription": "VAT is calculated from the order total. No individual VAT values are displayed during checkout.",
+        "horizontalName": "Line by line (horizontal) calculation",
+        "horizontalDescription": "VAT is calculated for each shopping cart position. During checkout each position's individual VAT is displayed. The total VAT amount is calculated by adding up all individual VAT values."
+      },
+      "productAssignmentModal": {
+        "title": "Add products",
+        "singleProducts": "Product selection",
+        "categories": {
+          "title": "Category selection",
+          "textInfo": "The assignments made here are not dynamic and represent only the current product status. Subsequent changes to the product composition of categories won't affect the assignment.",
+          "textSearch": "Search categories ...",
+          "emptySearchResults": "No categories found."
+        },
+        "dynamicProductGroups": {
+          "title": "Product group selection",
+          "infoText": "The assignments made here are not dynamic and represent only the current product status. Subsequent changes to the product composition of dynamic product groups won't affect the assignment.",
+          "columnName": "Name",
+          "searchFieldPlaceholder": "Search dynamic product groups...",
+          "titleNoProductStreamsMatching": "No matching dynamic product groups found.",
+          "titleNoProductStreamsAvailable": "No dynamic product groups available."
+        }
+      },
+      "measurementSystem": {
+        "labelDefaultUnitSystem": "Default unit system",
+        "labelDefaultLengthUnit": "Default length unit",
+        "labelDefaultWeightUnit": "Default weight unit",
+        "labelUnitSystem": "Unit system",
+        "labelLengthUnit": "Length unit",
+        "labelWeightUnit": "Weight unit"
+      }
+    },
+    "sw-sales-channel-defaults-select": {
+      "messageError": "The value is in use by this domain: \"{url}\"."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "sales_channel": {
+        "label": "Sales Channels"
+      }
+    }
+  }
+}

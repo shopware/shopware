@@ -1,0 +1,52 @@
+<sw-modal
+    :title="$tc('sw-users-permissions.sso.modal.title')"
+    v-bind="$attrs"
+    @modal-close="closeModal()"
+>
+
+    <template #default>
+        <mt-text-field
+            v-model="email"
+            class="sw-users-permissions-sso-modal-field-email"
+            :label="$tc('sw-users-permissions.sso.modal.labelEmail')"
+            :placeholder="$tc('sw-users-permissions.sso.modal.placeholderEmail')"
+            :error="errors.errorEmail"
+        />
+
+        <sw-single-select
+            v-model:value="languageId"
+            class="sw-users-permissions-sso-modal-field-language"
+            :options="languages"
+            label-property="name"
+            value-property="id"
+            :label="$tc('sw-users-permissions.sso.modal.labelLanguage')"
+            :placeholder="$tc('sw-users-permissions.sso.modal.placeholderLanguage')"
+            :error="errors.errorLanguage"
+        />
+
+        <mt-banner variant="info">
+            {{ $tc('sw-users-permissions.sso.modal.accountPermissionHint') }}
+        </mt-banner>
+    </template>
+
+    <template #modal-footer>
+        <mt-button
+            class="sw-users-permissions-sso-modal-close-button"
+            variant="secondary"
+            :disabled="isLoading"
+            @click="closeModal()"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+
+        <mt-button
+            variant="primary"
+            class="sw-users-permissions-sso-modal-save-button"
+            :disabled="hasError"
+            :is-loading="isLoading"
+            @click="sendInvitation"
+        >
+            {{ $tc('sw-users-permissions.sso.modal.labelButtonInvite') }}
+        </mt-button>
+    </template>
+</sw-modal>

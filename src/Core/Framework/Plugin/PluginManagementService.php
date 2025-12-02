@@ -24,7 +24,7 @@ class PluginManagementService
     public function __construct(
         private readonly string $projectDir,
         private readonly PluginZipDetector $pluginZipDetector,
-        private readonly PluginExtractor $pluginExtractor,
+        private readonly ExtensionExtractor $extensionExtractor,
         private readonly PluginService $pluginService,
         private readonly Filesystem $filesystem,
         private readonly CacheClearer $cacheClearer,
@@ -35,7 +35,7 @@ class PluginManagementService
     public function extractPluginZip(string $file, bool $delete = true, ?string $storeType = null): string
     {
         if ($storeType) {
-            $this->pluginExtractor->extract($file, $delete, $storeType);
+            $this->extensionExtractor->extract($file, $delete, $storeType);
             if ($storeType === self::PLUGIN) {
                 $this->cacheClearer->clearContainerCache();
             }
@@ -98,7 +98,9 @@ class PluginManagementService
 
     public function deletePlugin(PluginEntity $plugin, Context $context): void
     {
-        if ($plugin->getManagedByComposer()) {
+        // when `executeComposerCommands` is set to true `managedByComposer` will be true even for plugins installed via the admin
+        // so we need to check the path as well and allow removal of plugins in `custom/plugins` folder
+        if ($plugin->getManagedByComposer() && !$plugin->isLocatedInCustomPluginDirectory()) {
             throw PluginException::cannotDeleteManaged($plugin->getName());
         }
 
@@ -110,12 +112,12 @@ class PluginManagementService
 
     private function extractPlugin(string $fileName, bool $delete): void
     {
-        $this->pluginExtractor->extract($fileName, $delete, self::PLUGIN);
+        $this->extensionExtractor->extract($fileName, $delete, self::PLUGIN);
         $this->cacheClearer->clearContainerCache();
     }
 
     private function extractApp(string $fileName, bool $delete): void
     {
-        $this->pluginExtractor->extract($fileName, $delete, self::APP);
+        $this->extensionExtractor->extract($fileName, $delete, self::APP);
     }
 }

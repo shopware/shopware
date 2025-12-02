@@ -57,7 +57,7 @@ class FilterAggregationTest extends TestCase
     {
         $aggregation = new FilterAggregation('foo', new TermsAggregation('foo', 'name'), [new EqualsFilter('name', 'test')]);
         $clone = clone $aggregation;
-        static::assertEquals($aggregation->getName(), $clone->getName());
+        static::assertSame($aggregation->getName(), $clone->getName());
         static::assertEquals($aggregation->getAggregation(), $clone->getAggregation());
         static::assertEquals($aggregation->getFilter(), $clone->getFilter());
         static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());

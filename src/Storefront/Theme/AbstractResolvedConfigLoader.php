@@ -10,5 +10,8 @@ abstract class AbstractResolvedConfigLoader
 {
     abstract public function getDecorated(): AbstractResolvedConfigLoader;
 
+    /**
+     * @return array<string, mixed>
+     */
     abstract public function load(string $themeId, SalesChannelContext $context): array;
 }

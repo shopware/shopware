@@ -70,7 +70,12 @@
         {% endif %}
 
         {% for thumbnail in thumbnails %}
-            {% set srcsetValues = srcsetValues|merge([thumbnail.url|sw_encode_url ~ ' ' ~ thumbnail.width ~ 'w']) %}
+            {% set thumbnailUrl = thumbnail.url|sw_encode_url %}
+            {% if feature('v6.8.0.0') %}
+                {% set thumbnailUrl = thumbnail.url %}
+            {% endif %}
+
+            {% set srcsetValues = srcsetValues|merge([thumbnailUrl ~ ' ' ~ thumbnail.width ~ 'w']) %}
         {% endfor %}
 
         {# generate sizes #}
@@ -108,7 +113,7 @@
                 sizes="{{ sizesValues|join(', ') }}"
                 {% endif %}
             {% endif %}
-            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
+            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value|striptags|trim }}"{% elseif key == 'alt' and value is not same as(false) %} {{ key }}="{{ value|striptags|trim }}"{% endif %}{% endfor %}
         />
     {% endblock %}
 {% endblock %}

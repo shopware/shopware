@@ -210,7 +210,7 @@ export default {
             this.defaultId = defaultId;
 
             if (!!defaultId && !this.propertyCollection.has(defaultId)) {
-                this.propertyCollection.add(defaultEntity);
+                this.propertyCollection = this.propertyCollection.concat([defaultEntity]);
             }
         },
 

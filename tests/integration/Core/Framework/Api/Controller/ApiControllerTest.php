@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -115,15 +117,15 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
-        $this->getBrowser()->request('GET', '/api/product/' . $id);
+        $this->getBrowser()->jsonRequest('GET', '/api/product/' . $id);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
     }
 
@@ -143,15 +145,15 @@ EOF;
             ],
         ];
 
-        $this->getBrowserAuthenticatedWithIntegration()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowserAuthenticatedWithIntegration()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowserAuthenticatedWithIntegration()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
-        $this->getBrowserAuthenticatedWithIntegration()->request('GET', '/api/product/' . $id);
+        $this->getBrowserAuthenticatedWithIntegration()->jsonRequest('GET', '/api/product/' . $id);
         static::assertSame(Response::HTTP_OK, $this->getBrowserAuthenticatedWithIntegration()->getResponse()->getStatusCode(), (string) $this->getBrowserAuthenticatedWithIntegration()->getResponse()->getContent());
     }
 
@@ -161,13 +163,13 @@ EOF;
 
         $data = ['id' => $id, 'name' => $id];
 
-        $this->getBrowser()->request('POST', '/api/country', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/country', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
-        $this->getBrowser()->request('GET', '/api/country/' . $id);
+        $this->getBrowser()->jsonRequest('GET', '/api/country/' . $id);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
@@ -177,13 +179,13 @@ EOF;
             'shortCode' => 'test',
         ];
 
-        $this->getBrowser()->request('POST', '/api/country/' . $id . '/states/', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/country/' . $id . '/states/', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/country-state/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/country-state/' . $id, $response->headers->get('Location'));
 
-        $this->getBrowser()->request('GET', '/api/country/' . $id . '/states/');
+        $this->getBrowser()->jsonRequest('GET', '/api/country/' . $id . '/states/');
         $response = $this->getBrowser()->getResponse();
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -194,7 +196,7 @@ EOF;
 
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
-        static::assertEquals(1, $responseData['meta']['total']);
+        static::assertSame(1, $responseData['meta']['total']);
 
         static::assertSame($data['name'], $responseData['data'][0]['attributes']['name']);
         static::assertSame($data['shortCode'], $responseData['data'][0]['attributes']['shortCode']);
@@ -212,11 +214,11 @@ EOF;
 
         $user->authorizeBrowser($browser);
 
-        $browser->request('POST', '/api/country', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/country', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'country', $id);
 
@@ -226,7 +228,7 @@ EOF;
             'shortCode' => 'test',
         ];
 
-        $browser->request('POST', '/api/country/' . $id . '/states/', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/country/' . $id . '/states/', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
 
@@ -241,11 +243,11 @@ EOF;
 
         $data = ['id' => $id, 'name' => $id];
 
-        $this->getBrowser()->request('POST', '/api/country', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/country', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
@@ -257,19 +259,16 @@ EOF;
         $languageId = $this->getNonSystemLanguageId();
         $browser->setServerParameter('HTTP_sw-language-id', $languageId);
 
-        $browser->request(
+        $browser->jsonRequest(
             'PATCH',
             '/api/country/' . $id,
-            [],
-            [],
-            [],
-            json_encode($data, \JSON_THROW_ON_ERROR)
+            $data
         );
 
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'country', $id);
     }
@@ -295,10 +294,10 @@ EOF;
             'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
         ];
 
-        $browser->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/product', $data);
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
-        $browser->request('DELETE', '/api/product/' . $id);
+        $browser->jsonRequest('DELETE', '/api/product/' . $id);
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
     }
 
@@ -308,11 +307,11 @@ EOF;
 
         $data = ['id' => $id, 'name' => $id];
 
-        $this->getBrowser()->request('POST', '/api/country', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/country', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
@@ -324,13 +323,10 @@ EOF;
         $languageId = $this->getNonSystemLanguageId();
         $browser->setServerParameter('HTTP_sw-language-id', $languageId);
 
-        $browser->request(
+        $browser->jsonRequest(
             'PATCH',
             '/api/country/' . $id,
-            [],
-            [],
-            [],
-            json_encode($data, \JSON_THROW_ON_ERROR)
+            $data
         );
 
         $response = $browser->getResponse();
@@ -352,11 +348,11 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), 'Create product failed id:' . $id);
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
             'id' => $manufacturer,
@@ -364,18 +360,17 @@ EOF;
             'link' => 'https://www.shopware.com',
         ];
 
-        $this->getBrowser()->request('POST', '/api/product/' . $id . '/manufacturer', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product/' . $id . '/manufacturer', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), 'Create manufacturer over product failed id:' . $id . "\n" . $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product-manufacturer/' . $manufacturer, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product-manufacturer/' . $manufacturer, $response->headers->get('Location'));
 
-        $this->getBrowser()->request('GET', '/api/product/' . $id . '/manufacturer');
+        $this->getBrowser()->jsonRequest('GET', '/api/product/' . $id . '/manufacturer');
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . \PHP_EOL . $this->getBrowser()->getResponse()->getContent());
-
         static::assertArrayHasKey('data', $responseData, (string) $this->getBrowser()->getResponse()->getContent());
         static::assertArrayHasKey(0, $responseData['data'], (string) $this->getBrowser()->getResponse()->getContent());
+
         static::assertSame($data['name'], $responseData['data'][0]['attributes']['name']);
         static::assertSame($data['link'], $responseData['data'][0]['attributes']['link']);
         static::assertSame($data['id'], $responseData['data'][0]['id']);
@@ -401,11 +396,11 @@ EOF;
         $user = TestUser::createNewTestUser($connection, ['product:create', 'product:read']);
         $admin = TestUser::getAdmin();
 
-        $browser->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), 'Create product failed id:' . $id);
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $user->authorizeBrowser($browser);
 
@@ -415,7 +410,7 @@ EOF;
             'link' => 'https://www.shopware.com',
         ];
 
-        $browser->request('POST', '/api/product/' . $id . '/manufacturer', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/product/' . $id . '/manufacturer', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
 
@@ -423,7 +418,7 @@ EOF;
 
         $this->assertEntityNotExists($browser, 'product-manufacturer', $manufacturer);
 
-        $browser->request('GET', '/api/product/' . $id . '/manufacturer');
+        $browser->jsonRequest('GET', '/api/product/' . $id . '/manufacturer');
         $responseData = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . \PHP_EOL . $browser->getResponse()->getContent());
 
@@ -446,24 +441,24 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
             'id' => $id,
             'name' => 'Category - 1',
         ];
 
-        $this->getBrowser()->request('POST', '/api/product/' . $id . '/categories/', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product/' . $id . '/categories/', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/category/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/category/' . $id, $response->headers->get('Location'));
 
-        $this->getBrowser()->request('GET', '/api/product/' . $id . '/categories/');
+        $this->getBrowser()->jsonRequest('GET', '/api/product/' . $id . '/categories/');
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -500,18 +495,18 @@ EOF;
 
         $user->authorizeBrowser($browser);
 
-        $browser->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
             'id' => $id,
             'name' => 'Category - 1',
         ];
 
-        $browser->request('POST', '/api/product/' . $id . '/categories/', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/product/' . $id . '/categories/', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
 
@@ -519,7 +514,7 @@ EOF;
 
         $this->assertEntityNotExists($browser, 'category', $id);
 
-        $browser->request('GET', '/api/product/' . $id . '/categories/');
+        $browser->jsonRequest('GET', '/api/product/' . $id . '/categories/');
         $responseData = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
 
@@ -541,15 +536,15 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($this->getBrowser(), 'product', $id);
 
-        $this->getBrowser()->request('DELETE', '/api/product/' . $id);
+        $this->getBrowser()->jsonRequest('DELETE', '/api/product/' . $id);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
 
         $this->assertEntityNotExists($this->getBrowser(), 'product', $id);
@@ -570,15 +565,15 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
-        $browser->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'product', $id);
 
-        $browser->request('POST', '/api/_action/version/product/' . $id);
+        $browser->jsonRequest('POST', '/api/_action/version/product/' . $id);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertIsArray($response);
@@ -589,14 +584,14 @@ EOF;
         static::assertTrue(Uuid::isValid($response['versionId']));
         $versionId = $response['versionId'];
 
-        $browser->request('POST', '/api/_action/version/' . $response['versionId'] . '/product/' . $id);
+        $browser->jsonRequest('POST', '/api/_action/version/' . $response['versionId'] . '/product/' . $id);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertEmpty($response);
 
         $this->assertEntityExists($browser, 'product', $id);
 
-        /** @var EntityRepository $productRepo */
+        /** @var EntityRepository<ProductCollection> $productRepo */
         $productRepo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$id]);
         $criteria->addFilter(
@@ -621,9 +616,9 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
-        $browser->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/product', $data);
 
-        $browser->request('POST', '/api/_action/version/' . Defaults::LIVE_VERSION . '/product/' . $id);
+        $browser->jsonRequest('POST', '/api/_action/version/' . Defaults::LIVE_VERSION . '/product/' . $id);
 
         $repo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$id]);
@@ -656,11 +651,11 @@ EOF;
             ['tax:read', 'tax:create']
         )->authorizeBrowser($browser);
 
-        $browser->request('POST', '/api/tax', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/tax', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        $browser->request('DELETE', '/api/tax/' . $id, ['name' => 'foo']);
+        $browser->jsonRequest('DELETE', '/api/tax/' . $id, ['name' => 'foo']);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
 
@@ -680,16 +675,16 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/country', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/country', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($this->getBrowser(), 'country', $id);
         $this->assertEntityExists($this->getBrowser(), 'country-state', $stateId);
 
-        $this->getBrowser()->request('DELETE', '/api/country/' . $id . '/states/' . $stateId, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('DELETE', '/api/country/' . $id . '/states/' . $stateId, $data);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
 
         $this->assertEntityExists($this->getBrowser(), 'country', $id);
@@ -716,16 +711,16 @@ EOF;
             ['country_state:create', 'country_state:read', 'country:create', 'country:read']
         )->authorizeBrowser($browser);
 
-        $browser->request('POST', '/api/country', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/country', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'country', $id);
         $this->assertEntityExists($browser, 'country-state', $stateId);
 
-        $browser->request('DELETE', '/api/country/' . $id . '/states/' . $stateId, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('DELETE', '/api/country/' . $id . '/states/' . $stateId, $data);
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
         $this->assertEntityExists($browser, 'country', $id);
@@ -745,16 +740,16 @@ EOF;
                 'name' => 'Gramm',
             ],
         ];
-        $this->getBrowser()->request('POST', '/api/named', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/named', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/named/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/named/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($this->getBrowser(), 'named', $id);
         $this->assertEntityExists($this->getBrowser(), 'named-optional-group', $groupId);
 
-        $this->getBrowser()->request('DELETE', '/api/named/' . $id . '/optional-group/' . $groupId);
+        $this->getBrowser()->jsonRequest('DELETE', '/api/named/' . $id . '/optional-group/' . $groupId);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
 
         $this->assertEntityExists($this->getBrowser(), 'named', $id);
@@ -779,16 +774,16 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($this->getBrowser(), 'product', $id);
         $this->assertEntityExists($this->getBrowser(), 'category', $category);
 
-        $this->getBrowser()->request('DELETE', '/api/product/' . $id . '/categories/' . $category);
+        $this->getBrowser()->jsonRequest('DELETE', '/api/product/' . $id . '/categories/' . $category);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
 
         $a = static::getContainer()
@@ -822,11 +817,11 @@ EOF;
         ];
 
         $browser = $this->getBrowser();
-        $browser->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'product', $id);
         $this->assertEntityExists($browser, 'category', $category);
@@ -836,7 +831,7 @@ EOF;
             ['product:read', 'category:read']
         )->authorizeBrowser($browser);
 
-        $browser->request('DELETE', '/api/product/' . $id . '/categories/' . $category);
+        $browser->jsonRequest('DELETE', '/api/product/' . $id . '/categories/' . $category);
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
         $a = static::getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)])->fetchAllAssociative();
@@ -853,21 +848,21 @@ EOF;
         $data = ['id' => $id, 'name' => $id, 'taxRate' => 50];
 
         // create without response
-        $this->getBrowser()->request('POST', '/api/tax', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/tax', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/tax/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/tax/' . $id, $response->headers->get('Location'));
 
         // update without response
-        $this->getBrowser()->request('PATCH', '/api/tax/' . $id, ['name' => 'foo']);
+        $this->getBrowser()->jsonRequest('PATCH', '/api/tax/' . $id, ['name' => 'foo']);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/tax/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/tax/' . $id, $response->headers->get('Location'));
 
         // with response
-        $this->getBrowser()->request('PATCH', '/api/tax/' . $id . '?_response=1', ['name' => 'foo']);
+        $this->getBrowser()->jsonRequest('PATCH', '/api/tax/' . $id . '?_response=1', ['name' => 'foo']);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNull($response->headers->get('Location'));
@@ -887,7 +882,7 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($product, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $product);
 
         $data = [
             'page' => 1,
@@ -901,13 +896,13 @@ EOF;
             'term' => 'SW-API-14999',
         ];
 
-        $this->getBrowser()->request('POST', '/api/search/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/search/product', $data);
         $response = $this->getBrowser()->getResponse();
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('meta', $content, print_r($content, true));
-        static::assertEquals(1, $content['meta']['total']);
-        static::assertEquals($id, $content['data'][0]['id']);
+        static::assertSame(1, $content['meta']['total']);
+        static::assertSame($id, $content['data'][0]['id']);
     }
 
     public function testAggregate(): void
@@ -924,7 +919,7 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($product, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $product);
 
         $data = [
             'aggregations' => [
@@ -936,14 +931,14 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/aggregate/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/aggregate/product', $data);
         $response = $this->getBrowser()->getResponse();
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         // data is empty as we ónly do aggregations
         static::assertEmpty($content['data']);
         static::assertArrayHasKey('aggregations', $content);
-        static::assertEquals(1, $content['aggregations']['total']['count']);
+        static::assertSame(1, $content['aggregations']['total']['count']);
     }
 
     public function testSearchNonTokenizeTerm(): void
@@ -964,22 +959,22 @@ EOF;
             'term' => $ids->get('email') . '@example.com',
         ];
 
-        $this->getBrowser()->request('POST', '/api/search/customer', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/search/customer', $data);
         $response = $this->getBrowser()->getResponse();
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('meta', $content, print_r($content, true));
-        static::assertEquals(1, $content['meta']['total']);
-        static::assertEquals($ids->get('customer'), $content['data'][0]['id']);
+        static::assertSame(1, $content['meta']['total']);
+        static::assertSame($ids->get('customer'), $content['data'][0]['id']);
 
         $data['term'] = 'example.com';
 
-        $this->getBrowser()->request('POST', '/api/search/customer', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/search/customer', $data);
         $response = $this->getBrowser()->getResponse();
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('meta', $content, print_r($content, true));
-        static::assertEquals(2, $content['meta']['total']);
+        static::assertSame(2, $content['meta']['total']);
     }
 
     public function testSearch(): void
@@ -996,11 +991,11 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
             'page' => 1,
@@ -1053,16 +1048,16 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/search/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/search/product', $data);
         $response = $this->getBrowser()->getResponse();
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('meta', $content, print_r($content, true));
-        static::assertEquals(1, $content['meta']['total']);
-        static::assertEquals($id, $content['data'][0]['id']);
+        static::assertSame(1, $content['meta']['total']);
+        static::assertSame($id, $content['data'][0]['id']);
 
-        $this->getBrowser()->request('DELETE', '/api/product/' . $id);
-        static::assertEquals(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+        $this->getBrowser()->jsonRequest('DELETE', '/api/product/' . $id);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testSearchWithoutPermission(): void
@@ -1086,18 +1081,18 @@ EOF;
             ['product:create', 'tax:create', 'product_manufacturer:create', 'price:create', 'version_commit_data:create', 'version_commit:create']
         )->authorizeBrowser($browser);
 
-        $browser->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
             'page' => 1,
             'limit' => 5,
         ];
 
-        $browser->request('POST', '/api/search/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/search/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
     }
@@ -1140,13 +1135,13 @@ EOF;
             'id' => Uuid::randomHex(),
             'productNumber' => 'product-1',
         ]);
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($product1, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $product1);
 
         $product2 = array_merge($productBase, [
             'id' => Uuid::randomHex(),
             'productNumber' => 'product-2',
         ]);
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($product2, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $product2);
 
         // Add associations so that the products are both part of the top level entity result as well as the
         // associations through the circular association chain.
@@ -1170,7 +1165,7 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/search/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/search/product', $data);
         $response = $this->getBrowser()->getResponse();
         $searchResult = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(2, $searchResult['data']);
@@ -1216,7 +1211,7 @@ EOF;
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/product/' . $id . '/prices';
-        $this->getBrowser()->request('GET', $path);
+        $this->getBrowser()->jsonRequest('GET', $path);
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
@@ -1237,7 +1232,7 @@ EOF;
         ];
 
         $path = '/api/search/product/' . $id . '/prices';
-        $this->getBrowser()->request('POST', $path, $filter);
+        $this->getBrowser()->jsonRequest('POST', $path, $filter);
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
@@ -1268,11 +1263,11 @@ EOF;
         ];
 
         $browser = $this->getBrowser();
-        $browser->request('POST', '/api/country', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/country', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
@@ -1290,7 +1285,7 @@ EOF;
         ];
 
         $path = '/api/search/country/' . $id . '/states';
-        $browser->request('POST', $path, $filter);
+        $browser->jsonRequest('POST', $path, $filter);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
     }
@@ -1315,11 +1310,11 @@ EOF;
         ];
 
         $browser = $this->getBrowser();
-        $browser->request('POST', '/api/country', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/country', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/country/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
@@ -1337,7 +1332,7 @@ EOF;
         ];
 
         $path = '/api/search/country/' . $id . '/states';
-        $browser->request('POST', $path, $filter);
+        $browser->jsonRequest('POST', $path, $filter);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
     }
@@ -1382,7 +1377,7 @@ EOF;
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/product/' . $id . '/prices';
-        $this->getBrowser()->request('GET', $path);
+        $this->getBrowser()->jsonRequest('GET', $path);
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
@@ -1403,7 +1398,7 @@ EOF;
         ];
 
         $path = '/api/search/product/' . $id . '/prices';
-        $this->getBrowser()->request('POST', $path, $filter);
+        $this->getBrowser()->jsonRequest('POST', $path, $filter);
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
@@ -1435,7 +1430,7 @@ EOF;
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/product/' . $id . '/categories';
-        $this->getBrowser()->request('GET', $path);
+        $this->getBrowser()->jsonRequest('GET', $path);
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
@@ -1456,7 +1451,7 @@ EOF;
         ];
 
         $path = '/api/search/product/' . $id . '/categories';
-        $this->getBrowser()->request('POST', $path, $filter);
+        $this->getBrowser()->jsonRequest('POST', $path, $filter);
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
@@ -1491,7 +1486,7 @@ EOF;
             ->create([$data], Context::createDefaultContext());
 
         $path = '/api/search-ids/product-category';
-        $this->getBrowser()->request('POST', $path, [
+        $this->getBrowser()->jsonRequest('POST', $path, [
             'filter' => [
                 [
                     'type' => 'equalsAny',
@@ -1514,7 +1509,7 @@ EOF;
         foreach ($responseData['data'] as $datum) {
             static::assertArrayHasKey('productId', $datum);
             static::assertArrayHasKey('categoryId', $datum);
-            static::assertEquals($datum['productId'], $id);
+            static::assertSame($datum['productId'], $id);
 
             if ($categoryA === $datum['categoryId']) {
                 ++$categoryAFound;
@@ -1525,8 +1520,8 @@ EOF;
             }
         }
 
-        static::assertEquals(1, $categoryAFound);
-        static::assertEquals(1, $categoryBFound);
+        static::assertSame(1, $categoryAFound);
+        static::assertSame(1, $categoryBFound);
     }
 
     public function testNestedSearchOnManyToManyWithoutPermissionOnParent(): void
@@ -1568,7 +1563,7 @@ EOF;
             ['category:list']
         )->authorizeBrowser($browser);
 
-        $browser->request('POST', $path, $filter);
+        $browser->jsonRequest('POST', $path, $filter);
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
     }
 
@@ -1611,7 +1606,7 @@ EOF;
             ['product:list']
         )->authorizeBrowser($browser);
 
-        $browser->request('POST', $path, $filter);
+        $browser->jsonRequest('POST', $path, $filter);
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
     }
 
@@ -1629,11 +1624,11 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/product/' . $id, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
             'filter' => [
@@ -1643,11 +1638,11 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('GET', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('GET', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(1, $content['meta']['total']);
-        static::assertEquals($id, $content['data'][0]['id']);
+        static::assertSame(1, $content['meta']['total']);
+        static::assertSame($id, $content['data'][0]['id']);
     }
 
     public function testAggregation(): void
@@ -1664,8 +1659,8 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
             'stock' => 50,
         ];
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
-        static::assertEquals(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
 
         $productB = Uuid::randomHex();
         $data = [
@@ -1677,8 +1672,8 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
             'stock' => 100,
         ];
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
-        static::assertEquals(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
 
         $data = [
             'aggregations' => [
@@ -1700,12 +1695,12 @@ EOF;
         ];
 
         $this->getBrowser()->setServerParameter('HTTP_ACCEPT', 'application/json');
-        $this->getBrowser()->request('POST', '/api/search/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/search/product', $data);
         $response = $this->getBrowser()->getResponse();
 
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), print_r((string) $response->getContent(), true));
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r((string) $response->getContent(), true));
         static::assertNotEmpty($content);
 
         static::assertArrayHasKey('aggregations', $content);
@@ -1713,14 +1708,14 @@ EOF;
 
         static::assertArrayHasKey('product_count', $aggregations, print_r($aggregations, true));
         $productCount = $aggregations['product_count'];
-        static::assertEquals(2, $productCount['count']);
+        static::assertSame(2, $productCount['count']);
 
         static::assertArrayHasKey('product_stats', $aggregations);
         $productStats = $aggregations['product_stats'];
-        static::assertEquals(75, $productStats['avg']);
-        static::assertEquals(150, $productStats['sum']);
-        static::assertEquals(50, $productStats['min']);
-        static::assertEquals(100, $productStats['max']);
+        static::assertSame(75, $productStats['avg']);
+        static::assertSame(150, $productStats['sum']);
+        static::assertSame('50', $productStats['min']);
+        static::assertSame('100', $productStats['max']);
     }
 
     public function testParentChildLocation(): void
@@ -1732,6 +1727,7 @@ EOF;
             'id' => $childId,
             'name' => 'Child Language',
             'localeId' => $this->getLocaleIdOfSystemLanguage(),
+            'active' => true,
             'parent' => [
                 'id' => $parentId,
                 'name' => 'Parent Language',
@@ -1745,14 +1741,15 @@ EOF;
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
+                'active' => true,
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/language', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/language', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/language/' . $childId, $response->headers->get('Location'));
+        static::assertSame('http://localhost/api/language/' . $childId, $response->headers->get('Location'));
     }
 
     public function testJsonApiResponseSingle(): void
@@ -1760,14 +1757,14 @@ EOF;
         $id = Uuid::randomHex();
         $insertData = ['id' => $id, 'name' => 'test'];
 
-        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($insertData, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/category', $insertData);
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
 
         static::assertIsString($response->headers->get('Location'));
-        $this->getBrowser()->request('GET', $response->headers->get('Location'));
+        $this->getBrowser()->jsonRequest('GET', $response->headers->get('Location'));
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
@@ -1789,10 +1786,10 @@ EOF;
         static::assertArrayHasKey('translated', $catData['attributes']);
         static::assertArrayHasKey('name', $catData['attributes']['translated']);
 
-        static::assertEquals($id, $catData['id']);
-        static::assertEquals('category', $catData['type']);
-        static::assertEquals($insertData['name'], $catData['attributes']['name']);
-        static::assertEquals($insertData['name'], $catData['attributes']['translated']['name']);
+        static::assertSame($id, $catData['id']);
+        static::assertSame('category', $catData['type']);
+        static::assertSame($insertData['name'], $catData['attributes']['name']);
+        static::assertSame($insertData['name'], $catData['attributes']['translated']['name']);
     }
 
     public function testJsonApiResponseMulti(): void
@@ -1802,15 +1799,15 @@ EOF;
             ['name' => 'test_2'],
         ];
 
-        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($insertData[0], \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/category', $insertData[0]);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($insertData[1], \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/category', $insertData[1]);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        $this->getBrowser()->request('GET', '/api/category?sort=name');
+        $this->getBrowser()->jsonRequest('GET', '/api/category?sort=name');
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
@@ -1822,17 +1819,17 @@ EOF;
         static::assertCount(3, $respData['data']);
 
         $data = $respData['data'];
-        static::assertEquals('category', $data[0]['type']);
-        static::assertEquals('Home', $data[0]['attributes']['name']);
-        static::assertEquals('Home', $data[0]['attributes']['translated']['name']);
+        static::assertSame('category', $data[0]['type']);
+        static::assertSame('Home', $data[0]['attributes']['name']);
+        static::assertSame('Home', $data[0]['attributes']['translated']['name']);
 
-        static::assertEquals('category', $data[1]['type']);
-        static::assertEquals($insertData[0]['name'], $data[1]['attributes']['name']);
-        static::assertEquals($insertData[0]['name'], $data[1]['attributes']['translated']['name']);
+        static::assertSame('category', $data[1]['type']);
+        static::assertSame($insertData[0]['name'], $data[1]['attributes']['name']);
+        static::assertSame($insertData[0]['name'], $data[1]['attributes']['translated']['name']);
 
-        static::assertEquals('category', $data[2]['type']);
-        static::assertEquals($insertData[1]['name'], $data[2]['attributes']['name']);
-        static::assertEquals($insertData[1]['name'], $data[2]['attributes']['translated']['name']);
+        static::assertSame('category', $data[2]['type']);
+        static::assertSame($insertData[1]['name'], $data[2]['attributes']['name']);
+        static::assertSame($insertData[1]['name'], $data[2]['attributes']['translated']['name']);
     }
 
     public function testCreateNewVersion(): void
@@ -1841,14 +1838,14 @@ EOF;
 
         $data = ['id' => $id, 'name' => 'test category'];
 
-        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/category', $data);
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
         static::assertNotEmpty($response->headers->get('Location'));
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             \sprintf('/api/_action/version/category/%s', $id)
         );
@@ -1858,8 +1855,8 @@ EOF;
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
         static::assertTrue(Uuid::isValid($content['versionId']));
         static::assertNull($content['versionName']);
-        static::assertEquals($id, $content['id']);
-        static::assertEquals('category', $content['entity']);
+        static::assertSame($id, $content['id']);
+        static::assertSame('category', $content['entity']);
     }
 
     public function testCloneEntity(): void
@@ -1871,33 +1868,33 @@ EOF;
             'taxRate' => 15,
         ];
 
-        $this->getBrowser()->request('POST', '/api/tax', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/tax', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        $this->getBrowser()->request('GET', '/api/tax/' . $id);
+        $this->getBrowser()->jsonRequest('GET', '/api/tax/' . $id);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $tax = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $tax);
-        static::assertEquals($id, $tax['data']['id']);
+        static::assertSame($id, $tax['data']['id']);
 
-        $this->getBrowser()->request('POST', '/api/_action/clone/tax/' . $id, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/clone/tax/' . $id, $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('id', $data);
-        static::assertNotEquals($id, $data['id']);
+        static::assertNotSame($id, $data['id']);
 
         $newId = $data['id'];
-        $this->getBrowser()->request('GET', '/api/tax/' . $newId);
+        $this->getBrowser()->jsonRequest('GET', '/api/tax/' . $newId);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(15, $data['data']['attributes']['taxRate']);
+        static::assertSame(15.0, $data['data']['attributes']['taxRate']);
     }
 
     public function testWriteExtensionWithExtensionKey(): void
@@ -1923,7 +1920,7 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/sales-channel/' . $salesChannelId, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('PATCH', '/api/sales-channel/' . $salesChannelId, $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
@@ -1940,7 +1937,7 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/search/sales-channel', [], [], [], json_encode($filter, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/search/sales-channel', $filter);
         $response = $this->getBrowser()->getResponse();
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $data = $result['data'];
@@ -1955,14 +1952,14 @@ EOF;
         usort($included, fn ($a, $b) => $a['type'] <=> $b['type']);
 
         $extension = $included[0];
-        static::assertEquals('extension', $extension['type']);
+        static::assertSame('extension', $extension['type']);
         static::assertArrayHasKey('testSeoUrls', $extension['relationships']);
 
         $seoUrl = $included[1];
-        static::assertEquals('seo_url', $seoUrl['type']);
-        static::assertEquals('test', $seoUrl['attributes']['routeName']);
+        static::assertSame('seo_url', $seoUrl['type']);
+        static::assertSame('test', $seoUrl['attributes']['routeName']);
 
-        $this->getBrowser()->request('GET', '/api/sales-channel/' . $salesChannelId . '/extensions/seo-urls');
+        $this->getBrowser()->jsonRequest('GET', '/api/sales-channel/' . $salesChannelId . '/extensions/seo-urls');
         $response = $this->getBrowser()->getResponse();
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $data = $result['data'];
@@ -1970,8 +1967,8 @@ EOF;
         static::assertCount(1, $data);
 
         $seoUrl = $data[0];
-        static::assertEquals('seo_url', $seoUrl['type']);
-        static::assertEquals('test', $seoUrl['attributes']['routeName']);
+        static::assertSame('seo_url', $seoUrl['type']);
+        static::assertSame('test', $seoUrl['attributes']['routeName']);
     }
 
     public function testCanWriteExtensionWithoutExtensionKey(): void
@@ -1995,7 +1992,7 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/sales-channel/' . $salesChannelId, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('PATCH', '/api/sales-channel/' . $salesChannelId, $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
@@ -2012,7 +2009,7 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/search/sales-channel', [], [], [], json_encode($filter, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/search/sales-channel', $filter);
         $response = $this->getBrowser()->getResponse();
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $data = $result['data'];
@@ -2027,14 +2024,14 @@ EOF;
         usort($included, fn ($a, $b) => $a['type'] <=> $b['type']);
 
         $extension = $included[0];
-        static::assertEquals('extension', $extension['type']);
+        static::assertSame('extension', $extension['type']);
         static::assertArrayHasKey('testSeoUrls', $extension['relationships']);
 
         $seoUrls = $included[1];
-        static::assertEquals('seo_url', $seoUrls['type']);
-        static::assertEquals('test', $seoUrls['attributes']['routeName']);
+        static::assertSame('seo_url', $seoUrls['type']);
+        static::assertSame('test', $seoUrls['attributes']['routeName']);
 
-        $this->getBrowser()->request('GET', '/api/sales-channel/' . $salesChannelId . '/extensions/seo-urls');
+        $this->getBrowser()->jsonRequest('GET', '/api/sales-channel/' . $salesChannelId . '/extensions/seo-urls');
         $response = $this->getBrowser()->getResponse();
         $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $data = $result['data'];
@@ -2042,8 +2039,8 @@ EOF;
         static::assertCount(1, $data);
 
         $seoUrl = $data[0];
-        static::assertEquals('seo_url', $seoUrl['type']);
-        static::assertEquals('test', $seoUrl['attributes']['routeName']);
+        static::assertSame('seo_url', $seoUrl['type']);
+        static::assertSame('test', $seoUrl['attributes']['routeName']);
     }
 
     public function testCloneEntityWithoutPermission(): void
@@ -2056,7 +2053,7 @@ EOF;
         ];
 
         $browser = $this->getBrowser();
-        $browser->request('POST', '/api/tax', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/tax', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
@@ -2066,15 +2063,15 @@ EOF;
             ['tax:read']
         )->authorizeBrowser($browser);
 
-        $browser->request('GET', '/api/tax/' . $id);
+        $browser->jsonRequest('GET', '/api/tax/' . $id);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $tax = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $tax);
-        static::assertEquals($id, $tax['data']['id']);
+        static::assertSame($id, $tax['data']['id']);
 
-        $browser->request('POST', '/api/_action/clone/tax/' . $id, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/_action/clone/tax/' . $id, $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
     }
@@ -2093,21 +2090,21 @@ EOF;
             ['tax:read', 'tax:create']
         )->authorizeBrowser($browser);
 
-        $browser->request('POST', '/api/tax', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/tax', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        $browser->request('PATCH', '/api/tax/' . $id, ['name' => 'foo']);
+        $browser->jsonRequest('PATCH', '/api/tax/' . $id, ['name' => 'foo']);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
 
-        $browser->request('GET', '/api/tax/' . $id);
+        $browser->jsonRequest('GET', '/api/tax/' . $id);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $tax = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $tax);
-        static::assertEquals('test tax', $tax['data']['attributes']['name']);
+        static::assertSame('test tax', $tax['data']['attributes']['name']);
     }
 
     public function testAggregationWorksForAdminStartPage(): void
@@ -2141,7 +2138,7 @@ EOF;
             'total-count-mode' => 1,
         ];
 
-        $this->getBrowser()->request('POST', '/api/search/order', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/search/order', $data);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -2153,13 +2150,13 @@ EOF;
     {
         $ids = $this->createCustomer();
 
-        $this->getBrowser()->request('POST', '/api/search/customer/' . $ids->get('customer') . '/default-billing-address');
+        $this->getBrowser()->jsonRequest('POST', '/api/search/customer/' . $ids->get('customer') . '/default-billing-address');
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $response);
         static::assertCount(1, $response['data']);
-        static::assertEquals($ids->get('address'), $response['data'][0]['id']);
+        static::assertSame($ids->get('address'), $response['data'][0]['id']);
     }
 
     public function testAccessDeniedAfterChangingUserPassword(): void
@@ -2171,7 +2168,7 @@ EOF;
 
         $admin->authorizeBrowser($browser);
 
-        $browser->request('POST', '/api/search/product', []);
+        $browser->jsonRequest('POST', '/api/search/product');
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
@@ -2183,12 +2180,12 @@ EOF;
             'password' => Uuid::randomHex(),
         ]], Context::createDefaultContext());
 
-        $browser->request('POST', '/api/search/product', []);
+        $browser->jsonRequest('POST', '/api/search/product');
         $response = $browser->getResponse();
 
         static::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode(), (string) $response->getContent());
         $jsonResponse = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals('Access token is expired', $jsonResponse['errors'][0]['detail']);
+        static::assertSame('Access token is expired', $jsonResponse['errors'][0]['detail']);
     }
 
     public function testPreventCreationOfSalesChannelWithoutDefaultSalesChannelLanguage(): void
@@ -2197,7 +2194,7 @@ EOF;
         $data = $this->getSalesChannelData($salesChannelId, $this->getNonSystemLanguageId());
 
         $browser = $this->getBrowser();
-        $browser->request('POST', '/api/sales-channel/', $data, [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/sales-channel/', $data, $data);
 
         $response = $browser->getResponse();
         static::assertSame(400, $response->getStatusCode());
@@ -2214,7 +2211,7 @@ EOF;
         $this->createSalesChannel($salesChannelId);
 
         $browser = $this->getBrowser();
-        $browser->request('DELETE', '/api/sales-channel/' . $salesChannelId . '/languages/' . Defaults::LANGUAGE_SYSTEM);
+        $browser->jsonRequest('DELETE', '/api/sales-channel/' . $salesChannelId . '/languages/' . Defaults::LANGUAGE_SYSTEM);
 
         $response = $browser->getResponse();
         static::assertSame(400, $response->getStatusCode());
@@ -2236,20 +2233,20 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
             'stock' => 50,
         ];
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
 
         $categoryId = Uuid::randomHex();
         $data = ['id' => $categoryId, 'name' => 'test category'];
-        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/category', $data);
 
         $mapping = [
             'productId' => $productId,
             'categoryId' => $categoryId,
         ];
-        $this->getBrowser()->request('POST', '/api/product-category', [], [], [], json_encode($mapping, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product-category', $mapping);
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
         $repo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$productId]);
@@ -2257,7 +2254,7 @@ EOF;
         /** @var ProductEntity $product */
         $product = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
-        static::assertEquals([
+        static::assertSame([
             $categoryId,
         ], $product->getCategoryIds());
     }
@@ -2273,20 +2270,20 @@ EOF;
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
             'stock' => 50,
         ];
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
 
         $categoryId = Uuid::randomHex();
         $data = ['id' => $categoryId, 'name' => 'test category'];
-        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/category', $data);
 
         $mapping = [
             'productId' => $productId,
             'categoryId' => $categoryId,
         ];
-        $this->getBrowser()->request('POST', '/api/product-category?_response=1', [], [], [], json_encode($mapping, \JSON_THROW_ON_ERROR));
+        $this->getBrowser()->jsonRequest('POST', '/api/product-category?_response=1', $mapping);
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
         $repo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         $criteria = new Criteria([$productId]);
@@ -2294,7 +2291,7 @@ EOF;
         /** @var ProductEntity $product */
         $product = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
-        static::assertEquals([
+        static::assertSame([
             $categoryId,
         ], $product->getCategoryIds());
     }
@@ -2307,7 +2304,7 @@ EOF;
 
         $client = $this->getBrowser();
 
-        $client->request('POST', '/api/' . $entityName, [
+        $client->jsonRequest('POST', '/api/' . $entityName, [
             'id' => $id,
             'features' => ['test' => true],
             'name' => 'test',
@@ -2318,7 +2315,7 @@ EOF;
 
         $client->setServerParameter('HTTP_sw-language-id', $this->getDeDeLanguageId());
 
-        $client->request('PATCH', '/api/' . $entityName . '/' . $id, [
+        $client->jsonRequest('PATCH', '/api/' . $entityName . '/' . $id, [
             'id' => $id,
             'name' => null,
             'description' => 'test',
@@ -2333,7 +2330,7 @@ EOF;
 
         $client = $this->getBrowser();
 
-        $client->request('POST', '/api/' . $entityName, [2 => 'test']);
+        $client->jsonRequest('POST', '/api/' . $entityName, [2 => 'test']);
 
         /** @var string $response */
         $response = $client->getResponse()->getContent();
@@ -2341,8 +2338,8 @@ EOF;
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $response['errors'][0]['status']);
-        static::assertEquals('Invalid payload. Should be associative array', $response['errors'][0]['detail']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, (int) $response['errors'][0]['status']);
+        static::assertSame('Invalid payload. Should be associative array', $response['errors'][0]['detail']);
     }
 
     public function testInvalidWriteInputExceptionIsConvertedToBadRequestOnUpdate(): void
@@ -2353,7 +2350,7 @@ EOF;
 
         $client = $this->getBrowser();
 
-        $client->request('POST', '/api/' . $entityName, [
+        $client->jsonRequest('POST', '/api/' . $entityName, [
             'id' => $id,
             'features' => ['test' => true],
             'name' => 'test',
@@ -2362,15 +2359,15 @@ EOF;
 
         static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
 
-        $client->request('PATCH', '/api/' . $entityName . '/' . $id, [2 => 'test']);
+        $client->jsonRequest('PATCH', '/api/' . $entityName . '/' . $id, [2 => 'test']);
 
         $response = $client->getResponse();
 
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $content['errors'][0]['status']);
-        static::assertEquals('Invalid payload. Should be associative array', $content['errors'][0]['detail']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, (int) $content['errors'][0]['status']);
+        static::assertSame('Invalid payload. Should be associative array', $content['errors'][0]['detail']);
     }
 
     #[DataProvider('provideEntityName')]
@@ -2475,7 +2472,7 @@ EOF;
 
     private function getNonSystemLanguageId(): string
     {
-        /** @var EntityRepository $languageRepository */
+        /** @var EntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = static::getContainer()->get('language.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new NotFilter(

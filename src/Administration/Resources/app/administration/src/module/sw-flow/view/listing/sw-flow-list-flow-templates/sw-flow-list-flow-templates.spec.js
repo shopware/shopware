@@ -50,7 +50,6 @@ async function createWrapper(privileges = [], props = {}) {
                 'sw-context-menu-item': true,
                 'sw-data-grid-skeleton': true,
                 'sw-pagination': true,
-                'sw-empty-state': true,
                 'sw-search-bar': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
@@ -78,13 +77,22 @@ async function createWrapper(privileges = [], props = {}) {
                         return privileges.includes(identifier);
                     },
                 },
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
             mocks: {
                 $route: {
                     query: {
                         page: 1,
                         limit: 25,
+                    },
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
                     },
                 },
             },

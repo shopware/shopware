@@ -16,8 +16,9 @@ const config = {
 };
 
 const intl = {
-    locale: en,
-    fallbackLocale: en,
+    fallbackLocale: {
+        value: en,
+    },
 };
 
 const defaultProps = {
@@ -40,12 +41,10 @@ async function createWrapper(props = defaultProps) {
         }),
         {
             props,
-            provide: {
-                $root: {
+            global: {
+                mocks: {
                     $i18n: intl,
                 },
-            },
-            global: {
                 stubs: {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
@@ -148,7 +147,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
 
         expect(wrapper.vm.config).toHaveProperty('test');
         expect(wrapper.vm.config.test).toStrictEqual({
-            [intl.fallbackLocale]: null,
+            [intl.fallbackLocale.value]: null,
         });
     });
 });

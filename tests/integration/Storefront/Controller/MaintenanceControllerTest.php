@@ -45,7 +45,7 @@ class MaintenanceControllerTest extends TestCase
         $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/');
         $response = $browser->getResponse();
 
-        static::assertEquals(503, $response->getStatusCode());
+        static::assertSame(503, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -55,7 +55,7 @@ class MaintenanceControllerTest extends TestCase
     public function testMaintenancePageLoadedHookScriptsAreExecutedForSinglePage(): void
     {
         $response = $this->request('GET', '/maintenance/singlepage/' . $this->ids->get('page'), []);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 

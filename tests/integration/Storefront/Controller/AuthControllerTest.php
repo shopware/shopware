@@ -39,7 +39,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Stub\Storefront\AuthTestSubscriber;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -50,6 +49,7 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
+use Shopware\Storefront\Test\Controller\AuthTestSubscriber;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -94,10 +94,10 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
 
         $newContextToken = $session->get('sw-context-token');
-        static::assertNotEquals($contextToken, $newContextToken);
+        static::assertNotSame($contextToken, $newContextToken);
 
         $newSessionId = $session->getId();
-        static::assertNotEquals($sessionId, $newSessionId);
+        static::assertNotSame($sessionId, $newSessionId);
 
         $oldCartExists = $connection->fetchOne('SELECT 1 FROM cart WHERE token = ?', [$contextToken]);
         static::assertFalse($oldCartExists);
@@ -126,7 +126,7 @@ class AuthControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $redirectResponse);
         static::assertStringStartsWith('/account/login', $redirectResponse->getTargetUrl());
-        static::assertNotEquals($contextToken, $this->getSession()->get('sw-context-token'));
+        static::assertNotSame($contextToken, $this->getSession()->get('sw-context-token'));
     }
 
     public function testDoNotLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOff(): void
@@ -156,7 +156,7 @@ class AuthControllerTest extends TestCase
 
         $browser = $this->login();
 
-        $sessionCookie = $browser->getCookieJar()->get('session-');
+        $sessionCookie = $browser->getCookieJar()->get(PlatformRequest::FALLBACK_SESSION_NAME);
         static::assertNotNull($sessionCookie);
 
         $browser->request('GET', '/account/logout', []);
@@ -221,10 +221,10 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
 
         $newContextToken = $session->get('sw-context-token');
-        static::assertNotEquals($contextToken, $newContextToken);
+        static::assertNotSame($contextToken, $newContextToken);
 
         $newSessionId = $session->getId();
-        static::assertNotEquals($sessionId, $newSessionId);
+        static::assertNotSame($sessionId, $newSessionId);
     }
 
     public function testOneUserUseOneContextAcrossSessions(): void
@@ -260,8 +260,8 @@ class AuthControllerTest extends TestCase
         $secondTimeLoginSessionId = $secondTimeLogin->getId();
         $secondTimeLoginContextToken = $secondTimeLogin->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
-        static::assertNotEquals($firstTimeLoginSessionId, $secondTimeLoginSessionId);
-        static::assertNotEquals($firstTimeLoginContextToken, $secondTimeLoginContextToken);
+        static::assertNotSame($firstTimeLoginSessionId, $secondTimeLoginSessionId);
+        static::assertNotSame($firstTimeLoginContextToken, $secondTimeLoginContextToken);
     }
 
     public function testMergedHintIsAdded(): void

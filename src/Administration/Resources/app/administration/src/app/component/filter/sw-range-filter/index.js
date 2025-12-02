@@ -5,13 +5,12 @@
 import template from './sw-range-filter.html.twig';
 import './sw-range-filter.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-range-filter', {
+export default {
     template,
 
     inject: ['feature'],
@@ -59,4 +58,4 @@ Component.register('sw-range-filter', {
             this.$emit('filter-update', filterCriteria);
         },
     },
-});
+};

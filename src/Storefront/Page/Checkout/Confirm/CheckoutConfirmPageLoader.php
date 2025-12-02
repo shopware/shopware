@@ -105,7 +105,7 @@ class CheckoutConfirmPageLoader
     ): void {
         $validation = $this->addressValidationFactory->create($context);
         if ($billingAddress) {
-            $validation->set('zipcode', new CustomerZipCode(['countryId' => $billingAddress->getCountryId()]));
+            $validation->set('zipcode', new CustomerZipCode(countryId: $billingAddress->getCountryId()));
         }
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
@@ -118,7 +118,7 @@ class CheckoutConfirmPageLoader
         $violations = $this->validator->getViolations($billingAddress->jsonSerialize(), $validation);
 
         if ($violations->count() > 0) {
-            $cart->getErrors()->add(new AddressValidationError(true, $violations));
+            $cart->getErrors()->add(new AddressValidationError(true, $violations, $billingAddress->getId()));
         }
     }
 
@@ -130,7 +130,7 @@ class CheckoutConfirmPageLoader
     ): void {
         $validation = $this->addressValidationFactory->create($context);
         if ($shippingAddress) {
-            $validation->set('zipcode', new CustomerZipCode(['countryId' => $shippingAddress->getCountryId()]));
+            $validation->set('zipcode', new CustomerZipCode(countryId: $shippingAddress->getCountryId()));
         }
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
@@ -146,7 +146,7 @@ class CheckoutConfirmPageLoader
 
         $violations = $this->validator->getViolations($shippingAddress->jsonSerialize(), $validation);
         if ($violations->count() > 0) {
-            $cart->getErrors()->add(new AddressValidationError(false, $violations));
+            $cart->getErrors()->add(new AddressValidationError(false, $violations, $shippingAddress->getId()));
         }
     }
 }

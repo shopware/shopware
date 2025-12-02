@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[CoversClass(OrderLineItemCollection::class)]
+#[Package('checkout')]
 class OrderLineItemCollectionTest extends TestCase
 {
     public function testFilterGoodsFlat(): void
@@ -42,7 +44,7 @@ class OrderLineItemCollectionTest extends TestCase
 
         $filtered = $collection->filterGoodsFlat();
 
-        static::assertEquals([$lineItemA, $lineItemC, $lineItemE], $filtered);
+        static::assertSame([$lineItemA, $lineItemC, $lineItemE], $filtered);
     }
 
     public function testGetPayloadsProperty(): void
@@ -55,14 +57,14 @@ class OrderLineItemCollectionTest extends TestCase
 
         $collection = new OrderLineItemCollection([$lineItemA, $lineItemB]);
 
-        static::assertEquals([], $collection->getPayloadsProperty('foobar'));
+        static::assertSame([], $collection->getPayloadsProperty('foobar'));
 
         $lineItemA->setPayload(['foobar' => 'foo']);
 
-        static::assertEquals([$lineItemA->getId() => 'foo'], $collection->getPayloadsProperty('foobar'));
+        static::assertSame([$lineItemA->getId() => 'foo'], $collection->getPayloadsProperty('foobar'));
 
         $lineItemB->setPayload(['foobar' => 'bar']);
 
-        static::assertEquals([$lineItemA->getId() => 'foo', $lineItemB->getId() => 'bar'], $collection->getPayloadsProperty('foobar'));
+        static::assertSame([$lineItemA->getId() => 'foo', $lineItemB->getId() => 'bar'], $collection->getPayloadsProperty('foobar'));
     }
 }

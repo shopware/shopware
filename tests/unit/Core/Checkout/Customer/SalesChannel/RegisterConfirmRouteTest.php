@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -30,12 +31,14 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[CoversClass(RegisterConfirmRoute::class)]
+#[Package('checkout')]
 class RegisterConfirmRouteTest extends TestCase
 {
     protected SalesChannelContext&MockObject $context;
 
     protected EventDispatcherInterface&MockObject $eventDispatcher;
 
+    /** @var EntityRepository<CustomerCollection>&MockObject */
     protected EntityRepository&MockObject $customerRepository;
 
     protected DataValidator&MockObject $validator;
@@ -58,7 +61,7 @@ class RegisterConfirmRouteTest extends TestCase
         $newSalesChannelContext = $this->createMock(SalesChannelContext::class);
         $newSalesChannelContext->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->salesChannelContextService = $this->createStub(SalesChannelContextServiceInterface::class);
+        $this->salesChannelContextService = static::createStub(SalesChannelContextServiceInterface::class);
         $this->salesChannelContextService
             ->method('get')
             ->willReturn($newSalesChannelContext);
@@ -76,7 +79,7 @@ class RegisterConfirmRouteTest extends TestCase
     {
         $customer = $this->mockCustomer();
 
-        $this->customerRepository->expects(static::exactly(2))
+        $this->customerRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -99,7 +102,7 @@ class RegisterConfirmRouteTest extends TestCase
         $customer = $this->mockCustomer();
         $customer->setDoubleOptInRegistration(false);
 
-        $this->customerRepository->expects(static::once())
+        $this->customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -112,7 +115,7 @@ class RegisterConfirmRouteTest extends TestCase
                 )
             );
 
-        $this->validator->expects(static::once())
+        $this->validator->expects($this->once())
             ->method('validate')
             ->willReturnCallback(function (array $data, DataValidationDefinition $definition): void {
                 $properties = $definition->getProperties();
@@ -134,7 +137,7 @@ class RegisterConfirmRouteTest extends TestCase
         $customer->setActive(true);
         $customer->setDoubleOptInConfirmDate(new \DateTime());
 
-        $this->customerRepository->expects(static::once())
+        $this->customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -156,7 +159,7 @@ class RegisterConfirmRouteTest extends TestCase
         $customer = $this->mockCustomer();
         $customer->setDoubleOptInConfirmDate(new \DateTime());
 
-        $this->customerRepository->expects(static::once())
+        $this->customerRepository->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(

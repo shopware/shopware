@@ -28,16 +28,6 @@ const handleMtCheckbox = (context, node) => {
             attr.key?.argument?.name === 'checked';
     });
 
-    // Check if the mt-checkbox has the slot "label"
-    const labelSlot = node.children.find((child) => {
-        return child.type === 'VElement' &&
-            child.name === 'template' &&
-            child.startTag?.attributes.find((attr) => {
-                return attr.key?.name?.name === 'slot'
-                    && attr.key?.argument?.name === 'label'
-            });
-    });
-
     // Check if the mt-checkbox has the slot "hint"
     const hintSlot = node.children.find((child) => {
         return child.type === 'VElement' &&
@@ -130,31 +120,6 @@ const handleMtCheckbox = (context, node) => {
                 if (context.options.includes('disableFix')) return;
 
                 yield fixer.replaceText(valueAttributeExpression.key.argument, 'checked');
-            }
-        });
-    }
-
-    if (labelSlot) {
-        context.report({
-            node: labelSlot,
-            message: `[${mtComponentName}] The "label" slot is deprecated. Use the "label" prop instead.`,
-            *fix(fixer)  {
-                if (context.options.includes('disableFix')) return;
-
-                const labelSlot = node.children.find((child) => {
-                    return child.type === 'VElement' &&
-                        child.name === 'template' &&
-                        child.startTag?.attributes.find((attr) => {
-                            return attr.key?.name?.name === 'slot'
-                                && attr.key?.argument?.name === 'label'
-                        });
-                });
-
-                const labelSlotValueRaw = labelSlot.children[0].value;
-                // Remove \n and multiple spaces from the string
-                const labelSlotValue = labelSlotValueRaw.replace(/\n/g, '').replace(/\s+/g, ' ');
-
-                yield fixer.replaceText(labelSlot, `<!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was: ${labelSlotValue} -->`);
             }
         });
     }
@@ -419,80 +384,6 @@ const mtCheckboxInvalidTests = [
             </template>`,
         errors: [{
             message: '[mt-checkbox] The "v-model" directive is deprecated. Use "v-model:checked" instead.',
-        }]
-    },
-    {
-        name: '"mt-checkbox" wrong slot "label" usage should be replaced with "label" prop [shorthandSyntax]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-checkbox>
-                    <template #label>
-                        Hello Shopware
-                    </template>
-                </mt-checkbox>
-            </template>`,
-        output: `
-            <template>
-                <mt-checkbox>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  Hello Shopware  -->
-                </mt-checkbox>
-            </template>`,
-        errors: [{
-            message: '[mt-checkbox] The "label" slot is deprecated. Use the "label" prop instead.',
-        }]
-    },
-    {
-        name: '"mt-checkbox" wrong slot "label" usage should be replaced with "label" prop [shorthandSyntax, disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-checkbox>
-                    <template #label>
-                        Hello Shopware
-                    </template>
-                </mt-checkbox>
-            </template>`,
-        errors: [{
-            message: '[mt-checkbox] The "label" slot is deprecated. Use the "label" prop instead.',
-        }]
-    },
-    {
-        name: '"mt-checkbox" wrong slot "label" usage should be replaced with "label" prop',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-checkbox>
-                    <template v-slot:label>
-                        Hello Shopware
-                    </template>
-                </mt-checkbox>
-            </template>`,
-        output: `
-            <template>
-                <mt-checkbox>
-                    <!-- Slot "label" was removed and should be replaced with "label" prop. Previous value was:  Hello Shopware  -->
-                </mt-checkbox>
-            </template>`,
-        errors: [{
-            message: '[mt-checkbox] The "label" slot is deprecated. Use the "label" prop instead.',
-        }]
-    },
-    {
-        name: '"mt-checkbox" wrong slot "label" usage should be replaced with "label" prop [disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-checkbox>
-                    <template v-slot:label>
-                        Hello Shopware
-                    </template>
-                </mt-checkbox>
-            </template>`,
-        errors: [{
-            message: '[mt-checkbox] The "label" slot is deprecated. Use the "label" prop instead.',
         }]
     },
     {

@@ -23,11 +23,7 @@ export default {
 
     computed: {
         inputValid() {
-            return (
-                this.isFieldFilled(this.profile.sourceEntity) &&
-                this.isFieldFilled(this.profile.type) &&
-                this.isFieldFilled(this.profile.label)
-            );
+            return this.isFieldFilled(this.profile.sourceEntity) && this.isFieldFilled(this.profile.type);
         },
     },
 

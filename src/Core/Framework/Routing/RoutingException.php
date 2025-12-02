@@ -6,6 +6,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('framework')]
 class RoutingException extends HttpException
@@ -18,6 +19,8 @@ class RoutingException extends HttpException
 
     public const CUSTOMER_NOT_LOGGED_IN_CODE = 'FRAMEWORK__ROUTING_CUSTOMER_NOT_LOGGED_IN';
     public const ACCESS_DENIED_FOR_XML_HTTP_REQUEST = 'FRAMEWORK__ACCESS_DENIED_FOR_XML_HTTP_REQUEST';
+    public const CURRENCY_NOT_FOUND = 'FRAMEWORK__ROUTING_CURRENCY_NOT_FOUND';
+    public const MISSING_PRIVILEGE = 'FRAMEWORK__ROUTING_MISSING_PRIVILEGE';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -68,12 +71,50 @@ class RoutingException extends HttpException
         );
     }
 
-    public static function accessDeniedForXmlHttpRequest(): self
+    public static function accessDeniedForXmlHttpRequest(?string $route = null, ?string $url = null, ?string $referer = null): self
     {
+        $message = 'PageController ' . ($route ? '"{{ route }}" ' : '')
+            . ($url ? '("{{ url }}") ' : '')
+            . 'can\'t be requested via XmlHttpRequest.'
+            . ($referer ? ' Requested by "{{ referer }}".' : '');
+
         return new self(
             Response::HTTP_FORBIDDEN,
             self::ACCESS_DENIED_FOR_XML_HTTP_REQUEST,
-            'PageController can\'t be requested via XmlHttpRequest.'
+            $message,
+            ['route' => $route, 'url' => $url, 'referer' => $referer]
         );
+    }
+
+    public static function currencyNotFound(string $currencyId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CURRENCY_NOT_FOUND,
+            'Currency with id "{{ currencyId }}" not found.',
+            ['currencyId' => $currencyId]
+        );
+    }
+
+    /**
+     * @param string[] $privileges
+     */
+    public static function missingPrivileges(array $privileges): self
+    {
+        $errorMessage = json_encode([
+            'message' => 'Missing privilege',
+            'missingPrivileges' => $privileges,
+        ], \JSON_THROW_ON_ERROR);
+
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::MISSING_PRIVILEGE,
+            $errorMessage ?: ''
+        );
+    }
+
+    public static function unexpectedType(mixed $actualType, string $expectedType): UnexpectedTypeException
+    {
+        return new UnexpectedTypeException($actualType, $expectedType);
     }
 }

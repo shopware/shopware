@@ -1,8 +1,6 @@
 import './sw-error.scss';
 import template from './sw-error.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -16,7 +14,7 @@ const { Component } = Shopware;
  * </sw-error>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-error', {
+export default {
     template,
 
     props: {
@@ -89,4 +87,4 @@ Component.register('sw-error', {
             }
         },
     },
-});
+};

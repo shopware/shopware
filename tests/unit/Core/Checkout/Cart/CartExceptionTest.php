@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[CoversClass(CartException::class)]
+#[Package('checkout')]
 class CartExceptionTest extends TestCase
 {
     public function testInvalidPriceFieldType(): void

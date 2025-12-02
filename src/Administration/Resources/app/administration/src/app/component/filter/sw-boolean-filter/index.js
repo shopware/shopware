@@ -4,13 +4,12 @@
 
 import template from './sw-boolean-filter.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-boolean-filter', {
+export default {
     template,
 
     emits: [
@@ -68,4 +67,4 @@ Component.register('sw-boolean-filter', {
             this.$emit('filter-reset', this.filter.name);
         },
     },
-});
+};

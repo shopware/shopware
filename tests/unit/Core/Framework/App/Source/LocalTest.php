@@ -22,7 +22,7 @@ class LocalTest extends TestCase
     public function testName(): void
     {
         $source = new Local('/');
-        static::assertEquals('local', $source->name());
+        static::assertSame('local', $source->name());
     }
 
     public function testSupportsExistingAppWithLocalType(): void

@@ -72,25 +72,25 @@ class DiscountProcessorTest extends TestCase
         $price = $item->getPrice();
 
         static::assertInstanceOf(CalculatedPrice::class, $price);
-        static::assertEquals($expected->getUnitPrice(), $price->getUnitPrice());
-        static::assertEquals($expected->getTotalPrice(), $price->getTotalPrice());
+        static::assertSame($expected->getUnitPrice(), $price->getUnitPrice());
+        static::assertSame($expected->getTotalPrice(), $price->getTotalPrice());
 
         $taxes = $expected->getCalculatedTaxes();
 
-        static::assertEquals($taxes->getAmount(), $price->getCalculatedTaxes()->getAmount());
+        static::assertSame($taxes->getAmount(), $price->getCalculatedTaxes()->getAmount());
 
         foreach ($taxes as $tax) {
             $actual = $price->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
             static::assertInstanceOf(CalculatedTax::class, $actual, \sprintf('Missing tax for rate %f', $tax->getTaxRate()));
-            static::assertEquals($tax->getTax(), $actual->getTax());
+            static::assertSame($tax->getTax(), $actual->getTax());
         }
 
         foreach ($price->getCalculatedTaxes() as $tax) {
             $actual = $taxes->get((string) $tax->getTaxRate());
 
             static::assertInstanceOf(CalculatedTax::class, $actual, \sprintf('Missing tax for rate %f', $tax->getTaxRate()));
-            static::assertEquals($tax->getTax(), $actual->getTax());
+            static::assertSame($tax->getTax(), $actual->getTax());
         }
     }
 

@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import type Repository from 'src/core/data/repository.data';
 import template from './sw-settings-tax-provider-sorting-modal.html.twig';
 import './sw-settings-tax-provider-sorting-modal.scss';

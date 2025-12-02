@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Guest customer must be able to register in the Storefront.', { tag: '@Registration' }, async ({
+test('Guest customer must be able to register in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontCheckoutCart,
     StorefrontProductDetail,
@@ -25,7 +25,7 @@ test('Guest customer must be able to register in the Storefront.', { tag: '@Regi
 
 });
 
-test('Guest commercial customer must be able to register in the Storefront.', { tag: '@Registration' }, async ({
+test('Guest commercial customer must be able to register in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontHome,
     StorefrontCheckoutCart,

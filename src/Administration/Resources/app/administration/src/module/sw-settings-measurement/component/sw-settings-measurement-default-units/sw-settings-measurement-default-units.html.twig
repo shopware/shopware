@@ -1,0 +1,81 @@
+<mt-card
+    class="sw-settings-measurement-default-units"
+    position-identifier="sw-settings-measurement-default-units"
+    :title="$t('sw-settings-measurement.defaultUnits.title')"
+>
+    <i18n-t
+        tag="p"
+        keypath="sw-settings-measurement.defaultUnits.description"
+        scope="local"
+        hide-icon
+        class="sw-settings-measurement-default-units__description"
+    >
+        <template #link>
+            <sw-internal-link
+                :router-link="{ name: 'sw.sales.channel.list' }"
+                inline
+                hide-icon
+            >
+                {{ $tc('sw-settings-measurement.defaultUnits.linkText') }}
+            </sw-internal-link>
+        </template>
+    </i18n-t>
+
+    <sw-container
+        columns="1fr 1fr 1fr"
+        gap="0 32px"
+    >
+        <mt-select
+            v-model="measurementUnits.system"
+            required
+            hide-clearable-button
+            :label="$t('sw-settings-measurement.defaultUnits.config.type')"
+            :options="measurementSystemOptions"
+            :error="measurementUnitSystemError"
+            :disabled="!acl.can('measurement.editor')"
+            @update:model-value="onChangeMeasurementSystem"
+        />
+
+        <mt-select
+            v-model="measurementUnits.length"
+            required
+            hide-clearable-button
+            :label="$t('sw-settings-measurement.defaultUnits.config.lengthUnit')"
+            :options="lengthUnitOptions"
+            :error="measurementLengthUnitError"
+            :disabled="!acl.can('measurement.editor')"
+        >
+            <template #result-label-property="{ item, searchTerm }">
+                <sw-highlight-text
+                    :text="item.translated.name || item.name"
+                    :search-term="searchTerm"
+                />
+
+                <span class="mt-select-result-list-popover-wrapper__popover-short-name">
+                    {{ item.shortName }}
+                </span>
+            </template>
+        </mt-select>
+
+        <mt-select
+            v-model="measurementUnits.weight"
+            required
+            hide-clearable-button
+            :label="$t('sw-settings-measurement.defaultUnits.config.weightUnit')"
+            :options="weightUnitOptions"
+            :error="measurementWeightUnitError"
+            :disabled="!acl.can('measurement.editor')"
+        >
+            <template #result-label-property="{ item, searchTerm }">
+                <sw-highlight-text
+                    :text="item.translated.name || item.name"
+                    :search-term="searchTerm"
+                />
+
+                <span class="mt-select-result-list-popover-wrapper__popover-short-name">
+                    {{ item.shortName }}
+                </span>
+            </template>
+        </mt-select>
+    </sw-container>
+</mt-card>

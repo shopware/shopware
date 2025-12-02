@@ -4,19 +4,13 @@
         margin-right: $spacer-sm;
     }
 
-    .row {
-        margin-left: 0;
-        margin-right: 0;
-    }
-
     .btn > .icon {
         vertical-align: top;
     }
-}
 
-.account-address {
     .account-address-back {
-        &:hover, &:focus {
+        &:hover,
+        &:focus {
             span.icon {
                 color: $white;
             }
@@ -26,4 +20,12 @@
 
 .address-manager-select-address {
     min-height: 200px;
+}
+
+.address-manager-modal-address-form .icon {
+    color: currentColor;
+
+    svg {
+        top: 0.25em;
+    }
 }

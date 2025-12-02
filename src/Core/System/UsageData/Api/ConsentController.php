@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\UsageData\Consent\BannerService;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyAcceptedException;
@@ -25,7 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @param EntityRepository<UserConfigCollection> $userConfigRepository
  */
 #[Package('data-services')]
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ConsentController extends AbstractController
 {
     public function __construct(

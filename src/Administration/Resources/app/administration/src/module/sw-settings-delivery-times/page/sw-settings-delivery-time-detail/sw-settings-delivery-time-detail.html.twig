@@ -108,6 +108,8 @@
                                 :error="deliveryTimeMinError || invalidMinError"
                                 :min="0"
                                 :max="deliveryTime.max"
+                                :step="1"
+                                number-type="int"
                                 :disabled="!acl.can('delivery_times.editor') || undefined"
                                 required
                             />
@@ -120,6 +122,8 @@
                                 :label="$tc('sw-settings-delivery-time.detail.labelMax')"
                                 :error="deliveryTimeMaxError"
                                 :min="deliveryTime.min"
+                                :step="1"
+                                number-type="int"
                                 :disabled="!acl.can('delivery_times.editor') || undefined"
                                 required
                             />

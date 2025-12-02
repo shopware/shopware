@@ -1,7 +1,8 @@
-import Plugin from 'src/plugin-system/plugin.class';
-import HttpClient from 'src/service/http-client.service';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
-import { COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS } from 'src/plugin/cookie/cookie-configuration.plugin';
+import { COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
+import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
+import HttpClient from 'src/service/http-client.service';
 
 export const CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO = 'CmsGdprVideoElement_replaceElementWithVideo';
 
@@ -32,10 +33,12 @@ export default class CmsGdprVideoElement extends Plugin {
      */
     init() {
         document.$emitter.subscribe(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, this.checkConsentAndReplaceVideo.bind(this));
+        document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, this.checkConsentAndReplaceVideo.bind(this));
         document.$emitter.subscribe(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO, this._replaceElementWithVideo.bind(this));
 
         this.checkConsentAndReplaceVideo();
 
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
         this.backdropElement = this.createElementBackdrop();
         this.el.appendChild(this.backdropElement);
@@ -114,12 +117,20 @@ export default class CmsGdprVideoElement extends Plugin {
 
     /**
      * Execute replacing the element with video
+     * Only replaces if the correct cookie is set for this video instance
      *
      * @returns {boolean}
      */
     _replaceElementWithVideo() {
+        // Check if the cookie for this specific video type is set
+        if (!CookieStorageHelper.getItem(this.options.cookieName)) {
+            return false;
+        }
+
         const videoElement = document.createElement('iframe');
         videoElement.setAttribute('src', this.options.videoUrl);
+        videoElement.setAttribute('title', this.options.iframeTitle);
+        videoElement.setAttribute('allowfullscreen', 'allowfullscreen');
 
         this.options.iframeClasses.forEach((cls) => {
             videoElement.classList.add(cls);

@@ -63,7 +63,7 @@ class TemplateDataExtensionTest extends TestCase
         ]);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::exactly(2))
+        $connection->expects($this->exactly(2))
             ->method('fetchOne')
             ->willReturnCallback(function (string $query) use ($expectedMinSearchLength, $navigationId) {
                 if ($query === 'SELECT path FROM category WHERE id = :id') {

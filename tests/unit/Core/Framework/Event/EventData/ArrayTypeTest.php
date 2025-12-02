@@ -22,7 +22,7 @@ class ArrayTypeTest extends TestCase
             ],
         ];
 
-        static::assertEquals(
+        static::assertSame(
             $expected,
             (new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
                 ->toArray()

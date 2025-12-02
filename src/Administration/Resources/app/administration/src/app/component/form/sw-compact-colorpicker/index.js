@@ -1,14 +1,12 @@
 import template from './sw-compact-colorpicker.html.twig';
 import './sw-compact-colorpicker.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.extend('sw-compact-colorpicker', 'sw-colorpicker-deprecated', {
+export default {
     template,
 
     inject: ['feature'],
@@ -32,4 +30,4 @@ Component.extend('sw-compact-colorpicker', 'sw-colorpicker-deprecated', {
             this.visible = false;
         },
     },
-});
+};

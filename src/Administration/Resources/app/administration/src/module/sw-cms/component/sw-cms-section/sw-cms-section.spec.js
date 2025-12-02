@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 
 async function createWrapper() {
@@ -11,7 +12,12 @@ async function createWrapper() {
         }),
         {
             props: {
-                page: {},
+                page: {
+                    id: '1',
+                    getEntityName: () => {
+                        return 'cms_page';
+                    },
+                },
                 section: {
                     visibility: {
                         mobile: true,
@@ -40,6 +46,16 @@ async function createWrapper() {
                             sectionPosition: 'main',
                             type: 'foo-bar-removed',
                         },
+                        {
+                            id: '9ij0',
+                            sectionPosition: 'sidebar',
+                            type: 'custom-foo-bar',
+                        },
+                        {
+                            id: '1kl2',
+                            sectionPosition: 'main',
+                            type: 'custom-foo-bar',
+                        },
                     ],
                 },
             },
@@ -57,6 +73,10 @@ async function createWrapper() {
                         props: ['block'],
                         template: '<div class="sw-cms-block-foo-bar"></div>',
                     },
+                    'custom-cms-block-foo-bar': {
+                        props: ['block'],
+                        template: '<div class="custom-cms-block-foo-bar"></div>',
+                    },
                     'sw-cms-slot': true,
                 },
                 provide: {
@@ -65,7 +85,13 @@ async function createWrapper() {
                         getCmsBlockRegistry: () => {
                             return {
                                 'foo-bar': {},
+                                'custom-foo-bar': {
+                                    component: 'custom-cms-block-foo-bar',
+                                },
                             };
+                        },
+                        getCmsBlockConfigByName(name) {
+                            return this.getCmsBlockRegistry()[name] ?? null;
                         },
                     },
                 },
@@ -92,14 +118,6 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.vm.section.backgroundMediaMode).toBe('cover');
-        expect(wrapper.vm.section.backgroundColor).toBe('');
-    });
-
     it('should not disable all sub components', async () => {
         const wrapper = await createWrapper();
 
@@ -110,7 +128,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         expect(cmsBlock.attributes().disabled).toBeFalsy();
 
         const cmsStageAddBlocks = wrapper.findAll('.sw-cms-stage-add-block');
-        expect(cmsStageAddBlocks).toHaveLength(4);
+        expect(cmsStageAddBlocks).toHaveLength(6);
 
         cmsStageAddBlocks.forEach((cmsStageAddBlock) => {
             expect(cmsStageAddBlock.exists()).toBeTruthy();
@@ -205,5 +223,41 @@ describe('module/sw-cms/component/sw-cms-section', () => {
                 type: 'foo-bar',
             },
         });
+    });
+
+    it('should highlight blocks with slot config errors', async () => {
+        Shopware.Store.get('error').addApiError({
+            expression: `cms_page.1.slotConfig`,
+            error: new ShopwareError({
+                code: 'requiredConfigMissing',
+                meta: {
+                    parameters: {
+                        elements: [
+                            {
+                                name: 'foo-bar-slot.missing',
+                                blockId: '1a2b',
+                            },
+                        ],
+                    },
+                },
+            }),
+        });
+
+        const wrapper = await createWrapper();
+
+        const fooBarBlock = wrapper.findComponent('.sw-cms-section__content .sw-cms-block-foo-bar');
+        expect(wrapper.vm.hasSlotConfigErrors(fooBarBlock.props('block'))).toBeTruthy();
+    });
+
+    it('should use block component name to render the block', async () => {
+        const wrapper = await createWrapper();
+
+        // custom block component name custom-foo-bar
+        const customFooBarBlock = wrapper.findComponent('.sw-cms-section__content .custom-cms-block-foo-bar');
+        expect(customFooBarBlock.exists()).toBeTruthy();
+
+        // default block component name foo-bar
+        const fooBarBlock = wrapper.findComponent('.sw-cms-section__content .sw-cms-block-foo-bar');
+        expect(fooBarBlock.exists()).toBeTruthy();
     });
 });

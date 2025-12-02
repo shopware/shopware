@@ -7,9 +7,9 @@
 
                 <mt-switch
                     :name="name"
-                    :checked="value"
+                    :model-value="value"
                     :label="label"
-                    @change="onChange"
+                    @update:model-value="onChange"
                 />
             </slot>
             {% endblock %}

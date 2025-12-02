@@ -1,6 +1,5 @@
 import camelCase from 'lodash/camelCase';
 import type CriteriaType from 'src/core/data/criteria.data';
-import type { PropType } from 'vue';
 import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-settings-country-address-handling.html.twig';
 import './sw-settings-country-address-handling.scss';
@@ -44,7 +43,7 @@ const DefaultAddressFormat = [
  *
  * @private
  */
-Component.register('sw-settings-country-address-handling', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: [

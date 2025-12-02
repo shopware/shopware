@@ -176,10 +176,10 @@ class CustomEntityEnrichmentServiceTest extends TestCase
 
             $adminUi = $enrichedCustomEntity->getFlags()['admin-ui'];
             static::assertInstanceOf(AdminUiEntity::class, $adminUi);
-            static::assertEquals('sw-content', $adminUi->getVars()['navigationParent']);
-            static::assertEquals(50, $adminUi->getVars()['position']);
-            static::assertEquals('regular-tools-alt', $adminUi->getVars()['icon']);
-            static::assertEquals('#f00', $adminUi->getVars()['color']);
+            static::assertSame('sw-content', $adminUi->getVars()['navigationParent']);
+            static::assertSame(50, $adminUi->getVars()['position']);
+            static::assertSame('regular-tools-alt', $adminUi->getVars()['icon']);
+            static::assertSame('#f00', $adminUi->getVars()['color']);
 
             $listingColumns = $adminUi->getListing()->getColumns()->getContent();
             static::assertCount(3, $listingColumns);
@@ -196,20 +196,20 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             $detailTabs = $adminUi->getDetail()->getTabs()->getContent();
             static::assertCount(2, $detailTabs);
             static::assertCount(2, $detailTabs[0]->getCards());
-            static::assertEquals('firstTab', $detailTabs[0]->getName());
+            static::assertSame('firstTab', $detailTabs[0]->getName());
             static::assertCount(2, $detailTabs[1]->getCards());
-            static::assertEquals('secondTab', $detailTabs[1]->getName());
+            static::assertSame('secondTab', $detailTabs[1]->getName());
 
             $exampleCards = $detailTabs[1]->getCards();
             static::assertCount(2, $exampleCards);
-            static::assertEquals('testWithAll', $exampleCards[0]->getName());
+            static::assertSame('testWithAll', $exampleCards[0]->getName());
 
             $exampleCardFields = $exampleCards[0]->getFields();
             static::assertCount(4, $exampleCardFields);
-            static::assertEquals('test_string', $exampleCardFields[0]->getRef());
-            static::assertEquals('test_text', $exampleCardFields[1]->getRef());
-            static::assertEquals('test_int', $exampleCardFields[2]->getRef());
-            static::assertEquals('test_float', $exampleCardFields[3]->getRef());
+            static::assertSame('test_string', $exampleCardFields[0]->getRef());
+            static::assertSame('test_text', $exampleCardFields[1]->getRef());
+            static::assertSame('test_int', $exampleCardFields[2]->getRef());
+            static::assertSame('test_float', $exampleCardFields[3]->getRef());
         }
     }
 
@@ -275,18 +275,18 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(2, $enrichedCustomEntity->getFlags());
             static::assertNotNull($enrichedCustomEntity->getFlags()['cms-aware']);
             static::assertNotNull($enrichedCustomEntity->getFlags()['admin-ui']);
-            static::assertEquals(
+            static::assertSame(
                 self::EXPECTED_CMS_AWARE_ENTITY_NAMES['allFlags'],
                 $enrichedCustomEntity->getFlags()['cms-aware']['name'],
             );
-            static::assertEquals(
+            static::assertSame(
                 self::EXPECTED_ADMIN_UI_ENTITY_NAMES['allFlags'],
                 $enrichedCustomEntity->getFlags()['admin-ui']->getName(),
             );
 
             $adminUi = $enrichedCustomEntity->getFlags()['admin-ui'];
-            static::assertEquals('sw-content', $adminUi->getVars()['navigationParent']);
-            static::assertEquals(50, $adminUi->getVars()['position']);
+            static::assertSame('sw-content', $adminUi->getVars()['navigationParent']);
+            static::assertSame(50, $adminUi->getVars()['position']);
 
             $listingColumns = $adminUi->getListing()->getColumns()->getContent();
             static::assertCount(3, $listingColumns);
@@ -334,7 +334,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(1, $enrichedCustomEntity->getFlags());
             static::assertNotNull($enrichedCustomEntity->getFlags()['cms-aware']);
             static::assertArrayNotHasKey('admin-ui', $enrichedCustomEntity->getFlags());
-            static::assertEquals(
+            static::assertSame(
                 self::EXPECTED_CMS_AWARE_ENTITY_NAMES['cmsAwareOnly'],
                 $enrichedCustomEntity->getFlags()['cms-aware']['name'],
             );
@@ -372,13 +372,13 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertArrayNotHasKey('cms-aware', $enrichedCustomEntity->getFlags());
             $adminUi = $enrichedCustomEntity->getFlags()['admin-ui'];
             static::assertInstanceOf(AdminUiEntity::class, $adminUi);
-            static::assertEquals(
+            static::assertSame(
                 self::EXPECTED_ADMIN_UI_ENTITY_NAMES['adminUiOnly'],
                 $adminUi->getName(),
             );
 
-            static::assertEquals('sw-content', $adminUi->getVars()['navigationParent']);
-            static::assertEquals(50, $adminUi->getVars()['position']);
+            static::assertSame('sw-content', $adminUi->getVars()['navigationParent']);
+            static::assertSame(50, $adminUi->getVars()['position']);
 
             $listingColumns = $adminUi->getListing()->getColumns()->getContent();
             static::assertCount(3, $listingColumns);
@@ -436,12 +436,12 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             );
             static::fail('no Exception was thrown');
         } catch (CustomEntityConfigurationException $exception) {
-            static::assertEquals(
+            static::assertSame(
                 'The entities ce_not_defined0, ce_not_defined1 are not given in the entities.xml but are configured in admin-ui.xml',
                 $exception->getMessage()
             );
-            static::assertEquals(CustomEntityConfigurationException::ENTITY_NOT_GIVEN_CODE, $exception->getErrorCode());
-            static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(CustomEntityConfigurationException::ENTITY_NOT_GIVEN_CODE, $exception->getErrorCode());
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         }
     }
 

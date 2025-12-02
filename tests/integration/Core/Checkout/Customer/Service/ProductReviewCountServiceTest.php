@@ -44,6 +44,7 @@ class ProductReviewCountServiceTest extends TestCase
         $this->createProduct('p2');
 
         $this->createCustomer('c1');
+        $createdReviews = [];
         $createdReviews[] = $this->createReview('c1', 'p1', true);
         $createdReviews[] = $this->createReview('c1', 'p2', false);
 
@@ -58,11 +59,11 @@ class ProductReviewCountServiceTest extends TestCase
 
         $firstCustomer = $customers->get($this->ids->get('c1'));
         static::assertInstanceOf(CustomerEntity::class, $firstCustomer);
-        static::assertEquals(1, $firstCustomer->getReviewCount());
+        static::assertSame(1, $firstCustomer->getReviewCount());
 
         $secondCustomer = $customers->get($this->ids->get('c2'));
         static::assertInstanceOf(CustomerEntity::class, $secondCustomer);
-        static::assertEquals(1, $secondCustomer->getReviewCount());
+        static::assertSame(1, $secondCustomer->getReviewCount());
     }
 
     private function createCustomer(string $customerNumber): void

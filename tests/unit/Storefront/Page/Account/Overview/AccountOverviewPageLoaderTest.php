@@ -83,7 +83,7 @@ class AccountOverviewPageLoaderTest extends TestCase
         );
 
         $this->orderRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($orderResponse);
 
@@ -92,21 +92,23 @@ class AccountOverviewPageLoaderTest extends TestCase
         $page->getMetaInformation()?->setMetaTitle('testshop');
 
         $this->genericPageLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 
         $this->translator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('trans')
             ->willReturn('translated');
 
         $customer = new CustomerEntity();
         $page = $this->pageLoader->load(new Request(), $this->createMock(SalesChannelContext::class), $customer);
 
-        static::assertEquals($order, $page->getNewestOrder());
-        static::assertEquals('translated | testshop', $page->getMetaInformation()?->getMetaTitle());
-        static::assertEquals('noindex,follow', $page->getMetaInformation()?->getRobots());
+        static::assertSame($order, $page->getNewestOrder());
+        $metaInformation = $page->getMetaInformation();
+        static::assertNotNull($metaInformation);
+        static::assertSame('translated | testshop', $metaInformation->getMetaTitle());
+        static::assertSame('noindex,follow', $metaInformation->getRobots());
 
         $events = $this->eventDispatcher->getEvents();
         static::assertCount(2, $events);

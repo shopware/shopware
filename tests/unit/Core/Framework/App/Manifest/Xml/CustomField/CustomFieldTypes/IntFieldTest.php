@@ -26,17 +26,17 @@ class IntFieldTest extends TestCase
 
         $intField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(IntField::class, $intField);
-        static::assertEquals('test_int_field', $intField->getName());
-        static::assertEquals([
+        static::assertSame('test_int_field', $intField->getName());
+        static::assertSame([
             'en-GB' => 'Test int field',
             'de-DE' => 'Test Ganzzahlenfeld',
         ], $intField->getLabel());
-        static::assertEquals(['en-GB' => 'This is an int field.'], $intField->getHelpText());
-        static::assertEquals(1, $intField->getPosition());
-        static::assertEquals(2, $intField->getSteps());
-        static::assertEquals(0, $intField->getMin());
-        static::assertEquals(1, $intField->getMax());
-        static::assertEquals(['en-GB' => 'Enter an int...'], $intField->getPlaceholder());
+        static::assertSame(['en-GB' => 'This is an int field.'], $intField->getHelpText());
+        static::assertSame(1, $intField->getPosition());
+        static::assertSame(2, $intField->getSteps());
+        static::assertSame(0, $intField->getMin());
+        static::assertSame(1, $intField->getMax());
+        static::assertSame(['en-GB' => 'Enter an int...'], $intField->getPlaceholder());
         static::assertTrue($intField->getRequired());
     }
 }

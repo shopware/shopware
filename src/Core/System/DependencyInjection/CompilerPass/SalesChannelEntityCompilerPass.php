@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
@@ -62,7 +65,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                 $container->setAlias(self::PREFIX . $serviceId, new Alias($serviceId, true));
             }
 
-            // if both mask base with extended extended as base
+            // if both mask base with extended as base
             if (isset($definitions['extended'], $definitions['base'])) {
                 $container->setAlias(self::PREFIX . $definitions['base'], new Alias($definitions['extended'], true));
             }
@@ -148,8 +151,18 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
             /** @var string $class */
             $class = $service->getClass();
+
+            if (\in_array($class, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+                if (empty($service->getArguments())) {
+                    continue;
+                }
+
+                $instance = new $class($service->getArguments()[0]);
+            } else {
+                $instance = new $class();
+            }
+
             /** @var EntityDefinition $instance */
-            $instance = new $class();
             $entityName = $instance->getEntityName();
             $result[$serviceId]['entityName'] = $entityName;
 

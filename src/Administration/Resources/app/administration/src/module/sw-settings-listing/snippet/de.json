@@ -1,0 +1,100 @@
+{
+  "sw-settings-listing": {
+    "general": {
+      "mainMenuItemGeneral": "Produkte",
+      "textHeadline": "Produkte",
+      "description": "Verwalte hier die Anzeige von Produkte.",
+      "buttonSave": "Speichern",
+      "messageSaveSuccess": "Konfiguration gespeichert.",
+      "messageSaveError": "Die Konfiguration konnte nicht gelöscht werden. \"{message}\"",
+      "labelDefaultSorting": "Standard-Sortierung",
+      "labelDefaultSearchResultSorting": "Standard-Sortierung der Suchergebnisse",
+      "placeholderDefaultSorting": "Wähle eine Standard-Sortierung ...",
+      "placeholderDefaultSearchResultSorting": "Wähle eine Standard-Sortierung der Suchergebnisse ...",
+      "productSortingCriteriaGrid": {
+        "header": {
+          "name": "Name",
+          "order": "Reihenfolge",
+          "priority": "Priorität"
+        },
+        "options": {
+          "criteriaAlreadyUsed": "Das Sortier-Kriterium \"{criteriaName}\" wird schon verwendet.",
+          "customFieldCriteriaNotNull": "Bitte wähle ein gültiges Zusatzfeld aus.",
+          "label": {
+            "product": {
+              "name": "Produktname",
+              "ratingAverage": "Produkt-Bewertung",
+              "productNumber": "Produktnummer",
+              "releaseDate": "Erscheinungsdatum",
+              "stock": "Lagerbestand",
+              "listingPrices": "Produktlisten-Preis",
+              "cheapestPrice": "Günstigster Produkt-Preis",
+              "price": "Standard Preis",
+              "sales": "Verkaufte Einheiten",
+              "createdAt": "Erstellungsdatum",
+              "available": "Verfügbar"
+            },
+            "customField": "Zusatzfeld",
+            "_score": "_score"
+          }
+        }
+      }
+    },
+    "index": {
+      "defaultSalesChannel": {
+        "title": "Standard-Verkaufskanal",
+        "description": "Wähle Standard-Verkaufskanäle, denen neuerstellte Produkte automatisch zugewiesen werden.",
+        "linkAdvancedVisibility": "Sichtbarkeit für ausgewählte Verkaufskanäle einstellen"
+      },
+      "productSorting": {
+        "title": "Sortier-Optionen",
+        "addButton": "Option hinzufügen",
+        "messageDeleteError": "Beim Löschen der Sortier-Option ist ein Fehler aufgetreten.",
+        "emptyState": {
+          "title": "Keine Optionen gefunden",
+          "subline": "Optionen hinzufügen"
+        },
+        "grid": {
+          "header": {
+            "name": "Name",
+            "criteria": "Kriterien",
+            "priority": "Priorität"
+          }
+        }
+      },
+      "deleteModal": {
+        "title": "Sortier-Option löschen",
+        "description": "Willst du die Sortier-Option \"{sortingOptionName}\" wirklich löschen?"
+      }
+    },
+    "create": {
+      "smartBarTitle": "Produkt-Sortierung erstellen"
+    },
+    "base": {
+      "smartBarTitle": "Produkt-Sortierung bearbeiten",
+      "general": {
+        "title": "Allgemein",
+        "labelName": "Name",
+        "placeholderName": "Namen eingeben ...",
+        "labelTechnicalName": "Technischer Name",
+        "placeholderTechnicalName": "Technischen Namen eingeben ...",
+        "helpTextTechnicalName": "Der technische Name wird für die Identifizierung der Produkt-Sortierung verwendet. Er ist einzigartig und für alle Produkt-Sortierungen erforderlich.",
+        "labelActive": "Aktiv"
+      },
+      "notification": {
+        "saveSuccess": "Sortier-Option \"{sortingOptionName}\" gespeichert.",
+        "saveError": "Die Sortier-Option \"{sortingOptionName}\" kann nicht gespeichert werden.",
+        "saveErrorAlreadyExists": "Die Sortier-Option \"{sortingOptionName}\" existiert bereits."
+      },
+      "criteria": {
+        "title": "Sortier-Kriterien",
+        "selectPlaceholder": "Kriterien suchen und hinzufügen ...",
+        "emptyStateSubline": "Diese Sortier-Option hat noch keine Kriterien."
+      },
+      "delete": {
+        "modalTitle": "Kriterium löschen",
+        "modalDescription": "Willst Du dieses Kriterium wirklich löschen?"
+      }
+    }
+  }
+}

@@ -22,7 +22,7 @@ class ElasticsearchRangeAggregationTest extends TestCase
 
         $agg = new ElasticsearchRangeAggregation('test-name', 'test-field', $ranges);
 
-        static::assertEquals([
+        static::assertSame([
             'ranges' => [
                 'field' => 'test-field',
                 'ranges' => $ranges,

@@ -13,6 +13,8 @@ interface MailAware
 
     public const SALES_CHANNEL_ID = 'salesChannelId';
 
+    public const TIMEZONE = 'timezone';
+
     public function getMailStruct(): MailRecipientStruct;
 
     public function getSalesChannelId(): ?string;

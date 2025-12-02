@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
+use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -80,7 +82,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 class SchemaBuilder
 {
     /**
-     * @var array<string, string>
+     * @var array<class-string<Field>, Types::*>
      */
     public static array $fieldMapping = [
         IdField::class => Types::BINARY,
@@ -117,6 +119,7 @@ class SchemaBuilder
         SlotConfigField::class => Types::JSON,
         FlowTemplateConfigField::class => Types::JSON,
         CheapestPriceField::class => Types::JSON,
+        MeasurementUnitsField::class => Types::JSON,
 
         ChildCountField::class => Types::INTEGER,
         IntField::class => Types::INTEGER,
@@ -144,7 +147,7 @@ class SchemaBuilder
     ];
 
     /**
-     * @var array<string, array<string, mixed>>
+     * @var array{binary: array{length: 16, fixed: true}, boolean: array{default: 0}}
      */
     public static array $options = [
         Types::BINARY => [
@@ -163,7 +166,6 @@ class SchemaBuilder
         $table->addOption('charset', 'utf8mb4');
         $table->addOption('collate', 'utf8mb4_unicode_ci');
 
-        /** @var Field $field */
         foreach ($definition->getFields() as $field) {
             if ($field->is(Runtime::class)) {
                 continue;
@@ -173,11 +175,11 @@ class SchemaBuilder
                 continue;
             }
 
-            if (!$field instanceof StorageAware) {
+            if ($field instanceof TranslatedField) {
                 continue;
             }
 
-            if ($field instanceof TranslatedField) {
+            if (!$field instanceof StorageAware) {
                 continue;
             }
 
@@ -190,20 +192,28 @@ class SchemaBuilder
             );
         }
 
-        /** @var StorageAware[] $primaryKeys */
-        $primaryKeys = $definition->getPrimaryKeys()->filter(function (Field $field) {
-            return $field instanceof StorageAware;
-        })->getElements();
+        $primaryKeys = $definition->getPrimaryKeys()->fmap(static function (Field $field): ?string {
+            if ($field instanceof StorageAware) {
+                return $field->getStorageName();
+            }
 
-        $table->setPrimaryKey(array_map(function (StorageAware $field) {
-            return $field->getStorageName();
-        }, $primaryKeys));
+            return null;
+        });
+
+        if ($primaryKeys) {
+            $pk = PrimaryKeyConstraint::editor();
+            $pk->setUnquotedColumnNames(...array_values($primaryKeys));
+            $table->addPrimaryKeyConstraint($pk->create());
+        }
 
         $this->addForeignKeys($table, $definition);
 
         return $table;
     }
 
+    /**
+     * @return Types::*
+     */
     private function getFieldType(Field $field): string
     {
         if ($field instanceof EnumField) {
@@ -268,8 +278,11 @@ class SchemaBuilder
 
         $referenceVersionFields = $definition->getFields()->filterInstance(ReferenceVersionField::class);
 
-        /** @var ManyToOneAssociationField $field */
         foreach ($fields as $field) {
+            if (!$field instanceof ManyToOneAssociationField && !$field instanceof OneToOneAssociationField) {
+                continue;
+            }
+
             $reference = $field->getReferenceDefinition();
 
             $hasOneToMany = $definition->getFields()->filter(function (Field $field) use ($reference) {
@@ -283,7 +296,7 @@ class SchemaBuilder
                 return $field->getReferenceDefinition() === $reference;
             })->count() > 0;
 
-            // skip foreign key to prevent bi-directional foreign key
+            // skip foreign key to prevent bidirectional foreign key
             if ($hasOneToMany) {
                 continue;
             }
@@ -299,8 +312,10 @@ class SchemaBuilder
             if ($reference->isVersionAware()) {
                 $versionField = null;
 
-                /** @var ReferenceVersionField $referenceVersionField */
                 foreach ($referenceVersionFields as $referenceVersionField) {
+                    if (!$referenceVersionField instanceof ReferenceVersionField) {
+                        continue;
+                    }
                     if ($referenceVersionField->getVersionReferenceDefinition() === $reference) {
                         $versionField = $referenceVersionField;
 
@@ -315,7 +330,6 @@ class SchemaBuilder
                         throw DataAbstractionLayerException::versionFieldNotFound($field->getPropertyName());
                     }
 
-                    /** @var ReferenceVersionField $versionField */
                     $columns[] = $versionField->getStorageName();
                 }
 

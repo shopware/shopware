@@ -1,6 +1,7 @@
 {# @deprecated tag:v6.8.0 - Use `mt-button` instead. #}
 {% block sw_button %}
 <mt-button
+    v-if="!deprecated"
     v-bind="$attrs"
     variant="secondary"
     @click="onClick"
@@ -8,3 +9,12 @@
     <slot></slot>
 </mt-button>
 {% endblock %}
+
+{# Deprecated component #}
+<sw-button-deprecated
+    v-else
+    v-bind="$attrs"
+    :router-link="routerLink"
+>
+    <slot></slot>
+</sw-button-deprecated>

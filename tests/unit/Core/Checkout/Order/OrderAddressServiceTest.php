@@ -16,17 +16,22 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type BillingAddressMapping from OrderAddressService
+ * @phpstan-import-type ShippingAddressMapping from OrderAddressService
  */
 #[CoversClass(OrderAddressService::class)]
+#[Package('checkout')]
 class OrderAddressServiceTest extends TestCase
 {
     /**
-     * @param array<int, array{customerAddressId: string, type: string, deliveryId?: string}> $mappings
+     * @param list<BillingAddressMapping|ShippingAddressMapping> $mappings
      */
     #[DataProvider('provideInvalidMappings')]
     public function testValidateInvalidMapping(array $mappings): void
@@ -95,7 +100,7 @@ class OrderAddressServiceTest extends TestCase
 
     public function testMissingOrder(): void
     {
-        /** @var StaticEntityRepository<OrderCollection> */
+        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([new OrderCollection([])]);
 
         $orderAddressService = new OrderAddressService(
@@ -153,17 +158,17 @@ class OrderAddressServiceTest extends TestCase
                 return $this->createMock(EntityWrittenContainerEvent::class);
             });
 
-        /** @var StaticEntityRepository<CustomerAddressCollection> */
+        /** @var StaticEntityRepository<CustomerAddressCollection> $customerAddressRepository */
         $customerAddressRepository = new StaticEntityRepository([new CustomerAddressCollection([$customerAddress]), new CustomerAddressCollection([$customerAddress])]);
 
         $orderDeliveryRepository = $this->createMock(EntityRepository::class);
         $orderDeliveryRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update');
 
         $order = $this->createOrderEntity();
 
-        /** @var StaticEntityRepository<OrderCollection> */
+        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([new OrderCollection([$order])]);
 
         $orderAddressService = new OrderAddressService(

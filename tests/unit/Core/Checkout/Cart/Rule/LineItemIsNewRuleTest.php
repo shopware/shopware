@@ -48,7 +48,7 @@ class LineItemIsNewRuleTest extends TestCase
     {
         $ruleConstraints = $this->rule->getConstraints();
 
-        $boolType = new Type(['type' => 'bool']);
+        $boolType = new Type(type: 'bool');
 
         static::assertArrayHasKey('isNew', $ruleConstraints, 'Rule Constraint isNew is not defined');
         static::assertCount(1, $ruleConstraints['isNew']);

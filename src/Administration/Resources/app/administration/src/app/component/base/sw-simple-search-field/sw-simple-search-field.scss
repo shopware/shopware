@@ -3,9 +3,16 @@
 .sw-simple-search-field {
     position: relative;
     outline: none;
+    height: 100%;
 
     .mt-field.sw-simple-search-field__input {
+        height: 100%;
         margin-bottom: 0;
+
+        .mt-block-field__block {
+            min-height: auto;
+            height: 100%;
+        }
     }
 
     .sw-simple-search-field__input.sw-simple-search-field--default {

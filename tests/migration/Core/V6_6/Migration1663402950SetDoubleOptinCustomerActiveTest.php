@@ -31,12 +31,13 @@ class Migration1663402950SetDoubleOptinCustomerActiveTest extends TestCase
     {
         $customerId = Uuid::randomBytes();
         $countAffectedRows = $this->addCustomerWithDoubleOptInButNotConfirmed($customerId);
-        static::assertEquals(1, $countAffectedRows);
+        static::assertSame(1, $countAffectedRows);
         static::assertFalse($this->checkCustomerIsActive($customerId));
 
         $migration = new Migration1663402950SetDoubleOptinCustomerActive();
         $migration->update($this->connection);
         static::assertTrue($this->checkCustomerIsActive($customerId));
+        static::assertSame(1663402950, $migration->getCreationTimestamp());
     }
 
     public function testCanBeExecutedMultipleTimes(): void

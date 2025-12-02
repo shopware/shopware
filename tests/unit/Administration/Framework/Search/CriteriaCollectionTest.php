@@ -21,7 +21,7 @@ class CriteriaCollectionTest extends TestCase
         $collection->add(new Criteria());
 
         static::expectExceptionMessage(\sprintf('Expected collection element of type %s got %s', Criteria::class, NotificationEntity::class));
-        /** @phpstan-ignore-next-line intentionally wrong parameter provided **/
+        /** @phpstan-ignore argument.type (for test purpose) */
         $collection->add(new NotificationEntity());
 
         static::assertCount(1, $collection);

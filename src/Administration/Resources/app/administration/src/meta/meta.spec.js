@@ -19,6 +19,11 @@ const templateFiles = allFiles.filter((file) => {
     return file.match(/^.*\.html\.twig$/);
 });
 
+// eslint-disable-next-line no-undef
+const testFiles = globSync(path.join(adminPath, 'src/**/*.spec.{js,ts}'), {
+    ignore: ['**/node_modules/**'],
+});
+
 describe('Administration meta tests', () => {
     describe('check for test files', () => {
         it.each(testAbleFiles)('should have a spec file for "%s"', (file) => {
@@ -101,7 +106,7 @@ describe('Administration meta tests', () => {
             expect(typeof packageJson).toBe('object');
             expect(packageJson.hasOwnProperty('engines')).toBe(true);
             expect(packageJson.engines.hasOwnProperty('node')).toBe(true);
-            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0');
+            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0 || ^24.0.0 || ^25.0.0');
             expect(packageJson.engines.hasOwnProperty('npm')).toBe(true);
             expect(packageJson.engines.npm).toBe('>=10.0.0');
         });
@@ -119,7 +124,7 @@ describe('Administration meta tests', () => {
                 }
 
                 // Find all position identifiers in the file and add them to the result
-                [...fileContent.matchAll(/position-identifier="(.*)"/gm)]
+                [...fileContent.matchAll(/position-identifier="(.+)"/gm)]
                     .map((match) => match[1])
                     .forEach((match) => {
                         if (match !== '' && match !== 'null') {
@@ -190,8 +195,21 @@ describe('Administration meta tests', () => {
 
             expect(
                 newBlocks,
-                `New blocks have been added. Please run 'generate-block-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
+                `New blocks have been added. Please run 'composer admin:generate-blocks-list' script to add them to the blocks list: \n${newBlocks.join(', ')}`,
             ).toHaveLength(0);
+        });
+    });
+
+    describe('forbidden Vue.js component smoke test', () => {
+        it.each(testFiles)('%s must not contain the generic Vue.js component smoke test', (file) => {
+            const content = fs.readFileSync(file, 'utf-8');
+
+            const forbiddenPattern = /(?:it|test)\(\s*['"`]should be a Vue\.js component['"`]\s*,/;
+
+            expect(forbiddenPattern.test(content)).toBe(
+                false,
+                `Found forbidden Vue.js smoke-test in ${path.relative(process.cwd(), file)}`,
+            );
         });
     });
 });

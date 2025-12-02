@@ -41,29 +41,29 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $parts = explode('.', $accessor);
 
         // is tax state explicitly requested? => overwrite selector
-        if (\in_array(end($parts), ['net', 'gross'], true)) {
-            $jsonAccessor = end($parts);
+        if (\in_array(array_last($parts), ['net', 'gross'], true)) {
+            $jsonAccessor = array_last($parts);
             array_pop($parts);
         }
 
         // filter / search / sort for list prices? => extend selector
-        if (end($parts) === 'listPrice') {
+        if (array_last($parts) === 'listPrice') {
             $jsonAccessor = 'listPrice.' . $jsonAccessor;
             array_pop($parts);
         }
 
-        if (end($parts) === 'percentage') {
+        if (array_last($parts) === 'percentage') {
             $jsonAccessor = 'percentage.' . $jsonAccessor;
             array_pop($parts);
         }
 
         // is specific currency id provided? => overwrite currency id and currency factor
-        $lastPart = (string) end($parts);
+        $lastPart = (string) array_last($parts);
         if (Uuid::isValid($lastPart)) {
             $currencyId = $lastPart;
             $currencyFactor = \sprintf(
                 '* (SELECT `factor` FROM `currency` WHERE `id` = %s)',
-                (string) $this->connection->quote($currencyId)
+                $this->connection->quote($currencyId)
             );
         }
 
@@ -81,8 +81,8 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $variables = [
             '#root#' => EntityDefinitionQueryHelper::escape($root),
             '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
-            '#currencyId#' => (string) $currencyId,
-            '#property#' => (string) $jsonAccessor,
+            '#currencyId#' => $currencyId,
+            '#property#' => $jsonAccessor,
             '#factor#' => '+ 0.0',
         ];
 
@@ -93,7 +93,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 '#root#' => EntityDefinitionQueryHelper::escape($root),
                 '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
                 '#currencyId#' => Defaults::CURRENCY,
-                '#property#' => (string) $jsonAccessor,
+                '#property#' => $jsonAccessor,
                 '#factor#' => $currencyFactor,
             ];
 

@@ -2,7 +2,7 @@
 import template from './sw-file-input.html.twig';
 import './sw-file-input.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { fileSize } = Shopware.Utils.format;
 const utils = Shopware.Utils;
 
@@ -20,7 +20,7 @@ const utils = Shopware.Utils;
  *     :maxFileSize="8*1024*1024">
  * </sw-file-input>
  */
-Component.register('sw-file-input', {
+export default {
     template,
 
     inject: ['feature'],
@@ -86,6 +86,10 @@ Component.register('sw-file-input', {
         this.mountedComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
         mountedComponent() {
             if (this.$refs.dropzone) {
@@ -99,6 +103,21 @@ Component.register('sw-file-input', {
 
                 window.addEventListener('dragenter', this.onDragEnter);
                 window.addEventListener('dragleave', this.onDragLeave);
+            }
+        },
+
+        beforeUnmountComponent() {
+            if (this.$refs.dropzone) {
+                [
+                    'dragover',
+                    'drop',
+                ].forEach((event) => {
+                    window.removeEventListener(event, this.stopEventPropagation, false);
+                });
+                this.$refs.dropzone.removeEventListener('drop', this.onDrop);
+
+                window.removeEventListener('dragenter', this.onDragEnter);
+                window.removeEventListener('dragleave', this.onDragLeave);
             }
         },
 
@@ -215,4 +234,4 @@ Component.register('sw-file-input', {
             this.$refs.fileForm.reset();
         },
     },
-});
+};

@@ -64,16 +64,6 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
         );
     }
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper({
-            data: {
-                states: [],
-            },
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('creates an empty entity collection if taxRule.data.states is empty', async () => {
         const wrapper = await createWrapper({
             data: {

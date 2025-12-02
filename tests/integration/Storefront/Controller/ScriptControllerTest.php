@@ -43,7 +43,7 @@ class ScriptControllerTest extends TestCase
         static::assertSame('some debug information', $traces['storefront-json-response'][0]['output'][0]);
 
         static::assertArrayHasKey('foo', $body);
-        static::assertEquals('bar', $body['foo']);
+        static::assertSame('bar', $body['foo']);
     }
 
     public function testGetApiEndpointWithSlashInHookName(): void
@@ -62,7 +62,7 @@ class ScriptControllerTest extends TestCase
         static::assertSame('some debug information', $traces['storefront-json-response'][0]['output'][0]);
 
         static::assertArrayHasKey('foo', $body);
-        static::assertEquals('bar', $body['foo']);
+        static::assertSame('bar', $body['foo']);
     }
 
     public function testPostApiEndpoint(): void
@@ -86,7 +86,7 @@ class ScriptControllerTest extends TestCase
         static::assertSame('some debug information', $traces['storefront-json-response'][0]['output'][0]);
 
         static::assertArrayHasKey('foo', $body);
-        static::assertEquals('bar', $body['foo']);
+        static::assertSame('bar', $body['foo']);
     }
 
     public function testRenderTemplate(): void

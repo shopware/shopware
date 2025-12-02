@@ -131,14 +131,12 @@
             <div
                 class="sw-cms-sidebar__block-selection"
             >
-                <sw-empty-state
+                <mt-empty-state
                     v-if="cmsBlocksBySelectedBlockCategory.length === 0 && currentBlockCategory === 'favorite'"
                     icon="solid-heart"
-                    :absolute="false"
-                    :title="$tc('sw-cms.detail.title.blockFavoriteEmptyState')"
-                >
-                    {{ $tc('sw-cms.detail.label.blockFavoriteEmptyState') }}
-                </sw-empty-state>
+                    :headline="$tc('sw-cms.detail.title.blockFavoriteEmptyState')"
+                    :description="$tc('sw-cms.detail.label.blockFavoriteEmptyState')"
+                />
 
                 <div
                     v-for="block in cmsBlocksBySelectedBlockCategory"
@@ -398,7 +396,7 @@
                             variant="danger"
                             @click="onSectionDelete(section.id)"
                         >
-                            {{ $tc('sw-cms.general.buttonDelete') }}
+                            {{ $t('global.default.delete') }}
                         </sw-context-menu-item>
                         {% endblock %}
                     </sw-context-button>
@@ -531,7 +529,7 @@
             </h3>
 
             <p class="sw-cms-sidebar__layout-set-as-default-info-text">
-                {{ $tc('sw-cms.components.setDefaultLayoutModal.infoText', page.type === 'product_detail') }}
+                {{ $tc('sw-cms.components.setDefaultLayoutModal.infoText', {}, page.type === 'product_detail') }}
             </p>
 
             <mt-button

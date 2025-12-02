@@ -1,7 +1,6 @@
 import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
@@ -28,7 +27,7 @@ const utils = Shopware.Utils;
  *     ]">
  * </sw-data-grid>
  */
-Component.register('sw-data-grid', {
+export default {
     template,
 
     inject: [
@@ -45,6 +44,7 @@ Component.register('sw-data-grid', {
         'inline-edit-save',
         'inline-edit-cancel',
         'column-sort',
+        'row-click',
     ],
 
     props: {
@@ -176,6 +176,12 @@ Component.register('sw-data-grid', {
                     Object.keys(this.selection).includes(item[this.itemIdentifierProperty])
                 );
             },
+        },
+
+        rowsClickable: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
 
         itemIdentifierProperty: {
@@ -580,6 +586,7 @@ Component.register('sw-data-grid', {
                     'is--inline-edit': this.isInlineEdit(item),
                     'is--selected': this.isSelected(item.id),
                     'is--disabled': this.isRecordDisabled(item),
+                    'is--clickable': this.rowsClickable,
                 },
                 `sw-data-grid__row--${itemIndex}`,
             ];
@@ -690,8 +697,6 @@ Component.register('sw-data-grid', {
         },
 
         selectAll(selected) {
-            this.selection = {};
-
             this.records.forEach((item) => {
                 if (this.isSelected(item[this.itemIdentifierProperty]) !== selected) {
                     this.selectItem(selected, item);
@@ -770,6 +775,36 @@ Component.register('sw-data-grid', {
             this.setAllColumnElementWidths();
 
             this.sort(column);
+        },
+
+        onRowClick(event, item) {
+            if (!this.rowsClickable) {
+                return;
+            }
+
+            const target = event.target;
+
+            const blockedSelectors = [
+                '.sw-data-grid__cell--selection',
+                '.sw-data-grid__cell--actions',
+                '.sw-context-button',
+                'button',
+                'a',
+                'input',
+            ];
+
+            if (blockedSelectors.some((selector) => target.closest(selector))) {
+                return;
+            }
+
+            if (this.showSelection) {
+                const itemId = item[this.itemIdentifierProperty];
+                const isCurrentlySelected = this.isSelected(itemId);
+
+                this.selectItem(!isCurrentlySelected, item);
+            }
+
+            this.$emit('row-click', item);
         },
 
         onStartResize(event, column, columnIndex) {
@@ -887,4 +922,4 @@ Component.register('sw-data-grid', {
             this.$emit('column-sort', column);
         },
     },
-});
+};

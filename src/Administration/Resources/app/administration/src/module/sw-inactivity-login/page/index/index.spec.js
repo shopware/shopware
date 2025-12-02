@@ -91,12 +91,6 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        sessionStorage.setItem('lastKnownUser', 'max');
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should set data:url as background image', async () => {
         sessionStorage.setItem('lastKnownUser', 'admin');
         sessionStorage.setItem('inactivityBackground_foo', 'data:urlFoOBaR');
@@ -154,7 +148,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         expect(loginByUserName).toHaveBeenCalledWith('max', '');
 
         expect(wrapper.vm.passwordError !== null).toBe(true);
-        const passwordError = wrapper.findByText('span', 'sw-inactivity-login.modal.errors.password');
+        const passwordError = wrapper.findByText('span', 'global.sw-inactivity-login.modal.errors.password');
         expect(passwordError.exists()).toBe(true);
     });
 

@@ -53,6 +53,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createSsoLoginSection())
             ->end();
 
         return $treeBuilder;
@@ -128,6 +129,11 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('')
                     ->info('Path prefix to be prepended to the path when using a local download strategy')
                 ->end()
+                ->integerNode('batch_write_size')
+                    ->defaultValue(250)
+                    ->min(1)
+                    ->info('Batch size for writing files simultaneously using AsyncAwsS3WriteBatchAdapter')
+                ->end()
             ->end();
 
         return $rootNode;
@@ -187,6 +193,11 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
             ->scalarNode('max_limit')->end()
+            ->arrayNode('static_token')
+                ->children()
+                    ->scalarNode('health_check')->end()
+                ->end()
+            ->end()
             ->arrayNode('api_browser')
                 ->children()
                 ->booleanNode('auth_required')
@@ -286,6 +297,13 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('batchsize')
                     ->min(1)
                     ->defaultValue(100)
+                ->end()
+                ->arrayNode('scheduled_task')
+                    ->children()
+                        ->booleanNode('enabled')
+                            ->defaultTrue()
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 
@@ -396,8 +414,16 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                ->arrayNode('twig')
+                    ->children()
+                        ->scalarNode('string_template_renderer_cache_dir')->end()
+                    ->end()
+                ->end()
                 ->arrayNode('invalidation')
                     ->children()
+                        ->booleanNode('delay_enabled')
+                            ->defaultTrue()
+                        ->end()
                         ->arrayNode('delay_options')
                             ->children()
                                 ->scalarNode('storage')
@@ -409,6 +435,7 @@ class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                         ->arrayNode('http_cache')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as cache states will be removed.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
@@ -541,6 +568,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('compress')->defaultFalse()->end()
                 ->scalarNode('compression_method')->defaultValue('gzip')->end()
+                ->variableNode('serialization_max_mb_size')->defaultNull()->end()
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)
@@ -820,6 +848,13 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('show_banner')->defaultTrue()->end()
                     ->end()
                 ->end()
+                ->arrayNode('extensions')
+                    ->children()
+                        ->arrayNode('disable')
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode('sales_channel')
                     ->children()
                         ->arrayNode('domain_rewrite')
@@ -865,6 +900,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
                 ->scalarNode('stale_if_error')->defaultValue(null)->end()
+                ->scalarNode('soft_purge')->defaultValue(false)->end()
                 ->arrayNode('cookies')
                     ->performNoDeepMerging()
                     ->scalarPrototype()->end()
@@ -921,6 +957,17 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                 ->end()
                 ->booleanNode('enforce_message_size')->defaultFalse()->end()
+                ->integerNode('message_max_kib_size')->defaultValue(1024)->end()
+                ->arrayNode('scheduled_task')
+                    ->children()
+                        ->integerNode('requeue_timeout')->defaultValue(12)->end()
+                    ->end()
+                ->end()
+                ->arrayNode('stats')
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
+                        ->integerNode('time_span')->defaultValue(300)->end()
+                    ->end()
             ->end();
 
         return $rootNode;
@@ -1022,6 +1069,31 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('indexing')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createSsoLoginSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('admin_login');
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('use_default')->defaultTrue()->end();
+
+        $rootNode
+            ->children()
+                ->booleanNode('use_default')->isRequired()->end()
+                ->scalarNode('client_id')->isRequired()->end()
+                ->scalarNode('client_secret')->isRequired()->end()
+                ->scalarNode('redirect_uri')->isRequired()->end()
+                ->scalarNode('base_url')->isRequired()->end()
+                ->scalarNode('authorize_path')->isRequired()->end()
+                ->scalarNode('token_path')->isRequired()->end()
+                ->scalarNode('jwks_path')->isRequired()->end()
+                ->scalarNode('scope')->isRequired()->end()
+                ->scalarNode('register_url')->isRequired()->end()
             ->end();
 
         return $rootNode;

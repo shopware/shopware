@@ -15,10 +15,10 @@ The default should only be used when the corresponding entity is marked to use a
 
 ## Decision
 
-In order to implement this functionality, we needed a way to mark a product or category, which should use the default. This affects following entities:
+In order to implement this functionality, we needed a way to mark a product or category, which should use the default. This affects the following entities:
 * category
   * `category.cmsPageId` will be set to null if the defined default is given,
-  * this only applies to cms pages of type `procut_list`
+  * this only applies to cms pages of type `product_list`
 * product
   * `product.cmsPageId` will be set to null if the defined default `\Shopware\Core\Defaults::CMS_PRODUCT_DETAIL_PAGE` is given.
 
@@ -32,5 +32,5 @@ This fallback is loaded at the `entity.loaded` event of the corresponding entity
 
 For all related entities, the `cmsPageId` will be set to `null` if the default is given.
 The corresponding cms page id will then be set by subscribers.
-Therefor the cms page id, which is stored in the database, might differ from the cms page id which can be received via repository.  
+Therefore, the cms page id, which is stored in the database, might differ from the cms page id which can be received via repository.  
 To use the default functionality, an entity must not have a cms page id assigned to it.  

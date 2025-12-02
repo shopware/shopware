@@ -24,49 +24,49 @@ class AdminTest extends TestCase
         static::assertCount(2, $admin->getModules());
 
         $firstActionButton = $admin->getActionButtons()[0];
-        static::assertEquals('viewOrder', $firstActionButton->getAction());
-        static::assertEquals('order', $firstActionButton->getEntity());
-        static::assertEquals('detail', $firstActionButton->getView());
-        static::assertEquals('https://swag-test.com/your-order', $firstActionButton->getUrl());
-        static::assertEquals([
+        static::assertSame('viewOrder', $firstActionButton->getAction());
+        static::assertSame('order', $firstActionButton->getEntity());
+        static::assertSame('detail', $firstActionButton->getView());
+        static::assertSame('https://swag-test.com/your-order', $firstActionButton->getUrl());
+        static::assertSame([
             'en-GB' => 'View Order',
             'de-DE' => 'Zeige Bestellung',
         ], $firstActionButton->getLabel());
 
         $secondActionButton = $admin->getActionButtons()[1];
-        static::assertEquals('doStuffWithProducts', $secondActionButton->getAction());
-        static::assertEquals('product', $secondActionButton->getEntity());
-        static::assertEquals('list', $secondActionButton->getView());
-        static::assertEquals('https://swag-test.com/do-stuff', $secondActionButton->getUrl());
-        static::assertEquals([
+        static::assertSame('doStuffWithProducts', $secondActionButton->getAction());
+        static::assertSame('product', $secondActionButton->getEntity());
+        static::assertSame('list', $secondActionButton->getView());
+        static::assertSame('https://swag-test.com/do-stuff', $secondActionButton->getUrl());
+        static::assertSame([
             'en-GB' => 'Do Stuff',
             'de-DE' => 'Mache Dinge',
         ], $secondActionButton->getLabel());
 
         $firstModule = $admin->getModules()[0];
-        static::assertEquals('https://test.com', $firstModule->getSource());
-        static::assertEquals('first-module', $firstModule->getName());
-        static::assertEquals([
+        static::assertSame('https://test.com', $firstModule->getSource());
+        static::assertSame('first-module', $firstModule->getName());
+        static::assertSame([
             'en-GB' => 'My first own module',
             'de-DE' => 'Mein erstes eigenes Modul',
         ], $firstModule->getLabel());
-        static::assertEquals('sw-test-structure-module', $firstModule->getParent());
-        static::assertEquals(10, $firstModule->getPosition());
+        static::assertSame('sw-test-structure-module', $firstModule->getParent());
+        static::assertSame(10, $firstModule->getPosition());
 
         $secondModule = $admin->getModules()[1];
         static::assertNull($secondModule->getSource());
-        static::assertEquals('structure-module', $secondModule->getName());
-        static::assertEquals([
+        static::assertSame('structure-module', $secondModule->getName());
+        static::assertSame([
             'en-GB' => 'My menu entry for modules',
             'de-DE' => 'Mein Menüeintrag für Module',
         ], $secondModule->getLabel());
-        static::assertEquals('sw-catalogue', $secondModule->getParent());
-        static::assertEquals(50, $secondModule->getPosition());
+        static::assertSame('sw-catalogue', $secondModule->getParent());
+        static::assertSame(50, $secondModule->getPosition());
 
         $mainModule = $admin->getMainModule();
 
         static::assertNotNull($mainModule);
-        static::assertEquals('https://main-module', $mainModule->getSource());
+        static::assertSame('https://main-module', $mainModule->getSource());
     }
 
     public function testModulesWithStructureElements(): void
@@ -79,8 +79,8 @@ class AdminTest extends TestCase
         $moduleWithStructureElement = $admin->getModules()[0];
 
         static::assertNull($moduleWithStructureElement->getSource());
-        static::assertEquals('sw-catalogue', $moduleWithStructureElement->getParent());
-        static::assertEquals(50, $moduleWithStructureElement->getPosition());
+        static::assertSame('sw-catalogue', $moduleWithStructureElement->getParent());
+        static::assertSame(50, $moduleWithStructureElement->getPosition());
     }
 
     public function testMainModuleIsOptional(): void

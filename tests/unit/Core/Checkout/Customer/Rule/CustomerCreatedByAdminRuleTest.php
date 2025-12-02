@@ -31,7 +31,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
         static::assertArrayHasKey('shouldCustomerBeCreatedByAdmin', $constraints, 'Constraint shouldCustomerBeCreatedByAdmin not found in Rule');
         static::assertEquals($constraints['shouldCustomerBeCreatedByAdmin'], [
             new NotNull(),
-            new Type(['type' => 'bool']),
+            new Type(type: 'bool'),
         ]);
     }
 
@@ -74,7 +74,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->assign(['createdById' => Uuid::randomHex()]);
 
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn(null);
 
@@ -88,13 +88,13 @@ class CustomerCreatedByAdminRuleTest extends TestCase
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
 
         $scope = new CheckoutRuleScope($salesChannelContext);
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     public static function getCaseTestMatchValues(): \Generator

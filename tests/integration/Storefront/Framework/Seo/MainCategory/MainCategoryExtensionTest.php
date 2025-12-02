@@ -86,8 +86,8 @@ class MainCategoryExtensionTest extends TestCase
 
         $mainCategory = $mainCategories->filterBySalesChannelId($salesChannelId)->first();
         static::assertInstanceOf(MainCategoryEntity::class, $mainCategory);
-        static::assertEquals($salesChannelId, $mainCategory->getSalesChannelId());
-        static::assertEquals($categories->firstId(), $mainCategory->getCategoryId());
+        static::assertSame($salesChannelId, $mainCategory->getSalesChannelId());
+        static::assertSame($categories->firstId(), $mainCategory->getCategoryId());
     }
 
     private function createTestProduct(): string

@@ -95,11 +95,13 @@ export default class ShopwareExtensionService {
         await this.updateModules();
     }
 
-    public async updateExtensionData(): Promise<void> {
+    public async updateExtensionData(refreshExtensions: boolean = true): Promise<void> {
         Shopware.Store.get('shopwareExtensions').loadMyExtensions();
 
         try {
-            await this.extensionStoreActionService.refresh();
+            if (!Shopware.Store.get('context').app.config?.settings?.disableExtensionManagement && refreshExtensions) {
+                await this.extensionStoreActionService.refresh();
+            }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const myExtensions = await this.extensionStoreActionService.getMyExtensions();

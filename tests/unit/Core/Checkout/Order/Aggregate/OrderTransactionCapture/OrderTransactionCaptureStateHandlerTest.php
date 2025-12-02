@@ -55,7 +55,7 @@ class OrderTransactionCaptureStateHandlerTest extends TestCase
     protected function stateMachineRegistry(string $transitionName): void
     {
         $this->machineRegistryMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('transition')
             ->with(new Transition(
                 OrderTransactionCaptureDefinition::ENTITY_NAME,

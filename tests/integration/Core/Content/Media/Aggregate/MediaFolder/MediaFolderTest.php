@@ -55,7 +55,7 @@ class MediaFolderTest extends TestCase
         $mediaFolder = $collection->get($folderId);
 
         static::assertInstanceOf(MediaFolderEntity::class, $mediaFolder);
-        static::assertEquals('default folder', $mediaFolder->getName());
+        static::assertSame('default folder', $mediaFolder->getName());
         static::assertNotNull($mediaFolder->getConfigurationId());
         static::assertNotNull($mediaFolder->getConfiguration());
         static::assertTrue($mediaFolder->getConfiguration()->getCreateThumbnails());

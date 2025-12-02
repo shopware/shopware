@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,7 +40,7 @@ class HttpKernelTest extends TestCase
     {
         $requestTransformer = $this->createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('transform');
 
         $kernel = new HttpKernel(
@@ -62,7 +62,7 @@ class HttpKernelTest extends TestCase
     {
         $requestTransformer = $this->createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('transform')
             ->willThrowException(new \Exception());
 
@@ -86,9 +86,9 @@ class HttpKernelTest extends TestCase
     {
         $requestTransformer = $this->createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('transform')
-            ->willThrowException(new SalesChannelMappingException('test'));
+            ->willThrowException(StorefrontFrameworkException::salesChannelMappingException('test'));
 
         $dispatcher = new EventDispatcher();
 
@@ -116,7 +116,7 @@ class HttpKernelTest extends TestCase
     {
         $requestTransformer = $this->createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('transform')
             ->willReturnArgument(0);
 
@@ -138,7 +138,7 @@ class HttpKernelTest extends TestCase
     {
         $requestTransformer = $this->createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('transform')
             ->willReturnArgument(0);
 

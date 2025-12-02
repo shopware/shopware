@@ -20,27 +20,31 @@ class StagingSalesChannelHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')->willReturn([
                 ['id' => 'id1', 'url' => 'http://localhost'],
             ]);
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')->with(
                 'sales_channel_domain',
                 ['url' => 'http://staging.local'],
                 ['id' => 'id1']
             );
 
-        $handler = new StagingSalesChannelHandler(
-            [
-                ['match' => 'http://localhost', 'type' => 'equal', 'replace' => 'http://staging.local'],
-            ],
-            $connection
-        );
+        $handler = new StagingSalesChannelHandler($connection);
 
-        $event = new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class));
+        $domainMapping = [
+            ['match' => 'http://localhost', 'type' => 'equal', 'replace' => 'http://staging.local'],
+        ];
+
+        $event = new SetupStagingEvent(
+            Context::createDefaultContext(),
+            $this->createMock(SymfonyStyle::class),
+            false,
+            $domainMapping
+        );
 
         $handler($event);
     }
@@ -49,23 +53,27 @@ class StagingSalesChannelHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')->willReturn([
                 ['id' => 'id1', 'url' => 'http://localhost'],
             ]);
 
         $connection
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('update');
 
-        $handler = new StagingSalesChannelHandler(
-            [
-                ['match' => 'http://fooo', 'type' => 'equal', 'replace' => 'http://staging.local'],
-            ],
-            $connection
-        );
+        $handler = new StagingSalesChannelHandler($connection);
 
-        $event = new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class));
+        $domainMapping = [
+            ['match' => 'http://fooo', 'type' => 'equal', 'replace' => 'http://staging.local'],
+        ];
+
+        $event = new SetupStagingEvent(
+            Context::createDefaultContext(),
+            $this->createMock(SymfonyStyle::class),
+            false,
+            $domainMapping
+        );
 
         $handler($event);
     }
@@ -74,27 +82,31 @@ class StagingSalesChannelHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')->willReturn([
                 ['id' => 'id1', 'url' => 'https://pikachu.com'],
             ]);
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')->with(
                 'sales_channel_domain',
                 ['url' => 'http://pikachu-com.local'],
                 ['id' => 'id1']
             );
 
-        $handler = new StagingSalesChannelHandler(
-            [
-                ['match' => '/https?:\/\/(\w+)\.(\w+)$/m', 'type' => 'regex', 'replace' => 'http://$1-$2.local'],
-            ],
-            $connection
-        );
+        $handler = new StagingSalesChannelHandler($connection);
 
-        $event = new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class));
+        $domainMapping = [
+            ['match' => '/https?:\/\/(\w+)\.(\w+)$/m', 'type' => 'regex', 'replace' => 'http://$1-$2.local'],
+        ];
+
+        $event = new SetupStagingEvent(
+            Context::createDefaultContext(),
+            $this->createMock(SymfonyStyle::class),
+            false,
+            $domainMapping
+        );
 
         $handler($event);
     }
@@ -103,27 +115,31 @@ class StagingSalesChannelHandlerTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')->willReturn([
                 ['id' => 'id1', 'url' => 'https://pikachu.com/en'],
             ]);
 
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')->with(
                 'sales_channel_domain',
                 ['url' => 'http://localhost/en'],
                 ['id' => 'id1']
             );
 
-        $handler = new StagingSalesChannelHandler(
-            [
-                ['match' => 'https://pikachu.com', 'type' => 'prefix', 'replace' => 'http://localhost'],
-            ],
-            $connection
-        );
+        $handler = new StagingSalesChannelHandler($connection);
 
-        $event = new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class));
+        $domainMapping = [
+            ['match' => 'https://pikachu.com', 'type' => 'prefix', 'replace' => 'http://localhost'],
+        ];
+
+        $event = new SetupStagingEvent(
+            Context::createDefaultContext(),
+            $this->createMock(SymfonyStyle::class),
+            false,
+            $domainMapping
+        );
 
         $handler($event);
     }

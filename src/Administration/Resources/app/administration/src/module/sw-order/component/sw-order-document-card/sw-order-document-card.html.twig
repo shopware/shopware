@@ -1,10 +1,8 @@
 {% block sw_order_document_card %}
 <mt-card
-    v-if="!isDataLoading"
     position-identifier="sw-order-document-card"
     :title="$tc('sw-order.documentCard.cardTitle')"
     :class="documentCardStyles"
-    :is-loading="isDataLoading"
     class="sw-order-detail-base__document-grid"
 >
     <template #grid>
@@ -36,6 +34,7 @@
                         :disabled="!acl.can('document.viewer') || isEditing"
                         class="sw-order-document-grid-button"
                         variant="secondary"
+                        data-analytics-id="sw-order-document-card.show-select-document-type-modal-from-filter"
                         @click="onShowSelectDocumentTypeModal"
                     >
 
@@ -54,24 +53,26 @@
         {% endblock %}
 
         {% block sw_order_document_card_grid %}
-        <sw-data-grid
+        <sw-entity-listing
             v-if="!documentsEmpty"
-            :data-source="documents"
+            :repository="documentRepository"
+            :items="documents"
+            :is-loading="documentsLoading"
             :columns="getDocumentColumns"
-            :full-page="false"
             :show-settings="false"
             :show-selection="false"
-            :show-actions="!attachView"
-            :is-loading="isLoading"
             :allow-column-edit="false"
-            :allow-inline-edit="false"
-            identifier="sw-order-document-grid"
+            :full-page="false"
+            :plain-appearance="true"
         >
 
             {% block sw_order_document_card_grid_column_date %}
             <template #column-createdAt="{ item }">
                 {% block sw_order_document_card_grid_column_date_label %}
-                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
+                <sw-time-ago
+                    :date="item.createdAt"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
                 {% endblock %}
             </template>
             {% endblock %}
@@ -118,6 +119,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-open-pdf"
+                    data-analytics-id="sw-order-document-card.open-document"
                     @click="onOpenDocument(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_open_label %}
@@ -130,6 +132,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer')"
                     class="sw-order-document-card__context-button-download-pdf"
+                    data-analytics-id="sw-order-document-card.download-document"
                     @click="onDownload(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_download_label %}
@@ -142,6 +145,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
                     class="sw-order-document-card__context-button-send"
+                    data-analytics-id="sw-order-document-card.send-document"
                     @click="onSendDocument(item.id)"
                 >
                     {% block sw_order_document_card_grid_action_send_label %}
@@ -154,6 +158,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || item.sent"
                     class="sw-order-document-card__context-button-mark-sent"
+                    data-analytics-id="sw-order-document-card.mark-document-as-sent"
                     @click="onMarkDocumentAsSent(item.id)"
                 >
                     {% block sw_order_document_card_grid_action_mark_sent_label %}
@@ -166,6 +171,7 @@
                 <sw-context-menu-item
                     :disabled="!acl.can('document.viewer') || !item.sent"
                     class="sw-order-document-card__context-button-mark-unsent"
+                    data-analytics-id="sw-order-document-card.mark-document-as-unsent"
                     @click="onMarkDocumentAsUnsent(item.id)"
                 >
                     {% block sw_order_document_card_grid_action_mark_unsent_label %}
@@ -176,7 +182,7 @@
             </template>
             {% endblock %}
 
-        </sw-data-grid>
+        </sw-entity-listing>
         {% endblock %}
 
     </template>
@@ -218,20 +224,12 @@
     {% endblock %}
 
     {% block sw_order_document_card_empty_state %}
-    <sw-empty-state
-        v-if="documentsEmpty"
-        :title="emptyStateTitle"
-        :show-description="false"
-        :absolute="false"
-    >/
-        <template #icon>
-            <img
-                :src="assetFilter('/administration/administration/static/img/empty-states/order-empty-state.svg')"
-                :alt="$tc('sw-order.list.messageEmpty')"
-            >
-        </template>
-
-        <template #actions>
+    <mt-empty-state
+        v-if="documentsEmpty && !isDataLoading && !term"
+        :icon="$route.meta.$module.icon"
+        :headline="emptyStateTitle"
+    >
+        <template #button>
             <mt-button
                 v-if="showCreateDocumentButton"
                 v-tooltip="{
@@ -244,6 +242,7 @@
                 :disabled="!acl.can('document.viewer') || isEditing"
                 class="sw-order-document-grid-button"
                 variant="secondary"
+                data-analytics-id="sw-order-document-card.show-select-document-type-modal"
                 @click="onShowSelectDocumentTypeModal"
             >
 
@@ -253,7 +252,7 @@
 
             </mt-button>
         </template>
-    </sw-empty-state>
+    </mt-empty-state>
     {% endblock %}
 </mt-card>
 {% endblock %}

@@ -6,12 +6,12 @@ import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/wor
 import template from './sw-notification-center.html.twig';
 import './sw-notification-center.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @private
  */
-Component.register('sw-notification-center', {
+export default {
     template,
 
     inject: ['feature'],
@@ -47,10 +47,10 @@ Component.register('sw-notification-center', {
         Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
     },
 
-    beforeDestroyed() {
+    beforeUnmount() {
         this.unsubscribeFromStore?.();
 
-        this.$root.$off('on-change-notification-center-visibility', this.changeVisibility);
+        Shopware.Utils.EventBus.off('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     methods: {
@@ -96,4 +96,4 @@ Component.register('sw-notification-center', {
             });
         },
     },
-});
+};

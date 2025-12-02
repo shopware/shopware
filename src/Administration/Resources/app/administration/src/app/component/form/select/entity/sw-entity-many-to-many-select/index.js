@@ -11,8 +11,10 @@ const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
+ *
+ * @deprecated tag:v6.8.0 - will be removed, use `sw-entity-multi-select` instead
  */
-Component.register('sw-entity-many-to-many-select', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -494,4 +496,4 @@ Component.register('sw-entity-many-to-many-select', {
             });
         },
     },
-});
+};

@@ -104,6 +104,6 @@ class PdfRendererTest extends TestCase
         static::assertNotEmpty($generatorOutput);
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
-        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
+        static::assertSame('application/pdf', $finfo->buffer($generatorOutput));
     }
 }

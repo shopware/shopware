@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Facade\ErrorsFacade;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(ErrorsFacade::class)]
+#[Package('checkout')]
 class ErrorsFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void

@@ -154,14 +154,12 @@ describe('ListingPlugin tests', () => {
         expect(listingPlugin._registry).not.toContain(elementsOutsideDocument[2]);
     });
 
-    test('should not autoscroll to top because we are at the top', () => {
-        const mockElement = document.createElement('div');
-        const cmsElementProductListingWrapper = document.createElement('div');
-        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
-
-        document.body.append(cmsElementProductListingWrapper);
-
-        listingPlugin = new ListingPlugin(mockElement);
+    test('should not autoscroll to top because we are at the top', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('Listing result HTML'),
+            })
+        );
 
         jest.spyOn(listingPlugin, '_scrollTopOfListing');
         window.scrollTo = jest.fn();
@@ -170,20 +168,19 @@ describe('ListingPlugin tests', () => {
         expect(listingPlugin._scrollTopOfListing).not.toHaveBeenCalled();
 
         listingPlugin._buildRequest();
+        await new Promise(process.nextTick);
 
         expect(listingPlugin._scrollTopOfListing).toHaveBeenCalled();
 
         expect(window.scrollTo).not.toHaveBeenCalled();
     });
 
-    test('should autoscroll to top with scrollOffset because we are not at the top', () => {
-        const mockElement = document.createElement('div');
-        const cmsElementProductListingWrapper = document.createElement('div');
-        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
-
-        document.body.append(cmsElementProductListingWrapper);
-
-        listingPlugin = new ListingPlugin(mockElement);
+    test('should autoscroll to top with scrollOffset because we are not at the top', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('Listing result HTML'),
+            })
+        );
 
         jest.spyOn(listingPlugin, '_scrollTopOfListing');
         window.scrollTo = jest.fn();
@@ -196,6 +193,7 @@ describe('ListingPlugin tests', () => {
         expect(listingPlugin._scrollTopOfListing).not.toHaveBeenCalled();
 
         listingPlugin._buildRequest();
+        await new Promise(process.nextTick);
 
         expect(listingPlugin._scrollTopOfListing).toHaveBeenCalled();
 
@@ -206,15 +204,13 @@ describe('ListingPlugin tests', () => {
     });
 
     test('should autoscroll to top of cmsElementProductListingWrapper because we are not at the top', () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('Listing result HTML'),
+            })
+        );
+
         const distanceToTop = 250;
-
-        const mockElement = document.createElement('div');
-        const cmsElementProductListingWrapper = document.createElement('div');
-        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
-
-        document.body.append(cmsElementProductListingWrapper);
-
-        listingPlugin = new ListingPlugin(mockElement);
 
         jest.spyOn(listingPlugin, '_scrollTopOfListing');
         window.scrollTo = jest.fn();
@@ -236,14 +232,12 @@ describe('ListingPlugin tests', () => {
         });
     });
 
-    test('do not push history state if pass false pushHitory parameter into changeListing', () => {
-        const mockElement = document.createElement('div');
-        const cmsElementProductListingWrapper = document.createElement('div');
-        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
-
-        document.body.append(cmsElementProductListingWrapper);
-
-        listingPlugin = new ListingPlugin(mockElement);
+    test('do not push history state if pass false pushHistory parameter into changeListing', () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('Listing result HTML'),
+            })
+        );
 
         jest.spyOn(listingPlugin, '_updateHistory');
         listingPlugin.changeListing(false);
@@ -280,11 +274,11 @@ describe('ListingPlugin tests', () => {
         ListingPlugin.prototype._onWindowPopstate.mockRestore();
     });
 
-    test('updates the aria-live section after product results have changed', () => {
+    test('updates the aria-live section after product results have changed',async () => {
         // Mock listing ajax call returning updated results
-        listingPlugin.httpClient = {
-            get: jest.fn((url, callback) => {
-                callback(`
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve(`
                 <div class="cms-element-product-listing-wrapper" data-listing="true">
                     <div class="cms-element-product-listing">
                         <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="Showing 2 products.">
@@ -293,11 +287,12 @@ describe('ListingPlugin tests', () => {
                         </div>
                     </div>
                 </div>
-                `);
-            }),
-        };
+                `),
+            })
+        );
 
         listingPlugin.changeListing(true);
+        await new Promise(process.nextTick);
 
         // Verify that the new product results contain the data attribute with the updated aria-live text
         expect(document.querySelector('.js-listing-wrapper').dataset.ariaLiveText).toBe('Showing 2 products.');
@@ -306,10 +301,10 @@ describe('ListingPlugin tests', () => {
         expect(document.querySelector('.filter-panel-aria-live').textContent).toBe('Showing 2 products.');
     });
 
-    test('builds the labels for the active filters and renders them inside the filter panel', () => {
-        listingPlugin.httpClient = {
-            get: jest.fn((url, callback) => {
-                callback(`
+    test('builds the labels for the active filters and renders them inside the filter panel', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve(`
                 <div class="cms-element-product-listing-wrapper" data-listing="true">
                     <div class="cms-element-product-listing">
                         <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="Showing 2 products.">
@@ -318,9 +313,9 @@ describe('ListingPlugin tests', () => {
                         </div>
                     </div>
                 </div>
-                `);
-            }),
-        };
+                `),
+            })
+        );
 
         const MockBooleanFilter = {
             getLabels: () => [{ label: 'Free shipping', id: 'shipping-free' }],
@@ -337,6 +332,7 @@ describe('ListingPlugin tests', () => {
         listingPlugin.registerFilter(MockMultiSelectFilter);
 
         listingPlugin.changeListing(true);
+        await new Promise(process.nextTick);
 
         const activeFilterElements = document.querySelectorAll('.filter-panel-active-container .filter-active');
 

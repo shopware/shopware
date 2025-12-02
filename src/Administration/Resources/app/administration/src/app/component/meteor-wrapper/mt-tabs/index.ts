@@ -1,5 +1,4 @@
 import { MtTabs } from '@shopware-ag/meteor-component-library';
-import type { PropType } from 'vue';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/components/navigation/mt-tabs/mt-tabs';
 import template from './mt-tabs.html.twig';
 import type { TabItemEntry } from '../../../store/tabs.store';
@@ -12,7 +11,7 @@ import type { TabItemEntry } from '../../../store/tabs.store';
  * @description Wrapper component for mt-tabs. Adds the component sections
  *  to the slots. Need to be matched with the original mt-tabs component.
  */
-Shopware.Component.register('mt-tabs', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {

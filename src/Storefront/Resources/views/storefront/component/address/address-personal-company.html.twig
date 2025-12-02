@@ -10,20 +10,20 @@
                             {% set violationPath = '/company' %}
                         {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
                             {% set violationPath = "/#{prefix}/company" %}
-                        {% else %}
-                            {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.companyNameLabel'|trans|sw_sanitize }) %}
                         {% endif %}
 
-                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                            label: 'address.companyNameLabel'|trans|sw_sanitize,
-                            id: idPrefix ~ prefix ~ 'company',
-                            name: prefix ? prefix ~ '[company]' : 'company',
-                            value: address.get('company'),
-                            autocomplete: 'section-personal organization',
-                            violationPath: violationPath,
-                            validationRules: 'required',
-                            additionalClass: 'col-12',
-                        } %}
+                        {% block component_address_form_company_name_input %}
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                label: 'address.companyNameLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'company',
+                                name: prefix ? prefix ~ '[company]' : 'company',
+                                value: address.get('company'),
+                                autocomplete: 'section-personal organization',
+                                violationPath: violationPath,
+                                validationRules: 'required',
+                                additionalClass: 'col-12',
+                            } %}
+                        {% endblock %}
                     {% endblock %}
                 </div>
                 <div class="row g-2">
@@ -34,14 +34,16 @@
                             {% set violationPath = "/#{prefix}/department" %}
                         {% endif %}
 
-                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                            label: 'address.companyDepartmentLabel'|trans|sw_sanitize,
-                            id: idPrefix ~ prefix ~ 'department',
-                            name: prefix ? prefix ~ '[department]' : 'department',
-                            value: address.get('department'),
-                            violationPath: violationPath,
-                            additionalClass: 'col-md-6',
-                        } %}
+                        {% block component_address_form_company_department_input %}
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                label: 'address.companyDepartmentLabel'|trans|sw_sanitize,
+                                id: idPrefix ~ prefix ~ 'department',
+                                name: prefix ? prefix ~ '[department]' : 'department',
+                                value: address.get('department'),
+                                violationPath: violationPath,
+                                additionalClass: 'col-md-6',
+                            } %}
+                        {% endblock %}
                     {% endblock %}
 
                     {# ludtwig-ignore twig-block-name-snake-case #}

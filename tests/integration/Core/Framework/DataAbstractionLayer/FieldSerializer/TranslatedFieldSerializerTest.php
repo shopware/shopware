@@ -35,7 +35,7 @@ class TranslatedFieldSerializerTest extends TestCase
     {
         $data = $this->normalize(['description' => null]);
 
-        static::assertEquals([
+        static::assertSame([
             'description' => null,
             'translations' => [
                 $this->writeContext->getContext()->getLanguageId() => [
@@ -49,7 +49,7 @@ class TranslatedFieldSerializerTest extends TestCase
     {
         $data = $this->normalize(['description' => 'abc']);
 
-        static::assertEquals([
+        static::assertSame([
             'description' => 'abc',
             'translations' => [
                 $this->writeContext->getContext()->getLanguageId() => [
@@ -69,7 +69,7 @@ class TranslatedFieldSerializerTest extends TestCase
             ],
         ]);
 
-        static::assertEquals([
+        static::assertSame([
             'description' => [
                 $languageId => 'abc',
             ],

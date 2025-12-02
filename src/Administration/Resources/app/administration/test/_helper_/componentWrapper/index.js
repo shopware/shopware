@@ -35,6 +35,7 @@ async function importComponent(componentName) {
 
     // The component still needs registration after the import statement
     if (componentConfig.r === true) {
+        // eslint-disable-next-line sw-core-rules/enforce-async-component-registers
         Shopware.Component.register(componentName, component);
     }
 

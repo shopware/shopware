@@ -214,12 +214,6 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render category selection', async () => {
         const wrapper = await createWrapper();
 

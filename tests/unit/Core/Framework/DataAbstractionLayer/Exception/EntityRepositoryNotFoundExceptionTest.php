@@ -19,7 +19,7 @@ class EntityRepositoryNotFoundExceptionTest extends TestCase
     {
         $exception = new EntityRepositoryNotFoundException(TestEntity::class);
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
     }
 
     public function testGetErrorCodeWillReturnStringWithNotFoundText(): void

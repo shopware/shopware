@@ -26,12 +26,12 @@ class DateTimeFieldTest extends TestCase
 
         $dateTimeField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(DateTimeField::class, $dateTimeField);
-        static::assertEquals('test_datetime_field', $dateTimeField->getName());
-        static::assertEquals([
+        static::assertSame('test_datetime_field', $dateTimeField->getName());
+        static::assertSame([
             'en-GB' => 'Test datetime field',
         ], $dateTimeField->getLabel());
-        static::assertEquals([], $dateTimeField->getHelpText());
-        static::assertEquals(1, $dateTimeField->getPosition());
+        static::assertSame([], $dateTimeField->getHelpText());
+        static::assertSame(1, $dateTimeField->getPosition());
         static::assertFalse($dateTimeField->getRequired());
     }
 }

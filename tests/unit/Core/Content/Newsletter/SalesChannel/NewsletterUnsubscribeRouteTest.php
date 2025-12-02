@@ -47,13 +47,14 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setSalesChannelId(TestDefaults::SALES_CHANNEL);
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> */
         $entityRepository = new StaticEntityRepository([
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
         ]);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(NewsletterUnsubscribeEvent::class),
@@ -84,11 +85,12 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             'email' => null,
         ]);
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> */
         $entityRepository = new StaticEntityRepository([]);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(NewsletterUnsubscribeEvent::class),
@@ -112,13 +114,14 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             'email' => 'test@example.com',
         ]);
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> */
         $entityRepository = new StaticEntityRepository([
             new NewsletterRecipientCollection([]),
         ]);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(NewsletterUnsubscribeEvent::class),

@@ -35,8 +35,7 @@ class HomeUrlProviderTest extends TestCase
     protected function setUp(): void
     {
         $this->languageRepository = static::getContainer()->get('language.repository');
-        $contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $contextFactory->create('', TestDefaults::SALES_CHANNEL);
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create('', TestDefaults::SALES_CHANNEL);
     }
 
     public function testGetHomeUrlSalesChannelIsExistingTwoDomain(): void
@@ -54,8 +53,9 @@ class HomeUrlProviderTest extends TestCase
         static::assertInstanceOf(LanguageEntity::class, $first);
         $domain->setLanguageId($first->getId());
 
-        static::assertInstanceOf(SalesChannelDomainCollection::class, $this->salesChannelContext->getSalesChannel()->getDomains());
-        $this->salesChannelContext->getSalesChannel()->getDomains()->add($domain);
+        $domains = $this->salesChannelContext->getSalesChannel()->getDomains();
+        static::assertInstanceOf(SalesChannelDomainCollection::class, $domains);
+        $domains->add($domain);
 
         $domain = new SalesChannelDomainEntity();
         $domain->setId(Uuid::randomHex());
@@ -65,7 +65,7 @@ class HomeUrlProviderTest extends TestCase
         static::assertInstanceOf(LanguageEntity::class, $last);
         $domain->setLanguageId($last->getId());
 
-        $this->salesChannelContext->getSalesChannel()->getDomains()->add($domain);
+        $domains->add($domain);
 
         $homeUrlProvider = new HomeUrlProvider();
 
@@ -99,9 +99,7 @@ class HomeUrlProviderTest extends TestCase
 
     public function testGetHomeUrlWithSalesChannelHaveNoDomain(): void
     {
-        $homeUrlProvider = new HomeUrlProvider();
-
-        $results = $homeUrlProvider->getUrls($this->salesChannelContext, 100);
+        $results = (new HomeUrlProvider())->getUrls($this->salesChannelContext, 100);
 
         static::assertEmpty($results->getUrls()[0]->getLoc());
     }
@@ -110,6 +108,6 @@ class HomeUrlProviderTest extends TestCase
     {
         $homeUrlProvider = new HomeUrlProvider();
 
-        static::assertEquals('home', $homeUrlProvider->getName());
+        static::assertSame('home', $homeUrlProvider->getName());
     }
 }

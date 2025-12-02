@@ -47,8 +47,8 @@ class LineItemFactoryRegistryTest extends TestCase
     {
         $data = ['id' => 'test', 'type' => 'product', 'referencedId' => 'test'];
         $lineItem = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
-        $this->factory->expects(static::once())->method('supports')->with('product')->willReturn(true);
-        $this->factory->expects(static::once())->method('create')->with($data, $this->context)->willReturn($lineItem);
+        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $this->factory->expects($this->once())->method('create')->with($data, $this->context)->willReturn($lineItem);
         $returnedLineItem = $this->service->create($data, $this->context);
         static::assertSame($lineItem, $returnedLineItem);
     }
@@ -57,8 +57,8 @@ class LineItemFactoryRegistryTest extends TestCase
     {
         $data = ['type' => 'product', 'referencedId' => 'test'];
         $lineItem = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
-        $this->factory->expects(static::once())->method('supports')->with('product')->willReturn(true);
-        $this->factory->expects(static::once())->method('create')->willReturn($lineItem);
+        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $this->factory->expects($this->once())->method('create')->willReturn($lineItem);
         $returnedLineItem = $this->service->create($data, $this->context);
         static::assertSame($lineItem, $returnedLineItem);
     }
@@ -66,7 +66,7 @@ class LineItemFactoryRegistryTest extends TestCase
     public function testCreateWithUnsupportedType(): void
     {
         $data = ['id' => 'test', 'type' => 'product', 'referencedId' => 'test'];
-        $this->factory->expects(static::once())->method('supports')->with('product')->willReturn(false);
+        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(false);
         $this->expectException(CartException::class);
         $this->service->create($data, $this->context);
     }
@@ -79,9 +79,9 @@ class LineItemFactoryRegistryTest extends TestCase
         $cart = new Cart('test');
         $cart->add($lineItem);
 
-        $this->factory->expects(static::once())->method('supports')->with('product')->willReturn(true);
-        $this->eventDispatcher->expects(static::never())->method('dispatch');
-        $this->factory->expects(static::once())->method('update')->with($lineItem, ['id' => $id, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
+        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
 
         $this->service->update($cart, ['id' => $id], $this->context);
     }
@@ -100,9 +100,9 @@ class LineItemFactoryRegistryTest extends TestCase
 
         $cart = new Cart('test');
 
-        $this->factory->expects(static::once())->method('supports')->with('product')->willReturn(true);
-        $this->eventDispatcher->expects(static::never())->method('dispatch');
-        $this->factory->expects(static::once())->method('update')->with($lineItem, ['id' => $id, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
+        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
 
         $this->service->updateLineItem($cart, ['id' => $id], $lineItem, $this->context);
     }
@@ -115,9 +115,9 @@ class LineItemFactoryRegistryTest extends TestCase
 
         $cart = new Cart('test');
 
-        $this->factory->expects(static::once())->method('supports')->with('product')->willReturn(true);
-        $this->eventDispatcher->expects(static::once())->method('dispatch');
-        $this->factory->expects(static::once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => 2, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
+        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+        $this->factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => 2, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
 
         $this->service->updateLineItem($cart, ['id' => $id, 'quantity' => 2], $lineItem, $this->context);
     }
@@ -134,12 +134,12 @@ class LineItemFactoryRegistryTest extends TestCase
         $beforeUpdateQuantity = $lineItem->getQuantity();
         $newQuantity = 2;
 
-        $this->factory->expects(static::once())->method('supports')->with('product')->willReturn(true);
-        $this->factory->expects(static::once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => $newQuantity, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
+        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $this->factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => $newQuantity, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
 
-        $this->eventDispatcher->expects(static::once())->method('dispatch');
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
 
-        $this->eventDispatcher->expects(static::once())->method('dispatch')->with(
+        $this->eventDispatcher->expects($this->once())->method('dispatch')->with(
             static::callback(function (BeforeLineItemQuantityChangedEvent $event) use ($beforeUpdateQuantity) {
                 static::assertSame($beforeUpdateQuantity, $event->getBeforeUpdateQuantity());
 
@@ -158,7 +158,7 @@ class LineItemFactoryRegistryTest extends TestCase
         $cart = new Cart('test');
         $cart->add($lineItem);
 
-        $this->factory->expects(static::once())->method('supports')->with('product')->willReturn(false);
+        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(false);
         $this->expectException(CartException::class);
         $this->service->update($cart, ['id' => $id, 'quantity' => 2], $this->context);
     }

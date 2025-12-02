@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\CachedSnippetFinder;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 
@@ -36,13 +35,13 @@ class CachedSnippetFinderTest extends TestCase
         $cacheItem = $this->buildCacheItem(false, true);
         $cacheItem->set(null);
 
-        $this->cache->expects(static::once())->method('getItem')->willReturn($cacheItem);
-        $this->snippetFinder->expects(static::once())->method('findSnippets')->willReturn($snippets);
+        $this->cache->expects($this->once())->method('getItem')->willReturn($cacheItem);
+        $this->snippetFinder->expects($this->once())->method('findSnippets')->willReturn($snippets);
 
         $cachedSnippetFinder = new CachedSnippetFinder($this->snippetFinder, $this->cache);
         $result = $cachedSnippetFinder->findSnippets('test');
 
-        static::assertEquals($snippets, $cacheItem->get());
+        static::assertSame($snippets, $cacheItem->get());
         static::assertSame($snippets, $result);
     }
 
@@ -53,8 +52,8 @@ class CachedSnippetFinderTest extends TestCase
         $cacheItem = $this->buildCacheItem(true, false);
         $cacheItem->set($snippets);
 
-        $this->cache->expects(static::once())->method('getItem')->willReturn($cacheItem);
-        $this->snippetFinder->expects(static::never())->method('findSnippets');
+        $this->cache->expects($this->once())->method('getItem')->willReturn($cacheItem);
+        $this->snippetFinder->expects($this->never())->method('findSnippets');
 
         $cachedSnippetFinder = new CachedSnippetFinder($this->snippetFinder, $this->cache);
         $result = $cachedSnippetFinder->findSnippets('test');
@@ -65,11 +64,11 @@ class CachedSnippetFinderTest extends TestCase
     protected function buildCacheItem(bool $isHit, bool $isTaggable): CacheItem
     {
         $cacheItem = new CacheItem();
-        $prop = ReflectionHelper::getProperty(CacheItem::class, 'key');
+        $prop = new \ReflectionProperty(CacheItem::class, 'key');
         $prop->setValue($cacheItem, 'admin_snippet_test');
-        $prop = ReflectionHelper::getProperty(CacheItem::class, 'isHit');
+        $prop = new \ReflectionProperty(CacheItem::class, 'isHit');
         $prop->setValue($cacheItem, $isHit);
-        $prop = ReflectionHelper::getProperty(CacheItem::class, 'isTaggable');
+        $prop = new \ReflectionProperty(CacheItem::class, 'isTaggable');
         $prop->setValue($cacheItem, $isTaggable);
 
         return $cacheItem;

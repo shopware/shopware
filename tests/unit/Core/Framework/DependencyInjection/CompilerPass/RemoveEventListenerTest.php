@@ -47,7 +47,7 @@ class RemoveEventListenerTest extends TestCase
 
         $current = $definition->getTag('kernel.event_listener');
 
-        static::assertEquals($expected, $current, \print_r($current, true));
+        static::assertSame($expected, $current, \print_r($current, true));
     }
 
     public static function removeProvider(): \Generator

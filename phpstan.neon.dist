@@ -10,19 +10,16 @@ parameters:
         - tests
 
     bootstrapFiles:
-        - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
-    # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
+        - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
     symfony:
         constantHassers: false
         containerXmlPath: 'var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
-        consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
+    scanDirectories:
+        - var/cache/static_phpstan_dev/Symfony/Config
+    scanFiles:
+        - vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php
 
     excludePaths:
-        - src/WebInstaller/Resources/
-        - src/WebInstaller/stub.php
-        - src/WebInstaller/vendor(?)
-        - src/WebInstaller/Tests/_fixtures
-
         # vendor patches over autoload files
         - src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
 
@@ -43,6 +40,9 @@ parameters:
         # Compatibility traits for Redis can be removed, once we are requiring Redis 6.0.0
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
         - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
+
+    universalObjectCratesClasses:
+        - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
 
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
@@ -88,19 +88,25 @@ parameters:
             paths:
                 - src/Core/Content/Test/ImportExport/MockRepository.php
                 - src/Core/Test/Stub/DataAbstractionLayer/StaticEntityRepository.php
+        -
+            message: '#.*extends @final class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.#'
+            paths:
+                - src/Core/Test/Stub/DataAbstractionLayer/StaticSalesChannelRepository.php
 
         # Route scopes for controllers
         -
            message: '#.* has no route scope defined.*#'
            paths:
             - **/*Test.php
-            - src/WebInstaller
             - src/Core/Installer
-            - src/Core/Checkout/Payment/Controller/PaymentController.php
 
         -
            message: '#No global Command directories allowed, put your commands in the right domain directory#'
            path: src/Administration/
+
+        # A PartialEntity is not directly a subtype of a real Entity but it is returned by a EntityRepository, if fields are used
+        -
+           message: '#PHPDoc tag @var with type Shopware\\Core\\Framework\\DataAbstractionLayer\\PartialEntity.* is not subtype of type .*Entity.*\.#'
 
         # dynamic hydrator performance
         -
@@ -139,24 +145,6 @@ parameters:
         - identifier: staticMethod.alreadyNarrowedType
           path: tests/devops/Core/DefaultsTest.php
 
-        - # Classes that are allowed to use dynamic property name access
-            message: '#Use explicit names over dynamic ones#'
-            paths:
-                - src/Core/Checkout/Cart/LineItem/LineItem.php
-                - src/Core/Checkout/Document/DocumentConfiguration.php
-                - src/Core/Content/Product/Hook/Pricing/ProductProxy.php
-                - src/Core/Framework/Api/ApiDefinition/Generator/StoreApiGenerator.php
-                - src/Core/Framework/Struct/AssignArrayTrait.php
-                - src/Core/Framework/Struct/CloneTrait.php
-                - src/Core/Framework/Struct/CreateFromTrait.php
-                - src/Core/Framework/App/Manifest/Xml/XmlElement.php
-                - src/Core/Framework/App/Manifest/Xml/CustomField/CustomFieldTypes/SingleEntitySelectField.php
-                - src/Core/Framework/App/Manifest/Xml/CustomField/CustomFieldTypes/SingleSelectField.php
-                - src/Core/Framework/App/Payment/Response/AbstractResponse.php
-                - src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-                - src/Core/Framework/DataAbstractionLayer/Entity.php
-                - src/Core/Framework/DataAbstractionLayer/Util/AfterSort.php
-
         - # Can not be fixed currently. See https://github.com/phpstan/phpstan/discussions/9159
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field::getFlag\(\) should return \(TFlag of Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\)\|null but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\|null#'
             path: src/Core/Framework/DataAbstractionLayer/Field/Field.php
@@ -171,35 +159,6 @@ parameters:
                 - tests/integration/Core/Framework/Store/_fixtures/AppStoreTestPlugin/*
                 - tests/integration/Core/Framework/Plugin/_fixtures/*
 
-        - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
-            message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.*not specify its types: TEntityCollection#'
-            paths:
-                - src/Core/Content/**
-                - src/Core/Framework/**
-                - src/Core/Maintenance/**
-                - src/Core/Profiling/**
-                - src/Core/Service/**
-                - src/Core/System/**
-                - src/Core/Test/**
-                - tests/integration/Core/Content/**
-                - tests/integration/Core/Framework/**
-                - tests/integration/Core/System/**
-                - tests/unit/Core/**
-
-        - # WIP implementation (See NEXT-29041 - https://github.com/shopware/shopware/issues/6175)
-            message: '#.* generic class Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelRepository.*not specify its types: TEntityCollection#'
-            paths:
-                - src/Core/Content/**
-                - src/Core/System/**
-                - tests/integration/Core/**
-                - tests/unit/Core/Content/**
-
-        - # No need to fix for now, as the facades are only used in twig context
-            message: '#.* generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult.*does not specify its types: TEntityCollection#'
-            paths:
-                - src/Core/Framework/DataAbstractionLayer/Facade/RepositoryFacade.php
-                - src/Core/Framework/DataAbstractionLayer/Facade/SalesChannelRepositoryFacade.php
-
         - # Needs a proper class-string annotation in `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::getCollectionClass` and all child classes
             message: '#PHPDoc tag @var with type .*Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.* is not subtype of native type string#'
             paths:
@@ -207,12 +166,6 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/EntityRepository.php
                 - src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
 
-        - # It is not possible to specify the type of the EntitySearchResult, as the CmsSlotDataResolver and the ElementDataCollection are used for multiple entities at the same time
-            message: '#.* with generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection.*not specify its types: TElement#'
-            paths:
-                - src/Core/Content/Cms/DataResolver/CmsSlotsDataResolver.php
-                - src/Core/Content/Cms/DataResolver/Element/ElementDataCollection.php
-        - '#Parameter \#2 \$entitySearchResult of method Shopware\\Core\\Content\\Cms\\DataResolver\\Element\\ElementDataCollection::add\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<Shopware\\.*Collection> given#'
         - # It is not possible to specify the type of the EntityResult, as the Aggregators are used for multiple entities at the same time
             message: '#Method Shopware\\.*::hydrateEntityAggregation\(\) return type with generic class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\AggregationResult\\Metric\\EntityResult does not specify its types: TEntityCollection#'
             paths:
@@ -232,3 +185,12 @@ parameters:
             message: '#Parameter \#1 \$package of attribute class Shopware\\Core\\Framework\\Log\\Package constructor#'
             identifier: argument.type
             path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
+
+        - # With the active `reportWrongPhpDocTypeInVarTag` phpstan parameter we should resolve this issue per area
+            message: '#PHPDoc tag @var with type .* is not subtype of type .*#'
+            paths:
+                - tests/**
+
+        - # RedisArray has missing methods in the stub. See https://github.com/phpredis/phpredis/discussions/2736
+            message: '#Call to an undefined method Predis\\ClientInterface\|Redis\|RedisArray\|RedisCluster\|Relay\\Cluster\|Relay\\Relay::#'
+            identifier: method.notFound

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaignCodeAction;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,6 +26,9 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     use CacheTestBehaviour;
     use OrderActionTrait;
 
+    /**
+     * @var EntityRepository<FlowCollection>
+     */
     private EntityRepository $flowRepository;
 
     protected function setUp(): void
@@ -77,8 +81,8 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
         /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
 
-        static::assertEquals($customer->getAffiliateCode(), $expectData['affiliateCode']);
-        static::assertEquals($customer->getCampaignCode(), $expectData['campaignCode']);
+        static::assertSame($customer->getAffiliateCode(), $expectData['affiliateCode']);
+        static::assertSame($customer->getCampaignCode(), $expectData['campaignCode']);
     }
 
     /**

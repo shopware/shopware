@@ -53,10 +53,8 @@ class SecurityExtension extends AbstractExtension
         foreach ($array as $key => $value) {
             if (\is_string($function)) {
                 // Custom functions
-                // @phpstan-ignore-next-line (Dynamic function name allowed)
                 $result[$key] = $function($value);
             } else {
-                // @phpstan-ignore-next-line (Dynamic function name allowed)
                 $result[$key] = $function($value, $key);
             }
         }

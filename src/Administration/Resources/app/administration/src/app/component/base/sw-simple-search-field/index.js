@@ -1,7 +1,7 @@
 import template from './sw-simple-search-field.html.twig';
 import './sw-simple-search-field.scss';
 
-const { Component, Utils } = Shopware;
+const { Utils } = Shopware;
 
 /**
  * @sw-package framework
@@ -18,7 +18,7 @@ const { Component, Utils } = Shopware;
  *   @search-term-change="debouncedInputEvent"
  *  />
  */
-Component.register('sw-simple-search-field', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -53,6 +53,12 @@ Component.register('sw-simple-search-field', {
             type: String,
             default: null,
             required: false,
+        },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
         },
 
         delay: {
@@ -94,4 +100,4 @@ Component.register('sw-simple-search-field', {
             this.onSearchTermChanged(input);
         },
     },
-});
+};

@@ -29,6 +29,7 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <service id="Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition">
             <tag name="shopware.entity.definition"/>
         </service>

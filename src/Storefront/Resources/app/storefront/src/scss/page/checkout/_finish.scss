@@ -1,4 +1,5 @@
-.is-act-finishpage {
+.is-act-finishpage, // @deprecated tag:v6.8.0 - Body class `is-act-finishpage` will be removed, use active route class `is-active-route-frontend-checkout-finish-page` instead.
+.is-active-route-frontend-checkout-finish-page {
     .checkout {
         padding-top: 70px;
 
@@ -44,6 +45,7 @@
 .finish-ordernumber {
     font-size: $font-size-lg;
     font-weight: $headings-font-weight;
+    text-align: center;
 }
 
 .finish-teaser {
@@ -52,10 +54,6 @@
 
 .finish-header {
     margin-bottom: $spacer-lg;
-    text-align: center;
-}
-
-.finish-ordernumber {
     text-align: center;
 }
 

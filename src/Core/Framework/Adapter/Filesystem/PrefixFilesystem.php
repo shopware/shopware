@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem;
 
-use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\DirectoryListing;
-use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
 use Shopware\Core\Framework\Adapter\AdapterException;
@@ -59,34 +57,11 @@ class PrefixFilesystem implements FilesystemOperator
     {
         $location = $this->preparePath($location);
 
-        return new DirectoryListing(array_map(
+        return $this->filesystem->listContents($location, $deep)->map(
             function (StorageAttributes $info) {
-                if ($info instanceof DirectoryAttributes) {
-                    return new DirectoryAttributes(
-                        $this->stripPath($info->path()),
-                        $info->visibility(),
-                        $info->lastModified(),
-                        $info->extraMetadata()
-                    );
-                }
-
-                if ($info instanceof FileAttributes) {
-                    return new FileAttributes(
-                        $this->stripPath($info->path()),
-                        $info->fileSize(),
-                        $info->visibility(),
-                        $info->lastModified(),
-                        $info->mimeType(),
-                        $info->extraMetadata()
-                    );
-                }
-
-                // @codeCoverageIgnoreStart
-                return $info;
-                // @codeCoverageIgnoreEnd
-            },
-            $this->filesystem->listContents($location, $deep)->toArray()
-        ));
+                return $info->withPath($this->stripPath($info->path()));
+            }
+        );
     }
 
     public function fileExists(string $location): bool

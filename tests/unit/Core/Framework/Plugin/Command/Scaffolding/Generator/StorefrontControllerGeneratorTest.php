@@ -43,7 +43,7 @@ class StorefrontControllerGeneratorTest extends TestCase
         (new StorefrontControllerGenerator())
             ->addScaffoldConfig($configuration, $input, $io);
 
-        static::assertEquals($expectedHasOption, $configuration->hasOption(StorefrontControllerGenerator::OPTION_NAME));
+        static::assertSame($expectedHasOption, $configuration->hasOption(StorefrontControllerGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator

@@ -1,3 +1,4 @@
+{% block address_item %}
 <li class="col-12 col-lg-6 d-flex">
     <div class="p-3 border address-manager-select-address flex-fill">
         <div class="row h-100">
@@ -27,7 +28,7 @@
                             {% block address_item_dropdown_items %}
                                 <li>
                                     <a
-                                        class="dropdown-item text-primary address-manager-modal-address-form"
+                                        class="dropdown-item address-manager-modal-address-form"
                                         href="{{ path('frontend.account.address.edit.page', {addressId: address.id}) }}"
                                     >
                                         {{ 'global.default.edit'|trans|sw_sanitize }}
@@ -90,9 +91,9 @@
             {% endif %}
 
             {% if defaultShipping or defaultBilling %}
-                {% block address_item_badge%}
+                {% block address_item_badge %}
                     <div class="mt-auto d-flex justify-content-end">
-                        <span class="fs-6 fw-semibold px-4 py-1 bg-primary rounded-pill text-white">
+                        <span class="address-item-default-badge fs-6 fw-semibold px-4 py-1 rounded-pill text-bg-info">
                             {{ snippet|trans|sw_sanitize }}
                         </span>
                     </div>
@@ -101,3 +102,4 @@
         </div>
     </div>
 </li>
+{% endblock %}

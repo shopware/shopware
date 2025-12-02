@@ -24,35 +24,39 @@ jobs:
     steps:
       - id: sts
         continue-on-error: true
-        uses: octo-sts/action@v1.0.0
+        uses: shopware/octo-sts-action@main
         with:
           scope: shopware
           identity: ShopwareDownstream
       - name: Rufus
         uses: shopware/github-actions/downstream@main
         if: steps.sts.outputs.token
+        env:
+            NEW_LOGIC: 1
         with:
           repo: shopware/rufus
-          workflow: Downstream
+          workflow: .github/workflows/downstream.yml
           ref: .auto
           timeout: 30m
           token: ${{ steps.sts.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
-  
+
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
     steps:
       - id: sts
         continue-on-error: true
-        uses: octo-sts/action@v1.0.0
+        uses: shopware/octo-sts-action@main
         with:
           scope: shopware
           identity: ShopwareDownstream
       - name: Commercial
         uses: shopware/github-actions/downstream@main
         if: steps.sts.outputs.token
+        env:
+            NEW_LOGIC: 1
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream
@@ -72,7 +76,7 @@ jobs:
     runs-on: Ubuntu-latest
     steps:
     - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@release/v1
+      uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
       with:
         allowed-skips: rufus, commercial
         jobs: ${{ toJSON(needs) }}

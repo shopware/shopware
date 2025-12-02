@@ -46,9 +46,9 @@ class ReferencePriceDtoTest extends TestCase
     {
         $referencePrice = new ReferencePriceDto(1, 2, 'unit-id');
 
-        static::assertEquals(1, $referencePrice->getPurchase());
-        static::assertEquals(2, $referencePrice->getReference());
-        static::assertEquals('unit-id', $referencePrice->getUnitId());
+        static::assertSame(1.0, $referencePrice->getPurchase());
+        static::assertSame(2.0, $referencePrice->getReference());
+        static::assertSame('unit-id', $referencePrice->getUnitId());
     }
 
     public function testSetter(): void
@@ -58,8 +58,8 @@ class ReferencePriceDtoTest extends TestCase
         $referencePrice->setReference(4);
         $referencePrice->setUnitId('unit-id-2');
 
-        static::assertEquals(3, $referencePrice->getPurchase());
-        static::assertEquals(4, $referencePrice->getReference());
-        static::assertEquals('unit-id-2', $referencePrice->getUnitId());
+        static::assertSame(3.0, $referencePrice->getPurchase());
+        static::assertSame(4.0, $referencePrice->getReference());
+        static::assertSame('unit-id-2', $referencePrice->getUnitId());
     }
 }

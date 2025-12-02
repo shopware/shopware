@@ -113,7 +113,7 @@ export default {
         },
 
         getProductSortingEntityId() {
-            return this.$route.params.id;
+            return this.$route.params.id.toLowerCase();
         },
 
         async isValidSortingOption() {

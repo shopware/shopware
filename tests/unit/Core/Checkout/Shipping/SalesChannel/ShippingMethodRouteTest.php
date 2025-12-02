@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -32,7 +32,7 @@ class ShippingMethodRouteTest extends TestCase
     {
         $route = new ShippingMethodRoute(
             $this->createMock(SalesChannelRepository::class),
-            new EventDispatcher(),
+            $this->createMock(CacheTagCollector::class),
             $this->createMock(ScriptExecutor::class),
             new RuleIdMatcher(),
         );
@@ -67,14 +67,14 @@ class ShippingMethodRouteTest extends TestCase
 
         $repo = $this->createMock(SalesChannelRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
 
         $route = new ShippingMethodRoute(
             $repo,
-            new EventDispatcher(),
+            $this->createMock(CacheTagCollector::class),
             $this->createMock(ScriptExecutor::class),
             new RuleIdMatcher()
         );
@@ -108,7 +108,7 @@ class ShippingMethodRouteTest extends TestCase
         $result = new EntitySearchResult(
             'shipping_method',
             2,
-            $entities = new ShippingMethodCollection([$shippingMethod1, $shippingMethod2]),
+            new ShippingMethodCollection([$shippingMethod1, $shippingMethod2]),
             null,
             $expectedCriteria,
             $context->getContext()
@@ -116,7 +116,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $repo = $this->createMock(SalesChannelRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
@@ -125,11 +125,16 @@ class ShippingMethodRouteTest extends TestCase
 
         $executor = $this->createMock(ScriptExecutor::class);
         $executor
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('execute')
             ->with(static::equalTo($hook));
 
-        $route = new ShippingMethodRoute($repo, new EventDispatcher(), $executor, new RuleIdMatcher());
+        $route = new ShippingMethodRoute(
+            $repo,
+            $this->createMock(CacheTagCollector::class),
+            $executor,
+            new RuleIdMatcher()
+        );
 
         $response = $route->load($request, $context, $criteria);
 

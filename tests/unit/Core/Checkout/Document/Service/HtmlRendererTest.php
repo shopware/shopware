@@ -31,7 +31,7 @@ class HtmlRendererTest extends TestCase
     {
         $htmlRenderer = new HtmlRenderer($this->createMock(DocumentTemplateRenderer::class), '', new ExtensionDispatcher(new EventDispatcher()));
 
-        static::assertEquals('text/html', $htmlRenderer->getContentType());
+        static::assertSame('text/html', $htmlRenderer->getContentType());
     }
 
     public function testExtensionIsDispatched(): void
@@ -53,11 +53,11 @@ class HtmlRendererTest extends TestCase
         $rendered->setContext(Context::createDefaultContext());
 
         $pre = $this->createMock(CallableClass::class);
-        $pre->expects(static::once())->method('__invoke');
+        $pre->expects($this->once())->method('__invoke');
         $dispatcher->addListener(HtmlRendererExtension::NAME . '.pre', $pre);
 
         $post = $this->createMock(CallableClass::class);
-        $post->expects(static::once())->method('__invoke');
+        $post->expects($this->once())->method('__invoke');
         $dispatcher->addListener(HtmlRendererExtension::NAME . '.post', $post);
 
         $renderer->render($rendered);
@@ -95,7 +95,7 @@ class HtmlRendererTest extends TestCase
 
         $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
         $documentTemplateRenderer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('render')
             ->willReturn($html);
 
@@ -108,7 +108,7 @@ class HtmlRendererTest extends TestCase
         $generatorOutput = $htmlRenderer->render($rendered);
 
         static::assertNotEmpty($generatorOutput);
-        static::assertEquals($html, $generatorOutput);
+        static::assertSame($html, $generatorOutput);
 
         static::assertSame(HtmlRenderer::FILE_EXTENSION, $rendered->getFileExtension());
         static::assertSame(HtmlRenderer::FILE_CONTENT_TYPE, $rendered->getContentType());
@@ -125,7 +125,7 @@ class HtmlRendererTest extends TestCase
         );
 
         $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
-        $documentTemplateRenderer->expects(static::never())
+        $documentTemplateRenderer->expects($this->never())
             ->method('render');
 
         $htmlRenderer = new HtmlRenderer(
@@ -136,7 +136,7 @@ class HtmlRendererTest extends TestCase
 
         $generatorOutput = $htmlRenderer->render($rendered);
 
-        static::assertEquals('', $generatorOutput);
+        static::assertSame('', $generatorOutput);
     }
 
     public function testRenderThrowException(): void

@@ -1,5 +1,4 @@
 import template from './sw-media-display-options.html.twig';
-import './sw-media-display-options.scss';
 
 /**
  * @sw-package discovery
@@ -46,6 +45,12 @@ export default {
         },
 
         hidePresentation: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        disabled: {
             type: Boolean,
             required: false,
             default: false,

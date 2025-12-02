@@ -5,7 +5,7 @@
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
-const { Store, Mixin } = Shopware;
+const { Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,15 +16,12 @@ export default {
         'acl',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
-
     props: {
         propertyGroup: {
             type: Object,
             required: true,
         },
+
         optionRepository: {
             type: Object,
             required: true,
@@ -42,6 +39,7 @@ export default {
             sortBy: 'name',
             sortDirection: 'ASC',
             showDeleteModal: false,
+            showEmptyState: false,
         };
     },
 
@@ -69,6 +67,22 @@ export default {
             return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.editor');
         },
 
+        useNaturalNameSorting() {
+            const options = this.propertyGroup?.options || [];
+
+            if (!options.length) {
+                return false;
+            }
+
+            return options.some((option) => {
+                const name = (option?.translated?.name ?? option?.name ?? '').toString();
+                return /\d/.test(name);
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed
+         */
         dataSource() {
             return this.propertyGroup.options && this.propertyGroup.options.slice(0, this.limit);
         },
@@ -182,6 +196,7 @@ export default {
                     routerLink: 'sw.property.detail',
                     inlineEdit: 'string',
                     primary: true,
+                    naturalSorting: this.useNaturalNameSorting,
                 },
                 {
                     property: 'colorHexCode',
@@ -193,6 +208,10 @@ export default {
                     inlineEdit: 'number',
                 },
             ];
+        },
+
+        checkEmptyState() {
+            this.showEmptyState = this.$refs.grid?.total === 0;
         },
     },
 };

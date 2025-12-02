@@ -72,6 +72,11 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
                 }
             }
 
+            $ariaLabelConfig = $config->get('ariaLabel');
+            if ($ariaLabelConfig !== null) {
+                $image->setAriaLabel($ariaLabelConfig->getStringValue());
+            }
+
             $newTabConfig = $config->get('newTab');
             if ($newTabConfig !== null) {
                 $image->setNewTab($newTabConfig->getBoolValue());

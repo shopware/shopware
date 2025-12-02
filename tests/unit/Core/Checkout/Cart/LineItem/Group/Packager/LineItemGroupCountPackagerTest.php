@@ -44,7 +44,7 @@ class LineItemGroupCountPackagerTest extends TestCase
     #[Group('lineitemgroup')]
     public function testKey(): void
     {
-        static::assertEquals('COUNT', $this->packager->getKey());
+        static::assertSame('COUNT', $this->packager->getKey());
     }
 
     /**
@@ -69,8 +69,8 @@ class LineItemGroupCountPackagerTest extends TestCase
         static::assertCount(2, $packageItems->getItems());
 
         // test that we have the first 2 from our list
-        static::assertEquals($p1->getId(), $packageItems->getItems()[0]->getLineItemId());
-        static::assertEquals($p2->getId(), $packageItems->getItems()[1]->getLineItemId());
+        static::assertSame($p1->getId(), $packageItems->getItems()[0]->getLineItemId());
+        static::assertSame($p2->getId(), $packageItems->getItems()[1]->getLineItemId());
     }
 
     /**

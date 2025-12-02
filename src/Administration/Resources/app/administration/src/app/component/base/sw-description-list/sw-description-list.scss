@@ -9,7 +9,7 @@
     dt,
     dd {
         padding: 15px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         &:last-of-type {
             border-bottom-color: transparent;
@@ -18,6 +18,6 @@
 
     dt {
         font-weight: $font-weight-semi-bold;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
     }
 }

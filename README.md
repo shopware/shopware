@@ -1,13 +1,13 @@
 <div align="center">
 
-[![Build Status](https://github.com/shopware/shopware/actions/workflows/php.yml/badge.svg)](https://github.com/shopware/shopware/actions/workflows/php.yml)
+[![Nightly Build Status](https://github.com/shopware/shopware/actions/workflows/nightly.yml/badge.svg?event=schedule&branch=trunk)](https://github.com/shopware/shopware/actions/workflows/nightly.yml?query=event%3Aschedule+branch%3Atrunk)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/shopware/platform/badges/quality-score.png)](https://scrutinizer-ci.com/g/shopware/platform/)
 [![Latest Stable Version](https://poser.pugx.org/shopware/platform/v/stable)](https://packagist.org/packages/shopware/platform)
 [![Total Downloads](https://poser.pugx.org/shopware/platform/downloads)](https://packagist.org/packages/shopware/platform)
 [![Crowdin](https://badges.crowdin.net/shopware6/localized.svg)](https://translate.shopware.com/project/shopware6)
 [![License](https://img.shields.io/github/license/shopware/shopware.svg)](https://github.com/shopware/shopware/blob/trunk/LICENSE)
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/shopware/shopware.svg)](https://github.com/shopware/shopware/pulls)
-[![Slack](https://img.shields.io/badge/chat-on%20slack-%23ECB22E)](https://slack.shopware.com?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Discord](https://img.shields.io/badge/chat-on%20discord-%23ECB22E)](https://chat.shopware.com/?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 </div>
 
@@ -22,18 +22,18 @@
 
 <p align="center"><strong>Modern open source e-Commerce</strong>
 
-Shopware 6 is an open headless commerce platform powered by [Symfony 7](https://symfony.com) and [Vue.js 3](https://vuejs.org) that is used by thousands of shops and supported by a huge, [worldwide community](https://slack.shopware.com) of developers, agencies and merchants.
+Shopware 6 is an open headless commerce platform powered by [Symfony 7](https://symfony.com) and [Vue.js 3](https://vuejs.org) that is used by thousands of shops and supported by a huge, [worldwide community](https://chat.shopware.com/) of developers, agencies and merchants.
 
 If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 
 * 🙋‍♂️ &nbsp;[Be part of shopware!](https://www.shopware.com/en/jobs/) ‍&nbsp;We are hiring!  🙋
 * 🌎 &nbsp;Discover our [website](https://www.shopware.com/en/)
-* 🧩 &nbsp;Browse more than [5,200 extensions](https://store.shopware.com) in our community store
+* 🧩 &nbsp;Browse more than [3,100 extensions](https://store.shopware.com/en/) in our community store
 * 📖 &nbsp;Learn how to [develop extensions](https://developer.shopware.com) and everything else about the tech behind Shopware
 * 🉐 &nbsp;[Translate](https://translate.shopware.com) Shopware or help by contributing to existing languages
 * 🛠 &nbsp;[Report bugs](https://github.com/shopware/shopware/issues) in our issue tracker
 * 💡 &nbsp;Give us [feedback](https://feedback.shopware.com/) or vote existing ideas
-* 👪 &nbsp;Exchange with more than 9.000 shopware developers in our [Slack community workspace](https://slack.shopware.com)
+* 👪 &nbsp;Exchange with other Shopware developers in our own [Community Hub](https://hub.shopware.com/) or the [Discord community](https://chat.shopware.com/)
 * 🗨 &nbsp;Help and get helped on [Stack Overflow](https://stackoverflow.com/questions/tagged/shopware6?tab=Newest) or in our [Community forum](https://forum.shopware.com/)
 
 ## Table of contents
@@ -42,7 +42,6 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 - [Project overview](#project-overview)
   - [Platform and Framework](#platform-and-framework)
 - [Installation](#installation)
-  - [Extending Shopware](#extending-shopware)
   - [Production setup](#production-setup)
   - [Code Contribution](#code-contribution)
     - [Contribution setup](#contribution-setup)
@@ -51,6 +50,7 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 - [License](#license)
 - [Bugs \& Feedback](#bugs--feedback)
 - [Reporting security issues](#reporting-security-issues)
+- [Extending Shopware](#extending-shopware)
 
 ## Project overview
 
@@ -76,16 +76,6 @@ Shopware is:
 
 ## Installation
 
-### Extending Shopware
-
-There are already a lot of extensions available in the [Shopware store](https://store.shopware.com/).
-
-After setting up [Shopware locally for development](https://developer.shopware.com/docs/guides/installation), you can start with our extension guides in the documentation.
-
-The preferred way of extending Shopware is through the [App System](https://developer.shopware.com/docs/guides/plugins/apps/app-base-guide).
-If the feature you want to implement needs direct access to the Shopware process and the database, you can also use the [plugin system](https://developer.shopware.com/docs/guides/plugins/plugins/plugin-base-guide).    
-You can find an [overview and differentiation in the documentation](https://developer.shopware.com/docs/concepts/extensions).
-
 ### Production setup
 
 The easiest way to run a Shopware shop is booking a commercial plan in the [Shopware cloud](https://www.shopware.com/en/shopware-cloud/), a fully managed setup, ready to use.
@@ -110,9 +100,7 @@ Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-
 
 #### Contribution setup
 
-There are multiple ways to get an installation running, the way with the fewest steps involved is using the docker image from [dockware](https://dockware.io/),
-a community maintained docker setup by the Shopware agency [dasistweb](https://www.dasistweb.de/en/).
-More on this in the [documentation](https://developer.shopware.com/docs/guides/installation/community/dockware.html).
+For Contributing setup see [CONTRIBUTING.md](CONTRIBUTING.md), if you want to run Shopware locally for extension / theme / project development checkout the [development environment setup](https://developer.shopware.com/docs/guides/installation/setups/docker.html).
 
 ## The Shopware CLA
 
@@ -142,3 +130,13 @@ If you want to suggest features or how certain parts of Shopware 6 work, we'd be
 ## Reporting security issues
 
 Please have a look at our [security policy](SECURITY.md).
+
+### Extending Shopware
+
+There are already a lot of extensions available in the [Shopware store](https://store.shopware.com/).
+
+After setting up [Shopware locally for development](https://developer.shopware.com/docs/guides/installation), you can start with our extension guides in the documentation.
+
+The preferred way of extending Shopware is through the [App System](https://developer.shopware.com/docs/guides/plugins/apps/app-base-guide).
+If the feature you want to implement needs direct access to the Shopware process and the database, you can also use the [plugin system](https://developer.shopware.com/docs/guides/plugins/plugins/plugin-base-guide).    
+You can find an [overview and differentiation in the documentation](https://developer.shopware.com/docs/concepts/extensions).

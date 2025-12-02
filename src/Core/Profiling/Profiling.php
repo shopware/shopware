@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Compiler\RemoveDevServices;
+use Shopware\Core\Profiling\DependencyInjection\CompilerPass\CartServiceCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -28,7 +29,6 @@ class Profiling extends Bundle
      */
     public function build(ContainerBuilder $container): void
     {
-        /** @var string $environment */
         $environment = $container->getParameter('kernel.environment');
 
         parent::build($container);
@@ -42,6 +42,7 @@ class Profiling extends Bundle
 
         if ($environment === 'dev') {
             $loader->load('services_dev.xml');
+            $container->addCompilerPass(new CartServiceCompilerPass());
         }
 
         $container->addCompilerPass(new RemoveDevServices());

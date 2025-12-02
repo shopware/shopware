@@ -15,6 +15,7 @@
 
             .mt-card__toolbar {
                 border: 0;
+                background-color: $color-gray-100;
             }
 
             .mt-card__content {
@@ -29,9 +30,11 @@
 
             .sw-settings-tag-detail-assignments__filter-selected {
                 padding: 0 20px;
+                display: flex;
+                align-items: center;
 
                 /* stylelint-disable max-nesting-depth */
-                .sw-field--switch {
+                .mt-switch {
                     margin: 0;
                 }
                 /* stylelint-enable max-nesting-depth */
@@ -117,7 +120,7 @@
         .associations-grid__row {
             width: 100%;
             padding: 10px 20px;
-            align-items: center;
+            place-items: flex-start;
             border: 0;
             font-weight: normal;
             background: transparent;
@@ -133,7 +136,7 @@
                 cursor: auto;
             }
 
-            .sw-button__content {
+            .mt-button__content {
                 grid-template-columns: auto 1fr auto;
                 justify-items: start;
             }
@@ -143,9 +146,5 @@
             font-size: $font-size-xxs;
             color: $color-gray-500;
         }
-    }
-
-    .mt-switch {
-        margin-bottom: 0;
     }
 }

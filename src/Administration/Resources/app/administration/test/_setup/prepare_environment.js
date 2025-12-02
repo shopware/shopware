@@ -37,7 +37,8 @@ import {
     MtTabs,
     MtTextField,
     MtTextarea,
-    MtToast, MtTextEditor,
+    MtToast,
+    MtTextEditor,
 } from '@shopware-ag/meteor-component-library';
 import {createI18n} from "vue-i18n";
 import aclService from './_mocks_/acl.service.mock';
@@ -78,6 +79,9 @@ import '../../src/app/store/notification.store';
 import '../../src/app/store/tabs.store';
 import '../../src/app/store/usage-data.store';
 import '../../src/app/store/session.store';
+import '../../src/app/store/sw-bulk-edit.store';
+import '../../src/app/store/sidebar.store';
+import '../../src/app/store/media-modal.store';
 import '../../src/module/sw-category/page/sw-category-detail/store';
 import '../../src/module/sw-extension/store/extensions.store';
 import '../../src/module/sw-order/store/order-detail.store';
@@ -88,7 +92,6 @@ import '../../src/module/sw-product/page/sw-product-detail/store';
 import '../../src/module/sw-profile/store/sw-profile.store';
 import '../../src/module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import '../../src/module/sw-flow/store/flow.store';
-import '../../src/module/sw-bulk-edit/store/sw-bulk-edit.store';
 import findByAriaLabel from '../_helper_/find-by-aria-label';
 
 // Setup Vue Test Utils configuration
@@ -166,6 +169,10 @@ Shopware.Store.get('session').setAdminLocaleState({
     locale: 'en-GB',
     languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
 });
+
+// disable telemetry
+Shopware.Telemetry.initialize = () => Promise.resolve();
+Shopware.Telemetry.track = () => {};
 
 // Add global mocks
 config.global.mocks = {
@@ -315,6 +322,14 @@ global.allowedErrors = [
         msg: 'No extension found for origin ""',
     },
     {
+        method: 'warn',
+        msg: '[MtCheckbox] The `checked` prop is deprecated and will be removed. Please use v-model (modelValue/update:modelValue) instead.',
+    },
+    {
+        method: 'warn',
+        msg: '[Vue warn]: Invalid prop: custom validator check failed for prop "size".'
+    },
+    {
         method: 'error',
         msgCheck: (msg) => {
             if (typeof msg !== 'string') {
@@ -361,8 +376,8 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('is deprecated and will be removed in v6.7.0.0. Please use') ||
-                msg1?.includes?.('is deprecated and will be removed in v6.7.0.0. Please use');
+            return msg0?.includes('is deprecated and will be removed in v6.8.0.0. Please use') ||
+                msg1?.includes?.('is deprecated and will be removed in v6.8.0.0. Please use');
         },
     },
     /*
@@ -559,6 +574,7 @@ afterEach(() => {
     }
 });
 
+// eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });

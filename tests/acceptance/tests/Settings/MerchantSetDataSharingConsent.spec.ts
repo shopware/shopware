@@ -1,14 +1,13 @@
-import { test } from '@fixtures/AcceptanceTest';
-import { expect } from '@playwright/test';
-import { Response, isSaaSInstance } from '@shopware-ag/acceptance-test-suite';
+import { test, expect } from '@fixtures/AcceptanceTest';
+import type { Response } from '@playwright/test';
 
 test('Merchant is able accept or decline the data sharing consent.', { tag: '@DataSharing' }, async ({
     ShopAdmin,
     AdminDashboard,
     AdminDataSharing,
-    AdminApiContext,
+    FeatureService,
 }) => {
-    test.skip(await isSaaSInstance(AdminApiContext),'Skipping test for merchants consent process, because it is disabled on SaaS instances.');
+    test.skip(await FeatureService.isEnabled('PRODUCT_ANALYTICS'),'Skipping test because of the new Product Analytics feature.');
 
     let consentResponsePromise: Promise<Response>;
     let response: Response;

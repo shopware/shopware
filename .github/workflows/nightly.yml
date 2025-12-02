@@ -9,14 +9,16 @@ jobs:
   redis:
     name: Redis
     runs-on: ubuntu-24.04
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
         redis:
-          - redis:alpine
-          - eqalpha/keydb:latest
+          - redis:7.2-alpine
+          - redis:7-alpine
+          - redis:8.2-alpine
           - valkey/valkey:8.0
+          - valkey/valkey:9.0
     services:
       redis:
         image: ${{ matrix.redis }}
@@ -34,50 +36,63 @@ jobs:
           shopware-repository: ${{ github.repository }}
       - name: Run PHPUnit
         run: |
-          ./vendor/bin/phpunit --group=redis
+          ./vendor/bin/phpunit --group=redis --testsuite migration,unit,integration,devops
 
   admin:
     uses: ./.github/workflows/admin.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   integration:
     uses: ./.github/workflows/integration.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
+  visual-tests:
+    uses: ./.github/workflows/visual-tests.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      currents: true
   php:
     uses: ./.github/workflows/php.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   storefront:
     uses: ./.github/workflows/storefront.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   downstream:
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
   prepare-release: # This will only execute dry-runs and push current trunk to the many-repos
     uses: ./.github/workflows/05-prepare-release.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware'
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
 
-  nightly-6-6-x:
+  # we need this for our LTS, because gh only runs scheduled for the default branch
+  nightly-other-branches:
     runs-on: ubuntu-24.04
     if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
     permissions:
       id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        branch:
+          - "6.6.x"
+    name: Nightly ${{ matrix.branch }}
     steps:
       - name: Delay
         run: sleep 20m
-      - uses: octo-sts/action@v1.0.0
+      - uses: shopware/octo-sts-action@main
         id: sts
         with:
           scope: shopware
           identity: ShopwareNightly
       - env:
           GH_TOKEN: ${{ steps.sts.outputs.token }}
-        run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "6.6.x"
+        run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "${{ matrix.branch }}"

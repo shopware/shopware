@@ -71,10 +71,6 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         Shopware.Store.get('swSeoUrl').currentSeoUrl = '';
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('sales channel switch should not be disabled', async () => {
         await wrapper.setData({
             showEmptySeoUrlError: false,

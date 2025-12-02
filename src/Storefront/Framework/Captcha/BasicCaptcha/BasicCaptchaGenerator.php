@@ -16,6 +16,9 @@ class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
 
     private string $fontPath = __DIR__ . '/../../../Resources/app/storefront/dist/assets/captcha/font.ttf';
 
+    /**
+     * @param int<1, max> $length
+     */
     public function generate(int $length = 7): BasicCaptchaImage
     {
         $code = $this->createCaptchaCode($length);
@@ -41,7 +44,6 @@ class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
         ob_start();
         imagepng($img, null, 9);
         $image = (string) ob_get_clean();
-        imagedestroy($img);
         $image = base64_encode($image);
 
         return new BasicCaptchaImage($code, $image);
@@ -67,6 +69,9 @@ class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
         return $this->fontPath;
     }
 
+    /**
+     * @param int<1, max> $length
+     */
     private function createCaptchaCode(int $length): string
     {
         $alphabetRangeLow = range('a', 'z');

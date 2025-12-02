@@ -26,7 +26,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
     {
         $configService = $this->createMock(SystemConfigService::class);
         $configService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getInt')
             ->willReturn(0);
 
@@ -44,13 +44,13 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
     {
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('aggregate')
             ->willReturn(new AggregationResultCollection([new CountResult('customer-count', 2)]));
 
         $configService = $this->createMock(SystemConfigService::class);
         $configService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getInt')
             ->willReturn(1);
 
@@ -65,21 +65,24 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
     {
         $configService = $this->createMock(SystemConfigService::class);
         $configService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getInt')
             ->willReturn(1);
 
         $ids = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
         $deleteIds = \array_values(\array_map(static fn (string $id) => ['id' => $id], $ids));
-        $searchResultIds = \array_map(static fn (string $id) => ['primaryKey' => $id, 'data' => []], $ids);
+        $searchResultIds = [];
+        foreach ($ids as $id) {
+            $searchResultIds[$id] = ['primaryKey' => $id, 'data' => []];
+        }
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('searchIds')
             ->willReturn(new IdSearchResult(3, $searchResultIds, new Criteria(), Context::createDefaultContext()));
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('delete')
             ->with($deleteIds);
 

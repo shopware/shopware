@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Symfony\Component\Lock\LockFactory;
 
 /**
@@ -18,6 +19,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
 {
     /**
      * @param RedisTypeHint $redis
+     * @param EntityRepository<NumberRangeCollection> $numberRangeRepository
      */
     public function __construct(
         /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
@@ -95,7 +97,6 @@ class IncrementRedisStorage extends AbstractIncrementStorage
         $numberRangeIds = $this->getNumberRangeIds();
         $states = [];
 
-        /** @var string $id */
         foreach ($numberRangeIds as $id) {
             $state = $this->redis->get($this->getKey($id));
 
@@ -132,9 +133,6 @@ class IncrementRedisStorage extends AbstractIncrementStorage
      */
     private function getNumberRangeIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
-
-        return $ids;
+        return $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
     }
 }

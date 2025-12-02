@@ -265,6 +265,7 @@
                     :key="item.id"
                     class="sw-data-grid__row"
                     :class="getRowClasses(item, itemIndex)"
+                    @click="onRowClick($event, item)"
                 >
 
                     {% block sw_data_grid_body_cell_selection %}
@@ -404,7 +405,10 @@
                                     @click="onClickCancelInlineEdit(item)"
                                 >
                                     {% block sw_data_grid_inline_edit_actions_cancel_icon %}
-                                    <mt-icon name="regular-times-xs" />
+                                    <mt-icon
+                                        name="regular-times-xs"
+                                        size="10px"
+                                    />
                                     {% endblock %}
                                 </mt-button>
                                 {% endblock %}
@@ -422,6 +426,7 @@
                                     {% block sw_data_grid_inline_edit_actions_save_icon %}
                                     <mt-icon
                                         name="regular-checkmark-xxs"
+                                        size="10px"
                                     />
                                     {% endblock %}
                                 </mt-button>

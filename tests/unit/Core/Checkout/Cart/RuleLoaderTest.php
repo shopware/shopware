@@ -12,6 +12,7 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -20,6 +21,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
  * @internal
  */
 #[CoversClass(RuleLoader::class)]
+#[Package('checkout')]
 class RuleLoaderTest extends TestCase
 {
     public function testDecorated(): void

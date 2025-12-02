@@ -120,7 +120,7 @@ class AccountServiceEventTest extends TestCase
             $eventDidRun = false;
 
             $this->accountService->loginByCredentials('info@example.com', 'shopware', $this->salesChannelContext);
-            /** @phpstan-ignore-next-line - $eventDidRun updated value on listener */
+            /** @phpstan-ignore staticMethod.impossibleType ($eventDidRun modified by listener) */
             static::assertTrue($eventDidRun, 'Event "' . $eventClass . '" did not run');
 
             $dispatcher->removeListener($eventClass, $listenerClosure);

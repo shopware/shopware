@@ -30,10 +30,10 @@ class AppScriptProductPriceCalculatorTest extends TestCase
         ];
 
         $executor = $this->createMock(ScriptExecutor::class);
-        $executor->expects(static::once())->method('execute');
+        $executor->expects($this->once())->method('execute');
 
         $decorated = $this->createMock(ProductPriceCalculator::class);
-        $decorated->expects(static::once())->method('calculate')->with($products);
+        $decorated->expects($this->once())->method('calculate')->with($products);
 
         $calculator = new AppScriptProductPriceCalculator($decorated, $executor, $this->createMock(ScriptPriceStubs::class));
 

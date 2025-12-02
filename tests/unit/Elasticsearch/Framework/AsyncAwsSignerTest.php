@@ -64,7 +64,7 @@ class AsyncAwsSignerTest extends TestCase
 
         $signer = new AsyncAwsSigner($configuration, $this->logger, 'es', 'test', $this->credentialProvider);
 
-        $this->logger->expects(static::once())
+        $this->logger->expects($this->once())
             ->method('error')
             ->with(static::stringContains('Error signing request'));
 

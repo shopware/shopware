@@ -15,7 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
+use Shopware\Core\Framework\Demodata\DemodataException;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -67,7 +69,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $taxes = $this->getTaxes($context);
 
         if ($taxes->count() === 0) {
-            throw new \RuntimeException('This demo data command should be executed after the original demo data was executed at least one time');
+            throw DemodataException::wrongExecutionOrder();
         }
 
         $properties = $this->getProperties();
@@ -182,10 +184,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $variants = [];
         foreach ($combinations as $options) {
             $price = $this->faker->randomFloat(2, 1, 1000);
-            $tax = $taxes->get(array_rand($taxes->getIds()));
-            if (!$tax instanceof TaxEntity) {
-                continue;
-            }
+            $tax = $this->getRandomTax($taxes);
             $taxRate = 1 + ($tax->getTaxRate() / 100);
 
             $id = Uuid::randomHex();
@@ -279,8 +278,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     ): array {
         $price = $this->faker->randomFloat(2, 1, 1000);
         $purchasePrice = $this->faker->randomFloat(2, 1, 1000);
-        $tax = $taxes->get(array_rand($taxes->getIds()));
-        \assert($tax instanceof TaxEntity);
+        $tax = $this->getRandomTax($taxes);
         $taxRate = 1 + ($tax->getTaxRate() / 100);
 
         return [
@@ -298,6 +296,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             'categories' => $this->getCategoryIds(),
             'tags' => $this->getTags($tags),
             'stock' => $this->faker->numberBetween(1, 50),
+            'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
         ];
     }
 
@@ -394,7 +393,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<string>
      */
     private function getMediaIds(string $entity = 'product'): array
     {
@@ -456,5 +455,20 @@ class ProductGenerator implements DemodataGeneratorInterface
         $id = $this->connection->fetchOne('SELECT LOWER(HEX(delivery_time_id)) FROM delivery_time_translation WHERE `name` = "Instant download" LIMIT 1');
 
         return \is_string($id) ? $id : null;
+    }
+
+    private function getRandomTax(TaxCollection $taxes): TaxEntity
+    {
+        $taxIds = $taxes->getIds();
+        if ($taxIds === []) {
+            throw DemodataException::wrongExecutionOrder();
+        }
+
+        $tax = $taxes->get(array_rand($taxIds));
+        if (!$tax instanceof TaxEntity) {
+            throw DemodataException::wrongExecutionOrder();
+        }
+
+        return $tax;
     }
 }

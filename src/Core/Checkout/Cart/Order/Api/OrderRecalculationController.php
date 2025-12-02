@@ -13,15 +13,17 @@ use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('checkout')]
 class OrderRecalculationController extends AbstractController
 {
@@ -37,7 +39,11 @@ class OrderRecalculationController extends AbstractController
     #[Route(path: '/api/_action/order/{orderId}/recalculate', name: 'api.action.order.recalculate', methods: ['POST'])]
     public function recalculateOrder(string $orderId, Context $context): Response
     {
-        $this->recalculationService->recalculateOrder($orderId, $context);
+        $errors = $this->recalculationService->recalculate($orderId, $context);
+
+        if ($errors->count() > 0) {
+            return new JsonResponse(['errors' => $errors]);
+        }
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
@@ -93,14 +99,30 @@ class OrderRecalculationController extends AbstractController
         return new CartResponse($cart);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see applyAutomaticPromotions} instead.
+     */
     #[Route(path: '/api/_action/order/{orderId}/toggleAutomaticPromotions', name: 'api.action.order.toggle-automatic-promotions', methods: ['POST'])]
     public function toggleAutomaticPromotions(string $orderId, Request $request, Context $context): Response
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Route "api.action.order.toggle-automatic-promotions" is deprecated and will be removed in v6.8.0.0. Use "api.action.order.apply-automatic-promotions" instead.',
+        );
+
         $skipAutomaticPromotions = (bool) $request->request->get('skipAutomaticPromotions', true);
 
         $cart = $this->recalculationService->toggleAutomaticPromotion($orderId, $context, $skipAutomaticPromotions);
 
         return new CartResponse($cart);
+    }
+
+    #[Route(path: '/api/_action/order/{orderId}/applyAutomaticPromotions', name: 'api.action.order.apply-automatic-promotions', methods: ['POST'])]
+    public function applyAutomaticPromotions(string $orderId, Request $request, Context $context): Response
+    {
+        $errors = $this->recalculationService->applyAutomaticPromotions($orderId, $context);
+
+        return new JsonResponse(['errors' => $errors]);
     }
 
     #[Route(path: '/api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}', name: 'api.action.order.replace-order-address', methods: ['POST'])]
@@ -115,6 +137,7 @@ class OrderRecalculationController extends AbstractController
     public function updateOrderAddresses(string $orderId, Request $request, Context $context): JsonResponse
     {
         $mapping = $request->request->all('mapping');
+        \assert(array_is_list($mapping));
 
         $this->orderAddressService->updateOrderAddresses($orderId, $mapping, $context);
 
@@ -157,7 +180,7 @@ class OrderRecalculationController extends AbstractController
         } else {
             $lineItem->setPriceDefinition(
                 new AbsolutePriceDefinition(
-                    (float) $priceDefinition['price'],
+                    (float) ($priceDefinition['price'] ?? null),
                     new LineItemOfTypeRule(Rule::OPERATOR_NEQ, LineItem::CREDIT_LINE_ITEM_TYPE)
                 )
             );

@@ -52,11 +52,6 @@ describe('module/sw-cms/component/sw-cms-block-layout-config', () => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it.each(Object.entries(expectedProps))('should be able to use the provided %s block data', async (property, value) => {
         const wrapper = await createWrapper();
         const selector = `.sw-cms-block-layout-config__${kebabCase(property)}`;

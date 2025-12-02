@@ -62,6 +62,8 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             $imageSlider->setNavigation($navigation->getArrayValue());
         }
 
+        $imageSlider->setUseFetchPriorityOnFirstItem((bool) $config->get('useFetchPriorityOnFirstItem'));
+
         $sliderItemsConfig = $config->get('sliderItems');
         if ($sliderItemsConfig === null) {
             return;
@@ -82,7 +84,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         if ($sliderItemsConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
             $sliderItems = $this->resolveEntityValue($resolverContext->getEntity(), $sliderItemsConfig->getStringValue());
 
-            if ($sliderItems === null || (is_countable($sliderItems) ? \count($sliderItems) : 0) < 1) {
+            if (!$sliderItems instanceof ProductMediaCollection || $sliderItems->count() < 1) {
                 return;
             }
 
@@ -108,7 +110,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
     }
 
     /**
-     * @param array{url?: string, newTab?: bool, mediaId: string} $config
+     * @param array{url?: string, ariaLabel?: string, newTab?: bool, mediaId: string} $config
      */
     private function addMedia(CmsSlotEntity $slot, ImageSliderStruct $imageSlider, ElementDataCollection $result, array $config): void
     {
@@ -116,6 +118,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 
         if (!empty($config['url'])) {
             $imageSliderItem->setUrl($config['url']);
+            $imageSliderItem->setAriaLabel($config['ariaLabel'] ?? null);
             $imageSliderItem->setNewTab($config['newTab'] ?? false);
         }
 

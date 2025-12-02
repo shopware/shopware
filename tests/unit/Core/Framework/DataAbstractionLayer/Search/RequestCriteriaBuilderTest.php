@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -136,8 +137,8 @@ class RequestCriteriaBuilderTest extends TestCase
         try {
             $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
         } catch (DataAbstractionLayerException $e) {
-            static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-            static::assertEquals('FRAMEWORK__INVALID_API_CRITERIA_IDS', $e->getErrorCode());
+            static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+            static::assertSame('FRAMEWORK__INVALID_API_CRITERIA_IDS', $e->getErrorCode());
             $postExceptionThrown = true;
         }
 
@@ -149,8 +150,8 @@ class RequestCriteriaBuilderTest extends TestCase
         try {
             $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
         } catch (DataAbstractionLayerException $e) {
-            static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-            static::assertEquals('FRAMEWORK__INVALID_API_CRITERIA_IDS', $e->getErrorCode());
+            static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+            static::assertSame('FRAMEWORK__INVALID_API_CRITERIA_IDS', $e->getErrorCode());
             $getExceptionThrown = true;
         }
 
@@ -182,13 +183,13 @@ class RequestCriteriaBuilderTest extends TestCase
         $request->setMethod(Request::METHOD_POST);
 
         $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
-        static::assertEquals($expectedIds, $criteria->getIds());
+        static::assertSame($expectedIds, $criteria->getIds());
 
         $request = new Request($body);
         $request->setMethod(Request::METHOD_GET);
 
         $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
-        static::assertEquals($expectedIds, $criteria->getIds());
+        static::assertSame($expectedIds, $criteria->getIds());
     }
 
     public function testAssociationsAddedToCriteria(): void
@@ -316,9 +317,9 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertCount(\count($expectedParsedSortings), $sorting);
         foreach ($expectedParsedSortings as $index => $expectedParsedSorting) {
             static::assertInstanceOf($expectedParsedSorting::class, $sorting[$index]);
-            static::assertEquals($expectedParsedSorting->getField(), $sorting[$index]->getField());
-            static::assertEquals($expectedParsedSorting->getDirection(), $sorting[$index]->getDirection());
-            static::assertEquals($expectedParsedSorting->getNaturalSorting(), $sorting[$index]->getNaturalSorting());
+            static::assertSame($expectedParsedSorting->getField(), $sorting[$index]->getField());
+            static::assertSame($expectedParsedSorting->getDirection(), $sorting[$index]->getDirection());
+            static::assertSame($expectedParsedSorting->getNaturalSorting(), $sorting[$index]->getNaturalSorting());
         }
     }
 
@@ -460,10 +461,10 @@ class RequestCriteriaBuilderTest extends TestCase
             );
         } catch (SearchRequestException $e) {
             $sortException = $e->getErrors()->current();
-            static::assertEquals($expected->getErrorCode(), $sortException['code']);
-            static::assertEquals($expected->getMessage(), $sortException['detail']);
-            static::assertEquals($expected->getStatusCode(), $sortException['status']);
-            static::assertEquals($expected->getParameter('path'), $sortException['source']['pointer']);
+            static::assertSame($expected->getErrorCode(), $sortException['code']);
+            static::assertSame($expected->getMessage(), $sortException['detail']);
+            static::assertSame($expected->getStatusCode(), (int) $sortException['status']);
+            static::assertSame($expected->getParameter('path'), $sortException['source']['pointer']);
 
             $wasThrown = true;
         }
@@ -532,8 +533,8 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertTrue($criteria->hasAssociation('options'));
         static::assertTrue($criteria->hasAssociation('categories'));
 
-        static::assertEquals(100, $criteria->getLimit());
-        static::assertEquals(101, $criteria->getAssociation('options')->getLimit());
+        static::assertSame(100, $criteria->getLimit());
+        static::assertSame(101, $criteria->getAssociation('options')->getLimit());
         static::assertNull($criteria->getAssociation('prices')->getLimit());
         static::assertNull($criteria->getAssociation('categories')->getLimit());
     }
@@ -677,9 +678,9 @@ class RequestCriteriaBuilderTest extends TestCase
             $this->requestCriteriaBuilder->fromArray($pagingPayload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
         } catch (SearchRequestException $e) {
             $sortException = $e->getErrors()->current();
-            static::assertEquals($expectedExceptionCode, $sortException['code']);
-            static::assertEquals(400, $sortException['status']);
-            static::assertEquals($path, $sortException['source']['pointer']);
+            static::assertSame($expectedExceptionCode, $sortException['code']);
+            static::assertSame('400', $sortException['status']);
+            static::assertSame($path, $sortException['source']['pointer']);
 
             $wasThrown = true;
         }
@@ -741,9 +742,9 @@ class RequestCriteriaBuilderTest extends TestCase
         } catch (SearchRequestException $e) {
             $error = $e->getErrors()->current();
 
-            static::assertEquals('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
-            static::assertEquals('The value for filter "name" must be scalar.', $error['detail']);
-            static::assertEquals(400, $error['status']);
+            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertSame('The value for filter "name" must be scalar.', $error['detail']);
+            static::assertSame('400', $error['status']);
 
             throw $e;
         }
@@ -764,9 +765,9 @@ class RequestCriteriaBuilderTest extends TestCase
         } catch (SearchRequestException $e) {
             $error = $e->getErrors()->current();
 
-            static::assertEquals('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
-            static::assertEquals('The filter parameter has to be an array.', $error['detail']);
-            static::assertEquals(400, $error['status']);
+            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertSame('The filter parameter has to be an array.', $error['detail']);
+            static::assertSame('400', $error['status']);
 
             throw $e;
         }
@@ -792,11 +793,10 @@ class RequestCriteriaBuilderTest extends TestCase
 
         $payload['includes'] = 'string_instead_of_array';
 
-        $request = new Request([], $payload, [], [], []);
+        $request = new Request(request: $payload);
         $request->setMethod(Request::METHOD_POST);
 
-        $this->expectException(DataAbstractionLayerException::class);
-        $this->expectExceptionMessage('Expected data at includes to be of the type array, string given');
+        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('includes', 'string'));
 
         $this->requestCriteriaBuilder->handleRequest(
             $request,
@@ -804,5 +804,87 @@ class RequestCriteriaBuilderTest extends TestCase
             $this->staticDefinitionRegistry->get(ProductDefinition::class),
             Context::createDefaultContext()
         );
+    }
+
+    public function testExcludesArrayValidation(): void
+    {
+        $payload = [
+            'excludes' => ['product', 'category'],
+        ];
+
+        $request = new Request(request: $payload);
+        $request->setMethod(Request::METHOD_POST);
+
+        $criteria = new Criteria();
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        $payload['excludes'] = 'string_instead_of_array';
+
+        $request = new Request([], $payload, [], [], []);
+        $request->setMethod(Request::METHOD_POST);
+
+        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('excludes', 'string'));
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('searchInfoHeaderProvider')]
+    public function testIncludeSearchInfoHeader(array $data, bool $expectedState): void
+    {
+        $request = new Request();
+        $request->setMethod(Request::METHOD_POST);
+
+        if (isset($data['headerValue'])) {
+            $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, $data['headerValue']);
+        }
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame($expectedState, $criteria->hasState(Criteria::STATE_DISABLE_SEARCH_INFO));
+    }
+
+    /**
+     * @return iterable<string, array{data: array{headerValue?: string}, expectedState: bool}>
+     */
+    public static function searchInfoHeaderProvider(): iterable
+    {
+        yield 'no header set (default behavior)' => [
+            'data' => [],
+            'expectedState' => false,
+        ];
+
+        yield 'header set to 1 (enable search info)' => [
+            'data' => ['headerValue' => '1'],
+            'expectedState' => false,
+        ];
+
+        yield 'header set to 0 (disable search info)' => [
+            'data' => ['headerValue' => '0'],
+            'expectedState' => true,
+        ];
+
+        yield 'header set to other value (enable search info)' => [
+            'data' => ['headerValue' => 'anything'],
+            'expectedState' => false,
+        ];
     }
 }

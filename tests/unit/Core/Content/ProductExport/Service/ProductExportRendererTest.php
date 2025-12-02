@@ -70,7 +70,7 @@ class ProductExportRendererTest extends TestCase
 
         $rendered = $renderer->renderHeader($productExport, $this->context);
 
-        static::assertEquals($expected, $rendered);
+        static::assertSame($expected, $rendered);
     }
 
     public function testRenderHeaderError(): void
@@ -94,10 +94,10 @@ class ProductExportRendererTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $dispatcher->expects(static::exactly(2))->method('dispatch')->willReturnOnConsecutiveCalls($event, $loggingEvent);
+        $dispatcher->expects($this->exactly(2))->method('dispatch')->willReturnOnConsecutiveCalls($event, $loggingEvent);
 
         $twigRenderer = $this->createMock(StringTemplateRenderer::class);
-        $twigRenderer->expects(static::once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
+        $twigRenderer->expects($this->once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
@@ -143,7 +143,7 @@ class ProductExportRendererTest extends TestCase
 
         $rendered = $renderer->renderFooter($productExport, $this->context);
 
-        static::assertEquals($expected, $rendered);
+        static::assertSame($expected, $rendered);
     }
 
     /**
@@ -174,7 +174,7 @@ class ProductExportRendererTest extends TestCase
 
         $rendered = $renderer->renderBody($productExport, $this->context, $data);
 
-        static::assertEquals($expected, $rendered);
+        static::assertSame($expected, $rendered);
     }
 
     public function testRenderFooterError(): void
@@ -198,10 +198,10 @@ class ProductExportRendererTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $dispatcher->expects(static::exactly(2))->method('dispatch')->willReturnOnConsecutiveCalls($event, $loggingEvent);
+        $dispatcher->expects($this->exactly(2))->method('dispatch')->willReturnOnConsecutiveCalls($event, $loggingEvent);
 
         $twigRenderer = $this->createMock(StringTemplateRenderer::class);
-        $twigRenderer->expects(static::once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
+        $twigRenderer->expects($this->once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,
@@ -249,10 +249,10 @@ class ProductExportRendererTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $dispatcher->expects(static::once())->method('dispatch')->willReturn($loggingEvent);
+        $dispatcher->expects($this->once())->method('dispatch')->willReturn($loggingEvent);
 
         $twigRenderer = $this->createMock(StringTemplateRenderer::class);
-        $twigRenderer->expects(static::once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
+        $twigRenderer->expects($this->once())->method('render')->willThrowException(AdapterException::renderingTemplateFailed('error'));
 
         $renderer = new ProductExportRenderer(
             $twigRenderer,

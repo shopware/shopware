@@ -5,7 +5,7 @@ namespace Shopware\Administration\Framework\Twig;
 use Pentatrion\ViteBundle\Service\FileAccessor;
 use Shopware\Core\Framework\Bundle as ShopwareBundle;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Asset\Package as AssetPackage;
+use Symfony\Component\Asset\PackageInterface as AssetPackage;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[Package('framework')]
 class ViteFileAccessorDecorator extends FileAccessor
 {
-    private string $assetPath;
+    private readonly string $assetPath;
 
     /**
      * @var array<string, array<string, array<string, mixed>>>
@@ -31,7 +31,7 @@ class ViteFileAccessorDecorator extends FileAccessor
     ) {
         $this->assetPath = $this->package->getUrl('');
 
-        parent::__construct($this->assetPath, $configs, null);
+        parent::__construct($this->assetPath, $configs);
     }
 
     public function hasFile(string $configName, string $fileType): bool

@@ -22,11 +22,16 @@ use Shopware\Core\Content\ImportExport\Strategy\Import\ImportStrategyService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -53,6 +58,9 @@ class ImportExport
      */
     private array $failedWriteCommands = [];
 
+    /**
+     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
+     */
     public function __construct(
         private readonly ImportExportService $importExportService,
         private ImportExportLogEntity $logEntity,
@@ -96,7 +104,10 @@ class ImportExport
         $invalidRecordsProgress = null;
 
         $resource = $this->filesystem->readStream($path);
+
         $config = Config::fromLog($this->logEntity);
+        $config = $this->filterApiAwareFields($config, $context);
+
         $overallResults = $this->logEntity->getResult();
 
         $this->eventDispatcher->addListener(WriteCommandExceptionEvent::class, $this->onWriteException(...));
@@ -210,6 +221,8 @@ class ImportExport
         }
 
         $config = Config::fromLog($this->logEntity);
+        $config = $this->filterApiAwareFields($config, $context);
+
         $criteriaBuilder = new CriteriaBuilder($this->repository->getDefinition());
 
         $criteria = $criteria === null ? new Criteria() : clone $criteria;
@@ -218,11 +231,22 @@ class ImportExport
         $enrichEvent = new EnrichExportCriteriaEvent($criteria, $this->logEntity);
         $this->eventDispatcher->dispatch($enrichEvent);
 
+        $fields = $this->repository->getDefinition()->getFields();
+
         if ($criteria->getSorting() === []) {
-            // default sorting
-            $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
+            $autoIncrementFields = $fields->filterInstance(AutoIncrementField::class);
+
+            if ($autoIncrementFields->count() > 0) {
+                /** @var AutoIncrementField $autoIncrementField */
+                foreach ($autoIncrementFields as $autoIncrementField) {
+                    $criteria->addSorting(new FieldSorting($autoIncrementField->getPropertyName(), FieldSorting::ASCENDING));
+                }
+            }
         }
-        $criteria->addSorting(new FieldSorting('id'));
+
+        foreach ($fields->filterByFlag(PrimaryKey::class) as $field) {
+            $criteria->addSorting(new FieldSorting($field->getPropertyName(), FieldSorting::ASCENDING));
+        }
 
         $criteria->setOffset($offset);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
@@ -253,7 +277,7 @@ class ImportExport
 
             $progress = $this->exportChunk($config, $entities, $progress, $targetFile, $context, false, $failedRecords);
 
-            $criteria->setOffset($criteria->getOffset() + $criteria->getLimit());
+            $criteria->setOffset((int) $criteria->getOffset() + (int) $criteria->getLimit());
         } while ($fullExport && $progress->getOffset() < $progress->getTotal());
 
         if (!empty($failedRecords)) {
@@ -645,6 +669,38 @@ class ImportExport
                 throw ImportExportException::requiredByUser($csvKey);
             }
         }
+    }
+
+    private function filterApiAwareFields(Config $config, Context $context): Config
+    {
+        $definition = $this->repository->getDefinition();
+        $source = $context->getSource()::class;
+
+        $allowedMappings = array_filter(
+            $config->getMapping()->getElements(),
+            function ($mapping) use ($definition, $source) {
+                $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor(
+                    $definition,
+                    $mapping->getKey()
+                );
+
+                foreach ($fields as $field) {
+                    $flag = $field->getFlag(ApiAware::class);
+
+                    if (!($flag instanceof ApiAware) || !$flag->isSourceAllowed($source)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        );
+
+        return new Config(
+            array_values($allowedMappings),
+            $config->getParameters(),
+            $config->getUpdateBy()
+        );
     }
 
     /**

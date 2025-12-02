@@ -408,6 +408,11 @@ class CategoryEntity extends Entity
         $this->linkNewTab = $linkNewTab;
     }
 
+    public function shouldOpenInNewTab(): bool
+    {
+        return $this->type === CategoryDefinition::TYPE_LINK && $this->getTranslation('linkNewTab');
+    }
+
     public function getInternalLink(): ?string
     {
         return $this->internalLink;

@@ -27,6 +27,7 @@ use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustment;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -36,6 +37,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[CoversClass(TaxAdjustment::class)]
+#[Package('checkout')]
 class TaxAdjustmentTest extends TestCase
 {
     private IdsCollection $ids;

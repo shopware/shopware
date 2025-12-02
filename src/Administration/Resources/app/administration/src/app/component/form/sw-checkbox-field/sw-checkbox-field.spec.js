@@ -9,6 +9,7 @@ async function createWrapper(additionalOptions = {}) {
         global: {
             stubs: {
                 'mt-checkbox': true,
+                'sw-checkbox-field-deprecated': true,
             },
         },
         props: {},
@@ -17,11 +18,6 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-checkbox-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the mt-checkbox', async () => {
         const wrapper = await createWrapper();
 

@@ -9,15 +9,15 @@ async function createWrapper() {
         props: {
             options: [],
         },
+        global: {
+            stubs: {
+                'sw-select-field-deprecated': true,
+            },
+        },
     });
 }
 
 describe('src/app/component/base/sw-select-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the mt-select-field', async () => {
         const wrapper = await createWrapper();
 

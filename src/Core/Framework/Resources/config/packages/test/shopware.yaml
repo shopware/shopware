@@ -2,12 +2,18 @@ shopware:
     filesystem:
         private:
             type: "memory"
+            visibility: "private"
             config:
                 root: ~
         public:
             type: "memory"
+            visibility: "public"
             config:
                 root: ~
+
+    cache:
+        invalidation:
+            delay_enabled: false
 
     increment:
         user_activity:

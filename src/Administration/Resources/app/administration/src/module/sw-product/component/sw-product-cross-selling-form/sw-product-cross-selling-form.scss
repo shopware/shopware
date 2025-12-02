@@ -1,59 +1,13 @@
 @import "~scss/variables";
 
 .product-detail-cross-selling-form {
-    .sw-product-detail-cross-selling__context-button {
-        display: flex;
+    .sw-product-cross-selling-form__links .sw-card__quick-link {
+        transition: color 0.3s ease;
 
-        .sw-context-button {
-            margin-left: auto;
-        }
-    }
-
-    .sw-field .sw-field__help-text {
-        position: relative;
-        top: 40px;
-        right: 65px;
-    }
-
-    .sw-product-cross-selling-form__switches {
-        display: flex;
-
-        .sw-field {
-            margin-right: 20px;
-        }
-    }
-
-    .sw-product-detail-cross-selling__active-switch {
-        display: flex;
-
-        .sw-field--switch__content {
-            position: relative;
-        }
-
-        .sw-field--switch__input {
-            position: unset;
-
-            .sw-field__switch-state {
-                width: 24px;
-            }
-        }
-    }
-
-    .sw-product-cross-selling-form__links {
-        .sw-card__quick-link:first-child {
-            margin-top: 0;
-        }
-
-        .sw-card__quick-link {
-            transition: color 0.3s ease;
-            cursor: pointer;
-            margin-top: 16px;
-
-            &.is--disabled {
-                cursor: not-allowed;
-                color: $color-gray-500;
-                pointer-events: none;
-            }
+        &.is--disabled {
+            cursor: not-allowed;
+            color: $color-gray-500;
+            pointer-events: none;
         }
     }
 }

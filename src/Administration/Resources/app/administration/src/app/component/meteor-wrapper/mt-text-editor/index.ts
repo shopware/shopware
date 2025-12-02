@@ -1,7 +1,6 @@
 import { MtTextEditor as MtTextEditorOriginal } from '@shopware-ag/meteor-component-library';
 // eslint-disable-next-line max-len
 import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/components/form/mt-text-editor/_internal/mt-text-editor-toolbar';
-import type { PropType } from 'vue';
 import template from './mt-text-editor.html.twig';
 import './mt-text-editor.scss';
 
@@ -13,7 +12,7 @@ import './mt-text-editor.scss';
  * @description Wrapper component for mt-text-editor. Replaces the link
  * button with a custom implementation specific to the Shopware admin.
  */
-Shopware.Component.register('mt-text-editor', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {

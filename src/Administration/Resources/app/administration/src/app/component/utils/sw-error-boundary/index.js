@@ -11,7 +11,7 @@
  *     <!-- Your components -->
  * </sw-error-boundary>
  */
-Shopware.Component.register('sw-error-boundary', {
+export default {
     render() {
         if (typeof this.$slots.default === 'function') {
             return this.$slots.default();
@@ -64,4 +64,4 @@ Shopware.Component.register('sw-error-boundary', {
             this.logEntryRepository.save(newLogEntry).catch((e) => Shopware.Utils.debug.error(e));
         },
     },
-});
+};

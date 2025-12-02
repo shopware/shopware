@@ -51,10 +51,10 @@ class FlowLoader extends AbstractFlowLoader
             $flows[$key]['payload'] = $payload;
         }
 
-        /** @var list<array<string, string>> $flows */
         $result = FetchModeHelper::group($flows);
 
         /** @var EventGroupedFlowHolders $result */
+        // @phpstan-ignore varTag.type (with the FetchModeHelper we lose the payload type information)
         return $result;
     }
 }

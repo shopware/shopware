@@ -102,7 +102,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
         );
 
         $this->orderRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($orderResponse);
 
@@ -111,12 +111,12 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $page->getMetaInformation()?->setMetaTitle('testshop');
 
         $this->genericPageLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 
         $this->translator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('trans')
             ->willReturn('translated');
 
@@ -127,7 +127,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $remainingPaymentMethod->setId(Uuid::randomHex());
         $remainingPaymentMethod->setAfterOrderEnabled(true);
         $this->checkoutGatewayRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn(new CheckoutGatewayRouteResponse(
                 new PaymentMethodCollection([$filteredPaymentMethod, $remainingPaymentMethod]),
@@ -137,9 +137,11 @@ class AccountOrderEditPageLoaderTest extends TestCase
 
         $page = $this->pageLoader->load(new Request(), Generator::generateSalesChannelContext());
 
-        static::assertEquals($order, $page->getOrder());
-        static::assertEquals('translated | testshop', $page->getMetaInformation()?->getMetaTitle());
-        static::assertEquals('noindex,follow', $page->getMetaInformation()?->getRobots());
+        static::assertSame($order, $page->getOrder());
+        $metaInformation = $page->getMetaInformation();
+        static::assertNotNull($metaInformation);
+        static::assertSame('translated | testshop', $metaInformation->getMetaTitle());
+        static::assertSame('noindex,follow', $metaInformation->getRobots());
 
         static::assertSame([$remainingPaymentMethod], array_values($page->getPaymentMethods()->getElements()));
 
@@ -170,7 +172,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
         );
 
         $this->checkoutGatewayRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn(new CheckoutGatewayRouteResponse(
                 new PaymentMethodCollection(),
@@ -179,14 +181,14 @@ class AccountOrderEditPageLoaderTest extends TestCase
             ));
 
         $this->orderRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($orderResponse);
 
         $orderContext = Generator::generateSalesChannelContext();
 
         $this->cartService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setCart')
             ->with(static::callback(function (Cart $cart) use ($orderContext) {
                 return $cart->getToken() === $orderContext->getToken();
@@ -194,19 +196,19 @@ class AccountOrderEditPageLoaderTest extends TestCase
 
         $cart = new Cart('some-token');
         $this->orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convertToCart')
             ->willReturn($cart);
 
         $this->orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->willReturn($orderContext);
 
         $request = new Request();
         $request->query->set('onlyAvailable', 1);
         $this->checkoutGatewayRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $cart, $orderContext)
             ->willReturn(new CheckoutGatewayRouteResponse(
@@ -241,7 +243,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
         );
 
         $this->orderRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($orderResponse);
 
@@ -250,7 +252,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $page->getMetaInformation()?->setMetaTitle('testshop');
 
         $this->genericPageLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 

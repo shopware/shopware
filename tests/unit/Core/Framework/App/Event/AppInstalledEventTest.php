@@ -27,8 +27,8 @@ class AppInstalledEventTest extends TestCase
             $context
         );
 
-        static::assertEquals($app, $event->getApp());
-        static::assertEquals($context, $event->getContext());
+        static::assertSame($app, $event->getApp());
+        static::assertSame($context, $event->getContext());
         static::assertSame(AppInstalledEvent::NAME, $event->getName());
         static::assertSame([
             'appVersion' => '1.0.0',

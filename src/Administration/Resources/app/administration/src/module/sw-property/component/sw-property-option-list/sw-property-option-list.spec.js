@@ -79,14 +79,22 @@ async function createWrapper() {
                     create: () => ({
                         get: () => Promise.resolve(),
                         save: jest.fn(() => Promise.resolve()),
-                        search: () => Promise.resolve({ propertyGroup }),
+                        search: () =>
+                            Promise.resolve(new Shopware.Data.EntityCollection(null, null, {}, null, getOptions())),
                     }),
                 },
                 shortcutService: {
                     stopEventListener: () => {},
                     startEventListener: () => {},
                 },
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: jest.fn(() => Promise.resolve([])),
+                },
             },
             stubs: {
                 'sw-ignore-class': true,
@@ -96,7 +104,9 @@ async function createWrapper() {
                 'sw-simple-search-field': {
                     template: '<div></div>',
                 },
-                'sw-one-to-many-grid': await wrapTestComponent('sw-one-to-many-grid', { sync: true }),
+                'sw-one-to-many-grid': await wrapTestComponent('sw-one-to-many-grid', {
+                    sync: true,
+                }),
                 'sw-pagination': {
                     template: '<div></div>',
                 },
@@ -137,6 +147,7 @@ async function createWrapper() {
                     template: '<div></div>',
                 },
                 'sw-extension-component-section': true,
+                'sw-empty-state': true,
                 'sw-context-menu-item': true,
                 'sw-loader': true,
                 'sw-ai-copilot-badge': true,
@@ -145,6 +156,9 @@ async function createWrapper() {
                 'sw-data-grid-inline-edit': true,
                 'router-link': true,
                 'sw-data-grid-skeleton': true,
+                'sw-custom-field-set-renderer': {
+                    template: '<div></div>',
+                },
                 'sw-provide': { template: `<slot/>`, inheritAttrs: false },
             },
         },
@@ -156,6 +170,7 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         global.activeAclRoles = ['property.editor'];
 
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const initialHexCodeValue = wrapper.find('.sw-data-grid__cell--colorHexCode span').text();
 
@@ -187,5 +202,60 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         );
 
         expect(wrapper.find('.modal').exists()).toBe(false);
+    });
+
+    it('should disable natural sorting when names are purely alphabetical', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const columns = wrapper.vm.getGroupColumns();
+        const nameColumn = columns.find((c) => c.property === 'name');
+
+        expect(nameColumn).toBeTruthy();
+        expect(nameColumn.naturalSorting).toBe(false);
+    });
+
+    it('should enable natural sorting when at least one name contains digits', async () => {
+        const numericOptions = [
+            {
+                groupId: 'group-1',
+                name: '1mm',
+                position: 1,
+                colorHexCode: null,
+                translated: { name: '1mm', position: 1, customFields: [] },
+                id: 'opt-1',
+            },
+            {
+                groupId: 'group-1',
+                name: '10mm',
+                position: 2,
+                colorHexCode: null,
+                translated: { name: '10mm', position: 2, customFields: [] },
+                id: 'opt-2',
+            },
+            {
+                groupId: 'group-1',
+                name: '2mm',
+                position: 3,
+                colorHexCode: null,
+                translated: { name: '2mm', position: 3, customFields: [] },
+                id: 'opt-3',
+            },
+        ];
+
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            propertyGroup: {
+                ...propertyGroup,
+                options: numericOptions,
+            },
+        });
+        await flushPromises();
+
+        const columns = wrapper.vm.getGroupColumns();
+        const nameColumn = columns.find((c) => c.property === 'name');
+
+        expect(nameColumn).toBeTruthy();
+        expect(nameColumn.naturalSorting).toBe(true);
     });
 });

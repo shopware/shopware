@@ -1,9 +1,8 @@
-const { Component } = Shopware;
-
 /**
  * @sw-package fundamentals@after-sales
  */
-Component.extend('sw-condition-is-net-select', 'sw-condition-operator-select', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     computed: {
         operator: {
             get() {
@@ -20,4 +19,4 @@ Component.extend('sw-condition-is-net-select', 'sw-condition-operator-select', {
             },
         },
     },
-});
+};

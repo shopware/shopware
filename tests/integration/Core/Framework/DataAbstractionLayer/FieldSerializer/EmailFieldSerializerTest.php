@@ -72,7 +72,7 @@ class EmailFieldSerializerTest extends TestCase
         }
 
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'This value should not be blank.');
-        static::assertEquals('/email', $exception->getViolations()->get(0)->getPropertyPath());
+        static::assertSame('/email', $exception->getViolations()->get(0)->getPropertyPath());
     }
 
     #[DataProvider('getEmailListProvider')]

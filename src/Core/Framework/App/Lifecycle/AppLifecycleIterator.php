@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -19,6 +20,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AppLifecycleIterator
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly AppLoader $appLoader

@@ -86,6 +86,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 '/login',
                 '/login/info',
                 '/login/recovery',
+                '/sso/error',
             ];
 
             if (to.meta && to.meta.forceRoute === true) {
@@ -390,8 +391,8 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         }
 
         favRef.href = favicon
-            ? `${assetsPath}static/img/favicon/modules/${favicon}`
-            : `${assetsPath}static/img/favicon/favicon-32x32.png`;
+            ? `${assetsPath}administration/static/img/favicon/modules/${favicon}`
+            : `${assetsPath}administration/static/img/favicon/favicon-32x32.png`;
 
         return true;
     }

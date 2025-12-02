@@ -8,6 +8,9 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppDownloadException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -157,5 +160,52 @@ class AppExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_DIRECTORY_CREATION_FAILED', $e->getErrorCode());
         static::assertSame('Unable to create directory "path/to/app". Please check permissions', $e->getMessage());
+    }
+
+    public function testInvalidPrivileges(): void
+    {
+        $e = AppException::invalidPrivileges();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_INVALID_PERMISSIONS', $e->getErrorCode());
+        static::assertSame('For each accept, or revoke, expected a list of privileges in the format "category:read"', $e->getMessage());
+    }
+
+    public function testMissingIntegration(): void
+    {
+        $e = AppException::missingIntegration();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_MISSING_INTEGRATION', $e->getErrorCode());
+        static::assertSame('Forbidden. Not a valid integration source.', $e->getMessage());
+    }
+
+    public function testShopIdChangeSuggested(): void
+    {
+        $e = AppException::shopIdChangeSuggested(ShopId::v2('123456789'), $comparisonResult = new FingerprintComparisonResult([], [], 75));
+
+        static::assertInstanceOf(ShopIdChangeSuggestedException::class, $e);
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED', $e->getErrorCode());
+        static::assertSame('Changes in your system were detected that suggest a change of the shop ID.', $e->getMessage());
+        static::assertSame($comparisonResult, $e->comparisonResult);
+    }
+
+    public function testAppUrlNotConfigured(): void
+    {
+        $e = AppException::appUrlNotConfigured();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_NOT_CONFIGURED', $e->getErrorCode());
+        static::assertSame('The environment variable "APP_URL" is not set. Please set it to the URL to your Admin API.', $e->getMessage());
+    }
+
+    public function testInvalidShopIdConfiguration(): void
+    {
+        $e = AppException::invalidShopIdConfiguration();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION', $e->getErrorCode());
+        static::assertSame('The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.', $e->getMessage());
     }
 }

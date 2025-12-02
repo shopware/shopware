@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
@@ -144,7 +145,6 @@ class CacheInvalidationSubscriber
     public function invalidateCmsPageIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes and http cache pages where a cms page was loaded, the id is assigned as tag
-        /** @var list<string> $ids */
         $ids = array_map(EntityCacheKeyGenerator::buildCmsTag(...), $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME));
         $this->cacheInvalidator->invalidate($ids);
     }
@@ -165,7 +165,6 @@ class CacheInvalidationSubscriber
     public function invalidateStreamIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes which are loaded based on a stream (e.G. category listing and cross selling)
-        /** @var string[] $ids */
         $ids = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME));
         $this->cacheInvalidator->invalidate($ids);
     }
@@ -179,7 +178,6 @@ class CacheInvalidationSubscriber
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
     {
         // invalidates the landing page route, if the corresponding landing page changed
-        /** @var list<string> $ids */
         $ids = array_map(LandingPageRoute::buildName(...), $event->getIds());
         $this->cacheInvalidator->invalidate($ids);
     }
@@ -223,7 +221,6 @@ class CacheInvalidationSubscriber
 
         if (empty($tags)) {
             // invalidates the country-state route when a state changed or an assignment between the state and country changed
-            /** @var string[] $tags */
             $tags = array_map(
                 CountryStateRoute::buildName(...),
                 $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME)
@@ -242,9 +239,44 @@ class CacheInvalidationSubscriber
     public function invalidateNavigationRoute(EntityWrittenContainerEvent $event): void
     {
         // invalidates the navigation route when a category changed or the entry point configuration of an sales channel changed
-        $logs = [...$this->getChangedCategories($event), ...$this->getChangedEntryPoints($event)];
+        $changedSalesChannelSettings = $event->getPrimaryKeysWithPropertyChange(
+            SalesChannelDefinition::ENTITY_NAME,
+            ['navigationCategoryId', 'navigationCategoryDepth', 'serviceCategoryId', 'footerCategoryId']
+        );
+        if (!empty($changedSalesChannelSettings)) {
+            // if the sales channel settings changed, we invalidate the complete navigation route
+            $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
 
-        $this->cacheInvalidator->invalidate($logs);
+            return;
+        }
+
+        $changedCategoryData = $event->getPrimaryKeysWithPropertyChange(
+            CategoryDefinition::ENTITY_NAME,
+            ['parentId', 'afterCategoryId', 'visible', 'active']
+        );
+        if (!empty($changedCategoryData)) {
+            // if category data that has impact on navigation changes, we invalidate the complete navigation route
+            $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
+
+            return;
+        }
+
+        $deletedCategories = $event->getDeletedPrimaryKeys(CategoryDefinition::ENTITY_NAME);
+        if (!empty($deletedCategories)) {
+            // if the category is deleted, we invalidate the complete navigation route
+            $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
+
+            return;
+        }
+
+        $changedCategoryTranslationData = $event->getPrimaryKeysWithPropertyChange(
+            CategoryTranslationDefinition::ENTITY_NAME,
+            ['name']
+        );
+        if (!empty($changedCategoryTranslationData)) {
+            // if translated category data that has impact on navigation changes, we invalidate the complete navigation route
+            $this->cacheInvalidator->invalidate([NavigationRoute::ALL_TAG]);
+        }
     }
 
     public function invalidatePaymentMethodRoute(EntityWrittenContainerEvent $event): void
@@ -257,7 +289,7 @@ class CacheInvalidationSubscriber
 
     public function invalidateMedia(MediaIndexerEvent $event): void
     {
-        /** @var array{'product_id':string, 'variant_id':string|null} $productIds */
+        /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
         $productIds = $this->connection->fetchAllAssociative(
             'SELECT
                     LOWER(HEX(pm.product_id)) as product_id,
@@ -316,7 +348,6 @@ class CacheInvalidationSubscriber
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
         }
 
-        /** @var string[] $keys */
         $keys = array_filter(array_unique($keys));
 
         if (empty($keys)) {
@@ -556,37 +587,6 @@ class CacheInvalidationSubscriber
         $ids = array_column($ids, 'salesChannelId');
 
         return array_map(PaymentMethodRoute::buildName(...), $ids);
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getChangedCategories(EntityWrittenContainerEvent $event): array
-    {
-        $ids = $event->getPrimaryKeysWithPayload(CategoryDefinition::ENTITY_NAME);
-
-        if (empty($ids)) {
-            return [];
-        }
-
-        return array_map(NavigationRoute::buildName(...), $ids);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getChangedEntryPoints(EntityWrittenContainerEvent $event): array
-    {
-        $ids = $event->getPrimaryKeysWithPropertyChange(
-            SalesChannelDefinition::ENTITY_NAME,
-            ['navigationCategoryId', 'navigationCategoryDepth', 'serviceCategoryId', 'footerCategoryId']
-        );
-
-        if (empty($ids)) {
-            return [];
-        }
-
-        return [NavigationRoute::ALL_TAG];
     }
 
     /**

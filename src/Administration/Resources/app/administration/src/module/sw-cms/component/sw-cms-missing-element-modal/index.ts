@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-missing-element-modal.html.twig';
 import './sw-cms-missing-element-modal.scss';
 

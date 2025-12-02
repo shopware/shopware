@@ -1,0 +1,41 @@
+@import "~scss/variables";
+
+.apexcharts-canvas {
+    .apexcharts-tooltip {
+        box-shadow: var(--color-elevation-shadow-default) !important;
+        background-color: var(--color-elevation-surface-overlay) !important;
+        border: 1px solid var(--color-border-primary-default) !important;
+        border-radius: var(--border-radius-l) !important;
+        color: var(--color-text-primary-default) !important;
+
+        .apexcharts-tooltip-series-group.active {
+            padding-top: var(--scale-size-4);
+        }
+
+        .apexcharts-tooltip-title {
+            font-family: var(--font-family-body) !important;
+            font-size: var(--font-size-xs) !important;
+            font-weight: var(--font-weight-bold) !important;
+            background: var(--color-interaction-secondary-default) !important;
+            border-bottom: 1px solid var(--color-border-primary-default) !important;
+            padding: var(--scale-size-10) var(--scale-size-16) !important;
+            margin-bottom: 0 !important;
+        }
+    }
+
+    .apexcharts-xaxistooltip {
+        color: var(--color-text-inverse-default) !important;
+        background-color: var(--color-elevation-surface-floating) !important;
+        border-radius: var(--border-radius-xs) !important;
+    }
+
+    .apexcharts-xaxistooltip::before,
+    .apexcharts-xaxistooltip::after {
+        border-bottom-color: var(--color-elevation-surface-floating) !important;
+    }
+
+    .apexcharts-tooltip-marker::before {
+        font-size: var(--scale-size-16);
+        color: var(--color-icon-brand-default) !important;
+    }
+}

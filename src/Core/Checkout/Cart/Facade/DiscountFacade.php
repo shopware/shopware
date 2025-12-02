@@ -17,7 +17,7 @@ class DiscountFacade
     /**
      * @internal
      */
-    public function __construct(private LineItem $item)
+    public function __construct(private readonly LineItem $item)
     {
     }
 

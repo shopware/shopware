@@ -25,7 +25,7 @@ class FoundCombinationTest extends TestCase
 
         $foundCombo = new FoundCombination($ids->get('variantId'), $options);
 
-        static::assertEquals($ids->get('variantId'), $foundCombo->getVariantId());
-        static::assertEquals($options, $foundCombo->getOptions());
+        static::assertSame($ids->get('variantId'), $foundCombo->getVariantId());
+        static::assertSame($options, $foundCombo->getOptions());
     }
 }

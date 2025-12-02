@@ -1,0 +1,98 @@
+name: Audit check for NPM packages
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every day at 8:30 AM UTC
+    - cron: "30 8 * * *"
+  push:
+    branches: ["trunk"]
+    paths:
+      - "**/package.json"
+      - "**/package-lock.json"
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "**/package.json"
+      - "**/package-lock.json"
+
+jobs:
+  check-package-completeness:
+    name: Verify all package.json files are audited
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+
+      - name: Validate package.json completeness
+        run: npx esno ./.github/bin/js/package-discovery.ts validate
+
+  check-pinned-dependencies:
+    name: Check pinned dependencies
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+
+      - name: Check for unpinned dependencies
+        run: npx esno ./.github/bin/js/check-pinned-dependencies.ts
+
+  generate-audit-matrix:
+    name: Generate audit matrix
+    needs: [check-package-completeness, check-pinned-dependencies]
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+
+      - name: Generate matrix
+        id: generate-matrix
+        run: |
+          matrix=$(npx esno ./.github/bin/js/package-discovery.ts matrix)
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
+  audit-packages:
+    name: Audit - ${{ matrix.name }}
+    needs: generate-audit-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-audit-matrix.outputs.matrix) }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ${{ matrix.workingDirectory }}
+
+      - name: Run audit (standard)
+        if: ${{ !matrix.hasCustomAuditScript }}
+        run: npm audit
+        working-directory: ${{ matrix.workingDirectory }}
+
+      - name: Run audit (custom script)
+        if: ${{ matrix.hasCustomAuditScript }}
+        run: npx esno ./scripts/runNpmAudit.ts
+        working-directory: ${{ matrix.workingDirectory }}

@@ -13,7 +13,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-date-range :condition="condition" :level="0"></sw-condition-date-range>
  */
-Component.extend('sw-condition-date-range', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     computed: {
@@ -60,7 +61,7 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
 
                 this.condition.value = {
                     ...this.condition.value,
-                    fromDate: this.formatDate(fromDate, '00:00:00+00:00'),
+                    fromDate: this.formatDate(fromDate, '00:00:00'),
                 };
             },
         },
@@ -75,7 +76,22 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
 
                 this.condition.value = {
                     ...this.condition.value,
-                    toDate: this.formatDate(toDate, '23:59:59+00:00'),
+                    toDate: this.formatDate(toDate, '23:59:59'),
+                };
+            },
+        },
+
+        timezone: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.timezone || null;
+            },
+            set(timezone) {
+                this.ensureValueExist();
+
+                this.condition.value = {
+                    ...this.condition.value,
+                    timezone,
                 };
             },
         },
@@ -88,24 +104,34 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             'value.useTime',
             'value.fromDate',
             'value.toDate',
+            'value.timezone',
         ]),
 
+        timezoneOptions() {
+            return Shopware.Service('timezoneService').getTimezoneOptions();
+        },
+
         currentError() {
-            return this.conditionValueUseTimeError || this.conditionValueFromDateError || this.conditionValueToDateError;
+            return (
+                this.conditionValueUseTimeError ||
+                this.conditionValueFromDateError ||
+                this.conditionValueToDateError ||
+                this.conditionValueTimezoneError
+            );
         },
     },
 
     methods: {
-        formatDate(date, dateModifier) {
+        formatDate(date, timeModifier) {
             if (!date) {
                 return null;
             }
 
             if (this.isDateTime === 'datetime') {
-                return date.replace('.000Z', '+00:00');
+                return date.replace('.000Z', '');
             }
 
-            return date.split('T')[0].concat('T'.concat(dateModifier));
+            return `${date.split('T')[0]}T${timeModifier}`;
         },
     },
-});
+};

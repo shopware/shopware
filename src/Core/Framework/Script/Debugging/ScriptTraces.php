@@ -63,7 +63,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
 
         $took = round(microtime(true) - $time, 3);
 
-        $name = explode('/', (string) $script->getName());
+        $name = explode('/', $script->getName());
         $name = array_pop($name);
 
         $this->add($hook, $name, $took, $debug, $deprecations);

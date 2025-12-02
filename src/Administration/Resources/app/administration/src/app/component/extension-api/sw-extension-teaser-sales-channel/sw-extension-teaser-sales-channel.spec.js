@@ -28,11 +28,6 @@ describe('src/app/component/extension-api/sw-extension-teaser-sales-channel', ()
         store.salesChannels = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render correctly', async () => {
         store.addSalesChannel({
             positionId: 'positionId',

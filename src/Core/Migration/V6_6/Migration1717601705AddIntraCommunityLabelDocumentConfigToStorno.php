@@ -21,7 +21,7 @@ class Migration1717601705AddIntraCommunityLabelDocumentConfigToStorno extends Mi
     {
         $connection->transactional(function (Connection $transaction): void {
             $stornoConfig = $transaction->executeQuery(
-                <<<SQL
+                <<<'SQL'
                     SELECT `document_base_config`.`id`, `document_base_config`.`config` FROM `document_base_config`
                     JOIN `document_type` ON `document_base_config`.`document_type_id` = `document_type`.`id`
                     WHERE `document_type`.`technical_name` = :technicalName;
@@ -39,7 +39,7 @@ class Migration1717601705AddIntraCommunityLabelDocumentConfigToStorno extends Mi
                 $config['displayAdditionalNoteDelivery'] = false;
             }
 
-            $transaction->executeQuery(
+            $transaction->executeStatement(
                 'UPDATE `document_base_config` SET `config` = :config WHERE `id` = :id;',
                 [
                     'id' => $stornoConfig['id'],

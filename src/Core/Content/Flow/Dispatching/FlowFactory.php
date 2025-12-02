@@ -17,7 +17,7 @@ class FlowFactory
     /**
      * @param iterable<FlowStorer> $storer
      */
-    public function __construct(private iterable $storer)
+    public function __construct(private readonly iterable $storer)
     {
     }
 

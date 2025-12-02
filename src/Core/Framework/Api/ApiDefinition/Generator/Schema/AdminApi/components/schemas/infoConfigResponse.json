@@ -1,71 +1,160 @@
 {
-    "openapi": "3.1.0",
-    "info": [],
-    "paths": [],
-    "components": {
-        "schemas": {
-            "infoConfigResponse": {
-                "type": "object",
-                "properties": {
-                    "version": {
-                        "type": "string",
-                        "description": "The Shopware version."
-                    },
-                    "versionRevision": {
-                        "type": "string",
-                        "description": "The Shopware version revision."
-                    },
-                    "adminWorker": {
-                        "type": "object",
-                        "description": "Information about the admin worker.",
-                        "properties": {
-                            "enableAdminWorker": {
-                                "type": "boolean",
-                                "description": "State of the admin worker."
-                            },
-                            "transports": {
-                                "type": "array",
-                                "description": "Configured transports.",
-                                "items": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    },
-                    "bundles": {
-                        "type": "object",
-                        "description": "Asset files of active extensions",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {
-                                "css": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string",
-                                        "description": "Url to the css file."
-                                    }
-                                },
-                                "js": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string",
-                                        "description": "Url to the js file."
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "settings": {
-                        "type": "object",
-                        "properties": {
-                            "enableUrlFeature": {
-                                "type": "boolean",
-                                "description": "State of the `urlFeature` setting."
-                            }
-                        }
-                    }
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": [],
+  "components": {
+    "schemas": {
+      "infoConfigResponse": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Shopware version."
+          },
+          "shopId": {
+            "type": "string",
+            "description": "Unique shop identifier."
+          },
+          "versionRevision": {
+            "type": "string",
+            "description": "Shopware version revision (build hash/revision)."
+          },
+          "adminWorker": {
+            "type": "object",
+            "description": "Admin worker feature flags and transport configuration.",
+            "properties": {
+              "enableAdminWorker": {
+                "type": "boolean",
+                "description": "Whether the admin background worker is enabled."
+              },
+              "enableQueueStatsWorker": {
+                "type": "boolean",
+                "description": "Whether the queue statistics worker is enabled."
+              },
+              "enableNotificationWorker": {
+                "type": "boolean",
+                "description": "Whether the notification worker is enabled."
+              },
+              "transports": {
+                "type": "array",
+                "description": "Configured Symfony Messenger transports used by the admin workers.",
+                "items": {
+                  "type": "string"
                 }
+              }
+            },
+            "additionalProperties": false
+          },
+          "bundles": {
+            "type": "object",
+            "description": "Active extension assets (plugins & apps) keyed by technical name.",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "description": "Plugin bundle asset descriptor.",
+                  "properties": {
+                    "type": { "type": "string", "enum": ["plugin"] },
+                    "css": {
+                      "type": "array",
+                      "items": { "type": "string", "description": "URL to a CSS asset." }
+                    },
+                    "js": {
+                      "type": "array",
+                      "items": { "type": "string", "description": "URL to a JS asset." }
+                    },
+                    "baseUrl": {
+                      "type": ["string", "null"],
+                      "description": "Base URL to a (micro frontend) admin entry point, if provided."
+                    }
+                  },
+                  "required": ["type"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "description": "App bundle descriptor.",
+                  "properties": {
+                    "type": { "type": "string", "enum": ["app"] },
+                    "name": { "type": "string" },
+                    "active": { "type": "boolean" },
+                    "integrationId": { "type": "string", "description": "Lowercase hex integration id." },
+                    "baseUrl": { "type": "string" },
+                    "version": { "type": "string" },
+                    "permissions": {
+                      "type": "object",
+                      "description": "Grouped privileges: key = privilege scope, value = list of entities.",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      }
+                    },
+                    "css": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Optional CSS assets if provided."
+                    },
+                    "js": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Optional JS assets if provided."
+                    }
+                  },
+                  "required": ["type", "name", "active", "integrationId", "baseUrl", "version", "permissions"],
+                  "additionalProperties": false
+                }
+              ]
             }
-        }
+          },
+          "settings": {
+            "type": "object",
+            "description": "Selected environment and feature settings consumed by the administration.",
+            "properties": {
+              "enableUrlFeature": {
+                "type": "boolean",
+                "description": "State of the URL upload feature."
+              },
+              "appUrlReachable": {
+                "type": "boolean",
+                "description": "Whether configured APP_URL is externally reachable."
+              },
+              "appsRequireAppUrl": {
+                "type": "boolean",
+                "description": "True if at least one installed app requires a reachable APP_URL."
+              },
+              "private_allowed_extensions": {
+                "type": "array",
+                "description": "Whitelisted file extensions for private filesystem uploads.",
+                "items": { "type": "string" }
+              },
+              "enableHtmlSanitizer": {
+                "type": "boolean",
+                "description": "Whether HTML sanitizer is enabled."
+              },
+              "enableStagingMode": {
+                "type": "boolean",
+                "description": "Whether staging mode banner is enabled."
+              },
+              "disableExtensionManagement": {
+                "type": "boolean",
+                "description": "True if runtime extension management is disabled."
+              }
+            },
+            "additionalProperties": false
+          },
+          "inAppPurchases": {
+            "type": "array",
+            "description": "In-app purchase meta data (structure may vary).",
+            "items": {
+              "type": "object",
+              "description": "Purchase entry.",
+              "additionalProperties": true
+            }
+          }
+        },
+        "required": ["version", "shopId", "versionRevision", "adminWorker", "bundles", "settings", "inAppPurchases"],
+        "additionalProperties": false
+      }
     }
+  }
 }

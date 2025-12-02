@@ -1,11 +1,37 @@
 @import "~scss/variables";
 
 .sw-order-promotion-field {
-    .sw-order-promotion-tag-field {
-        margin-bottom: 0;
+    &__apply_auto_promotions {
+        &__title {
+            color: var(--color-text-primary-default);
+        }
+
+        &__text {
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+            color: var(--color-text-primary-default);
+        }
+
+        &__button {
+            width: min-content;
+            margin-top: var(--scale-size-24);
+        }
     }
 
-    .sw-field--switch {
-        margin-top: 9px;
+    &__updates_modal {
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+
+        &__description {
+            margin-bottom: var(--scale-size-12);
+        }
+
+        &__list_item {
+            display: inline list-item;
+        }
+
+        &__list_item + &__list_title {
+            margin-top: var(--scale-size-24);
+        }
     }
 }

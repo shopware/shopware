@@ -37,7 +37,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
@@ -71,6 +70,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-ignore-class': true,
                     'sw-entity-tag-select': true,
                     'sw-error-summary': true,
+                    'sw-context-menu-item': true,
                     'sw-bulk-edit-save-modal-error': await wrapTestComponent('sw-bulk-edit-save-modal-error', {
                         sync: true,
                     }),
@@ -85,6 +85,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     }),
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
@@ -279,7 +280,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
             },
         });
 
-        Shopware.Store.get('shopwareApps').selectedIds = [
+        Shopware.Store.get('swBulkEdit').selectedIds = [
             Shopware.Utils.createId(),
         ];
     });
@@ -294,13 +295,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
     it('should be show empty state', async () => {
         wrapper = await createWrapper();
 
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        Shopware.Store.get('swBulkEdit').selectedIds = [];
         await wrapper.setData({
             isLoading: false,
         });
 
-        const emptyState = wrapper.find('.sw-empty-state');
-        expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.customer.messageEmptyTitle');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.customer.messageEmptyTitle');
     });
 
     it('should open confirm modal', async () => {
@@ -330,7 +330,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         await tagsCard.find('.sw-bulk-edit-change-field__change input').trigger('click');
         await flushPromises();
 
-        Shopware.Store.get('shopwareApps').selectedIds = new Array(100).fill(1);
+        Shopware.Store.get('swBulkEdit').selectedIds = new Array(100).fill(1);
 
         await wrapper.find('.sw-bulk-edit-customer__save-action').trigger('click');
 

@@ -6,12 +6,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -339,8 +341,10 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     /**
      * @param array<CategoryEntity> $categoryEntityCollection1
      * @param array<CategoryEntity> $categoryEntityCollection2
+     *
+     * @return EntityRepository<CategoryCollection>&MockObject
      */
-    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository
+    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository&MockObject
     {
         $categoryRepositoryMock = $this->createMock(EntityRepository::class);
         $categoryRepositoryMock->method('search')->willReturnOnConsecutiveCalls(
@@ -354,6 +358,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     /**
      * @param array<ProductEntity> $productEntityCollection1
      * @param array<ProductEntity> $productEntityCollection2
+     *
+     * @return SalesChannelRepository<SalesChannelProductCollection>
      */
     private function getProductRepositoryMock(array $productEntityCollection1, array $productEntityCollection2): SalesChannelRepository
     {

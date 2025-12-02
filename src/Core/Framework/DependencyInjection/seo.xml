@@ -107,6 +107,7 @@
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\SwSanitizeTwigFilter" public="false">
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <tag name="twig.extension"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\HreflangLoaderInterface" class="Shopware\Core\Content\Seo\HreflangLoader">
@@ -137,6 +138,7 @@
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension">
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
+            <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="category.repository"/>
             <tag name="twig.extension"/>
         </service>

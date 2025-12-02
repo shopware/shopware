@@ -52,6 +52,7 @@ async function createWrapper(options = {}) {
                 'router-link': {
                     template: '<div class="router-link"><slot /></div>',
                 },
+                'mt-link': true,
                 'mt-icon': true,
             },
             provide: {
@@ -127,10 +128,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
 
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the snippet for the admin title', async () => {

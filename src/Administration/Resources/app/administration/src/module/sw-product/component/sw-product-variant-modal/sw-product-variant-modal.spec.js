@@ -287,7 +287,6 @@ async function createWrapper() {
                 },
                 'sw-label': true,
                 'sw-simple-search-field': true,
-                'sw-empty-state': true,
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
@@ -359,6 +358,15 @@ async function createWrapper() {
                 'sw-pagination': true,
                 'sw-button-process': true,
             },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
+            },
         },
     });
 }
@@ -369,11 +377,6 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should sort options by their position', async () => {

@@ -4,6 +4,8 @@ export default class WishlistWidgetPlugin extends Plugin {
 
     static options = {
         showCounter: true,
+        liveAreaSelector: '#wishlist-basket-live-area',
+        liveAreaTextAttribute: 'data-wishlist-live-area-text',
     };
 
     init() {
@@ -36,6 +38,30 @@ export default class WishlistWidgetPlugin extends Plugin {
         }
 
         this.el.innerHTML = this._wishlistStorage.getCurrentCounter() || '';
+
+        this._updateLiveArea();
+    }
+
+    /**
+     * @private
+     */
+    _updateLiveArea() {
+        const liveArea = this._getLiveArea();
+
+        if (!liveArea) {
+            return;
+        }
+
+        const counter = this._wishlistStorage.getCurrentCounter() || 0;
+        const textTemplate = liveArea.getAttribute(this.options.liveAreaTextAttribute) || '%counter%';
+        liveArea.innerHTML = `<p>${ textTemplate.replace('%counter%', counter) }</p>`;
+    }
+
+    /**
+     * @private
+     */
+    _getLiveArea() {
+        return document.querySelector(this.options.liveAreaSelector);
     }
 
     /**

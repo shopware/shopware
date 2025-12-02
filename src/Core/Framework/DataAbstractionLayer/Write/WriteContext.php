@@ -34,7 +34,7 @@ class WriteContext
     /**
      * @var array<string, string>|null
      */
-    private ?array $languageCodeIdMapping;
+    private ?array $languageCodeIdMapping = null;
 
     private WriteException $exceptions;
 

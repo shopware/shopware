@@ -36,7 +36,7 @@ class CartCalculatorTest extends TestCase
 
         $cartRuleLoader = $this->createMock(CartRuleLoader::class);
         $cartRuleLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('loadByCart')
             ->with($context, $cart, static::equalTo($behavior))
             ->willReturn($result);
@@ -71,7 +71,7 @@ class CartCalculatorTest extends TestCase
 
         $cartRuleLoader = $this->createMock(CartRuleLoader::class);
         $cartRuleLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('loadByCart')
             ->with($context, $cart, static::equalTo($behavior))
             ->willReturn($result);

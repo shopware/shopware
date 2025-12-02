@@ -6,6 +6,7 @@ import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const block = {
+    id: 'blockId',
     name: 'Block name',
     type: 'text',
     backgroundColor: '',
@@ -84,11 +85,6 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
 
     beforeEach(() => {
         Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(true);
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to config block name', async () => {

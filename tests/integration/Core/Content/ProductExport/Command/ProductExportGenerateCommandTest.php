@@ -7,6 +7,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Defaults;
@@ -33,6 +34,9 @@ class ProductExportGenerateCommandTest extends TestCase
 
     private ProductExportGenerateCommand $productExportGenerateCommand;
 
+    /**
+     * @var EntityRepository<ProductExportCollection>
+     */
     private EntityRepository $repository;
 
     private Context $context;

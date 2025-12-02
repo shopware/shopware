@@ -99,7 +99,7 @@ class LineItemCollectionTest extends TestCase
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A', 'a', null, 6))->setStackable(true)->assign(['uniqueIdentifier' => 'A']),
+                (new LineItem('A', 'a', null, 6))->setStackable(true)->assign(['uniqueIdentifier' => 'A', 'modified' => true]),
             ]),
             $collection
         );
@@ -270,7 +270,7 @@ class LineItemCollectionTest extends TestCase
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A', 'test', null, 6))->setStackable(true)->assign(['uniqueIdentifier' => 'A']),
+                (new LineItem('A', 'test', null, 6))->setStackable(true)->assign(['uniqueIdentifier' => 'A', 'modified' => true]),
             ]),
             $collection
         );
@@ -285,6 +285,21 @@ class LineItemCollectionTest extends TestCase
         $this->expectException(CartException::class);
 
         $cart->add(new LineItem('a', 'other-type'));
+    }
+
+    public function testStackingLineItemsMarksModified(): void
+    {
+        $cart = new Cart('test');
+
+        $existingLineItem = new LineItem('a', 'type');
+        $existingLineItem->markUnmodified();
+        $existingLineItem->setStackable(true);
+        $cart->add($existingLineItem);
+
+        $cart->add(new LineItem('a', 'type'));
+
+        static::assertTrue($existingLineItem->isModified());
+        static::assertSame(2, $existingLineItem->getQuantity());
     }
 
     public function testGetLineItemByIdentifier(): void

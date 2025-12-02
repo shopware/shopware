@@ -135,6 +135,16 @@ class PluginEntity extends Entity
         $this->path = $path;
     }
 
+    public function isLocatedInCustomDirectory(): bool
+    {
+        return str_starts_with($this->path ?? '', 'custom/');
+    }
+
+    public function isLocatedInCustomPluginDirectory(): bool
+    {
+        return str_starts_with($this->path ?? '', 'custom/plugins/');
+    }
+
     public function getAuthor(): ?string
     {
         return $this->author;

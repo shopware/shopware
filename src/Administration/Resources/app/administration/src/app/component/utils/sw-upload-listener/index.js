@@ -4,7 +4,7 @@
 
 import { UploadEvents } from 'src/core/service/api/media.api.service';
 
-const { Component, Mixin, Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -43,7 +43,7 @@ function isIllegalUrlException(error) {
  * <sw-upload-listener @sw-uploads-added="..."></sw-upload-listener>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-upload-listener', {
+export default {
     template: '<div style="display: none"></div>',
 
     inject: [
@@ -224,4 +224,4 @@ Component.register('sw-upload-listener', {
             this.mediaService.runUploads(this.uploadTag);
         },
     },
-});
+};

@@ -67,7 +67,7 @@ abstract class Bundle extends SymfonyBundle
     {
         $confDir = $this->getPath() . '/Resources/config';
 
-        if (file_exists($confDir)) {
+        if (\is_dir($confDir)) {
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');
@@ -96,6 +96,14 @@ abstract class Bundle extends SymfonyBundle
     public function getTemplatePriority(): int
     {
         return 0;
+    }
+
+    /**
+     * Used to configure the BaseUrl for the Admin Extension API
+     */
+    public function getAdminBaseUrl(): ?string
+    {
+        return null;
     }
 
     /**

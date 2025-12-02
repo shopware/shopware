@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
@@ -29,6 +30,7 @@ class CustomerStorerTest extends TestCase
 {
     private CustomerStorer $storer;
 
+    /** @var MockObject&EntityRepository<CustomerCollection> */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;
@@ -89,27 +91,27 @@ class CustomerStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => 'id'], []);
         $this->storer->restore($storable);
         $entity = new CustomerEntity();
+        $entity->setId('id');
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new CustomerCollection([$entity]));
 
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('customer');
 
-        static::assertEquals($res, $entity);
+        static::assertSame($res, $entity);
     }
 
     public function testLazyLoadNullEntity(): void
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => 'id'], []);
         $this->storer->restore($storable);
-        $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new CustomerCollection());
 
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('customer');
 
-        static::assertEquals($res, $entity);
+        static::assertNull($res);
     }
 
     public function testLazyLoadNullId(): void
@@ -124,7 +126,7 @@ class CustomerStorerTest extends TestCase
     public function testDispatchBeforeLoadStorableFlowDataEvent(): void
     {
         $this->dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(
                 static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),

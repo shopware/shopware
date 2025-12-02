@@ -22,11 +22,13 @@
                 systemCurrencyISOCode: 'EUR',
                 adminEsEnable: false,
                 storefrontEsEnable: false,
+                productStreamIndexingEnabled: true,
             },
             apiContext: {
                 host: 'localhost',
                 basePath: '',
-                pathInfo: '/'
+                pathInfo: '/',
+                serviceRegistryUrl: '<%- serviceRegistryUrl %>',
             }
         });
     </script>

@@ -2,16 +2,18 @@
 
 namespace Shopware\Core\System\CustomEntity\Schema;
 
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * @internal
  *
- * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}
+ * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool, ignoreMissingReference?: bool}
  */
 #[Package('framework')]
 class SchemaUpdater
@@ -35,8 +37,9 @@ class SchemaUpdater
             $fields = \json_decode($customEntity['fields'], true, 512, \JSON_THROW_ON_ERROR);
 
             if (!\str_starts_with($entityName, self::TABLE_PREFIX) && !\str_starts_with($entityName, self::SHORTHAND_TABLE_PREFIX)) {
-                throw new \RuntimeException(
-                    \sprintf('Table "%s" has to be prefixed with "%s or %s"', $entityName, self::TABLE_PREFIX, self::SHORTHAND_TABLE_PREFIX)
+                throw CustomEntityException::wrongTablePrefix(
+                    $entityName,
+                    [self::TABLE_PREFIX, self::SHORTHAND_TABLE_PREFIX]
                 );
             }
 
@@ -72,7 +75,10 @@ class SchemaUpdater
 
         // Id columns do not need to be defined in the .xml, we do this automatically
         $table->addColumn('id', Types::BINARY, ['length' => 16, 'fixed' => true]);
-        $table->setPrimaryKey(['id']);
+
+        $pk = PrimaryKeyConstraint::editor();
+        $pk->setQuotedColumnNames('id');
+        $table->addPrimaryKeyConstraint($pk->create());
 
         // important: we add a `comment` to the table. This allows us to identify the custom entity modifications when run the cleanup
         $table->setComment(self::COMMENT);
@@ -97,7 +103,10 @@ class SchemaUpdater
         $translation->setComment(self::COMMENT);
         $translation->addColumn($name . '_id', Types::BINARY, $binary);
         $translation->addColumn('language_id', Types::BINARY, $binary);
-        $translation->setPrimaryKey([$name . '_id', 'language_id']);
+
+        $pk = PrimaryKeyConstraint::editor();
+        $pk->setQuotedColumnNames($name . '_id', 'language_id');
+        $translation->addPrimaryKeyConstraint($pk->create());
 
         $fk = substr('fk_ce_' . $translation->getName() . '_root', 0, 64);
         $translation->addForeignKeyConstraint($table->getName(), [$name . '_id'], ['id'], ['onUpdate' => 'cascade', 'onDelete' => 'cascade'], $fk);
@@ -178,8 +187,10 @@ class SchemaUpdater
 
                     break;
                 case 'many-to-many':
-                    // get reference name for foreign key building
-                    $referenceName = $field['reference'];
+                    $skipAssociationCreation = $this->skipAssociationCreation($schema, $field);
+                    if ($skipAssociationCreation) {
+                        continue 2;
+                    }
 
                     // build mapping table name: `custom_entity_blog_products`
                     $mappingName = implode('_', [$name, $field['name']]);
@@ -188,6 +199,8 @@ class SchemaUpdater
                     if ($schema->hasTable($mappingName)) {
                         continue 2;
                     }
+
+                    $referenceName = $field['reference'];
 
                     $mapping = $schema->createTable($mappingName);
 
@@ -207,7 +220,9 @@ class SchemaUpdater
 
                     if (!$reference->hasColumn('version_id')) {
                         // version aware table needs a compound primary key (id, version_id)
-                        $mapping->setPrimaryKey([self::id($name), self::id($referenceName)]);
+                        $pk = PrimaryKeyConstraint::editor();
+                        $pk->setQuotedColumnNames(self::id($name), self::id($referenceName));
+                        $mapping->addPrimaryKeyConstraint($pk->create());
 
                         // add foreign key to source table (custom_entity_blog.id <=> custom_entity_blog_products.custom_entity_blog_id), add cascade delete for both
                         $fkName = substr('fk_ce_' . $mapping->getName() . '_' . $name, 0, 64);
@@ -223,7 +238,9 @@ class SchemaUpdater
                     $mapping->addColumn($referenceName . '_version_id', Types::BINARY, $binary);
 
                     // primary key is build with source_id, reference_id, reference_version_id
-                    $mapping->setPrimaryKey([self::id($name), self::id($referenceName), $referenceName . '_version_id']);
+                    $pk = PrimaryKeyConstraint::editor();
+                    $pk->setQuotedColumnNames(self::id($name), self::id($referenceName), $referenceName . '_version_id');
+                    $mapping->addPrimaryKeyConstraint($pk->create());
 
                     // add foreign key to source table (custom_entity_blog.id <=> custom_entity_blog_products.custom_entity_blog_id), add cascade delete for both
                     $fkName = substr('fk_ce_' . $mapping->getName() . '_' . $name, 0, 64);
@@ -236,6 +253,11 @@ class SchemaUpdater
                     break;
                 case 'many-to-one':
                 case 'one-to-one':
+                    $skipAssociationCreation = $this->skipAssociationCreation($schema, $field);
+                    if ($skipAssociationCreation) {
+                        continue 2;
+                    }
+
                     // first add foreign key column to custom entity table: `top_seller_id`
                     $table->addColumn(self::id($field['name']), Types::BINARY, $fieldOptions + $binary);
 
@@ -264,8 +286,12 @@ class SchemaUpdater
                     break;
 
                 case 'one-to-many':
-                    // for one-to-many association, we don't need to add some columns in the custom entity table
-                    $reference = $this->createTable($schema, $field['reference']);
+                    $skipAssociationCreation = $this->skipAssociationCreation($schema, $field);
+                    if ($skipAssociationCreation) {
+                        continue 2;
+                    }
+
+                    $reference = $schema->getTable($field['reference']);
 
                     $foreignKey = $table->getName() . '_' . self::id($field['name']);
                     if ($reference->hasColumn($foreignKey)) {
@@ -316,6 +342,9 @@ class SchemaUpdater
         return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
     }
 
+    /**
+     * @return non-empty-string
+     */
     private static function id(string $name): string
     {
         return $name . '_id';
@@ -326,5 +355,24 @@ class SchemaUpdater
         return $schema->hasTable($name)
             ? $schema->getTable($name)
             : $schema->createTable($name);
+    }
+
+    /**
+     * @param CustomEntityField $field
+     */
+    private function skipAssociationCreation(Schema $schema, array $field): bool
+    {
+        $referenceName = $field['reference'];
+        $ignoreMissingReference = $field['ignoreMissingReference'] ?? false;
+
+        if (!$schema->hasTable($referenceName)) {
+            if ($ignoreMissingReference) {
+                return true;
+            }
+            // throw exception right away if the reference table does not exist and the ignoreMissingReference attribute is false
+            throw CustomEntityException::associationReferenceTableNotFound($referenceName);
+        }
+
+        return false;
     }
 }

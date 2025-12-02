@@ -25,6 +25,6 @@
  *     Your normal content
  * </sw-ignore-class>
  */
-Shopware.Component.register('sw-ignore-class', {
+export default {
     template: '<div><slot></slot></div>',
-});
+};

@@ -144,9 +144,9 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
         }
 
         try {
-            /** @var string[] $allowedIps */
+            /** @var list<string> $allowedIps */
             $allowedIps = Json::decodeToList((string) ($salesChannelData['maintenanceIpWhitelist'] ?? ''));
-        } catch (UtilException $e) {
+        } catch (UtilException) {
             return;
         }
 

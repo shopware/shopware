@@ -18,8 +18,8 @@ Offcanvas containing a list of cookies which need to be manually selected by the
     }
 }
 
-
 .offcanvas-cookie-group {
+    position: relative;
     margin: 12px 0;
 
     input ~ label {
@@ -30,42 +30,36 @@ Offcanvas containing a list of cookies which need to be manually selected by the
         cursor: pointer;
     }
 
-    @supports (-webkit-hyphens:none) {
+    @supports (-webkit-hyphens: none) {
         .form-check .form-check-input {
             float: none;
             display: inline-block;
         }
     }
-
 }
 
-
-.offcanvas-cookie-entries {
-    position: relative;
-
-    .icon {
-        position: absolute;
-        transform: translateY(-100%);
-        top: -4px;
-        right: 0;
-        cursor: pointer;
-        user-select: none;
-    }
+.offcanvas-cookie-entries-toggle {
+    position: absolute;
+    top: -4px;
+    right: 0;
 
     svg {
         transform-origin: center center;
         transition: transform 0.3s ease;
     }
 
+    &[aria-expanded='true'] {
+        svg {
+            transform: rotate(90deg);
+        }
+    }
+}
+
+.offcanvas-cookie-entries {
     > p,
     .offcanvas-cookie-entry {
-        padding: 0 8px 0 24px;
-        height: 0;
-        opacity: 0;
-        transition: opacity 0.3s ease, padding-top 0.3s ease;
+        padding: 8px 8px 0 24px;
         margin: 0;
-        visibility: hidden;
-        overflow: hidden;
 
         > p {
             margin: 8px 0;
@@ -79,20 +73,6 @@ Offcanvas containing a list of cookies which need to be manually selected by the
         &.custom-control,
         &.form-check {
             min-height: unset;
-        }
-    }
-
-    &--active {
-        svg {
-            transform: rotate(90deg);
-        }
-
-        > p,
-        .offcanvas-cookie-entry {
-            height: auto;
-            opacity: 1;
-            padding-top: 8px;
-            visibility: visible;
         }
     }
 }

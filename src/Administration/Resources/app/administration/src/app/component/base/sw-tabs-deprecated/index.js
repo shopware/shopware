@@ -6,7 +6,6 @@
 import template from './sw-tabs-deprecated.html.twig';
 import './sw-tabs-deprecated.scss';
 
-const { Component } = Shopware;
 const util = Shopware.Utils;
 const dom = Shopware.Utils.dom;
 
@@ -25,7 +24,7 @@ const dom = Shopware.Utils.dom;
  *     </sw-tabs-item>
  * </sw-tabs>
  */
-Component.register('sw-tabs-deprecated', {
+export default {
     template,
 
     inject: ['feature'],
@@ -119,8 +118,9 @@ Component.register('sw-tabs-deprecated', {
 
         sliderLength() {
             if (this.registeredTabItems[this.activeItem]) {
-                const activeChildren = this.registeredTabItems[this.activeItem];
-                return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
+                const activeChildren = this.registeredTabItems[this.activeItem].$el;
+                const computedStyle = window.getComputedStyle(activeChildren);
+                return this.isVertical ? computedStyle.height : computedStyle.width;
             }
 
             return 0;
@@ -154,13 +154,13 @@ Component.register('sw-tabs-deprecated', {
             if (this.isVertical) {
                 return `
                     transform: translate(0, ${this.sliderMovement}px) rotate(${this.alignRight ? '-90deg' : '90deg'});
-                    width: ${this.sliderLength}px;
+                    width: ${this.sliderLength};
                 `;
             }
 
             return `
                 transform: translate(${this.sliderMovement}px, 0) rotate(0deg);
-                width: ${this.sliderLength}px;
+                width: ${this.sliderLength};
                 bottom: ${this.scrollbarOffset}px;
             `;
         },
@@ -252,7 +252,7 @@ Component.register('sw-tabs-deprecated', {
             if (
                 this.$slots.default &&
                 // Check direct child
-                this.$slots.default({ active: this.active })?.[0]?.componentOptions?.propsData?.route
+                this.$slots.default({ active: this.active })?.[0]?.props?.route
             ) {
                 this.hasRoutes = true;
             }
@@ -260,7 +260,7 @@ Component.register('sw-tabs-deprecated', {
             if (
                 this.$slots.default &&
                 // Check sub child
-                this.$slots.default({ active: this.active })?.[0]?.children?.[0]?.componentOptions?.propsData?.route
+                this.$slots.default({ active: this.active })?.[0]?.children?.[0]?.props?.route
             ) {
                 this.hasRoutes = true;
             }
@@ -391,4 +391,4 @@ Component.register('sw-tabs-deprecated', {
             this.scrollbarOffset = dom.getScrollbarHeight(this.$refs.swTabContent);
         },
     },
-});
+};

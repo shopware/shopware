@@ -167,7 +167,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('elements', $response['orders']);
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
     }
 
     public function testGetOrderGuest(): void
@@ -211,7 +211,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('elements', $response['orders']);
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
     }
 
     public function testGetOrderGuestWrongDeepLink(): void
@@ -358,7 +358,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('elements', $response['orders']);
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
         static::assertIsArray($response);
         static::assertArrayHasKey('paymentChangeable', $response);
         static::assertCount(1, $response['paymentChangeable']);
@@ -393,7 +393,7 @@ class OrderRouteTest extends TestCase
         static::assertNotNull($order);
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->last());
-        static::assertEquals($this->defaultPaymentMethodId, $transaction->getPaymentMethodId());
+        static::assertSame($this->defaultPaymentMethodId, $transaction->getPaymentMethodId());
     }
 
     public function testSetAnotherPaymentMethodToOrder(): void
@@ -404,12 +404,11 @@ class OrderRouteTest extends TestCase
         }
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
+            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -444,12 +443,11 @@ class OrderRouteTest extends TestCase
     public function testSetSamePaymentMethodToOrder(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
+            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -497,26 +495,6 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('errors', $response);
     }
 
-    public function testCancelOrder(): void
-    {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/order/state/cancel',
-                [],
-                [],
-                ['CONTENT_TYPE' => 'application/json'],
-                \json_encode([
-                    'orderId' => $this->orderId,
-                ], \JSON_THROW_ON_ERROR) ?: ''
-            );
-
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertArrayHasKey('technicalName', $response);
-        static::assertEquals('cancelled', $response['technicalName']);
-    }
-
     public function testOrderSalesChannelRestriction(): void
     {
         $testChannel = $this->createSalesChannel([
@@ -557,8 +535,8 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertCount(1, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
-        static::assertEquals(TestDefaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame(TestDefaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
     }
 
     protected function getValidPaymentMethods(): PaymentMethodCollection

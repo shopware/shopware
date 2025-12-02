@@ -32,6 +32,7 @@ async function createWrapper(propsData = {}, provide = {}) {
                     template: '<div><slot></slot></div>',
                 },
                 'router-link': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago'),
             },
         },
         props: {

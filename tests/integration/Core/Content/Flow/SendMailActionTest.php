@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -29,6 +31,7 @@ use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Content\Mail\Transport\MailerTransportDecorator;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
@@ -36,7 +39,9 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -155,6 +160,8 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
         );
 
@@ -180,8 +187,8 @@ class SendMailActionTest extends TestCase
         $oldDocumentOrderVersionId = $oldDocument->getOrderVersionId();
 
         // new version is created
-        static::assertNotEquals($newDocumentOrderVersionId, Defaults::LIVE_VERSION);
-        static::assertNotEquals($oldDocumentOrderVersionId, Defaults::LIVE_VERSION);
+        static::assertNotSame($newDocumentOrderVersionId, Defaults::LIVE_VERSION);
+        static::assertNotSame($oldDocumentOrderVersionId, Defaults::LIVE_VERSION);
 
         $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
@@ -190,7 +197,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertInstanceOf(FlowSendMailActionEvent::class, $mailFilterEvent);
-        static::assertEquals(1, $mailService->calls);
+        static::assertSame(1, $mailService->calls);
         static::assertIsArray($mailService->data);
         static::assertArrayHasKey('recipients', $mailService->data);
 
@@ -200,15 +207,15 @@ class SendMailActionTest extends TestCase
                     'SELECT `first_name`, `last_name`, `email` FROM `user` WHERE `admin` = 1'
                 );
                 static::assertIsArray($admin);
-                static::assertEquals($mailService->data['recipients'], [$admin['email'] => $admin['first_name'] . ' ' . $admin['last_name']]);
+                static::assertSame($mailService->data['recipients'], [$admin['email'] => $admin['first_name'] . ' ' . $admin['last_name']]);
 
                 break;
             case 'custom':
-                static::assertEquals($mailService->data['recipients'], $recipients['data']);
+                static::assertSame($mailService->data['recipients'], $recipients['data']);
 
                 break;
             default:
-                static::assertEquals($mailService->data['recipients'], [$order->getOrderCustomer()?->getEmail() => $order->getOrderCustomer()?->getFirstName() . ' ' . $order->getOrderCustomer()?->getLastName()]);
+                static::assertSame($mailService->data['recipients'], [$order->getOrderCustomer()?->getEmail() => $order->getOrderCustomer()?->getFirstName() . ' ' . $order->getOrderCustomer()?->getLastName()]);
         }
 
         if ($documentTypeIds !== null && $documentTypeIds !== []) {
@@ -226,8 +233,8 @@ class SendMailActionTest extends TestCase
             static::assertFalse($oldDocument->getSent());
 
             // new document with new version id, old document with old version id
-            static::assertEquals($newDocumentOrderVersionId, $newDocument->getOrderVersionId());
-            static::assertEquals($oldDocumentOrderVersionId, $oldDocument->getOrderVersionId());
+            static::assertSame($newDocumentOrderVersionId, $newDocument->getOrderVersionId());
+            static::assertSame($oldDocumentOrderVersionId, $oldDocument->getOrderVersionId());
         }
     }
 
@@ -278,8 +285,8 @@ class SendMailActionTest extends TestCase
             'recipient' => [
                 'type' => 'admin',
                 'data' => [
-                    'phuoc.cao@shopware.com' => 'shopware',
-                    'phuoc.cao.x@shopware.com' => 'shopware',
+                    'test@test.com' => 'shopware',
+                    'test.x@test.com' => 'shopware',
                 ],
             ],
         ];
@@ -296,6 +303,8 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
         );
 
@@ -311,7 +320,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
-        static::assertEquals(1, $mailService->calls);
+        static::assertSame(1, $mailService->calls);
     }
 
     #[DataProvider('sendMailContactFormProvider')]
@@ -363,6 +372,8 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
         );
 
@@ -381,11 +392,11 @@ class SendMailActionTest extends TestCase
             static::assertIsArray($mailService->data);
             static::assertArrayHasKey('recipients', $mailService->data);
             static::assertIsObject($mailFilterEvent);
-            static::assertEquals(1, $mailService->calls);
-            static::assertEquals([$data->get('email') => $data->get('firstName') . ' ' . $data->get('lastName')], $mailService->data['recipients']);
+            static::assertSame(1, $mailService->calls);
+            static::assertSame([$data->get('email') => $data->get('firstName') . ' ' . $data->get('lastName')], $mailService->data['recipients']);
         } else {
             static::assertIsNotObject($mailFilterEvent);
-            static::assertEquals(0, $mailService->calls);
+            static::assertSame(0, $mailService->calls);
         }
     }
 
@@ -435,6 +446,8 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
         );
 
@@ -450,7 +463,7 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsNotObject($mailFilterEvent);
-        static::assertEquals(0, $mailService->calls);
+        static::assertSame(0, $mailService->calls);
     }
 
     /**
@@ -492,6 +505,8 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
         );
 
@@ -510,38 +525,30 @@ class SendMailActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
-        static::assertEquals(1, $mailService->calls);
+        static::assertSame(1, $mailService->calls);
     }
 
     #[DataProvider('updateTemplateDataProvider')]
-    public function testUpdateTemplateData(bool $shouldUpdate): void
+    public function testUpdateAndSanitizeTemplateData(bool $shouldUpdate): void
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-
-        $context = Context::createDefaultContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $mailTemplate = static::getContainer()
             ->get('mail_template.repository')
-            ->search($criteria, $context)
+            ->search(new Criteria(), $salesChannelContext->getContext())
             ->first();
 
         static::getContainer()->get(Connection::class)->executeStatement('UPDATE mail_template_type SET template_data = NULL');
-
         static::assertInstanceOf(MailTemplateEntity::class, $mailTemplate);
 
-        $config = array_filter([
-            'mailTemplateId' => $mailTemplate->getId(),
-            'recipient' => [
-                'type' => 'admin',
-                'data' => [
-                    'phuoc.cao@shopware.com' => 'shopware',
-                    'phuoc.cao.x@shopware.com' => 'shopware',
-                ],
-            ],
-        ]);
+        $customerId = $this->createCustomer($salesChannelContext->getContext());
+        $customer = static::getContainer()
+            ->get('customer.repository')
+            ->search(new Criteria([$customerId]), $salesChannelContext->getContext())
+            ->first();
 
-        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+        $event = new CustomerRegisterEvent($salesChannelContext, $customer);
 
         $mailService = new TestEmailService();
 
@@ -554,7 +561,9 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
-            $shouldUpdate
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            $shouldUpdate,
         );
 
         $mailFilterEvent = null;
@@ -564,20 +573,34 @@ class SendMailActionTest extends TestCase
 
         $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
-        $flow->setConfig($config);
+        $flow->setConfig([
+            'mailTemplateId' => $mailTemplate->getId(),
+            'recipient' => [
+                'type' => 'admin',
+                'data' => [
+                    'test@test.com' => 'shopware',
+                    'test.x@test.com' => 'shopware',
+                ],
+            ],
+        ]);
 
         $subscriber->handleFlow($flow);
 
         static::assertIsObject($mailFilterEvent);
-        static::assertEquals(1, $mailService->calls);
+        static::assertSame(1, $mailService->calls);
         static::assertNotNull($mailTemplate->getMailTemplateTypeId());
-        $data = static::getContainer()->get(Connection::class)->fetchOne(
-            'SELECT template_data FROM mail_template_type WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($mailTemplate->getMailTemplateTypeId())]
-        );
+
+        $templateType = static::getContainer()
+            ->get('mail_template_type.repository')
+            ->search(new Criteria([$mailTemplate->getMailTemplateTypeId()]), $salesChannelContext->getContext())
+            ->first();
+
+        static::assertInstanceOf(MailTemplateTypeEntity::class, $templateType);
+        $data = $templateType->getTemplateData();
 
         if ($shouldUpdate) {
             static::assertNotNull($data);
+            static::assertArrayNotHasKey('password', $data['customer']);
         } else {
             static::assertNull($data);
         }
@@ -605,8 +628,8 @@ class SendMailActionTest extends TestCase
             'recipient' => [
                 'type' => 'admin',
                 'data' => [
-                    'phuoc.cao@shopware.com' => 'shopware',
-                    'phuoc.cao.x@shopware.com' => 'shopware',
+                    'test.com' => 'shopware',
+                    'test.x@test.com' => 'shopware',
                 ],
             ],
         ]);
@@ -624,6 +647,8 @@ class SendMailActionTest extends TestCase
             $translator,
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
         );
 
@@ -716,6 +741,8 @@ class SendMailActionTest extends TestCase
                 static::getContainer()->get(Translator::class),
                 $this->connection,
                 static::getContainer()->get(LanguageLocaleCodeProvider::class),
+                static::getContainer()->get(JsonEntityEncoder::class),
+                static::getContainer()->get(DefinitionInstanceRegistry::class),
                 true
             );
 
@@ -969,7 +996,7 @@ class SendMailActionTest extends TestCase
 #[Package('after-sales')]
 class TestEmailService extends MailService
 {
-    public float $calls = 0;
+    public int $calls = 0;
 
     public ?Email $mail = null;
 

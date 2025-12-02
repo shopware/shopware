@@ -19,7 +19,7 @@ class ScheduledTaskRunnerTest extends TestCase
     {
         $scheduler = $this->createMock(TaskScheduler::class);
         $scheduler
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('queueScheduledTasks');
 
         $runner = new ScheduledTaskRunner(

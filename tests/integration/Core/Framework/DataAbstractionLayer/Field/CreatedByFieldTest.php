@@ -76,6 +76,27 @@ class CreatedByFieldTest extends TestCase
         static::assertNull($result->getCreatedById());
     }
 
+    public function testCreatedByNotCreateWithWrongVersion(): void
+    {
+        $orderRepository = $this->orderRepository;
+        $userId = $this->fetchFirstIdFromTable('user');
+        $context = $this->getAdminContext($userId)->createWithVersionId(Uuid::randomHex());
+
+        $payload = $this->createOrderPayload();
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderRepository, $payload): void {
+            $orderRepository->create([$payload], $context);
+        });
+
+        $result = $orderRepository->search(
+            new Criteria([$payload['id']]),
+            $context
+        )->getEntities()->first();
+
+        static::assertNotNull($result);
+        static::assertNull($result->getCreatedById());
+    }
+
     public function testCreateCreatedBy(): void
     {
         $orderRepository = $this->orderRepository;
@@ -94,7 +115,7 @@ class CreatedByFieldTest extends TestCase
         )->getEntities()->first();
 
         static::assertNotNull($result);
-        static::assertEquals($userId, $result->getCreatedById());
+        static::assertSame($userId, $result->getCreatedById());
     }
 
     private function getAdminContext(string $userId): Context

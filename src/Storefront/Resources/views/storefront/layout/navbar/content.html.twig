@@ -57,8 +57,8 @@
                         <div class="navigation-flyout-teaser">
                             {% block layout_navbar_content_row_content_teaser_image %}
                                 <a class="navigation-flyout-teaser-image-container"
-                                   href="{{ category_url(category) }}"
-                                   {% if category_linknewtab(category) %}target="_blank"
+                                   href="{{ category.seoUrl }}"
+                                   {% if category.shouldOpenInNewTab %}target="_blank"
                                    {% if category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
                                     {% endif %}
                                    title="{{ name }}">

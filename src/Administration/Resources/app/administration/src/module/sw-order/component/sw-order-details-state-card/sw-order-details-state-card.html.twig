@@ -43,10 +43,13 @@
                     scope="local"
                 >
                     <template #time>
-                        <sw-time-ago :date="lastStateChange.createdAt" />
+                        <sw-time-ago
+                            :date="lastStateChange.createdAt"
+                            :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                        />
                     </template>
                     <template #author>
-                        {{ lastStateChange.user ? lastStateChange.user.firstName + ' ' + lastStateChange.user.lastName : $tc('sw-order.stateCard.labelSystemUser') }}
+                        {{ lastChangeAuthorLabel }}
                     </template>
                 </i18n-t>
             </div>

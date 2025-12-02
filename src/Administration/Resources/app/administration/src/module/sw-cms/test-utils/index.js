@@ -1,16 +1,3 @@
-import { mount } from '@vue/test-utils';
-
-function runGenericCmsTest(component) {
-    beforeAll(async () => {
-        await setupCmsEnvironment();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = mount(component);
-        expect(wrapper.vm).toBeTruthy();
-    });
-}
-
 function runCmsBlockRegistryTest(config) {
     beforeAll(async () => {
         await setupCmsEnvironment();
@@ -62,8 +49,8 @@ async function setupCmsEnvironment() {
     await import('src/module/sw-cms/store/cms-page.store');
     await import('src/module/sw-cms/service/cms.service');
     await import('src/module/sw-cms/service/cms-element-favorites.service');
-    await import('src/module/sw-cms/mixin/sw-cms-element.mixin');
     await import('src/module/sw-cms/mixin/sw-cms-state.mixin');
+    await import('src/module/sw-cms/mixin/sw-cms-element.mixin');
 
     Shopware.Store.get('session').setCurrentUser({
         id: 'admin',
@@ -74,4 +61,4 @@ async function setupCmsEnvironment() {
  * @private
  * @sw-package discovery
  */
-export { runGenericCmsTest, runCmsBlockRegistryTest, runCmsElementRegistryTest, setupCmsEnvironment };
+export { runCmsBlockRegistryTest, runCmsElementRegistryTest, setupCmsEnvironment };

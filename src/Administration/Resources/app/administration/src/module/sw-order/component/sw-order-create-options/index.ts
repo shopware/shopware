@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import type CriteriaType from 'src/core/data/criteria.data';
 
 import template from './sw-order-create-options.html.twig';

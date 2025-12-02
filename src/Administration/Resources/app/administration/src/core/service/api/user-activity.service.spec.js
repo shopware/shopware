@@ -73,4 +73,41 @@ describe('userActivityApiService', () => {
             ],
         });
     });
+
+    it('should make a DELETE request to the correct endpoint and handle success', async () => {
+        const { userActivityApiService, clientMock } = createUserActivityApiService();
+        const paramsToDelete = {
+            keys: [
+                'key1@example',
+                'key2@example',
+            ],
+            cluster: 'testUserId',
+        };
+
+        clientMock.onDelete('/_action/delete-increment/user_activity', { params: paramsToDelete }).reply(204);
+
+        const response = await userActivityApiService.deleteActivityKeys(paramsToDelete);
+
+        expect(response.status).toBe(204);
+    });
+
+    it('should handle API errors during deletion', async () => {
+        const { userActivityApiService, clientMock } = createUserActivityApiService();
+        const paramsToDelete = {
+            keys: ['key1@example'],
+            cluster: 'testUserId',
+        };
+        const errorMessage = { message: 'Deletion failed' };
+
+        clientMock.onDelete('/_action/delete-increment/user_activity', { params: paramsToDelete }).reply(500, errorMessage);
+
+        try {
+            await userActivityApiService.deleteActivityKeys(paramsToDelete);
+        } catch (errorResponse) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(errorResponse.response.data).toEqual(errorMessage);
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(errorResponse.response.status).toBe(500);
+        }
+    });
 });

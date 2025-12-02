@@ -105,7 +105,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, string|string[]>>
+     * @return iterable<string, array<int, string|string[]>>
      */
     public static function providerTags(): iterable
     {
@@ -170,7 +170,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
 
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('critical')
             ->with('Error while flushing fastly cache', ['error' => $message, 'urls' => ['/']]);
 
@@ -179,7 +179,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     }
 
     /**
-     * @return array<string, array<\Throwable|string>>
+     * @return iterable<string, array<\Throwable|string>>
      */
     public static function providerExceptions(): iterable
     {

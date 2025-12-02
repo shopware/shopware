@@ -61,7 +61,7 @@ class NewsletterControllerTest extends TestCase
         /** @var NewsletterRecipientEntity $recipientEntry */
         $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertEquals('direct', (string) $recipientEntry->getStatus());
+        static::assertSame('direct', (string) $recipientEntry->getStatus());
         $this->validateRecipientData($recipientEntry);
     }
 
@@ -111,7 +111,7 @@ class NewsletterControllerTest extends TestCase
         /** @var NewsletterRecipientEntity $recipientEntry */
         $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertEquals('optIn', (string) $recipientEntry->getStatus());
+        static::assertSame('optIn', (string) $recipientEntry->getStatus());
         $this->validateRecipientData($recipientEntry);
     }
 

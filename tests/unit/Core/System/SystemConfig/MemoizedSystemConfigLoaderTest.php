@@ -25,7 +25,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::once())
+        $mock->expects($this->once())
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -45,7 +45,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::once())
+        $mock->expects($this->once())
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -65,7 +65,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -88,7 +88,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -111,7 +111,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -134,7 +134,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(1))
+        $mock->expects($this->exactly(1))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -157,7 +157,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -177,7 +177,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -197,7 +197,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -223,7 +223,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -249,7 +249,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -275,7 +275,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(1))
+        $mock->expects($this->exactly(1))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -301,7 +301,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -323,7 +323,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 
@@ -350,7 +350,7 @@ class MemoizedSystemConfigLoaderTest extends TestCase
         $expectedConfig = ['abc' => ['config' => ['foo' => 'abc']]];
 
         $mock = $this->createMock(AbstractSystemConfigLoader::class);
-        $mock->expects(static::exactly(2))
+        $mock->expects($this->exactly(2))
             ->method('load')
             ->willReturn($expectedConfig);
 

@@ -16,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type DomainRewriteRule from SetupStagingEvent
  */
 #[AsCommand(
     name: 'system:setup:staging',
@@ -24,9 +26,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('framework')]
 class SystemSetupStagingCommand extends Command
 {
+    /**
+     * @param list<DomainRewriteRule> $domainMappings
+     * @param list<string> $extensionsToDisable
+     */
     public function __construct(
-        readonly private EventDispatcherInterface $eventDispatcher,
-        readonly private SystemConfigService $systemConfigService
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        public readonly bool $disableMailDelivery,
+        public readonly array $domainMappings,
+        private readonly array $extensionsToDisable,
     ) {
         parent::__construct();
     }
@@ -44,7 +53,13 @@ class SystemSetupStagingCommand extends Command
             return self::FAILURE;
         }
 
-        $event = new SetupStagingEvent(Context::createCLIContext(), $io);
+        $event = new SetupStagingEvent(
+            Context::createCLIContext(),
+            $io,
+            $this->disableMailDelivery,
+            $this->domainMappings,
+            $this->extensionsToDisable,
+        );
         $this->eventDispatcher->dispatch($event);
 
         $this->systemConfigService->set(SetupStagingEvent::CONFIG_FLAG, true);

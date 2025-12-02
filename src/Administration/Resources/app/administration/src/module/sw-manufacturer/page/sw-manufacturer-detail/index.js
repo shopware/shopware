@@ -19,6 +19,8 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'mediaDefaultFolderService',
+        'feature',
     ],
 
     mixins: [
@@ -46,6 +48,8 @@ export default {
             customFieldSets: [],
             isLoading: false,
             isSaveSuccessful: false,
+            showMediaModal: false,
+            mediaDefaultFolderId: null,
         };
     },
 
@@ -112,7 +116,11 @@ export default {
             };
         },
 
-        ...mapPropertyErrors('manufacturer', ['name']),
+        ...mapPropertyErrors('manufacturer', [
+            'description',
+            'link',
+            'name',
+        ]),
     },
 
     watch: {
@@ -132,6 +140,7 @@ export default {
                 path: 'manufacturer',
                 scope: this,
             });
+
             if (this.manufacturerId) {
                 this.loadEntityData();
                 return;
@@ -150,6 +159,7 @@ export default {
             ] = await Promise.allSettled([
                 this.manufacturerRepository.get(this.manufacturerId),
                 this.customFieldSetRepository.search(this.customFieldSetCriteria),
+                this.getMediaDefaultFolderId(),
             ]);
 
             if (manufacturerResponse.status === 'fulfilled') {
@@ -185,6 +195,9 @@ export default {
             this.manufacturer.mediaId = targetId;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         setMediaFromSidebar(media) {
             this.manufacturer.mediaId = media.id;
         },
@@ -193,12 +206,25 @@ export default {
             this.manufacturer.mediaId = null;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
         },
 
         onDropMedia(dragData) {
             this.setMediaItem({ targetId: dragData.id });
+        },
+
+        onMediaSelectionChange([mediaEntity]) {
+            this.manufacturer.mediaId = mediaEntity.id;
+        },
+
+        getMediaDefaultFolderId() {
+            this.mediaDefaultFolderService.getDefaultFolderId('product_manufacturer').then((id) => {
+                this.mediaDefaultFolderId = id;
+            });
         },
 
         onSave() {

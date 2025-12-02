@@ -1,8 +1,8 @@
 
 const ARROW_NAVIGATION_ACTIVE_CLASS = 'is-active';
-
 const ARROW_NAVIGATION_ITERATOR_DEFAULT = -1;
 
+/** @deprecated tag:v6.8.0 - ArrowNavigationHelper will be removed without replacement. */
 export default class ArrowNavigationHelper {
 
     /**

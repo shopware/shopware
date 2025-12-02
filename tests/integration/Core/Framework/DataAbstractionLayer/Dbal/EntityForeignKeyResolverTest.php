@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -45,7 +46,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $context = Context::createDefaultContext();
 
@@ -90,8 +91,9 @@ class EntityForeignKeyResolverTest extends TestCase
         $deletedProduct = $deletedEvent->getPrimaryKeys('product');
         $deletedCategories = $deletedEvent->getDeletedPrimaryKeys('category');
         $deletedCategoriesRo = $deletedEvent->getPrimaryKeys('product_category_tree');
+        static::assertContainsOnlyArray($deletedCategoriesRo);
 
-        static::assertEquals($productId, $deletedProduct[0]);
+        static::assertSame($productId, $deletedProduct[0]);
         static::assertEmpty($deletedCategories, print_r($deletedCategories, true));
         static::assertCount(3, $deletedCategoriesRo);
 
@@ -191,7 +193,7 @@ class EntityForeignKeyResolverTest extends TestCase
         $builder = new ProductBuilder($ids, 'product');
         $builder->price(100);
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
 
         $productRepository->create([$builder->build()], $context);

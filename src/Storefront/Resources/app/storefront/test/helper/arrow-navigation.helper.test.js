@@ -4,6 +4,7 @@ import template from './arrow-navigation.helper.template.html';
 const itemContainerSelector = 'ul.itemContainer';
 const itemSelector = 'li';
 
+/** @deprecated tag:v6.8.0 - ArrowNavigationHelper will be removed without replacement. */
 describe('arrow-navigation.helper', () => {
     beforeEach(() => {
         document.body.innerHTML = template;

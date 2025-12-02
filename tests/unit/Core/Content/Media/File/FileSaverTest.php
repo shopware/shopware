@@ -176,8 +176,8 @@ class FileSaverTest extends TestCase
         $update = $this->mediaRepository->updates[0];
 
         static::assertCount(1, $update);
-        static::assertEquals($mediaId, $update[0]['id']);
-        static::assertEquals('foo', $update[0]['fileName']);
+        static::assertSame($mediaId, $update[0]['id']);
+        static::assertSame('foo', $update[0]['fileName']);
 
         static::assertArrayHasKey(0, $this->messageBus->getMessages());
         static::assertEquals($message, $this->messageBus->getMessages()[0]->getMessage());
@@ -246,8 +246,8 @@ class FileSaverTest extends TestCase
         $update = $this->mediaRepository->updates[0];
 
         static::assertCount(1, $update);
-        static::assertEquals($mediaId, $update[0]['id']);
-        static::assertEquals('foo', $update[0]['fileName']);
+        static::assertSame($mediaId, $update[0]['id']);
+        static::assertSame('foo', $update[0]['fileName']);
 
         static::assertEmpty($this->messageBus->getMessages());
     }
@@ -341,8 +341,8 @@ class FileSaverTest extends TestCase
         $update = $this->mediaRepository->updates[0];
 
         static::assertCount(1, $update);
-        static::assertEquals($mediaId, $update[0]['id']);
-        static::assertEquals('foobar', $update[0]['fileName']);
+        static::assertSame($mediaId, $update[0]['id']);
+        static::assertSame('foobar', $update[0]['fileName']);
     }
 
     public function testRenameMediaWithInvalidThumbnail(): void
@@ -459,7 +459,7 @@ class FileSaverTest extends TestCase
         $update = $this->mediaRepository->updates[0];
 
         static::assertCount(1, $update);
-        static::assertEquals($mediaId, $update[0]['id']);
-        static::assertEquals('foobar', $update[0]['fileName']);
+        static::assertSame($mediaId, $update[0]['id']);
+        static::assertSame('foobar', $update[0]['fileName']);
     }
 }

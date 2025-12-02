@@ -17,7 +17,7 @@ class SystemConfigEntity extends Entity
     /**
      * @var array<mixed>|bool|float|int|string|null
      */
-    protected array|bool|float|int|string|null $configurationValue;
+    protected array|bool|float|int|string|null $configurationValue = null;
 
     protected ?string $salesChannelId = null;
 

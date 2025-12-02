@@ -14,14 +14,14 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('discovery')]
-final class DeleteFileHandler
+final readonly class DeleteFileHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly FilesystemOperator $filesystemPublic,
-        private readonly FilesystemOperator $filesystemPrivate
+        private FilesystemOperator $filesystemPublic,
+        private FilesystemOperator $filesystemPrivate
     ) {
     }
 

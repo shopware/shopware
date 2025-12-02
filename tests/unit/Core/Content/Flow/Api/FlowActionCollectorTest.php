@@ -30,11 +30,11 @@ class FlowActionCollectorTest extends TestCase
         $removeOrderTag = new RemoveOrderTagAction($this->createMock(EntityRepository::class));
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())->method('dispatch');
+        $eventDispatcher->expects($this->once())->method('dispatch');
 
         $appFlowActionRepo = $this->createMock(EntityRepository::class);
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
-        $entitySearchResult->expects(static::once())
+        $entitySearchResult->expects($this->once())
             ->method('getEntities')
             ->willReturn(new EntityCollection([
                 (new AppFlowActionEntity())->assign([
@@ -45,7 +45,7 @@ class FlowActionCollectorTest extends TestCase
                 ]),
             ]));
 
-        $appFlowActionRepo->expects(static::once())
+        $appFlowActionRepo->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 

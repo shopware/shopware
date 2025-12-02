@@ -1,5 +1,3 @@
-import CMS from '../../../constant/sw-cms.constant';
-
 /**
  * @private
  * @sw-package discovery
@@ -20,7 +18,7 @@ Shopware.Service('cmsService').registerCmsBlock({
     category: 'sidebar',
     component: 'sw-cms-block-sidebar-filter',
     previewComponent: 'sw-cms-preview-sidebar-filter',
-    allowedPageTypes: [CMS.PAGE_TYPES.LISTING],
+    allowedPageTypes: [Shopware.Constants.CMS.PAGE_TYPES.LISTING],
     defaultConfig: {
         marginBottom: '20px',
         marginTop: '20px',

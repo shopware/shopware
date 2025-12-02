@@ -19,7 +19,7 @@ class StaticSystemConfigService extends SystemConfigService
     public function get(string $key, ?string $salesChannelId = null)
     {
         if ($salesChannelId) {
-            return $this->lookupValue($this->config[$salesChannelId] ?? [], $key);
+            return $this->lookupValue($this->config[$salesChannelId] ?? $this->config, $key);
         }
 
         return $this->lookupValue($this->config, $key);
@@ -64,7 +64,7 @@ class StaticSystemConfigService extends SystemConfigService
 
             $pointer = &$foundValues;
             foreach (explode('.', $formattedKey) as $part) {
-                // @phpstan-ignore-next-line
+                // @phpstan-ignore function.impossibleType ($pointer targets $foundValues)
                 if (!\array_key_exists($part, $pointer)) {
                     $pointer[$part] = [];
                 }
@@ -74,12 +74,12 @@ class StaticSystemConfigService extends SystemConfigService
             $pointer = $configValue;
         }
 
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore empty.variable ($foundValues can be empty)
         if (empty($foundValues)) {
             return null;
         }
 
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore deadCode.unreachable ($foundValues can be filled by pointer)
         return $foundValues;
     }
 }

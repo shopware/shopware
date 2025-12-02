@@ -92,15 +92,15 @@ class WebhookEventMessageHandlerTest extends TestCase
         $payload = $request->getBody()->getContents();
         $body = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals('POST', $request->getMethod());
-        static::assertEquals($body['body'], 'payload');
+        static::assertSame('POST', $request->getMethod());
+        static::assertSame($body['body'], 'payload');
         static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
-        static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
-        static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
-        static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE), Defaults::LANGUAGE_SYSTEM);
+        static::assertSame($request->getHeaderLine('sw-version'), '6.4');
+        static::assertSame($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
+        static::assertSame($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE), Defaults::LANGUAGE_SYSTEM);
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $payload, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -108,7 +108,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
-        static::assertEquals($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
+        static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
     }
 
     /**
@@ -174,15 +174,15 @@ class WebhookEventMessageHandlerTest extends TestCase
         $payload = $request->getBody()->getContents();
         $body = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals('POST', $request->getMethod());
-        static::assertEquals($body['body'], 'payload');
+        static::assertSame('POST', $request->getMethod());
+        static::assertSame($body['body'], 'payload');
         static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
-        static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
-        static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
-        static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE), Defaults::LANGUAGE_SYSTEM);
+        static::assertSame($request->getHeaderLine('sw-version'), '6.4');
+        static::assertSame($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
+        static::assertSame($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE), Defaults::LANGUAGE_SYSTEM);
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', $payload, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
@@ -190,7 +190,70 @@ class WebhookEventMessageHandlerTest extends TestCase
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
-        static::assertEquals($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
+        static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
+    }
+
+    /**
+     * If there are issues in the message delivery it might be that the webhook event log is deleted between the time the message was generated and the message was again handled
+     * the webhook should still be send
+     */
+    public function testCanStillSendAfterWebhookEventLogIsDeleted(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => true,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'eventName' => 'order',
+                    'url' => 'https://test.com',
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+
+        $this->appendNewResponse(new Response(200));
+
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+        $timestamp = time();
+        $request = $this->getLastRequest();
+        static::assertInstanceOf(RequestInterface::class, $request);
+        $payload = $request->getBody()->getContents();
+        $body = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('POST', $request->getMethod());
+        static::assertSame($body['body'], 'payload');
+        static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
+        static::assertTrue($request->hasHeader('sw-version'));
+        static::assertSame($request->getHeaderLine('sw-version'), '6.4');
+        static::assertSame($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
+        static::assertSame($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE), Defaults::LANGUAGE_SYSTEM);
+        static::assertTrue($request->hasHeader('shopware-shop-signature'));
+        static::assertSame(
+            hash_hmac('sha256', $payload, 's3cr3t'),
+            $request->getHeaderLine('shopware-shop-signature')
+        );
     }
 
     public function testNonJsonErrorResponse(): void
@@ -248,7 +311,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             ($this->webhookEventMessageHandler)($webhookEventMessage);
         } catch (WebhookException $e) {
             $wasThrown = true;
-            static::assertEquals(WebhookException::APP_WEBHOOK_FAILED, $e->getErrorCode());
+            static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $e->getErrorCode());
         }
 
         static::assertTrue($wasThrown);
@@ -256,8 +319,8 @@ class WebhookEventMessageHandlerTest extends TestCase
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
-        static::assertEquals($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_QUEUED);
-        static::assertEquals($webhookEventLog->getResponseStatusCode(), 500);
+        static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_QUEUED);
+        static::assertSame($webhookEventLog->getResponseStatusCode(), 500);
         static::assertEquals($webhookEventLog->getResponseContent(), [
             'headers' => [],
             'body' => '<h1>not json</h1>',

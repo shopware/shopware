@@ -1,8 +1,6 @@
 import template from './sw-select-result-list.html.twig';
 import './sw-select-result-list.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,7 +9,7 @@ const { Component } = Shopware;
  * @description Base component for rendering result lists.
  * @example-type code-only
  */
-Component.register('sw-select-result-list', {
+export default {
     template,
 
     provide() {
@@ -238,7 +236,7 @@ Component.register('sw-select-result-list', {
         },
 
         onScroll(event) {
-            if (this.getBottomDistance(event.target) > 0) {
+            if (Math.floor(this.getBottomDistance(event.target)) > 0) {
                 return;
             }
 
@@ -249,4 +247,4 @@ Component.register('sw-select-result-list', {
             return element.scrollHeight - element.clientHeight - element.scrollTop;
         },
     },
-});
+};

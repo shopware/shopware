@@ -29,28 +29,34 @@ class Migration1733136208AddH1ToCmsCategoryListingTest extends TestCase
     {
         $this->rollback();
         $this->migrate();
-        $this->migrate();
 
-        $sectionId = $this->getSectionId('Default listing layout');
-        static::assertNotNull($sectionId);
+        $sectionData = $this->getSectionData('Default listing layout');
+        static::assertNotNull($sectionData);
+
+        $sectionId = $sectionData['id'];
+        $sectionVersionId = $sectionData['version_id'];
 
         $block = $this->getBlock($sectionId);
         static::assertNotNull($block);
         static::assertSame('Category name', $block['name']);
+        static::assertSame($sectionVersionId, $block['cms_section_version_id']);
     }
 
     public function testMigrationAddsH1ToDefaultListingSidebarLayout(): void
     {
         $this->rollback();
         $this->migrate();
-        $this->migrate();
 
-        $sectionId = $this->getSectionId('Default listing layout with sidebar');
-        static::assertNotNull($sectionId);
+        $sectionData = $this->getSectionData('Default listing layout with sidebar');
+        static::assertNotNull($sectionData);
+
+        $sectionId = $sectionData['id'];
+        $sectionVersionId = $sectionData['version_id'];
 
         $block = $this->getBlock($sectionId);
         static::assertNotNull($block);
         static::assertSame('Category name', $block['name']);
+        static::assertSame($sectionVersionId, $block['cms_section_version_id']);
     }
 
     private function migrate(): void
@@ -63,15 +69,20 @@ class Migration1733136208AddH1ToCmsCategoryListingTest extends TestCase
         $this->connection->executeStatement('DELETE FROM cms_block WHERE name = "Category name"');
     }
 
-    private function getSectionId(string $layoutName): ?string
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function getSectionData(string $layoutName): ?array
     {
-        return $this->connection->fetchOne(
-            'SELECT cms_section.id
+        $result = $this->connection->fetchAssociative(
+            'SELECT cms_section.id, cms_section.version_id
              FROM cms_section
              INNER JOIN cms_page_translation ON cms_page_translation.cms_page_id = cms_section.cms_page_id
              WHERE cms_page_translation.name = :name',
             ['name' => $layoutName]
-        ) ?: null;
+        );
+
+        return $result ?: null;
     }
 
     /**

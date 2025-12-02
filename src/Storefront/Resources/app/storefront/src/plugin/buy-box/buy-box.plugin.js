@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
@@ -20,6 +21,7 @@ export default class BuyBoxPlugin extends Plugin {
      * @returns {void}
      */
     init() {
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._httpClient = new HttpClient();
         this._registerEvents();
     }

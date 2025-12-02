@@ -40,7 +40,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
 
         $storeApiCustomFieldMapper = $this->createMock(StoreApiCustomFieldMapper::class);
         $storeApiCustomFieldMapper
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('map')
             ->with('customer', $customFields)
             ->willReturn(['test1' => '1']);
@@ -113,7 +113,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $salutationId, 'primaryKey' => $salutationId]],
+            [$salutationId => ['data' => [], 'primaryKey' => $salutationId]],
             new Criteria(),
             Context::createDefaultContext(),
         );

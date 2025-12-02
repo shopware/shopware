@@ -69,7 +69,7 @@
             name="bulk-modal-delete-confirm-text"
             v-bind="{ selectionCount }"
         >
-            {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
+            {{ $tc('global.entity-components.deleteMessage', { count: selectionCount }, selectionCount) }}
         </slot>
     </p>
 

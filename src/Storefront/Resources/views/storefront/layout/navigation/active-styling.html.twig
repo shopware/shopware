@@ -1,39 +1,11 @@
+{# @deprecated tag:v6.8.0 - File will be removed. The active styling class `.active` is set by navbar.plugin.js. #}
+
 {# Styles the current active navigation and the parent navigations #}
 
 {# The style tag is different for each navigation and will be cached accordingly #}
+
+{# @deprecated tag:v6.8.0 - Block "layout_navigation_active_styling" will be removed because the file is deprecated. The active styling class `.active` is set by navbar.plugin.js. #}
 {% block layout_navigation_active_styling %}
+    {# @deprecated tag:v6.8.0 - Variable `navigationId` will be removed because the file is deprecated. The active styling class `.active` is set by navbar.plugin.js. #}
     {% set navigationId = shopware.navigation.id %}
-    <style>
-        {% for id in shopware.navigation.pathIdList %}
-        /* Styling for parent navigation IDs */
-        .nav-item-{{ id }}-link:first-of-type {
-            color: var(--bs-primary);
-            font-weight: 700;
-        }
-
-        .nav-item-{{ id }}-link.root:first-of-type {
-            color: var(--bs-body-color);
-            font-weight: 700;
-
-            .main-navigation-link-text {
-                border-color: var(--bs-primary);
-            }
-        }
-        {% endfor %}
-
-        /* Styling for the current active navigation ID */
-        .nav-item-{{ navigationId }}-link:first-of-type {
-            color: var(--bs-primary);
-            font-weight: 700;
-        }
-
-        .nav-item-{{ navigationId }}-link.root:first-of-type {
-            color: var(--bs-body-color);
-            font-weight: 700;
-
-            .main-navigation-link-text {
-                border-color: var(--bs-primary);
-            }
-        }
-    </style>
 {% endblock %}

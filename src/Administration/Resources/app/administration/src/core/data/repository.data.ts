@@ -699,6 +699,20 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             };
         }
 
+        if (context.measurementLengthUnit) {
+            headers = {
+                'sw-measurement-length-unit': context.measurementLengthUnit,
+                ...headers,
+            };
+        }
+
+        if (context.measurementWeightUnit) {
+            headers = {
+                'sw-measurement-weight-unit': context.measurementWeightUnit,
+                ...headers,
+            };
+        }
+
         return headers as {
             Accept: string;
             Authorization: string;

@@ -1,6 +1,6 @@
 import template from './sw-multi-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
@@ -24,7 +24,7 @@ const { debounce, get } = Shopware.Utils;
  *     value="">
  * </sw-multi-select>
  */
-Component.register('sw-multi-select', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -251,4 +251,4 @@ Component.register('sw-multi-select', {
             return get(object, keyPath, defaultValue);
         },
     },
-});
+};

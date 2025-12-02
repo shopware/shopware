@@ -26,15 +26,15 @@ class SingleSelectFieldTest extends TestCase
 
         $singleSelectField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(SingleSelectField::class, $singleSelectField);
-        static::assertEquals('test_single_select_field', $singleSelectField->getName());
-        static::assertEquals([
+        static::assertSame('test_single_select_field', $singleSelectField->getName());
+        static::assertSame([
             'en-GB' => 'Test single-select field',
         ], $singleSelectField->getLabel());
-        static::assertEquals([], $singleSelectField->getHelpText());
-        static::assertEquals(1, $singleSelectField->getPosition());
-        static::assertEquals(['en-GB' => 'Choose an option...'], $singleSelectField->getPlaceholder());
+        static::assertSame([], $singleSelectField->getHelpText());
+        static::assertSame(1, $singleSelectField->getPosition());
+        static::assertSame(['en-GB' => 'Choose an option...'], $singleSelectField->getPlaceholder());
         static::assertFalse($singleSelectField->getRequired());
-        static::assertEquals([
+        static::assertSame([
             'first' => [
                 'en-GB' => 'First',
                 'de-DE' => 'Erster',

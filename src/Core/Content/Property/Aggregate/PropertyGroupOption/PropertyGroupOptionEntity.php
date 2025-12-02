@@ -41,15 +41,12 @@ class PropertyGroupOptionEntity extends Entity
 
     protected ?MediaEntity $media = null;
 
-    /**
-     * @internal
-     */
-    private ?ProductConfiguratorSettingEntity $configuratorSetting = null;
+    protected bool $combinable = false;
 
     /**
      * @internal
      */
-    private bool $combinable = false;
+    private ?ProductConfiguratorSettingEntity $configuratorSetting = null;
 
     public function getGroupId(): string
     {
@@ -161,16 +158,6 @@ class PropertyGroupOptionEntity extends Entity
         $this->position = $position;
     }
 
-    public function getConfiguratorSetting(): ?ProductConfiguratorSettingEntity
-    {
-        return $this->configuratorSetting;
-    }
-
-    public function setConfiguratorSetting(ProductConfiguratorSettingEntity $configuratorSetting): void
-    {
-        $this->configuratorSetting = $configuratorSetting;
-    }
-
     public function getCombinable(): bool
     {
         return $this->combinable;
@@ -179,5 +166,15 @@ class PropertyGroupOptionEntity extends Entity
     public function setCombinable(bool $combinable): void
     {
         $this->combinable = $combinable;
+    }
+
+    public function getConfiguratorSetting(): ?ProductConfiguratorSettingEntity
+    {
+        return $this->configuratorSetting;
+    }
+
+    public function setConfiguratorSetting(ProductConfiguratorSettingEntity $configuratorSetting): void
+    {
+        $this->configuratorSetting = $configuratorSetting;
     }
 }

@@ -59,7 +59,7 @@ class NotFoundSubscriberTest extends TestCase
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->willReturn(new Response());
 
@@ -96,9 +96,9 @@ class NotFoundSubscriberTest extends TestCase
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $response = new Response();
         $response->headers->setCookie(new Cookie('extension-cookie', '1'));
-        $response->headers->setCookie(new Cookie('session-', '1'));
+        $response->headers->setCookie(new Cookie(PlatformRequest::FALLBACK_SESSION_NAME, '1'));
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->willReturn($response);
 
@@ -145,7 +145,7 @@ class NotFoundSubscriberTest extends TestCase
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->willReturn(new Response());
 
@@ -181,7 +181,7 @@ class NotFoundSubscriberTest extends TestCase
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->with(static::callback(function (Request $request) {
                 return $request->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA) === false;
@@ -193,7 +193,7 @@ class NotFoundSubscriberTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(ErrorRedirectRequestEvent::class));
 
@@ -225,7 +225,7 @@ class NotFoundSubscriberTest extends TestCase
     {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator
-            ->expects($shouldInvalidate ? static::once() : static::never())
+            ->expects($shouldInvalidate ? $this->once() : $this->never())
             ->method('invalidate');
 
         $subscriber = new NotFoundSubscriber(

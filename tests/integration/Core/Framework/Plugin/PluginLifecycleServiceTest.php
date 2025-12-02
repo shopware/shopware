@@ -6,6 +6,7 @@ use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -14,13 +15,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
@@ -42,6 +47,7 @@ use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -59,6 +65,9 @@ class PluginLifecycleServiceTest extends TestCase
 
     private ContainerInterface $container;
 
+    /**
+     * @var EntityRepository<PluginCollection>
+     */
     private EntityRepository $pluginRepo;
 
     private PluginService $pluginService;
@@ -279,8 +288,8 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $assetService = $this->createMock(AssetService::class);
         $assetService
-            ->expects(static::once())
-            ->method('copyAssetsFromBundle');
+            ->expects($this->once())
+            ->method('copyAssets');
 
         $service = new PluginLifecycleService(
             $this->pluginRepo,
@@ -299,6 +308,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
+            new RequestStack(),
         );
 
         $context = Context::createDefaultContext();
@@ -398,14 +408,14 @@ class PluginLifecycleServiceTest extends TestCase
             $dependants = $params['dependants'];
             $dependantNames = $params['dependantNames'];
 
-            static::assertEquals(self::PLUGIN_NAME, $dependencyName);
+            static::assertSame(self::PLUGIN_NAME, $dependencyName);
             static::assertCount(1, $dependants);
-            static::assertEquals(\sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
+            static::assertSame(\sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
 
             $dependant = array_pop($dependants);
 
             static::assertInstanceOf(PluginEntity::class, $dependant);
-            static::assertEquals(self::DEPENDENT_PLUGIN_NAME, $dependant->getName());
+            static::assertSame(self::DEPENDENT_PLUGIN_NAME, $dependant->getName());
 
             throw $exception;
         }
@@ -468,6 +478,40 @@ class PluginLifecycleServiceTest extends TestCase
             'Test with keep data' => [true],
             'Test without keep data' => [false],
         ];
+    }
+
+    #[RunInSeparateProcess]
+    public function testInstallationOfPluginWhichExecutesComposerCommandsWithPreviouslyInstalledPluginThatShipsVendorDirectory(): void
+    {
+        $this->addTestPluginToKernel(
+            $this->fixturePath . 'plugins/SwagTestShipsVendorDirectory',
+            'SwagTestShipsVendorDirectory'
+        );
+        $this->addTestPluginToKernel(
+            $this->fixturePath . 'plugins/SwagTestExecuteComposerCommands',
+            'SwagTestExecuteComposerCommands'
+        );
+
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $pluginWithVendor = $this->pluginService->getPluginByName('SwagTestShipsVendorDirectory', $this->context);
+        $this->pluginLifecycleService->installPlugin($pluginWithVendor, $this->context);
+
+        $pluginWithExecuteComposer = $this->pluginService->getPluginByName('SwagTestExecuteComposerCommands', $this->context);
+
+        try {
+            // Expected fail on executing the composer command, as the plugin is not in the default plugin directory and could therefore not be found
+            $this->pluginLifecycleService->installPlugin($pluginWithExecuteComposer, $this->context);
+        } catch (\Throwable $e) {
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertInstanceOf(PluginComposerRequireException::class, $e);
+            } else {
+                static::assertInstanceOf(PluginException::class, $e);
+            }
+            static::assertStringContainsString('Your requirements could not be resolved to an installable set of packages.', $e->getMessage());
+        }
+
+        \ComposerAutoloaderInitPluginTestShipsVendorDirectory::getLoader()->unregister();
     }
 
     private function installNotSupportedPlugin(string $name): PluginEntity
@@ -722,6 +766,7 @@ class PluginLifecycleServiceTest extends TestCase
                     'id' => $id,
                     'name' => $iso,
                     'localeId' => $localeId,
+                    'active' => true,
                     'translationCode' => [
                         'id' => $localeId,
                         'code' => $iso,
@@ -780,6 +825,7 @@ class PluginLifecycleServiceTest extends TestCase
             $pluginService,
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
+            new RequestStack(),
         );
     }
 

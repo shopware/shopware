@@ -11,7 +11,7 @@ function getLogEntityMock() {
         username: 'admin',
         createdAt: '2021-11-05T09:08:40.015+00:00',
         profile: {
-            label: 'Default product',
+            technicalName: 'default_product',
         },
         file: {
             originalName: 'star-lord.csv',
@@ -38,6 +38,7 @@ async function createWrapper(logEntity = getLogEntityMock()) {
                     </div>`,
                     },
                     'sw-color-badge': true,
+                    'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
                 },
             },
             props: {
@@ -57,9 +58,9 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
             'star-lord.csv',
         ],
         [
-            'profile name',
+            'technical name',
             '.sw-import-export-activity-log-info-modal__item-profile dd',
-            'Default product',
+            'default_product',
         ],
         [
             'updated records',
@@ -74,7 +75,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
         [
             'date',
             '.sw-import-export-activity-log-info-modal__item-date dd',
-            '5 November 2021 at 09:08',
+            '05/11/2021, 09:08',
         ],
         [
             'user',

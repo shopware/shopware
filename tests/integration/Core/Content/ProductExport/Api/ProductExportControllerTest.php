@@ -65,7 +65,7 @@ class ProductExportControllerTest extends TestCase
             $content
         );
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testValidateFailure(): void
@@ -102,7 +102,7 @@ class ProductExportControllerTest extends TestCase
             $content
         );
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testValidateFalseDomain(): void
@@ -143,7 +143,7 @@ class ProductExportControllerTest extends TestCase
             $browserResponseContent = '';
         }
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertStringContainsString('CONTENT__PRODUCT_EXPORT_SALES_CHANNEL_DOMAIN_NOT_FOUND', $browserResponseContent);
     }
 
@@ -181,7 +181,7 @@ class ProductExportControllerTest extends TestCase
             $content
         );
 
-        static::assertEquals(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testPreviewFalseDomain(): void
@@ -224,7 +224,7 @@ class ProductExportControllerTest extends TestCase
             $browserResponseContent = '';
         }
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertStringContainsString('CONTENT__PRODUCT_EXPORT_SALES_CHANNEL_DOMAIN_NOT_FOUND', $browserResponseContent);
     }
 
@@ -268,7 +268,7 @@ class ProductExportControllerTest extends TestCase
             $browserResponseContent = '';
         }
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertStringContainsString('CONTENT__PRODUCT_EXPORT_SALES_CHANNEL_NOT_FOUND', $browserResponseContent);
     }
 

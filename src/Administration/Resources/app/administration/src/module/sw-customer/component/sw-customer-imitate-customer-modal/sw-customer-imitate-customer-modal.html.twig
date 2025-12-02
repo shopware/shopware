@@ -6,7 +6,9 @@
     @modal-close="onCancel"
 >
     {% block sw_customer_imitate_customer_modal_alert %}
-    <mt-banner>
+    <mt-banner
+        v-if="hasSalesChannelDomains"
+    >
         <i18n-t
             keypath="sw-customer.imitateCustomerModal.modalInfo"
             tag="p"
@@ -17,16 +19,27 @@
             </template>
         </i18n-t>
     </mt-banner>
+
+    <mt-banner
+        v-else
+        variant="attention"
+    >
+        {{ $tc('sw-customer.imitateCustomerModal.modalInfoNoDomains') }}
+    </mt-banner>
     {% endblock %}
 
     {% block sw_customer_imitate_customer_modal_description %}
-    <div class="imitate-customer-modal-description">
+    <div
+        v-if="hasSalesChannelDomains"
+        class="imitate-customer-modal-description"
+    >
         {{ modalDescription }}
     </div>
     {% endblock %}
 
     {% block sw_customer_imitate_customer_modal_body %}
     <sw-container
+        v-if="hasSalesChannelDomains"
         class="imitate-customer-modal-container"
         columns="1fr"
         gap="8px 0px"
@@ -45,7 +58,7 @@
                 gap="10px 0px"
             >
                 <div class="imitate-customer-modal-item-header">
-                    {{ salesChannelDomain.salesChannel.name }}
+                    {{ salesChannelDomain.salesChannel.translated.name }}
                 </div>
                 <div class="imitate-customer-modal-item-url">
                     {{ salesChannelDomain.url }}

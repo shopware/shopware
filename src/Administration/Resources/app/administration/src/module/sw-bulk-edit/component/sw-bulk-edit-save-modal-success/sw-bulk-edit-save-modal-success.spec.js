@@ -43,7 +43,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
+        Shopware.Store.get('swBulkEdit').selectedIds = ['orderId'];
     });
 
     beforeEach(async () => {

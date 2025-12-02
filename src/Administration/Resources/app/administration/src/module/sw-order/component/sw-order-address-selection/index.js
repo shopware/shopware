@@ -103,14 +103,18 @@ export default {
         },
 
         addressOptions() {
-            const addresses = (this.customer?.addresses || []).map((item) => {
-                const option = {
-                    label: this.addressLabel(item),
-                    ...item,
-                };
-                option.id = item.id;
-                return option;
-            });
+            const addresses = (this.customer?.addresses || [])
+                .map((item) => {
+                    if (this.address && this.address.hash === item.hash) {
+                        return null;
+                    }
+
+                    return {
+                        label: this.addressLabel(item),
+                        ...item,
+                    };
+                })
+                .filter((item) => item !== null);
 
             // eslint-disable-next-line no-unused-expressions
             this.address &&
@@ -217,7 +221,7 @@ export default {
             const ignoreFields = ['createdAt'];
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
 
-            return requiredAddressFields.every((field) => ignoreFields.indexOf(field) !== -1 || required(address[field]));
+            return requiredAddressFields.every((field) => ignoreFields.includes(field) || required(address[field]));
         },
 
         onChangeDefaultAddress(data) {

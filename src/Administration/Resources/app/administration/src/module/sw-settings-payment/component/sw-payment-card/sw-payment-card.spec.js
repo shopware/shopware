@@ -43,13 +43,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-payment/component/sw-payment-card', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to edit a payment method', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
@@ -77,7 +70,7 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         await wrapper.vm.$nextTick();
 
         const activeToggle = wrapper.findComponent('.mt-switch');
-        await activeToggle.vm.$emit('change', false);
+        await activeToggle.vm.$emit('update:modelValue', false);
 
         const expectedPaymentMethod = {
             id: '5e6f7g8h',

@@ -62,7 +62,7 @@ class OrderAddressEntity extends Entity
 
     protected string $orderVersionId;
 
-    protected ?string $hash;
+    protected ?string $hash = null;
 
     public function getCountryId(): string
     {

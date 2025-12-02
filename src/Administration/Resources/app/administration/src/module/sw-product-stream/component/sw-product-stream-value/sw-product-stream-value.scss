@@ -30,6 +30,8 @@
     .mt-block-field__block,
     .sw-block-field .sw-block-field__block {
         border: 0;
+        min-height: auto;
+        height: auto;
     }
 
     .sw-block-field.has--focus .sw-block-field__block {
@@ -53,6 +55,12 @@
             flex: 1 1 0;
             min-height: 0;
         }
+
+        &.sw-product-stream-value__time-input {
+            .mt-field__addition {
+                border-left: 0;
+            }
+        }
     }
 
     & > * {
@@ -61,6 +69,30 @@
 
     .sw-product-stream-value__placeholder {
         height: 100%;
+    }
+
+    .sw-label {
+        height: auto;
+    }
+
+    .mt-datepicker__hint {
+        &.field-hint {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-entity-multi-select {
+        .sw-select-selection-list__load-more {
+            margin-top: 0;
+
+            .sw-select-selection-list__load-more-button {
+                min-height: 24px;
+            }
+        }
+
+        .sw-label__dismiss {
+            top: -2px;
+        }
     }
 }
 

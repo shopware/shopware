@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@after-sales')]
 abstract class AbstractFileWriter extends AbstractWriter
 {
-    protected FilesystemOperator $filesystem;
-
     /**
      * @var resource
      */
@@ -24,9 +22,8 @@ abstract class AbstractFileWriter extends AbstractWriter
      */
     protected $buffer;
 
-    public function __construct(FilesystemOperator $filesystem)
+    public function __construct(protected FilesystemOperator $filesystem)
     {
-        $this->filesystem = $filesystem;
         $this->initTempFile();
         $this->initBuffer();
     }

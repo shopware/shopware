@@ -78,6 +78,15 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                     'sw-ai-copilot-badge': true,
                     'mt-switch': MtSwitch,
                     'mt-url-field': MtUrlField,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
                 },
             },
             props: {
@@ -127,6 +136,10 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                             source: 'static',
                             value: false,
                         },
+                        useFetchPriorityOnFirstItem: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
                     data: {},
                 },
@@ -168,12 +181,6 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await import('src/module/sw-cms/elements/image-slider');
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should keep minHeight value when changing display mode', async () => {
         const wrapper = await createWrapper('settings');
 
@@ -189,7 +196,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
 
     it('should change the isDecorative value', async () => {
         const wrapper = await createWrapper('settings');
-        const isDecorativeSwitch = wrapper.find('.sw-cms-el-config-image-slider__is-decorative input');
+        const isDecorativeSwitch = wrapper.find('.sw-cms-el-config-image-slider__settings-is-decorative input');
 
         await isDecorativeSwitch.setValue(true);
 
@@ -198,6 +205,21 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await isDecorativeSwitch.setValue(false);
 
         expect(wrapper.vm.element.config.isDecorative.value).toBe(false);
+    });
+
+    it('should change the useFetchPriorityOnFirstItem value', async () => {
+        const wrapper = await createWrapper('settings');
+        const useFetchPriorityOnFirstItemSwitch = wrapper.find(
+            '.sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item input',
+        );
+
+        await useFetchPriorityOnFirstItemSwitch.setValue(true);
+
+        expect(wrapper.vm.element.config.useFetchPriorityOnFirstItem.value).toBe(true);
+
+        await useFetchPriorityOnFirstItemSwitch.setValue(false);
+
+        expect(wrapper.vm.element.config.useFetchPriorityOnFirstItem.value).toBe(false);
     });
 
     /**

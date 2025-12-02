@@ -26,21 +26,21 @@ class MetadataTest extends TestCase
         static::assertSame('https://example.xyz', $meta->getUrl());
         static::assertSame('sw-pencil', $meta->getSwIcon());
         static::assertSame('resource/pencil', $meta->getIcon());
-        static::assertEquals(
+        static::assertSame(
             [
                 'en-GB' => 'First action app',
                 'de-DE' => 'First action app DE',
             ],
             $firstAction->getMeta()->getLabel()
         );
-        static::assertEquals(
+        static::assertSame(
             [
                 'en-GB' => 'First action app description',
                 'de-DE' => 'First action app description DE',
             ],
             $firstAction->getMeta()->getDescription()
         );
-        static::assertEquals(
+        static::assertSame(
             [
                 'en-GB' => 'Headline for action',
                 'de-DE' => 'Überschrift für Aktion',

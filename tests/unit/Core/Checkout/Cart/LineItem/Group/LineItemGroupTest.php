@@ -65,8 +65,8 @@ class LineItemGroupTest extends TestCase
 
         $group->addItem('ID1', 5);
 
-        static::assertEquals('ID1', $group->getItems()[0]->getLineItemId());
-        static::assertEquals(5, $group->getItems()[0]->getQuantity());
+        static::assertSame('ID1', $group->getItems()[0]->getLineItemId());
+        static::assertSame(5, $group->getItems()[0]->getQuantity());
     }
 
     /**
@@ -82,6 +82,6 @@ class LineItemGroupTest extends TestCase
         $group->addItem('ID1', 5);
         $group->addItem('ID1', 2);
 
-        static::assertEquals(7, $group->getItems()[0]->getQuantity());
+        static::assertSame(7, $group->getItems()[0]->getQuantity());
     }
 }

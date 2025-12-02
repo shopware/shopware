@@ -95,7 +95,7 @@ class AttributeEntityCompiler
         OneToOne::class,
     ];
 
-    private CamelCaseToSnakeCaseNameConverter $converter;
+    private readonly CamelCaseToSnakeCaseNameConverter $converter;
 
     public function __construct()
     {
@@ -120,6 +120,8 @@ class AttributeEntityCompiler
         $instance = $collection[0]->newInstance();
 
         $properties = $reflection->getProperties();
+
+        $definitions = [];
 
         $fields = [];
         foreach ($properties as $property) {

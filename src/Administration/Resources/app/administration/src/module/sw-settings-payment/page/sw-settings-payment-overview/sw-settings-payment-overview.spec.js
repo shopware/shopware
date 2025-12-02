@@ -47,11 +47,19 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
                     'sw-context-menu-item': true,
                     'sw-internal-link': true,
                     'sw-payment-card': true,
-                    'sw-empty-state': true,
                     'sw-extension-component-section': true,
                     'router-link': true,
                     'sw-language-switch': true,
                     'sw-settings-payment-sorting-modal': true,
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
                 },
             },
         },
@@ -59,13 +67,6 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
 }
 
 describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create a new payment method', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

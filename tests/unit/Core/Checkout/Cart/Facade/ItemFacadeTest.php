@@ -12,12 +12,14 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
 #[CoversClass(ItemFacade::class)]
+#[Package('checkout')]
 class ItemFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -76,7 +78,7 @@ class ItemFacadeTest extends TestCase
 
         static::assertSame(2, $new->getQuantity());
         static::assertSame(3, $facade->getQuantity());
-        static::assertNotEquals($facade->getId(), $new->getId());
+        static::assertNotSame($facade->getId(), $new->getId());
         static::assertSame($facade->getType(), $new->getType());
         static::assertSame($facade->getReferencedId(), $new->getReferencedId());
         static::assertSame($facade->getLabel(), $new->getLabel());

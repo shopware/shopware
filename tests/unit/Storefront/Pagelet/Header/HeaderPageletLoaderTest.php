@@ -77,9 +77,6 @@ class HeaderPageletLoaderTest extends TestCase
         $headerPageletLoader = new HeaderPageletLoader($eventDispatcher, $currencyRoute, $languageRoute, $navigationLoader);
         $header = $headerPageletLoader->load(new Request(), $salesChannelContext);
 
-        static::assertSame($salesChannelContext->getLanguageId(), $header->getActiveLanguage()->getId());
-        static::assertSame($salesChannelContext->getCurrencyId(), $header->getActiveCurrency()->getId());
-
         $navigation = $header->getNavigation();
         static::assertNotNull($navigation);
         $tree = $navigation->getTree();

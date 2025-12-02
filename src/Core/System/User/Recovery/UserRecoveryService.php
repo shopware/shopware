@@ -8,12 +8,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -42,7 +41,7 @@ class UserRecoveryService
         private readonly EntityRepository $userRepo,
         private readonly RouterInterface $router,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly SalesChannelContextService $salesChannelContextService,
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
         private readonly EntityRepository $salesChannelRepository,
     ) {
     }
@@ -123,7 +122,7 @@ class UserRecoveryService
         return $recovery && $validDateTime < $recovery->getCreatedAt();
     }
 
-    public function updatePassword(string $hash, string $password, Context $context): bool
+    public function updatePassword(string $hash, #[\SensitiveParameter] string $password, Context $context): bool
     {
         if (!$this->checkHash($hash, $context)) {
             return false;
@@ -132,8 +131,8 @@ class UserRecoveryService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('hash', $hash));
 
-        /** @var UserRecoveryEntity $recovery It can't be null as we checked the hash before */
         $recovery = $this->getUserRecovery($criteria, $context);
+        \assert($recovery instanceof UserRecoveryEntity); // It can't be null as we checked the hash before
 
         $updateData = [
             'id' => $recovery->getUserId(),
@@ -190,7 +189,7 @@ class UserRecoveryService
     {
         $criteria = new Criteria();
         $criteria->setLimit(1);
-        $criteria->addFilter(new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON)]));
+        $criteria->addFilter(new NotEqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON));
 
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->first();
 

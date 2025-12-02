@@ -13,7 +13,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-base :condition="condition"></sw-condition-base>
  */
-Component.register('sw-condition-base', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -49,7 +49,7 @@ Component.register('sw-condition-base', {
         conditionClasses() {
             return {
                 'has--error': this.hasError,
-                'is--disabled': this.hasNoComponent || this.disabled,
+                'is--disabled': this.isDisabled,
             };
         },
 
@@ -69,6 +69,10 @@ Component.register('sw-condition-base', {
 
         value() {
             return this.condition.value;
+        },
+
+        isDisabled() {
+            return this.disabled || this.hasNoComponent;
         },
 
         hasNoComponent() {
@@ -118,4 +122,4 @@ Component.register('sw-condition-base', {
             }
         },
     },
-});
+};

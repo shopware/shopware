@@ -11,14 +11,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('checkout')]
-final class CheckoutGatewayCommandExecutor
+final readonly class CheckoutGatewayCommandExecutor
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly CheckoutGatewayCommandRegistry $registry,
-        private readonly ExceptionLogger $logger,
+        private CheckoutGatewayCommandRegistry $registry,
+        private ExceptionLogger $logger,
     ) {
     }
 

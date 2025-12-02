@@ -24,14 +24,14 @@ class DocsAppEventCommandTest extends TestCase
 
         $command = new DocsAppEventCommand($businessEventCollector, $hookableEventCollector, $twig);
 
-        $twig->expects(static::once())
+        $twig->expects($this->once())
             ->method('getLoader')
             ->willReturn(new ArrayLoader());
 
-        $twig->expects(static::exactly(2))
+        $twig->expects($this->exactly(2))
             ->method('setLoader');
 
-        $twig->expects(static::once())
+        $twig->expects($this->once())
             ->method('render')
             ->willReturn('rendered content');
 

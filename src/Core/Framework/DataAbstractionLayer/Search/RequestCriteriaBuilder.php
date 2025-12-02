@@ -24,11 +24,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 #[Package('framework')]
 class RequestCriteriaBuilder
 {
+    /**
+     * State indicating that no explicit limit was provided in the request.
+     * When this state is set, the criteria limit comes from a static fallback value,
+     * and dynamic system configuration should be preferred instead.
+     */
+    public const STATE_NO_EXPLICIT_LIMIT_IN_REQUEST = 'no-explicit-limit-in-request';
+
     private const TOTAL_COUNT_MODE_MAPPING = [
         'none' => Criteria::TOTAL_COUNT_MODE_NONE,
         'exact' => Criteria::TOTAL_COUNT_MODE_EXACT,
@@ -48,10 +56,15 @@ class RequestCriteriaBuilder
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
-        if ($request->getMethod() === Request::METHOD_GET) {
+        if ($request->isMethod(Request::METHOD_GET)) {
             $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
         } else {
             $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
+        }
+
+        // @deprecated tag:v6.8.0 - switch the default to 0
+        if ($request->headers->get(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, '1') === '0') {
+            $criteria->addState(Criteria::STATE_DISABLE_SEARCH_INFO);
         }
 
         return $criteria;
@@ -119,6 +132,7 @@ class RequestCriteriaBuilder
 
             if ($criteria->getLimit() === null && $maxLimit !== null) {
                 $criteria->setLimit($maxLimit);
+                $criteria->addState(self::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
             }
 
             if (isset($payload['page'])) {
@@ -134,6 +148,16 @@ class RequestCriteriaBuilder
                 );
             }
             $criteria->setIncludes($payload['includes']);
+        }
+
+        if (isset($payload['excludes'])) {
+            if (!\is_array($payload['excludes'])) {
+                throw DataAbstractionLayerException::expectedArrayWithType(
+                    'excludes',
+                    \gettype($payload['excludes'])
+                );
+            }
+            $criteria->setExcludes($payload['excludes']);
         }
 
         if (isset($payload['filter'])) {

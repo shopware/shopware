@@ -6,12 +6,12 @@ import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.servi
 import template from './sw-search-preferences-modal.html.twig';
 import './sw-search-preferences-modal.scss';
 
-const { Component, Mixin, Module } = Shopware;
+const { Mixin, Module } = Shopware;
 
 /**
  * @private
  */
-Component.register('sw-search-preferences-modal', {
+export default {
     template,
 
     inject: [
@@ -187,4 +187,4 @@ Component.register('sw-search-preferences-modal', {
                 });
         },
     },
-});
+};

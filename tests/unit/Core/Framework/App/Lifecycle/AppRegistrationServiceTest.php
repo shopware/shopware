@@ -35,7 +35,7 @@ class AppRegistrationServiceTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest_no_setup.xml');
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
-        $handshakeFactory->expects(static::never())->method('create');
+        $handshakeFactory->expects($this->never())->method('create');
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory);
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
@@ -60,7 +60,7 @@ class AppRegistrationServiceTest extends TestCase
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
-        $handshakeFactory->expects(static::once())
+        $handshakeFactory->expects($this->once())
             ->method('create')
             ->willReturn($handshakeMock);
 
@@ -95,7 +95,7 @@ class AppRegistrationServiceTest extends TestCase
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
-        $handshakeFactory->expects(static::once())
+        $handshakeFactory->expects($this->once())
             ->method('create')
             ->willReturn($handshakeMock);
 
@@ -137,7 +137,7 @@ class AppRegistrationServiceTest extends TestCase
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
-        $handshakeFactory->expects(static::once())
+        $handshakeFactory->expects($this->once())
             ->method('create')
             ->willReturn($handshakeMock);
 
@@ -175,7 +175,7 @@ class AppRegistrationServiceTest extends TestCase
         $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
-        $handshakeFactory->expects(static::once())
+        $handshakeFactory->expects($this->once())
             ->method('create')
             ->willReturn($handshakeMock);
 
@@ -209,7 +209,7 @@ class AppRegistrationServiceTest extends TestCase
         $handshakeMock->method('fetchAppProof')->willReturn(Uuid::randomHex());
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
-        $handshakeFactory->expects(static::once())
+        $handshakeFactory->expects($this->once())
             ->method('create')
             ->willReturn($handshakeMock);
 
@@ -252,7 +252,7 @@ class AppRegistrationServiceTest extends TestCase
         $handshakeMock->method('fetchAppProof')->willReturn(Uuid::randomHex());
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
-        $handshakeFactory->expects(static::once())
+        $handshakeFactory->expects($this->once())
             ->method('create')
             ->willReturn($handshakeMock);
 

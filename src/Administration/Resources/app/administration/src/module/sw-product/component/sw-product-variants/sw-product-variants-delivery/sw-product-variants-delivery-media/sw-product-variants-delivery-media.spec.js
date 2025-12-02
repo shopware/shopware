@@ -76,12 +76,6 @@ async function createWrapper() {
 
 // eslint-disable-next-line max-len
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the translated name of a property group', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

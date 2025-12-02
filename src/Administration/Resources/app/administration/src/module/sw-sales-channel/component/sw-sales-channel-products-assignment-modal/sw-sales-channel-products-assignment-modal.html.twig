@@ -104,7 +104,7 @@
             :is-loading="isAssignProductLoading || isProductLoading"
             @click="onAddProducts"
         >
-            {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', productCount, { productCount: productCount }) }}
+            {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', { productCount: productCount }, productCount) }}
         </mt-button>
         {% endblock %}
     </template>

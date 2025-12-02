@@ -14,11 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\SnippetCollection;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
@@ -41,6 +41,9 @@ class TranslatorTest extends TestCase
 
     private Translator $translator;
 
+    /**
+     * @var EntityRepository<SnippetCollection>
+     */
     private EntityRepository $snippetRepository;
 
     protected function setUp(): void
@@ -53,13 +56,13 @@ class TranslatorTest extends TestCase
         $this->translator->warmUp('');
     }
 
-    public function testPassthru(): void
+    public function testPassthrough(): void
     {
         $snippetFile = new UnitTest_SnippetFile();
         static::getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
 
         $stack = static::getContainer()->get(RequestStack::class);
-        $prop = ReflectionHelper::getProperty(RequestStack::class, 'requests');
+        $prop = new \ReflectionProperty(RequestStack::class, 'requests');
         $prop->setValue($stack, []);
 
         // fake request
@@ -71,7 +74,7 @@ class TranslatorTest extends TestCase
         $result = $this->translator->getCatalogue('en-GB')->get('frontend.note.item.NoteLinkZoom');
         $prop->setValue($stack, []);
 
-        static::assertEquals(
+        static::assertSame(
             'Enlarge',
             $result
         );
@@ -98,7 +101,7 @@ class TranslatorTest extends TestCase
         static::getContainer()->get(RequestStack::class)->push($request);
 
         // get overwritten string
-        static::assertEquals(
+        static::assertSame(
             $snippet['value'],
             $this->translator->getCatalogue('en-GB')->get('new.unit.test.key')
         );
@@ -113,46 +116,47 @@ class TranslatorTest extends TestCase
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en');
         static::assertInstanceOf(MessageCatalogueInterface::class, $catalogue->getFallbackCatalogue());
-        static::assertEquals('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
+        static::assertSame('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en_GB');
         static::assertInstanceOf(MessageCatalogueInterface::class, $catalogue->getFallbackCatalogue());
-        static::assertEquals('en_001', $catalogue->getFallbackCatalogue()->getLocale());
+        static::assertSame('en_001', $catalogue->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en-GB');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
-        static::assertEquals('en', $fallback->getLocale());
+        static::assertSame('en', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
-        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertSame('en_GB', $fallback->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
-        static::assertEquals('en_GB', $fallback->getLocale());
+        static::assertSame('en_GB', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
-        static::assertEquals('en', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertSame('en', $fallback->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de_DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
-        static::assertEquals('de', $fallback->getLocale());
+        static::assertSame('de', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
-        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertSame('en_GB', $fallback->getFallbackCatalogue()->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue()->getFallbackCatalogue());
-        static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
+        static::assertSame('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de-DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
-        static::assertEquals('en', $fallback->getLocale());
+        static::assertSame('de', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
-        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertSame('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+
         $this->translator->reset();
     }
 
@@ -162,50 +166,50 @@ class TranslatorTest extends TestCase
 
         $catalogue = $this->translator->getCatalogue('en');
         static::assertInstanceOf(MessageCatalogueInterface::class, $catalogue->getFallbackCatalogue());
-        static::assertEquals('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
+        static::assertSame('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en_GB');
         static::assertInstanceOf(MessageCatalogueInterface::class, $catalogue->getFallbackCatalogue());
-        static::assertEquals('en_001', $catalogue->getFallbackCatalogue()->getLocale());
+        static::assertSame('en_001', $catalogue->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en-GB');
         $fallback = $catalogue->getFallbackCatalogue();
+
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
-        static::assertEquals('de', $fallback->getLocale());
+        static::assertSame('en', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
-        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
-        static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue()->getFallbackCatalogue());
-        static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
+        static::assertSame('en_GB', $fallback->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
-        static::assertEquals('en_GB', $fallback->getLocale());
+        static::assertSame('en_GB', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
-        static::assertEquals('en', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertSame('en', $fallback->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de_DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
-        static::assertEquals('de', $fallback->getLocale());
+        static::assertSame('de', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
-        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertSame('en_GB', $fallback->getFallbackCatalogue()->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue()->getFallbackCatalogue());
-        static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
+        static::assertSame('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
 
         $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de-DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
-        static::assertEquals('de', $fallback->getLocale());
+        static::assertSame('de', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
-        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertSame('en_GB', $fallback->getFallbackCatalogue()->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue()->getFallbackCatalogue());
-        static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
+        static::assertSame('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
+
         $this->translator->reset();
     }
 
@@ -238,29 +242,29 @@ class TranslatorTest extends TestCase
         static::getContainer()->get(RequestStack::class)->push($request);
 
         // get overwritten string
-        static::assertEquals(
+        static::assertSame(
             $snippets[0]['value'],
             $this->translator->trans('new.unit.test.key', [], null, 'en-GB')
         );
-        static::assertEquals(
+        static::assertSame(
             $snippets[1]['value'],
             $this->translator->trans('new.unit.test.key', [], null, 'de-DE')
         );
-        static::assertEquals(
+        static::assertSame(
             $snippets[0]['value'],
             $this->translator->trans('new.unit.test.key', [], null, 'en')
         );
-        static::assertEquals(
+        static::assertSame(
             $snippets[1]['value'],
             $this->translator->trans('new.unit.test.key', [], null, 'de-DE')
         );
-        static::assertEquals(
+        static::assertSame(
             $snippets[0]['value'],
             $this->translator->trans('new.unit.test.key')
         );
 
         $this->translator->setLocale('de-DE');
-        static::assertEquals(
+        static::assertSame(
             $snippets[1]['value'],
             $this->translator->trans('new.unit.test.key')
         );
@@ -284,16 +288,16 @@ class TranslatorTest extends TestCase
 
         $created = $snippetRepository->create([$snippet], Context::createDefaultContext())->getEventByEntityName(SnippetDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $created);
-        static::assertEquals([$snippet['id']], $created->getIds());
+        static::assertSame([$snippet['id']], $created->getIds());
 
         $deleted = $snippetRepository->delete([['id' => $snippet['id']]], Context::createDefaultContext())->getEventByEntityName(SnippetDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $deleted);
-        static::assertEquals([$snippet['id']], $deleted->getIds());
+        static::assertSame([$snippet['id']], $deleted->getIds());
     }
 
     public function testItReplacesReservedCharacter(): void
     {
-        static::assertEquals('translator.<_r_strong>', Translator::buildName('</strong>'));
+        static::assertSame('translator.<_r_strong>', Translator::buildName('</strong>'));
     }
 
     public function testThemeSnippetsGetsMergedWithOverride(): void
@@ -331,7 +335,7 @@ class TranslatorTest extends TestCase
             $salesChannelContext->getContext()
         );
 
-        static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
+        static::assertSame('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
         $translator->reset();
         $loader->reset();
 
@@ -351,13 +355,13 @@ class TranslatorTest extends TestCase
             $salesChannelContext->getContext()
         );
 
-        static::assertEquals('Swag Theme serviceDateNotice EN', $translator->trans('document.serviceDateNotice'));
+        static::assertSame('Swag Theme serviceDateNotice EN', $translator->trans('document.serviceDateNotice'));
 
         $translator->reset();
         $loader->reset();
 
         // In reset, we ignore all theme snippets and use the default ones
-        static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
+        static::assertSame('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
 
         // Assign the Storefront theme again and assert that the original snippet is used again
         $criteria = new Criteria();
@@ -377,13 +381,13 @@ class TranslatorTest extends TestCase
             $salesChannelContext->getContext()
         );
 
-        static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
+        static::assertSame('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
     }
 
     #[DataProvider('pluralTranslationProvider')]
     public function testPluralRules(string $expected, string $id, int $number, string $locale): void
     {
-        static::assertEquals($expected, $this->translator->trans($id, ['%count%' => (string) $number], null, $locale));
+        static::assertSame($expected, $this->translator->trans($id, ['%count%' => (string) $number], null, $locale));
     }
 
     /**

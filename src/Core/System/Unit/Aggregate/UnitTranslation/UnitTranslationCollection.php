@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class UnitTranslationCollection extends EntityCollection
 {
+    /**
+     * @return array<string, string>
+     */
     public function getUnitIds(): array
     {
         return $this->fmap(fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getUnitId());
@@ -21,6 +24,9 @@ class UnitTranslationCollection extends EntityCollection
         return $this->filter(fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getUnitId() === $id);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getLanguageIds(): array
     {
         return $this->fmap(fn (UnitTranslationEntity $unitTranslation) => $unitTranslation->getLanguageId());

@@ -26,6 +26,8 @@ import {
     get,
     set,
     pick,
+    unset,
+    has,
 } from './utils/object.utils';
 import { warn, error } from './utils/debug.utils';
 import { currency, date, dateWithUserTimezone, fileSize, md5, toISODate } from './utils/format.utils';
@@ -37,6 +39,7 @@ import sortUtils from './utils/sort.utils';
 import VueHelper from './utils/vue-helper.utils';
 import EventBus from './utils/eventBus.utils';
 import genericRuleConditionUtils from './utils/generic-rule-condition.utils';
+import unitConversionUtils from './utils/unit-conversion.utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const object = {
@@ -51,6 +54,8 @@ export const object = {
     get: get,
     set: set,
     pick: pick,
+    unset: unset,
+    has: has,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -137,6 +142,13 @@ export const genericRuleCondition = {
     getPlaceholderSnippet: genericRuleConditionUtils.getPlaceholderSnippet,
 };
 
+/**
+ * @private
+ */
+export const unitConversion = {
+    convert: unitConversionUtils.convertUnit,
+};
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     createId,
@@ -157,6 +169,7 @@ export default {
     VueHelper,
     EventBus,
     genericRuleCondition,
+    unitConversion,
 };
 
 /**

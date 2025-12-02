@@ -29,7 +29,7 @@ Module.register('sw-settings-shipping', {
     title: 'sw-settings-shipping.general.mainMenuItemGeneral',
     description: 'sw-settings-shipping.general.descriptionTextModule',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'shipping_method',
 
@@ -50,7 +50,7 @@ Module.register('sw-settings-shipping', {
                 privilege: 'shipping.viewer',
             },
             props: {
-                default: (route) => ({ shippingMethodId: route.params.id }),
+                default: (route) => ({ shippingMethodId: route.params.id?.toLowerCase() }),
             },
         },
         create: {

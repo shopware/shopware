@@ -108,6 +108,10 @@ class CustomerExceptionTest extends TestCase
         static::assertEmpty($exception->getParameters());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testCannotDeleteActiveAddress(): void
     {
         $exception = CustomerException::cannotDeleteActiveAddress('id-1');

@@ -49,16 +49,11 @@
                         :allow-column-edit="false"
                         :full-page="false"
                     >
-                        <template
-                            #column-orderDateTime="{ item }"
-                        >
-                            {{ dateFilter(item.orderDateTime, {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            year: undefined,
-                            month: undefined,
-                            day: undefined
-                            }) }}
+                        <template #column-orderDateTime="{ item }">
+                            <sw-time-ago
+                                :date="item.orderDateTime"
+                                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                            />
                         </template>
 
                         <template #column-orderCustomer.firstName="{ item }">

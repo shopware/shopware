@@ -1,0 +1,34 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "responses": {
+            "CountryListResponse": {
+                "description": "Entity search result containing countries.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "elements": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Country"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/EntitySearchResult"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+} 

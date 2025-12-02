@@ -2,163 +2,241 @@
 <div class="sw-cms-el-config-youtube-video">
 
     {% block sw_cms_element_youtube_video_config_video_id %}
-
-    <mt-text-field
-        v-model="videoID"
-        class="sw-cms-el-config-youtube-video__video-id"
-        :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoId')"
-        :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoId')"
-    />
+    <sw-cms-inherit-wrapper
+        field="videoID"
+        :label="$t('sw-cms.elements.vimeoVideo.config.label.videoId')"
+        :element="element"
+    >
+        <template #default="{ isInherited }">
+            <mt-text-field
+                v-model="videoID"
+                class="sw-cms-el-config-youtube-video__video-id"
+                :placeholder="$t('sw-cms.elements.vimeoVideo.config.placeholder.videoId')"
+                :disabled="isInherited"
+            />
+        </template>
+    </sw-cms-inherit-wrapper>
     {% endblock %}
 
     {% block sw_cms_element_youtube_video_config_title %}
-
-    <mt-text-field
-        v-model="element.config.iframeTitle.value"
-        :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoTitle')"
-        :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoTitle')"
-    />
+    <sw-cms-inherit-wrapper
+        field="iframeTitle"
+        :element="element"
+        :label="$t('sw-cms.elements.vimeoVideo.config.label.videoTitle')"
+    >
+        <template #default="{ isInherited }">
+            <mt-text-field
+                v-model="element.config.iframeTitle.value"
+                :placeholder="$t('sw-cms.elements.vimeoVideo.config.placeholder.videoTitle')"
+                :disabled="isInherited"
+            />
+        </template>
+    </sw-cms-inherit-wrapper>
     {% endblock %}
 
     <div class="sw-cms-el-config-youtube-video__switches">
-
         {% block sw_cms_element_youtube_video_config_autoplay %}
-
-        <mt-switch
-            v-model="element.config.autoPlay.value"
-            :label="$tc('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
-            :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')"
-        />
+        <sw-cms-inherit-wrapper
+            field="autoPlay"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.autoPlay.value"
+                    :help-text="$t('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')"
+                    :disabled="isInherited"
+                    :label="$t('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
         {% endblock %}
 
         {% block sw_cms_element_youtube_video_config_loop %}
-
-        <mt-switch
-            v-model="element.config.loop.value"
-            :label="$tc('sw-cms.elements.vimeoVideo.config.label.loop')"
-        />
+        <sw-cms-inherit-wrapper
+            field="loop"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.loop.value"
+                    :disabled="isInherited"
+                    :label="$t('sw-cms.elements.vimeoVideo.config.label.loop')"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
         {% endblock %}
 
         {% block sw_cms_element_youtube_video_config_show_controls %}
-
-        <mt-switch
-            v-model="element.config.showControls.value"
-            :label="$tc('sw-cms.elements.vimeoVideo.config.label.showControls')"
-        />
+        <sw-cms-inherit-wrapper
+            field="showControls"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.showControls.value"
+                    :disabled="isInherited"
+                    :label="$t('sw-cms.elements.vimeoVideo.config.label.showControls')"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
         {% endblock %}
 
         {% block sw_cms_element_youtube_video_config_advanced_privacy_mode %}
-
-        <mt-switch
-            v-model="element.config.advancedPrivacyMode.value"
-            :label="$tc('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
-            :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')"
-        />
+        <sw-cms-inherit-wrapper
+            field="advancedPrivacyMode"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.advancedPrivacyMode.value"
+                    :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')"
+                    :disabled="isInherited"
+                    :label="$t('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
         {% endblock %}
     </div>
 
     <div class="sw-cms-el-config-youtube-video__start-and-end">
-
         {% block sw_cms_element_youtube_video_config_start %}
-
-        <mt-text-field
-            :model-value="startValue"
-            :label="$tc('sw-cms.elements.vimeoVideo.config.label.start')"
-            placeholder="0:00"
-            @update:model-value="setTimeValue($event, 'start')"
-        />
+        <sw-cms-inherit-wrapper
+            field="start"
+            :element="element"
+            :label="$t('sw-cms.elements.vimeoVideo.config.label.start')"
+        >
+            <template #default="{ isInherited }">
+                <mt-text-field
+                    :model-value="startValue"
+                    placeholder="0:00"
+                    :disabled="isInherited"
+                    @update:model-value="setTimeValue($event, 'start')"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
         {% endblock %}
 
         {% block sw_cms_element_youtube_video_config_end %}
-
-        <mt-text-field
-            :model-value="endValue"
-            :label="$tc('sw-cms.elements.vimeoVideo.config.label.end')"
-            placeholder="0:00"
-            @update:model-value="setTimeValue($event, 'end')"
-        />
+        <sw-cms-inherit-wrapper
+            field="end"
+            :element="element"
+            :label="$t('sw-cms.elements.vimeoVideo.config.label.end')"
+        >
+            <template #default="{ isInherited }">
+                <mt-text-field
+                    :model-value="endValue"
+                    placeholder="0:00"
+                    :disabled="isInherited"
+                    @update:model-value="setTimeValue($event, 'end')"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
         {% endblock %}
     </div>
 
     {% block sw_cms_element_youtube_video_config_display_mode %}
-    <mt-select
-        v-model="element.config.displayMode.value"
-        :placeholder="$tc('sw-cms.elements.general.config.label.displayMode')"
-        :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-        :options="displayModeOptions"
-    />
+    <sw-cms-inherit-wrapper
+        field="displayMode"
+        :element="element"
+        :label="$t('sw-cms.elements.general.config.label.displayMode')"
+    >
+        <template #default="{ isInherited }">
+            <mt-select
+                v-model="element.config.displayMode.value"
+                :placeholder="$tc('sw-cms.elements.general.config.label.displayMode')"
+                :options="displayModeOptions"
+                :disabled="isInherited"
+            />
+        </template>
+    </sw-cms-inherit-wrapper>
     {% endblock %}
 
     {% block sw_cms_element_youtube_video_config_needs_confirmation %}
     <div class="sw-cms-el-config-youtube-video__confirmation">
-
-        <mt-switch
-            v-model="element.config.needsConfirmation.value"
-            :label="$tc('sw-cms.elements.vimeoVideo.config.label.needsConfirmation')"
-        />
+        <sw-cms-inherit-wrapper
+            field="needsConfirmation"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.needsConfirmation.value"
+                    :disabled="isInherited"
+                    :label="$t('sw-cms.elements.vimeoVideo.config.label.needsConfirmation')"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
     </div>
     {% endblock %}
 
     {% block sw_cms_element_youtube_video_config_preview_media %}
-    <sw-cms-mapping-field
+    <sw-cms-inherit-wrapper
         v-if="element.config.needsConfirmation.value"
-        v-model:config="element.config.previewMedia"
-        :label="$tc('sw-cms.elements.vimeoVideo.config.label.previewImage')"
-        value-types="entity"
-        entity="media"
+        field="previewMedia"
+        :element="element"
+        :label="$t('sw-cms.elements.vimeoVideo.config.label.previewImage')"
     >
-        <sw-media-upload-v2
-            variant="regular"
-            :upload-tag="uploadTag"
-            :source="previewSource"
-            :allow-multi-select="false"
-            :default-folder="cmsPageState.pageEntityName"
-            :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
-            @media-upload-sidebar-open="onOpenMediaModal"
-            @media-upload-remove-image="onImageRemove"
-        />
+        <template #default="{ isInherited }">
+            <sw-cms-mapping-field
+                v-model:config="element.config.previewMedia"
+                value-types="entity"
+                entity="media"
+                :disabled="isInherited"
+            >
+                <sw-media-upload-v2
+                    variant="regular"
+                    :upload-tag="uploadTag"
+                    :source="previewSource"
+                    :allow-multi-select="false"
+                    :default-folder="cmsPageState.pageEntityName"
+                    :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
+                    :disabled="isInherited"
+                    @media-upload-sidebar-open="onOpenMediaModal"
+                    @media-upload-remove-image="onImageRemove"
+                />
 
-        {% block sw_cms_element_youtube_video_config_preview_media_display %}
-        <template #preview="{ demoValue }">
-            <div class="sw-cms-el-config-image__mapping-preview">
-                <img
-                    v-if="demoValue.url"
-                    :src="demoValue.url"
-                    alt=""
-                >
-                <mt-banner
-                    v-else
-                    class="sw-cms-el-config-image__preview-info"
-                    variant="info"
-                >
-                    {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
-                </mt-banner>
-            </div>
+                {% block sw_cms_element_youtube_video_config_preview_media_display %}
+                <template #preview="{ demoValue }">
+                    <div class="sw-cms-el-config-image__mapping-preview">
+                        <img
+                            v-if="demoValue.url"
+                            :src="demoValue.url"
+                            alt=""
+                        >
+                        <mt-banner
+                            v-else
+                            class="sw-cms-el-config-image__preview-info"
+                            variant="info"
+                        >
+                            {{ $t('sw-cms.detail.label.mappingEmptyPreview') }}
+                        </mt-banner>
+                    </div>
+                </template>
+                {% endblock %}
+            </sw-cms-mapping-field>
+
+            {% block sw_cms_element_youtube_video_config_preview_media_upload_listener %}
+            <sw-upload-listener
+                :upload-tag="uploadTag"
+                auto-upload
+                @media-upload-finish="onImageUpload"
+            />
+            {% endblock %}
+
+            {% block sw_cms_element_youtube_video_config_preview_media_modal %}
+            <sw-media-modal-v2
+                v-if="mediaModalIsOpen"
+                variant="full"
+                :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
+                :entity-context="cmsPageState.entityName"
+                :allow-multi-select="false"
+                :initial-folder-id="cmsPageState.defaultMediaFolderId"
+                @media-upload-remove-image="onImageRemove"
+                @media-modal-selection-change="onSelectionChanges"
+                @modal-close="onCloseModal"
+            />
+            {% endblock %}
         </template>
-        {% endblock %}
-    </sw-cms-mapping-field>
-
-    {% block sw_cms_element_youtube_video_config_preview_media_upload_listener %}
-    <sw-upload-listener
-        :upload-tag="uploadTag"
-        auto-upload
-        @media-upload-finish="onImageUpload"
-    />
-    {% endblock %}
-
-    {% block sw_cms_element_youtube_video_config_preview_media_modal %}
-    <sw-media-modal-v2
-        v-if="mediaModalIsOpen"
-        variant="full"
-        :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
-        :entity-context="cmsPageState.entityName"
-        :allow-multi-select="false"
-        :initial-folder-id="cmsPageState.defaultMediaFolderId"
-        @media-upload-remove-image="onImageRemove"
-        @media-modal-selection-change="onSelectionChanges"
-        @modal-close="onCloseModal"
-    />
-    {% endblock %}
+    </sw-cms-inherit-wrapper>
     {% endblock %}
 </div>
 {% endblock %}

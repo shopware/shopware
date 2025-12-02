@@ -1,0 +1,14 @@
+{
+    "base": "/bundles/test/administration/",
+    "entryPoints": {
+        "test-bundle": {
+            "css": [],
+            "dynamic": [],
+            "js": [
+                "/bundles/test/administration/assets/app.js"
+            ],
+            "legacy": false,
+            "preload": []
+        }
+    }
+}

@@ -11,6 +11,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -38,6 +39,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
     private SalesChannelContext $salesChannelContext;
@@ -48,6 +52,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     private CategoryBreadcrumbBuilder $breadcrumbBuilder;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private KernelBrowser $browser;
@@ -278,7 +285,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ],
         ]);
 
-        $this->getBrowser()->request('PATCH', '/api/product/' . $productId, [
+        $this->getBrowser()->jsonRequest('PATCH', '/api/product/' . $productId, [
             'categories' => [
                 ['id' => $this->ids->get('navigation-a-2')],
                 ['id' => $this->ids->get('navigation-test-a-2')],
@@ -286,11 +293,11 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         ]);
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
-        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
+        static::assertSame(204, $response->getStatusCode(), $response->getContent());
 
         $this->updateProductStream($productId, $this->ids->create('stream_id_1'));
 
-        $this->browser->request('POST', '/store-api/product/' . $productId);
+        $this->browser->jsonRequest('POST', '/store-api/product/' . $productId);
         $response = $this->browser->getResponse();
         static::assertIsString($response->getContent());
         static::assertSame(200, $response->getStatusCode());
@@ -301,7 +308,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertArrayHasKey('product', $json);
         static::assertArrayHasKey('seoCategory', $json['product']);
         static::assertNotCount(0, $json['product']['seoCategory']);
-        static::assertEquals($this->ids->get('navigation-a-2'), $json['product']['seoCategory']['id']);
+        static::assertSame($this->ids->get('navigation-a-2'), $json['product']['seoCategory']['id']);
     }
 
     #[Group('slow')]

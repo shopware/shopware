@@ -1,14 +1,14 @@
 import template from './sw-empty-state.html.twig';
 import './sw-empty-state.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
+ *
+ * @deprecated tag:v6.8.0 - Will be removed
  */
-Component.register('sw-empty-state', {
+export default {
     template,
 
     props: {
@@ -81,4 +81,4 @@ Component.register('sw-empty-state', {
             };
         },
     },
-});
+};

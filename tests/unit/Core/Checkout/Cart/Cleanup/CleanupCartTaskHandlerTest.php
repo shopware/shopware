@@ -8,17 +8,19 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(CleanupCartTaskHandler::class)]
+#[Package('checkout')]
 class CleanupCartTaskHandlerTest extends TestCase
 {
     public function testHandle(): void
     {
         $cartPersister = $this->createMock(AbstractCartPersister::class);
-        $cartPersister->expects(static::once())
+        $cartPersister->expects($this->once())
             ->method('prune')
             ->with(30);
 

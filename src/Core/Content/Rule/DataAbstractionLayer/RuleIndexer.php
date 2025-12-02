@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,6 +26,8 @@ class RuleIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<RuleCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,

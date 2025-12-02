@@ -62,11 +62,6 @@ async function createWrapper() {
 }
 
 describe('components/sw-entity-multi-id-select', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should able to update value', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.updateIds(getCollection());

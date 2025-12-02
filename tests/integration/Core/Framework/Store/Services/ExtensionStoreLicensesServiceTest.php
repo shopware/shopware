@@ -45,12 +45,12 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertNotNull($lastRequest);
-        static::assertEquals(
+        static::assertSame(
             '/swplatform/pluginlicenses/1/cancel',
             $lastRequest->getUri()->getPath()
         );
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'shopwareVersion' => '___VERSION___',
                 'language' => 'en-GB',
@@ -66,6 +66,13 @@ class ExtensionStoreLicensesServiceTest extends TestCase
         $review = new ReviewStruct();
         $review->setExtensionId(5);
         $this->extensionLicensesService->rateLicensedExtension($review, $this->getContextWithStoreToken());
+
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
+        static::assertNotNull($lastRequest);
+        static::assertSame(
+            '/swplatform/extensionstore/extensions/5/ratings',
+            $lastRequest->getUri()->getPath()
+        );
     }
 
     private function getContextWithStoreToken(): Context

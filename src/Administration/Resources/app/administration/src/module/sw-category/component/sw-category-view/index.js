@@ -1,5 +1,8 @@
 import template from './sw-category-view.html.twig';
 import './sw-category-view.scss';
+import errorConfig from '../../error-config.json';
+
+const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 /**
  * @sw-package discovery
@@ -51,5 +54,7 @@ export default {
         isCustomEntity() {
             return this.type === 'custom_entity';
         },
+
+        ...mapPageErrors(errorConfig),
     },
 };

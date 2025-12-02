@@ -82,7 +82,7 @@ class PromotionCodeServiceTest extends TestCase
         /** @var StaticEntityRepository<PromotionIndividualCodeCollection> */
         $individualCodeRepository = new StaticEntityRepository([new PromotionIndividualCodeCollection([])]);
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('executeStatement')->with(
+        $connection->expects($this->once())->method('executeStatement')->with(
             'DELETE FROM promotion_individual_code WHERE promotion_id = :id',
             ['id' => Uuid::fromHexToBytes($promotionId)],
         );
@@ -122,7 +122,7 @@ class PromotionCodeServiceTest extends TestCase
         /** @var StaticEntityRepository<PromotionIndividualCodeCollection> */
         $individualCodeRepository = new StaticEntityRepository([new PromotionIndividualCodeCollection([])]);
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::never())->method('executeStatement');
+        $connection->expects($this->never())->method('executeStatement');
 
         $codeService = new PromotionCodeService(
             $promotionRepository,

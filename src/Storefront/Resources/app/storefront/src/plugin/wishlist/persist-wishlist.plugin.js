@@ -1,5 +1,6 @@
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
 import Storage from 'src/helper/storage/storage.helper';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 
 /**
@@ -8,48 +9,65 @@ import HttpClient from 'src/service/http-client.service';
 export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlugin {
     init() {
         super.init();
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this.httpClient = new HttpClient();
         this.httpClient.setErrorHandlingInternal(true);
     }
 
     load() {
         this._merge(() => {
-            this.httpClient.get(this.options.listPath, response => {
-                this.products = JSON.parse(response);
+            fetch(this.options.listPath, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(response => {
+                    this.products = response;
 
-                super.load();
-            });
+                    super.load();
+                });
         });
     }
 
     add(productId, router) {
-        this.httpClient.post(router.path, null, response => {
-            const res = JSON.parse(response);
+        fetch(router.path, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.json())
+            .then(response => {
+                if (response.success) {
+                    super.add(productId);
 
-            if (res.success) {
-                super.add(productId);
+                    return;
+                }
 
-                return;
-            }
-
-            console.warn('unable to add product to wishlist');
-        });
+                console.warn('unable to add product to wishlist');
+            });
     }
 
     remove(productId, router) {
-        this.httpClient.post(router.path, null, response => {
-            const res = JSON.parse(response);
-            // even if the call returns false, the item should be removed from storage because it may be already deleted
-            if (Object.prototype.hasOwnProperty.call(res, 'success')) {
-                if (res.success === false) {
-                    console.warn('unable to remove product to wishlist');
+        fetch(router.path, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.json())
+            .then(response => {
+                if (Object.prototype.hasOwnProperty.call(response, 'success')) {
+                    if (response.success === false) {
+                        console.warn('unable to remove product to wishlist');
+                    }
+                    super.remove(productId);
                 }
-                super.remove(productId);
-
-                return;
-            }
-
-        });
+            });
     }
 
     /**
@@ -64,23 +82,30 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
         const products = JSON.parse(productStr);
 
         if (products) {
-            this.httpClient.post(this.options.mergePath, JSON.stringify({
-                'productIds' : Object.keys(products),
-            }), response => {
-                if (!response) {
-                    throw new Error('Unable to merge product wishlist from anonymous user');
-                }
+            fetch(this.options.mergePath, {
+                method: 'POST',
+                body: JSON.stringify({ 'productIds': Object.keys(products) }),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.text())
+                .then(response => {
+                    if (!response) {
+                        throw new Error('Unable to merge product wishlist from anonymous user');
+                    }
 
-                this.$emitter.publish('Wishlist/onProductMerged', {
-                    products: products,
+                    this.$emitter.publish('Wishlist/onProductMerged', {
+                        products: products,
+                    });
+
+                    this.storage.removeItem(key);
+                    this._block = document.querySelector('.flashbags');
+                    this._block.innerHTML = response;
+                    this._pagelet();
+                    callback();
                 });
-
-                this.storage.removeItem(key);
-                this._block = document.querySelector('.flashbags');
-                this._block.innerHTML = response;
-                this._pagelet();
-                callback();
-            });
         }
         callback();
     }
@@ -89,13 +114,21 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
      * @private
      */
     _pagelet() {
-        this.httpClient.post(this.options.pageletPath, '', response => {
-            if (!response) {
-                return;
-            }
+        fetch(this.options.pageletPath, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.text())
+            .then(response => {
+                if (!response) {
+                    return;
+                }
 
-            this._block = document.querySelector('.cms-listing-row');
-            this._block.innerHTML = response;
-        });
+                this._block = document.querySelector('.cms-listing-row');
+                this._block.innerHTML = response;
+            });
     }
 }

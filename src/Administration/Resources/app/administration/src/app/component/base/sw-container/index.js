@@ -1,7 +1,6 @@
 import template from './sw-container.html.twig';
 import './sw-container.scss';
 
-const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
@@ -17,7 +16,7 @@ const { warn } = Shopware.Utils.debug;
  *     <div>Right content</div>
  * </sw-container>
  */
-Component.register('sw-container', {
+export default {
     template,
 
     props: {
@@ -169,4 +168,4 @@ Component.register('sw-container', {
             };
         },
     },
-});
+};

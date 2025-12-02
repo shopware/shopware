@@ -77,12 +77,12 @@ class PromotionActionControllerTest extends TestCase
     {
         $picker = $this->createMock(FilterPickerInterface::class);
         $picker
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getKey')
             ->willReturn('test-picker');
 
         $this->filterServiceRegistry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPickers')
             ->willReturnCallback(fn () => yield $picker);
 

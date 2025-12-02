@@ -15,20 +15,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class CartTransformer
 {
     /**
+     * @deprecated tag:v6.8.0 - reason:parameter-name-change - parameter `$setOrderDate` will be renamed to `$setPersistentData`
+     *
      * @return array<string, mixed>
      */
     public static function transform(Cart $cart, SalesChannelContext $context, string $stateId, bool $setOrderDate = true): array
     {
         $currency = $context->getCurrency();
-        $userId = null;
-        $source = $context->getContext()->getSource();
-
-        if ($source instanceof AdminSalesChannelApiSource) {
-            $originalContextSource = $source->getOriginalContext()->getSource();
-            if ($originalContextSource instanceof AdminApiSource) {
-                $userId = $originalContextSource->getUserId();
-            }
-        }
 
         $data = [
             'price' => $cart->getPrice(),
@@ -39,16 +32,23 @@ class CartTransformer
             'salesChannelId' => $context->getSalesChannelId(),
             'lineItems' => [],
             'deliveries' => [],
-            'deepLinkCode' => Random::getBase64UrlString(32),
             'customerComment' => $cart->getCustomerComment(),
             'affiliateCode' => $cart->getAffiliateCode(),
             'campaignCode' => $cart->getCampaignCode(),
             'source' => $cart->getSource(),
-            'createdById' => $userId,
         ];
 
         if ($setOrderDate) {
             $data['orderDateTime'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $data['deepLinkCode'] = Random::getBase64UrlString(32);
+        }
+
+        $source = $context->getContext()->getSource();
+        if ($source instanceof AdminSalesChannelApiSource) {
+            $originalContextSource = $source->getOriginalContext()->getSource();
+            if ($originalContextSource instanceof AdminApiSource) {
+                $data['createdById'] = $originalContextSource->getUserId();
+            }
         }
 
         $data['itemRounding'] = json_decode(Json::encode($context->getItemRounding()), true, 512, \JSON_THROW_ON_ERROR);

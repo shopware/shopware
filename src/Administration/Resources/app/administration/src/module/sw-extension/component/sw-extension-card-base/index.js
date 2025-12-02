@@ -45,6 +45,9 @@ export default {
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -198,7 +201,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
         },
 
         showContextMenu() {

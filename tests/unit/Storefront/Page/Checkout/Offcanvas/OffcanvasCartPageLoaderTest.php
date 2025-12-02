@@ -118,7 +118,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(OffcanvasCartPageLoadedEvent::class));
 
@@ -135,7 +135,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
 
         $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
         $shippingMethodRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request, $context, static::equalTo(new Criteria()));
 

@@ -75,7 +75,7 @@
             <mt-switch
                 v-show="isRequiredBySystem(item)"
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
-                :checked="true"
+                :model-value="true"
                 :disabled="true"
             />
 
@@ -165,11 +165,11 @@
     {% endblock %}
 
     {% block sw_import_export_edit_profile_modal_mapping_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-else
         class="sw-import-export-edit-profile-modal-mapping__empty-state"
-        :title="$tc('sw-import-export.profile.mappingEmptyState')"
-        :absolute="false"
+        :icon="$route.meta.$module.icon"
+        :headline="$tc('sw-import-export.profile.mappingEmptyState')"
     />
     {% endblock %}
 </div>

@@ -26,11 +26,14 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\PasswordHasher\Hasher\CheckPasswordLengthTrait;
 use Symfony\Component\Validator\ConstraintViolation;
 
 #[Package('checkout')]
 class AccountService
 {
+    use CheckPasswordLengthTrait;
+
     /**
      * @internal
      *
@@ -91,7 +94,7 @@ class AccountService
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
-    public function loginByCredentials(string $email, string $password, SalesChannelContext $context): string
+    public function loginByCredentials(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): string
     {
         if ($email === '' || $password === '') {
             throw CustomerException::badCredentials();
@@ -110,8 +113,12 @@ class AccountService
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
-    public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
+    public function getCustomerByLogin(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): CustomerEntity
     {
+        if ($this->isPasswordTooLong($password)) {
+            throw CustomerException::badCredentials();
+        }
+
         $customer = $this->getCustomerByEmail($email, $context);
 
         if ($customer->hasLegacyPassword()) {
@@ -132,6 +139,22 @@ class AccountService
         if (!$this->isCustomerConfirmed($customer)) {
             // Make sure to only throw this exception after it has been verified it was a valid login
             throw CustomerException::customerOptinNotCompleted($customer->getId());
+        }
+
+        return $customer;
+    }
+
+    /**
+     * @throws CustomerNotFoundException
+     */
+    public function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
+    {
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('email', $email));
+
+        $customer = $this->fetchCustomer($criteria, $context);
+        if ($customer === null) {
+            throw CustomerException::customerNotFound($email);
         }
 
         return $customer;
@@ -161,22 +184,6 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
-     */
-    private function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
-    {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('email', $email));
-
-        $customer = $this->fetchCustomer($criteria, $context);
-        if ($customer === null) {
-            throw CustomerException::customerNotFound($email);
-        }
-
-        return $customer;
-    }
-
-    /**
      * This method filters for the standard customer related constraints like active or the sales channel
      * assignment.
      * Add only filters to the $criteria for values which have an index in the database, e.g. id, or email. The rest
@@ -188,15 +195,15 @@ class AccountService
         $criteria->setTitle('account-service::fetchCustomer');
 
         $result = $this->customerRepository->search($criteria, $context->getContext())->getEntities();
-        $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): ?bool {
+        $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): bool {
             // Skip not active users
             if (!$customer->getActive()) {
-                return null;
+                return false;
             }
 
             // Skip guest if not required
             if (!$includeGuest && $customer->getGuest()) {
-                return null;
+                return false;
             }
 
             // If not bound, we still need to consider it
@@ -206,7 +213,7 @@ class AccountService
 
             // It is bound, but not to the current one. Skip it
             if ($customer->getBoundSalesChannelId() !== $context->getSalesChannelId()) {
-                return null;
+                return false;
             }
 
             return true;
@@ -222,7 +229,7 @@ class AccountService
         return $result->first();
     }
 
-    private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void
+    private function updatePasswordHash(#[\SensitiveParameter] string $password, CustomerEntity $customer, Context $context): void
     {
         try {
             $this->customerRepository->update([

@@ -61,41 +61,39 @@ class ProductConfiguratorOrderTest extends TestCase
     public function testDefaultOrder(): void
     {
         $groupNames = $this->getOrder();
-        static::assertEquals(['a', 'b', 'c', 'd', 'e', 'f'], $groupNames);
+        static::assertSame(['a', 'b', 'c', 'd', 'e', 'f'], $groupNames);
     }
 
     public function testGroupPositionOrder(): void
     {
         $groupNames = $this->getOrder(['f', 'e', 'd', 'c', 'b', 'a']);
-        static::assertEquals(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
+        static::assertSame(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
     }
 
     public function testConfiguratorGroupConfigOrder(): void
     {
         $groupNames = $this->getOrder(null, ['f', 'e', 'd', 'c', 'b', 'a']);
-        static::assertEquals(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
+        static::assertSame(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
     }
 
     public function testConfiguratorGroupConfigOverrideOrder(): void
     {
         $groupNames = $this->getOrder(['f', 'b', 'c', 'd', 'a', 'e'], ['f', 'e', 'd', 'c', 'b', 'a']);
-        static::assertEquals(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
+        static::assertSame(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
     }
 
     /**
-     * @param array<string, string> $a
+     * @param array<string, string> $groupIds
      */
-    private static function ashuffle(array &$a): bool
+    private function shuffle(array &$groupIds): void
     {
-        $keys = array_keys($a);
+        $keys = array_keys($groupIds);
         shuffle($keys);
         $shuffled = [];
         foreach ($keys as $key) {
-            $shuffled[$key] = $a[$key];
+            $shuffled[$key] = $groupIds[$key];
         }
-        $a = $shuffled;
-
-        return true;
+        $groupIds = $shuffled;
     }
 
     /**
@@ -121,7 +119,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $optionIds = [];
 
-        self::ashuffle($groupIds);
+        $this->shuffle($groupIds);
 
         $configuratorSettings = [];
         foreach ($groupIds as $groupName => $groupId) {

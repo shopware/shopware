@@ -4,11 +4,22 @@
     "paths": {
         "/search": {
             "post": {
-                "tags": ["Product"],
+                "tags": [
+                    "Product"
+                ],
                 "summary": "Search for products",
                 "description": "Performs a search for products which can be used to display a product listing.",
                 "operationId": "searchPage",
                 "parameters": [
+                    {
+                        "name": "p",
+                        "in": "query",
+                        "description": "The page number to fetch.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
                     {
                         "name": "sw-language-id",
                         "in": "header",
@@ -27,6 +38,20 @@
                         "schema": {
                             "type": "boolean"
                         }
+                    },
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -35,7 +60,6 @@
                             "schema": {
                                 "allOf": [
                                     {
-                                        "required": ["search"],
                                         "properties": {
                                             "search": {
                                                 "description": "Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",

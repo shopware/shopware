@@ -168,7 +168,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $expectedSliderIds = ['media0', 'media1', 'media2', 'media3', 'media4'];
         $imageSliderIds = array_map(fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
 
-        static::assertEquals($expectedSliderIds, $imageSliderIds);
+        static::assertSame($expectedSliderIds, $imageSliderIds);
     }
 
     public function testEnrichWithStaticConfig(): void
@@ -238,7 +238,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $expectedSliderIds = ['media2', 'media0', 'media1', 'media3', 'media4'];
         $imageSliderIds = array_map(fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
 
-        static::assertEquals($expectedSliderIds, $imageSliderIds);
+        static::assertSame($expectedSliderIds, $imageSliderIds);
     }
 
     public function testEnrichWithDefaultConfig(): void
@@ -275,16 +275,16 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $firstSliderItem = $imageSliderItems[0];
         $firstSliderItemMedia = $firstSliderItem->getMedia();
         static::assertInstanceOf(MediaEntity::class, $firstSliderItemMedia);
-        static::assertEquals('animated', $firstSliderItemMedia->getFileName());
-        static::assertEquals('image/gif', $firstSliderItemMedia->getMimeType());
-        static::assertEquals('gif', $firstSliderItemMedia->getFileExtension());
+        static::assertSame('animated', $firstSliderItemMedia->getFileName());
+        static::assertSame('image/gif', $firstSliderItemMedia->getMimeType());
+        static::assertSame('gif', $firstSliderItemMedia->getFileExtension());
 
         $secondSliderItem = $imageSliderItems[1];
         $secondSliderItemMedia = $secondSliderItem->getMedia();
         static::assertInstanceOf(MediaEntity::class, $secondSliderItemMedia);
-        static::assertEquals('shopware', $secondSliderItemMedia->getFileName());
-        static::assertEquals('image/jpeg', $secondSliderItemMedia->getMimeType());
-        static::assertEquals('jpg', $secondSliderItemMedia->getFileExtension());
+        static::assertSame('shopware', $secondSliderItemMedia->getFileName());
+        static::assertSame('image/jpeg', $secondSliderItemMedia->getMimeType());
+        static::assertSame('jpg', $secondSliderItemMedia->getFileExtension());
     }
 
     public function testEnrichWithCoverIdButWithoutCoverMedia(): void
@@ -313,7 +313,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $expectedSliderIds = ['media0', 'media1', 'media2', 'media3', 'media4'];
         $imageSliderIds = array_map(fn ($value) => $value->getMedia()?->getId() ?? '', $sliderItems);
 
-        static::assertEquals($expectedSliderIds, $imageSliderIds);
+        static::assertSame($expectedSliderIds, $imageSliderIds);
     }
 
     protected function getProductMediaCollection(): ProductMediaCollection

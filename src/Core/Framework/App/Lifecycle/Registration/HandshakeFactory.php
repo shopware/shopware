@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
@@ -42,10 +42,10 @@ class HandshakeFactory
 
         try {
             $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException) {
+        } catch (ShopIdChangeSuggestedException $e) {
             throw AppException::registrationFailed(
                 $appName,
-                'The app url changed. Please resolve how the apps should handle this change.'
+                $e->getMessage(),
             );
         }
 

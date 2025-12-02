@@ -1,36 +1,34 @@
 @import "~scss/variables";
 
 .sw-product-properties {
-    &__card.sw-card .sw-card__content {
+    &__card.mt-card .mt-card__content {
         padding: 0;
     }
 
-    &__card.is--inherited .sw-card__content,
-    &__card.is--disabled .sw-card__content {
-        &::after {
-            content: "";
-            position: absolute;
-            z-index: 10;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            background: $color-module-purple-50;
-            mix-blend-mode: multiply;
-        }
+    &.is--inherited:not(.sw-form-field-renderer),
+    &.is--disabled {
+        .sw-product-properties__card .mt-card__content {
+            &::after {
+                content: "";
+                position: absolute;
+                z-index: 10;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                background: var(--color-background-primary-disabled);
+                mix-blend-mode: multiply;
+            }
 
-        .sw-data-grid {
-            border-bottom-left-radius: $border-radius-lg;
-            border-bottom-right-radius: $border-radius-lg;
+            .sw-data-grid {
+                border-bottom-left-radius: $border-radius-lg;
+                border-bottom-right-radius: $border-radius-lg;
+            }
         }
     }
 
     &__button-add-property {
         width: 100%;
-    }
-
-    .sw-card__title.is--inherited {
-        color: $color-module-purple-900;
     }
 
     .sw-empty-state {

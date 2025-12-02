@@ -46,7 +46,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-bulk-edit-order-documents': await wrapTestComponent('sw-bulk-edit-order-documents'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -69,6 +68,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-search-bar': true,
                     'sw-datepicker': true,
                     'sw-text-editor': true,
+                    'sw-context-menu-item': true,
                     'sw-language-switch': true,
                     'sw-notification-center': true,
                     'sw-help-center': true,
@@ -88,6 +88,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-error-summary': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'sw-context-button': true,
                     'sw-inheritance-switch': true,
@@ -332,8 +333,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        Shopware.Store.get('shopwareApps').selectedIds = [selectedOrderId];
         Shopware.Store.get('swBulkEdit').$reset();
+        Shopware.Store.get('swBulkEdit').selectedIds = [selectedOrderId];
     });
 
     it('should show all form fields', async () => {
@@ -521,7 +522,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     it('should show empty state', async () => {
         wrapper = await createWrapper();
 
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        Shopware.Store.get('swBulkEdit').selectedIds = [];
         await wrapper.setData({
             isLoading: false,
         });
@@ -529,8 +530,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         expect(wrapper.vm.selectedIds).toHaveLength(0);
 
-        const emptyState = wrapper.find('.sw-empty-state');
-        expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
     });
 
     it('should open confirm modal', async () => {

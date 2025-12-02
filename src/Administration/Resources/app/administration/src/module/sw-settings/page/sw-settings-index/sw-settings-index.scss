@@ -3,6 +3,14 @@
 .sw-settings-index {
     &__card-view {
         background-color: var(--color-elevation-surface-default);
+
+        /**
+        * @deprecated tag:v6.8.0 - Will be removed
+        */
+        .sw-settings__content-rename-banner {
+            margin: -16px auto 32px;
+            align-items: center;
+        }
     }
 
     .sw-settings__card--hero {

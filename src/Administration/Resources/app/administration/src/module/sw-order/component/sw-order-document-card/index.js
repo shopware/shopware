@@ -1,11 +1,12 @@
+/**
+ * @sw-package after-sales
+ */
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
-
-/**
- * @sw-package checkout
- */
+import EntityCollection from '../../../../core/data/entity-collection.data';
 
 const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -53,7 +54,7 @@ export default {
         return {
             documentsLoading: false,
             cardLoading: false,
-            documents: [],
+            documents: new EntityCollection(null, null, null, new Criteria(1, 25), [], 0),
             documentTypes: null,
             showModal: false,
             currentDocumentType: null,
@@ -174,6 +175,7 @@ export default {
                     dataIndex: 'fileTypes',
                     label: 'sw-order.documentCard.labelAvailableFormats',
                     allowResize: false,
+                    sortable: false,
                 });
             }
 
@@ -220,6 +222,9 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -292,7 +297,11 @@ export default {
 
         invoiceExists() {
             return this.documents.some((document) => {
-                return document.documentType.technicalName === 'invoice';
+                return (
+                    document.documentType.technicalName === 'invoice' ||
+                    document.documentType.technicalName === 'zugferd_invoice' ||
+                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                );
             });
         },
 
@@ -341,7 +350,7 @@ export default {
                 .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
                 .then((response) => {
                     if (response.data) {
-                        const filename = response.headers['content-disposition'].split('filename=')[1];
+                        const filename = fileReaderUtils.getFilenameFromResponse(response);
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(response.data);
                         link.download = filename;

@@ -5,6 +5,10 @@
     flex-direction: column;
     height: 100%;
 
+    &__groupElement {
+        margin-bottom: 12px;
+    }
+
     .sw-product-variants-delivery-listing-mode {
         background-color: $color-gray-100;
         border-bottom: 1px solid $color-gray-300;

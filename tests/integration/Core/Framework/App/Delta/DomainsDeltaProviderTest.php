@@ -47,7 +47,7 @@ class DomainsDeltaProviderTest extends TestCase
         $delta = (new DomainsDeltaProvider())->getReport($manifest, $app);
 
         static::assertCount(8, $delta);
-        static::assertEquals([
+        static::assertSame([
             'my.app.com',
             'test.com',
             'base-url.com',

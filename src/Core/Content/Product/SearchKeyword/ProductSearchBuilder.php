@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -11,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -49,7 +49,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
         }
 
         if (empty($term)) {
-            throw RoutingException::missingRequestParameter('search');
+            throw ProductException::missingRequestParameter('search');
         }
 
         $pattern = $this->interpreter->interpret($term, $context->getContext());

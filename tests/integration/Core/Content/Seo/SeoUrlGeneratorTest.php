@@ -216,13 +216,13 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertArrayHasKey($ids->get('red'), $urls);
 
         // name = parent | number = parent
-        static::assertEquals('parent/parent', $urls[$ids->get('parent')]);
+        static::assertSame('parent/parent', $urls[$ids->get('parent')]);
 
         // name = red | number = red
-        static::assertEquals('red/red', $urls[$ids->get('red')]);
+        static::assertSame('red/red', $urls[$ids->get('red')]);
 
         // name = parent | number = green
-        static::assertEquals('parent/green', $urls[$ids->get('green')]);
+        static::assertSame('parent/green', $urls[$ids->get('green')]);
     }
 
     public function testTemplateWithMultipleVariantOptions(): void
@@ -249,7 +249,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $productIds = $ids->getList(['parent', 'redProduct', 'greenProduct']);
+        $productIds = array_values($ids->getList(['parent', 'redProduct', 'greenProduct']));
         $template = '{{ product.translated.name|lower }}{% if product.options %}{% for var in product.options|sort((a,b)=> a.position <=> b.position) %}-{{ var.name }}{% endfor %}{% endif %}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
@@ -258,7 +258,7 @@ class SeoUrlGeneratorTest extends TestCase
 
         $expected = ['parent', 'tshirt-red', 'tshirt-green-xl'];
         foreach ($result as $index => $seoUrl) {
-            static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
+            static::assertSame($expected[$index], $seoUrl->getSeoPathInfo());
         }
     }
 
@@ -275,7 +275,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $productIds = $ids->getList(['product']);
+        $productIds = array_values($ids->getList(['product']));
         $template = '{% if product.categories %}{% for var in product.categories %}{{ var.translated.name }}-{% endfor %}{% endif %}{{ product.manufacturer.translated.name }}-{{ product.translated.name|lower }}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
@@ -284,7 +284,7 @@ class SeoUrlGeneratorTest extends TestCase
 
         $expected = ['test-category-shopware-product'];
         foreach ($result as $index => $seoUrl) {
-            static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
+            static::assertSame($expected[$index], $seoUrl->getSeoPathInfo());
         }
     }
 
@@ -299,7 +299,7 @@ class SeoUrlGeneratorTest extends TestCase
         static::getContainer()->get('product.repository')
             ->create([$product->build()], Context::createDefaultContext());
 
-        $productIds = $ids->getList(['product']);
+        $productIds = array_values($ids->getList(['product']));
         $template = '{{ product.translated.name|lastBigLetter }}';
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
@@ -308,7 +308,7 @@ class SeoUrlGeneratorTest extends TestCase
 
         $expected = ['my-producT'];
         foreach ($result as $index => $seoUrl) {
-            static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
+            static::assertSame($expected[$index], $seoUrl->getSeoPathInfo());
         }
     }
 
@@ -367,6 +367,8 @@ class SeoUrlGeneratorTest extends TestCase
             /**
              * @param int|string $level
              * @param mixed[] $context
+             *
+             * @throws void
              */
             public function log(mixed $level, string|\Stringable $message, array $context = []): void
             {
@@ -452,7 +454,7 @@ class SeoUrlGeneratorTest extends TestCase
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<string>
      */
     private function getCategoryIds(int $count): array
     {

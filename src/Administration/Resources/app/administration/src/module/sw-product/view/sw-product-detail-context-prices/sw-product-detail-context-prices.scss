@@ -30,15 +30,6 @@
         padding: 25px;
         background-color: $color-gray-100;
         border-bottom: 1px solid $color-gray-300;
-
-        .sw-single-select__inner {
-            min-height: auto;
-            padding-top: 0;
-        }
-
-        .sw-single-select .sw-single-select__indicators {
-            top: 5px;
-        }
     }
 
     .sw-product-detail-context-prices__toolbar-selection {
@@ -106,9 +97,8 @@
         }
 
         p {
-            font-size: $font-size-s;
             text-align: center;
-            margin: 20px 0;
+            margin-block: 10px;
         }
 
         &-select-rule {

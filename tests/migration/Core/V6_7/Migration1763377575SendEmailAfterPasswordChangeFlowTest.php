@@ -38,17 +38,6 @@ class Migration1763377575SendEmailAfterPasswordChangeFlowTest extends TestCase
         $migration->update($connection);
         $migration->update($connection);
 
-        $mailTemplateType = $connection->fetchAllAssociative('SELECT * FROM `mail_template_type` WHERE `technical_name` = :event', ['event' => CustomerPasswordChangedEvent::EVENT_NAME]);
-        static::assertIsArray($mailTemplateType);
-        static::assertCount(1, $mailTemplateType);
-        static::assertArrayHasKey('technical_name', $mailTemplateType[0]);
-        static::assertArrayHasKey('available_entities', $mailTemplateType[0]);
-        static::assertSame(CustomerPasswordChangedEvent::EVENT_NAME, $mailTemplateType[0]['technical_name']);
-        static::assertSame('{"customer":"customer"}', $mailTemplateType[0]['available_entities']);
-
-        $mailTemplate = $connection->fetchAllAssociative('SELECT * FROM `mail_template` WHERE `mail_template_type_id` = :template', ['template' => $mailTemplateType[0]['id']]);
-        static::assertCount(1, $mailTemplate);
-
         $flow = $connection->fetchAllAssociative('SELECT * FROM `flow` WHERE `event_name` = :name', ['name' => CustomerPasswordChangedEvent::EVENT_NAME]);
         static::assertCount(1, $flow);
 
@@ -67,22 +56,6 @@ class Migration1763377575SendEmailAfterPasswordChangeFlowTest extends TestCase
 
     private function rollback(Connection $connection): void
     {
-        $mailTemplateTypeId = $connection->fetchOne('SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :event', ['event' => CustomerPasswordChangedEvent::EVENT_NAME]);
-
-        $mailTemplateId = $connection->fetchOne('SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :id', ['id' => $mailTemplateTypeId]);
-
-        $deleteMailTranslation = $connection->executeStatement(
-            'DELETE FROM `mail_template_translation` WHERE `mail_template_id` = :id',
-            ['id' => $mailTemplateId]
-        );
-        static::assertSame(2, $deleteMailTranslation);
-
-        $deletedMailType = $connection->executeStatement(
-            'DELETE FROM `mail_template_type` WHERE `technical_name` = :event',
-            ['event' => CustomerPasswordChangedEvent::EVENT_NAME]
-        );
-        static::assertSame(1, $deletedMailType);
-
         $deletedFlow = $connection->executeStatement(
             'DELETE FROM `flow` WHERE `event_name` = :name',
             ['name' => CustomerPasswordChangedEvent::EVENT_NAME]

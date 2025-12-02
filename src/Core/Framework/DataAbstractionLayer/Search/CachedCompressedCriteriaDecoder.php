@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class CachedCompressedCriteriaDecoder extends CompressedCriteriaDecoder implements ResetInterface
 {

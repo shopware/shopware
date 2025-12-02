@@ -284,6 +284,7 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompressedCriteriaListingProcessor">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder" />
+            <!-- priority needs to be higher than of all other processors to make custom filters passed in compressed criteria to work -->
             <tag name="shopware.listing.processor" priority="1000"/>
         </service>
 

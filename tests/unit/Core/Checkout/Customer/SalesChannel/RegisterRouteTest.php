@@ -513,10 +513,20 @@ class RegisterRouteTest extends TestCase
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
 
-        $register = $this->createRegisterRoute(
-            salutationRepository: $salutationRepository,
-            systemConfigService: $systemConfigService,
-            customerRepository: $customerRepository
+        $register = new RegisterRoute(
+            new EventDispatcher(),
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $this->createMock(DataValidator::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $salutationRepository,
         );
 
         $data = [
@@ -531,7 +541,8 @@ class RegisterRouteTest extends TestCase
             'salutationId' => '',
         ];
 
-        $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
 
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }

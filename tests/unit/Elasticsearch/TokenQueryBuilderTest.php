@@ -556,7 +556,11 @@ class TokenQueryBuilderTest extends TestCase
 
         static::assertNotNull($query);
 
-        $expected = self::textMatch($prefix . 'searchableField', 'test', 500, null, false);
+        $expected = self::disMax([
+            self::term($prefix . 'searchableField', 'test', 1),
+            self::match($prefix . 'searchableField.search', 'test', 0.8, 'AUTO:3,8', 'and', 10),
+            self::prefix($prefix . 'searchableField', 'test', 0.4),
+        ], 500);
 
         static::assertSame($expected, $query->toArray());
     }

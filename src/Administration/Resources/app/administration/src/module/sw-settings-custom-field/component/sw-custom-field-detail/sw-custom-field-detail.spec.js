@@ -54,6 +54,8 @@ async function createWrapper(props = defaultProps, privileges = []) {
                 mocks: {
                     $i18n: {
                         fallbackLocale: 'en-GB',
+                        t: (key) => key,
+                        tc: (key) => key,
                     },
                 },
                 provide: {
@@ -92,8 +94,45 @@ async function createWrapper(props = defaultProps, privileges = []) {
                     'router-link': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
-                    'mt-switch': await wrapTestComponent('mt-switch'),
-                    'mt-banner': await wrapTestComponent('mt-banner'),
+                    'mt-switch': true,
+                    'mt-banner': true,
+                    'mt-select': {
+                        template: `
+                            <div class="mt-select sw-custom-field-detail__modal-type">
+                                <input :disabled="disabled" @click="handleClick" />
+                                <div v-show="showPopover" class="mt-popover-deprecated">
+                                    <ul>
+                                        <li v-for="option in options" :key="option.value" @click="selectOption(option)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `,
+                        props: [
+                            'disabled',
+                            'options',
+                        ],
+                        data() {
+                            return {
+                                showPopover: false,
+                            };
+                        },
+                        methods: {
+                            async handleClick() {
+                                this.showPopover = true;
+                                await this.$nextTick();
+                            },
+                            selectOption(option) {
+                                this.$emit('update:modelValue', option.value);
+                                this.showPopover = false;
+                            },
+                        },
+                    },
+                    'mt-text-field': {
+                        template: '<div class="sw-custom-field-detail__technical-name"><input :disabled="disabled" /></div>',
+                        props: ['disabled'],
+                    },
                 },
             },
         },
@@ -204,10 +243,13 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
             searchable: true,
         };
 
-        const wrapper = await createWrapper({
-            currentCustomField: existingField,
-            set: {},
-        }, ['custom_field.editor']);
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: existingField,
+                set: {},
+            },
+            ['custom_field.editor'],
+        );
         await flushPromises();
 
         expect(wrapper.vm.currentCustomField.searchable).toBe(true);
@@ -229,12 +271,15 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
             searchable: false,
         };
 
-        const wrapper = await createWrapper({
-            currentCustomField: existingProductField,
-            set: {
-                relations: [{ entityName: 'product' }],
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: existingProductField,
+                set: {
+                    relations: [{ entityName: 'product' }],
+                },
             },
-        }, ['custom_field.editor']);
+            ['custom_field.editor'],
+        );
         await flushPromises();
 
         expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
@@ -247,16 +292,19 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
     });
 
     it('should not show banner for new custom fields', async () => {
-        const wrapper = await createWrapper({
-            currentCustomField: {
-                ...customFieldFixture,
-                _isNew: true,
-                searchable: false,
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: {
+                    ...customFieldFixture,
+                    _isNew: true,
+                    searchable: false,
+                },
+                set: {
+                    relations: [{ entityName: 'product' }],
+                },
             },
-            set: {
-                relations: [{ entityName: 'product' }],
-            },
-        }, ['custom_field.editor']);
+            ['custom_field.editor'],
+        );
         await flushPromises();
 
         wrapper.vm.currentCustomField.searchable = true;
@@ -272,12 +320,15 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
             searchable: false,
         };
 
-        const wrapper = await createWrapper({
-            currentCustomField: existingCustomerField,
-            set: {
-                relations: [{ entityName: 'customer' }],
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: existingCustomerField,
+                set: {
+                    relations: [{ entityName: 'customer' }],
+                },
             },
-        }, ['custom_field.editor']);
+            ['custom_field.editor'],
+        );
         await flushPromises();
 
         wrapper.vm.currentCustomField.searchable = true;
@@ -293,12 +344,15 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
             searchable: false,
         };
 
-        const wrapper = await createWrapper({
-            currentCustomField: existingProductField,
-            set: {
-                relations: [{ entityName: 'product' }],
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: existingProductField,
+                set: {
+                    relations: [{ entityName: 'product' }],
+                },
             },
-        }, ['custom_field.editor']);
+            ['custom_field.editor'],
+        );
         await flushPromises();
 
         // Enable searchable
@@ -319,12 +373,15 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
             searchable: true,
         };
 
-        const wrapper = await createWrapper({
-            currentCustomField: existingProductField,
-            set: {
-                relations: [{ entityName: 'product' }],
+        const wrapper = await createWrapper(
+            {
+                currentCustomField: existingProductField,
+                set: {
+                    relations: [{ entityName: 'product' }],
+                },
             },
-        }, ['custom_field.editor']);
+            ['custom_field.editor'],
+        );
         await flushPromises();
 
         wrapper.vm.currentCustomField.searchable = true;

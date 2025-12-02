@@ -44,7 +44,18 @@ product_search_config_field.ranking
 
 FROM product_search_config
 INNER JOIN product_search_config_field ON(product_search_config_field.product_search_config_id = product_search_config.id)
-WHERE product_search_config.language_id = :languageId AND product_search_config_field.searchable = 1 AND product_search_config_field.field NOT IN(:excludedFields)',
+LEFT JOIN custom_field ON(product_search_config_field.custom_field_id = custom_field.id AND custom_field.active = 1)
+LEFT JOIN custom_field_set_relation ON(
+    custom_field.set_id = custom_field_set_relation.set_id
+    AND custom_field_set_relation.entity_name = \'product\'
+)
+WHERE product_search_config.language_id = :languageId
+    AND product_search_config_field.searchable = 1
+    AND product_search_config_field.field NOT IN(:excludedFields)
+    AND (
+        product_search_config_field.custom_field_id IS NULL
+        OR (custom_field.searchable = 1 AND custom_field_set_relation.entity_name = \'product\')
+    )',
                 [
                     'languageId' => Uuid::fromHexToBytes($languageId),
                     'excludedFields' => self::NOT_SUPPORTED_FIELDS,

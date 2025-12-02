@@ -13,40 +13,39 @@ import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 
-import {
-    MtBanner,
-    MtLoader,
-    MtProgressBar,
-    MtButton,
-    MtCheckbox,
-    MtColorpicker,
-    MtEmailField,
-    MtEmptyState,
-    MtNumberField,
-    MtPasswordField,
-    MtSelect,
-    MtSlider,
-    MtSwitch,
-    MtTextField,
-    MtTextarea,
-    MtIcon,
-    MtDataTable,
-    MtPagination,
-    MtSkeletonBar,
-    MtToast,
-    MtFloatingUi,
-    MtPopover,
-    MtTextEditorToolbarButton,
-    MtModal,
-    MtModalRoot,
-    MtModalClose,
-    MtModalTrigger,
-    MtModalAction,
-    MtUrlField,
-    MtSearch,
-    MtLink,
-    MtUnitField,
-} from '@shopware-ag/meteor-component-library';
+import MtBanner from '@shopware-ag/meteor-component-library/dist/esm/MtBanner';
+import MtLoader from '@shopware-ag/meteor-component-library/dist/esm/MtLoader';
+import MtProgressBar from '@shopware-ag/meteor-component-library/dist/esm/MtProgressBar';
+import MtButton from '@shopware-ag/meteor-component-library/dist/esm/MtButton';
+import MtCheckbox from '@shopware-ag/meteor-component-library/dist/esm/MtCheckbox';
+import MtColorpicker from '@shopware-ag/meteor-component-library/dist/esm/MtColorpicker';
+import MtEmailField from '@shopware-ag/meteor-component-library/dist/esm/MtEmailField';
+import MtEmptyState from '@shopware-ag/meteor-component-library/dist/esm/MtEmptyState';
+import MtNumberField from '@shopware-ag/meteor-component-library/dist/esm/MtNumberField';
+import MtPasswordField from '@shopware-ag/meteor-component-library/dist/esm/MtPasswordField';
+import MtSelect from '@shopware-ag/meteor-component-library/dist/esm/MtSelect';
+import MtSlider from '@shopware-ag/meteor-component-library/dist/esm/MtSlider';
+import MtSwitch from '@shopware-ag/meteor-component-library/dist/esm/MtSwitch';
+import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextField';
+import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
+import MtIcon from '@shopware-ag/meteor-component-library/dist/esm/MtIcon';
+import MtDataTable from '@shopware-ag/meteor-component-library/dist/esm/MtDataTable';
+import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagination';
+import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
+import MtToast from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
+import MtFloatingUi from '@shopware-ag/meteor-component-library/dist/esm/MtFloatingUi';
+import MtPopover from '@shopware-ag/meteor-component-library/dist/esm/MtPopover';
+import MtTextEditorToolbarButton from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbarButton';
+import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
+import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
+import MtModalClose from '@shopware-ag/meteor-component-library/dist/esm/MtModalClose';
+import MtModalTrigger from '@shopware-ag/meteor-component-library/dist/esm/MtModalTrigger';
+import MtModalAction from '@shopware-ag/meteor-component-library/dist/esm/MtModalAction';
+import MtUrlField from '@shopware-ag/meteor-component-library/dist/esm/MtUrlField';
+import MtSearch from '@shopware-ag/meteor-component-library/dist/esm/MtSearch';
+import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
+import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
+
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';

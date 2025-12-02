@@ -286,4 +286,23 @@ class DateRangeRuleTest extends TestCase
         static::assertCount(0, $validator->validate($data['fromDate'], $constraints['fromDate']));
         static::assertCount(0, $validator->validate($data['toDate'], $constraints['toDate']));
     }
+
+    public function testAssignWithStringDatesConvertsToDateTime(): void
+    {
+        $rule = new DateRangeRule();
+
+        $rule->assign([
+            'fromDate' => '2024-01-15T10:30:45',
+            'toDate' => '2024-01-31T23:59:59',
+            'useTime' => true,
+            'timezone' => 'UTC',
+        ]);
+
+        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2024-01-20 12:00:00'));
+
+        $result = $rule->match($scopeMock);
+
+        static::assertTrue($result);
+    }
 }

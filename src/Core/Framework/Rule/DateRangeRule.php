@@ -97,6 +97,20 @@ class DateRangeRule extends Rule
         ];
     }
 
+    public function assign(array $data): static
+    {
+        parent::assign($data);
+
+        try {
+            // convert string dates to DateTime objects
+            $this->__wakeup();
+        } catch (\Exception) {
+            // let validators handle invalid formats
+        }
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();

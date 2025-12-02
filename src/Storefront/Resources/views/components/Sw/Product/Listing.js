@@ -21,8 +21,8 @@ export default class ProductListing extends ShopwareComponent {
 
         // Create the debounced load function.
         this.debouncedLoad = this.debounce(async () => {
-            const productGrid = this.el.querySelector('.product-listing__grid');
-            const pagination = this.el.querySelector('.product-listing__pagination');
+            const productGrid = this.el.querySelector('.sw-product-listing__grid');
+            const pagination = this.el.querySelector('.sw-product-listing__pagination');
             productGrid.classList.add('has-element-loader');
 
             const location = new URL(window.location);
@@ -33,8 +33,8 @@ export default class ProductListing extends ShopwareComponent {
             const response = await fetch(url);
             const html = await response.text();
             const doc = this.domParser.parseFromString(html, 'text/html');
-            const grid = doc.querySelector('.product-listing__grid');
-            const pagi = doc.querySelector('.product-listing__pagination');
+            const grid = doc.querySelector('.sw-product-listing__grid');
+            const pagi = doc.querySelector('.sw-product-listing__pagination');
 
             productGrid.replaceWith(grid);
             pagination.replaceWith(pagi);
@@ -156,7 +156,7 @@ export default class ProductListing extends ShopwareComponent {
     }
 
     changeLayout(layout) {
-        const grid = this.el.querySelector('.product-listing__grid');
+        const grid = this.el.querySelector('.sw-product-listing__grid');
         const productCards = grid.querySelectorAll('.sw-product-card');
         const gridClasses = this.options.layoutGridClasses;
         const layoutClasses = Object.keys(this.options.layoutGridClasses).map(layout => `is--layout-${layout}`);

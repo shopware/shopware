@@ -4,7 +4,7 @@
 %}
 
 {% set listingCVA = cva({
-    base: 'product-listing',
+    base: 'sw-product-listing',
 }) %}
 
 {% set attributeDefaults = {
@@ -35,7 +35,7 @@
         {% if listing.total > 0 %}
             <twig:Slot name="product-grid">
                 <twig:Sw:Grid:Container
-                    class="product-listing__grid"
+                    class="sw-product-listing__grid"
                     :columns="layout == 'horizontal' ? '1' : '4'"
                     :columnsXl="layout == 'horizontal' ? '1' : '3'"
                     :columnsLg="layout == 'horizontal' ? '1' : '2'"
@@ -61,7 +61,7 @@
     {% block pagination %}
         <twig:Slot name="pagination">
             <twig:Sw:Content:Pagination
-                class="product-listing__pagination"
+                class="sw-product-listing__pagination"
                 :page="listing.page"
                 :total="listing.total"
                 :limit="listing.limit"

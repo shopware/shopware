@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -65,12 +65,14 @@ class CheckoutConfirmPageLoader
         $this->validateCustomerAddresses($cart, $context);
         $page->setCart($cart);
 
-        if (Feature::isActive('v6.8.0.0')) {
-            $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductEntity::TYPE_DIGITAL);
-            $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductEntity::TYPE_PHYSICAL);
-        } else {
-            $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductEntity::TYPE_DIGITAL) || $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD);
-            $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductEntity::TYPE_PHYSICAL) || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
+        $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_DIGITAL);
+        $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', function () use ($cart, &$isDownloadLineItem, &$isPhysicalLineItem): void {
+                $isDownloadLineItem = $isDownloadLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD);
+                $isPhysicalLineItem = $isPhysicalLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
+            });
         }
 
         $page->setShowRevocation($isDownloadLineItem);

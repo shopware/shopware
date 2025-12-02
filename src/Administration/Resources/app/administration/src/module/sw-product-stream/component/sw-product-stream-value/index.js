@@ -198,7 +198,11 @@ export default {
                 return null;
             }
 
-            if (!Shopware.Feature.isActive('v6.8.0.0') && this.fieldDefinition.type === 'json_list' && this.fieldName === 'states') {
+            if (
+                !Shopware.Feature.isActive('v6.8.0.0') &&
+                this.fieldDefinition.type === 'json_list' &&
+                this.fieldName === 'states'
+            ) {
                 return 'product_state_list';
             }
 

@@ -18,10 +18,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -37,8 +37,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
 class OrderLineItemDefinition extends EntityDefinition
@@ -112,7 +112,6 @@ class OrderLineItemDefinition extends EntityDefinition
             (new FloatField('total_price', 'totalPrice'))->addFlags(new ApiAware(), new Computed()),
             (new LongTextField('description', 'description'))->addFlags(new ApiAware()),
             (new StringField('type', 'type'))->addFlags(new ApiAware()),
-            (new StringField('product_type', 'productType', 32))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Referenced product if this is a product line item'),
@@ -136,7 +135,7 @@ class OrderLineItemDefinition extends EntityDefinition
 
         return [
             (new ListField('states', 'states', StringField::class))
-                ->addFlags(new ApiAware(), new Required(), new Deprecated('v6.8.0.0', 'order_line_item.states will be removed; use productType instead')),
+                ->addFlags(new ApiAware(), new Required(), new Deprecated('v6.8.0.0', 'order_line_item.states will be removed; use payload.productType instead')),
         ];
     }
 }

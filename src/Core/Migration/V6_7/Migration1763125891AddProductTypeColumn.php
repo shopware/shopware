@@ -19,14 +19,14 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
     {
         if (!EntityDefinitionQueryHelper::columnExists($connection, 'product', 'type')) {
             $connection->executeStatement(
-                "ALTER TABLE `product` ADD `type` VARCHAR(32) NULL"
+                'ALTER TABLE `product` ADD `type` VARCHAR(32) NULL'
             );
             $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
         }
 
         $connection->executeStatement(<<<'SQL'
             UPDATE `product`
-                LEFT JOIN `product_download` 
+                LEFT JOIN `product_download`
                     ON `product`.`id` = `product_download`.`product_id` AND `product`.`version_id` = `product_download`.`product_version_id`
              SET `product`.`type` = IF(`product_download`.`product_id` IS NOT NULL, 'digital', 'physical')
             SQL);

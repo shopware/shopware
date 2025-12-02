@@ -29,6 +29,8 @@ class LineItem extends Struct
 
     final public const IDENTIFIER_MAX_LENGTH = 100;
 
+    final public const PAYLOAD_PRODUCT_TYPE = 'productType';
+
     /**
      * @var array<mixed>
      */
@@ -82,15 +84,13 @@ class LineItem extends Struct
     protected string $uniqueIdentifier;
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use getProductType() instead
+     * @deprecated tag:v6.8.0 - Will be removed, use payload.productType() instead
      *
      * @var array<int, string>
      */
     protected array $states = [];
 
     protected bool $modifiedByApp = false;
-
-    protected ?string $productType = null;
 
     /**
      * @var array<string, bool>
@@ -534,7 +534,7 @@ class LineItem extends Struct
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, 'getStates', 'v6.8.0.0', 'getProductType')
+            Feature::deprecatedMethodMessage(self::class, 'getStates', 'v6.8.0.0', 'getPayloadValue(\'productType\')')
         );
 
         return $this->states;
@@ -549,7 +549,7 @@ class LineItem extends Struct
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, 'setStates', 'v6.8.0.0', 'setProductType')
+            Feature::deprecatedMethodMessage(self::class, 'setStates', 'v6.8.0.0', 'setPayloadValue(\'productType\', $type)')
         );
 
         $this->states = $states;
@@ -572,7 +572,11 @@ class LineItem extends Struct
 
     public function isProductType(string $type): bool
     {
-        return $this->getProductType() === $type;
+        if (!$this->hasPayloadValue(self::PAYLOAD_PRODUCT_TYPE)) {
+            return false;
+        }
+
+        return $this->getPayloadValue(self::PAYLOAD_PRODUCT_TYPE) === $type;
     }
 
     public function markUnModifiedByApp(): void
@@ -619,18 +623,6 @@ class LineItem extends Struct
     public function isShippingCostAware(): bool
     {
         return $this->shippingCostAware;
-    }
-
-    public function getProductType(): ?string
-    {
-        return $this->productType;
-    }
-
-    public function setProductType(string $productType): self
-    {
-        $this->productType = $productType;
-
-        return $this;
     }
 
     public function jsonSerialize(): array

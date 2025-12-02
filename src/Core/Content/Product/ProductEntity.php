@@ -43,9 +43,6 @@ class ProductEntity extends Entity implements \Stringable
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    public const TYPE_PHYSICAL = 'physical';
-    public const TYPE_DIGITAL = 'digital';
-
     protected ?string $parentId = null;
 
     protected int $childCount = 0;
@@ -78,7 +75,10 @@ class ProductEntity extends Entity implements \Stringable
 
     protected bool $available;
 
-    protected string $type = self::TYPE_PHYSICAL;
+    /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $type will become a required parameter
+     */
+    protected ?string $type = ProductDefinition::TYPE_PHYSICAL;
 
     protected ?string $deliveryTimeId = null;
 
@@ -1009,7 +1009,10 @@ class ProductEntity extends Entity implements \Stringable
         $this->available = $available;
     }
 
-    public function getType(): string
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - will return string
+     */
+    public function getType(): ?string
     {
         return $this->type;
     }

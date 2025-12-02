@@ -144,6 +144,11 @@ export default {
             return this.productStream && this.customFieldSets && this.customFieldSets.length > 0;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed since product states filter is no longer supported.
+         *
+         * @internal
+         */
         showProductStatesFilterWarning() {
             if (!this.productStreamFiltersTree) {
                 return false;
@@ -444,6 +449,11 @@ export default {
             };
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed since product states filter is no longer supported.
+         *
+         * @internal
+         */
         normalizeFilterCollection(filters) {
             if (Array.isArray(filters)) {
                 return filters.filter(Boolean);
@@ -464,6 +474,11 @@ export default {
             return [];
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed since product states filter is no longer supported.
+         *
+         * @internal
+         */
         hasProductStatesFilter(filters) {
             return this.normalizeFilterCollection(filters).some((condition) => {
                 if (!condition) {
@@ -486,6 +501,11 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed since product states filter is no longer supported.
+         *
+         * @internal
+         */
         isDeprecatedProductStatesField(field) {
             if (!field || typeof field !== 'string') {
                 return false;

@@ -69,7 +69,7 @@ export default {
             type: String,
             required: false,
             default: 'physical',
-        }
+        },
     },
 
     data() {
@@ -738,6 +738,8 @@ export default {
             if (this.creationType === 'digital') {
                 this.product.maxPurchase = 1;
             }
+
+            this.product.type = this.creationType;
         },
 
         loadProduct() {

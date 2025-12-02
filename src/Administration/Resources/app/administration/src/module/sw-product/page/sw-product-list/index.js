@@ -151,7 +151,7 @@ export default {
         },
 
         listFilterOptions() {
-            let filters = {
+            const filters = {
                 'product-number-filter': {
                     property: 'productNumber',
                     type: 'string-filter',

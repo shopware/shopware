@@ -22,8 +22,7 @@ class ProductActionController extends AbstractController
     public function __construct(
         private readonly VariantCombinationLoader $combinationLoader,
         private readonly ProductTypeRegistry $productTypeRegistry
-    )
-    {
+    ) {
     }
 
     #[Route(path: '/api/_action/product/{productId}/combinations', name: 'api.action.product.combinations', methods: ['GET'])]

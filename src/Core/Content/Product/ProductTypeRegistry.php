@@ -2,30 +2,25 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Content\Product\ProductType\AbstractProductType;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
 class ProductTypeRegistry
 {
     /**
-     * @var array<string, AbstractProductType>
+     * @param array<string> $types
      */
-    private array $types = [];
-
-    /**
-     * @param iterable<AbstractProductType> $typeServices
-     */
-    public function __construct(iterable $typeServices = [])
+    public function __construct(public array $types)
     {
-        foreach ($typeServices as $service) {
-            $this->addType($service);
-        }
     }
 
-    public function addType(AbstractProductType $type): void
+    public function addType(string $type): void
     {
-        $this->types[$type->getType()] = $type;
+        if ($this->hasType($type)) {
+            return;
+        }
+
+        $this->types[] = $type;
     }
 
     /**
@@ -33,19 +28,11 @@ class ProductTypeRegistry
      */
     public function getTypes(): array
     {
-        return array_keys($this->types);
+        return $this->types;
     }
 
-    /**
-     * @return array<int, AbstractProductType>
-     */
-    public function getTypeHandlers(): array
+    public function hasType(string $type): bool
     {
-        return array_values($this->types);
-    }
-
-    public function getTypeHandler(string $type): ?AbstractProductType
-    {
-        return $this->types[$type] ?? null;
+        return \in_array($type, $this->types, true);
     }
 }

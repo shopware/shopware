@@ -9,8 +9,8 @@
     >
         {% block sw_filter_panel_deprecation_banner %}
         <mt-banner
-                v-if="filter.name === 'product-states-filter' && !feature.isActive('v6.8.0.0')"
-                variant="attention"
+            v-if="filter.name === 'product-states-filter' && !feature.isActive('v6.8.0.0')"
+            variant="attention"
         >
             {{ $tc('sw-product.filters.productStatesFilter.deprecationWarning') }}
         </mt-banner>

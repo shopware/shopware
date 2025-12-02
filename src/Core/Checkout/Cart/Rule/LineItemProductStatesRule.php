@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -69,6 +70,12 @@ class LineItemProductStatesRule extends Rule
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        return RuleComparison::stringArray($this->productState, array_values($lineItem->getStates()), $this->operator);
+        $states = [];
+
+        Feature::callSilentIfInactive('v6.8.0.0', function () use (&$states, $lineItem): void {
+            $states = $lineItem->getStates();
+        });
+
+        return RuleComparison::stringArray($this->productState, array_values($states), $this->operator);
     }
 }

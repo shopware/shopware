@@ -14,11 +14,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Feature;
 
 #[Package('checkout')]
 class LineItemTransformer
@@ -82,11 +83,13 @@ class LineItemTransformer
 
         $productType = self::resolveProductType($lineItem);
         if ($productType !== null) {
-            $data['productType'] = $productType;
+            $data['payload']['productType'] = $productType;
         }
 
         if (!Feature::isActive('v6.8.0.0')) {
-            $data['states'] = $lineItem->getStates();
+            Feature::callSilentIfInactive('v6.8.0.0', function () use (&$data, $lineItem): void {
+                $data['states'] = $lineItem->getStates();
+            });
         }
 
         $downloads = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_DOWNLOADS, OrderLineItemDownloadCollection::class);
@@ -154,8 +157,8 @@ class LineItemTransformer
             $lineItem->setStates($entity->getStates());
         }
 
-        if ($entity->getProductType()) {
-            $lineItem->setProductType($entity->getProductType());
+        if ($entity->hasPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE)) {
+            $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, $entity->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE));
         }
 
         if ($entity->getPayload() !== null) {
@@ -172,6 +175,7 @@ class LineItemTransformer
 
         if ($entity->getDownloads() !== null) {
             $lineItem->addExtension(OrderConverter::ORIGINAL_DOWNLOADS, $entity->getDownloads());
+            $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
         }
 
         if ($entity->getProduct() !== null) {
@@ -197,7 +201,7 @@ class LineItemTransformer
             LineItem::CUSTOM_LINE_ITEM_TYPE,
         ], true);
 
-        $isDownloadState = $entity->getProductType() === ProductEntity::TYPE_DIGITAL;
+        $isDownloadState = $entity->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE) === ProductDefinition::TYPE_DIGITAL;
 
         if ($isNonProduct || ($isProduct && $isDownloadState)) {
             $item->setShippingCostAware(false);
@@ -232,10 +236,12 @@ class LineItemTransformer
 
         $lineItem->setQuantityInformation($quantityInformation);
 
-        if (Feature::isActive('v6.8.0.0')) {
-            $isPhysicalLineItem = $lineItem->isProductType(ProductEntity::TYPE_PHYSICAL);
-        } else {
-            $isPhysicalLineItem = $lineItem->isProductType(ProductEntity::TYPE_PHYSICAL) || $lineItem->hasState(State::IS_PHYSICAL);
+        $isPhysicalLineItem = $lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', function () use ($lineItem, &$isPhysicalLineItem): void {
+                $isPhysicalLineItem = $isPhysicalLineItem || $lineItem->hasState(State::IS_PHYSICAL);
+            });
         }
 
         if ($isPhysicalLineItem) {
@@ -267,9 +273,9 @@ class LineItemTransformer
 
         $downloads = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_DOWNLOADS, OrderLineItemDownloadCollection::class);
         if ($downloads instanceof OrderLineItemDownloadCollection && $downloads->count() > 0) {
-            return ProductEntity::TYPE_DIGITAL;
+            return ProductDefinition::TYPE_DIGITAL;
         }
 
-        return ProductEntity::TYPE_PHYSICAL;
+        return ProductDefinition::TYPE_PHYSICAL;
     }
 }

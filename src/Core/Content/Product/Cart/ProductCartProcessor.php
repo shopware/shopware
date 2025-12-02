@@ -20,8 +20,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\State;
@@ -75,8 +75,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         private readonly ProductFeatureBuilder $featureBuilder,
         private readonly AbstractProductPriceCalculator $priceCalculator,
         private readonly EntityCacheKeyGenerator $generator,
-        private readonly Connection $connection,
-        private readonly ProductTypeRegistry $productTypeRegistry
+        private readonly Connection $connection
     ) {
     }
 
@@ -157,11 +156,12 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($item->getQuantity());
 
                 $item->setPrice($this->calculator->calculate($definition, $context));
-
-                $isDownloadLineItem = $this->productTypeRegistry->getTypeHandler($item->getProductType())?->getBehavior()->downloadable ?? false;
+                $isDownloadLineItem = $item->isProductType(ProductDefinition::TYPE_DIGITAL);
 
                 if (!Feature::isActive('v6.8.0.0')) {
-                    $isDownloadLineItem = $isDownloadLineItem || $item->hasState(State::IS_DOWNLOAD);
+                    Feature::callSilentIfInactive('v6.8.0.0', function () use ($item, &$isDownloadLineItem): void {
+                        $isDownloadLineItem = $isDownloadLineItem || $item->hasState(State::IS_DOWNLOAD);
+                    });
                 }
 
                 $item->setShippingCostAware(!$isDownloadLineItem);
@@ -335,13 +335,15 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $weight = $product->getWeight();
 
-        $lineItem->setProductType($product->getType());
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, $product->getType());
 
-        if (Feature::isActive('v6.8.0.0')) {
-            $isPhysicalLineItem = $lineItem->isProductType(ProductEntity::TYPE_PHYSICAL);
-        } else {
-            $lineItem->setStates($product->getStates());
-            $isPhysicalLineItem = $lineItem->isProductType(ProductEntity::TYPE_PHYSICAL) || $lineItem->hasState(State::IS_PHYSICAL);
+        $isPhysicalLineItem = $lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', function () use ($lineItem, $product, &$isPhysicalLineItem): void {
+                $lineItem->setStates($product->getStates());
+                $isPhysicalLineItem = $isPhysicalLineItem || $lineItem->hasState(State::IS_PHYSICAL);
+            });
         }
 
         if ($isPhysicalLineItem) {

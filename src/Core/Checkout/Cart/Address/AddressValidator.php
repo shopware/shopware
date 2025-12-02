@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingEr
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -44,10 +44,14 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
         $country = $context->getShippingLocation()->getCountry();
         $customer = $context->getCustomer();
 
-        if (Feature::isActive('v6.8.0.0')) {
-            $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductEntity::TYPE_PHYSICAL);
-        } else {
-            $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductEntity::TYPE_PHYSICAL) || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
+        $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_PHYSICAL);
+
+            Feature::callSilentIfInactive('v6.8.0.0', function () use ($cart, &$isPhysicalLineItem): void {
+                $isPhysicalLineItem = $isPhysicalLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
+            });
         }
 
         $validateShipping = $cart->getLineItems()->count() === 0 || $isPhysicalLineItem;

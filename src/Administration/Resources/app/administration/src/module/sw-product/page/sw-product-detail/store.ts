@@ -154,7 +154,7 @@ const swProductDetail = Shopware.Store.register({
             }
 
             if (state.product.type) {
-                return state.product.type as string;
+                return state.product.type;
             }
 
             return 'physical';

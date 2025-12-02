@@ -100,7 +100,8 @@
                     "calculatedPrice",
                     "calculatedPrices",
                     "seoCategory",
-                    "translated"
+                    "translated",
+                    "type"
                 ]
             }
         }

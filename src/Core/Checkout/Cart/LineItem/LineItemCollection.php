@@ -134,7 +134,7 @@ class LineItemCollection extends Collection
     public function hasLineItemWithProductType(string $productType): bool
     {
         foreach ($this->buildFlat($this) as $lineItem) {
-            if ($lineItem->getProductType() === $productType) {
+            if ($lineItem->isProductType($productType)) {
                 return true;
             }
         }

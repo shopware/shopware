@@ -1,15 +1,22 @@
-import ApiService from 'src/core/service/api.service';
-
 /**
  * @private
  * @sw-package inventory
  */
+import type { AxiosInstance } from 'axios';
+
+import ApiService from 'src/core/service/api.service';
+import type { ApiResponse } from 'src/core/service/api.service';
+import type { LoginService } from 'src/core/service/login.service';
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ProductTypeApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = '_action/product/types') {
+    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint: string = '_action/product/types') {
         super(httpClient, loginService, apiEndpoint);
+
+        this.name = 'productTypeApiService';
     }
 
-    async fetchProductTypes() {
+    async fetchProductTypes(): Promise<unknown> {
         const response = await this.httpClient.get(
             `/${this.apiEndpoint}`,
             {
@@ -17,10 +24,10 @@ export default class ProductTypeApiService extends ApiService {
             },
         );
 
-        const result = await ApiService.handleResponse(response);
+        const result: ApiResponse<unknown> = await ApiService.handleResponse(response);
 
         if (!Array.isArray(result)) {
-            return [];
+            return Promise.resolve([]);
         }
 
         return result;

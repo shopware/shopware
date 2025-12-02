@@ -1536,7 +1536,6 @@
     "removable",
     "stackable",
     "position",
-    "type",
     "states",
     "price",
     "priceDefinition",

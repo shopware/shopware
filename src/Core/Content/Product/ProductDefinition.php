@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -47,7 +48,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -83,6 +83,10 @@ class ProductDefinition extends EntityDefinition
 
     final public const CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT = 'core.cms.default_product_cms_page';
 
+    final public const TYPE_PHYSICAL = 'physical';
+
+    final public const TYPE_DIGITAL = 'digital';
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -116,6 +120,7 @@ class ProductDefinition extends EntityDefinition
             'restockTime' => null,
             'active' => true,
             'markAsTopseller' => false,
+            'type' => self::TYPE_PHYSICAL,
         ];
     }
 
@@ -159,7 +164,7 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited()),
             (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()),
             (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('type', 'type', 32))->addFlags(new ApiAware(), new WriteProtected()),
+            (new StringField('type', 'type', 32))->addFlags(new ApiAware(), new Inherited()),
 
             (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options.name', 'options.group.name'])),
             (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected()),

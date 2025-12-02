@@ -27,7 +27,6 @@ export default Shopware.Component.wrapComponentConfig({
     data(): {
         channel: BroadcastChannel | null;
         toasts: Toast[];
-        snackbar: Snackbar;
     } {
         return {
             channel: null,

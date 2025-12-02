@@ -44,12 +44,32 @@
     <div class="sw-extension-card-base__meta-info">
         {% block sw_extension_card_base_info_content %}
         <section>
-            <span
-                v-if="extension.version"
-                class="sw-extension-card-base__meta-info-version"
-            >
-                {{ $tc('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
-            </span>
+            <div>
+                <span
+                    v-if="newPrivilegesRequested"
+                    class="sw-extension-card-base__meta-info-privilege-review"
+                >
+                    {{ $tc('sw-extension.my-extensions.listing.privilege-review') }}
+                </span>
+
+                <span
+                    v-if="extension.version"
+                    class="sw-extension-card-base__meta-info-version"
+                >
+                    {{ $tc('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
+                </span>
+
+                <span
+                    v-if="newPrivilegesRequested"
+                    class="sw-extension-card-base__open-extension"
+                    role="button"
+                    tabindex="0"
+                    @click="openPrivilegesReviewModal"
+                    @keydown.enter="openPrivilegesReviewModal"
+                >
+                    {{ $tc('sw-extension-store.component.sw-extension-card-base.reviewNewPrivilegesLabel') }}
+                </span>
+            </div>
 
             <span v-if="!extensionManagementDisabled && isUpdateable">
                 <a
@@ -93,7 +113,7 @@
             {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
         </span>
         <router-link
-            v-else-if="extension.configurable"
+            v-if="isInstalled"
             :to="{ name: 'sw.extension.config', params: { namespace: extension.name } }"
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
@@ -207,6 +227,16 @@
         :action-label="permissionModalActionLabel"
         @modal-close="closePermissionsModal"
         @close-with-action="closePermissionsModalAndInstallExtension"
+    />
+
+    <sw-extension-permissions-modal
+        v-if="showPrivilegesReviewModal"
+        :extension-label="extension.label"
+        :permissions="requestedPrivileges"
+        :domains="extension.domains"
+        :action-label="permissionModalActionLabel"
+        @modal-close="closePrivilegesReviewModal"
+        @close-with-action="closePrivilegesReviewModalAndAcceptRequestedPrivileges"
     />
 
     <sw-extension-privacy-policy-extensions-modal

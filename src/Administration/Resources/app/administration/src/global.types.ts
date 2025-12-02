@@ -143,6 +143,7 @@ import type CMSConstant from './module/sw-cms/constant/sw-cms.constant';
 import type CUSTOMERConstant from './module/sw-customer/constant/sw-customer.constant';
 import type FLOWConstant from './module/sw-flow/constant/flow.constant';
 import type SnippetApiService from './core/service/api/snippet.api.service';
+import type AppPrivilegesService from './core/service/api/app-privileges.service';
 
 // trick to make it an "external module" to support global type extension
 
@@ -297,6 +298,7 @@ declare global {
         ssoSettingsService: SsoSettingsService;
         ssoInvitationService: SsoInvitationService;
         shopIdChangeService: ShopIdChangeService;
+        appPrivilegesService: AppPrivilegesService;
     }
 
     interface MixinContainer {

@@ -38,6 +38,7 @@ async function createWrapper() {
                     extensionStoreActionService: {
                         downloadExtension: jest.fn(),
                     },
+                    appPrivilegesService: {},
                 },
             },
             props: {

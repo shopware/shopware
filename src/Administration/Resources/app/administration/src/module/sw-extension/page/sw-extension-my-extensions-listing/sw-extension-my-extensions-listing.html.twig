@@ -45,6 +45,30 @@
             </mt-link>
         </mt-banner>
 
+        <mt-banner
+            v-if="hasPrivilegeRequests"
+            class="sw-extension-my-extensions-listing__privilege-request-warning"
+            variant="attention"
+            :title="$tc('sw-app.component.sw-app-privilege-request-banner.title')"
+        >
+
+            <template #default>
+                <div>
+                    {{ $tc('sw-app.component.sw-app-privilege-request-banner.explanation', extensionListWithRequestedPrivileges.length) }}
+                </div>
+
+                <mt-button
+                    variant="secondary"
+                    size="x-small"
+                    class="sw-extension-my-extensions-listing__privilege-request-warning__review-button"
+                    ghost
+                    @click="reviewPrivilegeRequests"
+                >
+                    {{ $tc('sw-app.component.sw-app-privilege-request-banner.reviewButton') }}
+                </mt-button>
+            </template>
+        </mt-banner>
+
         {% block sw_extension_my_extensions_list_empty_state %}
 
         <sw-meteor-card
@@ -132,4 +156,14 @@
             </div>
         </template>
     </div>
+
+    <sw-extension-permissions-modal
+        v-if="showExtensionReviewModal"
+        :extension-label="extensionToReview.label"
+        :permissions="extensionToReview.requestedPermissions"
+        :domains="extensionToReview.domains"
+        :action-label="privilegeModalActionLabel"
+        @modal-close="closePrivilegeReviewModal"
+        @close-with-action="acceptAndCheckNext"
+    />
 </div>

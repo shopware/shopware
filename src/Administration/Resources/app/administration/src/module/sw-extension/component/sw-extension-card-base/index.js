@@ -35,6 +35,7 @@ export default {
             showUninstallModal: false,
             showRemovalModal: false,
             showPermissionsModal: false,
+            showPrivilegesReviewModal: false,
             permissionsAccepted: false,
             showPrivacyModal: false,
             permissionModalActionLabel: null,
@@ -115,6 +116,14 @@ export default {
 
         permissions() {
             return Object.keys(this.extension.permissions).length ? this.extension.permissions : null;
+        },
+
+        requestedPrivileges() {
+            return Object.keys(this.extension.requestedPermissions || {}).length ? this.extension.requestedPermissions : [];
+        },
+
+        newPrivilegesRequested() {
+            return Object.keys(this.requestedPrivileges).length > 0;
         },
 
         assetFilter() {
@@ -379,6 +388,43 @@ export default {
             this.permissionsAccepted = true;
             this.closePermissionsModal();
             await this.installExtension();
+        },
+
+        openPrivilegesReviewModal() {
+            this.permissionModalActionLabel = this.$tc(
+                'sw-extension-store.component.sw-extension-card-base.labelAcceptRequestedPrivileges',
+            );
+            this.showPrivilegesReviewModal = true;
+        },
+
+        closePrivilegesReviewModal() {
+            this.permissionModalActionLabel = null;
+            this.showPrivilegesReviewModal = false;
+        },
+
+        async closePrivilegesReviewModalAndAcceptRequestedPrivileges() {
+            this.permissionsAccepted = true;
+            this.closePrivilegesReviewModal();
+
+            await this.acceptRequestedPrivileges(this.extension);
+        },
+
+        async acceptRequestedPrivileges(extension) {
+            try {
+                this.isLoading = true;
+
+                await this.shopwareExtensionService.acceptRequestedPrivilegesForExtension(
+                    extension.name,
+                    extension.type,
+                    extension.requestedPermissions,
+                );
+
+                await this.shopwareExtensionService.updateExtensionData();
+            } catch (e) {
+                this.showExtensionErrors(e);
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         /*

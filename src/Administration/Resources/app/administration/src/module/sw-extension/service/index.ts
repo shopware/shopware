@@ -4,6 +4,7 @@ import type { App } from 'vue';
 import ExtensionStoreActionService from './extension-store-action.service';
 import ShopwareExtensionService from './shopware-extension.service';
 import ExtensionErrorService from './extension-error.service';
+import type { NotificationType, NotificationVariant } from '../../../app/store/notification.store';
 
 const { Application } = Shopware;
 
@@ -31,6 +32,7 @@ Application.addServiceProvider('shopwareExtensionService', () => {
         Shopware.Service('extensionStoreActionService'),
         Shopware.Service('shopwareDiscountCampaignService'),
         Shopware.Service('storeService'),
+        Shopware.Service('appPrivilegesService'),
     );
 });
 
@@ -73,3 +75,23 @@ Application.addServiceProvider('extensionErrorService', () => {
         },
     );
 });
+
+Shopware.Store.get('notification').registerTransformer(
+    'notification.privileges.requested',
+    (notification: NotificationType): NotificationType => {
+        const root = Shopware.Application.getApplicationRoot() as App<Element>;
+
+        return {
+            ...notification,
+            variant: 'warning' as NotificationVariant,
+            title: root.$tc('sw-extension.notifications.reviewPrivilegeRequests.title'),
+            message: root.$tc('sw-extension.notifications.reviewPrivilegeRequests.message'),
+            actions: [
+                {
+                    label: root.$tc('sw-extension.notifications.reviewPrivilegeRequests.action'),
+                    route: { name: 'sw.extension.my-extensions.listing' },
+                },
+            ],
+        };
+    },
+);

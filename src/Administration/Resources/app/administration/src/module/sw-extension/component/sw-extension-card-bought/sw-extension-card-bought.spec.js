@@ -111,6 +111,7 @@ async function createWrapper(extension) {
                 shopwareExtensionService: Shopware.Service('shopwareExtensionService'),
                 extensionErrorService: Shopware.Service('extensionErrorService'),
                 cacheApiService: {},
+                appPrivilegesService: {},
                 shortcutService: {
                     stopEventListener: () => {},
                     startEventListener: () => {},

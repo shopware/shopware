@@ -1,11 +1,12 @@
 {% props
     product,
-    mediaHeight = 'auto',
     defaultRoute = seoUrl('frontend.detail.page', { productId: product.id }),
     slots = [],
     layout = 'default',
     showTaxInfo = false,
+    mediaHeight = 'auto',
     mediaObjectFit = 'contain',
+    mediaSizes = '(max-width: 400px) 96vw, 400px',
     border = false,
     rounded = false,
 %}
@@ -53,7 +54,9 @@
                     {% if product.cover %}
                         <twig:Sw:Media:Display
                             :media="product.cover.media"
-                            :mediaHeight="mediaHeight"
+                            :height="mediaHeight"
+                            :sizes="mediaSizes"
+                            class="card-img-top sw-product-card__media"
                         />
                     {% endif %}
                 </twig:Slot>

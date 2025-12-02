@@ -1,23 +1,16 @@
 {% props
     media,
-    mediaHeight = 240,
 %}
 
-{% if media.isSpatialObject() %}
-    <twig:Sw:Media:Spacial
-        :media="media"
-        :mediaHeight="mediaHeight"
-    />
-{% elseif image.getMediaType().getName() === 'VIDEO' %}
-    {# Video #}
-{% else %}
-    <twig:Sw:Media:Image
-        {{ ...attributes.nested('media').defaults({
-            media: media,
-            height: mediaHeight,
-            class: 'card-img-top sw-product-card__media',
-            sizes: '800px',
-            loading: 'lazy'
-        }) }}
-    />
+{% if media is not null %}
+    {% set mediaType = media.getMediaType().getName() %}
+    {% set isSpatial = media.isSpatialObject() %}
+
+    {% if isSpatial %}
+        <twig:Sw:Media:Spacial {{ ...attributes }}></twig:Sw:Media:Spacial>
+    {% elseif mediaType === 'VIDEO' %}
+        {# Video #}
+    {% else %}
+        <twig:Sw:Media:Image {{ ...attributes }}></twig:Sw:Media:Image>
+    {% endif %}
 {% endif %}

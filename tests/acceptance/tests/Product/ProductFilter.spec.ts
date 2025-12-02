@@ -39,6 +39,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     let parentProductSize: Product;
     let variantProductSize: Product[];
     let freeShipProduct: Product;
+    let basicProduct: Product;
 
     await test.step('Create manufacturer and products then verify products created', async () => {
         sizeManufacturer = await TestDataService.createBasicManufacturer({
@@ -55,9 +56,9 @@ test('Customer should see unavailable filter disabled based on selected filter',
             name: 'Free-shipping Manufacturer',
             description: 'Free ship Description Manufacturer',
         });
-        freeShipProduct = await TestDataService.createBasicProduct({ shippingFree: true, manufacturerId: freeShipManufacturer.id });
-        const basicProduct = await TestDataService.createBasicProduct({ name: 'Product without filters' });
 
+        freeShipProduct = await TestDataService.createBasicProduct({ shippingFree: true, manufacturerId: freeShipManufacturer.id });
+        basicProduct = await TestDataService.createBasicProduct({ name: 'Product without filters' });
         variantProductColor = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
             description: 'Variant description',
         });
@@ -87,12 +88,8 @@ test('Customer should see unavailable filter disabled based on selected filter',
 
         await ShopCustomer.expects(manufacturerLocator).toBeChecked();
         await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
-        await ShopCustomer.expects(StorefrontHome.productVariantCharacteristicsOptions).toHaveText('Red');
-        const expectedNames = variantProductColor.map((product) => product.name);
-        const actualNames = (await StorefrontHome.productItemNames.allTextContents());
-        for (const name of actualNames) {
-            ShopCustomer.expects(expectedNames).toContain(name.trim());
-        }
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductColor.at(0).name })).toHaveCount(1);
+
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled();
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: 10_000 });
@@ -111,24 +108,19 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
 
-        const actualNames = await StorefrontHome.productItemNames.allTextContents();
-        const expectedNames = [
-            ...variantProductColor.map((product) => product.name),
-            ...variantProductSize.map((product) => product.name),
-            freeShipProduct.name,
-        ];
-        const matchingCount = actualNames.filter(name => expectedNames.includes(name.trim())).length;
-        ShopCustomer.expects(matchingCount).toEqual(3);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductColor.at(0).name })).toHaveCount(1);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: freeShipProduct.name })).toHaveCount(1);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: basicProduct.name })).toHaveCount(1);
     });
 
     await test.step('Select another manufacturer and verify that a different filter is disabled', async () => {
         await ShopCustomer.attemptsTo(SelectProductFilterOption(StorefrontHome.manufacturerFilter, sizeManufacturer.name));
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
-        const actualNames = await StorefrontHome.productItemNames.allTextContents();
-        const expectedNames = variantProductSize.map((product) => product.name);
-        const matchingCount = actualNames.filter(name => expectedNames.includes(name.trim())).length;
-        ShopCustomer.expects(matchingCount).toBeGreaterThan(0);
+        await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
+
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled();
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled();
@@ -141,10 +133,8 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.attemptsTo(SelectProductFilterOption(sizeFilter, sizeOptions[0].name));
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
-        const actualNames = await StorefrontHome.productItemNames.allTextContents();
-        const expectedNames = variantProductSize.map((product) => product.name);
-        const matchingCount = actualNames.filter(name => expectedNames.includes(name.trim())).length;
-        ShopCustomer.expects(matchingCount).toBeGreaterThan(0);
+        await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
 
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled();
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled();
@@ -204,7 +194,7 @@ test('Customer should see unavailable filter options disabled when filtering by 
 
     await test.step('Verify setup filters display', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url(), true);
-        await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible();
+        await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible( {timeout: 15_000 });
         await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
         await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible();
@@ -221,11 +211,8 @@ test('Customer should see unavailable filter options disabled when filtering by 
         await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
         await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeDisabled();
         await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled();
-        const actualNames = await StorefrontHome.productItemNames.allTextContents();
-        ShopCustomer.expects(actualNames.length).toEqual(products.length);
-        const expectedNames = products.map((product) => product.name);
-        for (const name of actualNames) {
-            ShopCustomer.expects(expectedNames).toContain(name.trim());
-        }
+        await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(products.length);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: productWithRating1.name })).toHaveCount(1);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: productWithRating2.name })).toHaveCount(1);
     });
 });

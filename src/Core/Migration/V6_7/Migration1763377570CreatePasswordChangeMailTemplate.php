@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Exception;
 use Shopware\Core\Checkout\Customer\Event\CustomerPasswordChangedEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -40,7 +39,7 @@ class Migration1763377570CreatePasswordChangeMailTemplate extends MigrationStep
             $this->updateMailTemplateContent($connection);
 
             $connection->commit();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $connection->rollBack();
 
             throw $e;

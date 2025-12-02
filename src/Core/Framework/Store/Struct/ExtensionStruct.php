@@ -425,10 +425,23 @@ class ExtensionStruct extends Struct
         return $this->permissions->getCategorizedPermissions();
     }
 
+    /**
+     * @return array<string, PermissionCollection>
+     */
+    public function getCategorizedRequestedPermissions(): array
+    {
+        if ($this->requestedPermissions === null) {
+            return [];
+        }
+
+        return $this->requestedPermissions->getCategorizedPermissions();
+    }
+
     public function jsonSerialize(): array
     {
         $vars = get_object_vars($this);
         $vars['permissions'] = $this->getCategorizedPermissions();
+        $vars['requestedPermissions'] = $this->getCategorizedRequestedPermissions();
 
         return $vars;
     }

@@ -431,13 +431,31 @@ export default {
 
             // Filter out properties which are not AdminApiSourceAware
             const properties = definition.filterProperties((property) => {
-                const length = property?.flags?.read_protected?.length || 0;
-                if (length === 0) {
+                const readProtectedLength = property?.flags?.read_protected?.length || 0;
+
+                // if associated entity is read or write protected, do not provide as property
+                if (property.type === 'association') {
+                    const subEntity = Shopware.EntityDefinition.get(property.entity);
+                    if (subEntity && (subEntity.readProtected || subEntity.writeProtected)) {
+                        return false;
+                    }
+                }
+
+                if (readProtectedLength === 0) {
                     return false;
                 }
 
                 const awareKey = 'Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource';
-                return !!property?.flags?.read_protected[0]?.includes(awareKey);
+                if (!property?.flags?.read_protected[0]?.includes(awareKey)) {
+                    return false;
+                }
+
+                const writeProtectedLength = property?.flags?.write_protected?.length || 0;
+                if (writeProtectedLength !== 0) {
+                    return false;
+                }
+
+                return true;
             });
 
             return {

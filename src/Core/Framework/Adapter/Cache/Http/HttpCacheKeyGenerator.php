@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\SalesChannelRequest;
@@ -18,9 +20,18 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class HttpCacheKeyGenerator
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed as it is already part of the cache cookie
+     */
     final public const CURRENCY_COOKIE = 'sw-currency';
     final public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed use cache cookie event instead
+     */
     final public const SYSTEM_STATE_COOKIE = 'sw-states';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed use cache cookie event instead
+     */
     final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
     /**
      * Virtual path of the "domain"
@@ -52,9 +63,9 @@ class HttpCacheKeyGenerator
      * headers, use a `vary` header to indicate them, and each representation will
      * be stored independently under the same cache key.
      *
-     * @return string A key for the given request
+     * @return CacheKey The cache key for the given request
      */
-    public function generate(Request $request, ?Response $response = null): string
+    public function generate(Request $request, ?Response $response = null): CacheKey
     {
         $event = new HttpCacheKeyEvent($request);
 
@@ -68,7 +79,10 @@ class HttpCacheKeyGenerator
 
         $parts = $event->getParts();
 
-        return 'http-cache-' . Hasher::hash(implode('|', $parts));
+        return new CacheKey(
+            'http-cache-' . Hasher::hash(implode('|', $parts)),
+            $event->isCacheable
+        );
     }
 
     private function getRequestUri(Request $request): string
@@ -96,24 +110,29 @@ class HttpCacheKeyGenerator
 
     private function addCookies(Request $request, ?Response $response, HttpCacheKeyEvent $event): void
     {
-        // this will be changed within v6.6 lane that we only use the context cache cookie and developers can change the cookie instead
-        // with this change, the reverse proxies are much easier to configure
         if ($cacheCookie = $this->getCookieValue($request, $response, self::CONTEXT_CACHE_COOKIE)) {
             $event->add(
                 self::CONTEXT_CACHE_COOKIE,
                 $cacheCookie
             );
 
+            if ($cacheCookie === HttpCacheCookieEvent::NOT_CACHEABLE) {
+                $event->isCacheable = false;
+            }
+
             return;
         }
 
-        if ($currencyCookie = $this->getCookieValue($request, $response, self::CURRENCY_COOKIE)) {
-            $event->add(
-                self::CURRENCY_COOKIE,
-                $currencyCookie
-            );
+        /** @deprecated tag:v6.8.0 - Currency cookie will be removed */
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            if ($currencyCookie = $this->getCookieValue($request, $response, self::CURRENCY_COOKIE)) {
+                $event->add(
+                    self::CURRENCY_COOKIE,
+                    $currencyCookie
+                );
 
-            return;
+                return;
+            }
         }
 
         if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)) {

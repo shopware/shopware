@@ -1,6 +1,58 @@
-# 6.7.5.0 (upcoming)
-### More tech updates
-* ProductStream IDs added to ElasticsearchProductDefinition
+# 6.7.6.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
+The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
+You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
+
+Due to the rework of the contained rules in the cache hash, this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
+
+You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
+
+The following classes and constants were deprecated as they will not be used anymore:
+* `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was deprecated:
+* `shopware.cache.invalidation.http_cache`
+
+## Administration
+
+## Storefront
+
+### The email validation supports IDN email addresses
+
+The domain part of email addresses may now contain internationalized domain names (IDN). The Storefront validation will properly check these domains. The form validation in PHP may still deny IDN emails addresses, but the default Shopware forms already allow them.
+
+## App System
+
+## Hosting & Configuration
+
+### Possibility to disable extensions when setting up staging mode
+
+A new config option `shopware.staging.extensions.disable` was added to allow configuring extensions that should be automatically disabled when the staging mode gets activated via `system:setup:staging` command.
+
+```yaml
+shopware:
+    staging:
+        extensions:
+            disable: ["TheExtensionName", "AnotherExtensionName"]
+```
+
+## Critical fixes
+
+# 6.7.5.0
 
 ## Features
 
@@ -11,10 +63,12 @@ Previously, enabling "Tax-free for B2C" in the country settings also affected B2
 Now, tax rules are applied **correctly** based on the customer type.
 
 ### Robots.txt configuration
+
 The rendering of the `robots.txt` file has been changed to support custom `User-agent` blocks and the full `robots.txt` standard.
 For a detailed guide on how to use the new features and extend the functionality, please refer to our documentation guide [Extend robots.txt configuration](https://developer.shopware.com/docs/guides/plugins/plugins/content/seo/extend-robots-txt.html).
 
 ### Scheduled Task for cleaning up corrupted media entries
+
 A new scheduled task `media.cleanup_corrupted_media` has been introduced.
 It detects and removes corrupted media records, such as entries created by interrupted or failed file uploads that have no corresponding file on the filesystem.
 
@@ -42,6 +96,11 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 
 ## Core
 
+### Automatic indexer execution for plugin migrations
+
+The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+This ensures that registered indexers are executed when plugin migrations have run.
+
 ### Improved Store API OpenAPI documentation with field descriptions
 
 The OpenAPI schema generator for Store API endpoints now includes descriptions for entity fields, making it easier for developers to understand the available fields and their purposes.
@@ -57,7 +116,23 @@ To add descriptions to fields in your custom entity definitions, use the `setDes
     ->setDescription('Customer group determining pricing and permissions')
 ```
 
+### Allow overwriting Doctrine wrapperClass on Primary/Replica setups
+
+It's now possible to overwrite the `wrapperClass` of the `Doctrine\DBAL\Connection` instance.
+This is useful if you want to use e.g. `Doctrine MySQL Comeback` to automatically reconnect if the MySQL connection is lost.
+
+```bash
+composer require facile-it/doctrine-mysql-come-back ^3.0
+```
+
+Then specify the `wrapperClass` in the `.env` file:
+
+```
+DATABASE_URL=mysql://root:root@database/shopware?driverOptions[x_reconnect_attempts]=5&wrapperClass=Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection
+```
+
 ### Robots.txt parsing
+
 A new `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser` has been introduced to parse `robots.txt` files. This new service provides improved error tracking and adds new events for better extensibility.
 As part of this change, the constructor for `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` is now deprecated for string parameters. You should use the new parser to create a `ParsedRobots` object to pass to the constructor instead.
 
@@ -129,11 +204,29 @@ Example usage:
 <one-to-many name="custom_entity" reference="quote_comment" ignore-missing-reference="true" store-api-aware="false" on-delete="set-null" />
 ```
 
+### Translatable product manufacturer links
+
+The `link` property of the product manufacturer entity is now translatable.
+
 ## Administration
 
 ### URL restrictions for product and category SEO URLs
 
 When creating a SEO URL for a product or category, the URL is now checked for availability. Before it was possible to override existing URLs like `account` or `maintenance` with SEO URLs. Existing URLs are now blocked to be used as SEO URLs.
+
+## Refactor filters for the newsletter recipients list.
+
+We now use the `<mt-select>` instead `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch`.
+Because of that, we deprecate these twig blocks:
+* `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
+* `sw_newsletter_recipient_list_sidebar_filter_status_direct`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
+
+These blocks will be removed in v6.8.0.0 without replacement. Use the parent blocks instead.
+We also deprecate
+`administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` which will be removed with v6.8.0.0 and
+`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js` which will be private in v6.8.0.0.
 
 ## Storefront
 
@@ -145,6 +238,7 @@ New extensible Twig blocks `layout_header_actions_language_widget_content_inner`
 
 The `context.token` variable is no longer available in twig rendering context to prevent potential security vulnerabilities. If you need to access the token, consider using alternative methods that do not expose it in the rendered HTML.
 Usually inside the Twig storefront there is no need to handle the context token manually, as it is handled automatically via the session handling in the Storefront.
+
 
 ### Added specific `add-product-by-number` template
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.
@@ -169,8 +263,6 @@ to:
 {% endblock %}
 ```
 
-## App System
-
 ## Hosting & Configuration
 
 ### Sales Channel Replace URL Command
@@ -179,6 +271,22 @@ A new `sales-channel:replace:url` command was added to replace the url of a sale
 ```bash
 bin/console sales-channel:replace:url <previous_url> <new_url>
 ```
+
+### Changed `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` feature flag to `CACHE_REWORK`
+
+The `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` feature flag was renamed to `CACHE_REWORK` to better reflect its purpose, as more changes will be toggled by that flag, to enable the new cache behaviour.
+
+To enable the new cache behaviour, set the `CACHE_REWORK` feature flag to `1` in your `.env` file:
+Before:
+```
+CACHE_CONTEXT_HASH_RULES_OPTIMIZATION=1
+```
+
+Now:
+```
+CACHE_REWORK=1
+```
+To not break plugins that might check for the old flag unnecessarily, the old flag will be kept until the next major release, however, the flag has no effect anymore.
 
 ### Staging configuration
 

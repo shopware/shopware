@@ -77,7 +77,9 @@ class MySQLFactory
         }
 
         if ($replicaUrl) {
-            $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
+            if (!isset($parameters['wrapperClass'])) {
+                $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
+            }
 
             // Primary connection should use parameters from the main url
             $parameters['primary'] = array_merge([

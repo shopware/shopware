@@ -7,14 +7,15 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @template TElement
+ * @template TKey of array-key = array-key
  *
- * @implements \IteratorAggregate<array-key, TElement>
+ * @implements \IteratorAggregate<TKey, TElement>
  */
 #[Package('framework')]
 abstract class Collection extends Struct implements \IteratorAggregate, \Countable
 {
     /**
-     * @var array<array-key, TElement>
+     * @var array<TKey, TElement>
      */
     protected array $elements = [];
 
@@ -39,7 +40,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param array-key|null $key
+     * @param TKey|null $key
      * @param TElement $element
      */
     public function set($key, $element): void
@@ -54,7 +55,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param array-key $key
+     * @param TKey $key
      *
      * @return TElement|null
      */
@@ -81,7 +82,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return list<array-key>
+     * @return list<TKey>
      */
     public function getKeys(): array
     {
@@ -89,7 +90,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param array-key $key
+     * @param TKey $key
      */
     public function has($key): bool
     {
@@ -97,11 +98,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @template T of TElement
+     * @template R of mixed
      *
-     * @param \Closure(T): mixed $closure
+     * @param \Closure(TElement): R $closure
      *
-     * @return array<array-key, mixed>
+     * @return array<TKey, R>
      */
     public function map(\Closure $closure): array
     {
@@ -109,12 +110,12 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @template T of TElement
+     * @template R of mixed
      *
-     * @param \Closure(mixed|null, T): mixed $closure
-     * @param mixed|null $initial
+     * @param \Closure(R, TElement): R $closure
+     * @param R $initial
      *
-     * @return mixed|null
+     * @return R
      */
     public function reduce(\Closure $closure, $initial = null)
     {
@@ -123,35 +124,44 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     /**
      * @template T of TElement
+     * @template R of mixed
      *
-     * @param \Closure(T): mixed $closure
+     * @param \Closure(T): R $closure
      *
-     * @return array<array-key, mixed>
+     * @return array<TKey, R>
      */
     public function fmap(\Closure $closure): array
     {
         return array_filter($this->map($closure));
     }
 
+    /**
+     * @param \Closure(TElement, TElement): int $closure
+     */
     public function sort(\Closure $closure): void
     {
         uasort($this->elements, $closure);
     }
 
     /**
-     * @param class-string $class
+     * @template T of TElement
+     *
+     * @param class-string<T> $class
+     *
+     * @return static<T, TKey>
      */
     public function filterInstance(string $class): static
     {
-        return $this->filter(static function ($item) use ($class) {
+        /** @var static<T, TKey> $filtered */
+        $filtered = $this->filter(static function ($item) use ($class) {
             return $item instanceof $class;
         });
+
+        return $filtered;
     }
 
     /**
-     * @template T of TElement
-     *
-     * @param \Closure(T): bool $closure
+     * @param \Closure(TElement): bool $closure
      */
     public function filter(\Closure $closure): static
     {
@@ -164,13 +174,16 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return array<TElement>
+     * @return array<TKey, TElement>
      */
     public function getElements(): array
     {
         return $this->elements;
     }
 
+    /**
+     * @return list<TElement>
+     */
     public function jsonSerialize(): array
     {
         return array_values($this->elements);
@@ -219,7 +232,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param array-key $key
+     * @param TKey $key
      */
     public function remove($key): void
     {

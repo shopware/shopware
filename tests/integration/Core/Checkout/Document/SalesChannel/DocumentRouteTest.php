@@ -55,6 +55,12 @@ class DocumentRouteTest extends TestCase
 
     private const ACCEPT_WILDCARD = '*/*';
 
+    private const SUPPORTED_FILE_FORMATS = [
+        PdfRenderer::FILE_EXTENSION => PdfRenderer::FILE_CONTENT_TYPE,
+        HtmlRenderer::FILE_EXTENSION => HtmlRenderer::FILE_CONTENT_TYPE,
+        ZugferdRenderer::FILE_EXTENSION => ZugferdRenderer::FILE_CONTENT_TYPE,
+    ];
+
     private KernelBrowser $browser;
 
     private IdsCollection $ids;
@@ -139,7 +145,6 @@ class DocumentRouteTest extends TestCase
 
             return;
         }
-
         $headers = $response->headers;
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -330,11 +335,9 @@ class DocumentRouteTest extends TestCase
 
         static::assertInstanceOf(DocumentIdStruct::class, $document);
 
-        $documentId = $document->getId();
-
         $this->browser->request(
             'GET',
-            '/store-api/document/download/' . $documentId . '/' . $document->getDeepLinkCode(),
+            '/store-api/document/download/' . $document->getId(),
             [],
             [],
             ['HTTP_ACCEPT' => $acceptHeader]
@@ -379,13 +382,14 @@ class DocumentRouteTest extends TestCase
         ];
     }
 
-    public function testDownloadWithInvalidAcceptHeaderMimeTypeShouldThrowException(): void
+    public function testDownloadShouldThrowExceptionWhenRequestedFileTypeHasNoGeneratedDocument(): void
     {
-        $customerId = $this->loginBrowser($this->browser);
-        $this->createOrder(
-            $customerId,
-            ['salesChannelId' => $this->ids->get('sales-channel')]
-        );
+        $customerId = $this->ids->get('customer');
+        $this->createOrder($customerId);
+
+        $salesChannelContext = $this->createSalesChannelContext([], [
+            'customerId' => $customerId,
+        ]);
 
         $operation = new DocumentGenerateOperation($this->ids->get('order'));
 
@@ -397,28 +401,63 @@ class DocumentRouteTest extends TestCase
 
         static::assertInstanceOf(DocumentIdStruct::class, $document);
 
-        $documentId = $document->getId();
+        $request = new Request();
+        $request->headers->set('Accept', ZugferdRenderer::FILE_CONTENT_TYPE);
 
         if (Feature::isActive('v6.8.0.0')) {
             $this->expectExceptionObject(
-                DocumentException::documentFileTypeUnavailable($documentId, [self::INVALID_MIME_TYPE])
+                DocumentException::documentFileTypeUnavailable($document->getId(), [ZugferdRenderer::FILE_EXTENSION])
             );
         }
 
-        $this->browser->request(
-            'GET',
-            '/store-api/document/download/' . $documentId . '/' . $document->getDeepLinkCode(),
-            [],
-            [],
-            [
-                'HTTP_ACCEPT' => self::INVALID_MIME_TYPE,
-            ]
-        );
+        $documentRoute = static::getContainer()->get(DocumentRoute::class);
 
-        $response = $this->browser->getResponse();
+        $response = $documentRoute->download(
+            $document->getId(),
+            $request,
+            $salesChannelContext,
+        );
 
         if (!Feature::isActive('v6.8.0.0')) {
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
+    }
+
+    public function testDownloadShouldThrowExceptionWithUnsupportedAcceptHeader(): void
+    {
+        $customerId = $this->ids->get('customer');
+        $this->createOrder($customerId);
+
+        $salesChannelContext = $this->createSalesChannelContext([], [
+            'customerId' => $customerId,
+        ]);
+
+        $operation = new DocumentGenerateOperation($this->ids->get('order'));
+
+        $document = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
+            Context::createDefaultContext()
+        )->getSuccess()->first();
+
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
+        $request = new Request();
+        $request->headers->set('Accept', self::INVALID_MIME_TYPE);
+
+        $this->expectExceptionObject(
+            DocumentException::documentAcceptHeaderMimeTypesNotSupported(
+                [self::INVALID_MIME_TYPE],
+                array_values(self::SUPPORTED_FILE_FORMATS)
+            )
+        );
+
+        $documentRoute = static::getContainer()->get(DocumentRoute::class);
+
+        $documentRoute->download(
+            $document->getId(),
+            $request,
+            $salesChannelContext,
+        );
     }
 }

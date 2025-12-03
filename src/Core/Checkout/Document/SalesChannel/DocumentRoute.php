@@ -62,7 +62,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         Request $request,
         SalesChannelContext $context,
         string $deepLinkCode = '',
-        string $fileType = PdfRenderer::FILE_EXTENSION
+        ?string $fileType = null
     ): Response {
         $this->checkAuth($documentId, $request, $context);
 
@@ -73,22 +73,57 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         $download = $request->query->getBoolean('download');
 
-        $supportedFileTypes = $this->getSupportedFileTypes();
-        $this->registerFileTypes($supportedFileTypes, $request);
-        $requestedFileTypes = $this->getRequestedFileTypes($request) ?: [$fileType];
+        $supportedFormats = $this->getSupportedFileTypes();
+        if ($fileType) {
+            if (!Feature::isActive('v6.8.0.0')) {
+                $document = $this->documentGenerator->readDocument(
+                    $documentId,
+                    $context->getContext(),
+                    $deepLinkCode,
+                    $fileType
+                );
+
+                if ($document === null) {
+                    return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+                }
+
+                return $this->createResponse(
+                    $document->getName(),
+                    $document->getContent(),
+                    $download,
+                    $document->getContentType()
+                );
+            }
+
+            if (!isset($supportedFormats[$fileType])) {
+                throw DocumentException::documentFileTypeNotSupported($fileType);
+            }
+        }
+
+        $this->registerFileTypes($supportedFormats, $request);
+        $requestedFormats = $fileType ? [$fileType => $supportedFormats[$fileType] ?? $fileType] : $this->getRequestedFileTypes($request);
+
+        $supportedRequestedFormats = array_filter(
+            $requestedFormats,
+            fn (string $fileType) => isset($supportedFormats[$fileType]),
+            \ARRAY_FILTER_USE_KEY
+        );
+
+        if (!$fileType && !$supportedRequestedFormats) {
+            throw DocumentException::documentAcceptHeaderMimeTypesNotSupported(
+                array_values($requestedFormats),
+                array_values($supportedFormats)
+            );
+        }
 
         $document = null;
 
-        foreach ($requestedFileTypes as $requestedFileType) {
-            if (!isset($supportedFileTypes[$requestedFileType])) {
-                continue;
-            }
-
+        foreach ($supportedRequestedFormats as $supportedFileType => $supportedMimeType) {
             $document = $this->documentGenerator->readDocument(
                 $documentId,
                 $context->getContext(),
                 $deepLinkCode,
-                $requestedFileType
+                $supportedFileType
             );
 
             if ($document !== null) {
@@ -105,7 +140,7 @@ final class DocumentRoute extends AbstractDocumentRoute
                 return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
             }
 
-            throw DocumentException::documentFileTypeUnavailable($documentId, $requestedFileTypes);
+            throw DocumentException::documentFileTypeUnavailable($documentId, array_keys($supportedRequestedFormats));
         }
 
         return $this->createResponse(
@@ -237,16 +272,20 @@ final class DocumentRoute extends AbstractDocumentRoute
         $requestedFileTypes = $request->getAcceptableContentTypes();
         $fileTypes = [];
 
+        if (empty($requestedFileTypes)) {
+            return $this->getDefaultFileTypes();
+        }
+
         foreach ($requestedFileTypes as $mimeType) {
             if ($mimeType === self::ACCEPT_WILDCARD) {
                 return $this->getDefaultFileTypes();
             }
 
             if ($fileType = $request->getFormat($mimeType)) {
-                $fileTypes[] = $fileType;
+                $fileTypes[$fileType] = $mimeType;
             } else {
                 // keep unmapped mime type for exception output
-                $fileTypes[] = $mimeType;
+                $fileTypes[$mimeType] = $mimeType;
             }
         }
 
@@ -258,6 +297,6 @@ final class DocumentRoute extends AbstractDocumentRoute
      */
     private function getDefaultFileTypes(): array
     {
-        return [PdfRenderer::FILE_EXTENSION];
+        return [PdfRenderer::FILE_EXTENSION => PdfRenderer::FILE_CONTENT_TYPE];
     }
 }

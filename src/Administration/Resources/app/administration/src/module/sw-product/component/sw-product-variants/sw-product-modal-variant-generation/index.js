@@ -207,7 +207,9 @@ export default {
                         });
 
                         item.downloads = [];
-                        item.productStates = [];
+                        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                            item.productStates = [];
+                        }
                         item.productType = '';
                         item.id = item.productNumber;
                         this.idToIndex[item.id] = index;
@@ -389,7 +391,9 @@ export default {
                 this.usageOfFiles = {};
                 variants.forEach((item) => {
                     item.downloads = [];
-                    item.productStates = [];
+                    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                        item.productStates = [];
+                    }
                     item.productType = '';
                 });
                 this.getList();
@@ -401,7 +405,9 @@ export default {
                 item.downloads = [...this.downloadFilesForAllVariants];
                 this.updateUsageForAllVariantFiles(item.id);
 
-                item.productStates = ['is-download'];
+                if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                    item.productStates = ['is-download'];
+                }
                 item.productType = 'digital';
             });
 
@@ -421,7 +427,9 @@ export default {
                 });
 
                 item.downloads = [];
-                item.productStates = [];
+                if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                    item.productStates = [];
+                }
                 item.productType = '';
 
                 return;
@@ -430,7 +438,9 @@ export default {
             item.downloads = [...this.downloadFilesForAllVariants];
             this.updateUsageForAllVariantFiles(item.id);
 
-            item.productStates = ['is-download'];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                item.productStates = ['is-download'];
+            }
             item.productType = 'digital';
         },
 

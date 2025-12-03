@@ -64,7 +64,7 @@ export default {
             required: false,
             default: null,
         },
-        /* Product "types" provided by the split button for creating a new product through a router parameter */
+        /* Product "type" provided by the split button for creating a new product through a router parameter */
         creationType: {
             type: String,
             required: false,

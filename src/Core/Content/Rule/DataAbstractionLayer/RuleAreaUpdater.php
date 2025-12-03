@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -290,7 +291,6 @@ class RuleAreaUpdater implements EventSubscriberInterface
      */
     private function getForeignKeyFields(EntityDefinition $definition): array
     {
-        /** @phpstan-ignore-next-line PHPStan cannot detect correctly, that the array only contains FkFields */
         return $definition->getFields()->filterInstance(FkField::class)->filter(fn (FkField $fk): bool => $fk->getReferenceDefinition()->getEntityName() === $this->definition->getEntityName())->getElements();
     }
 
@@ -299,12 +299,12 @@ class RuleAreaUpdater implements EventSubscriberInterface
      */
     private function getAssociationEntities(): array
     {
-        return $this->getAssociationFields()->filter(fn (AssociationField $associationField): bool => $associationField instanceof OneToManyAssociationField)->map(fn (AssociationField $field): string => $field->getReferenceDefinition()->getEntityName());
+        return $this->getAssociationFields()->filterInstance(OneToManyAssociationField::class)->map(fn (AssociationField $field): string => $field->getReferenceDefinition()->getEntityName());
     }
 
     private function getAssociationDefinitionByEntity(CompiledFieldCollection $collection, string $entityName): ?EntityDefinition
     {
-        $field = $collection->filter(function (AssociationField $associationField) use ($entityName): bool {
+        $field = $collection->filter(function (Field $associationField) use ($entityName): bool {
             if (!$associationField instanceof OneToManyAssociationField) {
                 return false;
             }

@@ -7,7 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @extends Collection<Field>
+ * @template-covariant TElement of Field = Field
+ *
+ * @extends Collection<TElement>
  */
 #[Package('framework')]
 class FieldCollection extends Collection

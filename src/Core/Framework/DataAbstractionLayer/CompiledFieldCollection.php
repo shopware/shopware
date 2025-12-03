@@ -12,6 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @template TElement of Field = Field
+ *
+ * @extends FieldCollection<TElement>
+ */
 #[Package('framework')]
 class CompiledFieldCollection extends FieldCollection
 {

@@ -137,6 +137,8 @@ class InfoControllerTest extends TestCase
                     'sub',
                     'ass',
                     'ssa',
+                    'step',
+                    'stp',
                 ],
                 'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,

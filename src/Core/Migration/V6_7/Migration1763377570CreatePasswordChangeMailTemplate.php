@@ -198,13 +198,11 @@ class Migration1763377570CreatePasswordChangeMailTemplate extends MigrationStep
     {
         $filesystem = new Filesystem();
 
-        $update = new MailUpdate(
-            CustomerPasswordChangedEvent::EVENT_NAME,
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.password.changed/en-plain.html.twig'),
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.password.changed/en-html.html.twig'),
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.password.changed/de-plain.html.twig'),
-            $filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.password.changed/de-html.html.twig'),
-        );
+        $update = new MailUpdate(CustomerPasswordChangedEvent::EVENT_NAME);
+        $update->setEnPlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.password.changed/en-plain.html.twig'));
+        $update->setEnHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.password.changed/en-html.html.twig'));
+        $update->setDePlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.password.changed/de-plain.html.twig'));
+        $update->setDeHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/customer.password.changed/de-html.html.twig'));
 
         $this->updateMail($update, $connection);
     }

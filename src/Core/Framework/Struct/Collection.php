@@ -123,10 +123,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @template T of TElement
      * @template R of mixed
      *
-     * @param \Closure(T): R $closure
+     * @param \Closure(TElement): R $closure
      *
      * @return array<TKey, R>
      */
@@ -144,15 +143,15 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @template T of TElement
+     * @template T
      *
      * @param class-string<T> $class
      *
-     * @return static<T, TKey>
+     * @return static<TElement&T, TKey>
      */
     public function filterInstance(string $class): static
     {
-        /** @var static<T, TKey> $filtered */
+        /** @var static<TElement&T, TKey> $filtered */
         $filtered = $this->filter(static function ($item) use ($class) {
             return $item instanceof $class;
         });

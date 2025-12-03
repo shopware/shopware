@@ -239,7 +239,7 @@ jobs:
       - name: Migration test suite setup
         if: ${{ matrix.suite == 'migration' }}
         run: |
-          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Core/Migration</directory>|' phpunit.xml.dist
+          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Administration/Migration</directory><directory suffix=".php">src/Core/Migration</directory><directory suffix=".php">src/ElasticSearch/Migration</directory><directory suffix=".php">src/Storefront/Migration</directory>|' phpunit.xml.dist
           echo "FEATURE_ALL=major" >> $GITHUB_ENV
 
       - name: Install Shopware

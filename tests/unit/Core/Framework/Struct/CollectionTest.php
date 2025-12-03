@@ -249,7 +249,7 @@ class CollectionTest extends TestCase
             ['some' => 'value'],
         ];
 
-        $collection = (new TestCollection())->addFromAssociative($data);
+        $collection = (new TestCollection())->assignRecursive($data);
 
         static::assertCount(5, $collection);
 
@@ -269,7 +269,7 @@ class CollectionTest extends TestCase
             ['_uniqueIdentifier' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
         ];
 
-        $collection = (new EntityCollection())->addFromAssociative($data);
+        $collection = (new EntityCollection())->assignRecursive($data);
 
         static::assertCount(1, $collection);
         static::assertInstanceOf(Entity::class, $collection->first());

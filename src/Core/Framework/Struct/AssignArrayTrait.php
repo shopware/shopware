@@ -71,13 +71,7 @@ trait AssignArrayTrait
         $struct = (new \ReflectionClass($className))
             ->newInstanceWithoutConstructor();
 
-        if ($struct instanceof Collection) {
-            $struct->addFromAssociative($value);
-        } elseif ($struct instanceof AssignArrayInterface) {
-            $struct->assignRecursive($value);
-        }
-
-        return $struct;
+        return $struct->assignRecursive($value);
     }
 
     private function assignValue(string $propertyName, mixed $value): void

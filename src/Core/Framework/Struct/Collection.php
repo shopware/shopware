@@ -234,12 +234,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         yield from $this->elements;
     }
 
-    /**
-     * @param array<mixed> $associativeData
-     *
-     * @return Collection<TElement>
-     */
-    public function addFromAssociative(array $associativeData): self
+    public function assignRecursive(array $options): static
     {
         $baseObject = null;
         if ($expectedClass = $this->getExpectedClass()) {
@@ -248,7 +243,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
         $hasNecessaryInterface = $baseObject instanceof AssignArrayInterface;
 
-        foreach ($associativeData as $value) {
+        foreach ($options as $value) {
             if ($hasNecessaryInterface && \is_array($value)) {
                 $value = (clone $baseObject)->assignRecursive($value);
             }

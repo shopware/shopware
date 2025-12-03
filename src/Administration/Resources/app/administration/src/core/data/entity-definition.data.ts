@@ -55,16 +55,21 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
 
     readonly writeProtected: boolean;
 
-    constructor(schema: {
-        entity: Entity<EntityName>,
-        properties: Properties,
-        ['read-protected']: boolean,
-        ['write-protected']: boolean
+    constructor({
+        entity,
+        properties,
+        'read-protected': readProtected,
+        'write-protected': writeProtected,
+    }: {
+        entity: Entity<EntityName>;
+        properties: Properties;
+        'read-protected': boolean;
+        'write-protected': boolean;
     }) {
-        this.entity = schema.entity;
-        this.properties = schema.properties;
-        this.readProtected = schema['read-protected'];
-        this.writeProtected = schema['write-protected'];
+        this.entity = entity;
+        this.properties = properties;
+        this.readProtected = readProtected;
+        this.writeProtected = writeProtected;
     }
 
     getEntity() {

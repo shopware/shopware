@@ -416,7 +416,7 @@ export default {
     methods: {
         getDefinition(isCustomField) {
             if (isCustomField) {
-                return  {
+                return {
                     properties: this.getCustomFields(this.currentEntity || this.entityType),
                 };
             }
@@ -424,43 +424,47 @@ export default {
             // if entity is read or write protected, do not provide any property
             const definition = Shopware.EntityDefinition.get(this.currentEntity);
             if (definition.readProtected || definition.writeProtected) {
-                return  {
+                return {
                     properties: {},
                 };
             }
 
             // Filter out properties which are not AdminApiSourceAware
             const properties = definition.filterProperties((property) => {
-                const readProtectedLength = property?.flags?.read_protected?.length || 0;
-
-                // if associated entity is read or write protected, do not provide as property
-                if (property.type === 'association') {
-                    const subEntity = Shopware.EntityDefinition.get(property.entity);
-                    if (subEntity && (subEntity.readProtected || subEntity.writeProtected)) {
-                        return false;
-                    }
-                }
-
-                if (readProtectedLength === 0) {
-                    return false;
-                }
-
-                const awareKey = 'Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource';
-                if (!property?.flags?.read_protected[0]?.includes(awareKey)) {
-                    return false;
-                }
-
-                const writeProtectedLength = property?.flags?.write_protected?.length || 0;
-                if (writeProtectedLength !== 0) {
-                    return false;
-                }
-
-                return true;
+                return this.propertyFilter(property);
             });
 
             return {
                 properties: properties,
             };
+        },
+
+        propertyFilter(property) {
+            const readProtectedLength = property?.flags?.read_protected?.length || 0;
+
+            // if associated entity is read or write protected, do not provide as property
+            if (property.type === 'association') {
+                const subEntity = Shopware.EntityDefinition.get(property.entity);
+                if (subEntity && (subEntity.readProtected || subEntity.writeProtected)) {
+                    return false;
+                }
+            }
+
+            if (readProtectedLength === 0) {
+                return false;
+            }
+
+            const awareKey = 'Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource';
+            if (!property?.flags?.read_protected[0]?.includes(awareKey)) {
+                return false;
+            }
+
+            const writeProtectedLength = property?.flags?.write_protected?.length || 0;
+            if (writeProtectedLength !== 0) {
+                return false;
+            }
+
+            return true;
         },
 
         isSelected(item) {

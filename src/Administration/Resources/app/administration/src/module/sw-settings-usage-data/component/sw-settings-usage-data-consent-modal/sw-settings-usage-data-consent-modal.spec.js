@@ -73,7 +73,7 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
     describe('store data consent', () => {
         it('shows store data consent if user has permissions and consent was not given before', async () => {
             const wrapper = await createConsentModal(false, false);
-            const subCardHeadings = wrapper.findAll('.sw-settings-usage-data-consent-modal__subcard h4');
+            const subCardHeadings = wrapper.findAll('.sw-settings-usage-data-consent-modal-sub-card h4');
 
             expect(subCardHeadings).toHaveLength(2);
             expect(subCardHeadings.map((heading) => heading.text())).toContain(
@@ -83,7 +83,7 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
 
         it('hides store data consent if it was given before', async () => {
             const wrapper = await createConsentModal(true, false);
-            const subCardHeadings = wrapper.findAll('.sw-settings-usage-data-consent-modal__subcard h4');
+            const subCardHeadings = wrapper.findAll('.sw-settings-usage-data-consent-modal-sub-card h4');
 
             expect(subCardHeadings).toHaveLength(1);
             expect(subCardHeadings.map((heading) => heading.text())).not.toContain(
@@ -95,7 +95,7 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             global.activeAclRoles = [];
 
             const wrapper = await createConsentModal(false, false);
-            const subCardHeadings = wrapper.findAll('.sw-settings-usage-data-consent-modal__subcard h4');
+            const subCardHeadings = wrapper.findAll('.sw-settings-usage-data-consent-modal-sub-card h4');
 
             expect(subCardHeadings).toHaveLength(1);
             expect(subCardHeadings.map((heading) => heading.text())).not.toContain(

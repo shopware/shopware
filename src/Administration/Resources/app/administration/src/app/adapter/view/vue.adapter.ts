@@ -29,12 +29,12 @@ import MtSwitch from '@shopware-ag/meteor-component-library/dist/esm/MtSwitch';
 import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextField';
 import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
 import MtIcon from '@shopware-ag/meteor-component-library/dist/esm/MtIcon';
-import MtDataTable from '@shopware-ag/meteor-component-library/dist/esm/MtDataTable';
 import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagination';
 import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
 import MtToast from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
 import MtFloatingUi from '@shopware-ag/meteor-component-library/dist/esm/MtFloatingUi';
 import MtPopover from '@shopware-ag/meteor-component-library/dist/esm/MtPopover';
+import MtPopoverItem from '@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem';
 import MtTextEditorToolbarButton from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbarButton';
 import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
 import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
@@ -299,6 +299,32 @@ export default class VueAdapter extends ViewAdapter {
     }
 
     /**
+     * Registers an async component with a hidden loading component.
+     *
+     * @private
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private registerAsyncComponent(componentName: string, importMethod: () => Promise<any>) {
+        this.app.component(
+            componentName,
+            defineAsyncComponent({
+                loader: importMethod,
+                // Delay before showing the loading component. Default: 200ms.
+                delay: 0,
+                loadingComponent: {
+                    name: 'async-loading-component',
+                    inheritAttrs: false,
+                    render() {
+                        return h('div', {
+                            style: { display: 'none' },
+                        });
+                    },
+                },
+            }),
+        );
+    }
+
+    /**
      * Initializes all core components as Vue components.
      */
     async initComponents() {
@@ -331,12 +357,12 @@ export default class VueAdapter extends ViewAdapter {
             MtTextField,
             MtTextarea,
             MtIcon,
-            MtDataTable,
             MtPagination,
             MtSkeletonBar,
             MtToast,
             MtFloatingUi,
             MtPopover,
+            MtPopoverItem,
             MtTextEditorToolbarButton,
             MtModal,
             MtModalRoot,
@@ -349,6 +375,10 @@ export default class VueAdapter extends ViewAdapter {
             MtUnitField,
         } as const;
 
+        const lazyMeteorComponents = {
+            MtDataTable: () => import('@shopware-ag/meteor-component-library/dist/esm/MtDataTable'),
+        }
+
         Object.entries(meteorComponents).forEach(
             ([
                 componentName,
@@ -358,6 +388,14 @@ export default class VueAdapter extends ViewAdapter {
                 this.app.component(componentNameAsKebabCase, component as VueComponent);
             },
         );
+
+        Object.entries(lazyMeteorComponents).forEach(([
+            componentName,
+            importMethod,
+        ]) => {
+            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+            this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
+        })
 
         return this.vueComponents;
     }
@@ -414,24 +452,10 @@ export default class VueAdapter extends ViewAdapter {
 
             // load async components
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this.app?.component(
+            this.registerAsyncComponent(
                 componentName,
-                defineAsyncComponent({
-                    // the loader function
-                    // @ts-expect-error - resolved config does not match completely a standard vue component
-                    loader: () => this.componentResolver(componentName),
-                    // Delay before showing the loading component. Default: 200ms.
-                    delay: 0,
-                    loadingComponent: {
-                        name: 'async-loading-component',
-                        inheritAttrs: false,
-                        render() {
-                            return h('div', {
-                                style: { display: 'none' },
-                            });
-                        },
-                    },
-                }),
+                // @ts-expect-error - resolved config does not match completely a standard vue component
+                () => this.componentResolver(componentName),
             );
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call

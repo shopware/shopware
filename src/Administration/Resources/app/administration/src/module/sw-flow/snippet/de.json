@@ -189,7 +189,11 @@
         "placeholderDeliveryStatus": "Versandstatus wählen ...",
         "messageNoStatusError": "Mindestens ein Status muss ausgewählt sein",
         "forceTransition": "Statuswechsel erzwingen",
-        "forceTransitionHelpText": "Statuswechsel werden durchgeführt, ohne den Ausgangspunkt oder die üblichen Übergangspfade (state machine) zu beachten."
+        "forceTransitionHelpText": "Statuswechsel werden durchgeführt, ohne den Ausgangspunkt oder die üblichen Übergangspfade (state machine) zu beachten.",
+        "transitionWarning": {
+          "title": "Warnung",
+          "message": "Vorsicht bei der Verwendung von Statuswechseln, da diese zu fehlerhaften Flows führen können, wenn der Statuswechsel nicht gültig ist. Um solche Probleme zu vermeiden, kann die Option „Statuswechsel erzwingen“ aktiviert werden."
+        }
       },
       "document": {
         "titleCreateDocument": "Dokumente erzeugen",

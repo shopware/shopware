@@ -12,6 +12,10 @@
                         "type": "string",
                         "enum": ["product"]
                     },
+                    "type": {
+                        "type": "string",
+                        "enum": ["physical", "digital"]
+                    },
                     "seoCategory": {
                         "$ref": "#/components/schemas/Category"
                     },
@@ -100,8 +104,8 @@
                     "calculatedPrice",
                     "calculatedPrices",
                     "seoCategory",
-                    "translated",
-                    "type"
+                    "type",
+                    "translated"
                 ]
             }
         }

@@ -492,6 +492,7 @@
     "confirmChangePaymentShippingSave": "Speichern",
     "confirmChangePaymentShippingCancel": "Abbrechen",
     "confirmSubmit": "Zahlungspflichtig bestellen",
+    "confirmDigitalContentHeader": "Digital content access",
     "confirmTermsHeader": "AGB und Widerrufsbelehrung",
     "confirmRevocationNotice": "Bitte beachten Sie die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Widerrufsbelehrung\">Widerrufsbelehrung</a>.",
     "confirmRevocationNoticeModal": "Bitte beachten Sie die %revocationModalTagOpen%Widerrufsbelehrung%revocationModalTagClose%.",

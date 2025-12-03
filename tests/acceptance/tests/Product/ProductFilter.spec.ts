@@ -76,29 +76,40 @@ test('Customer should see unavailable filter disabled based on selected filter',
 
     await test.step('Verify setup filters display & enabled', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url(), true);
-        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeVisible({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
+
+        await ShopCustomer.expects(async () => {
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
+            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
+            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled();
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible();
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible();
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled();
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeVisible();
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled();
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
     });
 
     await test.step('Select a manufacturer and verify that unavailable filter is disabled and products are filtered', async () => {
         const manufacturerLocator = await StorefrontHome.getFilterItemByFilterName(colorManufacturer.name);
         await ShopCustomer.attemptsTo(SelectProductFilterOption(StorefrontHome.manufacturerFilter, colorManufacturer.name));
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
+
         await ShopCustomer.expects(manufacturerLocator).toBeChecked();
         await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductColor.at(0).name })).toHaveCount(1);
-        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeDisabled({ timeout: TIMEOUT });
+
+        await ShopCustomer.expects(async () => {
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeDisabled({ timeout: TIMEOUT });
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
     });
 
     await test.step('Reset all filters and verify that all filters are enabled', async () => {
@@ -108,15 +119,21 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
         await ShopCustomer.goesTo(StorefrontHome.url(), true);
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductColor.at(0).name })).toHaveCount(1);
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: freeShipProduct.name })).toHaveCount(1);
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: basicProduct.name })).toHaveCount(1);
+
+        await ShopCustomer.expects(async () => {
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
     });
 
     await test.step('Select another manufacturer and verify that a different filter is disabled', async () => {
@@ -124,10 +141,15 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
         await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
-        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
+
+        await ShopCustomer.expects(async () => {
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
     });
 
     await test.step('Filter only by size and verify color and freeshipping filters are disabled', async () => {
@@ -136,24 +158,49 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
         await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
+
+        await ShopCustomer.expects(async () => {
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
 
         await ShopCustomer.presses(sizeFilter);
         await ShopCustomer.expects(StorefrontHome.resetAllButton).toBeVisible();
         await ShopCustomer.presses(StorefrontHome.resetAllButton);
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
+
+        await ShopCustomer.expects(async () => {
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
+            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
+            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled();
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible();
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible();
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled();
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeVisible();
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled();
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
     });
 
     await test.step('Select filter by free shipping, verify that all filters are disabled', async () => {
         await ShopCustomer.presses(StorefrontHome.freeShippingFilter);
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeDisabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
+
+        await ShopCustomer.expects(async () => {
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeDisabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
     });
 });
 
@@ -197,16 +244,21 @@ test('Customer should see unavailable filter options disabled when filtering by 
 
     await test.step('Verify setup filters display', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url(), true);
-        await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
+
+        await ShopCustomer.expects(async () => {
+            await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible({ timeout: TIMEOUT });
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
     });
 
     await test.step('When a rating is selected, verifies that any unavailable filter is disabled and that the products are filtered accordingly.', async () => {
@@ -215,12 +267,16 @@ test('Customer should see unavailable filter options disabled when filtering by 
         await ratingLocator.click();
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
-        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeDisabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
-        await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(products.length);
-        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: productWithRating1.name })).toHaveCount(1);
-        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: productWithRating2.name })).toHaveCount(1);
+        await ShopCustomer.expects(async () => {
+            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeDisabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
+            await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(products.length);
+            await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: productWithRating1.name })).toHaveCount(1);
+            await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: productWithRating2.name })).toHaveCount(1);
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
     });
 });

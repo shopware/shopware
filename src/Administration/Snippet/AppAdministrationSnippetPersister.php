@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -108,11 +109,12 @@ readonly class AppAdministrationSnippetPersister
     private function getCoreAdministrationSnippets(): array
     {
         $path = __DIR__ . '/../Resources/app/administration/src/app/snippet/en.json';
-        if (!$this->filesystem->exists($path)) {
+
+        try {
+            $snippets = $this->filesystem->readFile($path);
+        } catch (IOException) {
             return [];
         }
-
-        $snippets = $this->filesystem->readFile($path);
 
         return json_decode($snippets, true, 512, \JSON_THROW_ON_ERROR);
     }

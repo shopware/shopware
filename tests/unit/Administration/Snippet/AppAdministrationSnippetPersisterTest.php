@@ -22,6 +22,7 @@ use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -60,6 +61,8 @@ class AppAdministrationSnippetPersisterTest extends TestCase
 
     public function testItPersistsSnippetsWithoutCoreAdministrationSnippets(): void
     {
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('readFile')->willThrowException(new IOException('File not found'));
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator
             ->expects($this->once())
@@ -70,7 +73,26 @@ class AppAdministrationSnippetPersisterTest extends TestCase
             $this->getAppAdministrationSnippetRepository(),
             $this->getLocaleRepository(),
             $cacheInvalidator,
-            $this->createMock(Filesystem::class)
+            $filesystem
+        );
+
+        $persister->updateSnippets(self::getAppEntity(), [], Context::createDefaultContext());
+    }
+
+    public function testItPersistsSnippetsWithInvalidCoreAdministrationSnippets(): void
+    {
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('readFile')->willReturn('invalid json');
+        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $this->expectExceptionObject(new \JsonException('Syntax error', 4));
+
+        $persister = new AppAdministrationSnippetPersister(
+            $this->getAppAdministrationSnippetRepository(),
+            $this->getLocaleRepository(),
+            $cacheInvalidator,
+            $filesystem
         );
 
         $persister->updateSnippets(self::getAppEntity(), [], Context::createDefaultContext());

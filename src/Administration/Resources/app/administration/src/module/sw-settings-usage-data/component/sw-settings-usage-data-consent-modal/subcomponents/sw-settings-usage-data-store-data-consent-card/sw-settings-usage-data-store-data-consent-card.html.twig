@@ -1,0 +1,41 @@
+<div class="sw-settings-usage-data-store-data-consent-card sw-settings-usage-data-consent-modal-sub-card">
+    <h4>{{ $tc('sw-settings-usage-data.consent-modal.store-data.title') }}</h4>
+
+    <i18n-t
+        tag="p"
+        keypath="sw-settings-usage-data.consent-modal.store-data.description"
+    >
+        <template #order>
+            <span
+                v-tooltip="{ message: $t('sw-settings-usage-data.consent-modal.store-data.help-text.order')}"
+                class="sw-settings-usage-data-consent-modal-sub-card__tooltip"
+            >
+                {{ $t('sw-settings-usage-data.consent-modal.store-data.emphasizes.order') }}
+            </span>
+        </template>
+
+        <template #diagnostic>
+            <span
+                v-tooltip="{ message: $t('sw-settings-usage-data.consent-modal.store-data.help-text.diagnostic')}"
+                class="sw-settings-usage-data-consent-modal-sub-card__tooltip"
+            >
+                {{ $t('sw-settings-usage-data.consent-modal.store-data.emphasizes.diagnostic') }}
+            </span>
+        </template>
+
+        <template #store>
+            <span
+                v-tooltip="{ message: $t('sw-settings-usage-data.consent-modal.store-data.help-text.store')}"
+                class="sw-settings-usage-data-consent-modal-sub-card__tooltip"
+            >
+                {{ $t('sw-settings-usage-data.consent-modal.store-data.emphasizes.store') }}
+            </span>
+        </template>
+    </i18n-t>
+
+    <mt-switch
+        :model-value="consent"
+        :label="$t('sw-settings-usage-data.consent-modal.store-data.label-checkbox')"
+        @update:model-value="$emit('update:consent', $event)"
+    />
+</div>

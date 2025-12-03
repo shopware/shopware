@@ -23,24 +23,22 @@
     "filters": {
       "salesChannelFilter": {
         "label": "Verkaufskanal",
-        "placeholder": "Nach Verkaufskanal filtern..."
+        "placeholder": "Nach Verkaufskanal filtern ..."
       },
       "statusFilter": {
-        "label": "Freigegeben",
-        "labelActive": "Ja",
-        "labelInactive": "Nein"
+        "label": "Freigegeben"
       },
       "languageFilter": {
         "label": "Sprache",
-        "placeholder": "Nach Sprache filtern..."
+        "placeholder": "Nach Sprache filtern ..."
       },
       "customerFilter": {
         "label": "Kunde",
-        "placeholder": "Nach Kunde filtern..."
+        "placeholder": "Nach Kunde filtern ..."
       },
       "productFilter": {
         "label": "Produkt",
-        "placeholder": "Nach Produkt filtern..."
+        "placeholder": "Nach Produkt filtern ..."
       },
       "pointsFilter": {
         "label": "Bewertung (Sterne)"

@@ -1244,6 +1244,7 @@
  "sw_condition_customer_custom_field_operator",
  "sw_condition_customer_custom_field_value",
  "sw_condition_date_range_field_from_date",
+ "sw_condition_date_range_field_timezone",
  "sw_condition_date_range_field_use_time",
  "sw_condition_generic_field_operator",
  "sw_condition_generic_fields",

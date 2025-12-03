@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiEntitySelectField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiSelectField;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -52,9 +56,9 @@ class CustomFieldRule
      * @param array<string, mixed> $customFields
      * @param array<string|int|bool|float>|string|int|bool|float|null $renderedFieldValue
      */
-    public static function match(array $renderedField, array|string|int|bool|float|null $renderedFieldValue, string $operator, array $customFields): bool
+    public static function match(array $renderedField, array|string|int|bool|float|null $renderedFieldValue, string $operator, array $customFields, ?SalesChannelContext $context = null): bool
     {
-        $actual = self::getValue($customFields, $renderedField);
+        $actual = self::getValue($customFields, $renderedField, $context);
         $expected = self::getExpectedValue($renderedFieldValue, $renderedField);
 
         if ($actual === null) {
@@ -65,7 +69,7 @@ class CustomFieldRule
             return false;
         }
 
-        if (self::isFloat($renderedField)) {
+        if (self::isFloat($renderedField) || self::isPrice($renderedField)) {
             return FloatComparator::compare((float) $actual, (float) $expected, $operator);
         }
 
@@ -90,10 +94,27 @@ class CustomFieldRule
      *
      * @return array<string>|float|bool|int|string|null
      */
-    public static function getValue(array $customFields, array $renderedField): array|float|bool|int|string|null
+    public static function getValue(array $customFields, array $renderedField, ?SalesChannelContext $context = null): array|float|bool|int|string|null
     {
         if (!empty($customFields) && \is_string($renderedField['name']) && \array_key_exists($renderedField['name'], $customFields)) {
-            return $customFields[$renderedField['name']];
+            $value = $customFields[$renderedField['name']];
+
+            if (self::isPrice($renderedField) && $value instanceof PriceCollection) {
+                $currencyId = $context?->getCurrencyId() ?? Defaults::CURRENCY;
+                $price = $value->getCurrencyPrice($currencyId);
+
+                if ($price === null) {
+                    return null;
+                }
+
+                if ($context?->getTaxState() === CartPrice::TAX_STATE_NET) {
+                    return $price->getNet();
+                }
+
+                return $price->getGross();
+            }
+
+            return $value;
         }
 
         if (self::isSwitchOrBoolField($renderedField)) {
@@ -132,6 +153,14 @@ class CustomFieldRule
     public static function isFloat(array $renderedField): bool
     {
         return $renderedField['type'] === CustomFieldTypes::FLOAT;
+    }
+
+    /**
+     * @param array<string, string|array<string, string>> $renderedField
+     */
+    public static function isPrice(array $renderedField): bool
+    {
+        return $renderedField['type'] === CustomFieldTypes::PRICE;
     }
 
     /**

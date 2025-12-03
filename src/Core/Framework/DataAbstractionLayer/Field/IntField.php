@@ -6,8 +6,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSeriali
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class IntField extends Field implements StorageAware
+class IntField extends Field implements StorageAware, EnumerableField
 {
+    use EnumerableFieldTrait;
+
     public function __construct(
         private readonly string $storageName,
         string $propertyName,

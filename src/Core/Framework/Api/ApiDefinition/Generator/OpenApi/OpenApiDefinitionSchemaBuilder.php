@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BreadcrumbField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumerableField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -41,6 +42,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldEnumProviderInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -55,8 +57,10 @@ class OpenApiDefinitionSchemaBuilder
 
     /**
      * @internal
+     *
+     * @param iterable<FieldEnumProviderInterface> $enumProviders
      */
-    public function __construct()
+    public function __construct(private readonly iterable $enumProviders)
     {
         $this->converter = new CamelCaseToSnakeCaseNameConverter(null, false);
     }
@@ -134,6 +138,24 @@ class OpenApiDefinitionSchemaBuilder
             }
 
             $attr = $this->getPropertyByField($field);
+
+            if ($field instanceof EnumerableField) {
+                $possibleValues = $field->getPossibleValues();
+
+                if (!empty($possibleValues)) {
+                    $attr->enum = $possibleValues;
+                }
+
+                foreach ($this->enumProviders as $enumProvider) {
+                    if (!$enumProvider->isSupported($definition->getEntityName(), $field->getPropertyName())) {
+                        continue;
+                    }
+
+                    $possibleValues = array_values(array_unique(array_merge($possibleValues, $enumProvider->getEnumValues())));
+
+                    $attr->enum = $possibleValues;
+                }
+            }
 
             if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt'], true) || $this->isWriteProtected($field)) {
                 $attr->readOnly = true;

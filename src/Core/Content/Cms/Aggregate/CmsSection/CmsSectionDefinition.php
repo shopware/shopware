@@ -63,7 +63,10 @@ class CmsSectionDefinition extends EntityDefinition
             (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()),
 
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required())->setDescription('Position of occurrence of each section denoted by numerical values 0, 1, 2...'),
-            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required())->setDescription('Types of sections can be `sidebar` or `fullwidth`.'),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required())->setPossibleValues([
+                'default',
+                'sidebar',
+            ])->setDescription('Types of sections can be `sidebar` or `fullwidth`.'),
             new LockedField(),
             (new StringField('name', 'name'))->addFlags(new ApiAware())->setDescription('Name of the CMS section defined.'),
             (new StringField('sizing_mode', 'sizingMode'))->addFlags(new ApiAware())->setDescription('Sizing mode can be `boxed` or `full_width`.'),

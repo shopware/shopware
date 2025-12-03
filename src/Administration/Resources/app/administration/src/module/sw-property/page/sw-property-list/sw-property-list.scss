@@ -8,6 +8,13 @@ $sw-property-list-color-success: $color-emerald-500;
         width: 100%;
         height: 100%;
         position: absolute;
+
+        &:has(.mt-empty-state) {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
     }
 
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {

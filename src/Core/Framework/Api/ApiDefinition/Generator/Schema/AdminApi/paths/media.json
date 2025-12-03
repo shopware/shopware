@@ -321,7 +321,6 @@
                                     "coverMediaId": {
                                         "type": "string",
                                         "pattern": "^[0-9a-f]{32}$",
-                                        "nullable": true,
                                         "description": "ID of the image media entity to use as cover. Set to null to remove the cover."
                                     }
                                 }

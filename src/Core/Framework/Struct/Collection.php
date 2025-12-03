@@ -241,15 +241,14 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function addFromAssociative(array $associativeData): self
     {
-        $expectedClass = $this->getExpectedClass();
-        if ($expectedClass === null) {
-            return $this;
+        $baseObject = null;
+        if ($expectedClass = $this->getExpectedClass()) {
+            $baseObject = (new \ReflectionClass($expectedClass))->newInstanceWithoutConstructor();
         }
 
-        $baseObject = (new \ReflectionClass($expectedClass))->newInstanceWithoutConstructor();
         $hasNecessaryInterface = $baseObject instanceof AssignArrayInterface;
 
-        foreach (\array_filter($associativeData) as $value) {
+        foreach ($associativeData as $value) {
             if ($hasNecessaryInterface && \is_array($value)) {
                 $value = (clone $baseObject)->assignRecursive($value);
             }

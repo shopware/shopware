@@ -35,24 +35,23 @@ trait AssignArrayTrait
     public function assignRecursive(array $options): static
     {
         foreach ($options as $propertyName => $value) {
-            try {
-                if (!\is_array($value) || $value === []) {
-                    $this->assignValue($propertyName, $value);
+            if (\is_array($value)) {
+                try {
+                    $type = (new \ReflectionProperty($this, $propertyName))->getType();
+                    if ($type !== null && (!$type instanceof \ReflectionNamedType || !$type->isBuiltin())) {
+                        $this->assignValue($propertyName, $this->createStruct($type, $value));
 
-                    continue;
+                        continue;
+                    }
+                } catch (\Throwable $e) {
+                    // Ignore every error that occurs while trying to create objects, except property not exists
+                    if (!preg_match('/Property .* does not exist/', $e->getMessage())) {
+                        continue;
+                    }
                 }
-
-                $type = (new \ReflectionProperty($this, $propertyName))->getType();
-                if ($type !== null && (!$type instanceof \ReflectionNamedType || !$type->isBuiltin())) {
-                    $this->assignValue($propertyName, $this->createStruct($type, $value));
-
-                    continue;
-                }
-
-                $this->assignValue($propertyName, $value);
-            } catch (\Throwable) {
-                // Ignore every error that occurs while trying to set properties´
             }
+
+            $this->assignValue($propertyName, $value);
         }
 
         return $this;
@@ -92,8 +91,11 @@ trait AssignArrayTrait
         } catch (\Throwable) {
         }
 
-        // @phpstan-ignore property.dynamicName (We allow dynamic property assignment)
-        $this->{$propertyName} = $value;
+        try {
+            // @phpstan-ignore property.dynamicName (We allow dynamic property assignment)
+            $this->{$propertyName} = $value;
+        } catch (\Throwable) {
+        }
     }
 
     /**

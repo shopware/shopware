@@ -76,8 +76,8 @@ export default class AdminNotificationWorker {
                 this._timestamp = value.timestamp;
             } else {
                 // If no timestamp is found, fetch the user's creation date as a fallback
-                this._userService.getUser().then((response) => {
-                    this._timestamp = response.data.createdAt.timestamp;
+                this._userService.getUser().then((userResponse) => {
+                    this._timestamp = userResponse.data.createdAt.timestamp;
                 });
             }
         });

@@ -274,7 +274,10 @@ class DateRangeRuleTest extends TestCase
             new \DateTimeZone('UTC')
         );
 
-        $serialized = (string) json_encode($rule);
+        $serialized = json_encode($rule);
+
+        static::assertIsString($serialized);
+
         $data = json_decode($serialized, true);
 
         static::assertSame('2024-01-15T10:30:45', $data['fromDate']);

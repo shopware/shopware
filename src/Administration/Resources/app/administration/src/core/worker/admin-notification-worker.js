@@ -12,6 +12,7 @@ export default class AdminNotificationWorker {
     constructor() {
         this._notificationService = Service('notificationsService');
         this._userConfigService = Service('userConfigService');
+        this._userService = Service('userService');
         this._notiticationInterval = 5000;
         this._notiticationTimeoutId = null;
         this._timestamp = null;
@@ -73,6 +74,11 @@ export default class AdminNotificationWorker {
 
             if (value) {
                 this._timestamp = value.timestamp;
+            } else {
+                // If no timestamp is found, fetch the user's creation date as a fallback
+                this._userService.getUser().then((response) => {
+                    this._timestamp = response.data.createdAt.timestamp;
+                });
             }
         });
     }

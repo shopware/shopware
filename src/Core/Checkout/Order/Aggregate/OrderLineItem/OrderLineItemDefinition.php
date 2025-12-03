@@ -80,7 +80,7 @@ class OrderLineItemDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields =  new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
 
@@ -103,7 +103,6 @@ class OrderLineItemDefinition extends EntityDefinition
             (new BoolField('removable', 'removable'))->addFlags(new ApiAware()),
             (new BoolField('stackable', 'stackable'))->addFlags(new ApiAware()),
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required()),
-            ...$this->buildStateField(),
 
             (new CalculatedPriceField('price', 'price'))->addFlags(new Required()),
             (new PriceDefinitionField('price_definition', 'priceDefinition'))->addFlags(new ApiAware()),
@@ -122,20 +121,14 @@ class OrderLineItemDefinition extends EntityDefinition
             (new ParentAssociationField(self::class))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware(), new Required()),
         ]);
-    }
 
-    /**
-     * @return array<int, ListField>
-     */
-    private function buildStateField(): array
-    {
-        if (Feature::isActive('v6.8.0.0')) {
-            return [];
+        if (!Feature::isActive('v6.8.0.0')) {
+            $fields->add(
+                (new ListField('states', 'states', StringField::class))
+                    ->addFlags(new ApiAware(), new Required(), new Deprecated('v6.7.6.0', 'v6.8.0.0', 'payload.productType')),
+            );
         }
 
-        return [
-            (new ListField('states', 'states', StringField::class))
-                ->addFlags(new ApiAware(), new Required(), new Deprecated('v6.8.0.0', 'order_line_item.states will be removed; use payload.productType instead')),
-        ];
+        return $fields;
     }
 }

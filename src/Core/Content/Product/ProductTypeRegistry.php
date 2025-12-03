@@ -5,9 +5,11 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
-class ProductTypeRegistry
+final class ProductTypeRegistry
 {
     /**
+     * @internal
+     *
      * @param array<string> $types
      */
     public function __construct(public array $types)

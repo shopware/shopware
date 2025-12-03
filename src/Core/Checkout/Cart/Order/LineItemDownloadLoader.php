@@ -3,13 +3,14 @@
 namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -35,12 +36,18 @@ class LineItemDownloadLoader
         foreach ($lineItems as $key => $lineItem) {
             $productId = $lineItem['referencedId'] ?? null;
             $states = $lineItem['states'] ?? null;
-            $productType = $lineItem['productType'] ?? null;
+            $productType = $lineItem['payload']['productType'] ?? null;
+
+
+            if (Feature::isActive('v6.8.0.0')) {
+                $isLineItemDownloadable = $productType === ProductDefinition::TYPE_DIGITAL;
+            } else {
+                $isLineItemDownloadable = (\is_array($states) && \in_array(State::IS_DOWNLOAD, $states, true)) || $productType === ProductDefinition::TYPE_DIGITAL;
+            }
 
             if (
                 !$productId
-                || !$states
-                || !(\in_array(State::IS_DOWNLOAD, $states, true) || $productType === ProductEntity::TYPE_DIGITAL)
+                || !$isLineItemDownloadable
                 || !empty($lineItem['downloads'])
             ) {
                 continue;

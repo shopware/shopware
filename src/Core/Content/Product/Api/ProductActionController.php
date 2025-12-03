@@ -36,10 +36,6 @@ class ProductActionController extends AbstractController
     #[Route(path: '/api/_action/product/types', name: 'api.action.product.types', methods: ['GET'])]
     public function getProductTypes(): JsonResponse
     {
-        $types = array_map(static function ($handler) {
-            return $handler->getType();
-        }, $this->productTypeRegistry->getTypeHandlers());
-
-        return new JsonResponse($types);
+        return new JsonResponse($this->productTypeRegistry->getTypes());
     }
 }

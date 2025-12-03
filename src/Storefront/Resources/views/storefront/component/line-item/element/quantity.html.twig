@@ -19,8 +19,8 @@
         {% set maxQuantity = config('core.cart.maxQuantity') %}
     {% endif %}
 
-    {% set DIGITAL_CONST = constant('Shopware\\Core\\Content\\Product\\ProductEntity::TYPE_DIGITAL') %}
-    {% set isDigital = lineItem.productType is defined and lineItem.productType == DIGITAL_CONST %}
+    {% set DIGITAL_CONST = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
+    {% set isDigital = lineItem.payload.productType is defined and lineItem.payload.productType == DIGITAL_CONST %}
 
     {% if feature('v6.8.0.0') %}
         {% set isDigital = isDigital or quantityInformation.maxPurchase === 1 %}

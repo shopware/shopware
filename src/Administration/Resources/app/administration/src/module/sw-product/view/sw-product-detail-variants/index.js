@@ -76,11 +76,11 @@ export default {
          * @returns {string[]}
          */
         currentProductStates() {
-            return this.currentProductType;
+            return this.activeTab.split(',');
         },
 
         currentProductType() {
-            return this.activeTab.split(',');
+            return this.activeTab.split(',')[0] ?? 'all';
         },
 
         assetFilter() {

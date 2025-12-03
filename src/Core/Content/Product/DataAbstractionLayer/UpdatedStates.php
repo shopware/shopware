@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -24,6 +25,11 @@ final class UpdatedStates extends Struct
 
     public function getId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getId', 'v6.8.0.0')
+        );
+
         return $this->id;
     }
 
@@ -32,6 +38,11 @@ final class UpdatedStates extends Struct
      */
     public function getOldStates(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getOldStates', 'v6.8.0.0')
+        );
+
         return $this->oldStates;
     }
 
@@ -40,6 +51,11 @@ final class UpdatedStates extends Struct
      */
     public function getNewStates(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getNewStates', 'v6.8.0.0')
+        );
+
         return $this->newStates;
     }
 
@@ -48,6 +64,11 @@ final class UpdatedStates extends Struct
      */
     public function setNewStates(array $newStates): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'setNewStates', 'v6.8.0.0')
+        );
+
         $this->newStates = $newStates;
     }
 }

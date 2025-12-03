@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -75,10 +76,7 @@ class ProductEntity extends Entity implements \Stringable
 
     protected bool $available;
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - $type will become a required parameter
-     */
-    protected ?string $type = ProductDefinition::TYPE_PHYSICAL;
+    protected string $type;
 
     protected ?string $deliveryTimeId = null;
 
@@ -1009,19 +1007,6 @@ class ProductEntity extends Entity implements \Stringable
         $this->available = $available;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - will return string
-     */
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): void
-    {
-        $this->type = $type;
-    }
-
     public function getDeliveryTimeId(): ?string
     {
         return $this->deliveryTimeId;
@@ -1247,20 +1232,40 @@ class ProductEntity extends Entity implements \Stringable
     /**
      * @return array<int, string>
      *
-     * @deprecated tag:v6.8.0 - Will be removed without replacement. Use getProductType instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Use getType instead.
      */
     public function getStates(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getStates', 'v6.8.0.0', 'getType')
+        );
+
         return $this->states;
     }
 
     /**
      * @param array<int, string> $states
      *
-     * @deprecated tag:v6.8.0 - Will be removed without replacement. Use setType instead.
+     * @deprecated tag:v6.8.0 -- Will be removed. Use setType instead.
      */
     public function setStates(array $states): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getStates', 'v6.8.0.0', 'getType')
+        );
+
         $this->states = $states;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 }

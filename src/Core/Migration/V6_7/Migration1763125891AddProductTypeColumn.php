@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
 #[Package('inventory')]
 class Migration1763125891AddProductTypeColumn extends MigrationStep
 {
@@ -18,17 +21,22 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
     public function update(Connection $connection): void
     {
         if (!EntityDefinitionQueryHelper::columnExists($connection, 'product', 'type')) {
-            $connection->executeStatement(
-                'ALTER TABLE `product` ADD `type` VARCHAR(32) NULL'
+            $this->addColumn(
+                $connection,
+                'product',
+                'type',
+                "VARCHAR(32) NOT NULL DEFAULT 'physical'",
             );
+            
             $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
         }
 
         $connection->executeStatement(<<<'SQL'
             UPDATE `product`
-                LEFT JOIN `product_download`
+                INNER JOIN `product_download`
                     ON `product`.`id` = `product_download`.`product_id` AND `product`.`version_id` = `product_download`.`product_version_id`
-             SET `product`.`type` = IF(`product_download`.`product_id` IS NOT NULL, 'digital', 'physical')
+             SET `product`.`type` = 'digital'
+             WHERE `product_download`.`id` IS NOT NULL
             SQL);
     }
 

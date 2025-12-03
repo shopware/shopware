@@ -201,7 +201,17 @@ class LineItemTransformer
             LineItem::CUSTOM_LINE_ITEM_TYPE,
         ], true);
 
+        if ($isProduct && !$entity->hasPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE)) {
+            $item->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+        }
+
         $isDownloadState = $entity->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE) === ProductDefinition::TYPE_DIGITAL;
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', function () use (&$isDownloadState, $entity): void {
+                $isDownloadState = $isDownloadState || (\is_array($entity->getStates()) && \in_array(State::IS_DOWNLOAD, $entity->getStates(), true));
+            });
+        }
 
         if ($isNonProduct || ($isProduct && $isDownloadState)) {
             $item->setShippingCostAware(false);

@@ -132,7 +132,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'weight' => self::FLOAT_FIELD,
             'width' => self::FLOAT_FIELD,
             'type' => self::KEYWORD_FIELD,
-            'states' => Feature::isActive('v6.8.0.0') ? null : self::KEYWORD_FIELD,
+            'states' => self::KEYWORD_FIELD,
             'customFields' => $this->fieldBuilder->customFields($this->getEntityDefinition()->getEntityName(), $context),
             ...$visibilities,
         ];
@@ -274,6 +274,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'width' => (float) $item['width'],
                 'length' => (float) $item['length'],
                 'height' => (float) $item['height'],
+                'type' => $item['type'],
                 'manufacturerId' => $item['productManufacturerId'],
                 'manufacturerNumber' => $item['manufacturerNumber'],
                 'deliveryTimeId' => $item['deliveryTimeId'],
@@ -334,6 +335,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             if (Feature::isActive('v6.8.0.0')) {
                 unset($documents[$id]['categoriesRo']);
                 unset($documents[$id]['visibilities']);
+                unset($documents[$id]['states']);
             }
         }
 
@@ -393,6 +395,7 @@ SELECT
     IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,
     LOWER(HEX(p.parent_id)) as parentId,
     p.child_count as childCount,
+    p.type.
     p.states
 
 FROM product p

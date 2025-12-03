@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -100,38 +100,38 @@ class LineItemCollectionTest extends TestCase
     {
         yield 'collection has line item with state download and physical' => [
             new LineItemCollection([
-                (new LineItem('A', 'test'))->setProductType(ProductEntity::TYPE_PHYSICAL),
-                (new LineItem('B', 'test'))->setProductType(ProductEntity::TYPE_DIGITAL),
+                (new LineItem('A', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL),
+                (new LineItem('B', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL),
             ]),
-            [ProductEntity::TYPE_PHYSICAL => true, ProductEntity::TYPE_DIGITAL => true],
+            [ProductDefinition::TYPE_PHYSICAL => true, ProductDefinition::TYPE_DIGITAL => true],
         ];
         yield 'collection has line item with only state physical' => [
             new LineItemCollection([
-                (new LineItem('A', 'test'))->setProductType(ProductEntity::TYPE_PHYSICAL),
-                (new LineItem('B', 'test'))->setProductType(ProductEntity::TYPE_PHYSICAL),
+                (new LineItem('A', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL),
+                (new LineItem('B', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL),
             ]),
-            [ProductEntity::TYPE_PHYSICAL => true, ProductEntity::TYPE_DIGITAL => false],
+            [ProductDefinition::TYPE_PHYSICAL => true, ProductDefinition::TYPE_DIGITAL => false],
         ];
         yield 'collection has line item with only state download' => [
             new LineItemCollection([
-                (new LineItem('A', 'test'))->setProductType(ProductEntity::TYPE_DIGITAL),
-                (new LineItem('B', 'test'))->setProductType(ProductEntity::TYPE_DIGITAL),
+                (new LineItem('A', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL),
+                (new LineItem('B', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL),
             ]),
-            [ProductEntity::TYPE_PHYSICAL => false, ProductEntity::TYPE_DIGITAL => true],
+            [ProductDefinition::TYPE_PHYSICAL => false, ProductDefinition::TYPE_DIGITAL => true],
         ];
         yield 'collection has line items without any state' => [
             new LineItemCollection([
                 new LineItem('A', 'test'),
                 new LineItem('B', 'test'),
             ]),
-            [ProductEntity::TYPE_PHYSICAL => false, ProductEntity::TYPE_DIGITAL => false],
+            [ProductDefinition::TYPE_PHYSICAL => false, ProductDefinition::TYPE_DIGITAL => false],
         ];
         yield 'collection has line items with a unknown state' => [
             new LineItemCollection([
-                (new LineItem('A', 'test'))->setProductType('foo'),
-                (new LineItem('B', 'test'))->setProductType('foo'),
+                (new LineItem('A', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, 'foo'),
+                (new LineItem('B', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, 'foo'),
             ]),
-            [ProductEntity::TYPE_PHYSICAL => false, ProductEntity::TYPE_DIGITAL => false, 'foo' => true],
+            [ProductDefinition::TYPE_PHYSICAL => false, ProductDefinition::TYPE_DIGITAL => false, 'foo' => true],
         ];
     }
 

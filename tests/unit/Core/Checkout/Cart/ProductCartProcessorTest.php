@@ -23,10 +23,12 @@ use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Checkout\EmptyPrice;
@@ -293,11 +295,15 @@ class ProductCartProcessorTest extends TestCase
 
         $originalCart = new Cart('test');
         $originalCart->add((new LineItem('A', 'product', 'A', 2))->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()))); // 2 items of product A
-        $originalCart->add(
-            (new LineItem('B', 'product', 'B', 3))
+        $lineItem = (new LineItem('B', 'product', 'B', 3))
             ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()))
-            ->setStates([State::IS_DOWNLOAD])
-        );
+            ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_DOWNLOAD]);
+        }
+
+        $originalCart->add($lineItem);
         $toCalculateCart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);

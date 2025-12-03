@@ -410,9 +410,8 @@ class OrderLineItemEntity extends Entity
 
     /**
      * @return array<int, string>
-     */
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed without replacement. Use getPayloadValue(\'productType\') instead.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use getPayloadValue(\'productType\') instead.
      */
     public function getStates(): array
     {
@@ -427,7 +426,7 @@ class OrderLineItemEntity extends Entity
     /**
      * @param array<int, string> $states
      *
-     * @deprecated tag:v6.8.0 - Will be removed without replacement. Use setPayloadValue('productType', value) instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Use setPayloadValue('productType', value) instead.
      */
     public function setStates(array $states): void
     {

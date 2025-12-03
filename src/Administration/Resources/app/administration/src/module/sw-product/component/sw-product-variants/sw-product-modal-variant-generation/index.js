@@ -126,7 +126,7 @@ export default {
 
         isGenerateButtonDisabled() {
             return this.variantGenerationQueue.createQueue.some((item) => {
-                return item.downloads.length === 0 && item.productType === 'digital';
+                return item.downloads.length === 0 && item.type === 'digital';
             });
         },
     },
@@ -210,7 +210,7 @@ export default {
                         if (!Shopware.Feature.isActive('v6.8.0.0')) {
                             item.productStates = [];
                         }
-                        item.productType = '';
+                        item.type = 'physical';
                         item.id = item.productNumber;
                         this.idToIndex[item.id] = index;
                     });
@@ -318,7 +318,7 @@ export default {
             this.variantGenerationQueue.createQueue.forEach((item) => {
                 delete item.id;
 
-                if (item.productType === 'digital') {
+                if (item.type === 'digital') {
                     item.maxPurchase = 1;
                     item.minPurchase = 1;
                     item.isCloseout = false;
@@ -394,7 +394,7 @@ export default {
                     if (!Shopware.Feature.isActive('v6.8.0.0')) {
                         item.productStates = [];
                     }
-                    item.productType = '';
+                    item.type = 'physical';
                 });
                 this.getList();
 
@@ -408,7 +408,7 @@ export default {
                 if (!Shopware.Feature.isActive('v6.8.0.0')) {
                     item.productStates = ['is-download'];
                 }
-                item.productType = 'digital';
+                item.type = 'digital';
             });
 
             this.getList();
@@ -430,7 +430,7 @@ export default {
                 if (!Shopware.Feature.isActive('v6.8.0.0')) {
                     item.productStates = [];
                 }
-                item.productType = '';
+                item.type = 'physical';
 
                 return;
             }
@@ -441,7 +441,7 @@ export default {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
                 item.productStates = ['is-download'];
             }
-            item.productType = 'digital';
+            item.type = 'digital';
         },
 
         isUploadDisabled(item) {
@@ -476,7 +476,7 @@ export default {
                 }
 
                 variants.forEach((currentItem) => {
-                    if (currentItem.productType === 'digital') {
+                    if (currentItem.type === 'digital') {
                         if (this.isExistingMedia(currentItem.downloads, event.targetId)) {
                             return;
                         }

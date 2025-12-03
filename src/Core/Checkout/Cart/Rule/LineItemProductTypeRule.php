@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\ProductTypeRegistry;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -12,6 +13,9 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraint;
 
+/**
+ * @final
+ */
 #[Package('fundamentals@after-sales')]
 class LineItemProductTypeRule extends Rule
 {
@@ -21,6 +25,9 @@ class LineItemProductTypeRule extends Rule
 
     protected string $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(private readonly ProductTypeRegistry $productTypeRegistry)
     {
         parent::__construct();

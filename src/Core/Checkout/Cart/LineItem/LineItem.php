@@ -541,7 +541,7 @@ class LineItem extends Struct
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use setProductType() instead
+     * @deprecated tag:v6.8.0 - Will be removed, use setPayloadValue('productType', $type) instead
      *
      * @param array<int, string> $states
      */

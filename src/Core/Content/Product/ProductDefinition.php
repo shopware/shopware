@@ -108,7 +108,7 @@ class ProductDefinition extends EntityDefinition
     }
 
     /**
-     * @return array<string, bool|int|null>
+     * @return array<string, bool|int|string|null>
      */
     public function getDefaults(): array
     {
@@ -136,7 +136,7 @@ class ProductDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
@@ -164,7 +164,7 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited()),
             (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()),
             (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('type', 'type', 32))->addFlags(new ApiAware(), new Required(), new Inherited()),
+            (new StringField('type', 'type', 32))->addFlags(new ApiAware(), new Required()),
 
             (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options.name', 'options.group.name'])),
             (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected()),
@@ -195,7 +195,6 @@ class ProductDefinition extends EntityDefinition
             (new ChildCountField())->addFlags(new ApiAware()),
             (new BoolField('custom_field_set_selection_active', 'customFieldSetSelectionActive'))->addFlags(new Inherited()),
             (new IntField('sales', 'sales'))->addFlags(new ApiAware(), new WriteProtected()),
-            ...$this->buildStateField(),
             (new OneToManyAssociationField('downloads', ProductDownloadDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Downloadable files associated with the product (e.g., manuals, digital content)'),
 
             (new TranslatedField('metaDescription'))->addFlags(new ApiAware(), new Inherited()),
@@ -269,20 +268,14 @@ class ProductDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
         ]);
-    }
 
-    /**
-     * @return array<int, ListField>
-     */
-    private function buildStateField(): array
-    {
-        if (Feature::isActive('v6.8.0.0')) {
-            return [];
+        if (!Feature::isActive('v6.8.0.0')) {
+            $fields->add(
+                (new ListField('states', 'states', StringField::class))
+                    ->addFlags(new ApiAware(), new WriteProtected(), new Deprecated('v6.7.6.0', 'v6.8.0.0', 'type')),
+            );
         }
 
-        return [
-            (new ListField('states', 'states', StringField::class))
-                ->addFlags(new ApiAware(), new WriteProtected(), new Deprecated('v6.8.0.0', 'product.states will be removed; use type instead')),
-        ];
+        return $fields;
     }
 }

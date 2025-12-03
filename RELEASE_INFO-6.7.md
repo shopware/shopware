@@ -2,6 +2,11 @@
 
 ## Features
 
+### TOS checkbox position update in 6.8
+- The Terms of Service (TOS) checkbox will be moved to the bottom of the order confirmation page starting with version 6.8.
+- A new configuration option `core.cart.showTosCheckbox` has been added to enable or disable the TOS checkbox on the order confirmation page.
+- By default (from version 6.8 onward), the checkbox will be hidden and only a descriptive label will be displayed.
+
 ## API
 
 ## Core

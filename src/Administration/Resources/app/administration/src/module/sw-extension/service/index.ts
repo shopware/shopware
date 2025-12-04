@@ -84,11 +84,11 @@ Shopware.Store.get('notification').registerTransformer(
         return {
             ...notification,
             variant: 'warning' as NotificationVariant,
-            title: root.$tc('sw-extension.notifications.reviewPrivilegeRequests.title'),
-            message: root.$tc('sw-extension.notifications.reviewPrivilegeRequests.message'),
+            title: root.$t('sw-extension.notifications.reviewPrivilegeRequests.title'),
+            message: root.$t('sw-extension.notifications.reviewPrivilegeRequests.message'),
             actions: [
                 {
-                    label: root.$tc('sw-extension.notifications.reviewPrivilegeRequests.action'),
+                    label: root.$t('sw-extension.notifications.reviewPrivilegeRequests.action'),
                     route: { name: 'sw.extension.my-extensions.listing' },
                 },
             ],

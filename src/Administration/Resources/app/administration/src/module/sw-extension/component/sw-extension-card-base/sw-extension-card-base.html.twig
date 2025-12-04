@@ -49,14 +49,14 @@
                     v-if="newPrivilegesRequested"
                     class="sw-extension-card-base__meta-info-privilege-review"
                 >
-                    {{ $tc('sw-extension.my-extensions.listing.privilege-review') }}
+                    {{ $t('sw-extension.my-extensions.listing.privilege-review') }}
                 </span>
 
                 <span
                     v-if="extension.version"
                     class="sw-extension-card-base__meta-info-version"
                 >
-                    {{ $tc('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
+                    {{ $t('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
                 </span>
 
                 <span
@@ -67,7 +67,7 @@
                     @click="openPrivilegesReviewModal"
                     @keydown.enter="openPrivilegesReviewModal"
                 >
-                    {{ $tc('sw-extension-store.component.sw-extension-card-base.reviewNewPrivilegesLabel') }}
+                    {{ $t('sw-extension-store.component.sw-extension-card-base.reviewNewPrivilegesLabel') }}
                 </span>
             </div>
 

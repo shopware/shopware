@@ -391,7 +391,7 @@ export default {
         },
 
         openPrivilegesReviewModal() {
-            this.permissionModalActionLabel = this.$tc(
+            this.permissionModalActionLabel = this.$t(
                 'sw-extension-store.component.sw-extension-card-base.labelAcceptRequestedPrivileges',
             );
             this.showPrivilegesReviewModal = true;

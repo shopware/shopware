@@ -49,12 +49,12 @@
             v-if="hasPrivilegeRequests"
             class="sw-extension-my-extensions-listing__privilege-request-warning"
             variant="attention"
-            :title="$tc('sw-app.component.sw-app-privilege-request-banner.title')"
+            :title="$t('sw-app.component.sw-app-privilege-request-banner.title')"
         >
 
             <template #default>
                 <div>
-                    {{ $tc('sw-app.component.sw-app-privilege-request-banner.explanation', extensionListWithRequestedPrivileges.length) }}
+                    {{ $t('sw-app.component.sw-app-privilege-request-banner.explanation', extensionListWithRequestedPrivileges.length) }}
                 </div>
 
                 <mt-button
@@ -64,7 +64,7 @@
                     ghost
                     @click="reviewPrivilegeRequests"
                 >
-                    {{ $tc('sw-app.component.sw-app-privilege-request-banner.reviewButton') }}
+                    {{ $t('sw-app.component.sw-app-privilege-request-banner.reviewButton') }}
                 </mt-button>
             </template>
         </mt-banner>

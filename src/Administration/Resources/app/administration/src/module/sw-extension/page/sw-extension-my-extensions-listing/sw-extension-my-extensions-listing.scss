@@ -41,7 +41,7 @@
 
         .sw-extension-my-extensions-listing__privilege-request-warning {
             max-width: 960px;
-            margin-bottom: 32px;
+            margin-bottom: var(--scale-size-32);
 
             .sw-extension-my-extensions-listing__privilege-request-warning__review-button {
                 margin-top: var(--scale-size-8);

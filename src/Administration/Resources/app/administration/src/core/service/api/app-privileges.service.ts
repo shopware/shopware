@@ -16,9 +16,9 @@ export default class AppPrivilegesService extends ApiService {
         this.name = 'appPrivilegesService';
     }
 
-    public async acceptPrivileges(name: string, privileges: string[]): Promise<void> {
+    public async acceptPrivileges(appName: string, privileges: string[]): Promise<void> {
         await this.httpClient.patch(
-            `app-system/${name}/privileges`,
+            `app-system/${appName}/privileges`,
             {
                 accept: privileges,
             },

@@ -94,11 +94,11 @@
         }
 
         &-privilege-review {
-            font-size: 10px;
-            font-weight: $font-weight-semi-bold;
-            border-radius: $border-radius-pill;
+            font-size: 0.625rem;
+            font-weight: var(--font-weight-semi-bold);
+            border-radius: var(--border-radius-l);
             background-color: var(--color-background-attention-default);
-            color: $color-black;
+            color: var(--color-black);
             padding: 2px 4px;
         }
     }

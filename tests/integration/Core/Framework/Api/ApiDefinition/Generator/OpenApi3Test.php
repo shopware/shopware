@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class OpenApi3Test extends TestCase
 {
     use KernelTestBehaviour;

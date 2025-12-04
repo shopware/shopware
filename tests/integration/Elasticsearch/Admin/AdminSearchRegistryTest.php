@@ -28,7 +28,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class AdminSearchRegistryTest extends TestCase
 {
     use AdminApiTestBehaviour;

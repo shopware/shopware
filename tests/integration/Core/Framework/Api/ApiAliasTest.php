@@ -15,7 +15,6 @@ use Shopware\Core\Kernel;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ApiAliasTest extends TestCase
 {
     use KernelTestBehaviour;

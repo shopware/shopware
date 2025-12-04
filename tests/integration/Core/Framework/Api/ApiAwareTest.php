@@ -19,7 +19,6 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ApiAwareTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;

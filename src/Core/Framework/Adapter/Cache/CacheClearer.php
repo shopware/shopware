@@ -118,10 +118,6 @@ class CacheClearer
 
     public function cleanupOldContainerCacheDirectories(): void
     {
-        // Don't delete other folders while paratest is running
-        if (EnvironmentHelper::getVariable('TEST_TOKEN')) {
-            return;
-        }
         if ($this->clusterMode) {
             // In cluster mode we can't delete caches on the filesystem
             // because this only runs on one node in the cluster

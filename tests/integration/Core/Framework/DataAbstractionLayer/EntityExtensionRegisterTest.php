@@ -21,7 +21,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class EntityExtensionRegisterTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {

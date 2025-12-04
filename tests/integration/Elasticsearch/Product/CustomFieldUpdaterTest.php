@@ -24,7 +24,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class CustomFieldUpdaterTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;

@@ -20,7 +20,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class AdminSearchControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

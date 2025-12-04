@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class DeleteCascadeAppsHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

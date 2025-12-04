@@ -20,7 +20,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2
+          php-version: 8.5 # TODO: revert to 8.2 before merge
           extensions: ""
           tools: symfony-cli
 
@@ -189,7 +189,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
-          php-version: 8.4
+          php-version: 8.2
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 

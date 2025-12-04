@@ -15,7 +15,6 @@ use Twig\Loader\FilesystemLoader;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
-#[Group('skip-paratest')]
 class FeatureTest extends TestCase
 {
     /**

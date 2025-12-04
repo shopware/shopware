@@ -11,7 +11,6 @@ use Shopware\Core\Kernel;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class KernelLifecycleManagerTest extends TestCase
 {
     public function testARebootIsPossible(): void

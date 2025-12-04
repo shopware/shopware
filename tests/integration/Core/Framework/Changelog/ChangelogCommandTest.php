@@ -20,7 +20,6 @@ use Symfony\Component\Console\Output\NullOutput;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ChangelogCommandTest extends TestCase
 {
     use ChangelogTestBehaviour;

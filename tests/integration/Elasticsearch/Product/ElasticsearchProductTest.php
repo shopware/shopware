@@ -96,7 +96,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ElasticsearchProductTest extends TestCase
 {
     use CacheTestBehaviour;

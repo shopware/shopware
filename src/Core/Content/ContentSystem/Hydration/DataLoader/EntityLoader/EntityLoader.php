@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader;
 
+use Shopware\Core\Content\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -27,7 +29,8 @@ class EntityLoader extends AbstractContentDataLoader
 {
     public function __construct(
         private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly EntityCacheTagResolver $cacheTagResolver,
     ) {
     }
 
@@ -46,27 +49,35 @@ class EntityLoader extends AbstractContentDataLoader
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
-    ): SalesChannelEntity|Entity|null {
+    ): ContentDataLoaderResult {
         $config = $requirement->config;
 
         if (!$config instanceof EntityLoaderConfig) {
-            return null;
+            return ContentDataLoaderResult::notFound();
         }
 
         $propertyName = $config->property ?? $config->entity;
         $entityId = $element->getProperty($propertyName);
 
-        if ($entityId === null) {
-            return null;
-        }
-
         if (!\is_string($entityId)) {
-            return null;
+            return ContentDataLoaderResult::notFound();
         }
 
         $entityId = (new UnicodeString($entityId))->lower()->toString();
+        $entity = $this->loadEntity($config->entity, $entityId, $config->associations, $context);
 
-        return $this->loadEntity($config->entity, $entityId, $config->associations, $context);
+        if ($entity === null) {
+            return ContentDataLoaderResult::notFound();
+        }
+
+        $definition = $this->definitionRegistry->getByEntityName($config->entity);
+        $cacheTag = $this->cacheTagResolver->resolve($definition, $entityId);
+
+        if ($cacheTag === null) {
+            return ContentDataLoaderResult::uncacheable($entity);
+        }
+
+        return ContentDataLoaderResult::cached($entity, $cacheTag);
     }
 
     /**

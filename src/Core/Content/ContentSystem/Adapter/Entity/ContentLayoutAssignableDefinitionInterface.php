@@ -53,4 +53,14 @@ interface ContentLayoutAssignableDefinitionInterface
      * @return array<DataRequirement>
      */
     public function getPageDataRequirements(SalesChannelContext $context): array;
+
+    /**
+     * Returns cache tags for the context entity.
+     *
+     * These tags are added to the cache context at the start of rendering,
+     * ensuring the page can be invalidated when the context entity changes.
+     *
+     * @return list<string>
+     */
+    public function getCacheTags(string $entityId): array;
 }

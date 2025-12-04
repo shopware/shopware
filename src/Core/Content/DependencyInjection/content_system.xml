@@ -162,12 +162,14 @@
         <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Cache\EntityCacheTagResolver"/>
             <tag name="content_system.data_loader"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Cache\EntityCacheTagResolver"/>
             <tag name="content_system.data_loader"/>
         </service>
 
@@ -207,6 +209,22 @@
 
         <!-- Context Path Resolver -->
         <service id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\ContextPathResolver"/>
+
+        <!-- Cache Services -->
+        <service id="Shopware\Core\Content\ContentSystem\Cache\EntityCacheTagResolver"/>
+
+        <service id="Shopware\Core\Content\ContentSystem\Cache\CacheFinalizer">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Cache\CacheInvalidationSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Cache\EntityCacheTagResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
 
         <!-- Hydration Services -->
         <service id="Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator">
@@ -275,6 +293,8 @@
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\RenderingSpecificationResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\ContentPipeline"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Cache\CacheFinalizer"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute"/>
@@ -284,6 +304,8 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\RenderingSpecificationResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\ContentPipeline"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Cache\CacheFinalizer"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentDecomposedRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentDecomposedRoute"/>
@@ -292,6 +314,7 @@
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\ContentSkeletonRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\ContentSystem\RenderingSpecificationResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\ContentPipeline"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentSkeletonRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentSkeletonRoute"/>
@@ -301,6 +324,8 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\RenderingSpecificationResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\ContentPipeline"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Cache\CacheFinalizer"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentDataRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentDataRoute"/>

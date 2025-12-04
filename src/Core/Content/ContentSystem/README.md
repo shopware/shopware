@@ -64,6 +64,7 @@ These classes handle the core rendering process:
 - **ContentElementHydrator** - Loads data and resolves context for elements (located in `Hydration/`)
 - **ContentPipeline** - Orchestrates the rendering pipeline (located in module root)
 - **RenderingSpecificationResolver** - Selects the appropriate factory using the Chain of Responsibility pattern (located in module root)
+- **RenderingCacheContext** - Tracks cache state during rendering including tags and disabled flag (located in module root)
 - **ContentRoute** - Provides Store API endpoints (located in `SalesChannel/`)
 
 ## Architecture
@@ -79,6 +80,7 @@ The current factories for Product, Category, and Landing Page entities enable th
 The module is organized into the following subdirectories:
 
 - **Adapter/** - Contains entity-specific factories and layout assignment entities
+- **Cache/** - HTTP cache integration and invalidation
 - **Condition/** - Defines visibility conditions for content elements
 - **Event/** - Contains event definitions for the hydration lifecycle
 - **EventSubscriber/** - Implements pre and post hydration pipeline transformations

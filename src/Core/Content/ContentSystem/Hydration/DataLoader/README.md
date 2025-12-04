@@ -7,6 +7,7 @@ Data fetching for content elements. Dispatches to loader implementations based o
 - `AbstractContentDataLoader` - Loader base class
 - `AbstractContentDataLoaderConfig` - Config base class
 - `AbstractContentDataLoaderConfigSerializer` - Serializer base class
+- `ContentDataLoaderResult` - Result object with data and cache tag information
 - `DataLoaderProvider` - Dispatcher, selects loader by source identifier
 - `DataLoaderConfigSerializerProvider` - Serializer registry
 - `EntityLoader` - Single entity loading via EntityRepository
@@ -43,11 +44,24 @@ load(
   DataRequirement $requirement,
   SalesChannelContext $context,
   Request $request
-): mixed
+): ContentDataLoaderResult
 ```
 
-Loaders receive element (for context), requirement (what to load), context (sales channel), request. Return data or null. Hydrator stores result in element properties by requirement key.
+Loaders receive element (for context), requirement (what to load), context (sales channel), request. Return `ContentDataLoaderResult` with data and cache information. Hydrator stores data in element properties by requirement key and accumulates cache tags.
+
+## Cache Awareness
+
+Loaders must return `ContentDataLoaderResult` to indicate cache behavior:
+
+| Factory Method | Behavior |
+|----------------|----------|
+| `notFound()` | No data found, page remains cacheable |
+| `cached($data, ...$tags)` | Data with specific cache invalidation tags |
+| `cachedExternally($data)` | Data loaded, tags handled by delegated route |
+| `uncacheable($data)` | Data cannot be cache-tracked, disables page caching |
+
+Cache tags propagate to `RenderingCacheContext`. If any loader returns uncacheable data, the entire page becomes uncacheable.
 
 ## Extension Point
 
-Extensions extend AbstractContentDataLoader for custom data sources (API calls, calculations, etc.). Register via DI tag with unique source identifier. Elements declare requirements with that source.
+Extensions extend AbstractContentDataLoader for custom data sources (API calls, calculations, etc.). Register via DI tag with unique source identifier. Elements declare requirements with that source. Must return appropriate `ContentDataLoaderResult` for cache awareness.

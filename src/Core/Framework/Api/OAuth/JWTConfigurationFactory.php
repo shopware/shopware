@@ -39,7 +39,7 @@ class JWTConfigurationFactory
                 $publicKey,
             );
 
-            $clock = new SystemClock(new \DateTimeZone(\date_default_timezone_get()));
+            $clock = new NativeClock(new \DateTimeZone(\date_default_timezone_get()));
 
             return $configuration->withValidationConstraints(
                 new SignedWith(new Rsa256(), $publicKey),

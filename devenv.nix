@@ -150,4 +150,7 @@ in {
 
   # Service Registry
   env.SERVICE_REGISTRY_URL = lib.mkDefault "https://registry.staging-services.shopware.io";
+
+  # Product Analytics Gateway
+  env.PRODUCT_ANALYTICS_GATEWAY_URL = lib.mkDefault "https://product-analytics.staging.shopware.io";
 }

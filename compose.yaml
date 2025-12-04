@@ -15,6 +15,7 @@ services:
             MAILER_DSN: smtp://mailer:1025
             OPENSEARCH_URL: http://opensearch:9200
             ADMIN_OPENSEARCH_URL: http://opensearch:9200
+            PRODUCT_ANALYTICS_GATEWAY_URL: ${PRODUCT_ANALYTICS_GATEWAY_URL-https://product-analytics.staging.shopware.io}
         volumes:
             - .:/var/www/html
         depends_on:

@@ -90,9 +90,9 @@ class AuthController extends StorefrontController
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
             'errorRoute' => $request->attributes->get('_route'),
             'page' => $page,
-            'loginError' => (bool) $request->get('loginError'),
-            'waitTime' => $request->get('waitTime'),
-            'errorSnippet' => $request->get('errorSnippet'),
+            'loginError' => $request->attributes->getBoolean('loginError'),
+            'waitTime' => $request->attributes->get('waitTime'),
+            'errorSnippet' => $request->attributes->get('errorSnippet'),
             'data' => $data,
         ]);
     }

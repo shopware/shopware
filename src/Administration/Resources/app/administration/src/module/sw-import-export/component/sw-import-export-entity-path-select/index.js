@@ -369,15 +369,7 @@ export default {
                 return [];
             }
 
-            let definition;
-            if (isCustomField) {
-                definition = {
-                    properties: this.getCustomFields(this.currentEntity || this.entityType),
-                };
-            } else {
-                definition = Shopware.EntityDefinition.get(this.currentEntity);
-            }
-
+            const definition = this.getDefinition(isCustomField);
             const unprocessedValues = {
                 definition: definition,
                 options: [],
@@ -422,6 +414,51 @@ export default {
     },
 
     methods: {
+        getDefinition(isCustomField) {
+            if (isCustomField) {
+                return {
+                    properties: this.getCustomFields(this.currentEntity || this.entityType),
+                };
+            }
+
+            // if entity is read or write protected, do not provide any property
+            const definition = Shopware.EntityDefinition.get(this.currentEntity);
+            if (definition.readProtected || definition.writeProtected) {
+                return {
+                    properties: {},
+                };
+            }
+
+            // Filter out properties which are not AdminApiSourceAware
+            return {
+                properties: definition.filterProperties(this.propertyFilter),
+            };
+        },
+
+        propertyFilter(property) {
+            const readProtectedLength = property?.flags?.read_protected?.length || 0;
+
+            // if associated entity is read or write protected, do not provide as property
+            if (property.type === 'association') {
+                const subEntity = Shopware.EntityDefinition.get(property.entity);
+                if (subEntity && (subEntity.readProtected || subEntity.writeProtected)) {
+                    return false;
+                }
+            }
+
+            if (readProtectedLength === 0) {
+                return false;
+            }
+
+            if (!property?.flags?.read_protected?.[0]?.some((key) => key.endsWith('AdminApiSource'))) {
+                return false;
+            }
+
+            const writeProtectedLength = property?.flags?.write_protected?.length || 0;
+
+            return writeProtectedLength === 0;
+        },
+
         isSelected(item) {
             return this.getKey(item, this.valueProperty) === this.value;
         },

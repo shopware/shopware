@@ -6,7 +6,7 @@ $db = ['mysql:8.0'];
 $nightly = $_SERVER['argv'][1] ?? false;
 
 if ($nightly) {
-    $php = ['8.2', '8.4'];
+    $php = ['8.2', '8.5'];
     $db = ['mysql:8.0', 'mariadb:11'];
 }
 
@@ -23,7 +23,6 @@ $matrix = [
             ['path' => '{Administration,Elasticsearch}'],
             ['path' => '{Core/Installer,Core/Maintenance,Core/Service,Core/System}'],
             ['testsuite' => 'migration'],
-            ['testsuite' => 'devops']
         ],
         'php' => $php,
         'db' => $db,
@@ -34,6 +33,11 @@ $matrix = [
                 'php' => '8.2',
                 'db' => 'mariadb:11'
             ],
+            [
+                'test' => ['testsuite' => 'devops'],
+                'php' => '8.4',
+                'db' => 'mariadb:11'
+            ]
         ]
     ]
 ];

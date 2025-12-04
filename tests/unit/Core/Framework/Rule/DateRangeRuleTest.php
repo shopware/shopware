@@ -360,7 +360,7 @@ class DateRangeRuleTest extends TestCase
                 'fromDate' => new \DateTime('2024-01-01T00:00:00'),
                 'toDate' => new \DateTime('2024-12-31T23:59:59'),
                 'useTime' => true,
-                'timezone' => null,
+                'timezone' => 'not-a-valid-timezone',
             ],
         ];
 

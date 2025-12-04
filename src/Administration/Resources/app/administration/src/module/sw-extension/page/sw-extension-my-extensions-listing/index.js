@@ -274,7 +274,7 @@ export default {
         },
 
         reviewPrivilegeRequests() {
-            this.privilegeModalActionLabel = this.$tc(
+            this.privilegeModalActionLabel = this.$t(
                 'sw-extension-store.component.sw-extension-card-base.labelAcceptRequestedPrivileges',
             );
 

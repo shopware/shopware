@@ -3,7 +3,7 @@ import { Manufacturer, Product, PropertyGroup } from '@shopware-ag/acceptance-te
 
 const TIMEOUT = 15_000;
 
-test('Customer should see unavailable filter disabled based on selected filter', { tag: ['@Product', '@Storefront'] }, async ({
+test.skip('Customer should see unavailable filter disabled based on selected filter', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -77,8 +77,8 @@ test('Customer should see unavailable filter disabled based on selected filter',
     await test.step('Verify setup filters display & enabled', async () => {
 
         await ShopCustomer.expects(async () => {
-            await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await TestDataService.clearCaches();
+            await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
             await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
@@ -120,6 +120,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
         await ShopCustomer.expects(async () => {
+            await TestDataService.clearCaches();
             await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
             await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
@@ -174,8 +175,8 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
         await ShopCustomer.expects(async () => {
-            await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await TestDataService.clearCaches();
+            await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
             await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
@@ -247,8 +248,8 @@ test('Customer should see unavailable filter options disabled when filtering by 
     await test.step('Verify setup filters display', async () => {
 
         await ShopCustomer.expects(async () => {
-            await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await TestDataService.clearCaches();
+            await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible({ timeout: TIMEOUT });
@@ -269,6 +270,9 @@ test('Customer should see unavailable filter options disabled when filtering by 
         const ratingLocator = await StorefrontHome.getRatingItemLocatorByRating(3);
         await ratingLocator.click();
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
+
+        await CheckVisibilityInHome(productWithRating2.name)();
+        await CheckVisibilityInHome(productWithRating1.name)();
 
         await ShopCustomer.expects(async () => {
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });

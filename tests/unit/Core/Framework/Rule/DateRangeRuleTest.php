@@ -323,7 +323,7 @@ class DateRangeRuleTest extends TestCase
         $fromDate = (new \ReflectionProperty(DateRangeRule::class, 'fromDate'))->getValue($rule);
         $toDate = (new \ReflectionProperty(DateRangeRule::class, 'toDate'))->getValue($rule);
         $useTime = (new \ReflectionProperty(DateRangeRule::class, 'useTime'))->getValue($rule);
-        $timezone = (new \ReflectionProperty(DateRangeRule::class, 'useTime'))->getValue($rule);
+        $timezone = (new \ReflectionProperty(DateRangeRule::class, 'timezone'))->getValue($rule);
 
         $result = [
             'fromDate' => $fromDate,

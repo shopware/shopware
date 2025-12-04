@@ -62,6 +62,7 @@ class EntityLayoutContextFactory
         );
 
         $dataRequirements = $this->transformDataRequirements($layoutData->assignment, $context, $definition);
+        $cacheTags = $definition->getCacheTags($entityId);
 
         $params = $this->requestDataExtractor->extractData($request, null);
         $targetElementId = \array_key_exists('elementId', $params) && \is_string($params['elementId']) && $params['elementId'] !== ''
@@ -73,7 +74,8 @@ class EntityLayoutContextFactory
             dataRequirements: $dataRequirements,
             placeholderValues: $layoutData->placeholderValues,
             request: $request,
-            targetElementId: $targetElementId
+            targetElementId: $targetElementId,
+            cacheTags: $cacheTags,
         );
     }
 

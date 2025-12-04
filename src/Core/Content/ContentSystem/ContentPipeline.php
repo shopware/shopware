@@ -34,8 +34,9 @@ class ContentPipeline
      */
     public function load(
         RenderingSpecification $specification,
+        RenderingCacheContext $cacheContext,
         RenderingMode $mode,
-        SalesChannelContext $salesChannelContext
+        SalesChannelContext $salesChannelContext,
     ): ContentPage {
         $layoutEntity = $this->layoutLoader->load($specification->layoutId, $salesChannelContext->getContext());
 
@@ -46,7 +47,8 @@ class ContentPipeline
             $layoutEntity->getVersionId(),
             $specification,
             $mode,
-            $salesChannelContext
+            $salesChannelContext,
+            $cacheContext,
         );
         $this->eventDispatcher->dispatch($preHydrationEvent);
         $elements = $preHydrationEvent->elements;
@@ -55,7 +57,8 @@ class ContentPipeline
             $hydratedElementsGenerator = $this->hydrationService->hydrate(
                 $elements,
                 $salesChannelContext,
-                $specification->request
+                $specification->request,
+                $cacheContext,
             );
             $elements = array_values(iterator_to_array($hydratedElementsGenerator, false));
         }
@@ -67,7 +70,8 @@ class ContentPipeline
             $layoutEntity->getVersionId(),
             $specification,
             $mode,
-            $salesChannelContext
+            $salesChannelContext,
+            $cacheContext,
         );
         $this->eventDispatcher->dispatch($afterHydrationEvent);
 

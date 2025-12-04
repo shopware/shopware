@@ -17,6 +17,7 @@ final readonly class RenderingSpecification
 {
     /**
      * @param array<DataRequirement> $dataRequirements
+     * @param list<string> $cacheTags
      */
     public function __construct(
         public string $layoutId,
@@ -24,6 +25,7 @@ final readonly class RenderingSpecification
         public PlaceholderValues $placeholderValues,
         public Request $request,
         public ?string $targetElementId = null,
+        public array $cacheTags = [],
     ) {
     }
 }

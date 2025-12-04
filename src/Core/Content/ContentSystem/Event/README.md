@@ -18,9 +18,11 @@ Both events share identical structure:
 | `layoutName` | `string` | Readonly |
 | `layoutVersionId` | `?string` | Readonly |
 | `specification` | `RenderingSpecification` | Readonly |
+| `mode` | `RenderingMode` | Readonly |
 | `salesChannelContext` | `SalesChannelContext` | Readonly |
+| `cacheContext` | `RenderingCacheContext` | Readonly |
 
-The `elements` array is the transformation target; subscribers modify this array to prepare or finalize the layout tree.
+The `elements` array is the transformation target; subscribers modify this array to prepare or finalize the layout tree. The `cacheContext` allows subscribers to add cache tags or disable caching if needed.
 
 ## Lifecycle
 

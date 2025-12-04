@@ -12,7 +12,12 @@ use Symfony\Component\HttpFoundation\Request;
  * Abstract base for loading data for content elements.
  *
  * Implementations fetch data based on DataRequirement configuration
- * and store results in element properties.
+ * and return results with cache tag information.
+ *
+ * Return values:
+ * - ContentDataLoaderResult::notFound() → No data, page cacheable
+ * - ContentDataLoaderResult::cached($data, ...$tags) → Data with cache tags
+ * - ContentDataLoaderResult::cachedExternally($data) → Data, tags handled elsewhere
  */
 #[Package('discovery')]
 abstract class AbstractContentDataLoader
@@ -30,5 +35,5 @@ abstract class AbstractContentDataLoader
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
-    ): mixed;
+    ): ContentDataLoaderResult;
 }

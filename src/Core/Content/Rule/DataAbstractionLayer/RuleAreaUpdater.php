@@ -319,6 +319,10 @@ class RuleAreaUpdater implements EventSubscriberInterface
             return $associationField->getReferenceDefinition()->getEntityName() === $entityName;
         });
 
+        if ($field instanceof ManyToManyAssociationField) {
+            return $field->getMappingDefinition();
+        }
+
         return $field instanceof AssociationField ? $field->getReferenceDefinition() : null;
     }
 }

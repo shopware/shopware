@@ -113,7 +113,7 @@
             {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
         </span>
         <router-link
-            v-if="isInstalled"
+            v-else-if="extension.configurable"
             :to="{ name: 'sw.extension.config', params: { namespace: extension.name } }"
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}

@@ -85,18 +85,14 @@ class AuthController extends StorefrontController
 
         $this->hook(new AccountLoginPageLoadedHook($page, $context));
 
-        $waitTime = $request->attributes->get('waitTime', null);
-        $loginError = $request->attributes->getBoolean('loginError', false);
-        $errorSnippet = $request->attributes->get('errorSnippet', null);
-
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
             'errorRoute' => $request->attributes->get('_route'),
             'page' => $page,
-            'loginError' => $loginError,
-            'waitTime' => $waitTime,
-            'errorSnippet' => $errorSnippet,
+            'loginError' => $request->attributes->getBoolean('loginError'),
+            'waitTime' => $request->attributes->get('waitTime'),
+            'errorSnippet' => $request->attributes->get('errorSnippet'),
             'data' => $data,
         ]);
     }

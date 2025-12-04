@@ -45,7 +45,7 @@ trait DocumentTrait
     /**
      * @param array<string, string> $options
      */
-    private function createCustomer(array $options = []): string
+    private function createCustomer(array $options = [], ?array $additionalAddress = null): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -79,7 +79,13 @@ trait DocumentTrait
             ],
         ];
 
-        $customer = array_merge($customer, $options);
+        if ($additionalAddress) {
+            $customer['addresses'][] = \array_merge($additionalAddress, [
+                'customerId' => $customerId,
+            ]);
+        }
+
+        $customer = \array_merge($customer, $options);
 
         static::getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 

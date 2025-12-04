@@ -82,11 +82,27 @@ class InvoiceRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
+        $shippingAddressId = Uuid::randomHex();
+        $options = [
+            'defaultShippingAddressId' => $shippingAddressId,
+        ];
+
+        $additionalAddress = [
+            'id' => $shippingAddressId,
+            'countryId' => $this->getValidCountryId(),
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Maximilian',
+            'lastName' => 'Musterfrau',
+            'street' => 'Ebbinghoff 10a',
+            'zipcode' => '48624',
+            'city' => 'Schöppingen',
+        ];
+
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
-                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
+                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer($options, $additionalAddress),
             ]
         );
 
@@ -457,7 +473,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getAddresses());
 
                 /** @var OrderAddressEntity $orderAddress */
-                $orderAddress = $order->getAddresses()->first();
+                $orderAddress = $order->getAddresses()->last();
                 $rendered = $rendered->getContent();
 
                 static::assertNotNull($orderAddress->getSalutation());
@@ -644,8 +660,7 @@ class InvoiceRendererTest extends TestCase
                     LineItem::CREDIT_LINE_ITEM_TYPE,
                     null,
                     1
-                )
-                ;
+                );
                 $creditLineItem->setLabel('credit-item-1');
                 $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition(-20.0));
 

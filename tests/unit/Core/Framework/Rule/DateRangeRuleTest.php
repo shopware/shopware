@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -21,13 +22,15 @@ class DateRangeRuleTest extends TestCase
         ?string $fromDate,
         ?string $toDate,
         bool $useTime,
+        ?string $timezone,
         string $now,
         bool $expectedResult
     ): void {
         $rule = new DateRangeRule(
             $fromDate ? new \DateTime($fromDate) : null,
             $toDate ? new \DateTime($toDate) : null,
-            $useTime
+            $useTime,
+            $timezone ? new \DateTimeZone($timezone) : null,
         );
         $scopeMock = $this->createMock(RuleScope::class);
         $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable($now));
@@ -45,130 +48,147 @@ class DateRangeRuleTest extends TestCase
         return [
             // from and to set, useTime = false
             [
-                '2021-01-01 00:00:00 UTC',
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
+                '2021-01-01 00:00:00',
                 false,
-                '2021-01-01 00:00:00 UTC',
+                null,
+                '2021-01-01 00:00:00',
                 true,
             ],
             [
-                '2021-01-01 00:00:00 UTC',
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
+                '2021-01-01 00:00:00',
                 false,
-                '2020-12-31 23:59:59 UTC',
+                null,
+                '2020-12-31 23:59:59',
                 false,
             ],
             [
-                '2021-01-01 00:00:00 UTC',
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
+                '2021-01-01 00:00:00',
                 false,
-                '2021-01-01 23:59:59 UTC',
+                null,
+                '2021-01-01 23:59:59',
                 true,
             ],
             [
-                '2021-01-01 00:00:00 UTC',
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
+                '2021-01-01 00:00:00',
                 false,
-                '2021-01-02 00:00:00 UTC',
+                null,
+                '2021-01-02 00:00:00',
                 false,
             ],
             [
-                '2021-01-01 11:00:00 UTC',
-                '2021-01-02 10:00:00 UTC',
+                '2021-01-01 11:00:00',
+                '2021-01-02 10:00:00',
                 false,
-                '2021-01-01 10:00:00 UTC',
+                null,
+                '2021-01-01 10:00:00',
                 true,
             ],
             [
-                '2021-01-01 11:00:00 UTC',
-                '2021-01-02 10:00:00 UTC',
+                '2021-01-01 11:00:00',
+                '2021-01-02 10:00:00',
                 false,
-                '2021-01-02 10:00:00 UTC',
+                null,
+                '2021-01-02 10:00:00',
                 true,
             ],
             [
-                '2021-01-01 11:00:00 UTC',
-                '2021-01-02 10:00:00 UTC',
+                '2021-01-01 11:00:00',
+                '2021-01-02 10:00:00',
                 false,
-                '2021-01-03 10:00:00 UTC',
+                null,
+                '2021-01-03 10:00:00',
                 false,
             ],
 
             // from and to set, useTime = true
             [
-                '2021-01-01 00:00:00 UTC',
-                '2021-01-01 10:00:00 UTC',
+                '2021-01-01 00:00:00',
+                '2021-01-01 10:00:00',
                 true,
-                '2021-01-01 00:00:00 UTC',
+                null,
+                '2021-01-01 00:00:00',
                 true,
             ],
             [
-                '2021-01-01 00:00:00 UTC',
-                '2021-01-01 10:00:00 UTC',
+                '2021-01-01 00:00:00',
+                '2021-01-01 10:00:00',
                 true,
-                '2020-12-31 23:59:59 UTC',
+                null,
+                '2020-12-31 23:59:59',
                 false,
             ],
             [
-                '2021-01-01 00:00:00 UTC',
-                '2021-01-01 10:00:00 UTC',
+                '2021-01-01 00:00:00',
+                '2021-01-01 10:00:00',
                 true,
-                '2021-01-01 09:59:59 UTC',
+                null,
+                '2021-01-01 09:59:59',
                 true,
             ],
             [
-                '2021-01-01 00:00:00 UTC',
-                '2021-01-01 10:00:00 UTC',
+                '2021-01-01 00:00:00',
+                '2021-01-01 10:00:00',
                 true,
-                '2021-01-01 10:00:00 UTC',
+                null,
+                '2021-01-01 10:00:00',
                 false,
             ],
 
             // only from set, useTime = false
             [
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
                 null,
                 false,
-                '2021-01-01 00:00:00 UTC',
+                null,
+                '2021-01-01 00:00:00',
                 true,
             ],
             [
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
                 null,
                 false,
-                '2020-12-31 23:59:59 UTC',
+                null,
+                '2020-12-31 23:59:59',
                 false,
             ],
 
             // only from set, useTime = true
             [
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
                 null,
                 true,
-                '2021-01-01 00:00:00 UTC',
+                null,
+                '2021-01-01 00:00:00',
                 true,
             ],
             [
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
                 null,
                 true,
-                '2020-12-31 23:59:59 UTC',
+                null,
+                '2020-12-31 23:59:59',
                 false,
             ],
 
             // only to set, useTime = false
             [
                 null,
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
                 false,
-                '2021-01-01 23:59:59 UTC',
+                null,
+                '2021-01-01 23:59:59',
                 true,
             ],
             [
                 null,
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
                 false,
-                '2021-01-02 00:00:00 UTC',
+                null,
+                '2021-01-02 00:00:00',
                 false,
             ],
 
@@ -176,53 +196,60 @@ class DateRangeRuleTest extends TestCase
 
             // with useTime = false
             [
-                '2021-01-01 10:00:00 UTC',
-                '2021-01-01 20:00:00 UTC',
+                '2021-01-01 10:00:00',
+                '2021-01-01 20:00:00',
                 true,
+                'UTC',
                 '2021-01-01 20:00:00 -01:00',
                 false,
             ],
             [
-                '2021-01-01 10:00:00 UTC',
-                '2021-01-01 20:00:00 UTC',
+                '2021-01-01 10:00:00',
+                '2021-01-01 20:00:00',
                 true,
+                'UTC',
                 '2021-01-01 20:00:00 +01:00',
                 true,
             ],
             [
-                '2021-01-01 00:00:00 UTC',
-                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00',
+                '2021-01-01 00:00:00',
                 false,
+                'UTC',
                 '2021-01-02 02:00:00 +04:00',
                 true,
             ],
             [
-                '2021-01-02 00:00:00 +02:00',
-                '2021-01-02 00:00:00 +02:00',
+                '2021-01-02 00:00:00',
+                '2021-01-02 00:00:00',
                 false,
-                '2021-01-01 22:00:00 UTC',
+                'Etc/GMT-2',
+                '2021-01-01 22:00:00',
                 true,
             ],
             [
-                '2021-01-02 00:00:00 +02:00',
-                '2021-01-02 00:00:00 +02:00',
+                '2021-01-02 00:00:00',
+                '2021-01-02 00:00:00',
                 false,
-                '2021-01-01 21:59:59 UTC',
+                'Etc/GMT-2',
+                '2021-01-01 21:59:59',
                 true,
             ],
             // with useTime = true
             [
-                '2021-01-01 10:00:00 +02:00',
-                '2021-01-01 20:00:00 +02:00',
+                '2021-01-01 10:00:00',
+                '2021-01-01 20:00:00',
                 true,
-                '2021-01-01 08:00:00 UTC',
+                'Etc/GMT-2',
+                '2021-01-01 08:00:00',
                 true,
             ],
             [
-                '2021-01-01 10:00:00 +02:00',
-                '2021-01-01 20:00:00 +02:00',
+                '2021-01-01 10:00:00',
+                '2021-01-01 20:00:00',
                 true,
-                '2021-01-01 07:59:59 UTC',
+                'Etc/GMT-2',
+                '2021-01-01 07:59:59',
                 false,
             ],
 
@@ -231,9 +258,54 @@ class DateRangeRuleTest extends TestCase
                 null,
                 null,
                 true,
-                '2021-01-01 07:59:59 UTC',
+                null,
+                '2021-01-01 07:59:59',
                 true,
             ],
         ];
+    }
+
+    public function testSerializationAndValidation(): void
+    {
+        $rule = new DateRangeRule(
+            new \DateTime('2024-01-15 10:30:45'),
+            new \DateTime('2024-01-31 23:59:59'),
+            true,
+            new \DateTimeZone('UTC')
+        );
+
+        $serialized = json_encode($rule);
+
+        static::assertIsString($serialized);
+
+        $data = json_decode($serialized, true);
+
+        static::assertSame('2024-01-15T10:30:45', $data['fromDate']);
+        static::assertSame('2024-01-31T23:59:59', $data['toDate']);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $constraints = $rule->getConstraints();
+
+        static::assertCount(0, $validator->validate($data['fromDate'], $constraints['fromDate']));
+        static::assertCount(0, $validator->validate($data['toDate'], $constraints['toDate']));
+    }
+
+    public function testAssignWithStringDatesConvertsToDateTime(): void
+    {
+        $rule = new DateRangeRule();
+
+        $rule->assign([
+            'fromDate' => '2024-01-15T10:30:45',
+            'toDate' => '2024-01-31T23:59:59',
+            'useTime' => true,
+            'timezone' => 'UTC',
+        ]);
+
+        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2024-01-20 12:00:00'));
+
+        $result = $rule->match($scopeMock);
+
+        static::assertTrue($result);
     }
 }

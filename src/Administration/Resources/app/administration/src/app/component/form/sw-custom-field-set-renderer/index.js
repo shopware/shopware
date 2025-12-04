@@ -289,22 +289,24 @@ export default {
         supportsMapInheritance(customField) {
             const componentName = customField.config.componentName;
 
-            if (customField.config.customFieldType === 'date') {
-                return false;
-            }
-
             return this.componentsWithMapInheritanceSupport.includes(componentName);
+        },
+
+        isMeteorComponent(customField) {
+            return [
+                'bool',
+                'text',
+                'number',
+                'float',
+                'int',
+                'datetime',
+            ].includes(customField.type);
         },
 
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
-            const isMeteorComponent = [
-                // Disabled for now, enable once Inheritance is aligned on all meteor components
-                // 'bool',
-                // 'switch',
-                // 'text',
-            ].includes(customField.type);
+            const isMeteorComponent = this.isMeteorComponent(customField);
 
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
@@ -337,6 +339,18 @@ export default {
             delete customFieldClone.config.helpText;
 
             return customFieldClone;
+        },
+
+        getElementEventListeners(customField, props) {
+            const isMeteorComponent = this.isMeteorComponent(customField);
+            const eventHandler = {};
+
+            if (isMeteorComponent) {
+                eventHandler['inheritance-remove'] = props.removeInheritance;
+                eventHandler['inheritance-restore'] = props.restoreInheritance;
+            }
+
+            return eventHandler;
         },
 
         getInheritWrapperBind(customField) {

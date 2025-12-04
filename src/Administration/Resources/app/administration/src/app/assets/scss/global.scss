@@ -158,3 +158,12 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
         overflow: hidden;
     }
 }
+
+/**
+ * Reset some global styling from
+ * the Meteor Component Library
+ */
+span svg {
+    display: initial;
+    vertical-align: initial;
+}

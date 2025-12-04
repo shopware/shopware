@@ -1,6 +1,5 @@
-import { test, expect, getLocale, getCurrencySymbolFromLocale } from '@fixtures/AcceptanceTest';
+import { test, expect, formatPrice } from '@fixtures/AcceptanceTest';
 
-const currencyIcon = getCurrencySymbolFromLocale(getLocale());
 test(
     'Registered shop customer should be able to use promotion code during checkout.',
     { tag: ['@Checkout', '@Storefront'] },
@@ -27,18 +26,18 @@ test(
         await ShopCustomer.goesTo(StorefrontCheckoutCart.url());
 
         // Value of test product with price of €10 and quantity of 10.
-        await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toContainText(`${currencyIcon}100.00`);
+        await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toContainText(formatPrice(100.0));
 
         await ShopCustomer.attemptsTo(AddPromotionCodeToCart(promotion.name, promotion.code));
         await ShopCustomer.attemptsTo(ProceedFromCartToCheckout());
         await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
 
         // Value of test product with price of €10 and quantity of 10 and 10% discount.
-        await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(`${currencyIcon}90.00`);
+        await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(formatPrice(90.0));
 
         await ShopCustomer.attemptsTo(SubmitOrder());
         await ShopCustomer.expects(StorefrontCheckoutFinish.page.getByText(promotion.name)).toBeVisible();
-        await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(`${currencyIcon}90.00`);
+        await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(formatPrice(90.0));
 
         const orderId = StorefrontCheckoutFinish.getOrderId();
 

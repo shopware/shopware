@@ -81,7 +81,16 @@ export default {
 
         extensionSdkButtons() {
             return Shopware.Store.get('actionButtons').buttons.filter((button) => {
-                return button.entity === 'media' && button.view === 'item';
+                if (button.entity !== 'media' || button.view !== 'item') {
+                    return false;
+                }
+
+                return (
+                    !button.fileTypes?.length ||
+                    button.fileTypes.some((type) => {
+                        return type.toLowerCase() === this.$attrs.item.fileExtension.toLowerCase();
+                    })
+                );
             });
         },
     },

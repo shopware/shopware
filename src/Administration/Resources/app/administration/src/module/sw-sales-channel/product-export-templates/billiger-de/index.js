@@ -2,8 +2,10 @@
  * @sw-package discovery
  */
 
-import header from './header.csv.twig';
-import body from './body.csv.twig';
+// eslint-disable-next-line import/no-unresolved
+import header from './header.csv.twig?raw';
+// eslint-disable-next-line import/no-unresolved
+import body from './body.csv.twig?raw';
 
 Shopware.Service('exportTemplateService').registerProductExportTemplate({
     name: 'billiger_de',

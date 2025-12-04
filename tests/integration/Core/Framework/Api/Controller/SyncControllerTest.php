@@ -450,6 +450,7 @@ class SyncControllerTest extends TestCase
         ];
 
         $headers = [
+            'HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
             'HTTP_' . PlatformRequest::HEADER_INDEXING_SKIP => ProductIndexer::SEARCH_KEYWORD_UPDATER,
         ];
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], $headers, json_encode($data, \JSON_THROW_ON_ERROR));
@@ -457,9 +458,61 @@ class SyncControllerTest extends TestCase
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $connection = static::getContainer()->get(Connection::class);
-
         $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_search_keyword WHERE product_id = ?', [Uuid::fromHexToBytes($id1)]);
         static::assertSame(0, $count, 'Search keywords should be empty as we skipped it');
+    }
+
+    public function testOnlyIndexer(): void
+    {
+        $id1 = Uuid::randomHex();
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => ProductDefinition::ENTITY_NAME,
+                'payload' => [
+                    [
+                        'id' => $id1,
+                        'productNumber' => Uuid::randomHex(),
+                        'stock' => 1,
+                        'manufacturer' => ['name' => 'test'],
+                        'description' => 'This is a detailed product used to test search indexing.',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'CREATE-1',
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                        'keywords' => 'a,b,c',
+                    ],
+                ],
+            ],
+        ];
+
+        $headers = [
+            'HTTP_' . PlatformRequest::HEADER_INDEXING_ONLY => ProductIndexer::SEARCH_KEYWORD_UPDATER,
+            'HTTP_' . PlatformRequest::HEADER_INDEXING_BEHAVIOR => EntityIndexerRegistry::USE_INDEXING_QUEUE,
+        ];
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], $headers, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
+
+        // Get messsage from queue.
+        $sqlMessengerMessageBody = $this->connection->fetchOne('SELECT body FROM messenger_messages WHERE headers LIKE \'%ProductIndexingMessage%\'');
+        static::assertIsString($sqlMessengerMessageBody);
+        $data = json_decode($sqlMessengerMessageBody, true, 512, \JSON_THROW_ON_ERROR);
+        $indexerOnly = $data['context']['extensions']['indexer-only']['onlies'];
+        $skip = $data['skip'];
+
+        // Assert message is as expected.
+        static::assertCount(1, $indexerOnly);
+        static::assertSame(ProductIndexer::SEARCH_KEYWORD_UPDATER, $indexerOnly[0], 'Only indexer does not match passed `product.search-keyword` indexer in message.');
+
+        // Assert message contains skip for everything except our only indexer.
+        $productIndexerClassReflection = new \ReflectionClass(ProductIndexer::class);
+        $productIndexerClassInstance = $productIndexerClassReflection->newInstanceWithoutConstructor();
+        $productIndexerOptions = $productIndexerClassReflection->getMethod('getOptions')->invoke($productIndexerClassInstance);
+        $allProductIndexerMinusSearchKeyword = array_filter($productIndexerOptions, static function ($index) {
+            return $index !== ProductIndexer::SEARCH_KEYWORD_UPDATER;
+        });
+
+        static::assertEqualsCanonicalizing($allProductIndexerMinusSearchKeyword, $skip);
     }
 
     public static function invalidOperationProvider(): \Generator

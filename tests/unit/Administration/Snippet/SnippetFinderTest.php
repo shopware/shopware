@@ -16,6 +16,7 @@ use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -175,21 +176,22 @@ class SnippetFinderTest extends TestCase
         }
     }
 
-    /**
-     * @param array<string, mixed> $before
-     * @param array<string, mixed> $after
-     */
-    #[DataProvider('sanitizeAppSnippetDataProvider')]
-    public function testSanitizeAppSnippets(array $before, array $after): void
+    public function testSanitizeAppSnippets(): void
     {
         $snippetFinder = $this->getSnippetFinder(
-            connection: $this->getConnectionMock('en-GB', $before),
+            connection: $this->getConnectionMock('en-GB', [
+                'theme' => [
+                    'config' => [
+                        'helpText' => '<h1>Summary: </h1> <br> This is a <b>Theme</b>.',
+                    ],
+                ],
+            ]),
         );
 
         $result = $snippetFinder->findSnippets('en-GB');
-        $result = array_intersect_key($result, $before); // filter out all others snippets
+        $value = $result['theme']['config']['helpText'];
 
-        static::assertSame($after, $result);
+        static::assertSame('<h1>Summary: </h1> <br> This is a <b>Theme</b>.', $value);
     }
 
     /**
@@ -217,29 +219,6 @@ class SnippetFinderTest extends TestCase
             'appSnippets' => [
                 ...$allowedIntersectingFirstLevelSnippets,
                 'sw-unique-app-key' => [],
-            ],
-        ];
-    }
-
-    /**
-     * @return iterable<string, array{before: array<string, mixed>, after: array<string, mixed>}>
-     */
-    public static function sanitizeAppSnippetDataProvider(): iterable
-    {
-        yield 'Test it sanitises app snippets' => [
-            'before' => [
-                'foo' => [
-                    'bar' => [
-                        'bar' => '<h1>value</h1>',
-                    ],
-                ],
-            ],
-            'after' => [
-                'foo' => [
-                    'bar' => [
-                        'bar' => 'value',
-                    ],
-                ],
             ],
         ];
     }
@@ -459,6 +438,10 @@ class SnippetFinderTest extends TestCase
         $kernelMock = $kernel ?? $this->getKernelMock();
         $connectionMock = $connection ?? $this->getConnectionMock('en-GB', []);
         $translationLoader = $this->getTranslationLoader($config);
+        $sanitizer = $this->createMock(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnCallback(static function (string $value) {
+            return $value;
+        });
 
         return new SnippetFinder(
             $kernelMock,
@@ -466,6 +449,7 @@ class SnippetFinderTest extends TestCase
             $this->filesystem,
             $config,
             $translationLoader,
+            $sanitizer,
         );
     }
 

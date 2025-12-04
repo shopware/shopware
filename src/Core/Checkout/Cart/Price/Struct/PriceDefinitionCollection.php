@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @extends Collection<PriceDefinitionInterface>
+ * @template TElement of PriceDefinitionInterface = PriceDefinitionInterface
+ *
+ * @extends Collection<TElement>
  */
 #[Package('checkout')]
 class PriceDefinitionCollection extends Collection

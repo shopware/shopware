@@ -7,13 +7,15 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Util\Hasher;
 
 /**
- * @extends Collection<Error>
+ * @template TElement of Error = Error
+ *
+ * @extends Collection<TElement, string>
  */
 #[Package('checkout')]
 class ErrorCollection extends Collection
 {
     /**
-     * @param Error $error
+     * @param TElement $error
      */
     public function add($error): void
     {
@@ -43,7 +45,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error>
+     * @return array<string, TElement>
      */
     public function getErrors(): array
     {
@@ -51,7 +53,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error>
+     * @return array<string, TElement>
      */
     public function getWarnings(): array
     {
@@ -59,7 +61,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error>
+     * @return array<string, TElement>
      */
     public function getNotices(): array
     {
@@ -72,7 +74,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error>
+     * @return array<string, TElement>
      */
     public function filterByErrorLevel(int $errorLevel): array
     {

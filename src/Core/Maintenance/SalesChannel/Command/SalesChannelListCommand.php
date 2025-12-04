@@ -99,7 +99,7 @@ class SalesChannelListCommand extends Command
     }
 
     /**
-     * @param list<list<string|array<string, string>>> $data
+     * @param list<list<string|array<string, string|null>>> $data
      */
     private function renderJson(OutputInterface $output, array $data): int
     {

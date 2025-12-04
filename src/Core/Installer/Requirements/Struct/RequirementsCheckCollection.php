@@ -8,16 +8,24 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @internal
  *
- * @extends Collection<RequirementCheck>
+ * @template TElement of RequirementCheck = RequirementCheck
+ *
+ * @extends Collection<TElement>
  */
 #[Package('framework')]
 class RequirementsCheckCollection extends Collection
 {
+    /**
+     * @return self<PathCheck>
+     */
     public function getPathChecks(): self
     {
         return $this->filterInstance(PathCheck::class);
     }
 
+    /**
+     * @return self<SystemCheck>
+     */
     public function getSystemChecks(): self
     {
         return $this->filterInstance(SystemCheck::class);

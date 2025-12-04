@@ -7,7 +7,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @extends Collection<ShopwareHttpException>
+ * @template TElement of ShopwareHttpException = ShopwareHttpException
+ *
+ * @extends Collection<TElement>
  */
 #[Package('framework')]
 class ExceptionCollection extends Collection

@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @extends Collection<AbstractCheckoutGatewayCommand>
+ * @template TElement of AbstractCheckoutGatewayCommand = AbstractCheckoutGatewayCommand
+ *
+ * @extends Collection<TElement>
  */
 #[Package('checkout')]
 class CheckoutGatewayCommandCollection extends Collection

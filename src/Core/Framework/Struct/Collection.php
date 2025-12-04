@@ -98,11 +98,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @template R of mixed
+     * @template T
      *
-     * @param \Closure(TElement): R $closure
+     * @param \Closure(TElement): T $closure
      *
-     * @return array<TKey, R>
+     * @return array<TKey, T>
      */
     public function map(\Closure $closure): array
     {
@@ -110,12 +110,12 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @template R of mixed
+     * @template T
      *
-     * @param \Closure(R, TElement): R $closure
-     * @param R $initial
+     * @param \Closure(T, TElement): T $closure
+     * @param T $initial
      *
-     * @return R
+     * @return T
      */
     public function reduce(\Closure $closure, $initial = null)
     {
@@ -123,15 +123,27 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @template R of mixed
+     * @template T
      *
-     * @param \Closure(TElement): R $closure
+     * @param \Closure(TElement): (T|null) $closure
      *
-     * @return array<TKey, R&!null>
+     * @return array<TKey, T>
      */
     public function fmap(\Closure $closure): array
     {
         return array_filter($this->map($closure));
+    }
+
+    /**
+     * @template T
+     *
+     * @param \Closure(TElement): (T|iterable<*, T|null>|null) $closure
+     *
+     * @return array<TKey, T>
+     */
+    public function flatMap(\Closure $closure): array
+    {
+        return \array_merge(...$this->fmap(static fn ($value) => (array) $closure($value)));
     }
 
     /**
@@ -181,7 +193,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return list<TElement>
+     * @return array<array-key, mixed>
      */
     public function jsonSerialize(): array
     {
@@ -247,7 +259,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return class-string<TElement>|null
+     * @return class-string|null
      */
     protected function getExpectedClass(): ?string
     {

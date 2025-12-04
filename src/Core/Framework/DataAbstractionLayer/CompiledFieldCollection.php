@@ -47,7 +47,7 @@ class CompiledFieldCollection extends FieldCollection
     }
 
     /**
-     * @param Field $field
+     * @param TElement $field
      */
     public function add($field): void
     {
@@ -57,12 +57,18 @@ class CompiledFieldCollection extends FieldCollection
         $this->addField($field);
     }
 
+    /**
+     * @param TElement $field
+     */
     public function addNewField(Field $field): void
     {
         $field->compile($this->registry);
         $this->addField($field);
     }
 
+    /**
+     * @param TElement $field
+     */
     public function addField(Field $field): void
     {
         $this->elements[$field->getPropertyName()] = $field;

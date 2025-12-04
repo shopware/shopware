@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Struct\Collection;
  * to have the same line item objects multiple times in the list,
  * without bundling them together using a single line item id/key.
  *
- * @extends Collection<LineItem>
+ * @template TElement of LineItem = LineItem
+ *
+ * @extends Collection<TElement>
  */
 #[Package('checkout')]
 class LineItemFlatCollection extends Collection

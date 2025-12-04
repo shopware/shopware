@@ -7,7 +7,9 @@ use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @extends Collection<Rule>
+ * @template TElement of Rule = Rule
+ *
+ * @extends Collection<TElement>
  */
 #[Package('fundamentals@after-sales')]
 class RuleCollection extends Collection
@@ -22,9 +24,6 @@ class RuleCollection extends Collection
      */
     protected array $classes = [];
 
-    /**
-     * @param Rule $rule
-     */
     public function add($rule): void
     {
         parent::add($rule);
@@ -47,6 +46,13 @@ class RuleCollection extends Collection
         $this->classes = [];
     }
 
+    /**
+     * @template T
+     *
+     * @param class-string<T> $class
+     *
+     * @return static<Rule&T>
+     */
     public function filterInstance(string $class): static
     {
         return new static(

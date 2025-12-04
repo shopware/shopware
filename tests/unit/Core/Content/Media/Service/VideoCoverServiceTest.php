@@ -304,4 +304,3 @@ class VideoCoverServiceTest extends TestCase
         );
     }
 }
-

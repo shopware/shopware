@@ -103,7 +103,6 @@ class VideoCoverLoadedSubscriberTest extends TestCase
         static::assertFalse($video->hasExtension('videoCoverMedia'));
     }
 
-
     public function testHandlesMultipleVideosWithSameCover(): void
     {
         $video1Id = Uuid::randomHex();
@@ -232,4 +231,3 @@ class VideoCoverLoadedSubscriberTest extends TestCase
         );
     }
 }
-

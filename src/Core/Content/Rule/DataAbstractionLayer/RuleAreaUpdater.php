@@ -299,18 +299,25 @@ class RuleAreaUpdater implements EventSubscriberInterface
      */
     private function getAssociationEntities(): array
     {
-        return $this->getAssociationFields()->filterInstance(OneToManyAssociationField::class)->map(fn (AssociationField $field): string => $field->getReferenceDefinition()->getEntityName());
+        return $this->getAssociationFields()
+            ->fmap(static function (Field $associationField): ?string {
+                return $associationField instanceof OneToManyAssociationField || $associationField instanceof ManyToManyAssociationField ? $associationField->getReferenceDefinition()->getEntityName() : null;
+            });
     }
 
     private function getAssociationDefinitionByEntity(CompiledFieldCollection $collection, string $entityName): ?EntityDefinition
     {
-        $field = $collection->filter(function (Field $associationField) use ($entityName): bool {
+        $field = $collection->firstWhere(function (Field $associationField) use ($entityName): bool {
+            if ($associationField instanceof ManyToManyAssociationField) {
+                return $associationField->getMappingDefinition()->getEntityName() === $entityName;
+            }
+
             if (!$associationField instanceof OneToManyAssociationField) {
                 return false;
             }
 
             return $associationField->getReferenceDefinition()->getEntityName() === $entityName;
-        })->first();
+        });
 
         return $field instanceof AssociationField ? $field->getReferenceDefinition() : null;
     }

@@ -17,7 +17,6 @@ class ResponseHeaderListener implements EventSubscriberInterface
 {
     private const REMOVAL_HEADERS = [
         PlatformRequest::HEADER_VERSION_ID,
-        PlatformRequest::HEADER_LANGUAGE_ID,
         PlatformRequest::HEADER_CONTEXT_TOKEN,
         'Access-Control-Allow-Origin',
         'Access-Control-Allow-Methods',

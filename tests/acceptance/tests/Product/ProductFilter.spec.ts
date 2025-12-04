@@ -78,6 +78,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
 
         await ShopCustomer.expects(async () => {
             await ShopCustomer.goesTo(StorefrontHome.url(), true);
+            await TestDataService.clearCaches();
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
             await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
@@ -174,6 +175,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
 
         await ShopCustomer.expects(async () => {
             await ShopCustomer.goesTo(StorefrontHome.url(), true);
+            await TestDataService.clearCaches();
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
             await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
@@ -246,6 +248,7 @@ test('Customer should see unavailable filter options disabled when filtering by 
 
         await ShopCustomer.expects(async () => {
             await ShopCustomer.goesTo(StorefrontHome.url(), true);
+            await TestDataService.clearCaches();
             await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible({ timeout: TIMEOUT });

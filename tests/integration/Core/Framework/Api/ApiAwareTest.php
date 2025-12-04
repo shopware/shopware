@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationDefinition;
 use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
@@ -19,7 +18,6 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ApiAwareTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;

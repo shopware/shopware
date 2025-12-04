@@ -59,12 +59,7 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#$usageKey changed from string to string|null', '/'),
         preg_quote('CHANGED: The parameter $usageKey of Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#setUsageKey() changed from string to string|null', '/'),
 
-        // Symfony Console Command constructor changes - internal Symfony component changes
-        preg_quote('REMOVED: Method Symfony\Component\Console\Command\Command#__construct() was removed', '/'),
-        preg_quote('ADDED: Parameter filesystem was added to Method __construct() of class Symfony\Component\Console\Command\Command', '/'),
-        preg_quote('CHANGED: Symfony\Component\Console\Command\Command#__construct() was marked "@internal"', '/'),
-        preg_quote('CHANGED: The number of required arguments for Symfony\Component\Console\Command\Command#__construct() increased from 0 to', '/'),
-        preg_quote('CHANGED: The parameter $name of Symfony\Component\Console\Command\Command#__construct() changed from string|null to', '/'),
-        preg_quote('CHANGED: Parameter 0 of Symfony\Component\Console\Command\Command#__construct() changed name from name to', '/'),
+        // False positive, when an object extends Symfony Command and has its own constructor, configure methods
+        preg_quote('Symfony\Component\Console\Command\Command', '/'),
     ],
 ];

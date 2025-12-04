@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 
@@ -47,13 +48,13 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $this->generate($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
+        $this->generate($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID), $flow);
     }
 
     /**
      * @param array<string, mixed> $eventConfig
      */
-    private function generate(Context $context, array $eventConfig, string $orderId): void
+    private function generate(Context $context, array $eventConfig, string $orderId, StorableFlow $flow): void
     {
         if (\array_key_exists('documentType', $eventConfig)) {
             $this->generateDocument($eventConfig, $context, $orderId);
@@ -67,10 +68,13 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
             return;
         }
 
+        $allDocumentIds = [];
+
         // Invoice document should be created first
         foreach ($documentsConfig as $index => $config) {
             if ($config['documentType'] === InvoiceRenderer::TYPE) {
-                $this->generateDocument($config, $context, $orderId);
+                $ids = $this->generateDocument($config, $context, $orderId, $flow);
+                $allDocumentIds = array_merge($allDocumentIds, $ids);
                 unset($documentsConfig[$index]);
 
                 break;
@@ -78,20 +82,25 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
         }
 
         foreach ($documentsConfig as $config) {
-            $this->generateDocument($config, $context, $orderId);
+            $ids = $this->generateDocument($config, $context, $orderId, $flow);
+            $allDocumentIds = array_merge($allDocumentIds, $ids);
+        }
+
+        if (!empty($allDocumentIds)) {
+            $flow->setStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS, $allDocumentIds);
         }
     }
 
     /**
      * @param array<string, mixed> $eventConfig
      */
-    private function generateDocument(array $eventConfig, Context $context, string $orderId): void
+    private function generateDocument(array $eventConfig, Context $context, string $orderId): array
     {
         $documentType = $eventConfig['documentType'];
         $documentRangerType = $eventConfig['documentRangerType'];
 
         if (!$documentType || !$documentRangerType) {
-            return;
+            return [];
         }
 
         $fileType = $eventConfig['fileType'] ?? FileTypes::PDF;
@@ -105,5 +114,14 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
         foreach ($result->getErrors() as $error) {
             $this->logger->error($error->getMessage());
         }
+
+        $success = $result->getSuccess();
+
+        $ids = [];
+        foreach ($success as $document) {
+            $ids[] = $document->getId();
+        }
+
+        return $ids;
     }
 }

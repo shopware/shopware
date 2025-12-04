@@ -342,7 +342,7 @@ class DateRangeRuleTest extends TestCase
                 'fromDate' => 'not-a-valid-date',
                 'toDate' => '2024-12-31T23:59:59',
                 'useTime' => true,
-                'timezone' => true,
+                'timezone' => null,
             ],
         ];
 
@@ -351,7 +351,7 @@ class DateRangeRuleTest extends TestCase
                 'fromDate' => new \DateTime('2024-01-01T00:00:00'),
                 'toDate' => 'invalid-to-date',
                 'useTime' => false,
-                'timezone' => false,
+                'timezone' => null,
             ],
         ];
 
@@ -360,7 +360,7 @@ class DateRangeRuleTest extends TestCase
                 'fromDate' => new \DateTime('2024-01-01T00:00:00'),
                 'toDate' => new \DateTime('2024-12-31T23:59:59'),
                 'useTime' => true,
-                'timezone' => true,
+                'timezone' => null,
             ],
         ];
 
@@ -369,7 +369,7 @@ class DateRangeRuleTest extends TestCase
                 'fromDate' => 'invalid-from',
                 'toDate' => 'invalid-to',
                 'useTime' => false,
-                'timezone' => false,
+                'timezone' => null,
             ],
         ];
     }

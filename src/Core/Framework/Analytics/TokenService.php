@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Analytics;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -13,9 +15,13 @@ class TokenService
 {
     private const CONFIG_KEY_ANALYTICS_SECRET = 'core.analytics.secret';
 
+    private const RESPONSE_KEY_TOKEN = 'token';
+    private const RESPONSE_KEY_EXPIRES_AT = 'expires_at';
+
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
-        private readonly HttpClientInterface $client
+        private readonly HttpClientInterface $client,
+        private readonly string $gatewayBaseUrl
     ) {
     }
 
@@ -31,20 +37,26 @@ class TokenService
             $secret = $this->generateAndPersistSecret();
         }
 
-        $response = $this->fetchToken($secret, $referer);
-
-        if ($response->getStatusCode() === Response::HTTP_FORBIDDEN) {
-            // we need to rotate the secret
-            $secret = $this->generateAndPersistSecret();
+        try {
             $response = $this->fetchToken($secret, $referer);
-        }
 
-        if ($response->getStatusCode() !== Response::HTTP_OK) {
+            if ($response->getStatusCode() === Response::HTTP_FORBIDDEN) {
+                // we need to rotate the secret
+                $secret = $this->generateAndPersistSecret();
+                $response = $this->fetchToken($secret, $referer);
+            }
+
+            if ($response->getStatusCode() !== Response::HTTP_OK) {
+                // TODO: log
+                return null;
+            }
+
+            return $this->parseToken($response);
+        } catch (TransportExceptionInterface) {
             // TODO: log
+            // Gateway is unreachable
             return null;
         }
-
-        return $this->parseToken($response);
     }
 
     private function generateAndPersistSecret(): string
@@ -58,9 +70,7 @@ class TokenService
 
     private function fetchToken(string $secret, string $referer): ResponseInterface
     {
-        $url = 'http://localhost:8080/token';
-
-        return $this->client->request('POST', $url, [
+        return $this->client->request(Request::METHOD_POST, "{$this->gatewayBaseUrl}/token", [
             'headers' => [
                 'X-Client-Secret' => $secret,
                 'Referer' => $referer,
@@ -71,16 +81,16 @@ class TokenService
     private function parseToken(ResponseInterface $response): ?Token
     {
         $data = $response->toArray();
-        if (!isset($data['token']) || !isset($data['expires_at'])) {
+        if (!isset($data[self::RESPONSE_KEY_TOKEN]) || !isset($data[self::RESPONSE_KEY_EXPIRES_AT])) {
             return null;
         }
 
-        if (!\is_string($data['token']) || !\is_int($data['expires_at'])) {
+        if (!\is_string($data[self::RESPONSE_KEY_TOKEN]) || !\is_int($data[self::RESPONSE_KEY_EXPIRES_AT])) {
             return null;
         }
 
-        $expiresAt = new \DateTimeImmutable('@' . $data['expires_at']);
+        $expiresAt = new \DateTimeImmutable('@' . $data[self::RESPONSE_KEY_EXPIRES_AT]);
 
-        return new Token($data['token'], $expiresAt);
+        return new Token($data[self::RESPONSE_KEY_TOKEN], $expiresAt);
     }
 }

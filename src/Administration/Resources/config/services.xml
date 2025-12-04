@@ -50,6 +50,7 @@
             <argument type="string">%env(SERVICE_REGISTRY_URL)%</argument>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator"/>
+            <argument>%shopware.analytics.gateway_url%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
             <call method="setContainer">

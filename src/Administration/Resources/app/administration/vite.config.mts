@@ -125,6 +125,7 @@ export default defineConfig(({ command }) => {
                             data: {
                                 featureFlags: JSON.stringify(featureFlags),
                                 serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
+                                analyticsGatewayUrl: process.env.PRODUCT_ANALYTICS_GATEWAY_URL,
                             },
                         },
                     }),

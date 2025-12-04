@@ -1152,6 +1152,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
 
+        expect(possibleSelectionResult).toContain('firstName');
+        expect(possibleSelectionResult).toContain('lastName');
+        expect(possibleSelectionResult).toContain('email');
+
         expect(possibleSelectionResult).not.toContain('password');
         expect(possibleSelectionResult).not.toContain('legacyPassword');
         expect(possibleSelectionResult).not.toContain('legacyEncoder');
@@ -1167,6 +1171,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await flushPromises();
 
         const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
+
+        expect(possibleSelectionResult).toContain('aclRoleId');
+        expect(possibleSelectionResult).toContain('userId');
 
         expect(possibleSelectionResult).not.toContain('user');
     });

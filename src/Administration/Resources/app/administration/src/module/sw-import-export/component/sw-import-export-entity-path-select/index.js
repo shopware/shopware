@@ -430,12 +430,8 @@ export default {
             }
 
             // Filter out properties which are not AdminApiSourceAware
-            const properties = definition.filterProperties((property) => {
-                return this.propertyFilter(property);
-            });
-
             return {
-                properties: properties,
+                properties: definition.filterProperties(this.propertyFilter),
             };
         },
 
@@ -454,17 +450,13 @@ export default {
                 return false;
             }
 
-            const awareKey = 'Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource';
-            if (!property?.flags?.read_protected[0]?.includes(awareKey)) {
+            if (!property?.flags?.read_protected?.[0]?.some((key) => key.endsWith('AdminApiSource'))) {
                 return false;
             }
 
             const writeProtectedLength = property?.flags?.write_protected?.length || 0;
-            if (writeProtectedLength !== 0) {
-                return false;
-            }
 
-            return true;
+            return writeProtectedLength === 0;
         },
 
         isSelected(item) {

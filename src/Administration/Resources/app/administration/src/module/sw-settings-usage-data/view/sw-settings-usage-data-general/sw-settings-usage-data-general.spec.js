@@ -37,7 +37,7 @@ async function createWrapper() {
     );
 }
 
-describe('src/module/sw-settings-usage-data/component/sw-settings-usage-data-general', () => {
+describe('src/module/sw-settings-usage-data/view/sw-settings-usage-data-general', () => {
     let wrapper;
 
     it('should show the usage data consent banner', async () => {

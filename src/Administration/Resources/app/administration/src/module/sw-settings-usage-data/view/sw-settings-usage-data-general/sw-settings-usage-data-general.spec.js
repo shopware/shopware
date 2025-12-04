@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import SwSettingsUsageDataStoreDataConsent from '../../component/sw-settings-usage-data-store-data-consent';
 
 /**
  * @sw-package data-services
@@ -46,6 +47,8 @@ describe('src/module/sw-settings-usage-data/view/sw-settings-usage-data-general'
 
         expect(wrapper.getComponent('.sw-usage-data-consent-banner').isVisible()).toBe(true);
         expect(wrapper.find('.sw-usage-data-consent-banner').isVisible()).toBe(true);
+
+        expect(wrapper.findComponent(SwSettingsUsageDataStoreDataConsent).exists()).toBe(false);
     });
 
     it('should refresh the consent information when created', async () => {
@@ -65,5 +68,14 @@ describe('src/module/sw-settings-usage-data/view/sw-settings-usage-data-general'
         const declineButton = banner.find('.sw-usage-data-consent-banner__decline-button');
 
         expect(declineButton.exists()).toBe(false);
+    });
+
+    it('shows store data consent card', async () => {
+        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent(SwSettingsUsageDataStoreDataConsent).exists()).toBe(true);
     });
 });

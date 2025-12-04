@@ -1,0 +1,20 @@
+.sw-header-widget {
+    background: var(--bs-body);
+    border: 0 none;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+
+    &:focus {
+        outline: 2px solid var(--bs-primary);
+        outline-offset: 2px solid var(--bs-primary);
+    }
+
+    &:hover {
+        color: var(--bs-primary);
+    }
+}
+
+.sw-header-widget__label {
+    margin-top: 0.5rem;
+    display: block;
+}

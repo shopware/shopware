@@ -1,0 +1,20 @@
+{# Abstract header widget #}
+{% props
+    icon = null,
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-header-widget',
+} %}
+
+<button {{ attributes.defaults(attributeDefaults) }}>
+	<twig:Sw:Icon
+		class="sw-header-widget__icon"
+		:name="icon"
+		color="primary"
+	/>
+
+	<span class="sw-header-widget__label">
+		{% block content %}{% endblock %}
+	</span>
+</button>

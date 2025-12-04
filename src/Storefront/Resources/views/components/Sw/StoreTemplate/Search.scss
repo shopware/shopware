@@ -1,0 +1,17 @@
+.sw-search {
+    position: relative;
+}
+
+.sw-search__input {
+    border-color: var(--bs-gray-200);
+    background-color: var(--bs-gray-200);
+}
+
+.sw-search__btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+}

@@ -1,0 +1,45 @@
+{% props
+    navigationTree,
+    homeEnabled = context.salesChannel.translated.homeEnabled,
+    homeLabel = context.salesChannel.translated.homeName|default('general.homeLink'|trans),
+    homePath = path('frontend.home.page'),
+%}
+
+<nav class="sw-category-navbar border-bottom">
+    <div class="sw-category-navbar__container container">
+        <ul class="sw-category-navbar__nav nav nav-underline">
+
+            {% if homeEnabled %}
+                <li class="sw-category-navbar__nav-item nav-item">
+                    <a
+                        class="sw-category-navbar__nav-link nav-link"
+                        href="{{ homePath }}"
+                    >
+                        {{ homeLabel|sw_sanitize }}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for treeItem in navigationTree %}
+                {% set category = treeItem.category %}
+                {% set id = category.id %}
+                {% set name = category.translated.name %}
+                {% set hasChildren = treeItem.children|length > 0 %}
+                {% set itemSkipped = category.type == 'folder' and not hasChildren %}
+
+                {% if not itemSkipped %}
+                    <li class="sw-category-navbar__nav nav-item">
+                        <a
+                            class="sw-category-navbar__nav-link nav-link"
+                            href="{{ category.seoUrl ?: '#' }}"
+                        >
+                            {{ name }}
+                        </a>
+
+                        {# Children... #}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</nav>

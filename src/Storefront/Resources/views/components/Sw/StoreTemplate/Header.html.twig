@@ -1,0 +1,37 @@
+{% props
+    header,
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-header',
+} %}
+
+<header {{ attributes.defaults(attributeDefaults) }}>
+    <twig:Sw:StoreTemplate:TopBar />
+
+    <twig:Sw:Grid:Container
+        :columns="3"
+        :centered="true"
+        justifyContent="stretch"
+        alignContent="center"
+        align="center"
+        gap="16"
+    >
+        <twig:Sw:Grid:Column>
+            <twig:Sw:StoreTemplate:Logo />
+        </twig:Sw:Grid:Column>
+        <twig:Sw:Grid:Column>
+            <twig:Sw:StoreTemplate:Search />
+        </twig:Sw:Grid:Column>
+        <twig:Sw:Grid:Column justify="end">
+            <div class="sw-header__widgets d-flex justify-content-end">
+                <twig:Sw:StoreTemplate:AccountWidget />
+                <twig:Sw:StoreTemplate:CartWidget />
+            </div>
+        </twig:Sw:Grid:Column>
+    </twig:Sw:Grid:Container>
+</header>
+
+<twig:Sw:StoreTemplate:CategoryNavbar
+    :navigationTree="header.navigation.tree"
+/>

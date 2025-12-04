@@ -50,7 +50,15 @@ class MySQLFactory
             'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
         ];
 
-        $parameters['driverOptions'][\PDO::MYSQL_ATTR_INIT_COMMAND] = \implode(';', $initCommands);
+        // if the new constant is defined use it, otherwise use the old constant
+        if (\defined('\\Pdo\\Mysql::ATTR_INIT_COMMAND')) {
+            /** @phpstan-ignore class.notFound */
+            $initCommandConstant = \Pdo\Mysql::ATTR_INIT_COMMAND;
+        } else {
+            $initCommandConstant = \PDO::MYSQL_ATTR_INIT_COMMAND;
+        }
+
+        $parameters['driverOptions'][$initCommandConstant] = \implode(';', $initCommands);
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
             $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;

@@ -28,11 +28,11 @@
         }
     },
     "require": {
-        "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "doctrine/dbal": "~4.3.1",
         "lcobucci/jwt": "^5.5",
         "league/flysystem": "^3.13.0",
-        "league/oauth2-server": "^9.1",
+        "league/oauth2-server": "^9.3",
         "pentatrion/vite-bundle": "^8.1",
         "phpseclib/phpseclib": "^3.0",
         "psr/http-message": "^1.1 || ^2.0",

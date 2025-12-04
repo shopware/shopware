@@ -20,7 +20,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.5 # TODO: revert to 8.2 before merge
+          php-version: 8.2
           extensions: ""
           tools: symfony-cli
 

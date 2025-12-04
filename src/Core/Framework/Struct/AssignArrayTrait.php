@@ -32,6 +32,11 @@ trait AssignArrayTrait
         return $this;
     }
 
+    /**
+     * Note: assignRecursive uses reflection and creates nested struct instances,
+     * so it is noticeably slower than the classic shallow assign and is intended
+     * for import/export and (re-)hydration scenarios rather than tight, performance-critical loops.
+     */
     public function assignRecursive(array $options): static
     {
         foreach ($options as $propertyName => $value) {

@@ -75,9 +75,9 @@ test('Customer should see unavailable filter disabled based on selected filter',
     });
 
     await test.step('Verify setup filters display & enabled', async () => {
-        await ShopCustomer.goesTo(StorefrontHome.url(), true);
 
         await ShopCustomer.expects(async () => {
+            await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
             await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
@@ -118,14 +118,8 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.presses(StorefrontHome.resetAllButton);
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
-        await ShopCustomer.goesTo(StorefrontHome.url(), true);
-
-        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
-        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductColor.at(0).name })).toHaveCount(1);
-        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: freeShipProduct.name })).toHaveCount(1);
-        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: basicProduct.name })).toHaveCount(1);
-
         await ShopCustomer.expects(async () => {
+            await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
             await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
@@ -134,6 +128,11 @@ test('Customer should see unavailable filter disabled based on selected filter',
         }).toPass({
             intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
         });
+
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductColor.at(0).name })).toHaveCount(1);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: freeShipProduct.name })).toHaveCount(1);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: basicProduct.name })).toHaveCount(1);
     });
 
     await test.step('Select another manufacturer and verify that a different filter is disabled', async () => {
@@ -174,6 +173,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
         await ShopCustomer.expects(async () => {
+            await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
             await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
@@ -243,9 +243,9 @@ test('Customer should see unavailable filter options disabled when filtering by 
     await CheckVisibilityInHome(parentProductColor.name)();
 
     await test.step('Verify setup filters display', async () => {
-        await ShopCustomer.goesTo(StorefrontHome.url(), true);
 
         await ShopCustomer.expects(async () => {
+            await ShopCustomer.goesTo(StorefrontHome.url(), true);
             await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });
             await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible({ timeout: TIMEOUT });

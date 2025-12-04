@@ -18,7 +18,6 @@ import MtLoader from '@shopware-ag/meteor-component-library/dist/esm/MtLoader';
 import MtProgressBar from '@shopware-ag/meteor-component-library/dist/esm/MtProgressBar';
 import MtButton from '@shopware-ag/meteor-component-library/dist/esm/MtButton';
 import MtCheckbox from '@shopware-ag/meteor-component-library/dist/esm/MtCheckbox';
-import MtColorpicker from '@shopware-ag/meteor-component-library/dist/esm/MtColorpicker';
 import MtEmailField from '@shopware-ag/meteor-component-library/dist/esm/MtEmailField';
 import MtEmptyState from '@shopware-ag/meteor-component-library/dist/esm/MtEmptyState';
 import MtNumberField from '@shopware-ag/meteor-component-library/dist/esm/MtNumberField';
@@ -33,8 +32,6 @@ import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagin
 import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
 import MtToast from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
 import MtFloatingUi from '@shopware-ag/meteor-component-library/dist/esm/MtFloatingUi';
-import MtPopover from '@shopware-ag/meteor-component-library/dist/esm/MtPopover';
-import MtPopoverItem from '@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem';
 import MtTextEditorToolbarButton from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbarButton';
 import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
 import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
@@ -346,7 +343,6 @@ export default class VueAdapter extends ViewAdapter {
             MtProgressBar,
             MtButton,
             MtCheckbox,
-            MtColorpicker,
             MtEmailField,
             MtEmptyState,
             MtNumberField,
@@ -361,8 +357,6 @@ export default class VueAdapter extends ViewAdapter {
             MtSkeletonBar,
             MtToast,
             MtFloatingUi,
-            MtPopover,
-            MtPopoverItem,
             MtTextEditorToolbarButton,
             MtModal,
             MtModalRoot,
@@ -377,6 +371,9 @@ export default class VueAdapter extends ViewAdapter {
 
         const lazyMeteorComponents = {
             MtDataTable: () => import('@shopware-ag/meteor-component-library/dist/esm/MtDataTable'),
+            MtColorpicker: () => import('@shopware-ag/meteor-component-library/dist/esm/MtColorpicker'),
+            MtPopover: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopover'),
+            MtPopoverItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem'),
         }
 
         Object.entries(meteorComponents).forEach(

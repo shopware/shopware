@@ -19,6 +19,10 @@ return [
         // Will be typed in Symfony 8 (maybe)
         preg_quote('Symfony\Component\Console\Command\Command#configure() changed from no type to void', '/'),
 
+        // False positive, when an object extends Symfony Command and has its own constructor
+        '.* was added to Method __construct\(\) of class Symfony\\\\Component\\\\Console\\\\Command\\\\Command',
+        preg_quote('Symfony\Component\Console\Command\Command#__construct()', '/'),
+
         // Version-related const values changed for the 7.3 update
         preg_quote('Value of constant Symfony\Component\HttpKernel\Kernel', '/'),
 
@@ -58,8 +62,5 @@ return [
         // Fix for promotion discount entity property initialization error - necessary to prevent runtime errors
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#$usageKey changed from string to string|null', '/'),
         preg_quote('CHANGED: The parameter $usageKey of Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#setUsageKey() changed from string to string|null', '/'),
-
-        // False positive, when an object extends Symfony Command and has its own constructor, configure methods
-        preg_quote('Symfony\Component\Console\Command\Command', '/'),
     ],
 ];

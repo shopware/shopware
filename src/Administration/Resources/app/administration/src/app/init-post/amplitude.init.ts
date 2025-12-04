@@ -50,6 +50,31 @@ export default async function (): Promise<void> {
         },
     });
 
+    const originalFetch = globalThis.fetch;
+    const analyticsGatewayUrl = Shopware.Store.get('context').app.analyticsGatewayUrl;
+    const eventUrl = `${analyticsGatewayUrl}/event`;
+
+    globalThis.fetch = async function(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+        const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+
+        if (url.includes(eventUrl)) {
+            let tokenData;
+            try {
+                tokenData = await Shopware.Service('analyticsService').getToken();
+            } catch {
+                return new Response(JSON.stringify({ code: 503 }), { status: 503 });
+            }
+
+            init = init || {};
+            init.headers = {
+                ...init.headers,
+                'Authorization': `Bearer ${tokenData.token}`,
+            };
+        }
+
+        return originalFetch.call(this, input, init);
+    };
+
     // check for consent
 
     amplitude.init('a04bb926f471ce883bc219814fc9577', undefined, {
@@ -62,7 +87,7 @@ export default async function (): Promise<void> {
             platform: false,
         },
         fetchRemoteConfig: false,
-        // serverUrl: use proxy server url here, e.g. usage-data.shopware.io/product-analytics,
+        serverUrl: eventUrl,
     });
 
     // eslint-disable-next-line listeners/no-missing-remove-event-listener

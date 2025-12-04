@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationDefinition;
 use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;

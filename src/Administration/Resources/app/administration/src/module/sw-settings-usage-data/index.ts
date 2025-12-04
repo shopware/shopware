@@ -20,6 +20,14 @@ Shopware.Component.register(
 );
 
 /**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-usage-data-profile-consent',
+    () => import('./component/sw-settings-usage-data-profile-consent'),
+);
+
+/**
  * @sw-package framework
  * @private
  */

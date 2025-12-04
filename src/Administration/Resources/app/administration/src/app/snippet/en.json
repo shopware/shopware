@@ -450,6 +450,10 @@
       "buttonSwitchToFileUpload": "Upload file from your computer",
       "buttonSwitchToUrlUpload": "Upload file from URL",
       "buttonOpenMedia": "Open media",
+      "snackbar": {
+        "message": "Uploading file | Uploading files",
+        "errorMessage": "File could not be uploaded. | Some files could not be uploaded."
+      },
       "notification": {
         "success": {
           "message": "No file has been saved. | File has been saved. | {count} / {total} files have been saved."
@@ -466,6 +470,12 @@
         "illegalFileUrl": {
           "title": "Invalid URL",
           "message": "Upload from local URLs not allowed."
+        },
+        "illegalFileType": {
+          "message": "The file \"{name}\" could not be uploaded. This file type is not supported."
+        },
+        "requestCanceled": {
+          "message": "The upload has been cancelled."
         }
       },
       "caption": "Drag files here to upload"

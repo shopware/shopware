@@ -450,6 +450,10 @@
       "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
       "buttonSwitchToUrlUpload": "Datei von URL hochladen",
       "buttonOpenMedia": "Medien öffnen",
+      "snackbar": {
+        "message": "Datei wird hochgeladen | Dateien werden hochgeladen",
+        "errorMessage": "Die Datei konnte nicht hochgeladen werden. | Manche Dateien konnten nicht hochgeladen werden."
+      },
       "notification": {
         "success": {
           "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
@@ -466,6 +470,12 @@
         "illegalFileUrl": {
           "title": "Ungültige URL",
           "message": "Hochladen über lokale URLs nicht erlaubt."
+        },
+        "illegalFileType": {
+          "message": "Die Datei \"{name}\" konnte nicht hochgeladen werden. Der Dateityp wird nicht unterstützt."
+        },
+        "requestCanceled": {
+          "message": "Das Hochladen wurde abgebrochen."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"

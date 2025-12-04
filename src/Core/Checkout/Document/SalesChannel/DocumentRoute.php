@@ -6,12 +6,14 @@ use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -30,6 +32,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('after-sales')]
 final class DocumentRoute extends AbstractDocumentRoute
 {
+    public const MODE_PARAM = 'param';
+    public const MODE_ACCEPT_HEADER = 'accept';
     public const ACCEPT_WILDCARD = '*/*';
 
     /**
@@ -73,63 +77,27 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         $download = $request->query->getBoolean('download');
 
-        $supportedFormats = $this->getSupportedFileTypes();
-        if ($fileType) {
-            if (!Feature::isActive('v6.8.0.0')) {
-                $document = $this->documentGenerator->readDocument(
-                    $documentId,
-                    $context->getContext(),
-                    $deepLinkCode,
-                    $fileType
-                );
+        $resolved = $this->resolveRequest($request, $fileType);
 
-                if ($document === null) {
-                    return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
-                }
-
-                return $this->createResponse(
-                    $document->getName(),
-                    $document->getContent(),
-                    $download,
-                    $document->getContentType()
-                );
+        if (empty($resolved['candidates'])) {
+            if ($resolved['mode'] === self::MODE_PARAM && Feature::isActive('v6.8.0.0')) {
+                throw DocumentException::documentFileTypeNotSupported($resolved['exceptionParams'][0]);
             }
 
-            if (!isset($supportedFormats[$fileType])) {
-                throw DocumentException::documentFileTypeNotSupported($fileType);
+            if ($resolved['mode'] === self::MODE_ACCEPT_HEADER) {
+                throw DocumentException::documentAcceptHeaderMimeTypesNotSupported(
+                    array_values($resolved['exceptionParams'][0]),
+                    array_values($resolved['exceptionParams'][1])
+                );
             }
         }
 
-        $this->registerFileTypes($supportedFormats, $request);
-        $requestedFormats = $fileType ? [$fileType => $supportedFormats[$fileType] ?? $fileType] : $this->getRequestedFileTypes($request);
-
-        $supportedRequestedFormats = array_filter(
-            $requestedFormats,
-            fn (string $fileType) => isset($supportedFormats[$fileType]),
-            \ARRAY_FILTER_USE_KEY
+        $document = $this->readDocument(
+            $documentId,
+            $context->getContext(),
+            $deepLinkCode,
+            $resolved['candidates'],
         );
-
-        if (!$fileType && !$supportedRequestedFormats) {
-            throw DocumentException::documentAcceptHeaderMimeTypesNotSupported(
-                array_values($requestedFormats),
-                array_values($supportedFormats)
-            );
-        }
-
-        $document = null;
-
-        foreach ($supportedRequestedFormats as $supportedFileType => $supportedMimeType) {
-            $document = $this->documentGenerator->readDocument(
-                $documentId,
-                $context->getContext(),
-                $deepLinkCode,
-                $supportedFileType
-            );
-
-            if ($document !== null) {
-                break;
-            }
-        }
 
         if ($document === null) {
             if (!Feature::isActive('v6.8.0.0')) {
@@ -140,7 +108,10 @@ final class DocumentRoute extends AbstractDocumentRoute
                 return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
             }
 
-            throw DocumentException::documentFileTypeUnavailable($documentId, array_keys($supportedRequestedFormats));
+            throw DocumentException::documentFileTypeUnavailable(
+                $documentId,
+                array_keys($resolved['candidates'])
+            );
         }
 
         return $this->createResponse(
@@ -149,6 +120,68 @@ final class DocumentRoute extends AbstractDocumentRoute
             $download,
             $document->getContentType()
         );
+    }
+
+    /**
+     * @return array{mode: string, candidates: array<string>, exceptionParams: array<mixed>}
+     */
+    public function resolveRequest(Request $request, ?string $fileType): array
+    {
+        $supportedTypesMapping = $this->getSupportedFileTypes();
+
+        /*
+         * handle param fileType
+         */
+        if ($fileType !== null) {
+            if (!Feature::isActive('v6.8.0.0')) {
+                return [
+                    'mode' => self::MODE_PARAM,
+                    'candidates' => [$fileType => $fileType],
+                    'exceptionParams' => [],
+                ];
+            }
+
+            if (!isset($supportedTypesMapping[$fileType])) {
+                return [
+                    'mode' => self::MODE_PARAM,
+                    'candidates' => [],
+                    'exceptionParams' => [$fileType],
+                ];
+            }
+
+            return [
+                'mode' => self::MODE_PARAM,
+                'candidates' => [$fileType => $fileType],
+                'exceptionParams' => [],
+            ];
+        }
+
+        /*
+         * handle Accept header
+         */
+        $this->registerFileTypes($supportedTypesMapping, $request);
+
+        $requestedTypesMapping = $this->getRequestedFileTypes($request);
+
+        $supportedRequestedFormats = array_filter(
+            $requestedTypesMapping,
+            fn (string $fileType) => isset($supportedTypesMapping[$fileType]),
+            \ARRAY_FILTER_USE_KEY
+        );
+
+        if (empty($supportedRequestedFormats)) {
+            return [
+                'mode' => self::MODE_ACCEPT_HEADER,
+                'candidates' => [],
+                'exceptionParams' => [$requestedTypesMapping, $supportedTypesMapping],
+            ];
+        }
+
+        return [
+            'mode' => self::MODE_ACCEPT_HEADER,
+            'candidates' => $supportedRequestedFormats,
+            'exceptionParams' => [$requestedTypesMapping, $supportedTypesMapping],
+        ];
     }
 
     private function createResponse(string $filename, string $content, bool $forceDownload, string $contentType): Response
@@ -298,5 +331,32 @@ final class DocumentRoute extends AbstractDocumentRoute
     private function getDefaultFileTypes(): array
     {
         return [PdfRenderer::FILE_EXTENSION => PdfRenderer::FILE_CONTENT_TYPE];
+    }
+
+    /**
+     * @param array<string> $fileTypes
+     */
+    private function readDocument(
+        string $documentId,
+        Context $context,
+        string $deepLinkCode,
+        array $fileTypes,
+    ): ?RenderedDocument {
+        $document = null;
+
+        foreach ($fileTypes as $fileType => $mimeType) {
+            $document = $this->documentGenerator->readDocument(
+                $documentId,
+                $context,
+                $deepLinkCode,
+                $fileType
+            );
+
+            if ($document !== null) {
+                break;
+            }
+        }
+
+        return $document;
     }
 }

@@ -646,6 +646,12 @@ to:
 {% endblock %}
 ```
 
+## Document download returns 404/406 instead of 204
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}` has been updated. Instead of returning `204`, the route now returns:
+- `406` (Not Acceptable) for invalid/unsupported `fileType` values
+- `404` (Not Found) when no generated document exists for the requested `fileType`.
+
+
 </details>
 
 # App System

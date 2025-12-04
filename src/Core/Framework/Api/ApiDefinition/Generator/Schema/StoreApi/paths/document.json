@@ -88,6 +88,9 @@
                     },
                     "404": {
                         "description": "Document not found."
+                    },
+                    "406": {
+                        "description": "The requested mime type is not supported."
                     }
                 },
                 "security": [
@@ -181,6 +184,9 @@
                     },
                     "404": {
                         "description": "Document not found."
+                    },
+                    "406": {
+                        "description": "The requested mime type is not supported."
                     }
                 },
                 "security": [

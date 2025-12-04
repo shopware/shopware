@@ -283,7 +283,7 @@ class DocumentControllerTest extends TestCase
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         } else {
             static::assertSame(Response::HTTP_NOT_ACCEPTABLE, $response->getStatusCode());
-            static::assertStringContainsString(\sprintf('The requested file type is not supported: %s. (406 Not Acceptable)', self::INVALID_FILE_TYPE), $response->getContent());
+            static::assertStringContainsString(\sprintf('The requested file type is not supported: %s. (406 Not Acceptable)', self::INVALID_FILE_TYPE), (string) $response->getContent());
         }
     }
 

@@ -48,6 +48,8 @@ class DocumentRouteTest extends TestCase
 
     private const INVALID_FILE_TYPE = 'invalid';
 
+    private const ACCEPT_HEADER_VALUE_BROWSER = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+
     private const SUPPORTED_FILE_FORMATS = [
         PdfRenderer::FILE_EXTENSION => PdfRenderer::FILE_CONTENT_TYPE,
         HtmlRenderer::FILE_EXTENSION => HtmlRenderer::FILE_CONTENT_TYPE,
@@ -69,8 +71,8 @@ class DocumentRouteTest extends TestCase
             $fileRenderersMock,
         );
 
-        static::expectException(DocumentException::class);
-        static::expectExceptionMessage('The document with id "documentId" is invalid or could not be found.');
+        $this->expectException(DocumentException::class);
+        $this->expectExceptionMessage('The document with id "documentId" is invalid or could not be found.');
 
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
     }
@@ -99,8 +101,8 @@ class DocumentRouteTest extends TestCase
             $fileRenderersMock,
         );
 
-        static::expectException(DocumentException::class);
-        static::expectExceptionMessage('The order with id "test" is invalid or could not be found.');
+        $this->expectException(DocumentException::class);
+        $this->expectExceptionMessage('The order with id "test" is invalid or could not be found.');
 
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
     }
@@ -128,8 +130,8 @@ class DocumentRouteTest extends TestCase
             $fileRenderersMock,
         );
 
-        static::expectException(CustomerNotLoggedInException::class);
-        static::expectExceptionMessage('Customer is not logged in.');
+        $this->expectException(CustomerNotLoggedInException::class);
+        $this->expectExceptionMessage('Customer is not logged in.');
 
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
     }
@@ -169,8 +171,8 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
-        static::expectException(CustomerNotLoggedInException::class);
-        static::expectExceptionMessage('Customer is not logged in.');
+        $this->expectException(CustomerNotLoggedInException::class);
+        $this->expectExceptionMessage('Customer is not logged in.');
 
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
@@ -221,8 +223,8 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
-        static::expectException(WrongGuestCredentialsException::class);
-        static::expectExceptionMessage('Wrong credentials for guest authentication');
+        $this->expectException(WrongGuestCredentialsException::class);
+        $this->expectExceptionMessage('Wrong credentials for guest authentication');
 
         $route->download($document->getId(), $request, $context);
     }
@@ -265,8 +267,8 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
-        static::expectException(GuestNotAuthenticatedException::class);
-        static::expectExceptionMessage('Guest not authenticated.');
+        $this->expectException(GuestNotAuthenticatedException::class);
+        $this->expectExceptionMessage('Guest not authenticated.');
 
         $route->download($document->getId(), $request, $context);
     }
@@ -375,7 +377,7 @@ class DocumentRouteTest extends TestCase
         $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context, 'deepLinkCode');
 
         if (!Feature::isActive('v6.8.0.0')) {
-            static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
     }
 
@@ -454,7 +456,7 @@ class DocumentRouteTest extends TestCase
         $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
     }
 
@@ -507,7 +509,7 @@ class DocumentRouteTest extends TestCase
         $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
     }
 
@@ -627,18 +629,23 @@ class DocumentRouteTest extends TestCase
 
     public static function provideAcceptHeaderValues(): \Generator
     {
-        yield 'accept header ' . ZugferdRenderer::FILE_CONTENT_TYPE . '" returns xml' => [
+        yield 'accept header ' . ZugferdRenderer::FILE_CONTENT_TYPE . '" requests xml document' => [
             'acceptHeader' => ZugferdRenderer::FILE_CONTENT_TYPE,
             'expectedFileExtension' => ZugferdRenderer::FILE_EXTENSION,
         ];
 
-        yield 'accept header "' . HtmlRenderer::FILE_CONTENT_TYPE . '" returns html document' => [
+        yield 'accept header "' . HtmlRenderer::FILE_CONTENT_TYPE . '" requests html document' => [
             'acceptHeader' => HtmlRenderer::FILE_CONTENT_TYPE,
+            'expectedFileExtension' => HtmlRenderer::FILE_EXTENSION,
+        ];
+
+        yield 'accept header "application/pdf;q=0.4,text/html;q=0.8,application/xml;q=0.2" requests html document' => [
+            'acceptHeader' => 'application/pdf;q=0.4,text/html;q=0.8,application/xml;q=0.2',
             'expectedFileExtension' => HtmlRenderer::FILE_EXTENSION,
         ];
     }
 
-    public function testDownloadWithUnsupportedMimeTypeShouldNotCallReadDocument(): void
+    public function testDownloadWithUnsupportedMimeTypeShouldNotCallReadDocumentAndThrowException(): void
     {
         $customerID = Uuid::randomHex();
         $customer = $this->createCustomer($customerID, false);
@@ -687,7 +694,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
-    public function testDownloadWithInvalidFileTypeParameterWillThrowException(): void
+    public function testDownloadWithInvalidFileTypeParameterShouldNotCallReadDocumentAndThrowException(): void
     {
         Feature::skipTestIfInActive('v6.8.0.0', $this);
 
@@ -724,7 +731,7 @@ class DocumentRouteTest extends TestCase
         $context->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
-        $request->headers->set('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8');
+        $request->headers->set('Accept', self::ACCEPT_HEADER_VALUE_BROWSER);
 
         $generator->expects($this->never())->method('readDocument');
 
@@ -739,6 +746,65 @@ class DocumentRouteTest extends TestCase
             '',
             self::INVALID_FILE_TYPE
         );
+    }
+
+    public function testDownloadWithInvalidFileTypeParameterCallsReadDocumentAndReturnsJustCodeInResponse(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $customerID = Uuid::randomHex();
+        $customer = $this->createCustomer($customerID, false);
+        $order = $this->createOrder($customerID);
+        $document = $this->createDocument($order);
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $generator = $this->createMock(DocumentGenerator::class);
+        $pdfFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $htmlFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
+
+        $fileRenderersMock = new \ArrayIterator([
+            PdfRenderer::FILE_EXTENSION => $pdfFileRendererMock,
+            HtmlRenderer::FILE_EXTENSION => $htmlFileRendererMock,
+        ]);
+
+        $pdfFileRendererMock->method('getContentType')->willReturn(PdfRenderer::FILE_CONTENT_TYPE);
+        $htmlFileRendererMock->method('getContentType')->willReturn(HtmlRenderer::FILE_CONTENT_TYPE);
+
+        $route = new DocumentRoute(
+            $generator,
+            $documentRepository,
+            new GuestAuthenticator(),
+            $fileRenderersMock
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $request = new Request();
+        $request->headers->set('Accept', self::ACCEPT_HEADER_VALUE_BROWSER);
+
+        $generator->expects($this->once())
+            ->method('readDocument')
+            ->with(
+                self::DUMMY_DOCUMENT_ID,
+                $context->getContext(),
+                '',
+                self::INVALID_FILE_TYPE,
+            );
+
+        $response = $route->download(
+            self::DUMMY_DOCUMENT_ID,
+            $request,
+            $context,
+            '',
+            self::INVALID_FILE_TYPE
+        );
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     private function createCustomer(string $customerId, bool $isGuest): CustomerEntity

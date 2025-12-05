@@ -37,7 +37,11 @@ describe('src/core/worker/admin-notification-worker', () => {
         const userService = {
             getUser: jest.fn(),
         };
+        const notificationService = {
+            fetchNotifications: jest.fn(),
+        };
 
+        Shopware.Service().register('notificationsService', () => notificationService);
         Shopware.Service().register('userConfigService', () => userConfigService);
         Shopware.Service().register('userService', () => userService);
 
@@ -64,7 +68,11 @@ describe('src/core/worker/admin-notification-worker', () => {
                 },
             }),
         };
+        const notificationService = {
+            fetchNotifications: jest.fn(),
+        };
 
+        Shopware.Service().register('notificationsService', () => notificationService);
         Shopware.Service().register('userConfigService', () => userConfigService);
         Shopware.Service().register('userService', () => userService);
 

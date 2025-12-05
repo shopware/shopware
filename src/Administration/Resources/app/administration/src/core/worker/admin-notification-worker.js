@@ -69,17 +69,15 @@ export default class AdminNotificationWorker {
     }
 
     async fetchUserConfig() {
-        await this._userConfigService.search([READ_NOTIFICATION]).then((response) => {
-            const value = response.data[READ_NOTIFICATION];
+        const response = await this._userConfigService.search([READ_NOTIFICATION]);
+        const value = response.data[READ_NOTIFICATION];
 
-            if (value) {
-                this._timestamp = value.timestamp;
-            } else {
-                // If no timestamp is found, fetch the user's creation date as a fallback
-                this._userService.getUser().then((userResponse) => {
-                    this._timestamp = userResponse.data.createdAt.timestamp;
-                });
-            }
-        });
+        if (value) {
+            this._timestamp = value.timestamp;
+        } else {
+            // If no timestamp is found, fetch the user's creation date as a fallback
+            const userResponse = await this._userService.getUser();
+            this._timestamp = userResponse.data.createdAt.timestamp;
+        }
     }
 }

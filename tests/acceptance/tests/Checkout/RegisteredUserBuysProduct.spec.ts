@@ -15,8 +15,8 @@ test(
         AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
-        SelectInvoicePaymentOption,
-        SelectStandardShippingOption,
+        SelectPaymentMethod,
+        SelectShippingMethod,
         SubmitOrder,
     }) => {
         const product = await TestDataService.createBasicProduct();
@@ -32,8 +32,8 @@ test(
         await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
         await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-        await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-        await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+        await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+        await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
         await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(formatPrice(10.0));
 

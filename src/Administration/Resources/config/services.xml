@@ -74,6 +74,7 @@
 
         <service id="Shopware\Administration\Controller\UserConfigController" public="true">
             <argument type="service" id="user_config.repository"/>
+            <argument type="service" id="user.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <call method="setContainer">

@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -230,6 +231,75 @@ class GenerateDocumentActionTest extends TestCase
             $registry,
             $oldValue
         );
+    }
+
+    public function testGenerateDocumentStoresDocumentIdsInFlow(): void
+    {
+        $context = Context::createDefaultContext();
+        $customerId = $this->createCustomer();
+        $order = $this->createOrder($customerId, $context);
+
+        $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
+        $subscriber = new GenerateDocumentAction($this->documentGenerator, $this->logger);
+
+        $config = [
+            'documentType' => InvoiceRenderer::TYPE,
+            'documentRangerType' => 'document_invoice',
+        ];
+
+        /** @var FlowFactory $flowFactory */
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
+
+        $documentIdsBefore = $flow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS, []);
+        static::assertEmpty($documentIdsBefore);
+
+        $subscriber->handleFlow($flow);
+
+        $documentIds = $flow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
+        static::assertIsArray($documentIds);
+        static::assertCount(1, $documentIds);
+        static::assertIsString($documentIds[0]);
+    }
+
+    public function testGenerateMultipleDocumentsStoresDocumentIdsInFlow(): void
+    {
+        $context = Context::createDefaultContext();
+        $customerId = $this->createCustomer();
+        $order = $this->createOrder($customerId, $context);
+
+        $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
+        $subscriber = new GenerateDocumentAction($this->documentGenerator, $this->logger);
+
+        $config = [
+            'documentTypes' => [
+                [
+                    'documentType' => InvoiceRenderer::TYPE,
+                    'documentRangerType' => 'document_invoice',
+                ],
+                [
+                    'documentType' => DeliveryNoteRenderer::TYPE,
+                    'documentRangerType' => 'document_delivery_note',
+                ],
+            ],
+        ];
+
+        /** @var FlowFactory $flowFactory */
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
+
+        $documentIdsBefore = $flow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS, []);
+        static::assertEmpty($documentIdsBefore);
+
+        $subscriber->handleFlow($flow);
+
+        $documentIds = $flow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
+        static::assertIsArray($documentIds);
+        static::assertCount(2, $documentIds);
+        static::assertIsString($documentIds[0]);
+        static::assertIsString($documentIds[1]);
     }
 
     /**

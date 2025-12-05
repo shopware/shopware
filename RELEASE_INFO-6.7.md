@@ -27,10 +27,6 @@ The following classes and constants were deprecated as they will not be used any
 Additionally, the following configuration was deprecated:
 * `shopware.cache.invalidation.http_cache`
 
-### Added ResetInterface to LineItemGroupBuilder
-
-For performance reasons, `LineItemGroupBuilder` calculates and stores the results of `LineItemGroupBuilderResult`'s. Problems may occur when adding or removing line items. The calculated results may then be incorrect. Therefore, the results are reset when a line item is added or removed.
-
 ## Administration
 
 ## Storefront

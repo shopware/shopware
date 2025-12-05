@@ -84,5 +84,4 @@ describe('src/core/worker/admin-notification-worker', () => {
         expect(adminNotificationWorker._timestamp).toBe('2025-12-05T11:16:44+00:00');
         expect(userService.getUser).not.toHaveBeenCalled();
     });
-
 });

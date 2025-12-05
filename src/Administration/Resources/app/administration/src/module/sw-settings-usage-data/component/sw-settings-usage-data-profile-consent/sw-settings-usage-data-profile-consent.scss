@@ -14,4 +14,7 @@
         grid-template-columns: 1fr 1fr;
         column-gap: var(--scale-size-16);
     }
+    .sw-settings-usage-data-profile-consent__legal-link {
+        font-size: var(--font-size-xs);
+    }
 }

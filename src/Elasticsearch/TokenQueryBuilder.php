@@ -34,7 +34,7 @@ use Shopware\Elasticsearch\Product\SearchFieldConfig;
  *
  * @final
  */
-#[Package('framework')]
+#[Package('inventory')]
 class TokenQueryBuilder
 {
     /**
@@ -44,8 +44,7 @@ class TokenQueryBuilder
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly CustomFieldService $customFieldService,
         private readonly AbstractKeyValueStorage $storage,
-        private readonly int $minGram = 4,
-        private readonly int $maxGram = 5
+        private readonly int $minGram = 4
     ) {
     }
 
@@ -149,16 +148,15 @@ class TokenQueryBuilder
 
             $tokenLength = mb_strlen($token);
 
-            // apply ngram search if tokenize is enabled and token length is between minGram and maxGram
-            if ($config->tokenize() && $tokenCount === 1 && $tokenLength >= $this->minGram && $tokenLength <= $this->maxGram) {
-                $queries[] = new TermQuery($config->getField() . '.ngram', $token, [
+            if ($config->tokenize() && $tokenCount === 1 && $tokenLength >= $this->minGram) {
+                $queries[] = new MatchQuery($config->getField() . '.ngram', $token, [
                     'boost' => 0.4,
                 ]);
             }
 
             // apply prefix search on a single token
-            if ($tokenCount === 1 && ($tokenLength < $this->minGram || $tokenLength > $this->maxGram)) {
-                // Prefix search on single tokens smaller than minGram or bigger than maxGram
+            if ($tokenCount === 1 && $tokenLength < $this->minGram) {
+                // Prefix search on single tokens smaller than minGram
                 $queries[] = new PrefixQuery($config->getField(), $token, [
                     'boost' => 0.4,
                 ]);

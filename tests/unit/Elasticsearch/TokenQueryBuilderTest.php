@@ -242,6 +242,18 @@ class TokenQueryBuilderTest extends TestCase
             ]),
         ];
 
+        yield 'Tokenized field uses ngram match for long term' => [
+            'config' => [
+                self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+            ],
+            'term' => 'foooooooooo',
+            'expected' => self::disMax([
+                self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foooooooooo', 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.8, 'AUTO:3,8', 'or', 20),
+                self::matchSimple('name.' . Defaults::LANGUAGE_SYSTEM . '.ngram', 'foooooooooo', 0.4),
+            ], 1000),
+        ];
+
         yield 'Test multiple fields' => [
             'config' => [
                 self::config(field: 'name', ranking: 1000),
@@ -513,6 +525,18 @@ class TokenQueryBuilderTest extends TestCase
         return [
             'match' => [
                 $field => array_filter($payload, static fn ($value) => $value !== null),
+            ],
+        ];
+    }
+
+    private static function matchSimple(string $field, string $query, float $boost): array
+    {
+        return [
+            'match' => [
+                $field => [
+                    'query' => $query,
+                    'boost' => $boost,
+                ],
             ],
         ];
     }

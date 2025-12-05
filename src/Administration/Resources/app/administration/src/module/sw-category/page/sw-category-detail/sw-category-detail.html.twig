@@ -262,7 +262,7 @@
             {% block sw_category_content_empty %}
             <mt-empty-state
                 v-if="showEmptyState"
-                class="mt-empty-state--center"
+                :centered="true"
                 :icon="$route.meta.$module.icon"
                 :headline="$t('sw-category.general.emptyStateHeadline')"
                 :description="$t($route.meta.$module.description)"

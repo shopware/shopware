@@ -207,16 +207,16 @@ class ProductSubscriber implements EventSubscriberInterface
 
         // Clean up configurator settings for parents that no longer have variants using those options
         $this->connection->executeStatement(
-            'DELETE FROM product_configurator_setting pcs
-             WHERE pcs.product_id IN (:parentIds)
-             AND pcs.product_version_id = :versionId
+            'DELETE FROM product_configurator_setting
+             WHERE product_configurator_setting.product_id IN (:parentIds)
+             AND product_configurator_setting.product_version_id = :versionId
              AND NOT EXISTS (
                  SELECT 1
                  FROM product_option po
                  INNER JOIN product p ON p.id = po.product_id AND p.version_id = po.product_version_id
-                 WHERE p.parent_id = pcs.product_id
+                 WHERE p.parent_id = product_configurator_setting.product_id
                      AND p.version_id = :versionId
-                     AND po.property_group_option_id = pcs.property_group_option_id
+                     AND po.property_group_option_id = product_configurator_setting.property_group_option_id
                      AND po.product_version_id = :versionId
              )',
             [

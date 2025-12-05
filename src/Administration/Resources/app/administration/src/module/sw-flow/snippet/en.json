@@ -304,6 +304,7 @@
       "order": "Order",
       "paymentMethod": "Payment method",
       "contactForm": "Contact form",
+      "cancellationRequest": "Cancellation request",
       "reviewForm": "Product review",
       "group": "Group",
       "recovery": "Recovery",

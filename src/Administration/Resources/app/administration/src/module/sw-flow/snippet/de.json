@@ -304,6 +304,7 @@
       "order": "Bestellung",
       "paymentMethod": "Zahlungsart",
       "contactForm": "Kontaktformular",
+      "cancellationRequest": "Stornierungsanfrage",
       "reviewForm": "Produktbewertung",
       "group": "Gruppe",
       "recovery": "Wiederherstellung",

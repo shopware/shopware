@@ -18,6 +18,7 @@ final class FlowMailVariables
     public const MEDIA_ID = 'mediaId';
     public const EMAIL = 'email';
     public const CONTACT_FORM_DATA = 'contactFormData';
+    public const CANCELLATION_REQUEST_FORM_DATA = 'cancellationRequestFormData';
     public const CONTENTS = 'contents';
     public const CONTEXT_TOKEN = 'contextToken';
     public const CONFIRM_URL = 'confirmUrl';

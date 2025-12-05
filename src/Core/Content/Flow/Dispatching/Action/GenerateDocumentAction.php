@@ -57,7 +57,11 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
     private function generate(Context $context, array $eventConfig, string $orderId, StorableFlow $flow): void
     {
         if (\array_key_exists('documentType', $eventConfig)) {
-            $this->generateDocument($eventConfig, $context, $orderId);
+            $ids = $this->generateDocument($eventConfig, $context, $orderId);
+
+            if (!empty($ids)) {
+                $flow->setStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS, $ids);
+            }
 
             return;
         }
@@ -73,7 +77,7 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
         // Invoice document should be created first
         foreach ($documentsConfig as $index => $config) {
             if ($config['documentType'] === InvoiceRenderer::TYPE) {
-                $ids = $this->generateDocument($config, $context, $orderId, $flow);
+                $ids = $this->generateDocument($config, $context, $orderId);
                 $allDocumentIds = array_merge($allDocumentIds, $ids);
                 unset($documentsConfig[$index]);
 
@@ -82,7 +86,7 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
         }
 
         foreach ($documentsConfig as $config) {
-            $ids = $this->generateDocument($config, $context, $orderId, $flow);
+            $ids = $this->generateDocument($config, $context, $orderId);
             $allDocumentIds = array_merge($allDocumentIds, $ids);
         }
 
@@ -115,10 +119,8 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
             $this->logger->error($error->getMessage());
         }
 
-        $success = $result->getSuccess();
-
         $ids = [];
-        foreach ($success as $document) {
+        foreach ($result->getSuccess() as $document) {
             $ids[] = $document->getId();
         }
 

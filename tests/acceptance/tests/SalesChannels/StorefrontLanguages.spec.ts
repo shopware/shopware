@@ -34,7 +34,7 @@ test(
         });
 
         await test.step('Customer can select a different language', async () => {
-            await StorefrontHome.languagesDropdown.click();
+            await ShopCustomer.presses(StorefrontHome.languagesDropdown);
             // Select the second li.top-bar-list-item (index 1) and click the button inside it
             // covers both cases: with and without feature flag v6.8.0 and English and English (United Kingdom)
             const secondListItem = StorefrontHome.page.locator('li.top-bar-list-item').nth(1);

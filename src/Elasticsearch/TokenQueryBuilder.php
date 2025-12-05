@@ -53,6 +53,7 @@ class TokenQueryBuilder
      */
     public function build(string $entity, string $token, array $configs, Context $context): ?BuilderInterface
     {
+        $token = mb_strtolower(trim($token));
         $languageIdChain = $context->getLanguageIdChain();
         $explainMode = $context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE);
 
@@ -117,7 +118,12 @@ class TokenQueryBuilder
             $operator = $config->isAndLogic() ? 'and' : 'or';
 
             $tokens = \explode(' ', $token);
+            $tokens = preg_split('/\s+/u', $token, -1, PREG_SPLIT_NO_EMPTY);
             $tokenCount = \count($tokens);
+
+            if ($tokenCount >= 1) {
+                $token = implode(' ', $tokens);
+            }
 
             // apply exact match
             $queries[] = $tokenCount === 1
@@ -138,11 +144,14 @@ class TokenQueryBuilder
             ]);
 
             // apply match phrase prefix for compound tokens
-            if ($config->usePrefixMatch() && $tokenCount > 1) {
-                $queries[] = new MatchPhrasePrefixQuery($searchField, $token, [
+            if ($config->usePrefixMatch()) {
+                // apply prefix search on a single token or match phrase prefix on multiple tokens
+                $queries[] = $tokenCount > 1 ? new MatchPhrasePrefixQuery($searchField, $token, [
                     'boost' => 0.6,
                     'slop' => 3,
                     'max_expansions' => $maxExpansions,
+                ]) : new PrefixQuery($config->getField(), $token, [
+                    'boost' => 0.4,
                 ]);
             }
 
@@ -150,14 +159,6 @@ class TokenQueryBuilder
 
             if ($config->tokenize() && $tokenCount === 1 && $tokenLength >= $this->minGram) {
                 $queries[] = new MatchQuery($config->getField() . '.ngram', $token, [
-                    'boost' => 0.4,
-                ]);
-            }
-
-            // apply prefix search on a single token
-            if ($tokenCount === 1 && $tokenLength < $this->minGram) {
-                // Prefix search on single tokens smaller than minGram
-                $queries[] = new PrefixQuery($config->getField(), $token, [
                     'boost' => 0.4,
                 ]);
             }
@@ -206,7 +207,7 @@ class TokenQueryBuilder
 
             $languageQuery = $this->matchQuery($field, $token, $languageConfig);
 
-            $ranking = $config->getRanking() * 0.8; // for each language we go "deeper" in the translation, we reduce the ranking by 20%
+            $ranking = $ranking * 0.8; // for each language we go "deeper" in the translation, we reduce the ranking by 20%
 
             if (!$languageQuery) {
                 continue;

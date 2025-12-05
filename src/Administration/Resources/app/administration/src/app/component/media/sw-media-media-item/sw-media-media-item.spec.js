@@ -74,6 +74,10 @@ async function createWrapper(mediaServiceFunctions = {}, props = {}) {
 }
 
 describe('components/media/sw-media-media-item', () => {
+    beforeEach(() => {
+        Shopware.Store.get('actionButtons').buttons = [];
+    });
+
     it('should throw error if new file name is too long', async () => {
         global.activeAclRoles = ['media.editor'];
         const error = {
@@ -209,6 +213,20 @@ describe('components/media/sw-media-media-item', () => {
         const wrapper = await createWrapper();
         const actionButton = wrapper.find('sw-app-action-button-stub');
         expect(actionButton.exists()).toBeTruthy();
+    });
+
+    it('should not show action button from apps if the file type is not supported', async () => {
+        Shopware.Store.get('actionButtons').add({
+            name: 'media-button',
+            entity: 'media',
+            view: 'item',
+            label: 'Navigate to app',
+            fileTypes: ['pdf'], // our test item has type .png
+        });
+
+        const wrapper = await createWrapper();
+        const actionButton = wrapper.find('sw-app-action-button-stub');
+        expect(actionButton.exists()).toBeFalsy();
     });
 
     it('should call the action button method', async () => {

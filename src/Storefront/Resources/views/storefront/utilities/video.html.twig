@@ -13,7 +13,7 @@
         {% set attributes = attributes|merge({
             poster: videoCoverMedia|sw_encode_media_url,
             preload: 'none'
-    }) %}
+        }) %}
     {% endif %}
 
     {% if attributes.autoplay is defined and attributes.autoplay is same as(true) %}

@@ -1,5 +1,6 @@
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
+import 'src/module/sw-media/mixin/video-cover.mixin';
 
 const { Mixin } = Shopware;
 const { dom } = Shopware.Utils;
@@ -31,7 +32,10 @@ export default {
 
     inheritAttrs: false,
 
-    inject: ['mediaService'],
+    inject: [
+        'mediaService',
+        'acl',
+    ],
 
     props: {
         item: {
@@ -50,6 +54,7 @@ export default {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('video-cover-mixin'),
     ],
 
     data() {
@@ -87,14 +92,6 @@ export default {
             return Shopware.Filter.getByName('fileSize');
         },
 
-        isVideoMedia() {
-            return this.isVideo(this.item);
-        },
-
-        hasVideoCover() {
-            return this.getCoverMediaId(this.item) !== null;
-        },
-
         extensionSdkButtons() {
             return Shopware.Store.get('actionButtons').buttons.filter((button) => {
                 if (button.entity !== 'media' || button.view !== 'item') {
@@ -104,7 +101,7 @@ export default {
                 return (
                     !button.fileTypes?.length ||
                     button.fileTypes.some((type) => {
-                        return type.toLowerCase() === this.$attrs.item.fileExtension.toLowerCase();
+                        return this.item?.fileExtension && type.toLowerCase() === this.item.fileExtension.toLowerCase();
                     })
                 );
             });
@@ -263,85 +260,6 @@ export default {
                 mimeType,
                 fileSize,
             });
-        },
-
-        openCoverSelectionModal() {
-            this.showCoverSelectionModal = true;
-        },
-
-        closeCoverSelectionModal() {
-            this.showCoverSelectionModal = false;
-        },
-
-        async onCoverSelectionChange(selection) {
-            const [media] = selection;
-            this.closeCoverSelectionModal();
-
-            if (!media || !this.isImage(media)) {
-                this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notification.coverSelectionInvalid.message'),
-                });
-
-                return;
-            }
-
-            await this.persistCoverMedia(media.id);
-        },
-
-        async removeCoverMedia() {
-            await this.persistCoverMedia(null);
-        },
-
-        async persistCoverMedia(coverMediaId) {
-            if (!this.isVideoMedia || !this.item?.id) {
-                return;
-            }
-
-            try {
-                this.item.isLoading = true;
-
-                await this.mediaService.assignVideoCover(this.item.id, coverMediaId);
-
-                const snippetKey = coverMediaId
-                    ? 'global.sw-media-media-item.notification.coverSaveSuccess.message'
-                    : 'global.sw-media-media-item.notification.coverRemoveSuccess.message';
-
-                this.createNotificationSuccess({
-                    message: this.$tc(snippetKey),
-                });
-
-                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
-            } catch {
-                this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notification.coverSaveError.message'),
-                });
-            } finally {
-                this.item.isLoading = false;
-            }
-        },
-
-        getCoverMediaId(item) {
-            return item?.metaData?.video?.coverMediaId ?? null;
-        },
-
-        isVideo(item) {
-            const typeName = item?.mediaType?.name;
-
-            if (typeName) {
-                return typeName === 'VIDEO';
-            }
-
-            return item?.mimeType?.startsWith('video/') ?? false;
-        },
-
-        isImage(item) {
-            const typeName = item?.mediaType?.name;
-
-            if (typeName) {
-                return typeName === 'IMAGE';
-            }
-
-            return item?.mimeType?.startsWith('image/') ?? false;
         },
     },
 };

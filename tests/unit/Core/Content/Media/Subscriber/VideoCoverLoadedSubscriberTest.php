@@ -200,9 +200,6 @@ class VideoCoverLoadedSubscriberTest extends TestCase
     /**
      * @param array<string, mixed>|null $metaData
      */
-    /**
-     * @param array<string, mixed>|null $metaData
-     */
     private function createMediaEntity(string $id, ?array $metaData): MediaEntity
     {
         $entity = new MediaEntity();

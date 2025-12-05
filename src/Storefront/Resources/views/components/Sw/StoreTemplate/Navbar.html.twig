@@ -5,15 +5,21 @@
     homePath = path('frontend.home.page'),
 %}
 
-<nav class="sw-category-navbar border-bottom">
-    <div class="sw-category-navbar__container container">
-        <ul class="sw-category-navbar__nav nav nav-underline">
+{% set attributeDefaults = {
+    class: 'sw-navbar border-bottom',
+    'data-component': 'Sw:StoreTemplate:Navbar',
+} %}
+
+<nav {{ attributes.defaults(attributeDefaults) }}>
+    <div class="sw-navbar__container container">
+        <ul class="sw-navbar__nav nav nav-underline">
 
             {% if homeEnabled %}
-                <li class="sw-category-navbar__nav-item nav-item">
+                <li class="sw-navbar__nav-item nav-item">
                     <a
-                        class="sw-category-navbar__nav-link nav-link"
+                        class="sw-navbar__nav-link nav-link"
                         href="{{ homePath }}"
+                        data-category-id="{{ context.salesChannel.navigationCategoryId }}"
                     >
                         {{ homeLabel|sw_sanitize }}
                     </a>
@@ -28,10 +34,11 @@
                 {% set itemSkipped = category.type == 'folder' and not hasChildren %}
 
                 {% if not itemSkipped %}
-                    <li class="sw-category-navbar__nav nav-item">
+                    <li class="sw-navbar__nav-item nav-item">
                         <a
-                            class="sw-category-navbar__nav-link nav-link"
+                            class="sw-navbar__nav-link nav-link"
                             href="{{ category.seoUrl ?: '#' }}"
+                            data-category-id="{{ id }}"
                         >
                             {{ name }}
                         </a>

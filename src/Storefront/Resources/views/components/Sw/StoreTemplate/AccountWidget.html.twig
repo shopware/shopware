@@ -1,5 +1,36 @@
-<twig:Sw:StoreTemplate:HeaderWidget
-    icon="avatar"
->
-    Account
-</twig:Sw:StoreTemplate:HeaderWidget>
+{% props
+    isLoggedIn = false,
+    accountMenuItems = [
+        { label: 'Overview', path: path('frontend.account.home.page') },
+        { label: 'Your Profile', path: path('frontend.account.profile.page') },
+        { label: 'Addresses', path: path('frontend.account.address.page') },
+        { label: 'Orders', path: path('frontend.account.order.page') },
+    ],
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-account-widget dropdown',
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    <twig:Sw:StoreTemplate:HeaderWidget
+        icon="avatar"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+    >
+        Account
+    </twig:Sw:StoreTemplate:HeaderWidget>
+
+    <ul class="dropdown-menu">
+        {% for menuItem in accountMenuItems %}
+            <li>
+                <a
+                    class="dropdown-item"
+                    href="{{ menuItem.path|striptags }}"
+                >
+                    {{ menuItem.label|sw_sanitize }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\DevOps\Docs\Script;
 
-use League\ConstructFinder\ConstructFinder;
+use Composer\ClassMapGenerator\ClassMapGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -29,9 +29,12 @@ class ScriptReferenceDataCollector
     public static function getShopwareClasses(): array
     {
         if (self::$classes === []) {
-            self::$classes = ConstructFinder::locatedIn(__DIR__ . '/../../../..')
-                ->exclude('*/Test/*', '*/vendor/*', '*/DevOps/StaticAnalyze*', 'node_modules')
-                ->findClassNames();
+            $generator = new ClassMapGenerator();
+            $generator->scanPaths(
+                path: __DIR__ . '/../../../..',
+                excluded: '/\/vendor\/|\/node_modules\/|\/DevOps\/StaticAnalyze\/|\/Test\/|Interface.php|Trait.php/'
+            );
+            self::$classes = array_keys($generator->getClassMap()->getMap());
         }
 
         return self::$classes;

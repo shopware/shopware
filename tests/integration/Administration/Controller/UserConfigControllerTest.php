@@ -8,9 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,7 +52,10 @@ class UserConfigControllerTest extends TestCase
         static::assertIsString($content);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
-        static::assertSame([$configKey => ['content']], json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']);
+        static::assertSame(
+            [$configKey => ['content'], 'notification.lastReadAt' => $this->fetchUserCreatedAt()],
+            json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']
+        );
     }
 
     public function testGetAllConfigMe(): void
@@ -70,7 +75,10 @@ class UserConfigControllerTest extends TestCase
         static::assertIsString($content);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
-        static::assertSame([$configKey => ['content']], json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']);
+        static::assertSame(
+            [$configKey => ['content'], 'notification.lastReadAt' => $this->fetchUserCreatedAt()],
+            json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']
+        );
     }
 
     public function testGetNullConfigMe(): void
@@ -105,7 +113,8 @@ class UserConfigControllerTest extends TestCase
         static::assertIsString($content);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
-        static::assertSame([], json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']);
+
+        static::assertSame(['notification.lastReadAt' => $this->fetchUserCreatedAt()], json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']);
 
         // Different Key
         $userId = $this->getUserId();
@@ -122,7 +131,7 @@ class UserConfigControllerTest extends TestCase
         static::assertIsString($content);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
-        static::assertSame([], json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']);
+        static::assertSame(['notification.lastReadAt' => $this->fetchUserCreatedAt()], json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
     public function testUpdateConfigMe(): void
@@ -160,6 +169,7 @@ class UserConfigControllerTest extends TestCase
         static::assertSame([
             $configKey => [$newValue],
             $anotherConfigKey => [$anotherValue],
+            'notification.lastReadAt' => $this->fetchUserCreatedAt(),
         ], json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']);
     }
 
@@ -185,7 +195,10 @@ class UserConfigControllerTest extends TestCase
         static::assertIsString($content);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
-        static::assertSame([$configKey => [$newValue]], json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']);
+        static::assertSame(
+            [$configKey => [$newValue], 'notification.lastReadAt' => $this->fetchUserCreatedAt()],
+            json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['data']
+        );
     }
 
     public function testCreateWithSendingEmptyParameter(): void
@@ -211,5 +224,18 @@ class UserConfigControllerTest extends TestCase
         static::assertIsString($userId);
 
         return Uuid::fromBytesToHex($userId);
+    }
+
+    private function fetchUserCreatedAt(): string
+    {
+        $user = static::getContainer()->get('user.repository')
+            ->search(new Criteria([$this->getUserId()]), Context::createDefaultContext())
+            ->first();
+        static::assertInstanceOf(UserEntity::class, $user);
+
+        $createdAt = $user->getCreatedAt();
+        static::assertInstanceOf(\DateTimeInterface::class, $createdAt);
+
+        return $createdAt->format('Y-m-d\TH:i:sP');
     }
 }

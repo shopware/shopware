@@ -20,9 +20,9 @@ class Migration1763377570CreatePasswordChangeMailTemplate extends MigrationStep
 {
     use UpdateMailTrait;
 
-    private const GERMAN_LANGUAGE_NAME = 'Deutsch';
+    private const GERMAN_LANGUAGE_ISO = 'de-DE';
 
-    private const ENGLISH_LANGUAGE_NAME = 'English';
+    private const ENGLISH_LANGUAGE_ISO = 'en-GB';
 
     public function getCreationTimestamp(): int
     {
@@ -64,8 +64,8 @@ class Migration1763377570CreatePasswordChangeMailTemplate extends MigrationStep
 
         $defaultLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
-        $englishLanguageId = $this->fetchLanguageIdByName(self::ENGLISH_LANGUAGE_NAME, $connection);
-        $germanLanguageId = $this->fetchLanguageIdByName(self::GERMAN_LANGUAGE_NAME, $connection);
+        $englishLanguageId = $this->fetchLanguageIdByIso(self::ENGLISH_LANGUAGE_ISO, $connection);
+        $germanLanguageId = $this->fetchLanguageIdByIso(self::GERMAN_LANGUAGE_ISO, $connection);
 
         if (!\in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
             $connection->insert(
@@ -127,8 +127,8 @@ class Migration1763377570CreatePasswordChangeMailTemplate extends MigrationStep
 
         $defaultLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
-        $englishLanguageId = $this->fetchLanguageIdByName(self::ENGLISH_LANGUAGE_NAME, $connection);
-        $germanLanguageId = $this->fetchLanguageIdByName(self::GERMAN_LANGUAGE_NAME, $connection);
+        $englishLanguageId = $this->fetchLanguageIdByIso(self::ENGLISH_LANGUAGE_ISO, $connection);
+        $germanLanguageId = $this->fetchLanguageIdByIso(self::GERMAN_LANGUAGE_ISO, $connection);
 
         if (!\in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
             $connection->insert(
@@ -176,12 +176,15 @@ class Migration1763377570CreatePasswordChangeMailTemplate extends MigrationStep
         }
     }
 
-    private function fetchLanguageIdByName(string $languageName, Connection $connection): ?string
+    private function fetchLanguageIdByIso(string $iso, Connection $connection): ?string
     {
         try {
             $result = $connection->fetchOne(
-                'SELECT id FROM `language` WHERE `name` = :languageName',
-                ['languageName' => $languageName]
+                'SELECT language.id
+                 FROM `language`
+                 INNER JOIN locale ON locale.id = language.translation_code_id
+                 WHERE locale.code = :iso',
+                ['iso' => $iso]
             );
 
             if (!\is_string($result)) {

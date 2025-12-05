@@ -108,4 +108,3 @@ Shopware.Mixin.register('video-cover-mixin', {
         },
     },
 });
-

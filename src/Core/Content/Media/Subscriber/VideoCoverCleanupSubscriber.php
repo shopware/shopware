@@ -46,9 +46,24 @@ class VideoCoverCleanupSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $criteria = (new Criteria())
-            ->addFilter(new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('metaData', null)]))
-            ->addFilter(new ContainsFilter('mimeType', 'video/'));
+        // Build a filter to search for videos that might reference the deleted cover IDs
+        // We search for videos with metadata containing any of the deleted IDs as coverMediaId
+        $filters = [
+            new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('metaData', null)]),
+            new ContainsFilter('mimeType', 'video/'),
+        ];
+
+        // Add filters to search for each deleted ID in the metadata JSON
+        $coverIdFilters = [];
+        foreach ($deletedIds as $deletedId) {
+            $coverIdFilters[] = new ContainsFilter('metaData', $deletedId);
+        }
+
+        if ($coverIdFilters !== []) {
+            $filters[] = new MultiFilter(MultiFilter::CONNECTION_OR, $coverIdFilters);
+        }
+
+        $criteria = (new Criteria())->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, $filters));
 
         $mediaWithMetaData = $this->mediaRepository->search($criteria, $event->getContext());
 
@@ -61,8 +76,12 @@ class VideoCoverCleanupSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $coverMediaId = $metaData['video']['coverMediaId'] ?? null;
-            if ($coverMediaId === null || !\in_array($coverMediaId, $deletedIds, true)) {
+            if (!\is_array($metaData['video'] ?? null) || !isset($metaData['video']['coverMediaId'])) {
+                continue;
+            }
+
+            $coverMediaId = $metaData['video']['coverMediaId'];
+            if (!\in_array($coverMediaId, $deletedIds, true)) {
                 continue;
             }
 
@@ -98,13 +117,13 @@ class VideoCoverCleanupSubscriber implements EventSubscriberInterface
             return null;
         }
 
-        if (!isset($metaData['video']['coverMediaId'])) {
+        if (!\is_array($metaData['video'] ?? null) || !isset($metaData['video']['coverMediaId'])) {
             return $metaData;
         }
 
         unset($metaData['video']['coverMediaId']);
 
-        if (!empty($metaData['video'])) {
+        if (\is_array($metaData['video'] ?? null) && !empty($metaData['video'])) {
             return $metaData;
         }
 

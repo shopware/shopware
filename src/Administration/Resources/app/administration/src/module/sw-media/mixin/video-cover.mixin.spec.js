@@ -120,17 +120,25 @@ describe('src/module/sw-media/mixin/video-cover.mixin.js', () => {
     });
 
     it('should open cover selection modal when user has permission', async () => {
-        wrapper = await createWrapper({}, {}, {
-            can: jest.fn(() => true),
-        });
+        wrapper = await createWrapper(
+            {},
+            {},
+            {
+                can: jest.fn(() => true),
+            },
+        );
         wrapper.vm.openCoverSelectionModal();
         expect(wrapper.vm.showCoverSelectionModal).toBe(true);
     });
 
     it('should not open cover selection modal when user lacks permission', async () => {
-        wrapper = await createWrapper({}, {}, {
-            can: jest.fn(() => false),
-        });
+        wrapper = await createWrapper(
+            {},
+            {},
+            {
+                can: jest.fn(() => false),
+            },
+        );
         wrapper.vm.openCoverSelectionModal();
         expect(wrapper.vm.showCoverSelectionModal).toBe(false);
     });
@@ -177,9 +185,12 @@ describe('src/module/sw-media/mixin/video-cover.mixin.js', () => {
 
     it('should persist cover media successfully', async () => {
         const assignVideoCoverSpy = jest.fn(() => Promise.resolve());
-        wrapper = await createWrapper({}, {
-            assignVideoCover: assignVideoCoverSpy,
-        });
+        wrapper = await createWrapper(
+            {},
+            {
+                assignVideoCover: assignVideoCoverSpy,
+            },
+        );
 
         await wrapper.vm.persistCoverMedia('test-cover-id');
 
@@ -194,9 +205,12 @@ describe('src/module/sw-media/mixin/video-cover.mixin.js', () => {
 
     it('should remove cover media successfully', async () => {
         const assignVideoCoverSpy = jest.fn(() => Promise.resolve());
-        wrapper = await createWrapper({}, {
-            assignVideoCover: assignVideoCoverSpy,
-        });
+        wrapper = await createWrapper(
+            {},
+            {
+                assignVideoCover: assignVideoCoverSpy,
+            },
+        );
 
         await wrapper.vm.removeVideoCover();
 
@@ -211,9 +225,12 @@ describe('src/module/sw-media/mixin/video-cover.mixin.js', () => {
 
     it('should handle error when persisting cover media', async () => {
         const assignVideoCoverSpy = jest.fn(() => Promise.reject(new Error('API Error')));
-        wrapper = await createWrapper({}, {
-            assignVideoCover: assignVideoCoverSpy,
-        });
+        wrapper = await createWrapper(
+            {},
+            {
+                assignVideoCover: assignVideoCoverSpy,
+            },
+        );
 
         await wrapper.vm.persistCoverMedia('test-cover-id');
 
@@ -228,11 +245,14 @@ describe('src/module/sw-media/mixin/video-cover.mixin.js', () => {
 
     it('should not persist cover media if not video media', async () => {
         const assignVideoCoverSpy = jest.fn();
-        wrapper = await createWrapper({
-            mediaType: { name: 'IMAGE' },
-        }, {
-            assignVideoCover: assignVideoCoverSpy,
-        });
+        wrapper = await createWrapper(
+            {
+                mediaType: { name: 'IMAGE' },
+            },
+            {
+                assignVideoCover: assignVideoCoverSpy,
+            },
+        );
 
         await wrapper.vm.persistCoverMedia('test-cover-id');
 
@@ -306,12 +326,18 @@ describe('src/module/sw-media/mixin/video-cover.mixin.js', () => {
     });
 
     it('should set item isLoading during persistCoverMedia', async () => {
-        const assignVideoCoverSpy = jest.fn(() => new Promise((resolve) => {
-            setTimeout(resolve, 100);
-        }));
-        wrapper = await createWrapper({}, {
-            assignVideoCover: assignVideoCoverSpy,
-        });
+        const assignVideoCoverSpy = jest.fn(
+            () =>
+                new Promise((resolve) => {
+                    setTimeout(resolve, 100);
+                }),
+        );
+        wrapper = await createWrapper(
+            {},
+            {
+                assignVideoCover: assignVideoCoverSpy,
+            },
+        );
 
         const persistPromise = wrapper.vm.persistCoverMedia('test-cover-id');
 
@@ -322,4 +348,3 @@ describe('src/module/sw-media/mixin/video-cover.mixin.js', () => {
         expect(wrapper.vm.item.isLoading).toBe(false);
     });
 });
-

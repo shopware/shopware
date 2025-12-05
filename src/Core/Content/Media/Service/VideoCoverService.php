@@ -83,7 +83,7 @@ class VideoCoverService
     private function buildUpdatedMetaData(?array $metaData, ?string $coverMediaId): ?array
     {
         $nextMetaData = $metaData ? [...$metaData] : [];
-        $videoMeta = $nextMetaData['video'] ?? [];
+        $videoMeta = \is_array($nextMetaData['video'] ?? null) ? $nextMetaData['video'] : [];
 
         if ($coverMediaId !== null) {
             $videoMeta['coverMediaId'] = $coverMediaId;

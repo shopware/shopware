@@ -31,9 +31,7 @@
     {% block elements %}
         {% for element in elements %}
             {% set elementProperties = element.properties %}
-
             {% set elementProperties = elementProperties|merge({ 'data-element-id': element.id }) %}
-            {% set elementProperties = elementProperties|merge({ 'data-component-name': element.component }) %}
 
             {% if element.slots is not empty %}
                 {% set elementProperties = elementProperties|merge({ slots: element.slots }) %}

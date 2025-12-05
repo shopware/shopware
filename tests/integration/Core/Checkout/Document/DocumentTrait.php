@@ -44,6 +44,7 @@ trait DocumentTrait
 
     /**
      * @param array<string, string> $options
+     * @param array<string, string> $additionalAddress
      */
     private function createCustomer(array $options = [], ?array $additionalAddress = null): string
     {

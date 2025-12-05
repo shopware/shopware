@@ -97,6 +97,8 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
 
     /**
      * @param array<string, mixed> $eventConfig
+     *
+     * @return list<string>
      */
     private function generateDocument(array $eventConfig, Context $context, string $orderId): array
     {

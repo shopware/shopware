@@ -252,7 +252,7 @@ class TokenQueryBuilderTest extends TestCase
                 self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
             ],
             'term' => ' FoO ',
-            'expected' =>                 self::disMax([
+            'expected' => self::disMax([
                 self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
                 self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
                 self::prefix('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 0.4),
@@ -264,7 +264,7 @@ class TokenQueryBuilderTest extends TestCase
                 self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
             ],
             'term' => ' FoO     BaR    Baz    ',
-            'expected' =>                 self::disMax([
+            'expected' => self::disMax([
                 self::terms('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', 'bar', 'baz'], 1),
                 self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo bar baz', 0.8, 'AUTO:3,8', 'or', 5),
                 self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo bar baz', 0.6, 3, 5),

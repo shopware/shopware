@@ -117,11 +117,10 @@ class TokenQueryBuilder
             $searchField = $config->getField() . '.search';
             $operator = $config->isAndLogic() ? 'and' : 'or';
 
-            $tokens = \explode(' ', $token);
-            $tokens = preg_split('/\s+/u', $token, -1, PREG_SPLIT_NO_EMPTY);
+            $tokens = preg_split('/\s+/u', $token, -1, \PREG_SPLIT_NO_EMPTY) ?: [$token];
             $tokenCount = \count($tokens);
 
-            if ($tokenCount >= 1) {
+            if ($tokenCount > 1) {
                 $token = implode(' ', $tokens);
             }
 
@@ -207,7 +206,7 @@ class TokenQueryBuilder
 
             $languageQuery = $this->matchQuery($field, $token, $languageConfig);
 
-            $ranking = $ranking * 0.8; // for each language we go "deeper" in the translation, we reduce the ranking by 20%
+            $ranking *= 0.8; // for each language we go "deeper" in the translation, we reduce the ranking by 20%
 
             if (!$languageQuery) {
                 continue;

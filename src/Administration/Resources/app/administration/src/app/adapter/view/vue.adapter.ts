@@ -46,6 +46,7 @@ import {
     MtSearch,
     MtLink,
     MtUnitField,
+    MtSnackbar,
 } from '@shopware-ag/meteor-component-library';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
@@ -348,6 +349,7 @@ export default class VueAdapter extends ViewAdapter {
             MtSearch,
             MtLink,
             MtUnitField,
+            MtSnackbar,
         } as const;
 
         Object.entries(meteorComponents).forEach(

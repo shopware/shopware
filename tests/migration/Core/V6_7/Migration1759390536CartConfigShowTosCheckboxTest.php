@@ -19,19 +19,18 @@ class Migration1759390536CartConfigShowTosCheckboxTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    const SYSTEM_KEY = 'core.cart.showTosCheckbox';
+
     public function testMigration(): void
     {
-        $key = 'core.cart.showTosCheckbox';
-
         $connection = self::getContainer()->get(Connection::class);
-
-        $connection->delete('system_config', ['configuration_key' => $key]);
+        $connection->delete('system_config', ['configuration_key' => self::SYSTEM_KEY]);
 
         $migration = new Migration1759390536CartConfigShowTosCheckbox();
         $migration->update($connection);
         $migration->update($connection);
 
-        $newConfiguration = $this->getConditionValues($key);
+        $newConfiguration = $this->getConditionValues();
         $id = array_key_first($newConfiguration);
 
         static::assertCount(1, $newConfiguration);
@@ -45,7 +44,7 @@ class Migration1759390536CartConfigShowTosCheckboxTest extends TestCase
 
         $migration->update($connection);
 
-        $newConfiguration = $this->getConditionValues($key);
+        $newConfiguration = $this->getConditionValues();
         $id = array_key_first($newConfiguration);
 
         static::assertCount(1, $newConfiguration);
@@ -55,13 +54,13 @@ class Migration1759390536CartConfigShowTosCheckboxTest extends TestCase
     /**
      * @return array<string, array{'_value': bool}>
      */
-    private function getConditionValues(string $key): array
+    private function getConditionValues(): array
     {
         return array_map(
             static fn (string $json) => json_decode($json, true),
             static::getContainer()->get(Connection::class)->fetchAllKeyValue(
                 'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = :key',
-                ['key' => $key],
+                ['key' => self::SYSTEM_KEY],
             )
         );
     }

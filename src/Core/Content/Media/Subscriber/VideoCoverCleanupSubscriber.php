@@ -48,20 +48,16 @@ class VideoCoverCleanupSubscriber implements EventSubscriberInterface
 
         // Build a filter to search for videos that might reference the deleted cover IDs
         // We search for videos with metadata containing any of the deleted IDs as coverMediaId
-        $filters = [
-            new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('metaData', null)]),
-            new ContainsFilter('mimeType', 'video/'),
-        ];
-
-        // Add filters to search for each deleted ID in the metadata JSON
         $coverIdFilters = [];
         foreach ($deletedIds as $deletedId) {
             $coverIdFilters[] = new ContainsFilter('metaData', $deletedId);
         }
 
-        if ($coverIdFilters !== []) {
-            $filters[] = new MultiFilter(MultiFilter::CONNECTION_OR, $coverIdFilters);
-        }
+        $filters = [
+            new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('metaData', null)]),
+            new ContainsFilter('mimeType', 'video/'),
+            new MultiFilter(MultiFilter::CONNECTION_OR, $coverIdFilters),
+        ];
 
         $criteria = (new Criteria())->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, $filters));
 

@@ -45,6 +45,11 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
     private readonly DocBlockFactoryInterface $docFactory;
 
+    /**
+     * @var ServiceList
+     */
+    private array $defaultServices;
+
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly Environment $twig,
@@ -145,7 +150,6 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             ],
         ];
 
-        /** @var class-string<Hook> $hook */
         foreach ($hookClassNames as $hook) {
             $hookData = $this->getDataForHook($hook);
 
@@ -153,7 +157,6 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 $hookData = $this->addHookFunctionData($hookData, $hook);
             }
 
-            /** @var string $useCase */
             $useCase = $hookData['use-case'];
 
             $data[$useCase]['hooks'][] = $hookData;
@@ -170,24 +173,18 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     private function getAvailableData(\ReflectionClass $reflection): array
     {
         $availableData = [];
+        $properties = $reflection->getProperties();
+        sort($properties);
 
-        foreach ($reflection->getProperties() as $property) {
+        foreach ($properties as $property) {
             $propertyType = $property->getType();
 
             if (!$propertyType instanceof \ReflectionNamedType) {
-                $propertyDoc = $this->docFactory->create($property);
-                /** @var Var_[] $varDoc */
-                $varDoc = $propertyDoc->getTagsByName('var');
-
-                if (\count($varDoc) === 0) {
-                    throw new \RuntimeException(\sprintf(
-                        'Property "%s" in HookClass "%s" is not typed and has no @var annotation.',
-                        $property->getName(),
-                        $reflection->getName()
-                    ));
+                $varDoc = array_first($this->docFactory->create($property)->getTagsByName('var'));
+                if (!$varDoc instanceof Var_) {
+                    throw DocsException::untypedPropertyInHookClass($property->getName(), $reflection->getName());
                 }
 
-                $varDoc = $varDoc[0];
                 $type = (string) $varDoc->getType();
             } else {
                 $type = $propertyType->getName();
@@ -212,29 +209,43 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     {
         $serviceIds = $reflection->getMethod('getServiceIds')->invoke(null);
         $deprecatedServices = $reflection->getMethod('getDeprecatedServices')->invoke(null);
+
+        return [
+            ...$this->buildAvailableServices(
+                $serviceIds,
+                $deprecatedServices
+            ),
+            ...$this->defaultServices,
+        ];
+    }
+
+    /**
+     * @param list<class-string<HookServiceFactory>> $serviceIds
+     * @param list<class-string> $deprecatedServices
+     *
+     * @return ServiceList
+     */
+    private function buildAvailableServices(array $serviceIds, array $deprecatedServices): array
+    {
         $services = [];
 
         foreach ($serviceIds as $serviceId) {
             $reflection = new \ReflectionClass($serviceId);
-            $method = $reflection->getMethod('factory');
-            /** @var \ReflectionNamedType|null $returnType */
-            $returnType = $method->getReturnType();
-            if ($returnType === null) {
-                throw new \RuntimeException(\sprintf(
-                    '`factory()` method in HookServiceFactory "%s" has no return type.',
-                    $reflection->getName()
-                ));
+            $returnType = $reflection->getMethod('factory')->getReturnType();
+            if (!$returnType instanceof \ReflectionNamedType) {
+                throw DocsException::missingReturnTypeOnFactoryMethodInHookServiceFactory($reflection->getName());
             }
 
-            /** @var HookServiceFactory $service */
             $service = $this->container->get($serviceId);
-            $name = $service->getName();
+            if (!$service instanceof HookServiceFactory) {
+                continue;
+            }
 
             /** @var class-string<object> $type */
             $type = $returnType->getName();
 
             $services[] = [
-                'name' => $name,
+                'name' => $service->getName(),
                 'returnType' => $type,
                 'link' => $this->getServiceLink($type),
                 'deprecated' => $deprecatedServices[$serviceId] ?? null,
@@ -263,7 +274,6 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
      */
     private function getDataForHook(string $hook): array
     {
-        /** @var \ReflectionClass<Hook> $reflection */
         $reflection = new \ReflectionClass($hook);
 
         if (!$reflection->getDocComment()) {
@@ -271,23 +281,21 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         }
         $docBlock = $this->docFactory->create($reflection);
 
-        /** @var Generic[] $tags */
-        $tags = $docBlock->getTagsByName('hook-use-case');
-        if (\count($tags) !== 1 || !($description = $tags[0]->getDescription()) || !\in_array($description->render(), self::ALLOWED_USE_CASES, true)) {
-            throw new \RuntimeException(\sprintf(
-                'Hook use case description is missing for hook "%s". All HookClasses need to be tagged with the `@hook-use-case` tag and associated to one of the following use cases: "%s".',
-                $hook,
-                implode('", "', self::ALLOWED_USE_CASES),
-            ));
+        $hookUseCaseTag = array_first($docBlock->getTagsByName('hook-use-case'));
+        if (!$hookUseCaseTag instanceof Generic) {
+            throw DocsException::missingUseCaseDescriptionInHookClass($hook, self::ALLOWED_USE_CASES);
+        }
+        $description = $hookUseCaseTag->getDescription();
+        if ($description === null) {
+            throw DocsException::missingUseCaseDescriptionInHookClass($hook, self::ALLOWED_USE_CASES);
+        }
+        if (!\in_array($description->render(), self::ALLOWED_USE_CASES, true)) {
+            throw DocsException::missingUseCaseDescriptionInHookClass($hook, self::ALLOWED_USE_CASES);
         }
 
-        /** @var Since[] $since */
-        $since = $docBlock->getTagsByName('since');
-        if (\count($since) !== 1) {
-            throw new \RuntimeException(\sprintf(
-                '`@since` annotation is missing for hook "%s". All HookClasses need to be tagged with the `@since` annotation with the correct version, in which the hook was introduced.',
-                $hook,
-            ));
+        $since = array_first($docBlock->getTagsByName('since'));
+        if (!$since instanceof Since) {
+            throw DocsException::missingSinceAnnotationInHookClass($hook);
         }
 
         if ($reflection->hasConstant('FUNCTION_NAME')) {
@@ -320,7 +328,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             'trigger' => $docBlock->getSummary() . '<br>' . $docBlock->getDescription()->render(),
             'data' => $this->getAvailableData($reflection),
             'services' => $this->getAvailableServices($reflection),
-            'since' => $since[0]->getVersion(),
+            'since' => $since->getVersion(),
             'stoppable' => mb_strtolower(var_export($reflection->implementsInterface(StoppableHook::class), true)),
             'optional' => mb_strtolower(var_export(is_subclass_of($hook, OptionalFunctionHook::class), true)),
             'deprecation' => $deprecationNotice,

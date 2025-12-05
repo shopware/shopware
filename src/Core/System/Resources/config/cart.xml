@@ -56,8 +56,8 @@
 
         <input-field type="bool">
             <name>showTosCheckbox</name>
-            <label>Show required tos checkbox</label>
-            <label lang="de-DE">Erforderliche AGB Checkbox anzeigen</label>
+            <label>Customers are required to agree to the terms and conditions</label>
+            <label lang="de-DE">Eine Zustimmung der AGB durch den Kunden ist erforderlich</label>
         </input-field>
 
         <input-field type="bool">

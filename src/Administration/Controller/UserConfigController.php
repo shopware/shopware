@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
+use Shopware\Core\System\User\UserCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,9 +34,11 @@ class UserConfigController extends AbstractController
      * @internal
      *
      * @param EntityRepository<UserConfigCollection> $userConfigRepository
+     * @param EntityRepository<UserCollection> $userRepository
      */
     public function __construct(
         private readonly EntityRepository $userConfigRepository,
+        private readonly EntityRepository $userRepository,
         private readonly Connection $connection
     ) {
     }
@@ -48,6 +51,15 @@ class UserConfigController extends AbstractController
         $data = [];
         foreach ($userConfigs as $userConfig) {
             $data[$userConfig->getKey()] = $userConfig->getValue();
+        }
+
+        if (empty($data['notification.lastReadAt'])) {
+            $userId = $this->getUserId($context);
+            $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
+
+            if ($user !== null) {
+                $data['notification.lastReadAt'] = $user->getCreatedAt()?->format(\DateTimeInterface::ATOM);
+            }
         }
 
         return new JsonResponse(['data' => $data]);

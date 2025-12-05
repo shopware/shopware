@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
+use Shopware\Core\System\User\UserCollection;
+use Shopware\Core\System\User\UserDefinition;
+use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,6 +35,11 @@ class UserConfigControllerTest extends TestCase
      */
     private StaticEntityRepository $userConfigRepository;
 
+    /**
+     * @var StaticEntityRepository<UserCollection>
+     */
+    private StaticEntityRepository $userRepository;
+
     private UserConfigController $userConfigController;
 
     private Context $context;
@@ -39,8 +47,10 @@ class UserConfigControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->userConfigRepository = new StaticEntityRepository([], new UserConfigDefinition());
+        $this->userRepository = new StaticEntityRepository([], new UserDefinition());
         $this->userConfigController = new UserConfigController(
             $this->userConfigRepository,
+            $this->userRepository,
             $this->createMock(Connection::class),
         );
         $this->context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
@@ -49,6 +59,7 @@ class UserConfigControllerTest extends TestCase
     public function testGetConfigMeReturnsEmptyData(): void
     {
         $this->userConfigRepository->addSearch(new UserConfigCollection());
+        $this->userRepository->addSearch(new UserCollection());
 
         $response = $this->userConfigController->getConfigMe($this->context, new Request());
 
@@ -75,15 +86,21 @@ class UserConfigControllerTest extends TestCase
 
     public function testGetConfigMeReturnsDataWithKeys(): void
     {
+        $userEntity = new UserEntity();
+        $userEntity->setUniqueIdentifier(Uuid::randomHex());
+        $userEntity->setCreatedAt(new \DateTimeImmutable('2025-12-01'));
+
         $userConfigEntity = new UserConfigEntity();
         $userConfigEntity->setUniqueIdentifier(Uuid::randomHex());
         $userConfigEntity->setKey('testKey');
+
         $this->userConfigRepository->addSearch(new UserConfigCollection([$userConfigEntity]));
+        $this->userRepository->addSearch(new UserCollection([$userEntity]));
 
         $response = $this->userConfigController->getConfigMe($this->context, new Request(['keys' => ['testKey']]));
 
         static::assertNotFalse($response->getContent());
-        static::assertJsonStringEqualsJsonString('{"data":{"testKey": null}}', $response->getContent());
+        static::assertJsonStringEqualsJsonString('{"data":{"testKey": null, "notification.lastReadAt": "2025-12-01T00:00:00+00:00"}}', $response->getContent());
     }
 
     public function testUpdateConfigMeReturnsEmptyDataWhenNoPostUpdateConfigs(): void

@@ -39,6 +39,15 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
         </service>
 
+        <service id="Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber">
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="seo_url.repository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
+            <argument type="service" id="slugify"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher">
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
         </service>
@@ -536,10 +545,17 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser"/>
+
         <service id="Shopware\Storefront\Page\Robots\RobotsPageLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Robots\RobotsConfigChangeSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">

@@ -258,10 +258,10 @@ class ProductStreamUpdaterTest extends TestCase
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $activeStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
         // Check and ensure the opposite product_stream (inactive) weren't added
@@ -271,10 +271,10 @@ class ProductStreamUpdaterTest extends TestCase
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $inActiveStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
 
@@ -293,10 +293,10 @@ class ProductStreamUpdaterTest extends TestCase
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $inActiveStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
         // Check and ensure the opposite product_stream (active) weren't added
@@ -306,10 +306,10 @@ class ProductStreamUpdaterTest extends TestCase
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $activeStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
     }

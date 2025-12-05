@@ -9,10 +9,12 @@ class SyncBehavior
 {
     /**
      * @param list<string> $skipIndexers
+     * @param list<string> $onlyIndexers
      */
     public function __construct(
         protected ?string $indexingBehavior = null,
-        protected array $skipIndexers = []
+        protected array $skipIndexers = [],
+        protected array $onlyIndexers = []
     ) {
     }
 
@@ -27,5 +29,13 @@ class SyncBehavior
     public function getSkipIndexers(): array
     {
         return $this->skipIndexers;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getOnlyIndexers(): array
+    {
+        return $this->onlyIndexers;
     }
 }

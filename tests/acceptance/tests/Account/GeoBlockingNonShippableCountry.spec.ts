@@ -1,4 +1,4 @@
-import { getCountryCodeFromLocale, getLocale, test } from '@fixtures/AcceptanceTest';
+import { getCountryCodeFromLocale, test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
 test(
@@ -15,7 +15,7 @@ test(
         const customer = { email: IdProvider.getIdPair().uuid + '@test.com' };
         const nonShippableCountry = await TestDataService.createCountry({ shippingAvailable: false });
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, nonShippableCountry.id);
-        const shippableCountry = await TestDataService.getCountry(getCountryCodeFromLocale(getLocale()));
+        const shippableCountry = await TestDataService.getCountry(getCountryCodeFromLocale());
         const registrationData = {
             salutation: 'Mr.',
             firstName: 'Jeff',

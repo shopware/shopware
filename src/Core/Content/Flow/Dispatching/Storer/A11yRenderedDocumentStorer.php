@@ -67,13 +67,13 @@ class A11yRenderedDocumentStorer extends FlowStorer
         $config = $storableFlow->getConfig();
         $orderId = $storableFlow->getData(OrderAware::ORDER_ID);
 
-        if (empty($config['documentTypeIds']) || !\is_array($config['documentTypeIds']) || !$orderId) {
-            return [];
+        if (!empty($config['documentTypeIds']) && \is_array($config['documentTypeIds']) && $orderId) {
+            $ids = $this->mailAttachmentsBuilder->getLatestDocumentsOfTypes($orderId, $config['documentTypeIds']);
+        } else {
+            $ids = $storableFlow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
         }
 
-        $ids = $this->mailAttachmentsBuilder->getLatestDocumentsOfTypes($orderId, $config['documentTypeIds']);
-
-        if (empty($ids)) {
+        if (!\is_array($ids) || empty($ids)) {
             return [];
         }
 

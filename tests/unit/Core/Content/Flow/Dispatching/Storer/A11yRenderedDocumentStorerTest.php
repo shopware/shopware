@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -222,5 +223,46 @@ class A11yRenderedDocumentStorerTest extends TestCase
 
         $this->storer->restore($storable);
         $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS);
+    }
+
+    public function testLazyLoadFallbackToStoredIds(): void
+    {
+        $documentId = Uuid::randomHex();
+
+        $a11yDocument = new MediaEntity();
+        $a11yDocument->setId(Uuid::randomHex());
+        $a11yDocument->setFileExtension('html');
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setDeepLinkCode('code1');
+        $document->setDocumentA11yMediaFile($a11yDocument);
+
+        $this->repository = new StaticEntityRepository([
+            new EntitySearchResult(
+                DocumentDefinition::ENTITY_NAME,
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ),
+        ]);
+
+        $this->mailAttachmentsBuilder
+            ->expects($this->never())
+            ->method('getLatestDocumentsOfTypes');
+
+        $this->storer = new A11yRenderedDocumentStorer($this->repository, $this->dispatcher, $this->mailAttachmentsBuilder);
+
+        $storable = new StorableFlow('name', Context::createDefaultContext(), [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => [$documentId]]);
+        $storable->setConfig([]);
+
+        $this->storer->restore($storable);
+
+        $res = $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS);
+
+        static::assertCount(1, $res);
+        static::assertSame($documentId, $res[0]['documentId']);
     }
 }

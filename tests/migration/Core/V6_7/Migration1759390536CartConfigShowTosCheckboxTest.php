@@ -19,7 +19,7 @@ class Migration1759390536CartConfigShowTosCheckboxTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    const SYSTEM_KEY = 'core.cart.showTosCheckbox';
+    public const SYSTEM_KEY = 'core.cart.showTosCheckbox';
 
     public function testMigration(): void
     {

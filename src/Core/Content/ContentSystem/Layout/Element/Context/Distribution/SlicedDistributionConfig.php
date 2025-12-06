@@ -18,10 +18,15 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('discovery')]
 final readonly class SlicedDistributionConfig implements DistributionConfig
 {
-    public function __construct(
+    private function __construct(
         public int $sliceSize,
         public ?string $consumerAlias = null
     ) {
+    }
+
+    public static function withSliceSize(int $sliceSize, ?string $consumerAlias = null): self
+    {
+        return new self($sliceSize, $consumerAlias);
     }
 
     /**

@@ -100,7 +100,7 @@ final class VirtualRootWrapper
             );
         }
 
-        $extractedRoots = $pageRootsSlot->all();
+        $extractedRoots = $pageRootsSlot->getElements();
 
         if ($extractedRoots === []) {
             throw ContentSystemException::pathIntegrityViolation(

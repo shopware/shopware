@@ -63,8 +63,9 @@ final class ElementTreeUtil
     {
         $elements = [$root];
         $current = $root;
+        $pathCount = \count($path);
 
-        for ($i = 1; $i < \count($path); ++$i) {
+        for ($i = 1; $i < $pathCount; ++$i) {
             $nextId = $path[$i];
 
             // Search only among direct children (O(children) instead of O(tree))

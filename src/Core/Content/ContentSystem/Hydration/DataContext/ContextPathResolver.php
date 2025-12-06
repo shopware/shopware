@@ -51,6 +51,7 @@ class ContextPathResolver
         }
 
         $current = $data;
+        $pathCount = \count($path);
 
         foreach ($path as $index => $segment) {
             if (!$current instanceof Struct) {
@@ -83,7 +84,7 @@ class ContextPathResolver
 
             $current = $vars[$segment];
 
-            if ($current === null && $index < \count($path) - 1) {
+            if ($current === null && $index < $pathCount - 1) {
                 if ($required) {
                     $traversedPath = implode('.', \array_slice($path, 0, $index + 1));
                     throw ContentSystemException::contextPathNotResolvable(

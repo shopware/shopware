@@ -64,7 +64,7 @@ final readonly class IndexedDistributionConfig implements DistributionConfig
             $result[$index] = $items[$index] ?? null;
         }
 
-        return $result;
+        return array_values($result);
     }
 
     /**

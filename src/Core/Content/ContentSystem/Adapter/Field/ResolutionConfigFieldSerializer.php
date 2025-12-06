@@ -30,6 +30,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @phpstan-import-type RangeFilterType from QueryStringParser
  * @phpstan-import-type EqualsAnyFilterType from QueryStringParser
  *
+ * @phpstan-type ResolutionConfigData array{
+ *     entity: string,
+ *     match_field: string,
+ *     constraints?: list<EqualsFilterType|NotFilterType|MultiFilterType|ContainsFilterType|PrefixFilterType|SuffixFilterType|RangeFilterType|EqualsAnyFilterType>
+ * }
+ *
  * @internal
  */
 #[Package('discovery')]
@@ -86,16 +92,11 @@ class ResolutionConfigFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::invalidFieldValueType('resolution', 'array', \gettype($value));
         }
 
-        /** @var array<string, mixed> $value */
         return $this->deserializeResolutionConfig($value);
     }
 
     /**
-     * @return array{
-     *     entity: string,
-     *     match_field: string,
-     *     constraints?: list<EqualsFilterType|NotFilterType|MultiFilterType|ContainsFilterType|PrefixFilterType|SuffixFilterType|RangeFilterType|EqualsAnyFilterType>
-     * }
+     * @return ResolutionConfigData
      */
     public function serializeResolutionConfig(ResolutionConfig $config): array
     {

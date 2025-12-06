@@ -120,7 +120,7 @@ class EntityLayoutContextFactory
      * When bindings remap property names (productId → product_id),
      * data requirements must reference the remapped placeholder names.
      *
-     * @return DataRequirement[]
+     * @return list<DataRequirement>
      */
     private function transformDataRequirements(
         ContentLayoutAssignmentInterface $assignment,
@@ -131,7 +131,7 @@ class EntityLayoutContextFactory
         $bindings = $assignment->getParameterBindings();
 
         if ($bindings === null || $bindings === []) {
-            return $requirements;
+            return array_values($requirements);
         }
 
         $fieldToPlaceholder = [];

@@ -73,7 +73,7 @@ final class VirtualRootWrapper
      *
      * @throws ContentSystemException If element is not a virtual root or data integrity violated
      *
-     * @return array<ContentElement>
+     * @return list<ContentElement>
      */
     public function unwrap(ContentElement $virtualRoot): array
     {
@@ -108,7 +108,7 @@ final class VirtualRootWrapper
             );
         }
 
-        return $extractedRoots;
+        return array_values($extractedRoots);
     }
 
     /**

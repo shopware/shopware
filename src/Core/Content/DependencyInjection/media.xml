@@ -119,6 +119,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\File\DownloadResponseGenerator">
+            <argument type="service" id="logger"/>
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>

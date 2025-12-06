@@ -18,7 +18,7 @@ final class ContentDataLoaderResult
     /**
      * @param list<string>|null $cacheTags
      */
-    public function __construct(
+    private function __construct(
         public readonly mixed $data,
         private readonly ?array $cacheTags = null,
     ) {

@@ -15,6 +15,11 @@ class CollectingEventDispatcher implements EventDispatcherInterface
      */
     private array $events = [];
 
+    /**
+     * @var array<string, array<int, array<int, callable>>>
+     */
+    private array $listeners = [];
+
     public function dispatch(object $event, ?string $eventName = null): object
     {
         if ($eventName) {
@@ -36,6 +41,15 @@ class CollectingEventDispatcher implements EventDispatcherInterface
 
     public function addListener(string $eventName, callable $listener, int $priority = 0): void
     {
+        if (!isset($this->listeners[$eventName])) {
+            $this->listeners[$eventName] = [];
+        }
+
+        if (!isset($this->listeners[$eventName][$priority])) {
+            $this->listeners[$eventName][$priority] = [];
+        }
+
+        $this->listeners[$eventName][$priority][] = $listener;
     }
 
     public function addSubscriber(EventSubscriberInterface $subscriber): void
@@ -50,9 +64,16 @@ class CollectingEventDispatcher implements EventDispatcherInterface
     {
     }
 
+    /**
+     * @return array<array-key, array<int, array<int, callable(object): void>|callable(object): void>>
+     */
     public function getListeners(?string $eventName = null): array
     {
-        return [];
+        if ($eventName !== null) {
+            return $this->listeners[$eventName] ?? [];
+        }
+
+        return $this->listeners;
     }
 
     public function getListenerPriority(string $eventName, callable $listener): ?int

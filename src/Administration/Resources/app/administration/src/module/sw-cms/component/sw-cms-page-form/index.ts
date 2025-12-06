@@ -1,3 +1,4 @@
+import type { PropType } from 'vue';
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
 
@@ -9,6 +10,10 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['cmsService'],
+
+    mixins: [
+        Shopware.Mixin.getByName('cms-state'),
+    ],
 
     props: {
         page: {
@@ -44,45 +49,48 @@ export default Shopware.Component.wrapComponentConfig({
         createdComponent() {
             this.page.sections!.forEach((section) => {
                 section.blocks!.forEach((block) => {
-                    block.slots!.sort((a, b) => {
-                        const positionA = this.slotPositions[a.slot] ?? this.slotPositions.default;
-                        const positionB = this.slotPositions[b.slot] ?? this.slotPositions.default;
-
-                        return positionA - positionB;
-                    });
-
-                    if (!block.visibility) {
-                        block.visibility = {
-                            mobile: true,
-                            tablet: true,
-                            desktop: true,
-                        };
-                    }
+                    this.sortSlots(block);
+                    this.initVisibility(block);
                 });
 
-                if (!section.visibility) {
-                    section.visibility = {
-                        mobile: true,
-                        tablet: true,
-                        desktop: true,
-                    };
-                }
+                this.initVisibility(section);
             });
         },
 
-        getBlockTitle(block: Entity<'cms_block'>) {
+        sortSlots(block: Entity<'cms_block'>) {
+            block.slots?.sort((a, b) => {
+                const positionA = this.slotPositions[a.slot] ?? this.slotPositions.default;
+                const positionB = this.slotPositions[b.slot] ?? this.slotPositions.default;
+
+                return positionA - positionB;
+            });
+        },
+
+        initVisibility(entity: Entity<'cms_section'> | Entity<'cms_block'>) {
+            if (entity.visibility) {
+                return;
+            }
+
+            entity.visibility = {
+                mobile: true,
+                tablet: true,
+                desktop: true,
+            };
+        },
+
+        getBlockTitle(block: Entity<'cms_block'>): string {
             if (typeof block.name === 'string' && block.name.length !== 0) {
                 return block.name;
             }
 
             if (this.cmsBlocks[block.type]) {
-                return this.cmsBlocks[block.type]!.label;
+                return this.cmsBlocks[block.type]!.label ?? '';
             }
 
             return '';
         },
 
-        displaySectionType(block: Entity<'cms_block'>) {
+        displaySectionType(block: Entity<'cms_block'>): boolean {
             const blockSection = this.page.sections!.find((section) => section.id === block.sectionId);
 
             if (!blockSection) {

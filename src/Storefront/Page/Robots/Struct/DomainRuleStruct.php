@@ -2,28 +2,64 @@
 
 namespace Shopware\Storefront\Page\Robots\Struct;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
+use Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser;
 
 #[Package('framework')]
 class DomainRuleStruct extends Struct
 {
     /**
+     * @deprecated tag:v6.8.0 - Use getDirectives() instead
+     *
      * @var array<array{type: string, path: string}>
      */
     private array $rules = [];
 
-    public function __construct(string $rules, private readonly string $basePath)
+    /**
+     * @var list<RobotsDirective>
+     */
+    private array $directives = [];
+
+    /**
+     * @param ParsedRobots|string $rules The robots.txt rules as parsed object or deprecated string format
+     */
+    public function __construct(ParsedRobots|string $rules, private readonly string $basePath)
     {
-        $this->parseRules($rules);
+        if ($rules instanceof ParsedRobots) {
+            $this->initializeFromParsed($rules);
+        } else {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing a string to DomainRuleStruct constructor is deprecated. Use RobotsDirectiveParser::parse() and pass the ParsedRobots object instead.'
+            );
+            $this->parseRulesFromString($rules);
+        }
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Use getDirectives() instead
+     *
      * @return array<array{type: string, path: string}>
      */
     public function getRules(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getDirectives')
+        );
+
         return $this->rules;
+    }
+
+    /**
+     * @return list<RobotsDirective>
+     */
+    public function getDirectives(): array
+    {
+        return $this->directives;
     }
 
     public function getBasePath(): string
@@ -31,20 +67,40 @@ class DomainRuleStruct extends Struct
         return $this->basePath;
     }
 
-    private function parseRules(string $rules): void
+    private function initializeFromParsed(ParsedRobots $parsed): void
     {
-        $rules = explode("\n", $rules);
+        $allDirectives = array_merge(
+            $parsed->orphanedPathDirectives,
+            ...array_map(fn (RobotsUserAgentBlock $block) => $block->getPathDirectives(), $parsed->userAgentBlocks)
+        );
 
-        foreach ($rules as $rule) {
-            $rule = explode(':', $rule, 2);
+        foreach ($allDirectives as $directive) {
+            $directiveWithPath = $directive->withBasePath($this->basePath);
+            $this->directives[] = $directiveWithPath;
 
-            $ruleType = mb_strtolower($rule[0] ?? '');
-            if (!\in_array($ruleType, ['allow', 'disallow'], true)) {
+            if (!Feature::isActive('v6.8.0.0')) {
+                $this->rules[] = ['type' => $directiveWithPath->type->value, 'path' => $directiveWithPath->value];
+            }
+        }
+    }
+
+    private function parseRulesFromString(string $rules): void
+    {
+        $lines = explode("\n", $rules);
+
+        foreach ($lines as $line) {
+            $directive = RobotsDirectiveParser::parseDirectiveFromString($line);
+
+            if ($directive === null) {
                 continue;
             }
 
-            $path = $this->basePath . '/' . ltrim(trim($rule[1] ?? ''), '/');
-            $this->rules[] = ['type' => ucfirst($ruleType), 'path' => '/' . ltrim($path, '/')];
+            $directiveWithPath = $directive->withBasePath($this->basePath);
+            $this->directives[] = $directiveWithPath;
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                $this->rules[] = ['type' => $directiveWithPath->type->value, 'path' => $directiveWithPath->value];
+            }
         }
     }
 }

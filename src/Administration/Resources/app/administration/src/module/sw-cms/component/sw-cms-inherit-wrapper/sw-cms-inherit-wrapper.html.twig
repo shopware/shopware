@@ -1,0 +1,29 @@
+<div
+    class="sw-cms-inherit-wrapper"
+    :class="{ 'is--inherited': isInherited }"
+>
+    <div class="sw-cms-inherit-wrapper__label">
+        <sw-inheritance-switch
+            v-if="supportsInheritance"
+            :is-inherited="isInherited"
+            @inheritance-restore="showModal = true;"
+            @inheritance-remove="onInheritanceRemove"
+        />
+
+        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+        <label v-if="label">{{ label }}</label>
+    </div>
+
+    <slot v-bind="{ isInherited }"></slot>
+
+    <sw-confirm-modal
+        v-if="showModal"
+        type="delete"
+        :text="$t('sw-cms.inherit.unlinkFieldConfirmText')"
+        :title="$t('sw-cms.inherit.unlinkFieldTitle')"
+        :text-confirm="$t('sw-cms.inherit.unlinkFieldTitle')"
+        @confirm="onInheritanceRestore"
+        @cancel="showModal = false;"
+        @close="showModal = false;"
+    />
+</div>

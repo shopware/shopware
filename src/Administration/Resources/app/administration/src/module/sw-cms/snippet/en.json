@@ -12,6 +12,16 @@
       "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
       "privacyNotice": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>."
     },
+    "inherit": {
+      "tooltip": "This field does not exist on the base layout and cannot be inherited.",
+      "formBanner": "This layout has inherited fields. Meaning that as long as the inherited state is active the content will be inherited. Inherited fields can be unlinked by clicking the link symbol. Clicking the symbol again will set the inherited state back.",
+      "unlinkNotice": "Some inherited fields have been unlinked.",
+      "unlinkAllButton": "Reset all fields.",
+      "unlinkAllConfirmText": "Are you sure you want to reset all fields? This will permanently delete all unlinked content.",
+      "unlinkFieldConfirmText": "Are you sure you want to restore inheritance? This will remove all custom data of this field and restore values from the parent element.",
+      "unlinkAllTitle": "Reset all fields",
+      "unlinkFieldTitle": "Restore inheritance"
+    },
     "sorting": {
       "labelSort": "Sort by:",
       "labelSortByNameAsc": "Name, ascending",
@@ -290,6 +300,7 @@
         "label": "Image slider",
         "config": {
           "label": {
+            "sliderItems": "Images",
             "navigationArrows": "Arrow navigation",
             "navigationPositionNone": "None",
             "navigationPositionInside": "Inside",
@@ -605,6 +616,7 @@
       },
       "html": {
         "label": "HTML",
+        "labelContent": "Content",
         "config": {
           "warning": "Unfiltered HTML code can lead to security risks. Please only insert HTML code from trusted sources and test your changes before publishing them."
         }

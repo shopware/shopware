@@ -217,11 +217,16 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
             $ids = explode('|', $ids);
         }
 
-        /** @var list<string> $ids */
-        $ids = array_filter((array) $ids, function ($id) {
-            return Uuid::isValid((string) $id);
-        });
+        $return = [];
+        foreach ((array) $ids as $id) {
+            if (!\is_string($id)) {
+                continue;
+            }
+            if (Uuid::isValid($id)) {
+                $return[] = $id;
+            }
+        }
 
-        return $ids;
+        return $return;
     }
 }

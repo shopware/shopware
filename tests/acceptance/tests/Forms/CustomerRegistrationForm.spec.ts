@@ -1,169 +1,125 @@
-import { test } from '@fixtures/AcceptanceTest';
+import { test, getLocale } from '@fixtures/AcceptanceTest';
+import { getAddressDataFromLocale } from '../../helpers/locale-helpers';
 
-test('As a customer, I can perform a registration without captcha protection.',
-    { tag: ['@Form', '@Registration', '@Storefront'] },
-    async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        StorefrontAccount,
-        TestDataService,
-        IdProvider,
-        Register,
-        InstanceMeta,
-    }) => {
-
+test.describe('Customer Registration Form', () => {
+    test.beforeEach(async ({ TestDataService, InstanceMeta }) => {
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
-        await test.step('Disable captcha protection', async () => {
-            await TestDataService.setSystemConfig({
-                'core.basicInformation.activeCaptchasV2': {
-                    googleReCaptchaV2: {
-                        name: 'googleReCaptchaV2',
-                        isActive: false,
-                        config: {
-                            siteKey: '',
-                            secretKey: '',
-                            invisible: false,
-                        },
+        await TestDataService.setSystemConfig({
+            'core.basicInformation.activeCaptchasV2': {
+                googleReCaptchaV2: {
+                    name: 'googleReCaptchaV2',
+                    isActive: false,
+                    config: {
+                        siteKey: '',
+                        secretKey: '',
+                        invisible: false,
                     },
                 },
-            });
+            },
         });
 
-        const customer = { email: `${IdProvider.getIdPair().uuid}@test.com` };
+        await TestDataService.clearCaches();
+    });
 
-        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-        await ShopCustomer.attemptsTo(Register(customer));
+    test(
+        'As a customer, I can perform a registration without captcha protection.',
+        { tag: ['@Form', '@Registration', '@Storefront'] },
+        async ({ ShopCustomer, StorefrontAccountLogin, StorefrontAccount, IdProvider, Register }) => {
+            const customer = { email: `${IdProvider.getIdPair().uuid}@test.com` };
 
-        await StorefrontAccountLogin.page.waitForLoadState('networkidle');
+            await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+            await ShopCustomer.attemptsTo(Register(customer));
 
-        await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
-    }
-);
+            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
 
-test('As a customer, I can perform a registration with full customer data without captcha protection.',
-    { tag: ['@Form', '@Registration', '@Storefront'] },
-    async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        StorefrontAccount,
-        TestDataService,
-        IdProvider,
-        InstanceMeta,
-    }) => {
+            await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
+        }
+    );
 
-        test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
+    test(
+        'As a customer, I can perform a registration with full customer data without captcha protection.',
+        { tag: ['@Form', '@Registration', '@Storefront'] },
+        async ({ ShopCustomer, StorefrontAccountLogin, StorefrontAccount, IdProvider }) => {
+            const locale = getLocale();
+            const addressData = getAddressDataFromLocale(locale);
 
-        await test.step('Disable captcha protection', async () => {
-            await TestDataService.setSystemConfig({
-                'core.basicInformation.activeCaptchasV2': {
-                    googleReCaptchaV2: {
-                        name: 'googleReCaptchaV2',
-                        isActive: false,
-                        config: {
-                            siteKey: '',
-                            secretKey: '',
-                            invisible: false,
-                        },
-                    },
-                },
-            });
-        });
+            const customer = {
+                salutation: 'Mr.',
+                firstName: 'Jeff',
+                lastName: 'Goldblum',
+                email: `${IdProvider.getIdPair().uuid}@test.com`,
+                password: 'shopware',
+                street: addressData.street,
+                city: addressData.city,
+                country: addressData.country,
+                postalCode: addressData.postalCode,
+            };
 
-        const customer = {
-            salutation: 'Mr.',
-            firstName: 'Jeff',
-            lastName: 'Goldblum',
-            email: `${IdProvider.getIdPair().uuid}@test.com`,
-            password: 'shopware',
-            street: 'Ebbinghof 10',
-            city: 'Schöppingen',
-            country: 'Germany',
-            postalCode: '48624',
-        };
+            await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+            await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
+            await StorefrontAccountLogin.firstNameInput.fill(customer.firstName);
+            await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
+            await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
+            await StorefrontAccountLogin.registerPasswordInput.fill(customer.password);
 
-        await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
-        await StorefrontAccountLogin.firstNameInput.fill(customer.firstName);
-        await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
-        await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
-        await StorefrontAccountLogin.registerPasswordInput.fill(customer.password);
+            await StorefrontAccountLogin.streetAddressInput.fill(customer.street);
+            await StorefrontAccountLogin.postalCodeInput.fill(customer.postalCode);
+            await StorefrontAccountLogin.cityInput.fill(customer.city);
+            await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
 
-        await StorefrontAccountLogin.streetAddressInput.fill(customer.street);
-        await StorefrontAccountLogin.postalCodeInput.fill(customer.postalCode);
-        await StorefrontAccountLogin.cityInput.fill(customer.city);
-        await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
+            await StorefrontAccountLogin.registerButton.click();
 
-        await StorefrontAccountLogin.registerButton.click();
+            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
 
-        await StorefrontAccountLogin.page.waitForLoadState('networkidle');
+            await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
+        }
+    );
 
-        await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
-    }
-);
+    test(
+        'As a customer, I can perform a registration with validation errors without captcha protection.',
+        { tag: ['@Form', '@Registration', '@Storefront'] },
+        async ({ ShopCustomer, StorefrontAccountLogin, IdProvider }) => {
+            const locale = getLocale();
+            const addressData = getAddressDataFromLocale(locale);
 
-test('As a customer, I can perform a registration with validation errors without captcha protection.',
-    { tag: ['@Form', '@Registration', '@Storefront'] },
-    async ({
-        ShopCustomer,
-        StorefrontAccountLogin,
-        TestDataService,
-        IdProvider,
-        InstanceMeta,
-    }) => {
+            const customer = {
+                salutation: 'Mr.',
+                firstName: 'Jeff',
+                // lastName is missing intentionally
+                email: `${IdProvider.getIdPair().uuid}@test.com`,
+                password: 'shopware',
+                street: addressData.street,
+                city: addressData.city,
+                country: addressData.country,
+                postalCode: addressData.postalCode,
+            };
 
-        test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
+            await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
-        await test.step('Disable captcha protection', async () => {
-            await TestDataService.setSystemConfig({
-                'core.basicInformation.activeCaptchasV2': {
-                    googleReCaptchaV2: {
-                        name: 'googleReCaptchaV2',
-                        isActive: false,
-                        config: {
-                            siteKey: '',
-                            secretKey: '',
-                            invisible: false,
-                        },
-                    },
-                },
-            });
-        });
+            await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
+            await StorefrontAccountLogin.firstNameInput.fill(customer.firstName);
+            await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
+            await StorefrontAccountLogin.registerPasswordInput.fill(customer.password);
 
-        const customer = {
-            salutation: 'Mr.',
-            firstName: 'Jeff',
-            // lastName is missing intentionally
-            email: `${IdProvider.getIdPair().uuid}@test.com`,
-            password: 'shopware',
-            street: 'Ebbinghof 10',
-            city: 'Schöppingen',
-            country: 'Germany',
-            postalCode: '48624',
-        };
+            await StorefrontAccountLogin.streetAddressInput.fill(customer.street);
+            await StorefrontAccountLogin.postalCodeInput.fill(customer.postalCode);
+            await StorefrontAccountLogin.cityInput.fill(customer.city);
+            await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
 
-        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+            await StorefrontAccountLogin.registerButton.click();
 
-        await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
-        await StorefrontAccountLogin.firstNameInput.fill(customer.firstName);
-        await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
-        await StorefrontAccountLogin.registerPasswordInput.fill(customer.password);
+            await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
 
-        await StorefrontAccountLogin.streetAddressInput.fill(customer.street);
-        await StorefrontAccountLogin.postalCodeInput.fill(customer.postalCode);
-        await StorefrontAccountLogin.cityInput.fill(customer.city);
-        await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
+            await StorefrontAccountLogin.lastNameInput.fill('Goldblum');
+            await StorefrontAccountLogin.registerButton.click();
 
-        await StorefrontAccountLogin.registerButton.click();
+            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
 
-        await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
-
-        await StorefrontAccountLogin.lastNameInput.fill('Goldblum');
-        await StorefrontAccountLogin.registerButton.click();
-
-        await StorefrontAccountLogin.page.waitForLoadState('networkidle');
-
-        await ShopCustomer.expects(StorefrontAccountLogin.page.getByText(customer.email, { exact: true })).toBeVisible();
-    }
-);
+            await ShopCustomer.expects(
+                StorefrontAccountLogin.page.getByText(customer.email, { exact: true })
+            ).toBeVisible();
+        }
+    );
+});

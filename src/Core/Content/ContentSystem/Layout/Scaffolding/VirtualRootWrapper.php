@@ -149,7 +149,7 @@ final class VirtualRootWrapper
         foreach ($layoutDataRequirements as $requirement) {
             $providers[$requirement->key] = new ContextProvider(
                 ContextType::Single,
-                new BroadcastDistributionConfig()
+                BroadcastDistributionConfig::simple()
             );
         }
 

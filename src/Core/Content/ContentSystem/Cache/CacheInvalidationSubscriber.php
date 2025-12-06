@@ -50,7 +50,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     {
         $ids = $event->getPrimaryKeys('content_layout');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -66,13 +66,13 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     {
         $ids = $event->getPrimaryKeys('product_content_layout');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
         $productIds = $this->getProductIdsFromAssignments($ids);
 
-        if (empty($productIds)) {
+        if ($productIds === []) {
             return;
         }
 
@@ -89,13 +89,13 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     {
         $ids = $event->getPrimaryKeys('category_content_layout');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
         $categoryIds = $this->getCategoryIdsFromAssignments($ids);
 
-        if (empty($categoryIds)) {
+        if ($categoryIds === []) {
             return;
         }
 
@@ -112,13 +112,13 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     {
         $ids = $event->getPrimaryKeys('landing_page_content_layout');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
         $landingPageIds = $this->getLandingPageIdsFromAssignments($ids);
 
-        if (empty($landingPageIds)) {
+        if ($landingPageIds === []) {
             return;
         }
 

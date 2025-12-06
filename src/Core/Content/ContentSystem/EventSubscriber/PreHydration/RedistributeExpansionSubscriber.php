@@ -84,7 +84,7 @@ class RedistributeExpansionSubscriber implements EventSubscriberInterface
 
             $virtualProviders[$providerKey] = new ContextProvider(
                 $consumer->type,
-                new BroadcastDistributionConfig(null)
+                BroadcastDistributionConfig::simple()
             );
         }
 

@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraint;
  * @phpstan-import-type SlicedDistributionConfigData from SlicedDistributionConfig
  *
  * @phpstan-type DistributionConfigData BroadcastDistributionConfigData|IndexedDistributionConfigData|IteratorDistributionConfigData|KeyedDistributionConfigData|SlicedDistributionConfigData
+ * @phpstan-type ConsumerElementData array{component: string, properties: array<string, mixed>}
  *
  * @internal
  */
@@ -31,9 +32,9 @@ interface DistributionConfig
     /**
      * Distribute data to consumers according to this strategy's algorithm.
      *
-     * @param array<int, array<string, mixed>> $consumers Consumer element data with 'component' and 'properties' keys
+     * @param list<ConsumerElementData> $consumers Consumer element data
      *
-     * @return array<int, mixed> Distributed data indexed by consumer position
+     * @return list<mixed> Distributed data indexed by consumer position
      */
     public function distribute(mixed $data, array $consumers): array;
 

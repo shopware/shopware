@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class PlaceholderCollectorVisitor implements ElementVisitor
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $placeholders = [];
 
@@ -32,7 +32,7 @@ class PlaceholderCollectorVisitor implements ElementVisitor
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getPlaceholders(): array
     {

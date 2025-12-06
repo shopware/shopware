@@ -69,7 +69,7 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
             $result[$index] = $slices[$index] ?? [];
         }
 
-        return $result;
+        return array_values($result);
     }
 
     /**

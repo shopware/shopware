@@ -87,7 +87,7 @@ final readonly class KeyedDistributionConfig implements DistributionConfig
             $result[$index] = $data[$dataKey] ?? null;
         }
 
-        return $result;
+        return array_values($result);
     }
 
     /**

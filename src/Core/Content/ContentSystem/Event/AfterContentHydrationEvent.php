@@ -38,10 +38,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 class AfterContentHydrationEvent extends Event implements ShopwareEvent
 {
     /**
-     * @param array<ContentElement> $elements
+     * @param list<ContentElement> $elements
      */
     public function __construct(
-        /** @var array<ContentElement> */
         public array $elements,
         public readonly string $layoutId,
         public readonly string $layoutName,

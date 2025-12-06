@@ -31,9 +31,9 @@ class PartialRenderer
      * Pre-hydration pruning keeps context dependencies to ensure data flows correctly
      * during hydration. Post-hydration extraction removes these ancestors.
      *
-     * @param array<ContentElement> $elements
+     * @param list<ContentElement> $elements
      *
-     * @return array<ContentElement> Pruned elements containing target
+     * @return list<ContentElement> Pruned elements containing target
      */
     public function pruneToTarget(array $elements, string $targetElementId): array
     {

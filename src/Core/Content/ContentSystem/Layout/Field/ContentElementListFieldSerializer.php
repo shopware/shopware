@@ -122,7 +122,6 @@ class ContentElementListFieldSerializer extends AbstractFieldSerializer
                 );
             }
 
-            /** @var array<string, mixed> $elementData */
             $elements[] = $this->contentElementSerializer->decodeElement($elementData);
         }
 

@@ -33,7 +33,11 @@ Additionally, the following configuration was deprecated:
 
 ### Google Analytics 4 Integration Update
 
-The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities. The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure. Furthermore, new events for `add_to_wishlist` and `view_cart` have been implemented to provide a more comprehensive view of user interactions. These changes ensure that tracking data is more detailed and compliant with the latest `GA4` specifications.
+The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities. The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure. Furthermore, new events for `add_to_wishlist`, `remove_from_wishlist`, `view_cart`, `add_shipping_info`, and `add_payment_info` have been implemented to provide a more comprehensive view of user interactions. The checkout funnel now tracks shipping and payment method selections, including when users change their selections. These changes ensure that tracking data is more detailed and compliant with the latest `GA4` specifications.
+
+### Deprecated `checkout_progress` Event
+
+The `checkout_progress` event has been removed from the default event registration as it was a legacy Universal Analytics (GA3) event that was incorrectly fired on the cart page. This functionality is now correctly covered by the `view_cart` event, which is the proper GA4 event for tracking cart views. The `CheckoutProgressEvent` class is still available but deprecated and will be removed in v6.8.0. If you have custom integrations relying on this event, please migrate to using the `view_cart` event instead.
 
 ### The email validation supports IDN email addresses
 

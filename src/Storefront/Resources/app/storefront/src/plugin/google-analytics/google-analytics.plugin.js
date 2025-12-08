@@ -1,15 +1,17 @@
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 import Storage from 'src/helper/storage/storage.helper';
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
+import AddPaymentInfoEvent from 'src/plugin/google-analytics/events/add-payment-info.event';
+import AddShippingInfoEvent from 'src/plugin/google-analytics/events/add-shipping-info.event';
 import AddToCartEvent from 'src/plugin/google-analytics/events/add-to-cart.event';
 import AddToCartByNumberEvent from 'src/plugin/google-analytics/events/add-to-cart-by-number.event';
 import AddToWishlistEvent from 'src/plugin/google-analytics/events/add-to-wishlist.event';
 import BeginCheckoutEvent from 'src/plugin/google-analytics/events/begin-checkout.event';
 import BeginCheckoutOnCartEvent from 'src/plugin/google-analytics/events/begin-checkout-on-cart.event';
-import CheckoutProgressEvent from 'src/plugin/google-analytics/events/checkout-progress.event';
 import LoginEvent from 'src/plugin/google-analytics/events/login.event';
 import PurchaseEvent from 'src/plugin/google-analytics/events/purchase.event';
 import RemoveFromCartEvent from 'src/plugin/google-analytics/events/remove-from-cart.event';
+import RemoveFromWishlistEvent from 'src/plugin/google-analytics/events/remove-from-wishlist.event';
 import SearchAjaxEvent from 'src/plugin/google-analytics/events/search-ajax.event';
 import SignUpEvent from 'src/plugin/google-analytics/events/sign-up.event';
 import ViewCartEvent from 'src/plugin/google-analytics/events/view-cart.event';
@@ -91,11 +93,12 @@ export default class GoogleAnalyticsPlugin extends Plugin
     }
 
     registerDefaultEvents() {
+        this.registerEvent(AddPaymentInfoEvent);
+        this.registerEvent(AddShippingInfoEvent);
         this.registerEvent(AddToCartEvent);
         this.registerEvent(AddToCartByNumberEvent);
         this.registerEvent(BeginCheckoutEvent);
         this.registerEvent(BeginCheckoutOnCartEvent);
-        this.registerEvent(CheckoutProgressEvent);
         this.registerEvent(LoginEvent);
         this.registerEvent(PurchaseEvent);
         this.registerEvent(RemoveFromCartEvent);
@@ -105,6 +108,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
         this.registerEvent(ViewItemListEvent);
         this.registerEvent(ViewSearchResultsEvent);
         this.registerEvent(AddToWishlistEvent);
+        this.registerEvent(RemoveFromWishlistEvent);
         this.registerEvent(ViewCartEvent);
     }
 

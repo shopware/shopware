@@ -1,4 +1,5 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class ViewItemEvent extends AnalyticsEvent
 {
@@ -20,7 +21,6 @@ export default class ViewItemEvent extends AnalyticsEvent
         const productItemElement = document.querySelector('[itemtype="https://schema.org/Product"]');
         if (!productItemElement) {
             console.warn('[Google Analytics Plugin] Product itemtype ([itemtype="https://schema.org/Product"]) could not be found in document.');
-
             return;
         }
 
@@ -28,7 +28,6 @@ export default class ViewItemEvent extends AnalyticsEvent
         const productNameElement = productItemElement.querySelector('[itemprop="name"]');
         if (!productIdElement || !productNameElement) {
             console.warn('[Google Analytics Plugin] Product ID (meta[itemprop="productID"]) or product name ([itemprop="name"]) could not be found within product scope.');
-
             return;
         }
 
@@ -36,26 +35,18 @@ export default class ViewItemEvent extends AnalyticsEvent
         const productName = productNameElement.textContent.trim();
         if (!productId || !productName) {
             console.warn('[Google Analytics Plugin] Product ID or product name is empty, do not track page view.');
-
             return;
         }
 
-        const breadcrumbNodes = document.querySelectorAll('nav[aria-label="breadcrumb"] .breadcrumb-title');
-        const categories = {};
-        breadcrumbNodes.forEach((node, index) => {
-            const key = `item_category${index === 0 ? '' : index + 1}`;
-            categories[key] = node.textContent.trim();
-        });
-
         gtag('event', 'view_item', {
+            'currency': ProductPageHelper.getCurrency(),
+            'value': ProductPageHelper.getValue(),
             'items': [{
                 'id': productId,
                 'name': productName,
-                'brand': document.querySelector('div[itemprop="brand"] meta[itemprop="name"]')?.content,
-                ...categories,
+                'brand': ProductPageHelper.getBrand(),
+                ...ProductPageHelper.getCategories(),
             }],
-            'currency': document.querySelector('meta[property="product:price:currency"]')?.content,
-            'value': document.querySelector('meta[property="product:price:amount"]')?.content,
         });
     }
 }

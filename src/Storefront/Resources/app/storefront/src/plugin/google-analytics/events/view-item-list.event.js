@@ -1,4 +1,5 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class ViewItemListEvent extends AnalyticsEvent
 {
@@ -18,8 +19,18 @@ export default class ViewItemListEvent extends AnalyticsEvent
             return;
         }
 
+        const items = this.getListItems();
+        if (items.length === 0) {
+            return;
+        }
+
+        // Calculate total value of all visible items
+        const value = items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+
         gtag('event', 'view_item_list', {
-            'items': this.getListItems(),
+            'currency': ProductPageHelper.getCurrency(),
+            'value': value.toFixed(2),
+            'items': items,
         });
     }
 
@@ -28,12 +39,19 @@ export default class ViewItemListEvent extends AnalyticsEvent
         const lineItems = [];
 
         if (!productBoxes) {
-            return;
+            return lineItems;
         }
 
+        // Get category from breadcrumbs (same for all items on this page)
+        const categories = ProductPageHelper.getCategories();
+
         productBoxes.forEach(item => {
-            if (item.dataset['productInformation']) {
-                lineItems.push(JSON.parse(item.dataset['productInformation']));
+            if (item.dataset.productInformation) {
+                const productData = JSON.parse(item.dataset.productInformation);
+                lineItems.push({
+                    ...productData,
+                    ...categories,
+                });
             }
         });
 

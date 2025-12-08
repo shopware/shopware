@@ -42,7 +42,11 @@ export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
             return;
         }
 
+        const additionalProperties = LineItemHelper.getAdditionalProperties();
+
         gtag('event', 'begin_checkout', {
+            'currency': additionalProperties.currency,
+            'value': additionalProperties.value,
             'items': LineItemHelper.getLineItems(),
         });
     }

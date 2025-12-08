@@ -1,4 +1,5 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class RemoveFromCart extends AnalyticsEvent
 {
@@ -23,30 +24,54 @@ export default class RemoveFromCart extends AnalyticsEvent
             return;
         }
 
-        const closest = event.target.closest('.line-item-remove-button');
-        if (!closest) {
+        const removeButton = event.target.closest('.line-item-remove-button');
+        if (!removeButton) {
             return;
         }
 
-        const lineItem = closest.closest('.line-item');
+        const productId = removeButton.getAttribute('data-product-id');
+        if (!productId) {
+            return;
+        }
+
+        const additionalProperties = LineItemHelper.getAdditionalProperties();
+
+        // Find the product data from the hidden line items container
+        const hiddenLineItem = document.querySelector(`.hidden-line-item[data-id="${productId}"]`);
+        if (!hiddenLineItem) {
+            // Fallback: send event with just the product ID
+            gtag('event', 'remove_from_cart', {
+                'currency': additionalProperties.currency,
+                'items': [{ 'id': productId }],
+            });
+            return;
+        }
+
         const categories = {};
-        for (let i = 0; i < 5; i++) {
-            const attrIndex = i === 0 ? '' : i + 1;
-            const categoryValue = lineItem.querySelector(`[data-google-analytics-item-category-${attrIndex}]`)?.value;
+        for (let i = 1; i <= 5; i++) {
+            const categoryValue = hiddenLineItem.getAttribute(`data-category-${i}`);
 
             if (categoryValue) {
-                const key = `item_category${attrIndex}`;
+                const key = i === 1 ? 'item_category' : `item_category${i}`;
                 categories[key] = categoryValue;
             } else {
                 break;
             }
         }
 
+        const price = hiddenLineItem.getAttribute('data-price');
+        const quantity = hiddenLineItem.getAttribute('data-quantity');
+        const value = (parseFloat(price) || 0) * (parseInt(quantity, 10) || 1);
 
         gtag('event', 'remove_from_cart', {
+            'currency': additionalProperties.currency,
+            'value': value.toFixed(2),
             'items': [{
-                'id': closest.getAttribute('data-product-id'),
-                'brand': lineItem.querySelector('[data-google-analytics-item-brand]')?.value,
+                'id': productId,
+                'name': hiddenLineItem.getAttribute('data-name'),
+                'quantity': quantity,
+                'price': price,
+                'brand': hiddenLineItem.getAttribute('data-brand'),
                 ...categories,
             }],
         });

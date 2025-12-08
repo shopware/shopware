@@ -1,4 +1,5 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
+import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class AddToCartEvent extends EventAwareAnalyticsEvent
 {
@@ -43,26 +44,16 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
             return;
         }
 
-        const breadcrumbNodes = document.querySelectorAll('nav[aria-label="breadcrumb"] .breadcrumb-title');
-        const categories = {};
-        breadcrumbNodes.forEach((node, index) => {
-            if (index < 5) {
-                // GA4 uses item_category, item_category2, item_category3, etc.
-                const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
-                categories[key] = node.textContent.trim();
-            }
-        });
-
         gtag('event', 'add_to_cart', {
+            'currency': ProductPageHelper.getCurrency(),
+            'value': ProductPageHelper.getValue(),
             'items': [{
                 'id': productId,
                 'name': formData.get('product-name'),
                 'quantity': formData.get(`lineItems[${productId}][quantity]`),
                 'brand': formData.get('brand-name'),
-                ...categories,
+                ...ProductPageHelper.getCategories(),
             }],
-            'currency': document.querySelector('meta[property="product:price:currency"]')?.content,
-            'value': document.querySelector('meta[property="product:price:amount"]')?.content,
         });
     }
 }

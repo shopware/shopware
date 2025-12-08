@@ -1,4 +1,5 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
+import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
 {
@@ -7,48 +8,37 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
     }
 
     getPluginName() {
-        return 'AddToWishlist';
+        return 'WishlistStorage';
     }
 
     getEvents() {
         return {
-            'beforeAddToWishlist': this._beforeAddToWishlist.bind(this),
+            'Wishlist/onProductAdded': this._onProductAdded.bind(this),
         };
     }
 
-    _beforeAddToWishlist(event) {
+    _onProductAdded(event) {
         if (!this.active) {
             return;
         }
 
-        const wishlistButton = event.detail;
-        if (!wishlistButton) {
+        const productId = event.detail?.productId;
+        if (!productId) {
             return;
         }
 
-        const productWishlist = wishlistButton.closest('.product-wishlist');
-        if (!productWishlist) {
-            return;
-        }
-
-        const breadcrumbNodes = document.querySelectorAll('nav[aria-label="breadcrumb"] .breadcrumb-title');
-        const categories = {};
-        breadcrumbNodes.forEach((node, index) => {
-            const key = `item_category${index === 0 ? '' : index + 1}`;
-            categories[key] = node.textContent.trim();
-        });
-
-        const item = {
-            'id': wishlistButton.dataset.addToWishlistOptions.productId,
-            'name': document.querySelector('.product-detail-name').textContent.trim(),
-            'brand': document.querySelector('div[itemprop="brand"] meta[itemprop="name"]')?.content,
-            ...categories,
-        };
+        const productData = ProductPageHelper.getProductData(productId);
+        const categories = ProductPageHelper.getCategories();
 
         gtag('event', 'add_to_wishlist', {
-            'currency': document.querySelector('meta[property="product:price:currency"]')?.content,
-            'value': document.querySelector('meta[property="product:price:amount"]')?.content,
-            'items': [item],
+            'currency': productData.currency,
+            'value': productData.value,
+            'items': [{
+                'id': productId,
+                'name': productData.name,
+                'brand': productData.brand,
+                ...categories,
+            }],
         });
     }
 }

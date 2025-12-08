@@ -23,7 +23,7 @@ jobs:
         )
       )
     steps:
-      - uses: octo-sts/action@v1.0.0
+      - uses: octo-sts/action@v1.1.1
         id: sts-shopware-backport
         with:
           scope: shopware

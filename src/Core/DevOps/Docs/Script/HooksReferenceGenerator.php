@@ -7,6 +7,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Since;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\DocBlockFactoryInterface;
+use Shopware\Core\DevOps\Docs\DocsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\InterfaceHook;
 use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Execution\TraceHook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
@@ -22,6 +24,10 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
+ *
+ * @phpstan-type ServiceList list<array{name: string, returnType: class-string<object>, link: string, deprecated: ?string}>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class HooksReferenceGenerator implements ScriptReferenceGenerator
@@ -59,6 +65,11 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             'hook-use-case' => Generic::class,
             'script-service' => Generic::class,
         ]);
+
+        $this->defaultServices = $this->buildAvailableServices(
+            (new \ReflectionProperty(ScriptExecutor::class, 'defaultServices'))->getValue(),
+            []
+        );
     }
 
     public function generate(): array
@@ -107,7 +118,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         }
 
         if (\count($hookClasses) === 0) {
-            throw new \RuntimeException('No HookClasses found.');
+            throw DocsException::noHookClassesFound();
         }
 
         sort($hookClasses);
@@ -157,7 +168,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 $hookData = $this->addHookFunctionData($hookData, $hook);
             }
 
-            $useCase = $hookData['use-case'];
+            $useCase = (string) $hookData['use-case'];
 
             $data[$useCase]['hooks'][] = $hookData;
         }
@@ -203,7 +214,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     /**
      * @param \ReflectionClass<Hook> $reflection
      *
-     * @return list<array<string, ?string>>
+     * @return ServiceList
      */
     private function getAvailableServices(\ReflectionClass $reflection): array
     {
@@ -228,7 +239,6 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     private function buildAvailableServices(array $serviceIds, array $deprecatedServices): array
     {
         $services = [];
-
         foreach ($serviceIds as $serviceId) {
             $reflection = new \ReflectionClass($serviceId);
             $returnType = $reflection->getMethod('factory')->getReturnType();
@@ -277,7 +287,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         $reflection = new \ReflectionClass($hook);
 
         if (!$reflection->getDocComment()) {
-            throw new \RuntimeException(\sprintf('PhpDoc comment is missing on concrete HookClass `%s', $hook));
+            throw DocsException::missingPhpDocCommentInHookClass($hook);
         }
         $docBlock = $this->docFactory->create($reflection);
 

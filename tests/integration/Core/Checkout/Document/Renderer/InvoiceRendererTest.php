@@ -438,7 +438,7 @@ class InvoiceRendererTest extends TestCase
             },
         ];
 
-        yield 'render with billing address' => [
+        yield 'render with shipping address and displayDivergentDeliveryAddress is true' => [
             [7],
             function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
@@ -463,8 +463,8 @@ class InvoiceRendererTest extends TestCase
                 ]);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
-                $orderAddress = $order->getAddresses()->last();
                 $rendered = $rendered->getContent();
+                $orderAddress = $order->getAddresses()->last();
                 $country = $orderAddress->getCountry();
                 static::assertNotNull($country);
                 $salutation = $orderAddress->getSalutation();
@@ -475,7 +475,6 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($salutation->getDisplayName());
                 static::assertNotNull($orderAddress->getZipcode());
 
-                $rendered = $rendered->getContent();
                 static::assertStringContainsString($orderAddress->getStreet(), $rendered);
                 static::assertStringContainsString($orderAddress->getZipcode(), $rendered);
                 static::assertStringContainsString($orderAddress->getCity(), $rendered);

@@ -35,7 +35,7 @@ The content flows through the system as follows:
 3. The `LayoutLoader` retrieves the `ContentLayoutEntity` from the repository.
 4. The `PreContentHydrationEvent` is dispatched for layout preparation.
 5. The `ContentElementHydrator` loads data and resolves context.
-6. The `AfterContentHydrationEvent` is dispatched for finalization.
+6. The `PostHydrationEvent` is dispatched for finalization.
 7. The response is returned to the client.
 
 Entity-specific factories query assignment tables (`product_content_layout`, `category_content_layout`, `landing_page_content_layout`) with sales channel fallback. The system first checks for a sales channel-specific layout, then falls back to a global layout if none is found.

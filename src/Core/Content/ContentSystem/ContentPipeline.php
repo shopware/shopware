@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem;
 
-use Shopware\Core\Content\ContentSystem\Event\AfterContentHydrationEvent;
+use Shopware\Core\Content\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Content\ContentSystem\Layout\Loader\LayoutLoader;
@@ -63,7 +63,7 @@ class ContentPipeline
             $elements = array_values(iterator_to_array($hydratedElementsGenerator, false));
         }
 
-        $afterHydrationEvent = new AfterContentHydrationEvent(
+        $afterHydrationEvent = new PostHydrationEvent(
             $elements,
             $layoutEntity->getId(),
             $layoutEntity->getName(),

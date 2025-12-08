@@ -35,7 +35,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @final
  */
 #[Package('discovery')]
-class AfterContentHydrationEvent extends Event implements ShopwareEvent
+class PostHydrationEvent extends Event implements ShopwareEvent
 {
     /**
      * @param list<ContentElement> $elements

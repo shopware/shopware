@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ContentSystem\EventSubscriber\PostHydration;
 
-use Shopware\Core\Content\ContentSystem\Event\AfterContentHydrationEvent;
+use Shopware\Core\Content\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Content\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -26,11 +26,11 @@ class PartialRenderingExtractionSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            AfterContentHydrationEvent::class => ['onAfterContentHydration', 1000],
+            PostHydrationEvent::class => ['onPostHydration', 1000],
         ];
     }
 
-    public function onAfterContentHydration(AfterContentHydrationEvent $event): void
+    public function onPostHydration(PostHydrationEvent $event): void
     {
         $targetElementId = $event->specification->targetElementId;
 

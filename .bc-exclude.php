@@ -3,7 +3,6 @@
 return [
     'filePatterns' => [
         '**/Test/**', // Testing
-        '**/src/WebInstaller/**', // WebInstaller TODO: remove after first 6.7 release
         '**/src/Core/Framework/Update/**', // Updater
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency
@@ -19,6 +18,10 @@ return [
 
         // Will be typed in Symfony 8 (maybe)
         preg_quote('Symfony\Component\Console\Command\Command#configure() changed from no type to void', '/'),
+
+        // False positive, when an object extends Symfony Command and has its own constructor
+        '.* was added to Method __construct\(\) of class Symfony\\\\Component\\\\Console\\\\Command\\\\Command',
+        preg_quote('Symfony\Component\Console\Command\Command#__construct()', '/'),
 
         // Version-related const values changed for the 7.3 update
         preg_quote('Value of constant Symfony\Component\HttpKernel\Kernel', '/'),
@@ -55,5 +58,9 @@ return [
         preg_quote('REMOVED: Property Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct#$consumed was removed'),
         preg_quote('REMOVED: Method Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct#isConsumed() was removed'),
         preg_quote('REMOVED: Method Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct#setConsumed() was removed'),
+
+        // Fix for promotion discount entity property initialization error - necessary to prevent runtime errors
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#$usageKey changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $usageKey of Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#setUsageKey() changed from string to string|null', '/'),
     ],
 ];

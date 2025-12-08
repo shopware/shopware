@@ -6,9 +6,39 @@
 
 ## Core
 
+### PHP 8.5 support
+
+Shopware is now fully compatible with PHP 8.5.
+
+### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
+
+The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
+You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
+
+Due to the rework of the contained rules in the cache hash, this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
+
+You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
+
+The following classes and constants were deprecated as they will not be used anymore:
+* `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was deprecated:
+* `shopware.cache.invalidation.http_cache`
+
 ## Administration
 
 ## Storefront
+
+### The email validation supports IDN email addresses
+
+The domain part of email addresses may now contain internationalized domain names (IDN). The Storefront validation will properly check these domains. The form validation in PHP may still deny IDN emails addresses, but the default Shopware forms already allow them.
 
 ## App System
 
@@ -70,6 +100,11 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 ```
 
 ## Core
+
+### Automatic indexer execution for plugin migrations
+
+The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+This ensures that registered indexers are executed when plugin migrations have run.
 
 ### Improved Store API OpenAPI documentation with field descriptions
 
@@ -208,6 +243,7 @@ New extensible Twig blocks `layout_header_actions_language_widget_content_inner`
 
 The `context.token` variable is no longer available in twig rendering context to prevent potential security vulnerabilities. If you need to access the token, consider using alternative methods that do not expose it in the rendered HTML.
 Usually inside the Twig storefront there is no need to handle the context token manually, as it is handled automatically via the session handling in the Storefront.
+
 
 ### Added specific `add-product-by-number` template
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.

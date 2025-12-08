@@ -1,19 +1,20 @@
-import template from './sw-mail-template-index.html.twig';
-
 /**
  * @sw-package after-sales
  */
+
+import template from './sw-mail-template-index.html.twig';
+
+const { Mixin } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: ['acl'],
 
-    data() {
-        return {
-            term: '',
-        };
-    },
+    mixins: [
+        Mixin.getByName('listing'),
+    ],
 
     metaInfo() {
         return {
@@ -28,8 +29,8 @@ export default {
             this.$refs.mailTemplateList.getList();
         },
 
-        onSearch(value) {
-            this.term = value;
+        getList() {
+            // handled by child components
         },
     },
 };

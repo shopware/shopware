@@ -26,6 +26,7 @@ const createWrapper = async () => {
                     'sw-page': {
                         template: `
                     <div class="sw-page">
+                        <slot name="search-bar"></slot>
                         <slot name="smart-bar-actions"></slot>
                         <slot></slot>
                     </div>`,
@@ -44,7 +45,10 @@ const createWrapper = async () => {
                      </div>`,
                     },
                     'sw-context-menu-item': true,
-                    'sw-search-bar': true,
+                    'sw-search-bar': {
+                        name: 'sw-search-bar',
+                        template: '<div class="sw-search-bar"></div>',
+                    },
                     'sw-language-switch': true,
                     'sw-mail-template-list': true,
                     'sw-mail-header-footer-list': true,
@@ -71,5 +75,20 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
         const createButton = wrapper.findByText('button', 'global.default.add');
 
         expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should update the route when searching mail templates', async () => {
+        const wrapper = await createWrapper();
+
+        const searchBar = wrapper.getComponent({ name: 'sw-search-bar' });
+        searchBar.vm.$emit('search', 'Invoice');
+
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(
+            expect.objectContaining({
+                query: expect.objectContaining({
+                    term: 'Invoice',
+                }),
+            }),
+        );
     });
 });

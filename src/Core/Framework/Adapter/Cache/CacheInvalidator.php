@@ -50,13 +50,19 @@ class CacheInvalidator
             return;
         }
 
-        if ($force || $this->shouldForceInvalidate() || !$this->useDelayedCache) {
-            $this->purge($tags);
+        $shouldPurge = $force || $this->shouldForceInvalidate() || !$this->useDelayedCache;
 
-            return;
+        if (!$shouldPurge) {
+            try {
+                $this->cache->store($tags);
+
+                return;
+            } catch (\Throwable $e) {
+                $this->logger->error('Failed to store cache invalidation tags, invalidating immediately. Error: ' . $e->getMessage());
+            }
         }
 
-        $this->cache->store($tags);
+        $this->purge($tags);
     }
 
     /**

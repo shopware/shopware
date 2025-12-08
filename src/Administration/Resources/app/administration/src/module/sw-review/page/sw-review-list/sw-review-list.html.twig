@@ -40,7 +40,7 @@
             <mt-empty-state
                 v-if="!isLoading && !total"
                 icon="solid-file-text"
-                class="mt-empty-state--center"
+                :centered="true"
                 :headline="$t('sw-review.list.messageEmpty')"
                 :description="$t('sw-review.list.messageEmptySubline')"
             />

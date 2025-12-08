@@ -11,6 +11,7 @@
 
     <services>
         <service id="Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand">
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
             <tag name="console.command"/>
         </service>
 
@@ -143,6 +144,7 @@
             <argument type="service" id="app_administration_snippet.repository"/>
             <argument type="service" id="locale.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
         </service>
 
         <service id="Shopware\Administration\Snippet\SnippetFinder">

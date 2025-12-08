@@ -27,7 +27,7 @@ test(
     await ShopCustomer.attemptsTo(Login(customer));
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.isoCode));
+    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
 
     let productPrice = `${currency.isoCode} 24.00`;
     let totalPrice = `${currency.isoCode} 20.16`;

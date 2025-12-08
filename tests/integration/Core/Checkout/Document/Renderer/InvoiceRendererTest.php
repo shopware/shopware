@@ -383,7 +383,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($salutation->getDisplayName());
                 static::assertNotNull($orderAddress->getZipcode());
 
-                $rendered = $rendered->getContent();
+                $rendered = $rendered->getHtml();
                 static::assertStringContainsString($orderAddress->getStreet(), $rendered);
                 static::assertStringContainsString($orderAddress->getZipcode(), $rendered);
                 static::assertStringContainsString($orderAddress->getCity(), $rendered);

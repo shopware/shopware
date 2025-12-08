@@ -49,7 +49,7 @@ class CartScopeDiscountPackager extends DiscountPackager
 
     private function getDiscountPackage(LineItemCollection $cartItems, bool $isAdvanceRuled): ?DiscountPackage
     {
-        if (!Feature::isActive('PERFORMANCE_TWEAKS')) {
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS')) {
             $isAdvanceRuled = true;
         }
 

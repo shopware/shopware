@@ -19,7 +19,9 @@ class RedisIncrementer extends AbstractIncrementer
      * @param RedisTypeHint $redis
      */
     public function __construct(
-        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
+        /**
+         * @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future)
+         */
         private $redis
     ) {
     }

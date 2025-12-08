@@ -32,7 +32,9 @@ class PropertiesCorrectlyTyped
      */
     public function __construct(
         public string $promotedStringProperty,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
+        /**
+         * @deprecated tag:v6.7.0 - Will be natively typed
+         */
         public $promotedStringPropertyWithDeprecation,
         public $promotedResourceProperty,
         public $promotedCallableProperty,

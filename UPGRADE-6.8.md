@@ -742,6 +742,4 @@ The `states` field of the `product` entity has been removed. Instead, use the `t
 The `states` field of the `line_item` and `order_line_item` entity has also been removed. Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`)  to indicate the product type of a product line item.
 Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
 
-
 </details>
-

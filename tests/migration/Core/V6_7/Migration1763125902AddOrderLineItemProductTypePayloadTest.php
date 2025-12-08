@@ -52,15 +52,6 @@ class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
                 'price' => json_encode($this->createPricePayload(), \JSON_THROW_ON_ERROR),
                 'created_at' => $now,
             ], [
-                'id' => Types::BINARY,
-                'version_id' => Types::BINARY,
-                'order_id' => Types::BINARY,
-                'order_version_id' => Types::BINARY,
-                'identifier' => Types::STRING,
-                'label' => Types::STRING,
-                'quantity' => Types::INTEGER,
-                'type' => Types::STRING,
-                'price' => Types::JSON,
                 'created_at' => Types::DATETIME_IMMUTABLE,
             ]);
 
@@ -72,11 +63,6 @@ class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
                 'media_id' => Uuid::randomBytes(),
                 'created_at' => $now,
             ], [
-                'id' => Types::BINARY,
-                'version_id' => Types::BINARY,
-                'order_line_item_id' => Types::BINARY,
-                'order_line_item_version_id' => Types::BINARY,
-                'media_id' => Types::BINARY,
                 'created_at' => Types::DATETIME_IMMUTABLE,
             ]);
         } finally {
@@ -139,19 +125,8 @@ class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
                 'states' => json_encode(['is-physical']),
                 'created_at' => $now,
             ], [
-                'id' => Types::BINARY,
-                'version_id' => Types::BINARY,
-                'order_id' => Types::BINARY,
-                'order_version_id' => Types::BINARY,
-                'identifier' => Types::STRING,
-                'label' => Types::STRING,
-                'quantity' => Types::INTEGER,
-                'type' => Types::STRING,
-                'price' => Types::JSON,
                 'created_at' => Types::DATETIME_IMMUTABLE,
             ]);
-        } catch (\Throwable $ex) {
-            dd($ex);
         } finally {
             $this->enableForeignKeyChecks();
         }

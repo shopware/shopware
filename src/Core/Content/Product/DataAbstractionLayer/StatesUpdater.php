@@ -49,11 +49,13 @@ class StatesUpdater
                 LEFT JOIN `product_download` ON `product`.`id` = `product_download`.`product_id`
                 AND `product`.`version_id` = `product_download`.`product_version_id`
                 WHERE `product`.`id` IN (:ids)
+                AND `type` != :currentType
                 AND `product`.`version_id` = :versionId
                 GROUP BY `product`.`id`';
 
         $params = [
             'ids' => Uuid::fromHexToBytesList($ids),
+            'currentType' => ProductDefinition::TYPE_DIGITAL,
             'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
         ];
 

@@ -381,7 +381,7 @@ class InvoiceRendererTest extends TestCase
             },
         ];
 
-        yield 'render with shipping address' => [
+        yield 'render with shipping address and displayDivergentDeliveryAddress is true' => [
             [7],
             function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
@@ -438,7 +438,7 @@ class InvoiceRendererTest extends TestCase
             },
         ];
 
-        yield 'render with shipping address and displayDivergentDeliveryAddress is true' => [
+        yield 'render with displayDivergentDeliveryAddress is false' => [
             [7],
             function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
@@ -456,6 +456,7 @@ class InvoiceRendererTest extends TestCase
 
                 $operation->assign([
                     'config' => [
+                        'displayDivergentDeliveryAddress' => false,
                         'displayLineItems' => true,
                         'displayFooter' => true,
                         'displayHeader' => true,
@@ -464,21 +465,16 @@ class InvoiceRendererTest extends TestCase
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
                 $rendered = $rendered->getContent();
-                $orderAddress = $order->getAddresses()->last();
-                $country = $orderAddress->getCountry();
+                static::assertNotNull($orderDeliveries = $order->getDeliveries());
+                $shippingAddress = $orderDeliveries->getShippingAddress()->first();
+                $country = $shippingAddress->getCountry();
                 static::assertNotNull($country);
-                $salutation = $orderAddress->getSalutation();
-                static::assertNotNull($salutation);
 
                 static::assertNotNull($country->getName());
-                static::assertNotNull($salutation->getLetterName());
-                static::assertNotNull($salutation->getDisplayName());
-                static::assertNotNull($orderAddress->getZipcode());
+                static::assertNotNull($shippingAddress->getZipcode());
 
-                static::assertStringContainsString($orderAddress->getStreet(), $rendered);
-                static::assertStringContainsString($orderAddress->getZipcode(), $rendered);
-                static::assertStringContainsString($orderAddress->getCity(), $rendered);
-                static::assertStringContainsString($country->getName(), $rendered);
+                static::assertStringNotContainsString($shippingAddress->getFirstName(), $rendered);
+                static::assertStringNotContainsString($shippingAddress->getLastName(), $rendered);
             },
         ];
 

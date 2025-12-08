@@ -65,7 +65,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             ];
         }
 
-        $debug = $this->environment !== 'prod';
+        $debug = $this->environment === 'dev' || $this->environment === 'test';
 
         $properties = [
             'id' => self::KEYWORD_FIELD,

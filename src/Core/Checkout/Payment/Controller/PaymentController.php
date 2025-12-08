@@ -231,7 +231,7 @@ class PaymentController extends AbstractController
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('transactions.id', $transactionId))
-            ->addAssociations(['transactions', 'orderCustomer']);
+            ->addAssociations(['transactions.stateMachineState', 'orderCustomer']);
 
         $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
         if (!$order) {

@@ -451,6 +451,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\AbstractProductLineItemProvider"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry">
@@ -548,6 +550,8 @@
 
         <service id="Shopware\Core\Checkout\Cart\Subscriber\CartOrderEventSubscriber">
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

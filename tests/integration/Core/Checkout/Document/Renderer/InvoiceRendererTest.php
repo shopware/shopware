@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -467,6 +468,7 @@ class InvoiceRendererTest extends TestCase
                 $rendered = $rendered->getContent();
                 static::assertNotNull($orderDeliveries = $order->getDeliveries());
                 $shippingAddress = $orderDeliveries->getShippingAddress()->first();
+                static::assertInstanceOf(OrderAddressEntity::class, $shippingAddress);
                 $country = $shippingAddress->getCountry();
                 static::assertNotNull($country);
 

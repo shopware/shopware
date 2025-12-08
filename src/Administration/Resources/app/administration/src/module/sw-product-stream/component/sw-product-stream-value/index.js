@@ -179,7 +179,10 @@ export default {
 
         productTypeOptions() {
             const providedTypes = this.productTypes?.value ?? this.productTypes;
-            const defaultTypes = ['digital', 'physical'];
+            const defaultTypes = [
+                'digital',
+                'physical',
+            ];
             const types = Array.isArray(providedTypes) && providedTypes.length > 0 ? providedTypes : defaultTypes;
 
             return types.map((type) => {

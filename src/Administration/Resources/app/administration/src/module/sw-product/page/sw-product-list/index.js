@@ -74,7 +74,7 @@ export default {
         };
 
         if (Shopware.Feature.isActive('v6.8.0.0')) {
-            data.defaultFilters = data.defaultFilters.filter(filter => filter !== 'product-states-filter');
+            data.defaultFilters = data.defaultFilters.filter((filter) => filter !== 'product-states-filter');
         }
 
         return data;
@@ -316,8 +316,8 @@ export default {
         async getList() {
             this.isLoading = true;
 
-            this.productTypeService.fetchProductTypes().then(types => {
-                this.productTypeOptions = types.map(type => {
+            this.productTypeService.fetchProductTypes().then((types) => {
+                this.productTypeOptions = types.map((type) => {
                     return {
                         label: this.$t(`sw-product.type.${type}`),
                         value: type,

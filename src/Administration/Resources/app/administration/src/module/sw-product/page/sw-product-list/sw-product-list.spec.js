@@ -250,7 +250,11 @@ async function createWrapper() {
                 ],
                 provide: {
                     productTypeService: {
-                        fetchProductTypes: () => Promise.resolve(['physical', 'digital']),
+                        fetchProductTypes: () =>
+                            Promise.resolve([
+                                'physical',
+                                'digital',
+                            ]),
                     },
                     numberRangeService: {},
                     repositoryFactory: {

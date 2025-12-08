@@ -750,9 +750,7 @@ export default {
             await this.$nextTick();
 
             let includesDigital = '0';
-            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) =>
-                product.type === 'digital',
-            );
+            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) => product.type === 'digital');
             if (digital.length > 0) {
                 includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
             }

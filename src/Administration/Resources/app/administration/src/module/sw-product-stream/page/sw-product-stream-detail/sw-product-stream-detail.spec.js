@@ -110,7 +110,11 @@ async function createWrapper() {
                 },
                 productStreamConditionService: {},
                 productTypeService: {
-                    fetchProductTypes: () => Promise.resolve(['digital', 'physical']),
+                    fetchProductTypes: () =>
+                        Promise.resolve([
+                            'digital',
+                            'physical',
+                        ]),
                 },
             },
         },

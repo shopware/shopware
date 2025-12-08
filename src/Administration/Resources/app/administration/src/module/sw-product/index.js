@@ -142,7 +142,7 @@ Module.register('sw-product', {
                 default: (route) => {
                     const props = {
                         creationType: route.query.creationType ?? 'physical',
-                    }
+                    };
 
                     if (!Shopware.Feature.isActive('v6.8.0.0')) {
                         props.creationStates = route.query.creationStates ?? [

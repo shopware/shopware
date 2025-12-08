@@ -407,7 +407,7 @@ GROUP BY p.id
 SQL;
 
         if (!Feature::isActive('v6.8.0.0')) {
-            <<<'SQL'
+            $baseSql = <<<'SQL'
 SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(p.active, pp.active) AS active,

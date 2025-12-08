@@ -39,19 +39,6 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         static::assertTrue($table->hasIndex('idx.product.type'));
     }
 
-    public function testUpdateDestructiveDropsStatesColumn(): void
-    {
-        $this->addStatesColumn();
-
-        $migration = new Migration1763125891AddProductTypeColumn();
-        $migration->updateDestructive($this->connection);
-        $migration->updateDestructive($this->connection);
-
-        $table = $this->getProductTable();
-
-        static::assertFalse($table->hasColumn('states'));
-    }
-
     private function dropTypeColumnIfExists(): void
     {
         $table = $this->getProductTable();
@@ -63,18 +50,6 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         if ($table->hasColumn('type')) {
             $this->connection->executeStatement('ALTER TABLE `product` DROP COLUMN `type`');
         }
-    }
-
-    private function addStatesColumn(): void
-    {
-        $table = $this->getProductTable();
-
-        if ($table->hasColumn('states')) {
-            return;
-        }
-
-        $this->connection->executeStatement('ALTER TABLE `product` ADD COLUMN `states` JSON NULL');
-        $this->connection->executeStatement('ALTER TABLE `product` ADD CONSTRAINT `json.product.states` CHECK (JSON_VALID(`states`))');
     }
 
     private function getProductTable(): Table

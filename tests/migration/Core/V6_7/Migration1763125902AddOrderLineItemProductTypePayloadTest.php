@@ -96,8 +96,6 @@ class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
             'id' => Types::BINARY,
             'version_id' => Types::BINARY,
         ]);
-
-        $migration->updateDestructive($this->connection);
     }
 
     public function testUpdateSetsPhysicalTypeFromStates(): void
@@ -150,22 +148,11 @@ class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
             'id' => Types::BINARY,
             'version_id' => Types::BINARY,
         ]);
-
-        $migration->updateDestructive($this->connection);
-        $migration->updateDestructive($this->connection);
     }
 
-    public function testUpdateDestructiveRemovesStatesColumn(): void
-    {
-        $this->ensureStatesColumnExists();
-
-        $migration = new Migration1763125902AddOrderLineItemProductTypePayload();
-        $migration->updateDestructive($this->connection);
-        $migration->updateDestructive($this->connection);
-
-        static::assertFalse($this->getOrderLineItemTable()->hasColumn('states'));
-    }
-
+    /**
+     * @return array<string, mixed>
+     */
     private function createPricePayload(): array
     {
         return [

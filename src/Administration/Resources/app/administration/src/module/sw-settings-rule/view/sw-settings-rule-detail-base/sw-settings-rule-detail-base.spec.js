@@ -337,9 +337,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper(props);
             await flushPromises();
 
-            expect(
-                wrapper.find('.sw-settings-rule-detail-base__product-type-warning mt-banner-stub').exists(),
-            ).toBe(false);
+            expect(wrapper.find('.sw-settings-rule-detail-base__product-type-warning mt-banner-stub').exists()).toBe(false);
         });
     });
 

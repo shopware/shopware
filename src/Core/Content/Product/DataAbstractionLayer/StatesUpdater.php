@@ -92,7 +92,7 @@ class StatesUpdater
         foreach ($event->getUpdatedStates() as $updatedStates) {
             $query->execute([
                 'states' => json_encode($updatedStates->getNewStates(), \JSON_THROW_ON_ERROR),
-                'type' => (int) $product['hasDownloads'] === 1 ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL,
+                'type' => \in_array(State::IS_DOWNLOAD, $updatedStates->getNewStates(), true) ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL,
                 'id' => Uuid::fromHexToBytes($updatedStates->getId()),
                 'version' => Uuid::fromHexToBytes($context->getVersionId()),
             ]);

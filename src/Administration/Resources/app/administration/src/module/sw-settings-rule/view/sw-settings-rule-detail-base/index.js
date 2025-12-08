@@ -94,10 +94,7 @@ export default {
         },
 
         showProductStateConditionWarning() {
-            return (
-                Array.isArray(this.conditions) &&
-                this.hasConditionType(this.conditions, 'cartLineItemProductStates')
-            );
+            return Array.isArray(this.conditions) && this.hasConditionType(this.conditions, 'cartLineItemProductStates');
         },
     },
 

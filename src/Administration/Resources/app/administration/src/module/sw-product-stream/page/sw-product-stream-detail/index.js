@@ -75,7 +75,10 @@ export default {
             showModalPreview: false,
             languageId: null,
             customFieldSets: null,
-            productTypes: ['physical', 'digital'],
+            productTypes: [
+                'physical',
+                'digital',
+            ],
         };
     },
 
@@ -197,7 +200,9 @@ export default {
                 promises.push(this.getProductCustomFields());
             }
 
-            Promise.all(promises).then(() => { Promise.resolve() });
+            Promise.all(promises).then(() => {
+                Promise.resolve();
+            });
         },
 
         loadCustomFieldSets() {
@@ -207,10 +212,9 @@ export default {
         },
 
         loadProductTypes() {
-            this.productTypeService.fetchProductTypes()
-                .then((types) => {
-                    this.productTypes = types;
-                })
+            this.productTypeService.fetchProductTypes().then((types) => {
+                this.productTypes = types;
+            });
         },
 
         createProductStream() {

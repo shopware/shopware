@@ -44,6 +44,5 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $this->dropColumnIfExists($connection, 'product', 'states');
     }
 }

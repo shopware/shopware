@@ -26,7 +26,7 @@ class Language
             $locale = str_replace('-', '_', $locale);
         }
 
-        if (!Locales::exists($locale)) {
+        if (!in_array($locale, Locales::getLocales(), true) && !in_array($locale, Locales::getAliases(), true)) {
             throw SnippetException::localeDoesNotExist($locale);
         }
     }

@@ -29,4 +29,11 @@ class LanguageTest extends TestCase
         static::assertSame('en-GB', $language->locale);
         static::assertSame('English', $language->name);
     }
+
+    public function testCreateLanguageWithValidLocaleAlias(): void
+    {
+        $language = new Language('bs_Latn_BA', 'Bosnian');
+        static::assertSame('bs_Latn_BA', $language->locale);
+        static::assertSame('Bosnian', $language->name);
+    }
 }

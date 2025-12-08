@@ -5,7 +5,7 @@
 ## Source Code References
 
 - **Context Factories**: `Adapter/ProductContentLayoutContextFactory`, `Adapter/CategoryContentLayoutContextFactory`, `Adapter/LandingPageContentLayoutContextFactory`
-- **Events**: `Event/PreContentHydrationEvent`, `Event/AfterContentHydrationEvent`
+- **Events**: `Event/PreContentHydrationEvent`, `Event/PostHydrationEvent`
 - **Event Subscribers**: `EventSubscriber/PreHydration/`, `EventSubscriber/PostHydration/`
 - **Specification**: `RenderingSpecification`, `PlaceholderValues`
 - **Hydration**: `Hydration/ContentElementHydrator`
@@ -14,7 +14,7 @@
 
 ## Quick Reference
 
-- **Architecture**: Event-driven pipeline with PreContentHydrationEvent and AfterContentHydrationEvent
+- **Architecture**: Event-driven pipeline with PreContentHydrationEvent and PostHydrationEvent
 - **Pipeline**: Entity ID → Layout → Event (PreHydration) → Hydration → Event (PostHydration) → Response
 - **Core Subscribers**: EventSubscriber/PreHydration/ (preparation) and EventSubscriber/PostHydration/ (finalization)
 - **Main exception class**: `ContentSystemException`

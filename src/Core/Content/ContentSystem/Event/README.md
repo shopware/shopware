@@ -5,7 +5,7 @@ Lifecycle events dispatched during content hydration.
 ## Key Classes
 
 - `PreContentHydrationEvent` - Dispatched before hydration; allows layout preparation
-- `AfterContentHydrationEvent` - Dispatched after hydration; allows layout finalization
+- `PostHydrationEvent` - Dispatched after hydration; allows layout finalization
 
 ## Event Structure
 
@@ -29,5 +29,5 @@ The `elements` array is the transformation target; subscribers modify this array
 The events form a pre/post pair around hydration:
 
 ```
-PreContentHydrationEvent → Hydration → AfterContentHydrationEvent
+PreContentHydrationEvent → Hydration → PostHydrationEvent
 ```

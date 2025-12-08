@@ -192,7 +192,7 @@ Subscribers modify elements before or after hydration—computing derived values
 | Event | When | Purpose |
 |-------|------|---------|
 | `PreContentHydrationEvent` | Before hydration | Modify layout tree, resolve placeholders |
-| `AfterContentHydrationEvent` | After hydration | Enrich data, transform structure |
+| `PostHydrationEvent` | After hydration | Enrich data, transform structure |
 
 Both events expose the same properties. Only `elements` is mutable:
 
@@ -211,9 +211,9 @@ class ReadingTimeSubscriber implements EventSubscriberInterface
     private const WORDS_PER_MINUTE = 200;
 
     public static function getSubscribedEvents(): array
-    { return [AfterContentHydrationEvent::class => ['addReadingTime', 500]]; }
+    { return [PostHydrationEvent::class => ['addReadingTime', 500]]; }
 
-    public function addReadingTime(AfterContentHydrationEvent $event): void
+    public function addReadingTime(PostHydrationEvent $event): void
     { /* Iterate elements; get 'content' property; count words; set 'readingTimeMinutes' property */ }
 }
 ```

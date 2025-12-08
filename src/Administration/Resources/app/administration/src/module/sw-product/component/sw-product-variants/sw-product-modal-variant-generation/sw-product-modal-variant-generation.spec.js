@@ -344,7 +344,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '1',
                         downloads: [],
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -357,7 +357,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '2',
                         downloads: [],
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -370,7 +370,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '3',
                         downloads: [],
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -383,7 +383,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '4',
                         downloads: [],
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -406,7 +406,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '1',
                 downloads: [],
                 productStates: ['is-download'],
-                productType: 'digital',
+                type: 'digital',
                 options: [
                     {
                         entity: {
@@ -419,7 +419,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '2',
                 downloads: [],
                 productStates: ['is-download'],
-                productType: 'digital',
+                type: 'digital',
                 options: [
                     {
                         entity: {
@@ -440,7 +440,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '3',
                 downloads: [],
                 productStates: ['is-download'],
-                productType: 'digital',
+                type: 'digital',
                 options: [
                     {
                         entity: {
@@ -453,7 +453,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '4',
                 downloads: [],
                 productStates: ['is-download'],
-                productType: 'digital',
+                type: 'digital',
                 options: [
                     {
                         entity: {
@@ -475,7 +475,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '1',
                         downloads: [],
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -488,7 +488,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '2',
                         downloads: [],
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -508,7 +508,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '1',
                 downloads: [],
                 productStates: ['is-download'],
-                productType: 'digital',
+                type: 'digital',
                 options: [
                     {
                         entity: {
@@ -529,7 +529,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         downloads: [],
                         options: [],
                     },
@@ -559,7 +559,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             {
                 id: 'random-id',
                 productStates: ['is-download'],
-                productType: 'digital',
+                type: 'digital',
                 downloads: [
                     {
                         id: 'random-id',
@@ -606,7 +606,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         downloads: [
                             {
                                 id: 'example-id',
@@ -633,7 +633,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         downloads: [],
                         options: [],
                     },
@@ -666,7 +666,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                             },
                         ],
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         options: [],
                     },
                 ],
@@ -705,7 +705,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                             },
                         ],
                         productStates: ['is-download'],
-                        productType: 'digital',
+                        type: 'digital',
                         options: [],
                     },
                 ],
@@ -928,7 +928,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
                 downloads: [],
                 productStates: [],
-                productType: '',
+                type: 'physical',
             },
             {
                 id: '2',
@@ -941,7 +941,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
                 downloads: [],
                 productStates: ['is-download'],
-                productType: 'digital',
+                type: 'digital',
             },
         ];
 
@@ -966,9 +966,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         wrapper.vm.onTermChange('');
 
         items[0].productStates = ['is-download'];
-        items[0].productType = 'digital';
+        items[0].type = 'digital';
         items[1].productStates = [];
-        items[1].productType = '';
+        items[1].type = 'physical';
         expect(wrapper.vm.paginatedVariantArray).toEqual(items);
         expect(wrapper.vm.paginatedVariantArray[0].downloads).toContainEqual(file);
     });
@@ -986,7 +986,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
                 downloads: [],
                 productStates: ['is-download'],
-                productType: 'digital',
+                type: 'digital',
             },
             {
                 id: '2',
@@ -999,7 +999,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
                 downloads: [],
                 productStates: ['is-download'],
-                productType: 'digital',
+                type: 'digital',
             },
         ];
         const file = {
@@ -1042,7 +1042,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
                 downloads: [],
                 productStates: [],
-                productType: '',
+                type: 'physical',
             },
         ];
 

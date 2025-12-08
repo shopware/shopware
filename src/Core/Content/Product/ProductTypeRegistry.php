@@ -8,12 +8,18 @@ use Shopware\Core\Framework\Log\Package;
 final class ProductTypeRegistry
 {
     /**
+     * @var array<string>
+     */
+    private array $types;
+
+    /**
      * @internal
      *
      * @param array<string> $types
      */
-    public function __construct(public array $types)
+    public function __construct(array $types)
     {
+        $this->types = array_values(array_unique($types));
     }
 
     public function addType(string $type): void

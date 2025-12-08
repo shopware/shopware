@@ -143,8 +143,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             unset($properties['states']);
         }
 
-        $properties = array_filter($properties, fn ($value) => $value !== null);
-
         $mapping = [
             'dynamic_templates' => [
                 [

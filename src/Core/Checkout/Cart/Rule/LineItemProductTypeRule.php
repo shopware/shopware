@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\ProductTypeRegistry;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -72,11 +71,11 @@ class LineItemProductTypeRule extends Rule
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        if (!$lineItem->hasPayloadValue(LineItem::PRODUCT_LINE_ITEM_TYPE)) {
+        if (!$lineItem->hasPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE)) {
             return false;
         }
 
-        $resolvedType = $lineItem->getPayloadValue(LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $resolvedType = $lineItem->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE);
 
         if (!\is_string($resolvedType)) {
             return false;

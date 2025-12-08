@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -70,6 +71,10 @@ class StatesUpdaterTest extends TestCase
         static::assertSame([State::IS_DOWNLOAD], $product1->getStates());
         static::assertSame([State::IS_PHYSICAL], $product2->getStates());
         static::assertSame([State::IS_PHYSICAL], $product3->getStates());
+
+        static::assertSame(ProductDefinition::TYPE_DIGITAL, $product1->getType());
+        static::assertSame(ProductDefinition::TYPE_PHYSICAL, $product2->getType());
+        static::assertSame(ProductDefinition::TYPE_PHYSICAL, $product3->getType());
     }
 
     public function prepareProducts(IdsCollection $ids): void
@@ -77,6 +82,7 @@ class StatesUpdaterTest extends TestCase
         $products = [
             (new ProductBuilder($ids, 'product-1'))
                 ->price(1.0)
+                ->type(ProductDefinition::TYPE_DIGITAL)
                 ->add('downloads', [
                     [
                         'media' => [

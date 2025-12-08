@@ -992,6 +992,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}]',
             'propertyIds' => '[]',
             'optionIds' => '[]',
+            'type' => ProductDefinition::TYPE_PHYSICAL,
         ];
 
         $translationData = [

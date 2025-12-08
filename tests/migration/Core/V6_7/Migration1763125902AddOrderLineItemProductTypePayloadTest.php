@@ -1,0 +1,231 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Migration\Core\V6_7;
+
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\V6_7\Migration1763125902AddOrderLineItemProductTypePayload;
+
+/**
+ * @internal
+ */
+#[CoversClass(Migration1763125902AddOrderLineItemProductTypePayload::class)]
+class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
+{
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testUpdateSetsDigitalTypeWhenDownloadExists(): void
+    {
+        $this->ensureStatesColumnExists();
+
+        $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $lineItemId = Uuid::randomBytes();
+        $orderId = Uuid::randomBytes();
+        $now = new \DateTimeImmutable();
+
+        $this->disableForeignKeyChecks();
+        try {
+            $this->connection->insert('order_line_item', [
+                'id' => $lineItemId,
+                'version_id' => $versionId,
+                'order_id' => $orderId,
+                'order_version_id' => $versionId,
+                'identifier' => Uuid::randomHex(),
+                'label' => 'downloadable',
+                'quantity' => 1,
+                'type' => 'product',
+                'payload' => Json::encode(new \stdClass()),
+                'price' => json_encode($this->createPricePayload(), \JSON_THROW_ON_ERROR),
+                'created_at' => $now,
+            ], [
+                'id' => Types::BINARY,
+                'version_id' => Types::BINARY,
+                'order_id' => Types::BINARY,
+                'order_version_id' => Types::BINARY,
+                'identifier' => Types::STRING,
+                'label' => Types::STRING,
+                'quantity' => Types::INTEGER,
+                'type' => Types::STRING,
+                'price' => Types::JSON,
+                'created_at' => Types::DATETIME_IMMUTABLE,
+            ]);
+
+            $this->connection->insert('order_line_item_download', [
+                'id' => Uuid::randomBytes(),
+                'version_id' => $versionId,
+                'order_line_item_id' => $lineItemId,
+                'order_line_item_version_id' => $versionId,
+                'media_id' => Uuid::randomBytes(),
+                'created_at' => $now,
+            ], [
+                'id' => Types::BINARY,
+                'version_id' => Types::BINARY,
+                'order_line_item_id' => Types::BINARY,
+                'order_line_item_version_id' => Types::BINARY,
+                'media_id' => Types::BINARY,
+                'created_at' => Types::DATETIME_IMMUTABLE,
+            ]);
+        } finally {
+            $this->enableForeignKeyChecks();
+        }
+
+        $migration = new Migration1763125902AddOrderLineItemProductTypePayload();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $productType = $this->connection->fetchOne(
+            'SELECT JSON_UNQUOTE(JSON_EXTRACT(payload, "$.productType")) FROM `order_line_item` WHERE `id` = :id AND `version_id` = :version',
+            ['id' => $lineItemId, 'version' => $versionId],
+            ['id' => Types::BINARY, 'version' => Types::BINARY],
+        );
+
+        static::assertSame('digital', $productType);
+
+        $this->connection->delete('order_line_item_download', [
+            'order_line_item_id' => $lineItemId,
+            'order_line_item_version_id' => $versionId,
+        ], [
+            'order_line_item_id' => Types::BINARY,
+            'order_line_item_version_id' => Types::BINARY,
+        ]);
+
+        $this->connection->delete('order_line_item', [
+            'id' => $lineItemId,
+            'version_id' => $versionId,
+        ], [
+            'id' => Types::BINARY,
+            'version_id' => Types::BINARY,
+        ]);
+
+        $migration->updateDestructive($this->connection);
+    }
+
+    public function testUpdateSetsPhysicalTypeFromStates(): void
+    {
+        $this->ensureStatesColumnExists();
+
+        $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $lineItemId = Uuid::randomBytes();
+        $orderId = Uuid::randomBytes();
+        $now = new \DateTimeImmutable();
+
+        $this->disableForeignKeyChecks();
+        try {
+            $this->connection->insert('order_line_item', [
+                'id' => $lineItemId,
+                'version_id' => $versionId,
+                'order_id' => $orderId,
+                'order_version_id' => $versionId,
+                'identifier' => Uuid::randomHex(),
+                'label' => 'physical',
+                'quantity' => 1,
+                'type' => 'product',
+                'payload' => Json::encode(new \stdClass()),
+                'price' => json_encode($this->createPricePayload(), \JSON_THROW_ON_ERROR),
+                'states' => json_encode(['is-physical']),
+                'created_at' => $now,
+            ], [
+                'id' => Types::BINARY,
+                'version_id' => Types::BINARY,
+                'order_id' => Types::BINARY,
+                'order_version_id' => Types::BINARY,
+                'identifier' => Types::STRING,
+                'label' => Types::STRING,
+                'quantity' => Types::INTEGER,
+                'type' => Types::STRING,
+                'price' => Types::JSON,
+                'created_at' => Types::DATETIME_IMMUTABLE,
+            ]);
+        } catch (\Throwable $ex) {
+            dd($ex);
+        } finally {
+            $this->enableForeignKeyChecks();
+        }
+
+        $migration = new Migration1763125902AddOrderLineItemProductTypePayload();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $productType = $this->connection->fetchOne(
+            'SELECT JSON_UNQUOTE(JSON_EXTRACT(payload, "$.productType")) FROM `order_line_item` WHERE `id` = :id AND `version_id` = :version',
+            ['id' => $lineItemId, 'version' => $versionId],
+            ['id' => Types::BINARY, 'version' => Types::BINARY],
+        );
+
+        static::assertSame('physical', $productType);
+
+        $this->connection->delete('order_line_item', [
+            'id' => $lineItemId,
+            'version_id' => $versionId,
+        ], [
+            'id' => Types::BINARY,
+            'version_id' => Types::BINARY,
+        ]);
+
+        $migration->updateDestructive($this->connection);
+        $migration->updateDestructive($this->connection);
+    }
+
+    public function testUpdateDestructiveRemovesStatesColumn(): void
+    {
+        $this->ensureStatesColumnExists();
+
+        $migration = new Migration1763125902AddOrderLineItemProductTypePayload();
+        $migration->updateDestructive($this->connection);
+        $migration->updateDestructive($this->connection);
+
+        static::assertFalse($this->getOrderLineItemTable()->hasColumn('states'));
+    }
+
+    private function createPricePayload(): array
+    {
+        return [
+            'unitPrice' => 10.0,
+            'totalPrice' => 10.0,
+            'quantity' => 1,
+            'calculatedTaxes' => [],
+            'taxRules' => [],
+        ];
+    }
+
+    private function ensureStatesColumnExists(): void
+    {
+        $table = $this->getOrderLineItemTable();
+
+        if ($table->hasColumn('states')) {
+            return;
+        }
+
+        $this->connection->executeStatement('ALTER TABLE `order_line_item` ADD COLUMN `states` JSON NULL');
+        $this->connection->executeStatement('ALTER TABLE `order_line_item` ADD CONSTRAINT `json.order_line_item.states` CHECK (JSON_VALID(`states`))');
+    }
+
+    private function disableForeignKeyChecks(): void
+    {
+        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
+    }
+
+    private function enableForeignKeyChecks(): void
+    {
+        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+    }
+
+    private function getOrderLineItemTable(): Table
+    {
+        return $this->connection->createSchemaManager()->introspectTable('order_line_item');
+    }
+}

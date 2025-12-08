@@ -25,9 +25,11 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
                 $connection,
                 'product',
                 'type',
-                "VARCHAR(32) NOT NULL DEFAULT 'physical'",
+                'VARCHAR(32)',
+                false,
+                '\'physical\''
             );
-            
+
             $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
         }
 

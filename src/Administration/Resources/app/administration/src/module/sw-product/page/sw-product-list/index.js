@@ -44,11 +44,11 @@ export default {
             filterCriteria: [],
             productTypeOptions: [
                 {
-                    label: this.$tc('sw-product.type.physical'),
+                    label: this.$t('sw-product.type.physical'),
                     value: 'physical',
                 },
                 {
-                    label: this.$tc('sw-product.type.digital'),
+                    label: this.$t('sw-product.type.digital'),
                     value: 'digital',
                 },
             ],
@@ -238,8 +238,8 @@ export default {
                 },
                 'product-type-filter': {
                     property: 'type',
-                    label: this.$tc('sw-product.filters.productTypeFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.productTypeFilter.placeholder'),
+                    label: this.$t('sw-product.filters.productTypeFilter.label'),
+                    placeholder: this.$t('sw-product.filters.productTypeFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: this.productTypeOptions,
                 },
@@ -319,7 +319,7 @@ export default {
             this.productTypeService.fetchProductTypes().then(types => {
                 this.productTypeOptions = types.map(type => {
                     return {
-                        label: this.$tc(`sw-product.type.${type}`),
+                        label: this.$t(`sw-product.type.${type}`),
                         value: type,
                     };
                 });

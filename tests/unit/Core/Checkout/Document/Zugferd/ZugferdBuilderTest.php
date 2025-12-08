@@ -234,9 +234,6 @@ class ZugferdBuilderTest extends TestCase
         return $position . $lineItem->getPosition();
     }
 
-    /**
-     * @param string[] $states
-     */
     private function buildOrderLineItemEntity(string $id, string $type, ?OrderLineItemEntity $parent = null, int $quantity = 1): OrderLineItemEntity
     {
         $orderLineItemEntity = new OrderLineItemEntity();

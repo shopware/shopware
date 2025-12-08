@@ -80,7 +80,7 @@ class OrderLineItemDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields =  new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
 

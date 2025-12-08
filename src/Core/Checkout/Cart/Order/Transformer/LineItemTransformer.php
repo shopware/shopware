@@ -209,7 +209,7 @@ class LineItemTransformer
 
         if (!Feature::isActive('v6.8.0.0')) {
             Feature::callSilentIfInactive('v6.8.0.0', function () use (&$isDownloadState, $entity): void {
-                $isDownloadState = $isDownloadState || (\is_array($entity->getStates()) && \in_array(State::IS_DOWNLOAD, $entity->getStates(), true));
+                $isDownloadState = $isDownloadState || \in_array(State::IS_DOWNLOAD, $entity->getStates(), true);
             });
         }
 

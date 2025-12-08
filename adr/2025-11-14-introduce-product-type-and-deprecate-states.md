@@ -24,7 +24,7 @@ Currently, the product.states field has various issues:
 ### Deprecation of `product.states`:
 
 - Deprecate the `product.states` field in the database in favor of a new `product.type` field that clearly indicates whether a product is `digital` or `physical`.
-- Deprecate `order_line_item.states` in favor of `order_line_item.product_type` in a similar manner.
+- Deprecate `order_line_item.states` in favor of `order_line_item.payload.product_type` in a similar manner.
 - Deprecate `LineItemProductStatesRule` in favor of `LineItemProductTypeRule`.
 - Deprecate `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`).
 - Deprecate product stream filters and product listing filters that rely on `product.states`, guiding users to use the new `product.type` field instead.
@@ -37,50 +37,28 @@ In a more detailed manner, we will make the following changes:
 
 - Add a dedicated `product.type` column (values `physical`/`digital`) with DAL exposure, new entity constants, defaulting to `physical`.
 - `product.type` is only written once after product save (@See `ProductTypeInitiator`) service. It means once a product is marked as `digital` or `physical`, it cannot be changed to another type, this also improves data integrity and not having to update the field on every save.
-- Also add `order_line_item.product_type` and populate it when line items are converted from the cart; `LineItemTransformer` also reconstructs legacy states when needed.
+- Also add `order_line_item.payload.product_type` and populate it when line items are converted from the cart; `LineItemTransformer` also reconstructs legacy states when needed.
 - Introduce `LineItemProductTypeRule` for rule builder usage and deprecate the legacy `LineItemProductStatesRule`.
 - Rules automatically pick up custom product types registered via the shared registry (@See `ProductTypeRegistry`), so PHP-based conditions stay consistent with storefront/admin filters.
 
 #### Introduce a server-side `ProductTypeRegistry` 
 
-- This registry help both core rules and plugins can register additional product types via the `shopware.product.type` service tag.
+- This registry help both core rules and plugins can register additional product types via the parameter `%shopware.product.types%` as an array.
 
 ```php
 class ProductTypeRegistry
 {
     /**
-     * @var array<string, AbstractProductType>
+     * @var array<string>
      */
     private array $types = [];
 
-    public function addType(AbstractProductType $type): void
+    public function addType(string $type): void
 
     public function getTypes(): array
 ```
 
-The registry contains different `AbstractProductType` implementations, each defining:
-
-```php
-abstract class AbstractProductType
-{
-    abstract public function getType(): string;
-}
-```
-
-- By default, the platform registers two types: `DigitalProductType` and `PhysicalProductType`.
-- Each type has a `getType` that returns a unique name that present the product in the database for e.g `digital`, `physical`, `bundle` etc. 
-
-For example, the `DigitalProductType` implementation could look like this:
-
-```php
-class DigitalProductType extends AbstractProductType
-{
-    public function getType(): string
-    {
-        return 'digital';
-    }
-}
-```
+- By default, the platform registers two types: `digital` and `physical`.
 
 #### New admin API endpoint to fetch all registered product types
 
@@ -90,15 +68,25 @@ class DigitalProductType extends AbstractProductType
 
 ### For the platform
 - Querying by digital/physical products now becomes trivial (`product.type = 'digital'`), improving DAL and search performance and clarity.
-- The core will migrate existing `product.states` to `product.type` and the same from `order_line_item.states` to `order_line_item.product_type` to preserve existing behavior.
+- The core will migrate existing `product.states` to `product.type` and the same from `order_line_item.states` to `order_line_item.payload.product_type` to preserve existing behavior.
 - Rule conditions must be updated to reference `cartLineItemProductType`; existing rules referencing `cartLineItemProductStates` will continue to work until 6.8 but should be migrated.
 - Similar to rule conditions, existing product stream filters must be updated to transist from `product.states` the new `product.type` field.
 - We should warn on the UI when users use `states` field in product streams, rule conditions, product listing filters, guiding them to use to the new `type` field instead.
 
 ### For third-party developers
 
-- You can now easily register new product types by implementing `AbstractProductType` and tagging their service with `shopware.product.type`.
+- You can now easily register new product types by override `shopware.product.allowed_types` in your `config/packages/shopware.yaml`. For e.g:
+
+```yaml
+shopware:
+    product:
+        allowed_types:
+        - bundle
+        - container
+```
+
 - If you have existing code that relies on `product.states`, you should plan to migrate to the new `product.type` field.
+- If you are creating digital products, you should explicitly set the `type` field to `digital` when creating new products.
 - Be specific to use `type` field if you want to be safe to not have issues which fetching product types that you are not aware of. For examples, a third-party developer may introduce a new product type `container`, if you're not specific in your queries, you may incur unexpected results.
 - Backwards compatibility must be maintained for 6.7, but in 6.8 the `states` fields should disappear entirely.
 - Keep writing to the legacy `states` column only when `Feature::isActive('v6.8.0.0') === false`, wrapping all DAL fields, hydrators, and entity accessors in deprecation notices so tooling warns consumers.

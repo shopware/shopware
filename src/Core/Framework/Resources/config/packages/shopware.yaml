@@ -580,3 +580,7 @@ shopware:
 
     product_stream:
         indexing: true
+    product:
+        allowed_types:
+          - physical
+          - digital

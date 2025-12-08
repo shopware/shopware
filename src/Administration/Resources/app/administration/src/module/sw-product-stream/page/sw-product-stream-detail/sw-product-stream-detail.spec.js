@@ -109,6 +109,9 @@ async function createWrapper() {
                     getCustomFieldSets: () => Promise.resolve({}),
                 },
                 productStreamConditionService: {},
+                productTypeService: {
+                    fetchProductTypes: () => Promise.resolve(['digital', 'physical']),
+                },
             },
         },
     });
@@ -129,7 +132,7 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
         await flushPromises();
 
         wrapper.vm.productStream = { id: 'stream-1' };
-        wrapper.vm.productStreamFilters = [
+        wrapper.vm.productStreamFiltersTree = [
             {
                 field: 'states',
             },

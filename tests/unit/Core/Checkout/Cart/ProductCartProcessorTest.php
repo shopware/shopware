@@ -62,6 +62,7 @@ class ProductCartProcessorTest extends TestCase
                 'calculatedPrices' => new PriceCollection(),
                 'calculatedMaxPurchase' => 1,
                 'productNumber' => 'A',
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'stock' => 1,
             ]),
             // normal
@@ -71,6 +72,7 @@ class ProductCartProcessorTest extends TestCase
                 'calculatedPrices' => new PriceCollection(),
                 'calculatedMaxPurchase' => 1,
                 'productNumber' => 'B',
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'stock' => 1,
             ]),
             // out of stock
@@ -81,6 +83,7 @@ class ProductCartProcessorTest extends TestCase
                 'calculatedMaxPurchase' => 1,
                 'productNumber' => 'C',
                 'stock' => 1,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'minPurchase' => 2,
             ]),
             // min purchase
@@ -91,6 +94,7 @@ class ProductCartProcessorTest extends TestCase
                 'calculatedMaxPurchase' => 4,
                 'productNumber' => 'D',
                 'stock' => 4,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'minPurchase' => 2,
             ]),
             // purchase step
@@ -102,6 +106,7 @@ class ProductCartProcessorTest extends TestCase
                 'productNumber' => 'E',
                 'stock' => 4,
                 'minPurchase' => 2,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'purchaseSteps' => 2,
             ]),
             // no reference id
@@ -112,6 +117,7 @@ class ProductCartProcessorTest extends TestCase
                 'calculatedMaxPurchase' => 2,
                 'productNumber' => 'F',
                 'stock' => 2,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'maxPurchase' => 2,
             ]),
         ];
@@ -189,6 +195,7 @@ class ProductCartProcessorTest extends TestCase
             'productNumber' => 'A',
             'stock' => 1,
             'categoryTree' => ['a', 'b'],
+            'type' => ProductDefinition::TYPE_PHYSICAL,
         ]);
 
         $calculator = $this->createMock(ProductPriceCalculator::class);
@@ -236,6 +243,7 @@ class ProductCartProcessorTest extends TestCase
             'customFields' => [
                 'foo' => 'bar',
             ],
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'translated' => [
                 'customFields' => [
                     'foo' => 'baz',
@@ -336,6 +344,7 @@ class ProductCartProcessorTest extends TestCase
             'calculatedMaxPurchase' => 1,
             'productNumber' => 'A',
             'stock' => 1,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
         ]);
 
         $processor = new ProductCartProcessor(

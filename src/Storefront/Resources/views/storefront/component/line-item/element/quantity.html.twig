@@ -26,7 +26,7 @@
         {% set isDigital = isDigital or quantityInformation.maxPurchase === 1 %}
     {% else %}
         {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
-        {% set isDigital = isDigital or (lineItem.states is defined and DOWNLOAD_STATE in lineItem.states) or quantityInformation.maxPurchase === 1) %}
+        {% set isDigital = isDigital or (lineItem.states is defined and DOWNLOAD_STATE in lineItem.states) or quantityInformation.maxPurchase === 1 %}
     {% endif %}
 
     {% block component_line_item_quantity_inner %}

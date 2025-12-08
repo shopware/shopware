@@ -38,7 +38,6 @@ class LineItemDownloadLoader
             $states = $lineItem['states'] ?? null;
             $productType = $lineItem['payload']['productType'] ?? null;
 
-
             if (Feature::isActive('v6.8.0.0')) {
                 $isLineItemDownloadable = $productType === ProductDefinition::TYPE_DIGITAL;
             } else {

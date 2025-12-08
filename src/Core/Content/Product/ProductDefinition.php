@@ -164,7 +164,7 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited()),
             (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()),
             (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('type', 'type', 32))->addFlags(new ApiAware(), new Required()),
+            (new StringField('type', 'type', 32))->addFlags(new ApiAware()),
 
             (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options.name', 'options.group.name'])),
             (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected()),

@@ -310,11 +310,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(deleteVariantsButton.exists()).toBeFalsy();
     });
 
-    it('should add the downloads column when the product state is equal "is-download"', async () => {
+    it('should add the downloads column when the product type is equal "digital"', async () => {
         const wrapper = await createWrapper(
             {
                 productStates: ['is-download'],
-                productType: ['digital'],
+                productType: 'digital',
             },
             {
                 create: (entity) => {

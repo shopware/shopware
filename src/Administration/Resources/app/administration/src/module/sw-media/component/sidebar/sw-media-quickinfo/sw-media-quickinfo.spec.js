@@ -11,6 +11,7 @@ const itemMock = (options = {}) => {
         },
         id: '4a12jd3kki9yyy765gkn5hdb',
         fileName: 'demo.jpg',
+        fileExtension: 'jpg',
         avatarUsers: [],
         categories: [],
         productManufacturers: [],
@@ -472,6 +473,21 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         expect(actionButton.exists()).toBeTruthy();
     });
 
+    it('should not show action button from apps if the file type is not supported', async () => {
+        Shopware.Store.get('actionButtons').add({
+            name: 'media-button',
+            entity: 'media',
+            view: 'item',
+            label: 'Navigate to app',
+            fileTypes: ['pdf'], // our test item has type .jpg
+        });
+
+        const wrapper = await createWrapper({ hasFile: true });
+
+        const actionButton = wrapper.find('.quickaction--custom');
+        expect(actionButton.exists()).toBeFalsy();
+    });
+
     it('should call the action button method', async () => {
         const actionButtonMethod = jest.fn();
         const action = {
@@ -491,4 +507,18 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
         expect(actionButtonMethod).toHaveBeenCalled();
     });
+
+    it.each([
+        { mimeType: 'video/quicktime', shouldShowWarning: true },
+        { mimeType: 'video/mp4', shouldShowWarning: false },
+    ])(
+        'should show warning banner if video format is not supported (type: $mimeType, shouldShowWarning: $shouldShowWarning)',
+        async ({ mimeType, shouldShowWarning }) => {
+            const wrapper = await createWrapper({ mimeType, hasFile: true });
+            await wrapper.vm.$nextTick();
+
+            const banner = wrapper.find('.sw-media-quickinfo__unsupported-format-banner');
+            expect(banner.exists()).toBe(shouldShowWarning);
+        },
+    );
 });

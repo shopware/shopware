@@ -44,7 +44,7 @@ class WriteResultMerger
             $mergedWriteResults[] = $writeResult;
         }
 
-        $mergedWriteResults = array_filter($mergedWriteResults);
+        $mergedWriteResults = array_values(array_filter($mergedWriteResults));
 
         if (empty($mergedWriteResults)) {
             return null;

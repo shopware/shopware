@@ -1,3 +1,4 @@
+import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 
@@ -96,8 +97,25 @@ export default {
 
         extensionSdkButtons() {
             return Shopware.Store.get('actionButtons').buttons.filter((button) => {
-                return button.entity === 'media' && button.view === 'item';
+                if (button.entity !== 'media' || button.view !== 'item') {
+                    return false;
+                }
+
+                return (
+                    !button.fileTypes?.length ||
+                    button.fileTypes.some((type) => {
+                        return type.toLowerCase() === this.item.fileExtension.toLowerCase();
+                    })
+                );
             });
+        },
+
+        isPlayable() {
+            return isPlayableMediaFormat(this.item.mimeType);
+        },
+
+        showUnsupportedFormatWarning() {
+            return shouldShowUnsupportedFormatWarning(this.item.mimeType);
         },
     },
 

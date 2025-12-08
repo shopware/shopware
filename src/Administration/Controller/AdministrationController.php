@@ -260,7 +260,7 @@ class AdministrationController extends AbstractController
         }
 
         $customer = $this->getCustomerByEmail((string) $request->request->get('id'), $email, $context, $boundSalesChannelId);
-        if (!$customer) {
+        if ($customer === null) {
             return new JsonResponse(
                 ['isValid' => true]
             );
@@ -269,7 +269,7 @@ class AdministrationController extends AbstractController
         $message = 'The email address {{ email }} is already in use';
         $params['{{ email }}'] = $email;
 
-        if ($customer->getBoundSalesChannel()) {
+        if ($customer->getBoundSalesChannel() !== null) {
             $message .= ' in the Sales Channel {{ salesChannel }}';
             $params['{{ salesChannel }}'] = (string) $customer->getBoundSalesChannel()->getName();
         }
@@ -320,7 +320,7 @@ class AdministrationController extends AbstractController
             );
         }
 
-        if ($flag instanceof AllowHtml && !$flag->isSanitized()) {
+        if (!$flag->isSanitized()) {
             return new JsonResponse(
                 ['preview' => $html]
             );

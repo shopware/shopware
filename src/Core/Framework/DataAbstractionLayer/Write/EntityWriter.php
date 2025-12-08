@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
@@ -24,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCo
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -53,9 +51,6 @@ class EntityWriter implements EntityWriterInterface
     ) {
     }
 
-    /**
-     * @throws InvalidSyncOperationException
-     */
     public function sync(array $operations, WriteContext $context): WriteResult
     {
         $commandQueue = new WriteCommandQueue();
@@ -167,7 +162,7 @@ class EntityWriter implements EntityWriterInterface
     /**
      * @param array<array<string, mixed>> $rawData
      *
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     private function write(EntityDefinition $definition, array $rawData, WriteContext $writeContext, ?string $ensure = null): array
     {
@@ -213,14 +208,11 @@ class EntityWriter implements EntityWriterInterface
         return $this->factory->addParentResults($result, $parents);
     }
 
-    /**
-     * @throws InvalidSyncOperationException
-     */
     private function validateSyncOperationInput(SyncOperation $operation): void
     {
         $errors = $operation->validate();
         if (\count($errors)) {
-            throw new InvalidSyncOperationException(\sprintf('Invalid sync operation. %s', implode(' ', $errors)));
+            throw DataAbstractionLayerException::invalidSyncOperationException(\sprintf('Invalid sync operation. %s', implode(' ', $errors)));
         }
     }
 
@@ -395,7 +387,7 @@ class EntityWriter implements EntityWriterInterface
     /**
      * @param array<mixed> $ids
      *
-     * @return array<mixed>
+     * @return array<string, list<EntityWriteResult>>
      */
     private function extractDeleteCommands(EntityDefinition $definition, array $ids, WriteContext $writeContext, WriteCommandQueue $commandQueue): array
     {
@@ -409,7 +401,7 @@ class EntityWriter implements EntityWriterInterface
             $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext(), true);
 
             if (!empty($restrictions)) {
-                throw new RestrictDeleteViolationException($definition, [new RestrictDeleteViolation($restrictions)]);
+                throw DataAbstractionLayerException::restrictDeleteViolations($definition, $restrictions);
             }
         }
 

@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
  * @internal
@@ -28,7 +27,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
     public function testGetExpiredNewsletterRecipientCriteria(): void
     {
         $taskHandler = $this->getTaskHandler();
-        $method = ReflectionHelper::getMethod(NewsletterRecipientTaskHandler::class, 'getExpiredNewsletterRecipientCriteria');
+        $method = new \ReflectionMethod(NewsletterRecipientTaskHandler::class, 'getExpiredNewsletterRecipientCriteria');
 
         /** @var Criteria $criteria */
         $criteria = $method->invoke($taskHandler);

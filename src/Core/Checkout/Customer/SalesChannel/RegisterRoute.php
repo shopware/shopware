@@ -329,6 +329,10 @@ class RegisterRoute extends AbstractRegisterRoute
             $billingAddress->set('salutationId', $data->get('salutationId'));
         }
 
+        if ($shippingAddress instanceof DataBag) {
+            $shippingAddress->set('salutationId', $data->get('salutationId'));
+        }
+
         $definition = $this->getCustomerCreateValidationDefinition($isGuest, $data, $context);
 
         if ($additionalValidations) {
@@ -424,9 +428,9 @@ class RegisterRoute extends AbstractRegisterRoute
 
         return new \DateTime(\sprintf(
             '%d-%d-%d',
-            $birthdayYear,
-            $birthdayMonth,
-            $birthdayDay
+            (int) $birthdayYear,
+            (int) $birthdayMonth,
+            (int) $birthdayDay
         ));
     }
 

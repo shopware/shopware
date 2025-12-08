@@ -13,6 +13,7 @@
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
+      "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "Die URL {path} steht in Konflikt mit der bestehenden Route {blockedSegment} und kann nicht verwendet werden.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
       "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
       "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
@@ -185,7 +186,9 @@
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen",
       "tooltipRestoreInheritance": "Vererbung wiederherstellen",
-      "tooltipRemoveInheritance": "Vererbung entfernen"
+      "tooltipRemoveInheritance": "Vererbung entfernen",
+      "ariaLinkInheritance": "Vererbung verknüpfen",
+      "ariaUnlinkInheritance": "Vererbung aufheben"
     },
     "sw-field-copyable": {
       "tooltip": {
@@ -438,7 +441,8 @@
     "sw-media-preview-v2": {
       "fallbackVideoTagSupport": "Dein Browser unterstützt diesen Video-Tag nicht",
       "fallbackAudioTagSupport": "Dein Browser unterstützt diesen Audio-Tag nicht",
-      "textNoMedia": "Kein Medium verfügbar"
+      "textNoMedia": "Kein Medium verfügbar",
+      "warningUnsupportedFormat": "Format \"{format}\" wird möglicherweise nicht in allen Browsern unterstützt."
     },
     "sw-media-upload": {
       "buttonFileUpload": "Dateien hochladen",
@@ -446,6 +450,10 @@
       "buttonSwitchToFileUpload": "Datei von Deinem Computer hochladen",
       "buttonSwitchToUrlUpload": "Datei von URL hochladen",
       "buttonOpenMedia": "Medien öffnen",
+      "snackbar": {
+        "message": "Datei wird hochgeladen | Dateien werden hochgeladen",
+        "errorMessage": "Die Datei konnte nicht hochgeladen werden. | Manche Dateien konnten nicht hochgeladen werden."
+      },
       "notification": {
         "success": {
           "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
@@ -462,6 +470,12 @@
         "illegalFileUrl": {
           "title": "Ungültige URL",
           "message": "Hochladen über lokale URLs nicht erlaubt."
+        },
+        "illegalFileType": {
+          "message": "Die Datei \"{name}\" konnte nicht hochgeladen werden. Der Dateityp wird nicht unterstützt."
+        },
+        "requestCanceled": {
+          "message": "Das Hochladen wurde abgebrochen."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"

@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # 4
 
       - name: Install ludtwig
         env:
@@ -106,8 +106,8 @@ jobs:
       WHITELISTED_JS_PACKAGES: "abab@2.0.1;administration;taffydb@2.6.2"
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # 4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # 4
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # 4
         with:
           node-version: 22
       - name: Cache npm packages

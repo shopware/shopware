@@ -38,7 +38,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginLifecycleServiceMigrationTest extends TestCase
 {
     use KernelTestBehaviour;

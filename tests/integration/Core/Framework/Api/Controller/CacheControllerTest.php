@@ -17,7 +17,6 @@ use Symfony\Component\Messenger\TraceableMessageBus;
  * @internal
  */
 #[Package('framework')]
-#[Group('skip-paratest')]
 class CacheControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

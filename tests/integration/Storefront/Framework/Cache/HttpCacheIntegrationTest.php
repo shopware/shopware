@@ -25,7 +25,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 #[Group('cache')]
 class HttpCacheIntegrationTest extends TestCase
 {

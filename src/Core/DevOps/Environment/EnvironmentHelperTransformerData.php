@@ -13,9 +13,13 @@ class EnvironmentHelperTransformerData
      */
     public function __construct(
         private readonly string $key,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
+        /**
+         * @deprecated tag:v6.7.0 - Will be natively typed
+         */
         private $value,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
+        /**
+         * @deprecated tag:v6.7.0 - Will be natively typed
+         */
         private $default
     ) {
     }

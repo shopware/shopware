@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Consent\Service\ConsentService;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 #[Package('data-services')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
-class ConsentController extends AbstractController
+class ConsentController
 {
     public function __construct(
         private readonly ConsentService $consentService,

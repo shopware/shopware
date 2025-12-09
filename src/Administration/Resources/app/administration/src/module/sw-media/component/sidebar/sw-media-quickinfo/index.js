@@ -127,7 +127,7 @@ export default {
 
         editorTooltip() {
             return {
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('media.editor'),
                 showOnDisabledElements: true,
             };
@@ -135,7 +135,7 @@ export default {
 
         deleterTooltip() {
             return {
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('media.deleter'),
                 showOnDisabledElements: true,
             };
@@ -179,7 +179,7 @@ export default {
                             return {
                                 id: option.id,
                                 value: option.id,
-                                label: this.$tc(`sw-media.sidebar.actions.${option.id}`),
+                                label: this.$t(`sw-media.sidebar.actions.${option.id}`),
                             };
                         });
                     });
@@ -202,7 +202,7 @@ export default {
                 settingsLink: routeData.href,
             };
 
-            return this.$tc(snippet, 0, data);
+            return this.$t(snippet, data);
         },
 
         loadCustomFieldSets() {
@@ -250,12 +250,12 @@ export default {
                 try {
                     await dom.copyStringToClipboard(this.item.url);
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-media.general.notification.urlCopied.message'),
+                        message: this.$t('sw-media.general.notification.urlCopied.message'),
                     });
                 } catch (err) {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
-                        message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                        title: this.$t('global.default.error'),
+                        message: this.$t('global.sw-field.notification.notificationCopyFailureMessage'),
                     });
                 }
             }
@@ -298,7 +298,7 @@ export default {
                 item.fileName = value;
 
                 this.createNotificationSuccess({
-                    message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message'),
+                    message: this.$t('global.sw-media-media-item.notification.renamingSuccess.message'),
                 });
                 this.$emit('media-item-rename-success', item);
             } catch (exception) {
@@ -316,18 +316,17 @@ export default {
             switch (error.code) {
                 case 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG':
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'global.sw-media-media-item.notification.fileNameTooLong.message',
                             {
                                 length: error.meta.parameters.maxLength,
                             },
-                            0,
                         ),
                     });
                     break;
                 default:
                     this.createNotificationError({
-                        message: this.$tc('global.sw-media-media-item.notification.renamingError.message'),
+                        message: this.$t('global.sw-media-media-item.notification.renamingError.message'),
                     });
             }
         },

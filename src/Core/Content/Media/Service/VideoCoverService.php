@@ -71,6 +71,8 @@ class VideoCoverService
             throw MediaException::mediaNotFound($id);
         }
 
+        \assert($media instanceof MediaEntity);
+
         return $media;
     }
 

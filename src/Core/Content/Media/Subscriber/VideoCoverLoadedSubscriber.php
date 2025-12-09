@@ -60,6 +60,8 @@ class VideoCoverLoadedSubscriber implements EventSubscriberInterface
 
         $covers = $this->mediaRepository->search($criteria, $event->getContext())->getEntities();
 
+        \assert($covers instanceof MediaCollection);
+
         foreach ($event->getEntities() as $media) {
             $coverMediaId = $this->getCoverMediaId($media);
 

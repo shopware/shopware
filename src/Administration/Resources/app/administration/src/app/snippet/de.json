@@ -324,7 +324,7 @@
           "message": "Einstellungen erfolgreich gespeichert."
         },
         "coverSaveSuccess": {
-          "message": "Cover-Bild wurde gespeichert."
+          "message": "Cover-Bild erfolgreich gespeichert."
         },
         "coverRemoveSuccess": {
           "message": "Cover-Bild wurde entfernt."

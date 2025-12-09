@@ -24,7 +24,7 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 </details>
 
 # API
-### Returned status code for `/store-api/document/download/` when no documents are found changed
+## Changed returned status code for `/store-api/document/download/` when no documents are found
 The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
 # Core
@@ -646,7 +646,10 @@ to:
 {% endblock %}
 ```
 
-## Document download returns 404/406 instead of 204
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}` has been updated. Instead of returning `204`, the route now returns `404` (Not Found) when no generated document exists.
+
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}`
 The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}` has been updated. Instead of returning `204`, the route now returns:
 - `406` (Not Acceptable) for invalid/unsupported `fileType` values
 - `404` (Not Found) when no generated document exists for the requested `fileType`.

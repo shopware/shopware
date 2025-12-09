@@ -158,7 +158,12 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.productStream = { id: 'stream-1' };
+        wrapper.vm.productStream = {
+            id: 'stream-1',
+            filters: {
+                entity: 'product_stream',
+            },
+        };
         wrapper.vm.productStreamFiltersTree = [
             {
                 field: 'states',
@@ -174,7 +179,12 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.productStream = { id: 'stream-1' };
+        wrapper.vm.productStream = {
+            id: 'stream-1',
+            filters: {
+                entity: 'product_stream',
+            },
+        };
         wrapper.vm.productStreamFilters = [
             {
                 field: 'stock',

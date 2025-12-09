@@ -709,10 +709,12 @@ class OrderConverterTest extends TestCase
         $cart->add(
             (new LineItem('line-item-id-1', LineItem::PRODUCT_LINE_ITEM_TYPE))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL)
                 ->setLabel('line-item-label-1')
         )->add(
             (new LineItem('line-item-id-2', LineItem::PRODUCT_LINE_ITEM_TYPE))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL)
                 ->setLabel('line-item-label-2')
         );
 

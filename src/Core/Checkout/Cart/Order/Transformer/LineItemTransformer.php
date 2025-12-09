@@ -234,6 +234,8 @@ class LineItemTransformer
             $product->getPurchaseSteps() ?? 1
         );
 
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, $product->getType());
+
         $lineItem->setQuantityInformation($quantityInformation);
 
         $isPhysicalLineItem = $lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL);

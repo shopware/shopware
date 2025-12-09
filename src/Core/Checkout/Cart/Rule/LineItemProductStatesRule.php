@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraint;
 
 /**
  * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
+ *
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class LineItemProductStatesRule extends Rule

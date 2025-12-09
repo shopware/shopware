@@ -528,6 +528,8 @@ class LineItem extends Struct
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use getProductType() instead
      *
+     * @codeCoverageIgnore
+     *
      * @return array<int, string>
      */
     public function getStates(): array
@@ -542,6 +544,8 @@ class LineItem extends Struct
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use setPayloadValue('productType', $type) instead
+     *
+     * @codeCoverageIgnore
      *
      * @param array<int, string> $states
      */
@@ -559,6 +563,8 @@ class LineItem extends Struct
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use isProductType() instead
+     *
+     * @codeCoverageIgnore
      */
     public function hasState(string $state): bool
     {

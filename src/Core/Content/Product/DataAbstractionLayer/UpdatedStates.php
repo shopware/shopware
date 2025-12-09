@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final class UpdatedStates extends Struct

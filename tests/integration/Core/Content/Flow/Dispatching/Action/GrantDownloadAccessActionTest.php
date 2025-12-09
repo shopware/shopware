@@ -327,7 +327,7 @@ class GrantDownloadAccessActionTest extends TestCase
         static::assertTrue($lineItems->hasLineItemWithType(ProductDefinition::TYPE_PHYSICAL));
 
         if (!Feature::isActive('v6.8.0.0')) {
-            static::assertTrue($order->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL));
+            static::assertTrue($lineItems->hasLineItemWithState(State::IS_PHYSICAL));
         }
 
         foreach ($productDownloads as $key => $downloadFiles) {

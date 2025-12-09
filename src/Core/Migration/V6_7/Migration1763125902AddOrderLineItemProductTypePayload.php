@@ -20,19 +20,19 @@ class Migration1763125902AddOrderLineItemProductTypePayload extends MigrationSte
     public function update(Connection $connection): void
     {
         $connection->executeStatement(<<<'SQL'
-            UPDATE `quote_line_item`
+            UPDATE `order_line_item` oli
+                INNER JOIN `order_line_item_download` olid
+                    ON olid.order_line_item_id = oli.id AND olid.order_line_item_version_id = oli.version_id
              SET payload = JSON_SET(
                 payload,
                 '$.productType',
                 'digital'
              )
-             WHERE (type = 'product' OR type = 'custom')
-               AND states IS NOT NULL
-               AND JSON_CONTAINS(states, '"digital"')
+             WHERE oli.type = 'product' OR oli.type = 'custom'
             SQL);
 
         $connection->executeStatement(<<<'SQL'
-            UPDATE `quote_line_item`
+            UPDATE `order_line_item`
              SET payload = JSON_SET(
                 payload,
                 '$.productType',

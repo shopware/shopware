@@ -631,6 +631,18 @@ class CartLineItemControllerTest extends TestCase
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
     }
 
+    public function testDeleteCart(): void
+    {
+        $request = new Request([], ['all' => true]);
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->cartService->expects($this->once())
+            ->method('deleteCart')
+            ->with($context);
+
+        $this->controller->deleteCart($request, $context);
+    }
+
     public function testUpdateLineItems(): void
     {
         $id1 = Uuid::randomHex();

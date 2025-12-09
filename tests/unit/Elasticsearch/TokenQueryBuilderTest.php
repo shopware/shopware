@@ -32,7 +32,6 @@ use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
-use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
@@ -54,13 +53,6 @@ class TokenQueryBuilderTest extends TestCase
     {
         $storage = new ArrayKeyValueStorage([ElasticsearchOptimizeSwitch::FLAG => true]);
 
-        $indexingUtils = $this->createMock(ElasticsearchIndexingUtils::class);
-        $indexingUtils->method('getCustomFieldTypes')->willReturn([
-            'evolvesInt' => 'int',
-            'evolvesFloat' => 'float',
-            'evolvesText' => 'text',
-        ]);
-
         $this->tokenQueryBuilder = new TokenQueryBuilder(
             $this->getRegistry(),
             new CustomFieldServiceMock([
@@ -68,8 +60,7 @@ class TokenQueryBuilderTest extends TestCase
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
             ]),
-            $storage,
-            $indexingUtils
+            $storage
         );
     }
 
@@ -519,75 +510,6 @@ class TokenQueryBuilderTest extends TestCase
 
         static::expectException(DecorationPatternException::class);
         $builder->getDecorated();
-    }
-
-    public function testBuildExcludesNonSearchableCustomFields(): void
-    {
-        $storage = new ArrayKeyValueStorage([ElasticsearchOptimizeSwitch::FLAG => true]);
-
-        $indexingUtils = $this->createMock(ElasticsearchIndexingUtils::class);
-        $indexingUtils->method('getCustomFieldTypes')->willReturn([
-            'searchableField' => 'text',
-        ]);
-
-        $tokenQueryBuilder = new TokenQueryBuilder(
-            $this->getRegistry(),
-            new CustomFieldServiceMock([
-                'searchableField' => new StringField('searchableField', 'searchableField'),
-                'nonSearchableField' => new StringField('nonSearchableField', 'nonSearchableField'),
-            ]),
-            $storage,
-            $indexingUtils
-        );
-
-        $context = Context::createDefaultContext();
-        $context->assign([
-            'languageIdChain' => [Defaults::LANGUAGE_SYSTEM],
-        ]);
-
-        $prefix = 'customFields.' . Defaults::LANGUAGE_SYSTEM . '.';
-
-        $config = [
-            self::config(field: 'customFields.searchableField', ranking: 500),
-            self::config(field: 'customFields.nonSearchableField', ranking: 500),
-        ];
-
-        $query = $tokenQueryBuilder->build('product', 'test', $config, $context);
-
-        static::assertNotNull($query);
-
-        $expected = self::disMax([
-            self::term($prefix . 'searchableField', 'test', 1),
-            self::match($prefix . 'searchableField.search', 'test', 0.8, 'AUTO:3,8', 'and', 10),
-            self::prefix($prefix . 'searchableField', 'test', 0.4),
-        ], 500);
-
-        static::assertSame($expected, $query->toArray());
-    }
-
-    public function testBuildWithOnlyNonSearchableCustomFieldsReturnsNull(): void
-    {
-        $storage = new ArrayKeyValueStorage([ElasticsearchOptimizeSwitch::FLAG => true]);
-
-        $indexingUtils = $this->createMock(ElasticsearchIndexingUtils::class);
-        $indexingUtils->method('getCustomFieldTypes')->willReturn([]);
-
-        $tokenQueryBuilder = new TokenQueryBuilder(
-            $this->getRegistry(),
-            new CustomFieldServiceMock([
-                'nonSearchableField' => new StringField('nonSearchableField', 'nonSearchableField'),
-            ]),
-            $storage,
-            $indexingUtils
-        );
-
-        $config = [
-            self::config(field: 'customFields.nonSearchableField', ranking: 500),
-        ];
-
-        $query = $tokenQueryBuilder->build('product', 'test', $config, Context::createDefaultContext());
-
-        static::assertNull($query, 'Query should be null when only non-searchable custom fields are provided');
     }
 
     private function getDefinition(): EntityDefinition

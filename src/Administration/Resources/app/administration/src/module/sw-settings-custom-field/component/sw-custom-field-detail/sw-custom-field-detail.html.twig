@@ -82,6 +82,7 @@
 
         {% block sw_custom_field_detail_modal_allow_searchable %}
         <mt-switch
+            v-if="isProductCustomField"
             v-model="currentCustomField.searchable"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowSearchable')"
@@ -93,7 +94,7 @@
 
         {% block sw_custom_field_detail_modal_searchable_banner %}
         <mt-banner
-            v-if="showSearchableChangeBanner && isProductCustomField"
+            v-if="!currentCustomField._isNew && isProductCustomField"
             class="sw-custom-field-detail__searchable-banner"
         >
             {{ $tc('sw-settings-custom-field.customField.detail.bannerSearchableEnabled', 0) }}

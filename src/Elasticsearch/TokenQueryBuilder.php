@@ -26,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
-use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
@@ -69,15 +68,7 @@ class TokenQueryBuilder
             $real = $field instanceof TranslatedField ? EntityDefinitionQueryHelper::getTranslatedField($fieldDefinition, $field) : $field;
 
             if (str_contains($config->getField(), 'customFields')) {
-                $customFieldName = str_replace('customFields.', '', $config->getField());
-
-                // Only include searchable custom fields in search queries
-                $customFieldTypes = $this->indexingUtils->getCustomFieldTypes($entity, $context);
-                if (!isset($customFieldTypes[$customFieldName])) {
-                    continue;
-                }
-
-                $real = $this->customFieldService->getCustomField($customFieldName);
+                $real = $this->customFieldService->getCustomField(str_replace('customFields.', '', $config->getField()));
             }
 
             if (!$real) {

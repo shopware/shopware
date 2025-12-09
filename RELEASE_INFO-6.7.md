@@ -15,11 +15,9 @@ database field already supported up to 2046 characters. This limitation has now 
 - Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
 ### Configurable Custom Field Searchability
 
-Custom fields are now **not searchable by default**. To make a custom field searchable, you need to enable the "Searchable" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields.
+Custom fields are now **not searchable by default**. To make a custom field searchable, you need to enable the "Searchable" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields. This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
 
-This change helps optimize index storage size and improve search performance, especially for stores with many custom fields. Only custom fields explicitly marked as searchable are indexed in Elasticsearch and available in search configurations.
-
-**Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results. A banner notification will remind you of this requirement.
+**Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
 
 ### Send email on customer password change
 A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.

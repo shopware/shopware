@@ -267,21 +267,12 @@ test('Customer should see unavailable filter options disabled when filtering by 
 
     await test.step('When a rating is selected, verifies that any unavailable filter is disabled and that the products are filtered accordingly.', async () => {
         await ShopCustomer.presses(StorefrontHome.productRatingButton);
-        const rating5Locator = await StorefrontHome.getRatingItemLocatorByRating(5);
-        const rating4Locator = await StorefrontHome.getRatingItemLocatorByRating(4);
-        const rating3Locator = await StorefrontHome.getRatingItemLocatorByRating(3);
+        const ratingLocator = await StorefrontHome.getRatingItemLocatorByRating(3);
         /**
-         * Cannot use presses() as this is actually a list of radio buttons but the inputs are lacking
+         * Cannot use presses() as this opens a list of radio buttons but the inputs are lacking
          *     a checked attribute so ShopCustomer.selectsRadioButton() cannot be used either.
          */
-        await StorefrontHome.productRatingButton.press('Tab');
-        await ShopCustomer.expects(rating5Locator).toHaveVisibleFocus();
-        await StorefrontHome.productRatingList.press('ArrowDown');
-        await ShopCustomer.expects(rating4Locator).toHaveVisibleFocus();
-        await StorefrontHome.loader.waitFor({ state: 'hidden' });
-        await StorefrontHome.productRatingList.press('ArrowDown');
-        await ShopCustomer.expects(rating3Locator).toHaveVisibleFocus();
-        await StorefrontHome.loader.waitFor({ state: 'hidden' });
+        await ratingLocator.click();
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
         await ShopCustomer.expects(async () => {

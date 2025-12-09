@@ -69,8 +69,8 @@ class ProductIndexer extends EntityIndexer
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CheapestPriceUpdater $cheapestPriceUpdater,
         private readonly AbstractProductStreamUpdater $streamUpdater,
-        private readonly StatesUpdater $statesUpdater,
-        private readonly MessageBusInterface $messageBus
+        private readonly MessageBusInterface $messageBus,
+        private readonly ?StatesUpdater $statesUpdater
     ) {
     }
 
@@ -219,7 +219,7 @@ class ProductIndexer extends EntityIndexer
 
         if (!Feature::isActive('v6.8.0.0') && $message->allow(self::STATES_UPDATER)) {
             Profiler::trace('product:indexer:states', function () use ($ids, $context): void {
-                $this->statesUpdater->update($ids, $context);
+                $this->statesUpdater?->update($ids, $context);
             });
         }
 

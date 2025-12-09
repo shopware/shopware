@@ -400,8 +400,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater"/>
             <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater" on-invalid="null"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 

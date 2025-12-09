@@ -3,7 +3,6 @@
 return [
     'filePatterns' => [
         '**/Test/**', // Testing
-        '**/src/WebInstaller/**', // WebInstaller TODO: remove after first 6.7 release
         '**/src/Core/Framework/Update/**', // Updater
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency
@@ -19,6 +18,10 @@ return [
 
         // Will be typed in Symfony 8 (maybe)
         preg_quote('Symfony\Component\Console\Command\Command#configure() changed from no type to void', '/'),
+
+        // False positive, when an object extends Symfony Command and has its own constructor
+        '.* was added to Method __construct\(\) of class Symfony\\\\Component\\\\Console\\\\Command\\\\Command',
+        preg_quote('Symfony\Component\Console\Command\Command#__construct()', '/'),
 
         // Version-related const values changed for the 7.3 update
         preg_quote('Value of constant Symfony\Component\HttpKernel\Kernel', '/'),

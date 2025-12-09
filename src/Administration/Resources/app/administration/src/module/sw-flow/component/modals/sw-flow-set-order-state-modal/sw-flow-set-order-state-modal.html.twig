@@ -8,10 +8,10 @@
     <mt-banner
         v-if="!config?.force_transition"
         class="sw-flow-set-order-state-modal__warning-banner"
-        :title="$tc('sw-flow.modals.status.transitionWarning.title')"
+        :title="$t('global.default.warning')"
         variant="attention"
     >
-        {{ $tc('sw-flow.modals.status.transitionWarning.message') }}
+        {{ $t('sw-flow.modals.status.transitionWarning.message') }}
     </mt-banner>
 
     {% block sw_flow_set_order_state_modal_content %}

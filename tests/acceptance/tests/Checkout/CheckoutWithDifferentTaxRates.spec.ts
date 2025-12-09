@@ -9,12 +9,12 @@ test(
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
-        SelectStandardShippingOption,
+        SelectShippingMethod,
         Login,
         AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
-        SelectInvoicePaymentOption,
+        SelectPaymentMethod,
         SubmitOrder,
         StorefrontAccountOrder,
     }) => {
@@ -32,8 +32,8 @@ test(
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
             await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-            await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-            await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+            await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+            await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
             await ShopCustomer.attemptsTo(SubmitOrder());
             const orderId = StorefrontCheckoutFinish.getOrderId();
@@ -46,7 +46,7 @@ test(
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
-            await orderLocators.orderDetailButton.click();
+            await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice).toContainText(formatPrice(3.19));
         });
     }
@@ -61,12 +61,12 @@ test(
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
-        SelectStandardShippingOption,
+        SelectShippingMethod,
         Login,
         AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
-        SelectInvoicePaymentOption,
+        SelectPaymentMethod,
         SubmitOrder,
         StorefrontAccountOrder,
     }) => {
@@ -87,8 +87,8 @@ test(
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
             await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-            await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-            await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+            await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+            await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
             await ShopCustomer.attemptsTo(SubmitOrder());
             const orderId = StorefrontCheckoutFinish.getOrderId();
@@ -101,7 +101,7 @@ test(
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
-            await orderLocators.orderDetailButton.click();
+            await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice).toContainText(formatPrice(1.3));
         });
     }
@@ -116,12 +116,12 @@ test(
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
-        SelectStandardShippingOption,
+        SelectShippingMethod,
         Login,
         AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
-        SelectInvoicePaymentOption,
+        SelectPaymentMethod,
         SubmitOrder,
         StorefrontAccountOrder,
     }) => {
@@ -144,8 +144,8 @@ test(
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
             await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-            await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-            await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+            await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+            await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
             await ShopCustomer.attemptsTo(SubmitOrder());
             const orderId = StorefrontCheckoutFinish.getOrderId();
@@ -159,7 +159,7 @@ test(
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
-            await orderLocators.orderDetailButton.click();
+            await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice.nth(0)).toContainText(formatPrice(3.19));
             await ShopCustomer.expects(orderLocators.taxPrice.nth(1)).toContainText(formatPrice(1.31));
         });
@@ -175,12 +175,12 @@ test(
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
-        SelectStandardShippingOption,
+        SelectShippingMethod,
         Login,
         AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
-        SelectInvoicePaymentOption,
+        SelectPaymentMethod,
         SubmitOrder,
         StorefrontAccountOrder,
     }) => {
@@ -198,8 +198,8 @@ test(
 
         await test.step('Submit the order, navigate to checkout finish page and validate the tax price.', async () => {
             await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-            await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-            await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+            await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+            await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
             await ShopCustomer.attemptsTo(SubmitOrder());
             const orderId = StorefrontCheckoutFinish.getOrderId();
@@ -212,7 +212,7 @@ test(
         await test.step('Navigate to customers account order page and validate the orders tax price.', async () => {
             await ShopCustomer.goesTo(StorefrontAccountOrder.url());
             const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(orderNumber);
-            await orderLocators.orderDetailButton.click();
+            await ShopCustomer.presses(orderLocators.orderDetailButton);
             await ShopCustomer.expects(orderLocators.taxPrice).toContainText(formatPrice(0.0));
         });
     }

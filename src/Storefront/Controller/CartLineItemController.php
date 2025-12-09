@@ -70,6 +70,14 @@ class CartLineItemController extends StorefrontController
         });
     }
 
+    #[Route(path: '/checkout/cart/delete', name: 'frontend.checkout.cart.delete', defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
+    public function deleteCart(Request $request, SalesChannelContext $context): Response
+    {
+        $this->cartService->deleteCart($context);
+
+        return $this->createActionResponse($request);
+    }
+
     /**
      * requires the provided items in the following form
      * 'ids' => [

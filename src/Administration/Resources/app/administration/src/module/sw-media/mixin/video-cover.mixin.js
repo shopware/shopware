@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-Shopware.Mixin.register('video-cover-mixin', {
+Shopware.Mixin.register('video-cover', {
     inject: [
         'mediaService',
         'acl',
@@ -42,7 +42,7 @@ Shopware.Mixin.register('video-cover-mixin', {
 
             if (!media || !this.isImage(media)) {
                 this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notification.coverSelectionInvalid.message'),
+                    message: this.$t('global.sw-media-media-item.notification.coverSelectionInvalid.message'),
                 });
 
                 return;
@@ -66,13 +66,13 @@ Shopware.Mixin.register('video-cover-mixin', {
                     : 'global.sw-media-media-item.notification.coverRemoveSuccess.message';
 
                 this.createNotificationSuccess({
-                    message: this.$tc(snippetKey),
+                    message: this.$t(snippetKey),
                 });
 
                 Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notification.coverSaveError.message'),
+                    message: this.$t('global.sw-media-media-item.notification.coverSaveError.message'),
                 });
             } finally {
                 this.item.isLoading = false;

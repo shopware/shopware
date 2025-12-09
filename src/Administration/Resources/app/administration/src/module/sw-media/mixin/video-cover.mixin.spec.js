@@ -30,7 +30,7 @@ async function createWrapper(item = {}, mediaServiceFunctions = {}, aclFunctions
         `,
             mixins: [
                 Shopware.Mixin.getByName('notification'),
-                Shopware.Mixin.getByName('video-cover-mixin'),
+                Shopware.Mixin.getByName('video-cover'),
             ],
             data() {
                 return {
@@ -77,7 +77,7 @@ describe('src/module/sw-media/mixin/video-cover.mixin.js', () => {
     });
 
     it('should register the mixin', () => {
-        expect(Shopware.Mixin.getByName('video-cover-mixin')).toBeDefined();
+        expect(Shopware.Mixin.getByName('video-cover')).toBeDefined();
     });
 
     it('should have showCoverSelectionModal in data', async () => {

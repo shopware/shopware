@@ -199,7 +199,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.quickaction--delete');
         expect(deleteMenuItem.classes()).toContain('sw-media-sidebar__quickaction--disabled');
@@ -209,7 +209,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = ['media.deleter'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.quickaction--delete');
         expect(deleteMenuItem.classes()).not.toContain('sw-media-sidebar__quickaction--disabled');
@@ -217,7 +217,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.quickaction--move');
         expect(editMenuItem.classes()).toContain('sw-media-sidebar__quickaction--disabled');
@@ -227,7 +227,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = ['media.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.quickaction--move');
         expect(editMenuItem.classes()).not.toContain('sw-media-sidebar__quickaction--disabled');
@@ -261,7 +261,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
                     }),
             },
         );
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.vm.onChangeFileName('newFileName');
 
@@ -275,7 +275,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = ['media.editor'];
 
         const wrapper = await createWrapper(mockOptions);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle').exists()).toBe(isSpatial);
     });
@@ -290,7 +290,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             };
 
             const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const arToggle = wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
             expect(arToggle.exists()).toBe(isSpatial);
@@ -337,7 +337,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             };
 
             const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const arToggle = wrapper.findComponent('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
             expect(arToggle.exists()).toBe(isSpatial);
@@ -403,7 +403,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             };
 
             const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const arToggle = wrapper.findComponent('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
             expect(arToggle.exists()).toBe(true);
@@ -425,7 +425,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             mimeType: 'video/mp4',
             mediaType: { name: 'VIDEO' },
         });
-        await playableWrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(playableWrapper.find('.quickaction--set-cover').exists()).toBe(true);
 
@@ -433,14 +433,14 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             mimeType: 'video/x-msvideo',
             mediaType: { name: 'VIDEO' },
         });
-        await unsupportedWrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(unsupportedWrapper.find('.quickaction--set-cover').exists()).toBe(false);
     });
 
     it('should build augmented reality tooltip', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const tooltip = wrapper.vm.buildAugmentedRealityTooltip('global.sw-media-media-item.tooltip.ar');
         expect(tooltip).toBe('global.sw-media-media-item.tooltip.ar');
@@ -536,7 +536,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         'should show warning banner if video format is not supported (type: $mimeType, shouldShowWarning: $shouldShowWarning)',
         async ({ mimeType, shouldShowWarning }) => {
             const wrapper = await createWrapper({ mimeType, hasFile: true });
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const banner = wrapper.find('.sw-media-quickinfo__unsupported-format-banner');
             expect(banner.exists()).toBe(shouldShowWarning);

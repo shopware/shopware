@@ -54,7 +54,7 @@ export default {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('video-cover-mixin'),
+        Mixin.getByName('video-cover'),
     ],
 
     data() {

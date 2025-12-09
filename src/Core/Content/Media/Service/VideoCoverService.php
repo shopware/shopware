@@ -65,7 +65,6 @@ class VideoCoverService
     {
         $criteria = new Criteria([$id]);
 
-        /** @var MediaEntity|null $media */
         $media = $this->mediaRepository->search($criteria, $context)->get($id);
 
         if ($media === null) {

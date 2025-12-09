@@ -324,10 +324,10 @@
           "message": "Settings have been saved."
         },
         "coverSaveSuccess": {
-          "message": "Cover image saved."
+          "message": "Cover image has been saved."
         },
         "coverRemoveSuccess": {
-          "message": "Cover image removed."
+          "message": "Cover image has been removed."
         },
         "coverSelectionInvalid": {
           "message": "Please select an image to use as the cover."

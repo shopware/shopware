@@ -33,9 +33,7 @@ class VideoCoverCleanupSubscriberTest extends TestCase
     {
         $this->context = Context::createDefaultContext();
         $this->setFixtureContext($this->context);
-        /** @var EntityRepository<MediaCollection> $mediaRepository */
-        $mediaRepository = static::getContainer()->get('media.repository');
-        $this->mediaRepository = $mediaRepository;
+        $this->mediaRepository = static::getContainer()->get('media.repository');
     }
 
     public function testCoverReferenceIsRemovedWhenImageGetsDeleted(): void
@@ -88,8 +86,8 @@ class VideoCoverCleanupSubscriberTest extends TestCase
         $cover = $this->getPng();
         $video = $this->createVideoMedia();
 
-        /** @var VideoCoverService $service */
         $service = static::getContainer()->get(VideoCoverService::class);
+        static::assertInstanceOf(VideoCoverService::class, $service);
         $service->assignCoverToVideo($video->getId(), $cover->getId(), $this->context);
 
         $reloaded = $this->getMediaEntity($video->getId());
@@ -102,8 +100,8 @@ class VideoCoverCleanupSubscriberTest extends TestCase
         $cover = $this->getPng();
         $video = $this->createVideoMediaWithCover($cover->getId());
 
-        /** @var VideoCoverService $service */
         $service = static::getContainer()->get(VideoCoverService::class);
+        static::assertInstanceOf(VideoCoverService::class, $service);
         $service->assignCoverToVideo($video->getId(), null, $this->context);
 
         $reloaded = $this->getMediaEntity($video->getId());
@@ -151,14 +149,12 @@ class VideoCoverCleanupSubscriberTest extends TestCase
 
     private function getMediaEntity(string $id): MediaEntity
     {
-        /** @var MediaEntity|null $entity */
         $entity = $this->mediaRepository
             ->search(new Criteria([$id]), $this->context)
             ->first();
 
-        if ($entity === null) {
-            throw new \RuntimeException(\sprintf('Media entity "%s" not found', $id));
-        }
+        static::assertNotNull($entity, \sprintf('Media entity "%s" not found', $id));
+        static::assertInstanceOf(MediaEntity::class, $entity);
 
         return $entity;
     }

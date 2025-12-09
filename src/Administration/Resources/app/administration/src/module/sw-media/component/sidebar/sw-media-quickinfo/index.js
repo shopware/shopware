@@ -30,7 +30,7 @@ export default {
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('media-sidebar-modal-mixin'),
-        Mixin.getByName('video-cover-mixin'),
+        Mixin.getByName('video-cover'),
         Mixin.getByName('placeholder'),
     ],
 
@@ -123,6 +123,22 @@ export default {
 
         canManageVideoCover() {
             return this.isVideoMedia && this.isPlayable;
+        },
+
+        editorTooltip() {
+            return {
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('media.editor'),
+                showOnDisabledElements: true,
+            };
+        },
+
+        deleterTooltip() {
+            return {
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('media.deleter'),
+                showOnDisabledElements: true,
+            };
         },
     },
 

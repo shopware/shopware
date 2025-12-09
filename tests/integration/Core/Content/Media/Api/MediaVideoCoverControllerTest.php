@@ -38,9 +38,7 @@ class MediaVideoCoverControllerTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->setFixtureContext($this->context);
 
-        /** @var EntityRepository<MediaCollection> $mediaRepository */
-        $mediaRepository = static::getContainer()->get('media.repository');
-        $this->mediaRepository = $mediaRepository;
+        $this->mediaRepository = static::getContainer()->get('media.repository');
     }
 
     public function testAssignVideoCoverUpdatesMetaData(): void
@@ -96,12 +94,10 @@ class MediaVideoCoverControllerTest extends TestCase
 
     private function getMediaEntity(string $id): MediaEntity
     {
-        /** @var MediaEntity|null $entity */
         $entity = $this->mediaRepository->search(new Criteria([$id]), $this->context)->first();
 
-        if ($entity === null) {
-            throw new \RuntimeException(\sprintf('Media entity "%s" not found', $id));
-        }
+        static::assertNotNull($entity, \sprintf('Media entity "%s" not found', $id));
+        static::assertInstanceOf(MediaEntity::class, $entity);
 
         return $entity;
     }

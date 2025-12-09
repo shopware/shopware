@@ -82,7 +82,6 @@ class StatesUpdaterTest extends TestCase
         $products = [
             (new ProductBuilder($ids, 'product-1'))
                 ->price(1.0)
-                ->type(ProductDefinition::TYPE_DIGITAL)
                 ->add('downloads', [
                     [
                         'media' => [

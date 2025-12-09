@@ -81,11 +81,6 @@ class LineItemTransformer
             'payload' => $lineItem->getPayload(),
         ];
 
-        $productType = self::resolveProductType($lineItem);
-        if ($productType !== null) {
-            $data['payload']['productType'] = $productType;
-        }
-
         if (!Feature::isActive('v6.8.0.0')) {
             Feature::callSilentIfInactive('v6.8.0.0', function () use (&$data, $lineItem): void {
                 $data['states'] = $lineItem->getStates();
@@ -157,10 +152,6 @@ class LineItemTransformer
             $lineItem->setStates($entity->getStates());
         }
 
-        if ($entity->hasPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE)) {
-            $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, $entity->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE));
-        }
-
         if ($entity->getPayload() !== null) {
             $lineItem->setPayload($entity->getPayload());
         }
@@ -175,7 +166,6 @@ class LineItemTransformer
 
         if ($entity->getDownloads() !== null) {
             $lineItem->addExtension(OrderConverter::ORIGINAL_DOWNLOADS, $entity->getDownloads());
-            $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
         }
 
         if ($entity->getProduct() !== null) {
@@ -273,19 +263,5 @@ class LineItemTransformer
                 )
             );
         }
-    }
-
-    private static function resolveProductType(LineItem $lineItem): ?string
-    {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return null;
-        }
-
-        $downloads = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_DOWNLOADS, OrderLineItemDownloadCollection::class);
-        if ($downloads instanceof OrderLineItemDownloadCollection && $downloads->count() > 0) {
-            return ProductDefinition::TYPE_DIGITAL;
-        }
-
-        return ProductDefinition::TYPE_PHYSICAL;
     }
 }

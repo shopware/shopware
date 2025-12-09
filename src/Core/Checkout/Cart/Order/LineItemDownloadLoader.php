@@ -33,15 +33,15 @@ class LineItemDownloadLoader
     public function load(array $lineItems, Context $context): array
     {
         $lineItemKeys = [];
+
         foreach ($lineItems as $key => $lineItem) {
             $productId = $lineItem['referencedId'] ?? null;
             $states = $lineItem['states'] ?? null;
             $productType = $lineItem['payload']['productType'] ?? null;
+            $isLineItemDownloadable = $productType === ProductDefinition::TYPE_DIGITAL;
 
-            if (Feature::isActive('v6.8.0.0')) {
-                $isLineItemDownloadable = $productType === ProductDefinition::TYPE_DIGITAL;
-            } else {
-                $isLineItemDownloadable = (\is_array($states) && \in_array(State::IS_DOWNLOAD, $states, true)) || $productType === ProductDefinition::TYPE_DIGITAL;
+            if (!Feature::isActive('v6.8.0.0')) {
+                $isLineItemDownloadable = $isLineItemDownloadable || (\is_array($states) && \in_array(State::IS_DOWNLOAD, $states, true));
             }
 
             if (

@@ -1,5 +1,5 @@
 {% block component_delivery_information %}
-    {% set digitalType = constant('Shopware\\Core\\Content\\Product\\ProductEntity::TYPE_DIGITAL') %}
+    {% set digitalType = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
 
     {% set isDigitalProduct = product.type === digitalType %}
 

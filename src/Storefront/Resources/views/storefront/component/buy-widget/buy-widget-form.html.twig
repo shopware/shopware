@@ -8,7 +8,7 @@
         class="buy-widget"
         data-add-to-cart="true">
 
-        {% set DIGITAL_CONST = constant('Shopware\\Core\\Content\\Product\\ProductEntity::TYPE_DIGITAL') %}
+        {% set DIGITAL_CONST = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
         {% set showQuantitySelect = not product.type is defined or product.type != DIGITAL_CONST or (product.type == DIGITAL_CONST and product.maxPurchase !== 1) %}
 
         {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}

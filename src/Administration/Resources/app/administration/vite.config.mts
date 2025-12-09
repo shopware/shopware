@@ -36,6 +36,16 @@ if (fs.existsSync(flagsPath)) {
     featureFlags = JSON.parse(fs.readFileSync(flagsPath, 'utf-8'));
 }
 
+const loadingIndicatorPath = path.join(
+    process.env.PROJECT_ROOT,
+    'src/Administration/Resources/shared/page-loading-indicator',
+);
+const loadingIndicator = {
+    js: fs.readFileSync(path.join(loadingIndicatorPath, 'script.js')),
+    css: fs.readFileSync(path.join(loadingIndicatorPath, 'style.css')),
+    html: fs.readFileSync(path.join(loadingIndicatorPath, 'markup.html')),
+};
+
 // eslint-disable-next-line
 export default defineConfig(({ command }) => {
     const isProd = command === 'build';
@@ -126,6 +136,7 @@ export default defineConfig(({ command }) => {
                             data: {
                                 featureFlags: JSON.stringify(featureFlags),
                                 serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
+                                loadingIndicator,
                             },
                         },
                     }),

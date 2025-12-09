@@ -7,11 +7,19 @@
         window.__sw__ = {
             assetPath: '{{ asset('', 'asset') }}',
         };
+
+        {{ loadingIndicator.js | raw }}
     </script>
+
+    <style>
+        {{ loadingIndicator.css | raw }}
+    </style>
 {% endblock %}
 
 {% block administration_content %}
     <div id="app"></div>
+
+    {{ loadingIndicator.html | raw }}
 
     {% block administration_templates %}{% endblock %}
 

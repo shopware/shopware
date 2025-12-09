@@ -65,7 +65,6 @@ class VideoCoverCleanupSubscriber implements EventSubscriberInterface
 
         $updates = [];
 
-        /** @var MediaEntity $media */
         foreach ($mediaWithMetaData as $media) {
             $metaData = $media->getMetaData();
             if ($metaData === null) {

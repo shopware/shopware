@@ -254,7 +254,6 @@ export default {
                     });
                 } catch (err) {
                     this.createNotificationError({
-                        title: this.$t('global.default.error'),
                         message: this.$t('global.sw-field.notification.notificationCopyFailureMessage'),
                     });
                 }
@@ -316,12 +315,9 @@ export default {
             switch (error.code) {
                 case 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG':
                     this.createNotificationError({
-                        message: this.$t(
-                            'global.sw-media-media-item.notification.fileNameTooLong.message',
-                            {
-                                length: error.meta.parameters.maxLength,
-                            },
-                        ),
+                        message: this.$t('global.sw-media-media-item.notification.fileNameTooLong.message', {
+                            length: error.meta.parameters.maxLength,
+                        }),
                     });
                     break;
                 default:

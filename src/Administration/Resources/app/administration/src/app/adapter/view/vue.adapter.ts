@@ -90,7 +90,7 @@ export default class VueAdapter extends ViewAdapter {
                 const buffer = elapsedTime < DELAY ? 0 : Math.max(DELAY + MIN_VISIBLE_TIME - elapsedTime, 0);
 
                 setTimeout(() => {
-                    document.getElementById('page-loading-screen')?.classList.add('hidden');
+                    document.getElementById('page-loading-screen')?.remove();
                 }, buffer);
             },
         });

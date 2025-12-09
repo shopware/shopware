@@ -83,10 +83,10 @@ export default class VueAdapter extends ViewAdapter {
                 const DELAY = 2000; // matches animation-delay that is used in `src/Administration/Resources/app/administration/index.html`
                 const MIN_VISIBLE_TIME = 300;
                 // @ts-expect-error
-                const startTime = window._pageLoadTime_
+                const startTime = window._pageLoadTime_;
                 const elapsedTime = Date.now() - startTime;
                 const buffer = elapsedTime < DELAY ? 0 : Math.max(DELAY + MIN_VISIBLE_TIME - elapsedTime, 0); // prevent flickering, show loading indicator longer than necessary
-                
+
                 setTimeout(() => {
                     document.getElementById('page-loading-screen')?.classList.add('hidden');
                 }, buffer);
@@ -224,12 +224,8 @@ export default class VueAdapter extends ViewAdapter {
         this.initTitle(this.app);
         /* eslint-enable max-len */
 
-        // make sure loading indicator gets hidden after everything has loaded
-        ((this.app.config.mounted = () => {
-            document.getElementById('page-loading-screen')?.classList.add('hidden');
-        }),
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this.app.mount(renderElement));
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        this.app.mount(renderElement);
 
         if (process.env.NODE_ENV === 'development') {
             setupShopwareDevtools(this.root);

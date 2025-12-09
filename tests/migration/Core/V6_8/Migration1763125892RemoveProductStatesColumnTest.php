@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_8\Migration1763125892RemoveProductStatesColumn;
 
@@ -22,6 +23,17 @@ class Migration1763125892RemoveProductStatesColumnTest extends TestCase
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testRuleIndexerIsRegistered(): void
+    {
+        $migration = new Migration1763125892RemoveProductStatesColumn();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $indexers = (new IndexerQueuer($this->connection))->getIndexers();
+
+        static::assertArrayHasKey('rule.indexer', $indexers);
     }
 
     public function testUpdateDestructiveDropsStatesColumn(): void

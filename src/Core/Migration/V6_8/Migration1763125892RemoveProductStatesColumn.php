@@ -19,6 +19,7 @@ class Migration1763125892RemoveProductStatesColumn extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $this->registerIndexer($connection, 'rule.indexer');
     }
 
     public function updateDestructive(Connection $connection): void

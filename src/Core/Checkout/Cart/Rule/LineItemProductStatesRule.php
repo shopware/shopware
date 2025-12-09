@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
+ * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
  *
  * @codeCoverageIgnore
  */
@@ -27,13 +27,11 @@ class LineItemProductStatesRule extends Rule
 
     protected string $operator;
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
+     */
     public function match(RuleScope $scope): bool
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, 'match', 'v6.8.0.0', 'LineItemProductTypeRule::match')
-        );
-
         if ($scope instanceof LineItemScope) {
             return $this->lineItemMatches($scope->getLineItem());
         }
@@ -53,14 +51,11 @@ class LineItemProductStatesRule extends Rule
 
     /**
      * @return array<string, array<int, Constraint>>
+     *
+     * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
      */
     public function getConstraints(): array
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, 'getConstraints', 'v6.8.0.0', 'LineItemProductTypeRule::getConstraints')
-        );
-
         return [
             'operator' => RuleConstraints::stringOperators(false),
             'productState' => RuleConstraints::choice([
@@ -70,13 +65,11 @@ class LineItemProductStatesRule extends Rule
         ];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
+     */
     public function getConfig(): RuleConfig
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, 'getConfig', 'v6.8.0.0', 'LineItemProductTypeRule::getConfig')
-        );
-
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
             ->selectField('productState', [

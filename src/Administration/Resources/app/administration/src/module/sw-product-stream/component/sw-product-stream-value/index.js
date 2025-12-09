@@ -167,11 +167,11 @@ export default {
         productStateOptions() {
             return [
                 {
-                    label: this.$tc('sw-product-stream.filter.values.productStates.physical'),
+                    label: this.$t('sw-product-stream.filter.values.productStates.physical'),
                     value: 'is-physical',
                 },
                 {
-                    label: this.$tc('sw-product-stream.filter.values.productStates.digital'),
+                    label: this.$t('sw-product-stream.filter.values.productStates.digital'),
                     value: 'is-download',
                 },
             ];
@@ -187,7 +187,7 @@ export default {
 
             return types.map((type) => {
                 const snippetKey = `sw-product.type.${type}`;
-                const label = this.$te(snippetKey) ? this.$tc(snippetKey) : type;
+                const label = this.$te(snippetKey) ? this.$t(snippetKey) : type;
 
                 return {
                     label,

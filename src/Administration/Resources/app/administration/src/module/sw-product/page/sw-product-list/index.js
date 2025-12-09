@@ -319,7 +319,7 @@ export default {
             this.productTypeService.fetchProductTypes().then((types) => {
                 this.productTypeOptions = types.map((type) => {
                     return {
-                        label: this.$t(`sw-product.type.${type}`),
+                        label: this.$te(`sw-product.type.${type}`) ? this.$t(`sw-product.type.${type}`) : type,
                         value: type,
                     };
                 });

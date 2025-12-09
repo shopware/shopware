@@ -24,6 +24,7 @@ class Migration1764064757SetSearchableForExistingCustomFieldsInProductSearch ext
             SELECT DISTINCT custom_field_id
             FROM product_search_config_field
             WHERE custom_field_id IS NOT NULL
+                AND searchable = 1
         ')->fetchFirstColumn();
 
         if (\count($customFieldIds) === 0) {

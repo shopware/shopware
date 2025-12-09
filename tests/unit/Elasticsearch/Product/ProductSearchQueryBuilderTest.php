@@ -36,7 +36,6 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\ElasticsearchException;
-use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
@@ -57,13 +56,6 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $indexingUtils = $this->createMock(ElasticsearchIndexingUtils::class);
-        $indexingUtils->method('getCustomFieldTypes')->willReturn([
-            'evolvesInt' => 'int',
-            'evolvesFloat' => 'float',
-            'evolvesText' => 'text',
-        ]);
-
         $this->tokenQueryBuilder = new TokenQueryBuilder(
             $this->getRegistry(),
             new CustomFieldServiceStub([
@@ -74,7 +66,6 @@ class ProductSearchQueryBuilderTest extends TestCase
             new ArrayKeyValueStorage([
                 ElasticsearchOptimizeSwitch::FLAG => true,
             ]),
-            $indexingUtils,
         );
     }
 

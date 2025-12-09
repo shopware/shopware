@@ -56,7 +56,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
 
         if ($customFieldWrittenEvent !== null) {
             $this->customFieldsCreated($customFieldWrittenEvent);
-            $this->customFieldsUpdated($customFieldWrittenEvent);
+            $this->customFieldsUpdated($containerEvent, $customFieldWrittenEvent);
         }
     }
 
@@ -235,11 +235,27 @@ class CustomFieldUpdater implements EventSubscriberInterface
         $this->createFieldsInIndices($newCreatedFields);
     }
 
-    private function customFieldsUpdated(EntityWrittenEvent $customFieldWrittenEvent): void
-    {
-        $updatedFields = [];
+    private function customFieldsUpdated(
+        EntityWrittenContainerEvent $containerEvent,
+        EntityWrittenEvent $customFieldWrittenEvent
+    ): void {
+        $customFieldIds = $containerEvent->getPrimaryKeysWithPropertyChange(
+            CustomFieldDefinition::ENTITY_NAME,
+            ['searchable']
+        );
 
+        if (empty($customFieldIds)) {
+            return;
+        }
+
+        $updatedFieldIds = [];
         foreach ($customFieldWrittenEvent->getWriteResults() as $writeResult) {
+            $key = (string) $writeResult->getPrimaryKey();
+
+            if (!\in_array($key, $customFieldIds, true)) {
+                continue;
+            }
+
             $existence = $writeResult->getExistence();
             // Skip new fields (handled by customFieldsCreated)
             if (!$existence || !$existence->exists()) {
@@ -247,22 +263,18 @@ class CustomFieldUpdater implements EventSubscriberInterface
             }
 
             $payload = $writeResult->getPayload();
-
             if (!\array_key_exists('searchable', $payload) || !(bool) $payload['searchable']) {
                 continue;
             }
 
-            $key = $writeResult->getPrimaryKey();
-            \assert(\is_string($key));
-            $updatedFields[$key] = $writeResult;
+            $updatedFieldIds[$key] = true;
         }
 
-        if (\count($updatedFields) === 0) {
+        if (\count($updatedFieldIds) === 0) {
             return;
         }
 
-        $customFieldIds = array_keys($updatedFields);
-        $fieldSetIds = $this->customFieldSetGateway->fetchFieldSetIds($customFieldIds);
+        $fieldSetIds = $this->customFieldSetGateway->fetchFieldSetIds(array_keys($updatedFieldIds));
 
         if (\count($fieldSetIds) === 0) {
             return;
@@ -272,29 +284,18 @@ class CustomFieldUpdater implements EventSubscriberInterface
         $customFieldsBySet = $this->customFieldSetGateway->fetchCustomFieldsForSets($setIds);
         $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings($setIds);
 
-        // Build lookup map only for custom fields we're updating: customFieldId => customField
-        $customFieldIdsMap = array_flip($customFieldIds);
-        $customFieldLookup = [];
+        $fieldsToAdd = [];
         foreach ($customFieldsBySet as $setCustomFields) {
             foreach ($setCustomFields as $customField) {
-                if (isset($customFieldIdsMap[$customField['id']])) {
-                    $customFieldLookup[$customField['id']] = $customField;
+                $customFieldId = $customField['id'];
+
+                if (isset($updatedFieldIds[$customFieldId])) {
+                    $setId = $fieldSetIds[$customFieldId];
+                    if (\in_array('product', $fieldSetEntityMappings[$setId] ?? [], true)) {
+                        $fieldsToAdd[$customField['name']] = self::getTypeFromCustomFieldType($customField['type']);
+                    }
                 }
             }
-        }
-
-        if (\count($customFieldLookup) === 0) {
-            return;
-        }
-
-        $fieldsToAdd = [];
-        foreach ($customFieldLookup as $customFieldId => $customField) {
-            $setId = $fieldSetIds[$customFieldId];
-            if (!\in_array('product', $fieldSetEntityMappings[$setId] ?? [], true)) {
-                continue;
-            }
-
-            $fieldsToAdd[$customField['name']] = self::getTypeFromCustomFieldType($customField['type']);
         }
 
         $this->createFieldsInIndices($fieldsToAdd);

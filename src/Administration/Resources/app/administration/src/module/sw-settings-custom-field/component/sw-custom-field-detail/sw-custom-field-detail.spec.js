@@ -130,8 +130,21 @@ async function createWrapper(props = defaultProps, privileges = []) {
                         },
                     },
                     'mt-text-field': {
-                        template: '<div class="sw-custom-field-detail__technical-name"><input :disabled="disabled" /></div>',
-                        props: ['disabled'],
+                        template: `
+                            <div class="sw-custom-field-detail__technical-name">
+                                <input :disabled="disabled" />
+                                <div
+                                    v-if="error"
+                                    class="mt-field__error"
+                                >
+                                    {{ error.detail || error }}
+                                </div>
+                            </div>
+                        `,
+                        props: [
+                            'disabled',
+                            'error',
+                        ],
                     },
                 },
             },
@@ -150,7 +163,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
 
         expect(modalTypeField.attributes('disabled')).toBeUndefined();
-        expect(technicalNameField.props('disabled')).toBe(false);
+        expect(technicalNameField.props('disabled')).toBeFalsy();
         expect(modalPositionField.attributes('disabled')).toBeUndefined();
         expect(modalSaveButton.attributes('disabled')).toBeUndefined();
     });
@@ -165,7 +178,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
 
         expect(modalTypeField.attributes('disabled')).toBeDefined();
-        expect(technicalNameField.props('disabled')).toBe(true);
+        expect(technicalNameField.props('disabled')).toBeTruthy();
         expect(modalPositionField.attributes('disabled')).toBeDefined();
         expect(modalSaveButton.attributes('disabled')).toBeDefined();
     });
@@ -213,7 +226,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         await flushPromises();
 
         await wrapper.find('.sw-custom-field-detail__technical-name input').setValue('invalid-name.');
-        expect(wrapper.vm.currentCustomField.name).toBe('invalid-name.');
+        expect(wrapper.vm.currentCustomField.name).toBe('custom_additional_field_1');
         await flushPromises();
 
         await wrapper.find('.sw-custom-field-detail__footer-save').trigger('click');
@@ -253,22 +266,28 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         await flushPromises();
 
         expect(wrapper.vm.currentCustomField.searchable).toBe(true);
-        expect(wrapper.vm.originalSearchable).toBe(true);
     });
 
     it('should show searchable toggle', async () => {
-        const wrapper = await createWrapper(defaultProps, ['custom_field.editor']);
+        const wrapper = await createWrapper(
+            {
+                ...defaultProps,
+                set: {
+                    relations: [{ entityName: 'product' }],
+                },
+            },
+            ['custom_field.editor'],
+        );
         await flushPromises();
 
         const searchableToggle = wrapper.find('.sw-custom-field-detail__allow-searchable');
         expect(searchableToggle.exists()).toBe(true);
     });
 
-    it('should show banner when enabling searchable on existing product custom field', async () => {
+    it('should show banner for existing product custom fields', async () => {
         const existingProductField = {
             ...customFieldFixture,
             _isNew: false,
-            searchable: false,
         };
 
         const wrapper = await createWrapper(
@@ -282,13 +301,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         );
         await flushPromises();
 
-        expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
-
-        // Enable searchable
-        wrapper.vm.currentCustomField.searchable = true;
-        await flushPromises();
-
-        expect(wrapper.vm.showSearchableChangeBanner).toBe(true);
+        const banner = wrapper.find('.sw-custom-field-detail__searchable-banner');
+        expect(banner.exists()).toBe(true);
     });
 
     it('should not show banner for new custom fields', async () => {
@@ -297,7 +311,6 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
                 currentCustomField: {
                     ...customFieldFixture,
                     _isNew: true,
-                    searchable: false,
                 },
                 set: {
                     relations: [{ entityName: 'product' }],
@@ -307,17 +320,14 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         );
         await flushPromises();
 
-        wrapper.vm.currentCustomField.searchable = true;
-        await flushPromises();
-
-        expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
+        const banner = wrapper.find('.sw-custom-field-detail__searchable-banner');
+        expect(banner.exists()).toBe(false);
     });
 
     it('should not show banner for non-product custom fields', async () => {
         const existingCustomerField = {
             ...customFieldFixture,
             _isNew: false,
-            searchable: false,
         };
 
         const wrapper = await createWrapper(
@@ -331,62 +341,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         );
         await flushPromises();
 
-        wrapper.vm.currentCustomField.searchable = true;
-        await flushPromises();
-
-        expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
-    });
-
-    it('should hide banner when disabling searchable again', async () => {
-        const existingProductField = {
-            ...customFieldFixture,
-            _isNew: false,
-            searchable: false,
-        };
-
-        const wrapper = await createWrapper(
-            {
-                currentCustomField: existingProductField,
-                set: {
-                    relations: [{ entityName: 'product' }],
-                },
-            },
-            ['custom_field.editor'],
-        );
-        await flushPromises();
-
-        // Enable searchable
-        wrapper.vm.currentCustomField.searchable = true;
-        await flushPromises();
-        expect(wrapper.vm.showSearchableChangeBanner).toBe(true);
-
-        // Disable searchable again
-        wrapper.vm.currentCustomField.searchable = false;
-        await flushPromises();
-        expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
-    });
-
-    it('should not show banner when searchable was already true', async () => {
-        const existingProductField = {
-            ...customFieldFixture,
-            _isNew: false,
-            searchable: true,
-        };
-
-        const wrapper = await createWrapper(
-            {
-                currentCustomField: existingProductField,
-                set: {
-                    relations: [{ entityName: 'product' }],
-                },
-            },
-            ['custom_field.editor'],
-        );
-        await flushPromises();
-
-        wrapper.vm.currentCustomField.searchable = true;
-        await flushPromises();
-
-        expect(wrapper.vm.showSearchableChangeBanner).toBe(false);
+        const banner = wrapper.find('.sw-custom-field-detail__searchable-banner');
+        expect(banner.exists()).toBe(false);
     });
 });

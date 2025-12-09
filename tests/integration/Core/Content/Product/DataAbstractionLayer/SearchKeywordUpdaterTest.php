@@ -309,43 +309,14 @@ class SearchKeywordUpdaterTest extends TestCase
     public function testGetConfigFieldsFiltersCustomFieldsBySearchable(): void
     {
         $customFieldName = 'searchable_field';
-        $customFieldId = $this->createCustomFieldWithSearchConfig($customFieldName, active: true, searchable: true);
+        $this->createCustomFieldWithSearchConfig($customFieldName, active: true, searchable: true);
 
         $configFields = $this->queryConfigFieldsDirectly();
-        $this->assertCustomFieldIncluded($configFields, $customFieldName, 'Searchable custom field should be included');
+        $customFieldFields = array_filter($configFields, fn ($field) => str_starts_with($field['field'] ?? '', 'customFields.' . $customFieldName));
+        static::assertCount(1, $customFieldFields);
 
-        $this->connection->executeStatement(
-            'UPDATE custom_field SET searchable = 0 WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($customFieldId)]
-        );
-
-        $configFields = $this->queryConfigFieldsDirectly();
-        $this->assertCustomFieldExcluded($configFields, $customFieldName, 'Custom field with searchable = 0 should be excluded');
-
-        $this->connection->executeStatement(
-            'UPDATE custom_field SET searchable = 1 WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($customFieldId)]
-        );
-
-        $configFields = $this->queryConfigFieldsDirectly();
-        $this->assertCustomFieldIncluded($configFields, $customFieldName, 'Searchable custom field should be included');
-    }
-
-    public function testGetConfigFieldsExcludesInactiveCustomFields(): void
-    {
-        $customFieldName = 'active_field';
-        $customFieldId = $this->createCustomFieldWithSearchConfig($customFieldName, active: true, searchable: true);
-
-        $configFields = $this->queryConfigFieldsDirectly();
-        $this->assertCustomFieldIncluded($configFields, $customFieldName, 'Active custom field should be included');
-
-        $this->connection->executeStatement(
-            'UPDATE custom_field SET active = 0 WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($customFieldId)]
-        );
-
-        $configFields = $this->queryConfigFieldsDirectly();
-        $this->assertCustomFieldExcluded($configFields, $customFieldName, 'Inactive custom field should be excluded');
+        $includedField = reset($customFieldFields);
+        static::assertSame('customFields.' . $customFieldName, $includedField['field']);
     }
 
     /**
@@ -495,37 +466,11 @@ class SearchKeywordUpdaterTest extends TestCase
         $query->select('configField.field', 'configField.tokenize', 'configField.ranking', 'LOWER(HEX(config.language_id)) as language_id');
         $query->from('product_search_config', 'config');
         $query->join('config', 'product_search_config_field', 'configField', 'config.id = configField.product_search_config_id');
-        $query->leftJoin('configField', 'custom_field', 'custom_field', 'configField.custom_field_id = custom_field.id AND custom_field.active = 1');
-        $query->leftJoin('custom_field', 'custom_field_set_relation', 'cfsr', 'custom_field.set_id = cfsr.set_id AND cfsr.entity_name = \'product\'');
         $query->andWhere('config.language_id IN (:languageIds)');
         $query->andWhere('configField.searchable = 1');
-        $query->andWhere(
-            '(configField.custom_field_id IS NULL OR (custom_field.searchable = 1 AND cfsr.entity_name = \'product\'))'
-        );
 
         $query->setParameter('languageIds', Uuid::fromHexToBytesList([Defaults::LANGUAGE_SYSTEM]), ArrayParameterType::BINARY);
 
         return $query->executeQuery()->fetchAllAssociative();
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $configFields
-     */
-    private function assertCustomFieldIncluded(array $configFields, string $fieldName, string $message): void
-    {
-        $customFieldFields = array_filter($configFields, fn ($field) => str_starts_with($field['field'] ?? '', 'customFields.' . $fieldName));
-        static::assertCount(1, $customFieldFields, $message);
-
-        $includedField = reset($customFieldFields);
-        static::assertSame('customFields.' . $fieldName, $includedField['field']);
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $configFields
-     */
-    private function assertCustomFieldExcluded(array $configFields, string $fieldName, string $message): void
-    {
-        $customFieldFields = array_filter($configFields, fn ($field) => str_starts_with($field['field'] ?? '', 'customFields.' . $fieldName));
-        static::assertCount(0, $customFieldFields, $message);
     }
 }

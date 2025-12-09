@@ -16,6 +16,6 @@
 
     .sw-custom-field-detail__searchable-banner {
         grid-column: span 2;
-        margin-top: 4px;
+        margin-top: var(--scale-size-4);
     }
 }

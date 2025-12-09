@@ -147,8 +147,12 @@ export default {
             return this.productStream && this.customFieldSets && this.customFieldSets.length > 0;
         },
 
+        productStreamIndexingEnabled() {
+            return Context.app.productStreamIndexingEnabled ?? true;
+        },
+
         /**
-         * @deprecated tag:v6.6.0 - Will be removed since product states filter is no longer supported.
+         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
          *
          * @internal
          */
@@ -454,7 +458,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.6.0 - Will be removed since product states filter is no longer supported.
+         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
          *
          * @internal
          */
@@ -479,7 +483,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.6.0 - Will be removed since product states filter is no longer supported.
+         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
          *
          * @internal
          */
@@ -506,7 +510,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.6.0 - Will be removed since product states filter is no longer supported.
+         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
          *
          * @internal
          */

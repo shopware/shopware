@@ -3,7 +3,7 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 test(
     'As a customer, I expect to see and use a basic captcha function on the contact form.',
     { tag: ['@Storefront', '@Form', '@Captcha', '@Contact'] },
-    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, DefaultSalesChannel, TestDataService, InstanceMeta }) => {
+    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, TestDataService, InstanceMeta }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
@@ -12,6 +12,8 @@ test(
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
             await ShopCustomer.presses(StorefrontHome.contactFormLink);
+            //need to wait for Captcha to finish loading
+            await StorefrontContactForm.page.waitForLoadState('networkidle');
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
         });
 
@@ -37,7 +39,6 @@ test(
             await ShopCustomer.presses(StorefrontContactForm.submitButton);
 
             await StorefrontContactForm.page.waitForResponse(resp => resp.url().includes('basic-captcha-validate'));
-
             await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
             await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveAccessibleDescription('Incorrect input. Please try again.');
         });

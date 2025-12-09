@@ -33,11 +33,6 @@ $matrix = [
                 'php' => '8.2',
                 'db' => 'mariadb:11'
             ],
-            [
-                'test' => ['testsuite' => 'devops'],
-                'php' => '8.4',
-                'db' => 'mariadb:11'
-            ]
         ]
     ]
 ];

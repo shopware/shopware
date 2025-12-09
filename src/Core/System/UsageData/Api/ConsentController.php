@@ -24,7 +24,6 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  *
- * @param EntityRepository<UserConfigCollection> $userConfigRepository
  */
 #[Package('data-services')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]

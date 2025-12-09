@@ -4,14 +4,11 @@ namespace Shopware\Core\System\Consent\DTO;
 
 use Shopware\Core\System\Consent\ConsentState;
 
-class ConsentDTO
+class ConsentStateDTO
 {
-
     public function __construct(
         public readonly string $name,
         public readonly string $identifier,
-        public readonly string $type,
-        public readonly \DateTimeImmutable $timestamp,
-    ) {
-    }
+        public readonly ConsentState $status,
+    ) {}
 }

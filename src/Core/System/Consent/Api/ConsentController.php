@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Consent\Api;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -27,17 +26,17 @@ class ConsentController extends AbstractController
     }
 
     #[Route(path: '/api/consents/{identifier}/accept', name: 'api.consents.accept', methods: ['POST'])]
-    public function acceptConsent(string $identifier, Context $context): Response
+    public function acceptConsent(string $identifier): Response
     {
-        $this->consentService->acceptConsent($identifier, $context);
+        $this->consentService->acceptConsent($identifier);
 
         return new JsonResponse(['status' => 'accepted']);
     }
 
     #[Route(path: '/api/consents/{identifier}/revoke', name: 'api.consents.revoke', methods: ['POST'])]
-    public function revokeConsent(string $identifier, Context $context): Response
+    public function revokeConsent(string $identifier): Response
     {
-        $this->consentService->revokeConsent($identifier, $context);
+        $this->consentService->revokeConsent($identifier);
 
         return new JsonResponse(['status' => 'revoked']);
     }

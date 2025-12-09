@@ -1,13 +1,14 @@
 /**
  * @sw-package framework
  */
+import settingsItems, { type SettingsItem } from 'src/app/store/settings-item.store';
 import template from './sw-settings-index.html.twig';
 import './sw-settings-index.scss';
 
 const { hasOwnProperty } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -43,11 +44,16 @@ export default {
 
     computed: {
         settingsGroups() {
-            // helpers
-            const labelOfSetting = (setting) => (typeof setting.label === 'string' ? setting.label : setting.label?.label);
+            type SettingsItemHere = Omit<SettingsItem, 'label'> & {
+                label?: string | { label: string; translated: boolean };
+            } & { privilege?: string };
 
-            const itemIsQueried = (str) => {
-                const item = str.trim().toLowerCase();
+            // Helpers
+            const labelOfSetting = (setting: SettingsItemHere) =>
+                typeof setting.label === 'string' ? setting.label : (setting.label?.label ?? '');
+
+            const itemIsQueried = (label: string) => {
+                const item = label.trim().toLowerCase();
                 const query = this.searchQuery.trim().toLowerCase();
                 if (query === '') {
                     return true;
@@ -55,31 +61,27 @@ export default {
                 return query.trim().includes(item) || item.includes(query);
             };
 
-            /**
-             * @param {(groupSettings: Setting[], groupName: string) => Setting[]} callback
-             * @returns {(entry: [string, Setting[]]) => Setting[]}
-             */
             const mapSettings =
-                (callback) =>
+                (
+                    mapper: (settings: SettingsItemHere[], groupName: string) => SettingsItemHere[],
+                ): ((entry: [string, SettingsItemHere[]]) => [string, SettingsItemHere[]]) =>
                 ([
                     name,
                     settings,
                 ]) => [
                     name,
-                    callback(settings, name),
+                    mapper(settings, name),
                 ];
 
-            /**
-             * @param {(groupSettings: Setting[], groupName: string) => boolean} callback
-             * @returns {(entry: [string, Setting[]]) => boolean}
-             */
             const filterGroup =
-                (callback) =>
+                (
+                    predicate: (settings: SettingsItemHere[], groupName: string) => boolean,
+                ): ((entry: [string, SettingsItemHere[]]) => boolean) =>
                 ([
                     name,
                     settings,
                 ]) =>
-                    callback(settings, name);
+                    predicate(settings, name);
 
             // Mappers
             const onlySearchResults = mapSettings((settings, groupName) => {
@@ -113,7 +115,7 @@ export default {
             // Filters
             const removeEmptyGroups = filterGroup((settings) => settings.length > 0);
 
-            // Doing
+            // Doing: Transform the settings
             const settingsGroups = Shopware.Store.get('settingsItems').settingsGroups;
 
             return Object.fromEntries(
@@ -196,9 +198,9 @@ export default {
             return this.$tc(settingsItem.label.label);
         },
 
-        getGroupLabel(settingsGroup) {
+        getGroupLabel(settingsGroup: string) {
             const upper = settingsGroup.charAt(0).toUpperCase() + settingsGroup.slice(1);
             return this.$tc(`sw-settings.index.tab${upper}`);
         },
     },
-};
+});

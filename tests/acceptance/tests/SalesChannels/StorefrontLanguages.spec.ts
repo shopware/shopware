@@ -26,7 +26,7 @@ test(
         await ShopCustomer.expects(async () => {
             await test.step('Customer can view languages menu', async () => {
                 await ShopCustomer.goesTo(germanDomainUrl);
-                await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('Deutsch');
+                await ShopCustomer.expects(StorefrontHeader.languagesDropdown).toContainText('Deutsch');
                 await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
             });
         }).toPass({
@@ -34,12 +34,12 @@ test(
         });
 
         await test.step('Customer can select a different language', async () => {
-            await ShopCustomer.presses(StorefrontHome.languagesDropdown);
+            await ShopCustomer.presses(StorefrontHeader.languagesDropdown);
             // Select the second li.top-bar-list-item (index 1) and click the button inside it
             // covers both cases: with and without feature flag v6.8.0 and English and English (United Kingdom)
             const secondListItem = StorefrontHome.page.locator('li.top-bar-list-item').nth(1);
             await ShopCustomer.presses(secondListItem.locator('button.dropdown-item'));
-            await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('English');
+            await ShopCustomer.expects(StorefrontHeader.languagesDropdown).toContainText('English');
             await ShopCustomer.expects(addToCartButton).toContainText('Add to shopping cart');
         });
     }

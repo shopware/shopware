@@ -14,7 +14,7 @@ test(
             await test.step('Customer can view currencies menu', async () => {
                 await ShopCustomer.goesTo(StorefrontHome.url());
                 const currencySymbol = getCurrencySymbolFromLocale();
-                await ShopCustomer.expects(StorefrontHome.currenciesDropdown).toContainText(currencySymbol);
+                await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText(currencySymbol);
                 await ShopCustomer.expects(productListing.productPrice).toContainText(currencySymbol);
             });
         }).toPass({

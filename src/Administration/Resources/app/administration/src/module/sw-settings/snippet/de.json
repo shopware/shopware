@@ -14,7 +14,9 @@
       "tabContent": "Inhalte",
       "tabAutomation": "Automatisierung",
       "tabPlugins": "Erweiterungen",
-      "textSettingRenameBanner": "Die Einstellung <b>Maßeinheiten</b> wurde in <b>Produkteinheiten</b> umbenannt."
+      "textSettingRenameBanner": "Die Einstellung <b>Maßeinheiten</b> wurde in <b>Produkteinheiten</b> umbenannt.",
+      "searchPlaceholder": "Finde Einstellungen...",
+      "noEntries": "Es konnten keine Einstellungen gefunden werden."
     },
     "system-config": {
       "labelSalesChannelSelect": "Verkaufskanal",

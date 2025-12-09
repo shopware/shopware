@@ -14,7 +14,9 @@
       "tabContent": "Content",
       "tabAutomation": "Automation",
       "tabPlugins": "Extensions",
-      "textSettingRenameBanner": "The setting <b>Scale units</b> has been renamed to <b>Product units</b>."
+      "textSettingRenameBanner": "The setting <b>Scale units</b> has been renamed to <b>Product units</b>.",
+      "searchPlaceholder": "Find settings...",
+      "noEntries": "Couldn't find any settings."
     },
     "system-config": {
       "labelSalesChannelSelect": "Sales Channel",

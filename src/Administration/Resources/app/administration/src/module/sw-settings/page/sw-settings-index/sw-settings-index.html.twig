@@ -14,9 +14,16 @@
                 position-identifier="sw-settings-index"
             >
                 {% block sw_settings_content_card_view_header %}
-                <h1 class="sw-settings__content-header">
-                    {{ $tc('sw-settings.index.title') }}
-                </h1>
+                <div class="sw-settings__content-header">
+                    <h1>
+                        {{ $tc('sw-settings.index.title') }}
+                    </h1>
+                    <mt-search
+                        v-model="searchQuery"
+                        :placeholder="$t('sw-settings.index.searchPlaceholder')"
+                        size="small"
+                    />
+                </div>
                 {% endblock %}
 
                 {# @deprecated tag:v6.8.0 - will be removed without replacement #}
@@ -63,6 +70,9 @@
                                 />
                             </template>
                         </sw-settings-item>
+                    </div>
+                    <div v-if="Object.keys(settingsGroups).length === 0">
+                        {{ $t('sw-settings.index.noEntries') }}
                     </div>
                 </div>
                 {% endblock %}

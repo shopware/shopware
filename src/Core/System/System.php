@@ -34,6 +34,7 @@ class System extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('sales_channel.xml');
         $loader->load('country.xml');
+        $loader->load('consent.xml');
         $loader->load('currency.xml');
         $loader->load('custom_entity.xml');
         $loader->load('locale.xml');

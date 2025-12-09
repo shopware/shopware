@@ -1,0 +1,122 @@
+{
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": {
+    "\/api\/consents": {
+      "get": {
+        "tags": [
+          "Consent Management"
+        ],
+        "summary": "List all consents for current user",
+        "description": "Returns a list of all available consents with their current status for the authenticated admin user. Each consent includes its name, identifier, and current state (requested, accepted, or revoked).",
+        "operationId": "fetchConsents",
+        "responses": {
+          "200": {
+            "description": "List of consents with their status",
+            "content": {
+              "application\/json": {
+                "schema": {
+                  "$ref": "#\/components\/schemas\/consentListResponse"
+                },
+                "example": [
+                  {
+                    "name": "data-collection",
+                    "identifier": "user-123",
+                    "status": "accepted"
+                  },
+                  {
+                    "name": "analytics-tracking",
+                    "identifier": "user-123",
+                    "status": "requested"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in or invalid session"
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "\/api\/consents\/{consent}\/accept": {
+      "post": {
+        "tags": [
+          "Consent Management"
+        ],
+        "summary": "Accept a consent",
+        "description": "Marks the specified consent as accepted for the authenticated admin user.",
+        "operationId": "acceptConsent",
+        "parameters": [
+          {
+            "name": "consent",
+            "in": "path",
+            "description": "The name/identifier of the consent to accept",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Consent accepted successfully - no content returned"
+          },
+          "404": {
+            "description": "Bad request - Consent not found"
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in or invalid session"
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "\/api\/consents\/{consent}\/revoke": {
+      "post": {
+        "tags": [
+          "Consent Management"
+        ],
+        "summary": "Revoke a consent",
+        "description": "Marks the specified consent as revoked for the authenticated admin user.",
+        "operationId": "revokeConsent",
+        "parameters": [
+          {
+            "name": "consent",
+            "in": "path",
+            "description": "The name/identifier of the consent to revoke",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Consent revoked successfully - no content returned"
+          },
+          "404": {
+            "description": "Bad request - Consent not found"
+          },
+          "401": {
+            "description": "Unauthorized - User not logged in or invalid session"
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

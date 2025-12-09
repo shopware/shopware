@@ -1,0 +1,37 @@
+{
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": [],
+  "components": {
+    "schemas": {
+      "consentListResponse": {
+        "type": "array",
+        "description": "List of consent states for the authenticated user",
+        "items": {
+          "$ref": "#\/components\/schemas\/consentState"
+        }
+      },
+      "consentState": {
+        "type": "object",
+        "description": "Represents the current state of a consent for a specific user",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The unique name/identifier of the consent"
+          },
+          "identifier": {
+            "type": "string",
+            "description": "The user identifier (typically the user ID) for whom this consent state applies"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["requested", "accepted", "revoked"],
+            "description": "The current state of the consent. 'requested' means the user has not yet responded, 'accepted' means the user granted consent, 'revoked' means the user withdrew consent"
+          }
+        },
+        "required": ["name", "identifier", "status"],
+        "additionalProperties": false
+      }
+    }
+  }
+}

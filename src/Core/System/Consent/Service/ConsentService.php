@@ -2,69 +2,75 @@
 
 namespace Shopware\Core\System\Consent\Service;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Consent\ConsentEntity;
 use Shopware\Core\System\Consent\ConsentException;
-use Shopware\Core\System\Consent\ConsentHistoryEntity;
-use Shopware\Core\System\Consent\ConsentPrototype;
+use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\DTO\ConsentDTO;
+use Shopware\Core\System\Consent\DTO\ConsentStateDTO;
+use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
+use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
+use Shopware\Core\System\Consent\Storage\StorageInterface;
 
+/**
+ * @internal
+ */
 #[Package('data-services')]
 class ConsentService
 {
     /**
-     * @var null| array<ConsentDTO>
+     * @var array<ConsentDTO>|null
      */
-    private $consents = null;
+    private ?array $consents = null;
 
     /**
-     * @param EntityRepository $repository
-     * @param array<ConsentPrototype> $consentPrototypes
+     * @var array<string, StorageInterface>
+     */
+    private readonly array $stores;
+
+    /**
+     * @param iterable<string, StorageInterface> $stores
      */
     public function __construct(
-        private readonly array $consentPrototypes,
-    ){}
+        private readonly ConsentRepository $consentRepository,
+        iterable $stores,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->stores = iterator_to_array($stores);
+    }
 
     /**
-     * @return array<ConsentDTO>
+     * @return array<ConsentStateDTO>
      */
-    public function list(): array
+    public function list(string $userId): array
     {
-        // maybe remove fields
-        return $this->fetchConsents();
+        return array_map(
+            fn (ConsentDTO $consent) => $this->storage($consent)->status($consent->name, $userId),
+            $this->fetchConsents()
+        );
+    }
+
+    public function getConsentStatus(string $name, string $identifier): ConsentStateDTO
+    {
+        return $this->storage($this->fetchConsent($name))->status($name, $identifier);
     }
 
     public function acceptConsent(string $name, string $identifier): void
     {
-        $consent = $this->fetchConsent($name);
+        $this->storage($this->fetchConsent($name))->accept($name, $identifier);
 
-        $prototype = $this->consentPrototypes[$consent->type] ?? null;
-
-        if ($prototype === null) {
-            throw ConsentException::prototypeNotFound($consent->type);
-        }
-
-        $prototype->accept($name, $identifier);
-
-        $this->dispatcher(new ConsentAcceptedEvent($name, $identifier));
+        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($name, $identifier));
     }
 
     public function revokeConsent(string $name, string $identifier): void
     {
-        $consent = $this->fetchConsent($name);
+        $this->storage($this->fetchConsent($name))->revoke($name, $identifier);
 
-        $prototype = $this->consentPrototypes[$consent->type] ?? null;
-
-        if ($prototype === null) {
-            throw ConsentException::prototypeNotFound($consent->name);
-        }
-
-        $prototype->revoke($name, $identifier);
+        $this->eventDispatcher->dispatch(new ConsentRevokedEvent($name, $identifier));
     }
 
     /**
-     * @return array<>
+     * @return array<ConsentDTO>
      */
     private function fetchConsents(): array
     {
@@ -72,30 +78,27 @@ class ConsentService
             return $this->consents;
         }
 
-        $this->consents = [
-            'tracking_consent' => new ConsentDTO(
-                name: 'tracking_consent',
-                identifier: 'user_123',
-                type: 'admin_user_consent',
-                timestamp: new \DateTimeImmutable(),
-            ),
-            'backend_data_consent' => new ConsentDTO(
-                name: 'backend_data_consent',
-                identifier: 'user_123',
-                type: 'system_config_consent',
-                timestamp: new \DateTimeImmutable(),
-            )
-        ];
+        $consents = $this->consentRepository->fetchAll();
+
+        return $this->consents = array_combine(
+            array_column($consents, 'name'),
+            $consents,
+        );
     }
 
-    private function fetchConsent(string $name)
+    private function fetchConsent(string $name): ConsentDTO
     {
         $this->fetchConsents();
 
-        if (isset($this->consents[$name])) {
+        if (!isset($this->consents[$name])) {
             throw ConsentException::notFound($name);
         }
 
         return $this->consents[$name];
+    }
+
+    private function storage(ConsentDTO $consent): StorageInterface
+    {
+        return $this->stores[$consent->storage];
     }
 }

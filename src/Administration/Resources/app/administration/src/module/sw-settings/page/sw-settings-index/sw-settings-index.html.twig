@@ -49,7 +49,13 @@
                         :key="settingsGroup"
                         class="sw-settings__content-group"
                     >
-                        <h2>{{ getGroupLabel(settingsGroup) }}</h2>
+                        <h2>
+                            <sw-highlighted-text
+                                :label="getGroupLabel(settingsGroup)"
+                                :highlights="getSearchHighlights(getGroupLabel(settingsGroup))"
+                            />
+                            {{''}} {# show eslint that there is content for h2 (which will be provided by sw-highlighted-text but it can't detect that) #}
+                        </h2>
 
                         <sw-settings-item
                             v-for="settingsItem in settingsItems"
@@ -67,6 +73,12 @@
                                     v-else
                                     :name="settingsItem.icon"
                                     size="16px"
+                                />
+                            </template>
+                            <template #label>
+                                <sw-highlighted-text
+                                    :label="getLabel(settingsItem)"
+                                    :highlights="getSearchHighlights(getLabel(settingsItem))"
                                 />
                             </template>
                         </sw-settings-item>

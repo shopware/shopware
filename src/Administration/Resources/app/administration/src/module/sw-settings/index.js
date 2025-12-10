@@ -8,6 +8,7 @@ const { Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-item', () => import('./component/sw-settings-item'));
+Shopware.Component.register('sw-highlighted-text', () => import('./component/sw-highlighted-text'));
 Shopware.Component.register('sw-system-config', () => import('./component/sw-system-config'));
 Shopware.Component.register('sw-settings-index', () => import('./page/sw-settings-index'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */

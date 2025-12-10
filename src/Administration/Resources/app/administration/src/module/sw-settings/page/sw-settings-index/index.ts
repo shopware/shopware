@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import settingsItems, { type SettingsItem } from 'src/app/store/settings-item.store';
+import { type SettingsItem } from 'src/app/store/settings-item.store';
 import template from './sw-settings-index.html.twig';
 import './sw-settings-index.scss';
 
@@ -201,6 +201,41 @@ export default Shopware.Component.wrapComponentConfig({
         getGroupLabel(settingsGroup: string) {
             const upper = settingsGroup.charAt(0).toUpperCase() + settingsGroup.slice(1);
             return this.$tc(`sw-settings.index.tab${upper}`);
+        },
+
+        itemIsQueried(label: string) {
+            if (this.searchQuery.trim() === '') {
+                return true;
+            }
+            return this.getSearchHighlights(label) !== null;
+        },
+
+        getSearchHighlights(label: string) {
+            const query = this.searchQuery.trim().toLowerCase();
+            const item = label.trim().toLowerCase();
+            if (query === '') {
+                return null;
+            }
+            // if query is in item
+            const itemInQueryIndex = item.indexOf(query);
+            if (itemInQueryIndex !== -1) {
+                return [
+                    {
+                        startIndex: itemInQueryIndex,
+                        endIndex: itemInQueryIndex + query.length,
+                    },
+                ];
+            }
+            // if item is in query
+            if (query.includes(item)) {
+                return [
+                    {
+                        startIndex: 0,
+                        endIndex: item.length,
+                    },
+                ];
+            }
+            return null;
         },
     },
 });

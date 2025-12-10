@@ -6,7 +6,12 @@
 
 ## Core
 
+### PHP 8.5 support
+
+Shopware is now fully compatible with PHP 8.5.
+
 ### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
+
 The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
 You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
 
@@ -95,6 +100,11 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 ```
 
 ## Core
+
+### Automatic indexer execution for plugin migrations
+
+The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+This ensures that registered indexers are executed when plugin migrations have run.
 
 ### Improved Store API OpenAPI documentation with field descriptions
 

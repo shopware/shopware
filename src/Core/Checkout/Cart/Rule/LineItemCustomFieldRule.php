@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\FloatComparator;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
 
 /**
@@ -45,7 +46,7 @@ class LineItemCustomFieldRule extends Rule
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
-            return $this->isCustomFieldValid($scope->getLineItem());
+            return $this->isCustomFieldValid($scope->getLineItem(), $scope->getSalesChannelContext());
         }
 
         if (!$scope instanceof CartRuleScope) {
@@ -53,7 +54,7 @@ class LineItemCustomFieldRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if ($this->isCustomFieldValid($lineItem)) {
+            if ($this->isCustomFieldValid($lineItem, $scope->getSalesChannelContext())) {
                 return true;
             }
         }
@@ -69,14 +70,14 @@ class LineItemCustomFieldRule extends Rule
         return CustomFieldRule::getConstraints($this->renderedField);
     }
 
-    private function isCustomFieldValid(LineItem $lineItem): bool
+    private function isCustomFieldValid(LineItem $lineItem, SalesChannelContext $context): bool
     {
         $customFields = $lineItem->getPayloadValue('customFields');
         if ($customFields === null) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $actual = CustomFieldRule::getValue($customFields, $this->renderedField);
+        $actual = CustomFieldRule::getValue($customFields, $this->renderedField, $context);
         $expected = CustomFieldRule::getExpectedValue($this->renderedFieldValue, $this->renderedField);
 
         if ($actual === null) {

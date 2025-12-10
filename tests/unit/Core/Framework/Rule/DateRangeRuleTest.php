@@ -7,7 +7,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\DateRangeRule;
+use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -260,6 +262,165 @@ class DateRangeRuleTest extends TestCase
                 null,
                 '2021-01-01 07:59:59',
                 true,
+            ],
+        ];
+    }
+
+    public function testSerializationAndValidation(): void
+    {
+        $rule = new DateRangeRule(
+            new \DateTime('2024-01-15 10:30:45'),
+            new \DateTime('2024-01-31 23:59:59'),
+            true,
+            new \DateTimeZone('UTC')
+        );
+
+        $serialized = json_encode($rule);
+
+        static::assertIsString($serialized);
+
+        $data = json_decode($serialized, true);
+
+        static::assertSame('2024-01-15T10:30:45', $data['fromDate']);
+        static::assertSame('2024-01-31T23:59:59', $data['toDate']);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $constraints = $rule->getConstraints();
+
+        static::assertCount(0, $validator->validate($data['fromDate'], $constraints['fromDate']));
+        static::assertCount(0, $validator->validate($data['toDate'], $constraints['toDate']));
+    }
+
+    public function testAssignWithStringDatesConvertsToDateTime(): void
+    {
+        $rule = new DateRangeRule();
+
+        $rule->assign([
+            'fromDate' => '2024-01-15T10:30:45',
+            'toDate' => '2024-01-31T23:59:59',
+            'useTime' => true,
+            'timezone' => 'UTC',
+        ]);
+
+        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2024-01-20 12:00:00'));
+
+        $result = $rule->match($scopeMock);
+
+        static::assertTrue($result);
+    }
+
+    /**
+     * @param array<string, string|bool|\DateTime> $options
+     */
+    #[DataProvider('provideInvalidDateAndTimezoneFormats')]
+    public function testAssignPreservesInvalidFormatsForValidators(array $options): void
+    {
+        $rule = new DateRangeRule();
+
+        $rule = $rule->assign($options);
+
+        $fromDate = (new \ReflectionProperty(DateRangeRule::class, 'fromDate'))->getValue($rule);
+        $toDate = (new \ReflectionProperty(DateRangeRule::class, 'toDate'))->getValue($rule);
+        $useTime = (new \ReflectionProperty(DateRangeRule::class, 'useTime'))->getValue($rule);
+        $timezone = (new \ReflectionProperty(DateRangeRule::class, 'timezone'))->getValue($rule);
+
+        $result = [
+            'fromDate' => $fromDate,
+            'toDate' => $toDate,
+            'useTime' => $useTime,
+            'timezone' => $timezone,
+        ];
+
+        static::assertSame($options, $result);
+    }
+
+    public static function provideInvalidDateAndTimezoneFormats(): \Generator
+    {
+        yield 'invalid fromDate format' => [
+            'options' => [
+                'fromDate' => 'not-a-valid-date',
+                'toDate' => '2024-12-31T23:59:59',
+                'useTime' => true,
+                'timezone' => null,
+            ],
+        ];
+
+        yield 'invalid toDate format' => [
+            'options' => [
+                'fromDate' => new \DateTime('2024-01-01T00:00:00'),
+                'toDate' => 'invalid-to-date',
+                'useTime' => false,
+                'timezone' => null,
+            ],
+        ];
+
+        yield 'invalid timezone' => [
+            'options' => [
+                'fromDate' => new \DateTime('2024-01-01T00:00:00'),
+                'toDate' => new \DateTime('2024-12-31T23:59:59'),
+                'useTime' => true,
+                'timezone' => 'not-a-valid-timezone',
+            ],
+        ];
+
+        yield 'all invalid values' => [
+            'options' => [
+                'fromDate' => 'invalid-from',
+                'toDate' => 'invalid-to',
+                'useTime' => false,
+                'timezone' => null,
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, string> $properties
+     */
+    #[DataProvider('provideInvalidStringValuesForMatch')]
+    public function testMatchThrowsExceptionWhenDatePropertiesAreStrings(array $properties): void
+    {
+        $rule = new DateRangeRule(...$properties);
+
+        $this->expectExceptionObject(
+            RuleException::invalidDateRangeUsage('fromDate, toDate and timezone cannot be a string at this point')
+        );
+
+        $rule->match($this->createMock(RuleScope::class));
+    }
+
+    public static function provideInvalidStringValuesForMatch(): \Generator
+    {
+        yield 'fromDate is string' => [
+            'properties' => [
+                'fromDate' => '2024-01-15T10:30:45',
+            ],
+        ];
+
+        yield 'toDate is string' => [
+            'properties' => [
+                'toDate' => '2024-12-31T23:59:59',
+            ],
+        ];
+
+        yield 'timezone is string' => [
+            'properties' => [
+                'timezone' => 'Europe/Berlin',
+            ],
+        ];
+
+        yield 'all properties are strings' => [
+            'properties' => [
+                'fromDate' => '2024-01-15T10:30:45',
+                'toDate' => '2024-12-31T23:59:59',
+                'timezone' => 'UTC',
+            ],
+        ];
+
+        yield 'fromDate and toDate are strings' => [
+            'properties' => [
+                'fromDate' => '2024-01-15T10:30:45',
+                'toDate' => '2024-12-31T23:59:59',
             ],
         ];
     }

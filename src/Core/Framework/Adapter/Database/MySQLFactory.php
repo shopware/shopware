@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
+use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 
@@ -52,30 +53,22 @@ class MySQLFactory
             'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
         ];
 
-        // if the new constant is defined use it, otherwise use the old constant
-        if (\defined('\\Pdo\\Mysql::ATTR_INIT_COMMAND')) {
-            /** @phpstan-ignore class.notFound */
-            $initCommandConstant = \Pdo\Mysql::ATTR_INIT_COMMAND;
-        } else {
-            $initCommandConstant = \PDO::MYSQL_ATTR_INIT_COMMAND;
-        }
-
-        $parameters['driverOptions'][$initCommandConstant] = \implode(';', $initCommands);
+        $parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND] = \implode(';', $initCommands);
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_CA] = $sslCa;
         }
 
         if ($sslCert = EnvironmentHelper::getVariable('DATABASE_SSL_CERT')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $sslCert;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_CERT] = $sslCert;
         }
 
         if ($sslCertKey = EnvironmentHelper::getVariable('DATABASE_SSL_KEY')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $sslCertKey;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_KEY] = $sslCertKey;
         }
 
         if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 
         if (EnvironmentHelper::getVariable('DATABASE_PERSISTENT_CONNECTION')) {
@@ -83,7 +76,7 @@ class MySQLFactory
         }
 
         if (EnvironmentHelper::getVariable('DATABASE_PROTOCOL_COMPRESSION')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_COMPRESS] = true;
+            $parameters['driverOptions'][Mysql::ATTR_COMPRESS] = true;
         }
 
         if ($replicaUrl) {

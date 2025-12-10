@@ -153,6 +153,28 @@
                     :class="{ 'is--disabled': !acl.can('product_stream.editor') }"
                     :title="$tc('sw-product-stream.detail.titleFilter')"
                 >
+                    <div
+                        v-if="!productStreamIndexingEnabled"
+                        class="sw-product-stream-detail__product-stream-warning"
+                    >
+                        <mt-banner
+                            variant="attention"
+                            :title="$t('sw-product-stream.detail.productStreamIndexingWarning.title')"
+                        >
+                            <p v-html="$t('sw-product-stream.detail.productStreamIndexingWarning.message')">
+                            </p>
+
+                            <mt-link
+                                type="external"
+                                as="a"
+                                href="https://developer.shopware.com/docs/guides/hosting/performance/performance-tweaks.html#disable-product-stream-indexer"
+                                target="_blank"
+                            >
+                                {{ $t('sw-product-stream.detail.productStreamIndexingWarning.action') }}
+                            </mt-link>
+                        </mt-banner>
+                    </div>
+
                     {% block sw_product_stream_detail_filter_tree %}
                     <sw-condition-tree
                         v-if="productStream"

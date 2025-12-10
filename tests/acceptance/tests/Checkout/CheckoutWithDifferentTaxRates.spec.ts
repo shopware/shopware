@@ -9,12 +9,12 @@ test(
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
+        SelectShippingMethod,
         Login,
         AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
         SelectPaymentMethod,
-        SelectShippingMethod,
         SubmitOrder,
         StorefrontAccountOrder,
     }) => {

@@ -7,9 +7,7 @@ test('New customers can register as commercial customers in the Storefront.', { 
     IdProvider,
     Register,
     TestDataService,
-    InstanceMeta,
 }) => {
-    test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
 
     const uuid = IdProvider.getIdPair().uuid;
     const customer = { isCommercial: true, email: uuid + '@test.com', vatRegNo: uuid + '-VatId' };
@@ -34,9 +32,7 @@ test('New customers cannot register as commercial customers without a VAT Reg.No
     Register,
     TestDataService,
     DefaultSalesChannel,
-    InstanceMeta,
 }) => {
-    test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
 
     await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
     const country = await TestDataService.createCountry({ vatIdRequired: true });
@@ -63,10 +59,8 @@ test('New customers cannot register as commercial customers with an invalid VAT 
     IdProvider,
     Register,
     TestDataService,
-    InstanceMeta,
     DefaultSalesChannel,
 }) => {
-    test.skip(InstanceMeta.isSaaS, 'This test is incompatible with SaaS');
 
     await TestDataService.setSystemConfig({ 'core.loginRegistration.showAccountTypeSelection': true });
     const country = await TestDataService.createCountry({ checkVatIdPattern: true, vatIdPattern: 'DE\\d{9}' });

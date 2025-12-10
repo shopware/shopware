@@ -87,6 +87,7 @@ module.exports = {
         '^\@shopware-ag\/meteor-admin-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
         '^@shopware-ag/meteor-component-library$': '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/index.js',
         '^lodash-es$': 'lodash',
+        '^lodash-es/(.*)$': 'lodash/$1',
         vue$: 'vue/dist/vue.cjs.js',
     },
 

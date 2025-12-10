@@ -164,15 +164,17 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         // No cache when client cache hash does not match the expected one. This protects from cache poisoning
-        $clientHash = $request->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE) ??
-            $request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '');
-        $expectedHash = $cacheHash ?? '';
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $clientHash = $request->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE) ??
+                $request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '');
+            $expectedHash = $cacheHash ?? '';
 
-        if ($clientHash !== $expectedHash) {
-            $response->headers->set(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS, '1');
-            $this->noCache($request, $response, $area);
+            if ($clientHash !== $expectedHash) {
+                $response->headers->set(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS, '1');
+                $this->noCache($request, $response, $area);
 
-            return;
+                return;
+            }
         }
 
         /** @deprecated tag:v6.8.0 - can be removed when cache states are always empty */

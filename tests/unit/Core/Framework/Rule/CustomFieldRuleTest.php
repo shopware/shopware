@@ -6,10 +6,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\CustomFieldRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
@@ -78,6 +84,83 @@ class CustomFieldRuleTest extends TestCase
         yield from self::selectTypeDataProvider();
         yield from self::datetimeTypeDataProvider();
         yield from self::dateTypeDataProvider();
+    }
+
+    public function testPriceFieldUsesGrossWithoutContext(): void
+    {
+        $priceCollection = new PriceCollection([
+            new Price(Defaults::CURRENCY, 84.03, 100.0, false),
+        ]);
+
+        $renderedField = [
+            'type' => CustomFieldTypes::PRICE,
+            'name' => self::CUSTOM_FIELD_NAME,
+            'config' => [],
+        ];
+
+        $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField);
+
+        static::assertSame(100.0, $value);
+    }
+
+    public function testPriceFieldUsesGrossWithGrossTaxState(): void
+    {
+        $priceCollection = new PriceCollection([
+            new Price(Defaults::CURRENCY, 84.03, 100.0, false),
+        ]);
+
+        $renderedField = [
+            'type' => CustomFieldTypes::PRICE,
+            'name' => self::CUSTOM_FIELD_NAME,
+            'config' => [],
+        ];
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+
+        $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
+
+        static::assertSame(100.0, $value);
+    }
+
+    public function testPriceFieldUsesNetWithNetTaxState(): void
+    {
+        $priceCollection = new PriceCollection([
+            new Price(Defaults::CURRENCY, 84.03, 100.0, false),
+        ]);
+
+        $renderedField = [
+            'type' => CustomFieldTypes::PRICE,
+            'name' => self::CUSTOM_FIELD_NAME,
+            'config' => [],
+        ];
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
+
+        $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
+
+        static::assertSame(84.03, $value);
+    }
+
+    public function testPriceFieldReturnsNullWhenCurrencyNotInCollection(): void
+    {
+        $priceCollection = new PriceCollection([
+            new Price(Uuid::randomHex(), 50.0, 60.0, false),
+        ]);
+
+        $renderedField = [
+            'type' => CustomFieldTypes::PRICE,
+            'name' => self::CUSTOM_FIELD_NAME,
+            'config' => [],
+        ];
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+
+        $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
+
+        static::assertNull($value);
     }
 
     /**

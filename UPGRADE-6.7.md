@@ -82,7 +82,7 @@ Replace `controllerName` and `controllerAction` with `activeRoute`:
 * JS: Use `window.activeRoute` instead of `window.controllerName`/`window.actionName`
 * Routes use dots, CSS classes use dashes: `activeRoute|replace({'.': '-'})`
 ## (Opt-in) Only rules relevant for product prices are considered in the `sw-cache-hash`
-**This functionality will become the default with 6.8, you can opt-in by activating the `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` feature flag.**
+**This functionality will become the default with 6.8, you can opt-in by activating the `CACHE_REWORK` feature flag.**
 
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
 

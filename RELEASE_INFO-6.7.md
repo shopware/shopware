@@ -32,6 +32,11 @@ The following classes and constants were deprecated as they will not be used any
 Additionally, the following configuration was deprecated:
 * `shopware.cache.invalidation.http_cache`
 
+### Make the find best variant on searching as non default behaviour
+
+Since [6.7.2.0](https://github.com/shopware/shopware/pull/11107), the "find best variant" feature was always the default behaviour on the search. It means that if a product has variants, the best matching variant is returned instead of what merchant has configured in the product's Storefront presentation > Product listings > "Show main product or variant" setting.
+This behaviour is now optional and can be enabled by setting the `core.listing.loadPreviewsOnSearch` config to `false` or setting it via the admin interface under Settings > Products > "Load product previews on search page"
+
 ## Administration
 
 ## Storefront

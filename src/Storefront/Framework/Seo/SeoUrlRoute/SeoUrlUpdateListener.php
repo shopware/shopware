@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
@@ -12,7 +10,6 @@ use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**

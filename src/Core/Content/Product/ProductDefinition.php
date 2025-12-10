@@ -108,7 +108,7 @@ class ProductDefinition extends EntityDefinition
     }
 
     /**
-     * @return array<string, bool|int|string|null>
+     * @return array{isCloseout: false, minPurchase: 1, purchaseSteps: 1, shippingFree: false, restockTime: null, active: true, markAsTopseller: false, type: 'physical'}
      */
     public function getDefaults(): array
     {
@@ -164,7 +164,6 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited()),
             (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()),
             (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('type', 'type', 32))->addFlags(new ApiAware()),
 
             (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options.name', 'options.group.name'])),
             (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected()),
@@ -269,7 +268,15 @@ class ProductDefinition extends EntityDefinition
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
         ]);
 
-        if (!Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('v6.8.0.0')) {
+            $fields->add(
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
+            );
+        } else {
+            $fields->add(
+                (new StringField('type', 'type'))->addFlags(new ApiAware()),
+            );
+
             $fields->add(
                 (new ListField('states', 'states', StringField::class))
                     ->addFlags(new ApiAware(), new WriteProtected(), new Deprecated('v6.7.6.0', 'v6.8.0.0', 'type')),

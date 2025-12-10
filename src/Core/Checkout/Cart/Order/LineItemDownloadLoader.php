@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Order;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
@@ -37,7 +38,7 @@ class LineItemDownloadLoader
         foreach ($lineItems as $key => $lineItem) {
             $productId = $lineItem['referencedId'] ?? null;
             $states = $lineItem['states'] ?? null;
-            $productType = $lineItem['payload']['productType'] ?? null;
+            $productType = $lineItem['payload'][LineItem::PAYLOAD_PRODUCT_TYPE] ?? null;
             $isLineItemDownloadable = $productType === ProductDefinition::TYPE_DIGITAL;
 
             if (!Feature::isActive('v6.8.0.0')) {

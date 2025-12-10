@@ -19,6 +19,7 @@ class Migration1763125892RemoveProductStatesColumn extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        // Re-register the rule indexer to ensure rule which might depend on the removed column are re-indexed properly
         $this->registerIndexer($connection, 'rule.indexer');
     }
 

@@ -32,7 +32,7 @@ The following classes and constants were deprecated as they will not be used any
 Additionally, the following configuration was deprecated:
 * `shopware.cache.invalidation.http_cache`
 
-### Deprecation of product states and introduction of product types
+### Deprecation of product states in favor of the new product type
 
 The `product.states` field is deprecated and will be removed in the next major release.
 A new field `product.type` was introduced to clearly indicate whether a product is `digital` or `physical`, or other types registered by third-party developers.
@@ -43,6 +43,7 @@ As part of this change, the following deprecations were made:
 - The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
 - The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
 - A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
+- For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
 
 If you have using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.

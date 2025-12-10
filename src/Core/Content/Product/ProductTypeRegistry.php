@@ -8,14 +8,14 @@ use Shopware\Core\Framework\Log\Package;
 final class ProductTypeRegistry
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $types;
 
     /**
      * @internal
      *
-     * @param array<string> $types
+     * @param list<string> $types
      */
     public function __construct(array $types)
     {
@@ -32,7 +32,7 @@ final class ProductTypeRegistry
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function getTypes(): array
     {

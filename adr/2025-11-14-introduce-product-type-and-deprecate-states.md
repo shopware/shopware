@@ -35,15 +35,14 @@ Product type field should have a clear definition: It represent the type of prod
 
 In a more detailed manner, we will make the following changes:
 
-- Add a dedicated `product.type` column (values `physical`/`digital`) with DAL exposure, new entity constants, defaulting to `physical`.
-- `product.type` is only written once after product save (@See `ProductTypeInitiator`) service. It means once a product is marked as `digital` or `physical`, it cannot be changed to another type, this also improves data integrity and not having to update the field on every save.
+- Add a dedicated `product.type` column (possible values by default: `physical` or `digital`) with DAL exposure, new entity constants, defaulting to `physical`.
 - Also add `order_line_item.payload.product_type` and populate it when line items are converted from the cart; `LineItemTransformer` also reconstructs legacy states when needed.
 - Introduce `LineItemProductTypeRule` for rule builder usage and deprecate the legacy `LineItemProductStatesRule`.
 - Rules automatically pick up custom product types registered via the shared registry (@See `ProductTypeRegistry`), so PHP-based conditions stay consistent with storefront/admin filters.
 
 #### Introduce a server-side `ProductTypeRegistry` 
 
-- This registry help both core rules and plugins can register additional product types via the parameter `%shopware.product.types%` as an array.
+- This registry help both core rules and plugins can register additional product types via the parameter `%shopware.product.allowed_types%` as an array.
 
 ```php
 class ProductTypeRegistry

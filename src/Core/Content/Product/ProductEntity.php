@@ -76,10 +76,7 @@ class ProductEntity extends Entity implements \Stringable
 
     protected bool $available;
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:reason:parameter-type-change - Will be native type string
-     */
-    protected ?string $type = ProductDefinition::TYPE_PHYSICAL;
+    protected string $type = ProductDefinition::TYPE_PHYSICAL;
 
     protected ?string $deliveryTimeId = null;
 
@@ -1264,7 +1261,7 @@ class ProductEntity extends Entity implements \Stringable
 
     public function getType(): string
     {
-        return $this->type ?? ProductDefinition::TYPE_PHYSICAL;
+        return $this->type;
     }
 
     public function setType(string $type): void

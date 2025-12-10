@@ -33,13 +33,18 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
             $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
         }
 
-        $connection->executeStatement(<<<'SQL'
-            UPDATE `product`
-                INNER JOIN `product_download`
-                    ON `product`.`id` = `product_download`.`product_id` AND `product`.`version_id` = `product_download`.`product_version_id`
-             SET `product`.`type` = 'digital'
-             WHERE `product_download`.`id` IS NOT NULL
+        $batchSize = 5000;
+
+        do {
+            $affected = $connection->executeStatement(<<<SQL
+                UPDATE `product`
+                    INNER JOIN `product_download`
+                        ON `product`.`id` = `product_download`.`product_id` AND `product`.`version_id` = `product_download`.`product_version_id`
+                 SET `product`.`type` = 'digital'
+                 WHERE `product_download`.`id` IS NOT NULL
+                 LIMIT {$batchSize}
             SQL);
+        } while ($affected > 0);
     }
 
     public function updateDestructive(Connection $connection): void

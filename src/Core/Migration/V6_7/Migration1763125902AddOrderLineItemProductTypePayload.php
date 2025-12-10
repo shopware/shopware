@@ -19,29 +19,37 @@ class Migration1763125902AddOrderLineItemProductTypePayload extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement(<<<'SQL'
-            UPDATE `order_line_item` oli
-                INNER JOIN `order_line_item_download` olid
-                    ON olid.order_line_item_id = oli.id AND olid.order_line_item_version_id = oli.version_id
-             SET payload = JSON_SET(
-                payload,
-                '$.productType',
-                'digital'
-             )
-             WHERE oli.type = 'product' OR oli.type = 'custom'
-            SQL);
+        $batchSize = 5000;
 
-        $connection->executeStatement(<<<'SQL'
-            UPDATE `order_line_item`
-             SET payload = JSON_SET(
-                payload,
-                '$.productType',
-                'physical'
-             )
-             WHERE (type = 'product' OR type = 'custom')
-               AND states IS NOT NULL
-               AND JSON_CONTAINS(states, '"is-physical"')
-            SQL);
+        do {
+            $affected = $connection->executeStatement(
+                '
+                UPDATE `order_line_item`
+                    INNER JOIN `order_line_item_download`
+                        ON order_line_item_download.order_line_item_id = order_line_item.id AND order_line_item_download.order_line_item_version_id = order_line_item.version_id
+                 SET payload = JSON_SET(
+                    payload,
+                    \'$.productType\',
+                    \'digital\'
+                 )
+                 WHERE order_line_item.type = \'product\' OR order_line_item.type = \'custom\' LIMIT ' . $batchSize
+            );
+        } while ($affected > 0);
+
+        do {
+            $affected = $connection->executeStatement(
+                '
+                UPDATE `order_line_item`
+                SET payload = JSON_SET(
+                    payload,
+                    \'$.productType\',
+                    \'physical\'
+                )
+                WHERE (type = \'product\' OR type = \'custom\')
+                   AND states IS NOT NULL
+                   AND JSON_CONTAINS(states, \'"is-physical"\') LIMIT ' . $batchSize
+            );
+        } while ($affected > 0);
     }
 
     public function updateDestructive(Connection $connection): void

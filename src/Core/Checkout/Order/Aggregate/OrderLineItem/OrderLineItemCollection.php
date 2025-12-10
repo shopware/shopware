@@ -81,7 +81,7 @@ class OrderLineItemCollection extends EntityCollection
     public function hasLineItemWithType(string $type): bool
     {
         foreach ($this->buildFlat($this) as $lineItem) {
-            if ($lineItem->hasPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE) && $type === $lineItem->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE)) {
+            if ($lineItem->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE) === $type) {
                 return true;
             }
         }

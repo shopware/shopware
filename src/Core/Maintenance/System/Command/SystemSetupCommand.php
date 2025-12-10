@@ -5,6 +5,7 @@ namespace Shopware\Core\Maintenance\System\Command;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
+use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
@@ -204,22 +205,22 @@ class SystemSetupCommand extends Command
         ], $params); // adding parameters that are not in the DSN
 
         if ($dbSslCa) {
-            $params['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $dbSslCa;
+            $params['driverOptions'][Mysql::ATTR_SSL_CA] = $dbSslCa;
             $env['DATABASE_SSL_CA'] = $dbSslCa;
         }
 
         if ($dbSslCert) {
-            $params['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $dbSslCert;
+            $params['driverOptions'][Mysql::ATTR_SSL_CERT] = $dbSslCert;
             $env['DATABASE_SSL_CERT'] = $dbSslCert;
         }
 
         if ($dbSslKey) {
-            $params['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $dbSslKey;
+            $params['driverOptions'][Mysql::ATTR_SSL_KEY] = $dbSslKey;
             $env['DATABASE_SSL_KEY'] = $dbSslKey;
         }
 
         if ($dbSslDontVerify) {
-            $params['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+            $params['driverOptions'][Mysql::ATTR_SSL_VERIFY_SERVER_CERT] = false;
             $env['DATABASE_SSL_DONT_VERIFY_SERVER_CERT'] = '1';
         }
 

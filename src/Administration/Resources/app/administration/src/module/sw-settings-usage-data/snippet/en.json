@@ -8,6 +8,7 @@
     "consent-modal": {
       "title": "Help us improve",
       "intro": "By sharing store and user data, you help us understand how the Administration is used and develop improvements that make your daily work easier.",
+      "share-user-data": "By sharing your user data, you help us understand how the Administration is used and develop improvements that make your daily work easier.",
       "share-store-data": "By sharing store data, you help us understand how the Administration is used and develop improvements that make your daily work easier.",
       "promises": {
         "gdpr-compliant": "GDPR compliant",

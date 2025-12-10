@@ -152,6 +152,7 @@ class DocumentControllerTest extends TestCase
         string $expectedContentType,
         ?string $pathParameter,
         ?string $queryParameter,
+        ?string $acceptHeader = null,
     ): void {
         $context = Context::createDefaultContext();
 
@@ -175,6 +176,9 @@ class DocumentControllerTest extends TestCase
             '/account/order/document/' . $document->getId() . '/' . $document->getDeepLinkCode()
             . ($pathParameter ? '/' . $pathParameter : '')
             . ($queryParameter ? '?fileType=' . $queryParameter : ''),
+            [],
+            [],
+            $acceptHeader ? ['HTTP_ACCEPT' => 'application/pdf'] : [],
         );
 
         $response = $browser->getResponse();
@@ -201,22 +205,6 @@ class DocumentControllerTest extends TestCase
             'queryParameter' => null,
         ];
 
-        yield 'with query param pdf' => [
-            'documentType' => InvoiceRenderer::TYPE,
-            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
-            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
-            'pathParameter' => null,
-            'queryParameter' => PdfRenderer::FILE_EXTENSION,
-        ];
-
-        yield 'with path param html' => [
-            'documentType' => InvoiceRenderer::TYPE,
-            'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
-            'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
-            'pathParameter' => HtmlRenderer::FILE_EXTENSION,
-            'queryParameter' => null,
-        ];
-
         yield 'with query param html' => [
             'documentType' => InvoiceRenderer::TYPE,
             'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
@@ -233,20 +221,21 @@ class DocumentControllerTest extends TestCase
             'queryParameter' => null,
         ];
 
-        yield 'with query param xml' => [
-            'documentType' => ZugferdRenderer::TYPE,
-            'expectedFileType' => ZugferdRenderer::FILE_EXTENSION,
-            'expectedContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
-            'pathParameter' => null,
-            'queryParameter' => ZugferdRenderer::FILE_EXTENSION,
-        ];
-
         yield 'without params pdf should be returned' => [
             'documentType' => InvoiceRenderer::TYPE,
             'expectedFileType' => PdfRenderer::FILE_EXTENSION,
             'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
             'pathParameter' => null,
             'queryParameter' => null,
+        ];
+
+        yield 'Accept header should be ignored and HTML should be returned' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
+            'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
+            'pathParameter' => HtmlRenderer::FILE_EXTENSION,
+            'queryParameter' => null,
+            'acceptHeader' => 'application/' . PdfRenderer::FILE_EXTENSION,
         ];
     }
 

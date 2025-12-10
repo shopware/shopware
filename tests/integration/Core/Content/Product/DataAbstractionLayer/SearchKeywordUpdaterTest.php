@@ -133,8 +133,10 @@ class SearchKeywordUpdaterTest extends TestCase
         static::getContainer()->get(SearchKeywordUpdater::class)
             ->update($ids->getList(['p1', 'p2']), Context::createDefaultContext());
 
-        $this->assertKeywords($ids->get('p1'), Defaults::LANGUAGE_SYSTEM, []);
-        $this->assertKeywords($ids->get('p2'), Defaults::LANGUAGE_SYSTEM, []);
+        // Products should still get keywords from the default searchable fields (name, productNumber)
+        // even when custom fields are configured but have no values
+        $this->assertKeywords($ids->get('p1'), Defaults::LANGUAGE_SYSTEM, ['p1']);
+        $this->assertKeywords($ids->get('p2'), Defaults::LANGUAGE_SYSTEM, ['p2']);
     }
 
     public function testItSkipsKeywordGenerationForNotUsedLanguages(): void

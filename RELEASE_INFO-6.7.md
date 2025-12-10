@@ -57,6 +57,10 @@ shopware:
 
 ## Critical fixes
 
+### Search keywords include products without manufacturer
+
+Products without a manufacturer assigned are now properly included in the search keyword index. Previously, when `manufacturer.name` was configured as a searchable field (which is the default), products without a manufacturer were excluded from keyword indexing because the filter on manufacturer translations failed to match. This primarily affected non-system languages where the language-specific indexing would skip these products entirely.
+
 # 6.7.5.0
 
 ## Features

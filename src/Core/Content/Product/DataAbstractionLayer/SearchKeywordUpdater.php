@@ -255,14 +255,21 @@ class SearchKeywordUpdater implements ResetInterface
                 continue;
             }
 
+            // Get the foreign key field name for null check (e.g., 'manufacturerId' for 'manufacturer')
+            $foreignKeyField = $association . 'Id';
+
             // filter the associations that have no translations in given language,
             // as we automatically use the parent languages keywords for those
+            // Also include products where the association is NULL (not assigned)
             $translationLanguageAccessor = \sprintf(
                 '%s.%s.languageId',
                 $association,
                 $translationField->getPropertyName()
             );
-            $filters[] = new EqualsFilter($translationLanguageAccessor, $context->getLanguageId());
+            $filters[] = new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter($foreignKeyField, null),
+                new EqualsFilter($translationLanguageAccessor, $context->getLanguageId()),
+            ]);
         }
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));

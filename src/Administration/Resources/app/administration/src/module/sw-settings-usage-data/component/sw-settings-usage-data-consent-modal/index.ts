@@ -30,7 +30,10 @@ export default Shopware.Component.wrapComponentConfig({
         SwSettingsUsageDataConsentCheckList,
     },
 
-    inject: ['acl'],
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     props: {
         initialStoreDataConsent: {

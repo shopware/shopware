@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Storefront\Framework\Seo\DataAbstractionLayer\Indexing;
+namespace Shopware\Tests\Integration\Storefront\Framework\Seo\SeoUrlRoute;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
@@ -36,7 +36,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
  */
 #[Package('inventory')]
 #[Group('slow')]
-class SeoUrlIndexerTest extends TestCase
+class SeoUrlUpdateListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;

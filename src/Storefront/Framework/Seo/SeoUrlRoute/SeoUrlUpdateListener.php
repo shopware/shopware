@@ -30,7 +30,6 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
      */
     public function __construct(
         private readonly SeoUrlUpdater $seoUrlUpdater,
-        private readonly Connection $connection
     ) {
     }
 
@@ -52,12 +51,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $ids = $event->getIds();
-        if (!$event->isFullIndexing) {
-            $ids = array_values(array_merge($ids, $this->getCategoryChildren($ids)));
-        }
-
-        $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $ids);
+        $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $event->getIds());
     }
 
     public function updateProductUrls(ProductIndexerEvent $event): void
@@ -76,38 +70,5 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
         }
 
         $this->seoUrlUpdater->update(LandingPageSeoUrlRoute::ROUTE_NAME, array_values($event->getIds()));
-    }
-
-    /**
-     * @param list<string> $ids
-     *
-     * @return array<string>
-     */
-    private function getCategoryChildren(array $ids): array
-    {
-        if (empty($ids)) {
-            return [];
-        }
-
-        $query = $this->connection->createQueryBuilder();
-
-        $query->select('category.id');
-        $query->from('category');
-
-        foreach ($ids as $id) {
-            $key = 'id' . $id;
-            $query->orWhere('category.type != :type AND category.path LIKE :' . $key);
-            $query->setParameter($key, '%' . $id . '%');
-        }
-
-        $query->setParameter('type', CategoryDefinition::TYPE_LINK);
-
-        $children = $query->executeQuery()->fetchFirstColumn();
-
-        if (!$children) {
-            return [];
-        }
-
-        return Uuid::fromBytesToHexList($children);
     }
 }

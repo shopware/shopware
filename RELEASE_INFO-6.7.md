@@ -32,6 +32,12 @@ The following classes and constants were deprecated as they will not be used any
 Additionally, the following configuration was deprecated:
 * `shopware.cache.invalidation.http_cache`
 
+### Performance improvements for generating category SEO-Urls
+
+We don't synchronously fetch and generate the SEO-Urls for all child categories anymore. 
+Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
+This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
+
 ## Administration
 
 ## Storefront

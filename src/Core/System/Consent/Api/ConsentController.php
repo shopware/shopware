@@ -30,10 +30,10 @@ class ConsentController
     #[Route(path: '/api/consents', name: 'api.consents.fetch', defaults: ['auth_required' => true], methods: ['GET'])]
     public function fetchConsents(Context $context): Response
     {
-        $filter = (new ConsentContext())
+        $context = (new ConsentContext())
             ->add(ConsentScope::ADMIN_USER, $this->getUserId($context));
 
-        return new JsonResponse($this->consentService->list($filter));
+        return new JsonResponse($this->consentService->list($context));
     }
 
     #[Route(path: '/api/consents/{consent}/accept', name: 'api.consents.accept', defaults: ['auth_required' => true], methods: ['POST'])]

@@ -13,6 +13,10 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * This listener updates the seo urls for the product, category and landing page routes when the corresponding entities are indexed.
+ * It assumes that for every parent child relation the indexer will take care of fetching the child ids
+ * and dispatching the event for the children as well.
+ *
  * @internal
  */
 #[Package('inventory')]

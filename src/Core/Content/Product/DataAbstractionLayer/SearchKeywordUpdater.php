@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -255,9 +256,6 @@ class SearchKeywordUpdater implements ResetInterface
                 continue;
             }
 
-            // Get the foreign key field name for null check (e.g., 'manufacturerId' for 'manufacturer')
-            $foreignKeyField = $association . 'Id';
-
             // filter the associations that have no translations in given language,
             // as we automatically use the parent languages keywords for those
             // Also include products where the association is NULL (not assigned)
@@ -266,6 +264,16 @@ class SearchKeywordUpdater implements ResetInterface
                 $association,
                 $translationField->getPropertyName()
             );
+
+            // Check if FK field exists (e.g., 'manufacturerId' for 'manufacturer')
+            $foreignKeyField = $association . 'Id';
+            $fkField = EntityDefinitionQueryHelper::getField($foreignKeyField, $definition, $definition->getEntityName());
+
+            if (!$fkField instanceof FkField) {
+                $filters[] = new EqualsFilter($translationLanguageAccessor, $context->getLanguageId());
+                continue;
+            }
+
             $filters[] = new MultiFilter(MultiFilter::CONNECTION_OR, [
                 new EqualsFilter($foreignKeyField, null),
                 new EqualsFilter($translationLanguageAccessor, $context->getLanguageId()),

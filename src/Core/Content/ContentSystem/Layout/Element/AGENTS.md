@@ -10,8 +10,6 @@
 - `ContextDependencyAnalyzer` (Context/) - Analyzes context dependency chains
 - `DataRequirement` (DataRequirement/) - Data loading specs
 - `ElementVisitor` (Visitor/) - Traversal interface
-- `PathFinderVisitor` (Visitor/) - Finds path from root to element
-- `ElementTreeUtil` (TreeUtil/) - Tree manipulation utilities
 
 ## Constraints
 

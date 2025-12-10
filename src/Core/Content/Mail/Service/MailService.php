@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Service;
 
 use Monolog\Level;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
@@ -51,12 +52,25 @@ class MailService extends AbstractMailService
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        private readonly MailDataProvider $mailDataProvider,
     ) {
     }
 
     public function getDecorated(): AbstractMailService
     {
         throw new DecorationPatternException(self::class);
+    }
+
+    public function getDataAndSend(array $data, MailTemplateEntity $mailTemplate, Context $context, array $entities = []): ?Email
+    {
+        $templateData = $this->mailDataProvider->getTemplateData($mailTemplate, $entities, $context);
+
+        $data['contentHtml'] = $mailTemplate->getContentHtml();
+        $data['contentPlain'] = $mailTemplate->getContentPlain();
+        $data['subject'] = $mailTemplate->getSubject();
+        $data['senderName'] = $mailTemplate->getSenderName();
+
+        return $this->send($data, $context, $templateData);
     }
 
     public function send(array $data, Context $context, array $templateData = []): ?Email

@@ -18,13 +18,19 @@ use Shopware\Core\Framework\Log\Package;
 class MailDataProvider
 {
     /**
-     * @param DataProvider[] $dataProviders
+     * @var array<string, DataProvider> $dataProviders
+     */
+    private array $dataProviders;
+
+    /**
+     * @param iterable<string, DataProvider> $dataProviders
      */
     public function __construct(
-        private readonly iterable $dataProviders,
+        iterable $dataProviders,
         private readonly JsonEntityEncoder $jsonEntityEncoder,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
     ) {
+        $this->dataProviders = $dataProviders instanceof \Traversable ? iterator_to_array($dataProviders) : $dataProviders;
     }
 
     /**
@@ -38,15 +44,19 @@ class MailDataProvider
 
         $templateData = [];
 
-        foreach ($this->dataProviders as $dataProvider) {
-            foreach ($entities as $entityName => $entityId) {
-                if ($dataProvider->supports($entityName)) {
-                    $templateData = array_merge(
-                        $templateData,
-                        [$entityName => $dataProvider->getData($entityId, $context)]
-                    );
-                }
+        foreach ($entities as $entityName => $entityId) {
+            $dataProvider = $this->dataProviders[$entityName];
+
+            $data = $dataProvider->getData($entityId, $context);
+
+            if ($data === null) {
+                // TODO: check how flow handles it, it just returns null for missing entities, does that error?
             }
+
+            $templateData = array_merge(
+                $templateData,
+                [$entityName => $data]
+            );
         }
 
         foreach ($templateData as $key => $value) {

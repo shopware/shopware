@@ -131,12 +131,14 @@
 
         <service id="Shopware\Core\Content\Mail\DataProvider\OrderProvider">
             <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\OrderCriteriaBuilder"/>
+            <argument type="service" id="event_dispatcher"/>
 
-            <tag name="shopware.mail.data_provider"/>
+            <tag name="shopware.mail.data_provider" key="order"/>
         </service>
 
         <service id="Shopware\Core\Content\Mail\Service\MailDataProvider">
-            <argument type="tagged" tag="shopware.mail.data_provider"/>
+            <argument type="tagged" tag="shopware.mail.data_provider" index-by="key"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>

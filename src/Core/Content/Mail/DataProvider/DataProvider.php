@@ -12,7 +12,5 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 interface DataProvider
 {
-    public function supports(string $entityName): bool;
-
-    public function getData(string $entityId, Context $context): Entity;
+    public function getData(string $entityId, Context $context): ?Entity;
 }

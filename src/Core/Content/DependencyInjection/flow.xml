@@ -202,6 +202,7 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\OrderCriteriaBuilder"/>
 
             <tag name="flow.storer"/>
         </service>

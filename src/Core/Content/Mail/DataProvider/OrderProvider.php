@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Content\Mail\DataProvider;
 
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Mail\Event\BeforeLoadMailDataProviderEvent;
+use Shopware\Core\Content\Shared\MailFlow\OrderCriteriaBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -16,43 +18,27 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class OrderProvider implements DataProvider
 {
+    /**
+     * @param EntityRepository<OrderCollection> $orderRepository
+     */
     public function __construct(
         private readonly EntityRepository $orderRepository,
-    ){
+        private readonly OrderCriteriaBuilder $orderCriteriaBuilder,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
-    public function supports(string $entityName): bool
+    public function getData(string $entityId, Context $context): ?OrderEntity
     {
-        return $entityName === OrderDefinition::ENTITY_NAME;
-    }
+        $criteria = $this->orderCriteriaBuilder->getCriteria($entityId);
 
-    public function getData(string $entityId, Context $context): Entity
-    {
-        // TODO: Same as OrderStorer, we should move it to a common place
-        $criteria = new Criteria([$entityId]);
+        $event = new BeforeLoadMailDataProviderEvent(
+            OrderDefinition::ENTITY_NAME,
+            $criteria,
+            $context,
+        );
 
-        $criteria->addAssociations([
-            'primaryOrderDelivery',
-            'primaryOrderTransaction',
-            'orderCustomer',
-            'orderCustomer.salutation',
-            'lineItems.downloads.media',
-            'lineItems.cover',
-            'deliveries.shippingMethod',
-            'deliveries.shippingOrderAddress.country',
-            'deliveries.shippingOrderAddress.countryState',
-            'stateMachineState',
-            'transactions.stateMachineState',
-            'transactions.paymentMethod',
-            'deliveries.stateMachineState',
-            'currency',
-            'addresses.country',
-            'addresses.countryState',
-            'tags',
-            'documents',
-        ]);
-
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        $this->dispatcher->dispatch($event, $event->getName());
 
         return $this->orderRepository->search($criteria, $context)->getEntities()->get($entityId);
     }

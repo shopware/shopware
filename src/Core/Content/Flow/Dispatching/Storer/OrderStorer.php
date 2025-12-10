@@ -7,10 +7,10 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Shared\MailFlow\OrderCriteriaBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
@@ -26,7 +26,8 @@ class OrderStorer extends FlowStorer
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly OrderCriteriaBuilder $orderCriteriaBuilder,
     ) {
     }
 
@@ -62,36 +63,13 @@ class OrderStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
+        $criteria = $this->orderCriteriaBuilder->getCriteria($id);
 
         return $this->loadOrder($criteria, $storableFlow->getContext(), $id);
     }
 
     private function loadOrder(Criteria $criteria, Context $context, string $orderId): ?OrderEntity
     {
-        $criteria->addAssociations([
-            'primaryOrderDelivery',
-            'primaryOrderTransaction',
-            'orderCustomer',
-            'orderCustomer.salutation',
-            'lineItems.downloads.media',
-            'lineItems.cover',
-            'deliveries.shippingMethod',
-            'deliveries.shippingOrderAddress.country',
-            'deliveries.shippingOrderAddress.countryState',
-            'stateMachineState',
-            'transactions.stateMachineState',
-            'transactions.paymentMethod',
-            'deliveries.stateMachineState',
-            'currency',
-            'addresses.country',
-            'addresses.countryState',
-            'tags',
-            'documents',
-        ]);
-
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
-
         $event = new BeforeLoadStorableFlowDataEvent(
             OrderDefinition::ENTITY_NAME,
             $criteria,

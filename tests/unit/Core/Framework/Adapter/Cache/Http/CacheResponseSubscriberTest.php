@@ -467,6 +467,7 @@ class CacheResponseSubscriberTest extends TestCase
         // Check cookies absence for non-storefront routes
         static::assertIsArray($routeScope);
         static::assertEmpty($response->headers->getCookies(), 'Should not have cookies');
+        static::assertFalse($response->headers->has(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS));
     }
 
     /**
@@ -720,6 +721,130 @@ class CacheResponseSubscriberTest extends TestCase
         $this->cacheHeadersService->expects($this->once())
             ->method('applyCacheHeaders');
         $this->subscriber->setResponseCache($event);
+    }
+
+    /**
+     * @param array{header?: string, cookie?: string} $clientHash
+     */
+    #[DataProvider('cacheHashValidationProvider')]
+    public function testCacheHashValidation(array $clientHash, ?string $serviceHash, bool $expectCacheable, bool $expectBypassHeader): void
+    {
+        $cacheHeadersService = $this->createMock(CacheHeadersService::class);
+
+        $policyProvider = $this->createCachePolicyProvider(
+            [
+                'cacheable' => ['headers' => ['cache_control' => ['public' => true, 's_maxage' => 100]]],
+                'uncacheable' => ['headers' => ['cache_control' => ['private' => true, 'no_store' => true]]],
+            ],
+            [
+                'storefront' => ['cacheable' => 'cacheable', 'uncacheable' => 'uncacheable'],
+                'store_api' => ['cacheable' => 'cacheable', 'uncacheable' => 'uncacheable'],
+            ],
+        );
+
+        $subscriber = new CacheResponseSubscriber(
+            $this->createMock(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver($this->eventDispatcher),
+            null,
+            null,
+            $cacheHeadersService,
+            $policyProvider,
+        );
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+
+        if (isset($clientHash['header'])) {
+            $request->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $clientHash['header']);
+        }
+        if (isset($clientHash['cookie'])) {
+            $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $clientHash['cookie']);
+        }
+
+        $cacheHeadersService->expects($this->once())
+            ->method('applyCacheHash')
+            ->willReturn($serviceHash);
+
+        $response = new Response();
+        $subscriber->setResponseCache(new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        static::assertSame($expectBypassHeader, $response->headers->has(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS));
+
+        if ($expectCacheable) {
+            static::assertStringContainsString('public', (string) $response->headers->get('cache-control'));
+        } else {
+            static::assertStringContainsString('no-store', (string) $response->headers->get('cache-control'));
+        }
+    }
+
+    /**
+     * @return iterable<string, array{clientHash: array{header?: string, cookie?: string}, serviceHash: ?string, expectCacheable: bool, expectBypassHeader: bool}>
+     */
+    public static function cacheHashValidationProvider(): iterable
+    {
+        yield 'No client hash, null from service -> cacheable' => [
+            'clientHash' => [],
+            'serviceHash' => null,
+            'expectCacheable' => true,
+            'expectBypassHeader' => false,
+        ];
+
+        yield 'Empty client cookie, null from service -> cacheable' => [
+            'clientHash' => ['cookie' => ''],
+            'serviceHash' => null,
+            'expectCacheable' => true,
+            'expectBypassHeader' => false,
+        ];
+
+        yield 'Same hash in cookie and from service -> cacheable' => [
+            'clientHash' => ['cookie' => 'abc123'],
+            'serviceHash' => 'abc123',
+            'expectCacheable' => true,
+            'expectBypassHeader' => false,
+        ];
+
+        yield 'Same hash in header and from service -> cacheable' => [
+            'clientHash' => ['header' => 'abc123'],
+            'serviceHash' => 'abc123',
+            'expectCacheable' => true,
+            'expectBypassHeader' => false,
+        ];
+
+        yield 'Header takes precedence over cookie when matching' => [
+            'clientHash' => ['header' => 'abc123', 'cookie' => 'different'],
+            'serviceHash' => 'abc123',
+            'expectCacheable' => true,
+            'expectBypassHeader' => false,
+        ];
+
+        yield 'NOT_CACHEABLE from service -> not cacheable with bypass header' => [
+            'clientHash' => ['cookie' => HttpCacheCookieEvent::NOT_CACHEABLE],
+            'serviceHash' => HttpCacheCookieEvent::NOT_CACHEABLE,
+            'expectCacheable' => false,
+            'expectBypassHeader' => true,
+        ];
+
+        yield 'Hash mismatch -> not cacheable with bypass header' => [
+            'clientHash' => ['header' => 'old-hash'],
+            'serviceHash' => 'new-hash',
+            'expectCacheable' => false,
+            'expectBypassHeader' => true,
+        ];
+
+        yield 'No client hash but service returns hash -> not cacheable with bypass header' => [
+            'clientHash' => [],
+            'serviceHash' => 'abc123',
+            'expectCacheable' => false,
+            'expectBypassHeader' => true,
+        ];
     }
 
     /**

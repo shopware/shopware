@@ -49,7 +49,7 @@ class CacheHeadersService
         $response->setVary($newVaryArray);
     }
 
-    public function applyCacheHash(Request $request, SalesChannelContext $context, Cart $cart, Response $response): void
+    public function applyCacheHash(Request $request, SalesChannelContext $context, Cart $cart, Response $response): ?string
     {
         $isCacheHashRequired = $this->extensions->publish(
             CacheHashRequiredExtension::NAME,
@@ -63,7 +63,7 @@ class CacheHeadersService
                 $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
             }
 
-            return;
+            return null;
         }
 
         $newValue = $this->buildCacheHash($request, $context);
@@ -76,6 +76,8 @@ class CacheHeadersService
         }
 
         $response->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
+
+        return $newValue;
     }
 
     private function buildCacheHash(Request $request, SalesChannelContext $context): string

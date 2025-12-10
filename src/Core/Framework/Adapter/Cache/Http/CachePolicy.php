@@ -57,9 +57,8 @@ readonly class CachePolicy
     {
         return new self(
             cacheControl: new CacheControlDirectives(
-                public: false,
-                private: true,
                 noStore: true,
+                noCache: true,
                 mustRevalidate: true,
                 maxAge: 0,
                 sMaxAge: 0,

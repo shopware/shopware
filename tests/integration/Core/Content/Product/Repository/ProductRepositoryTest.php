@@ -420,7 +420,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria([$id]);
         $product = $this->repository->search($criteria, $this->context)->getEntities()->get($id);
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertEquals($expectedType, $product->getType());
+        static::assertSame($expectedType, $product->getType());
     }
 
     public static function dataProviderProductWrite(): \Generator

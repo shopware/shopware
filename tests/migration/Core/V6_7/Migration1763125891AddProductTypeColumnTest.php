@@ -26,6 +26,7 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
 
     public function testUpdateAddsTypeColumnAndIndex(): void
     {
+        $this->ensureStatesColumnExists();
         $this->dropTypeColumnIfExists();
 
         $migration = new Migration1763125891AddProductTypeColumn();
@@ -50,6 +51,17 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         if ($table->hasColumn('type')) {
             $this->connection->executeStatement('ALTER TABLE `product` DROP COLUMN `type`');
         }
+    }
+
+    private function ensureStatesColumnExists(): void
+    {
+        $table = $this->getProductTable();
+
+        if ($table->hasColumn('states')) {
+            return;
+        }
+
+        $this->connection->executeStatement('ALTER TABLE `product` ADD COLUMN `states` JSON NULL');
     }
 
     private function getProductTable(): Table

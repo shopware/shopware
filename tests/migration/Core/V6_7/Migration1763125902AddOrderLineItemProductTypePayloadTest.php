@@ -28,7 +28,7 @@ class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
-    public function testUpdateSetsDigitalTypeWhenDownloadExists(): void
+    public function testUpdateSetsDigitalTypeWhenStatesIsDownloadExists(): void
     {
         $this->ensureStatesColumnExists();
 
@@ -49,18 +49,8 @@ class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
                 'quantity' => 1,
                 'type' => 'product',
                 'payload' => Json::encode(new \stdClass()),
+                'states' => json_encode(['is-download']),
                 'price' => json_encode($this->createPricePayload(), \JSON_THROW_ON_ERROR),
-                'created_at' => $now,
-            ], [
-                'created_at' => Types::DATETIME_IMMUTABLE,
-            ]);
-
-            $this->connection->insert('order_line_item_download', [
-                'id' => Uuid::randomBytes(),
-                'version_id' => $versionId,
-                'order_line_item_id' => $lineItemId,
-                'order_line_item_version_id' => $versionId,
-                'media_id' => Uuid::randomBytes(),
                 'created_at' => $now,
             ], [
                 'created_at' => Types::DATETIME_IMMUTABLE,
@@ -80,14 +70,6 @@ class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
         );
 
         static::assertSame('digital', $productType);
-
-        $this->connection->delete('order_line_item_download', [
-            'order_line_item_id' => $lineItemId,
-            'order_line_item_version_id' => $versionId,
-        ], [
-            'order_line_item_id' => Types::BINARY,
-            'order_line_item_version_id' => Types::BINARY,
-        ]);
 
         $this->connection->delete('order_line_item', [
             'id' => $lineItemId,

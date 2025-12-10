@@ -4,7 +4,11 @@ const mockOffCanvasInstance = {
     openOffCanvas: (url, data, callback) => {
         callback();
     },
-}
+};
+
+const mockCartWidgetInstance = {
+    fetch: jest.fn(),
+};
 
 /**
  * @package checkout
@@ -15,39 +19,139 @@ describe('AddToCartPlugin tests', () => {
 
     beforeEach(() => {
         document.body.innerHTML = `
-            <form action="/checkout/line-item/add" method="post">
-                <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
-                <input type="hidden" name="redirectParameters" data-redirect-parameters="true" value="{ productId: '36250993b62e49319546ba869b84da77' }" disabled>
+            <div class="form-wrapper">
+                <form action="/checkout/line-item/add" method="post">
+                    <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
+                    <input type="hidden" name="redirectParameters" data-redirect-parameters="true" value="{ productId: '36250993b62e49319546ba869b84da77' }" disabled>
 
-                <button>Add to shopping cart</button>
-            </form>
+                    <button>Add to shopping cart</button>
+                </form>
+            </div>
+            <div class="js-add-to-cart-alert-template d-none">
+                <span>Product added to cart</span>
+            </div>
         `;
 
-        window.PluginManager.getPluginInstances = () => {
-            return [mockOffCanvasInstance];
-        }
+        window.PluginManager.getPluginInstances = jest.fn((pluginName) => {
+            if (pluginName === 'OffCanvasCart') {
+                return [mockOffCanvasInstance];
+            }
+            if (pluginName === 'CartWidget') {
+                return [mockCartWidgetInstance];
+            }
+            return [];
+        });
+
+        // Default: offcanvas is enabled
+        window.disableOffcanvasAfterAddToCart = '0';
 
         pluginInstance = new AddToCartPlugin(document.querySelector('form'));
-
         pluginInstance.$emitter.publish = jest.fn();
+
+        // Reset mocks
+        mockCartWidgetInstance.fetch.mockClear();
+
+        // Mock fetch for _addToCartWithoutOffcanvas
+        global.fetch = jest.fn(() => Promise.resolve({ ok: true }));
     });
 
     afterEach(() => {
         pluginInstance = undefined;
+        delete window.disableOffcanvasAfterAddToCart;
+        jest.restoreAllMocks();
     });
 
     test('should init plugin', () => {
         expect(typeof pluginInstance).toBe('object');
     });
 
-    test('should fire events when submitting form', () => {
-        const button = document.querySelector('button');
+    test('should fire events and open offcanvas when submitting form with offcanvas enabled', () => {
+        window.disableOffcanvasAfterAddToCart = '0';
 
-        // Click add to cart button
+        const button = document.querySelector('button');
         button.click();
 
         expect(pluginInstance.$emitter.publish).toHaveBeenNthCalledWith(1, 'beforeFormSubmit', expect.any(FormData));
         expect(pluginInstance.$emitter.publish).toHaveBeenNthCalledWith(2, 'openOffCanvasCart');
+    });
+
+    test('should add to cart without offcanvas when offcanvas is disabled', async () => {
+        window.disableOffcanvasAfterAddToCart = '1';
+
+        const button = document.querySelector('button');
+        button.click();
+
+        // Wait for the fetch promise to resolve
+        await Promise.resolve();
+
+        expect(global.fetch).toHaveBeenCalledWith('/checkout/line-item/add', {
+            method: 'POST',
+            body: expect.any(FormData),
+        });
+        expect(mockCartWidgetInstance.fetch).toHaveBeenCalled();
+        expect(pluginInstance.$emitter.publish).toHaveBeenCalledWith('beforeFormSubmit', expect.any(FormData));
+        expect(pluginInstance.$emitter.publish).toHaveBeenCalledWith('addToCartWithoutOffcanvas');
+    });
+
+    test('should show success alert when adding to cart without offcanvas', async () => {
+        window.disableOffcanvasAfterAddToCart = '1';
+
+        const button = document.querySelector('button');
+        button.click();
+
+        await Promise.resolve();
+
+        const alert = document.querySelector('.add-to-cart-alert');
+        expect(alert).not.toBeNull();
+        expect(alert.classList.contains('show')).toBe(true);
+        expect(alert.classList.contains('d-none')).toBe(false);
+    });
+
+    test('should remove existing alert before showing new one', async () => {
+        window.disableOffcanvasAfterAddToCart = '1';
+
+        const button = document.querySelector('button');
+
+        // First click
+        button.click();
+        await Promise.resolve();
+
+        // Second click
+        button.click();
+        await Promise.resolve();
+
+        const alerts = document.querySelectorAll('.add-to-cart-alert');
+        expect(alerts.length).toBe(1);
+    });
+
+    test('should auto-dismiss alert after delay', async () => {
+        jest.useFakeTimers();
+        window.disableOffcanvasAfterAddToCart = '1';
+
+        const button = document.querySelector('button');
+        button.click();
+
+        await Promise.resolve();
+
+        const alert = document.querySelector('.add-to-cart-alert');
+        expect(alert.classList.contains('show')).toBe(true);
+
+        // Fast-forward past the dismiss delay
+        jest.advanceTimersByTime(3000);
+
+        expect(alert.classList.contains('show')).toBe(false);
+
+        jest.useRealTimers();
+    });
+
+    test('should return true for _shouldOpenOffcanvas when not disabled', () => {
+        window.disableOffcanvasAfterAddToCart = '0';
+        expect(pluginInstance._shouldOpenOffcanvas()).toBe(true);
+    });
+
+    test('should return false for _shouldOpenOffcanvas when disabled', () => {
+        window.disableOffcanvasAfterAddToCart = '1';
+        expect(pluginInstance._shouldOpenOffcanvas()).toBe(false);
     });
 
     test('should throw an error when no form can be found', () => {
@@ -55,7 +159,7 @@ describe('AddToCartPlugin tests', () => {
             <div class="not-a-form-much-trouble">
                 <div data-add-to-cart="true"></div>
             </div>
-        `
+        `;
 
         expect(() => {
             new AddToCartPlugin(document.querySelector('[data-add-to-cart]'));
@@ -67,10 +171,25 @@ describe('AddToCartPlugin tests', () => {
             <form action="/checkout/line-item/add" method="post">
                 <div data-add-to-cart="true"></div>
             </form>
-        `
+        `;
 
         pluginInstance = new AddToCartPlugin(document.querySelector('[data-add-to-cart]'));
 
         expect(typeof pluginInstance).toBe('object');
+    });
+
+    test('should not show alert if template is missing', async () => {
+        window.disableOffcanvasAfterAddToCart = '1';
+
+        // Remove the alert template
+        document.querySelector('.js-add-to-cart-alert-template').remove();
+
+        const button = document.querySelector('button');
+        button.click();
+
+        await Promise.resolve();
+
+        const alert = document.querySelector('.add-to-cart-alert');
+        expect(alert).toBeNull();
     });
 });

@@ -6,12 +6,7 @@
 
 ## Core
 
-### PHP 8.5 support
-
-Shopware is now fully compatible with PHP 8.5.
-
 ### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
-
 The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
 You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
 
@@ -38,9 +33,27 @@ Additionally, the following configuration was deprecated:
 
 ### Google Analytics 4 Integration Update
 
-The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities. The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure. Furthermore, new events for `add_to_wishlist`, `remove_from_wishlist`, `view_cart`, `add_shipping_info`, and `add_payment_info` have been implemented to provide a more comprehensive view of user interactions. The checkout funnel now tracks shipping and payment method selections, including when users change their selections. These changes ensure that tracking data is more detailed and compliant with the latest `GA4` specifications.
+The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities.
 
-### Deprecated `checkout_progress` Event
+- The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure.
+- Furthermore, new events for `add_to_wishlist`, `remove_from_wishlist`, `view_cart`, `add_shipping_info`, and `add_payment_info` have been implemented to provide a more comprehensive view of user interactions.
+- The checkout funnel now tracks shipping and payment method selections, including when users change their selections.
+
+#### New Configuration: Track Offcanvas Cart
+
+A new configuration option `Track offcanvas cart` has been added to the Sales Channel Analytics settings. When enabled, the `view_cart` GA4 event will fire whenever the offcanvas cart is opened.
+
+#### New Configuration: Disable Automatic Offcanvas Cart
+
+A new configuration option `Disable automatic offcanvas cart after adding a product` has been added to the Cart settings (Settings → Shop → Cart). When enabled:
+
+1. The offcanvas cart will **not open automatically** after adding items to the cart
+2. A success message will be shown instead
+3. The cart widget in the header will still update to show the new item count
+
+**Recommended for accurate funnel tracking:** Enable "Disable automatic offcanvas cart after adding a product" and enable "Track offcanvas cart". This ensures `view_cart` events only fire when users intentionally click the cart button, providing accurate funnel metrics.
+
+#### Deprecated `checkout_progress` Event
 
 The `checkout_progress` event has been removed from the default event registration as it was a legacy Universal Analytics (GA3) event that was incorrectly fired on the cart page. This functionality is now correctly covered by the `view_cart` event, which is the proper GA4 event for tracking cart views. The `CheckoutProgressEvent` class is still available but deprecated and will be removed in v6.8.0. If you have custom integrations relying on this event, please migrate to using the `view_cart` event instead.
 

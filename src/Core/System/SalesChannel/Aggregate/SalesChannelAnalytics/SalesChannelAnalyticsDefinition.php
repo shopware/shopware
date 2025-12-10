@@ -46,6 +46,7 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new BoolField('track_orders', 'trackOrders'),
             new BoolField('anonymize_ip', 'anonymizeIp'),
+            new BoolField('track_offcanvas_cart', 'trackOffcanvasCart'),
             new OneToOneAssociationField('salesChannel', 'id', 'analytics_id', SalesChannelDefinition::class, false),
         ]);
     }

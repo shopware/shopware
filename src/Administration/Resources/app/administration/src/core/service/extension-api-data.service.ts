@@ -1,7 +1,6 @@
 /**
  * @sw-package framework
  */
-
 import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
 import get from 'lodash-es/get';
 import debounce from 'lodash-es/debounce';

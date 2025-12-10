@@ -38,6 +38,16 @@ We don't synchronously fetch and generate the SEO-Urls for all child categories 
 Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
 This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
 
+### Introduce Immutable DAL flag
+
+A new `Immutable` flag is available for Data Abstraction Layer fields. Fields marked as immutable can be set during entity creation but cannot be updated later. This prevents accidental renames of technical identifiers that other subsystems rely on. Core entities now using the flag include:
+
+* `custom_field.name`
+* `custom_field.type`
+* `custom_field_set.name`
+
+Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
+
 ## Administration
 
 ## Storefront

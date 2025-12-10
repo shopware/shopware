@@ -34,7 +34,7 @@
 
         <!-- Output Services -->
         <service id="Shopware\Core\Content\ContentSystem\Output\PartialRenderer">
-            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Element\TreeUtil\ElementTreeUtil"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\ElementTreeUtil"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
         </service>
@@ -232,13 +232,11 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Hydration\DataContext\DataContextResolver"/>
         </service>
 
-        <!-- Layout Tree Utilities -->
-        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\TreeUtil\ElementTreeUtil"/>
-
+        <!-- Layout Context Utilities -->
         <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer"/>
 
-
         <!-- Output Services (Post-Hydration Processing) -->
+        <service id="Shopware\Core\Content\ContentSystem\Output\ElementTreeUtil"/>
         <service id="Shopware\Core\Content\ContentSystem\Output\SubTreeExtractor"/>
 
         <!-- Entity Layout Services -->

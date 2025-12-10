@@ -1,22 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ContentSystem\Layout\Element\TreeUtil;
+namespace Shopware\Core\Content\ContentSystem\Output;
 
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
-use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\PathFinderVisitor;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * Tree manipulation utilities using visitor pattern for state tracking and direct recursion for early-exit/reconstruction.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('discovery')]
-final class ElementTreeUtil
+class ElementTreeUtil
 {
     /**
      * @return list<string> Element IDs from root to target (inclusive), empty array if not found

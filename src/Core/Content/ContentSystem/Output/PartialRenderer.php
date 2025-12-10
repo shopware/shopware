@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\ContentSystem\Output;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
-use Shopware\Core\Content\ContentSystem\Layout\Element\TreeUtil\ElementTreeUtil;
 use Shopware\Core\Framework\Log\Package;
 
 /**

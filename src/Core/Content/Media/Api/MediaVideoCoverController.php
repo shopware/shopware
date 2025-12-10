@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\Service\VideoCoverService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +26,11 @@ class MediaVideoCoverController extends AbstractController
     #[Route(path: '/api/_action/media/{mediaId}/video-cover', name: 'api.action.media.set_video_cover', methods: ['POST'], defaults: ['_acl' => ['media.editor']])]
     public function assignVideoCover(string $mediaId, Request $request, Context $context): JsonResponse
     {
-        $coverMediaId = $request->request->get('coverMediaId');
+        try {
+            $coverMediaId = $request->request->get('coverMediaId');
+        } catch (BadRequestException) {
+            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
+        }
 
         if ($coverMediaId !== null && !\is_string($coverMediaId)) {
             return new JsonResponse(null, Response::HTTP_BAD_REQUEST);

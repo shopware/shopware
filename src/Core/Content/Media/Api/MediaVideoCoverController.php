@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('discovery')]
@@ -25,11 +25,7 @@ class MediaVideoCoverController extends AbstractController
     #[Route(path: '/api/_action/media/{mediaId}/video-cover', name: 'api.action.media.set_video_cover', methods: ['POST'], defaults: ['_acl' => ['media.editor']])]
     public function assignVideoCover(string $mediaId, Request $request, Context $context): JsonResponse
     {
-        $payload = $request->request->all();
-        $coverMediaId = $payload['coverMediaId'] ?? null;
-        if (\is_string($coverMediaId) && $coverMediaId === '') {
-            $coverMediaId = null;
-        }
+        $coverMediaId = $request->request->get('coverMediaId');
 
         if ($coverMediaId !== null && !\is_string($coverMediaId)) {
             return new JsonResponse(null, Response::HTTP_BAD_REQUEST);

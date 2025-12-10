@@ -26,10 +26,6 @@ class VideoCoverService
 
     public function assignCoverToVideo(string $videoMediaId, ?string $coverMediaId, Context $context): void
     {
-        if ($videoMediaId === '') {
-            throw MediaException::emptyMediaId();
-        }
-
         $context->scope(Context::SYSTEM_SCOPE, function (Context $scopedContext) use ($videoMediaId, $coverMediaId): void {
             $video = $this->getMedia($videoMediaId, $scopedContext);
             if (!$this->isVideo($video)) {
@@ -65,13 +61,11 @@ class VideoCoverService
     {
         $criteria = new Criteria([$id]);
 
-        $media = $this->mediaRepository->search($criteria, $context)->get($id);
+        $media = $this->mediaRepository->search($criteria, $context)->getEntities()->get($id);
 
         if ($media === null) {
             throw MediaException::mediaNotFound($id);
         }
-
-        \assert($media instanceof MediaEntity);
 
         return $media;
     }

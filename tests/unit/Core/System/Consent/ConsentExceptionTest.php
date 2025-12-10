@@ -19,7 +19,7 @@ class ConsentExceptionTest extends TestCase
     {
         $e = ConsentException::notFound('test-consent');
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $e->getStatusCode());
         static::assertSame(ConsentException::NOT_FOUND, $e->getErrorCode());
         static::assertSame('Consent with name "test-consent" not found.', $e->getMessage());
         static::assertSame(['name' => 'test-consent'], $e->getParameters());
@@ -67,5 +67,15 @@ class ConsentExceptionTest extends TestCase
         static::assertSame(ConsentException::INVALID_CONSENT_STATUS, $e->getErrorCode());
         static::assertSame('Consent status is invalid.', $e->getMessage());
         static::assertSame([], $e->getParameters());
+    }
+
+    public function testInvalidScope(): void
+    {
+        $e = ConsentException::invalidScope('invalid-scope');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ConsentException::INVALID_SCOPE, $e->getErrorCode());
+        static::assertSame('No scope resolver found for scope "invalid-scope".', $e->getMessage());
+        static::assertSame(['scope' => 'invalid-scope'], $e->getParameters());
     }
 }

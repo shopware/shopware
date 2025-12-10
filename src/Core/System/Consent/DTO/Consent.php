@@ -3,18 +3,20 @@
 namespace Shopware\Core\System\Consent\DTO;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Consent\ConsentState;
+use Shopware\Core\System\Consent\ConsentScope;
 
 /**
  * @codeCoverageIgnore
  */
 #[Package('data-services')]
-class ConsentStateDTO
+class Consent
 {
     public function __construct(
+        public readonly string $id,
         public readonly string $name,
-        public readonly string $identifier,
-        public readonly ConsentState $status,
+        public readonly ConsentScope $scope,
+        public readonly \DateTimeImmutable $createdAt,
+        public readonly ?\DateTimeImmutable $updatedAt,
     ) {
     }
 }

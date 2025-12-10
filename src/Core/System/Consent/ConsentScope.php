@@ -10,9 +10,8 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('data-services')]
-enum ConsentState: string
+enum ConsentScope: string
 {
-    case REQUESTED = 'requested';
-    case ACCEPTED = 'accepted';
-    case REVOKED = 'revoked';
+    case GLOBAL = 'global';
+    case ADMIN_USER = 'admin_user';
 }

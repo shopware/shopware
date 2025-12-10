@@ -14,6 +14,8 @@ class ConsentException extends HttpException
     final public const STORAGE_NOT_FOUND = 'SYSTEM__CONSENT_STORAGE_NOT_FOUND';
     final public const INVALID_CONSENT = 'SYSTEM__CONSENT_INVALID_CONSENT';
     final public const INVALID_CONSENT_STATUS = 'SYSTEM__CONSENT_INVALID_CONSENT_STATUS';
+    final public const INVALID_SCOPE = 'SYSTEM__CONSENT_INVALID_SCOPE';
+    final public const IDENTIFIER_REQUIRED = 'SYSTEM__CONSENT_IDENTIFIER_REQUIRED';
 
     public static function notFound(string $name): self
     {
@@ -66,6 +68,25 @@ class ConsentException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::INVALID_CONSENT_STATUS,
             'Consent status is invalid.',
+        );
+    }
+
+    public static function invalidScope(string $scope): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_SCOPE,
+            'No scope resolver found for scope "{{ scope }}".',
+            ['scope' => $scope]
+        );
+    }
+
+    public static function identifierRequired(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::IDENTIFIER_REQUIRED,
+            'Consents with non global scope require an identifier.'
         );
     }
 }

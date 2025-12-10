@@ -8,25 +8,12 @@
             <argument type="service" id="Shopware\Core\System\Consent\Service\ConsentService"/>
         </service>
 
-        <service id="Shopware\Core\System\Consent\Storage\GlobalStorage">
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-
-            <tag name="consent.storage"/>
-        </service>
-
-        <service id="Shopware\Core\System\Consent\Storage\AdminUserStorage">
-            <argument type="service" id="user_config.repository"/>
-
-            <tag name="consent.storage"/>
-        </service>
-
         <service id="Shopware\Core\System\Consent\ConsentRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\System\Consent\Service\ConsentService">
             <argument type="service" id="Shopware\Core\System\Consent\ConsentRepository"/>
-            <argument type="tagged_iterator" tag="consent.storage" default-index-method="code"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

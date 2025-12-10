@@ -22,12 +22,14 @@
                   {
                     "name": "data-collection",
                     "identifier": "user-123",
-                    "status": "accepted"
+                    "status": "accepted",
+                    "actorId": "user-123"
                   },
                   {
                     "name": "analytics-tracking",
                     "identifier": "user-123",
-                    "status": "requested"
+                    "status": "requested",
+                    "actorId": "user-123"
                   }
                 ]
               }
@@ -36,12 +38,7 @@
           "401": {
             "description": "Unauthorized - User not logged in or invalid session"
           }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
+        }
       }
     },
     "\/api\/consents\/{consent}\/accept": {
@@ -56,7 +53,7 @@
           {
             "name": "consent",
             "in": "path",
-            "description": "The name/identifier of the consent to accept",
+            "description": "The name of the consent to accept",
             "required": true,
             "schema": {
               "type": "string"
@@ -73,12 +70,7 @@
           "401": {
             "description": "Unauthorized - User not logged in or invalid session"
           }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
+        }
       }
     },
     "\/api\/consents\/{consent}\/revoke": {
@@ -93,7 +85,7 @@
           {
             "name": "consent",
             "in": "path",
-            "description": "The name/identifier of the consent to revoke",
+            "description": "The name of the consent to revoke",
             "required": true,
             "schema": {
               "type": "string"
@@ -110,12 +102,7 @@
           "401": {
             "description": "Unauthorized - User not logged in or invalid session"
           }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
+        }
       }
     }
   }

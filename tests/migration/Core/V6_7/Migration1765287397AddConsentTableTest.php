@@ -31,35 +31,25 @@ class Migration1765287397AddConsentTableTest extends TestCase
 
     public function testMigration(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `consent_state_history`;');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `consent_state`;');
         $this->connection->executeStatement('DROP TABLE IF EXISTS `consent`;');
+
+        $migration = new Migration1765287397AddConsentTable();
+
+        $migration->update($this->connection);
+        $migration->update($this->connection);
 
         $sm = $this->connection->createSchemaManager();
-        static::assertFalse($sm->tablesExist(['consent']));
+        static::assertTrue($sm->tablesExist(['consent', 'consent_state', 'consent_state_history']));
 
-        $migration = new Migration1765287397AddConsentTable();
+        $consentCols = $sm->listTableColumns('consent');
+        static::assertCount(5, $consentCols);
 
-        $migration->update($this->connection);
-        $migration->update($this->connection);
+        $consentStateCols = $sm->listTableColumns('consent_state');
+        static::assertCount(7, $consentStateCols);
 
-        static::assertTrue($sm->tablesExist(['consent']));
-
-        $cols = $sm->listTableColumns('consent');
-        static::assertCount(5, $cols);
-    }
-
-    public function testMigrationCreatesDefaultConsents(): void
-    {
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `consent`;');
-
-        $migration = new Migration1765287397AddConsentTable();
-        $migration->update($this->connection);
-
-        $consents = $this->connection->fetchAllAssociative('SELECT name, storage FROM consent ORDER BY name');
-
-        static::assertCount(2, $consents);
-        static::assertSame('backend_data_consent', $consents[0]['name']);
-        static::assertSame('global', $consents[0]['storage']);
-        static::assertSame('tracking_consent', $consents[1]['name']);
-        static::assertSame('admin_user', $consents[1]['storage']);
+        $consentStateHistoryCols = $sm->listTableColumns('consent_state_history');
+        static::assertCount(6, $consentStateHistoryCols);
     }
 }

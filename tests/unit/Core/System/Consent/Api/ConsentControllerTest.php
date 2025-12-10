@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\Api\ConsentController;
-use Shopware\Core\System\Consent\ConsentState;
-use Shopware\Core\System\Consent\DTO\ConsentStateDTO;
+use Shopware\Core\System\Consent\ConsentContext;
+use Shopware\Core\System\Consent\ConsentScope;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\Service\ConsentService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,14 +42,16 @@ class ConsentControllerTest extends TestCase
         $context = new Context($source);
 
         $consents = [
-            new ConsentStateDTO('consent-1', $userId, ConsentState::ACCEPTED),
-            new ConsentStateDTO('consent-2', $userId, ConsentState::REQUESTED),
+            new ConsentState('consent-1', ConsentScope::ADMIN_USER, $userId, ConsentStatus::ACCEPTED, $userId),
+            new ConsentState('consent-2', ConsentScope::GLOBAL, null, ConsentStatus::REQUESTED, null),
         ];
 
         $this->consentService
             ->expects($this->once())
             ->method('list')
-            ->with($userId)
+            ->with(static::callback(static function (ConsentContext $context) use ($userId): bool {
+                return $context->getIdentifierForScope(ConsentScope::ADMIN_USER) === $userId;
+            }))
             ->willReturn($consents);
 
         $response = $this->controller->fetchConsents($context);
@@ -66,14 +70,16 @@ class ConsentControllerTest extends TestCase
         static::assertSame('consent-1', $content[0]['name']);
         static::assertSame($userId, $content[0]['identifier']);
         static::assertSame('accepted', $content[0]['status']);
+        static::assertSame('user-123', $content[0]['actorId']);
 
         static::assertIsArray($content[1]);
         static::assertArrayHasKey('name', $content[1]);
         static::assertArrayHasKey('identifier', $content[1]);
         static::assertArrayHasKey('status', $content[1]);
         static::assertSame('consent-2', $content[1]['name']);
-        static::assertSame($userId, $content[1]['identifier']);
+        static::assertNull($content[1]['identifier']);
         static::assertSame('requested', $content[1]['status']);
+        static::assertNull($content[1]['actorId']);
     }
 
     public function testFetchConsentsThrowsExceptionWhenSourceIsNotAdminApiSource(): void
@@ -110,8 +116,7 @@ class ConsentControllerTest extends TestCase
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        $content = json_decode($response->getContent() ?: '', true, flags: \JSON_THROW_ON_ERROR);
-        static::assertSame([], $content);
+        static::assertSame('{}', $response->getContent());
     }
 
     public function testAcceptConsentThrowsExceptionWhenSourceIsNotAdminApiSource(): void
@@ -148,8 +153,7 @@ class ConsentControllerTest extends TestCase
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        $content = json_decode($response->getContent() ?: '', true, flags: \JSON_THROW_ON_ERROR);
-        static::assertSame([], $content);
+        static::assertSame('{}', $response->getContent());
     }
 
     public function testRevokeConsentThrowsExceptionWhenSourceIsNotAdminApiSource(): void

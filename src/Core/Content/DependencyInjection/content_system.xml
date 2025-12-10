@@ -313,6 +313,7 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\RenderingSpecificationResolver"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\ContentPipeline"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Cache\CacheFinalizer"/>
         </service>
 
         <service id="Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentSkeletonRoute" alias="Shopware\Core\Content\ContentSystem\SalesChannel\ContentSkeletonRoute"/>

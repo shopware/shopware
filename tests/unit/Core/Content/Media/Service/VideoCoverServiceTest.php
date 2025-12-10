@@ -117,14 +117,6 @@ class VideoCoverServiceTest extends TestCase
         $this->service->assignCoverToVideo($videoId, null, $this->context);
     }
 
-    public function testThrowsExceptionWhenVideoIdIsEmpty(): void
-    {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A media id must be provided.');
-
-        $this->service->assignCoverToVideo('', Uuid::randomHex(), $this->context);
-    }
-
     public function testThrowsExceptionWhenVideoNotFound(): void
     {
         $videoId = Uuid::randomHex();

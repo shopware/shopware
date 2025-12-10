@@ -376,7 +376,7 @@ export default class VueAdapter extends ViewAdapter {
             MtColorpicker: () => import('@shopware-ag/meteor-component-library/dist/esm/MtColorpicker'),
             MtPopover: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopover'),
             MtPopoverItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem'),
-        }
+        };
 
         Object.entries(meteorComponents).forEach(
             ([
@@ -388,13 +388,15 @@ export default class VueAdapter extends ViewAdapter {
             },
         );
 
-        Object.entries(lazyMeteorComponents).forEach(([
-            componentName,
-            importMethod,
-        ]) => {
-            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
-        })
+        Object.entries(lazyMeteorComponents).forEach(
+            ([
+                componentName,
+                importMethod,
+            ]) => {
+                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+                this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
+            },
+        );
 
         return this.vueComponents;
     }

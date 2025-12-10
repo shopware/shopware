@@ -2,13 +2,40 @@
 
 namespace Shopware\Core\System\Consent\Event;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\System\Consent\DTO\Consent;
 
 #[Package('data-services')]
-readonly class ConsentRevokedEvent
+readonly class ConsentRevokedEvent implements Hookable
 {
+    public const EVENT_NAME = 'consent.revoked';
+
     public function __construct(public Consent $consent, public string $identifier)
     {
+    }
+
+    public function getName(): string
+    {
+        return self::EVENT_NAME;
+    }
+
+    /**
+     * @return array{consent: string, scope: string, identifier: string|null}
+     */
+    public function getWebhookPayload(?AppEntity $app = null): array
+    {
+        return [
+            'consent' => $this->consent->name,
+            'scope' => $this->consent->scope->value,
+            'identifier' => $this->identifier,
+        ];
+    }
+
+    public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
+    {
+        return true;
     }
 }

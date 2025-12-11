@@ -19,7 +19,12 @@ class HttpCacheCookieEvent
 
     public const NOT_CACHEABLE = 'not-cacheable';
 
-    public bool $isCacheable = true;
+    // set passCache to true to bypass the cache for further requests
+    public bool $passCache = false;
+
+    // set doNotStore to true to not store the current response in the cache
+    // however the cache will be used for further requests
+    public bool $doNotStore = false;
 
     /**
      * @param array<string, string|array<string>|null> $parts
@@ -65,10 +70,15 @@ class HttpCacheCookieEvent
 
     public function getHash(): string
     {
-        if (!$this->isCacheable) {
+        if (!$this->passCache) {
             return self::NOT_CACHEABLE;
         }
 
         return Hasher::hash($this->getParts());
+    }
+
+    public function doNotCacheResponse(): bool
+    {
+        return $this->passCache && $this->doNotStore;
     }
 }

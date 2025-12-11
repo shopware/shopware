@@ -13,17 +13,6 @@ nav:
 The CheapestPriceFacade is a wrapper around the cheapest price of the product.
 
 
-### reset()
-
-* `reset()` allows to reset the cheapest price to the original price of the product.
-
-    
-* **Examples:**
-    * Reset the product price to default
-
-        ```twig
-        {% do variant.calculatedCheapestPrice.change(price) %}
-        ```
 ### change()
 
 * `change()` allows to overwrite the cheapest price of the current price scope. The provided price will be recalculated
@@ -55,108 +44,6 @@ over the quantity price calculator to consider quantity, tax rule and cash round
         ```twig
         {% do variant.calculatedCheapestPrice.discount(10) %}
         ```
-### getTotal()
-
-* `getTotal()` returns the total price for the line-item.
-
-    
-* **Returns** `float`
-
-    The total price as float.
-### getUnit()
-
-* `getUnit()` returns the unit price for the line-item.
-
-    This is equivalent to the total price of the line-item with the quantity 1.
-* **Returns** `float`
-
-    The price per unit as float.
-### getQuantity()
-
-* `getQuantity()` returns the quantity that was used to calculate the total price.
-
-    
-* **Returns** `int`
-
-    Returns the quantity.
-### getTaxes()
-
-* `getTaxes()` returns the calculated taxes of the price.
-
-    
-* **Returns** [`Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Tax/Struct/CalculatedTaxCollection.php)
-
-    Returns the calculated taxes.
-### getRules()
-
-* `getRules()` returns the tax rules that were used to calculate the price.
-
-    
-* **Returns** [`Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Tax/Struct/TaxRuleCollection.php)
-
-    Returns the tax rules.
-### plus()
-
-* `plus()` allows a price addition of the current price scope. The provided price will be recalculated via the quantity price calculator.
-
-    The provided price is interpreted as a unit price and will be added to the current unit price.
-	The total price is calculated afterwards considering quantity, tax rule and cash rounding configurations.
-* **Arguments:**
-    * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
-* **Examples:**
-    * Plus a static defined price to the existing calculated price
-
-        ```twig
-        {% set price = services.price.create({
-		    'default': { 'gross': 1.5, 'net': 1.5}
-		}) %}
-		
-		{% do product.calculatedPrice.plus(price) %}
-        ```
-### minus()
-
-* `minus()` allows a price subtraction of the current price scope. The provided price will be recalculated via the quantity price calculator.
-
-    The provided price is interpreted as a unit price and will reduce to the current unit price.
-	The total price is calculated afterwards considering quantity, tax rule and cash rounding configurations.
-* **Arguments:**
-    * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
-* **Examples:**
-    * Minus a static defined price to the existing calculated price
-
-        ```twig
-        {% set price = services.price.create({
-		    'default': { 'gross': 1.5, 'net': 1.5}
-		}) %}
-		
-		{% do product.calculatedPrice.minus(price) %}
-        ```
-### discount()
-
-* `discount()` allows a percentage discount calculation of the current price scope. The provided value will be ensured to be negative via `abs(value) * -1`.
-
-    The provided discount is interpreted as a percentage value and will be applied to the unit price and the total price as well.
-* **Arguments:**
-    * *`float`* **value**: The percentage value of the discount. The value will be ensured to be negative via `abs(value) * -1`.
-* **Examples:**
-    * Adds a 10% discount to the existing calculated price
-
-        ```twig
-        {% do product.calculatedPrice.discount(10) %}
-        ```
-### surcharge()
-
-* `surcharge()` allows a percentage surcharge calculation of the current price scope. The provided value will be ensured to be negative via `abs(value)`.
-
-    The provided surcharge is interpreted as a percentage value and will be applied to the unit price and the total price as well.
-* **Arguments:**
-    * *`float`* **value**: The percentage value of the surcharge. The value will be ensured to be negative via `abs(value)`.
-* **Examples:**
-    * Adds a 10% surcharge to the existing calculated price
-
-        ```twig
-        {% do product.calculatedPrice.surcharge(10) %}
-        ```
 ### create()
 
 * `create()` creates a new `PriceCollection` based on an array of prices.
@@ -175,6 +62,119 @@ over the quantity price calculator to consider quantity, tax rule and cash round
 		    'default': { 'gross': 19.99, 'net': 19.99}
 		}) %}
         ```
+### discount()
+
+* `discount()` allows a percentage discount calculation of the current price scope. The provided value will be ensured to be negative via `abs(value) * -1`.
+
+    The provided discount is interpreted as a percentage value and will be applied to the unit price and the total price as well.
+* **Arguments:**
+    * *`float`* **value**: The percentage value of the discount. The value will be ensured to be negative via `abs(value) * -1`.
+* **Examples:**
+    * Adds a 10% discount to the existing calculated price
+
+        ```twig
+        {% do product.calculatedPrice.discount(10) %}
+        ```
+### getQuantity()
+
+* `getQuantity()` returns the quantity that was used to calculate the total price.
+
+    
+* **Returns** `int`
+
+    Returns the quantity.
+### getRules()
+
+* `getRules()` returns the tax rules that were used to calculate the price.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Tax/Struct/TaxRuleCollection.php)
+
+    Returns the tax rules.
+### getTaxes()
+
+* `getTaxes()` returns the calculated taxes of the price.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Cart/Tax/Struct/CalculatedTaxCollection.php)
+
+    Returns the calculated taxes.
+### getTotal()
+
+* `getTotal()` returns the total price for the line-item.
+
+    
+* **Returns** `float`
+
+    The total price as float.
+### getUnit()
+
+* `getUnit()` returns the unit price for the line-item.
+
+    This is equivalent to the total price of the line-item with the quantity 1.
+* **Returns** `float`
+
+    The price per unit as float.
+### minus()
+
+* `minus()` allows a price subtraction of the current price scope. The provided price will be recalculated via the quantity price calculator.
+
+    The provided price is interpreted as a unit price and will reduce to the current unit price.
+	The total price is calculated afterwards considering quantity, tax rule and cash rounding configurations.
+* **Arguments:**
+    * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Minus a static defined price to the existing calculated price
+
+        ```twig
+        {% set price = services.price.create({
+		    'default': { 'gross': 1.5, 'net': 1.5}
+		}) %}
+		
+		{% do product.calculatedPrice.minus(price) %}
+        ```
+### plus()
+
+* `plus()` allows a price addition of the current price scope. The provided price will be recalculated via the quantity price calculator.
+
+    The provided price is interpreted as a unit price and will be added to the current unit price.
+	The total price is calculated afterwards considering quantity, tax rule and cash rounding configurations.
+* **Arguments:**
+    * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Plus a static defined price to the existing calculated price
+
+        ```twig
+        {% set price = services.price.create({
+		    'default': { 'gross': 1.5, 'net': 1.5}
+		}) %}
+		
+		{% do product.calculatedPrice.plus(price) %}
+        ```
+### reset()
+
+* `reset()` allows to reset the cheapest price to the original price of the product.
+
+    
+* **Examples:**
+    * Reset the product price to default
+
+        ```twig
+        {% do variant.calculatedCheapestPrice.change(price) %}
+        ```
+### surcharge()
+
+* `surcharge()` allows a percentage surcharge calculation of the current price scope. The provided value will be ensured to be negative via `abs(value)`.
+
+    The provided surcharge is interpreted as a percentage value and will be applied to the unit price and the total price as well.
+* **Arguments:**
+    * *`float`* **value**: The percentage value of the surcharge. The value will be ensured to be negative via `abs(value)`.
+* **Examples:**
+    * Adds a 10% surcharge to the existing calculated price
+
+        ```twig
+        {% do product.calculatedPrice.surcharge(10) %}
+        ```
 _________
 ## [`Shopware\Core\Content\Product\Hook\Pricing\PriceCollectionFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Content/Product/Hook/Pricing/PriceCollectionFacade.php) {#pricecollectionfacade}
 
@@ -182,11 +182,6 @@ The PriceCollectionFacade is a wrapper around the calculated price collection of
 prices by resetting or changing the price collection.
 
 
-### reset()
-
-* The `reset()` functions allows to reset the complete price collection.
-
-    
 ### change()
 
 * The `change()` function allows a complete overwrite of the product quantity prices
@@ -212,6 +207,11 @@ prices by resetting or changing the price collection.
 * **Returns** `int`
 
     Returns the number of prices which are stored inside this collection
+### reset()
+
+* The `reset()` functions allows to reset the complete price collection.
+
+    
 _________
 ## [`Shopware\Core\Content\Product\Hook\Pricing\ProductProxy`](https://github.com/shopware/shopware/blob/trunk/src/Core/Content/Product/Hook/Pricing/ProductProxy.php) {#productproxy}
 

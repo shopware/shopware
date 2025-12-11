@@ -157,7 +157,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
     it('should handle relative path sources', async () => {
         const wrapper = await createWrapper({
             props: {
-                source: '/bundles/administration/static/img/cms/preview_mountain_large.jpg',
+                source: '/bundles/administration/static/img/cms/preview_mountain_large.webp',
             },
             global: {
                 provide: {
@@ -204,7 +204,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
     it('previewUrl function should handle relative paths', async () => {
         const wrapper = await createWrapper({
             props: {
-                source: '/bundles/administration/static/img/cms/preview_mountain_large.jpg',
+                source: '/bundles/administration/static/img/cms/preview_mountain_large.webp',
             },
             global: {
                 provide: {

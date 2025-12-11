@@ -25,7 +25,7 @@ class Migration1765205483AddTrackOffcanvasCartToAnalytics extends MigrationStep
 
         $connection->executeStatement('
             ALTER TABLE `sales_channel_analytics`
-            ADD COLUMN `track_offcanvas_cart` TINYINT(1) NOT NULL DEFAULT 0 AFTER `anonymize_ip`
+            ADD COLUMN `track_offcanvas_cart` TINYINT(1) NOT NULL DEFAULT 0
         ');
     }
 }

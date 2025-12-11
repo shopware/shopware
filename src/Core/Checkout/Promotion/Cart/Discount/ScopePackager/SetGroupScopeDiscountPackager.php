@@ -150,10 +150,13 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
         return $definitions;
     }
 
+    /**
+     * @param RuleCollection|array<mixed>|null $rules
+     */
     private function getRules(RuleCollection|array|null $rules): RuleCollection
     {
         $rules ??= new RuleCollection();
-        if ($rules instanceof RuleCollection) {
+        if (!\is_array($rules)) {
             return $rules;
         }
 

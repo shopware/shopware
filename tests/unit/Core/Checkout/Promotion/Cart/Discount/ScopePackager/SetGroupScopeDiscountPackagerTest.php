@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace unit\Core\Checkout\Promotion\Cart\Discount\ScopePackager;
+namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Cart\Discount\ScopePackager;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupScopeDiscountPackager;
@@ -28,21 +29,22 @@ class SetGroupScopeDiscountPackagerTest extends TestCase
         $builder
             ->method('findGroupPackages')
             ->willReturnCallback(function (array $groupDefinitions) {
-                static::assertCount(3, $groupDefinitions);
+                static::assertCount(4, $groupDefinitions);
+                static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[0]);
+                static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[1]);
+                static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[2]);
+                static::assertInstanceOf(LineItemGroupDefinition::class, $groupDefinitions[3]);
 
                 $array = $groupDefinitions[0]->getRules();
                 $collection = $groupDefinitions[1]->getRules();
                 $null = $groupDefinitions[2]->getRules();
+                $unset = $groupDefinitions[3]->getRules();
 
-                static::assertInstanceOf(RuleCollection::class, $array);
                 static::assertCount(1, $array);
-                static::assertSame('Rule Name', $array[0]->getName());
-
-                static::assertInstanceOf(RuleCollection::class, $collection);
+                static::assertSame('Rule Name', $array->first()?->getName());
                 static::assertCount(0, $collection);
-
-                static::assertInstanceOf(RuleCollection::class, $null);
                 static::assertCount(0, $null);
+                static::assertCount(0, $unset);
 
                 return new LineItemGroupBuilderResult();
             });
@@ -56,21 +58,28 @@ class SetGroupScopeDiscountPackagerTest extends TestCase
                     'packagerKey' => 'key',
                     'value' => 10,
                     'sorterKey' => 'ASC',
-                    'rules' => [['name' => 'Rule Name']]
+                    'rules' => [['id' => Uuid::randomHex(), 'name' => 'Rule Name']],
                 ],
                 [
                     'groupId' => Uuid::randomHex(),
                     'packagerKey' => 'key',
                     'value' => 10,
                     'sorterKey' => 'ASC',
-                    'rules' => new RuleCollection()
+                    'rules' => new RuleCollection(),
                 ],
                 [
                     'groupId' => Uuid::randomHex(),
                     'packagerKey' => 'key',
                     'value' => 10,
-                    'sorterKey' => 'ASC'
-                ]
+                    'sorterKey' => 'ASC',
+                    'rules' => null,
+                ],
+                [
+                    'groupId' => Uuid::randomHex(),
+                    'packagerKey' => 'key',
+                    'value' => 10,
+                    'sorterKey' => 'ASC',
+                ],
             ],
         ];
 

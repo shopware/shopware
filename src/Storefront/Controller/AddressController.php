@@ -46,7 +46,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
-#[Package('framework')]
+#[Package('checkout')]
 class AddressController extends StorefrontController
 {
     private const ADDRESS_TYPE_BILLING = 'billing';

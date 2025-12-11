@@ -34,7 +34,12 @@ the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
 ## Core
 
+### PHP 8.5 support
+
+Shopware is now fully compatible with PHP 8.5.
+
 ### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
+
 The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
 You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
 
@@ -57,92 +62,17 @@ Additionally, the following configuration was deprecated:
 
 ### HTTP Caching Policies
 
-Caching policies define HTTP cache behavior per area (storefront, store_api) and per route via configuration. The feature
-is enabled using the `CACHE_REWORK` feature flag.
+Added support for caching policies to define HTTP cache behavior via configuration.
 
-#### Configuration
+You can now configure named caching policies that define how the Cache-Control header is formed. These policies can be assigned per area (`storefront`, `store_api`) and per route. The header controls how caches (browser, reverse proxy, CDN, Symfony cache layer) should cache the response.
 
-```yaml
-shopware:
-  http_cache:
-    # Define reusable cache policies
-    policies:
-      no_cache_private:
-        headers:
-          cache_control:
-            private: true
-            no_cache: true
-            max_age: 0
-            s_maxage: 0
-      store_api.cacheable:
-        headers:
-          cache_control:
-            public: true
-            s_maxage: 0  # immediate expiry, rely on stale-while-revalidate
-            stale_while_revalidate: 3600
-            stale_if_error: 7200
-      storefront.cacheable:
-        headers:
-          cache_control:
-            public: true
-            max_age: 600  # browser cache
-            s_maxage: 3600  # reverse proxy cache
-            stale_while_revalidate: 60
-            stale_if_error: 300
-    
-    # Default policies per area
-    default_policies:
-      storefront:
-        cacheable: storefront.cacheable
-        uncacheable: no_cache_private
-      store_api:
-        cacheable: store_api.cacheable
-        uncacheable: no_cache_private
-    
-    # Per-route policy overrides
-    route_policies:
-      store-api.product.search: custom_policy
-      # Granular per-script overrides using route#hook pattern
-      frontend.script_endpoint#storefront-acme-feature: storefront.my_custom_policy
-```
+The feature is enabled using the `CACHE_REWORK` feature flag. For more details see the [caching policies documentation](https://developer.shopware.com/docs/guides/hosting/performance/caches.html#http-caching-policies).
 
-Supported `cache_control` directives: `public`, `private`, `no_cache`, `no_store`, `no_transform`, `must_revalidate`, `proxy_revalidate`, `immutable`, `max_age`, `s_maxage`, `stale_while_revalidate`, `stale_if_error`.
+### Performance improvements for generating category SEO-Urls
 
-#### How it works
-
-`CacheResponseSubscriber` processes requests differently based on feature flag and route type:
-
-**Feature flag disabled (legacy behavior)**:
-- Applies changes only to GET requests for routes with `PlatformRequest::ATTRIBUTE_HTTP_CACHE` in Symfony's `#[Route]` attribute defaults array.
-- Sets `s-maxage` with TTL from cache attribute or default
-- Adds `stale-if-error` and `stale-while-revalidate` from configuration
-- Applies to both Storefront and Store API routes
-
-**Feature flag enabled + Store API**:
-- Only GET requests are cacheable; POST/non-GET use uncacheable policy
-- Requires `ATTRIBUTE_HTTP_CACHE` attribute; if absent → uncacheable policy
-- No cookies set/checked (headers-only caching)
-- Existing `cache-control` header removed before applying policy
-
-**Feature flag enabled + Storefront**:
-- Only GET requests are cacheable; POST/non-GET use uncacheable policy
-- Processes cache context cookies
-- Processes invalidation states, if state mismatch → use uncacheable policy  (deprecated, will be removed in 6.8.0.0)
-- If request marked cacheable → applies resolved policy
-- Existing `cache-control` header removed before applying policy
-
-#### Policy precedence
-
-Policies are resolved in order (highest to lowest priority):
-1. `route_policies[route#hook]` - most specific, for script endpoints with hook (e.g., `frontend.script_endpoint#acme-app-hook`)
-2. `route_policies[route]` - route-level override
-3. `default_policies[area].{cacheable|uncacheable}` - area defaults; TTLs (max-age, s-maxage) can be overridden by values from the request attribute/script configuration.
-
-**Deprecations**:
-- `CacheResponseSubscriber` constructor parameters: `$defaultTtl`, `$staleWhileRevalidate`, `$staleIfError` - use cache policies instead
-- `CacheAttribute::$states` property - will be removed without replacement
-- `ResponseCacheConfiguration::maxAge()` - use `sharedMaxAge()` instead
-- `ResponseCacheConfiguration::invalidationState()` - deprecated, no replacement (state logic only applies to Storefront)
+We don't synchronously fetch and generate the SEO-Urls for all child categories anymore. 
+Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
+This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
 
 ## Administration
 

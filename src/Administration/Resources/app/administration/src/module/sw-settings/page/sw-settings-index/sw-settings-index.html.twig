@@ -50,9 +50,9 @@
                         class="sw-settings__content-group"
                     >
                         <h2>
-                            <sw-highlighted-text
-                                :label="getGroupLabel(settingsGroup)"
-                                :highlights="getSearchHighlights(getGroupLabel(settingsGroup))"
+                            <sw-highlight-text
+                                :text="getGroupLabel(settingsGroup)"
+                                :search-term="searchQuery"
                             />
                             {{''}} {# show eslint that there is content for h2 (which will be provided by sw-highlighted-text but it can't detect that) #}
                         </h2>
@@ -76,9 +76,9 @@
                                 />
                             </template>
                             <template #label>
-                                <sw-highlighted-text
-                                    :label="getLabel(settingsItem)"
-                                    :highlights="getSearchHighlights(getLabel(settingsItem))"
+                                <sw-highlight-text
+                                    :text="getLabel(settingsItem)"
+                                    :search-term="searchQuery"
                                 />
                             </template>
                         </sw-settings-item>

@@ -9,18 +9,18 @@
     <script type="text/javascript">
         window._features_ = <%- featureFlags %>;
 
-        <%- loadingIndicator.js %>
+        <%- loadingIndicator.script %>
     </script>
 
     <style>
-        <%- loadingIndicator.css %>
+        <%- loadingIndicator.style %>
     </style>
 </head>
 <body>
     <div id="app"></div>
 
     <!-- loading indicator when network is very slow and vue hasn't already loaded. The component has been copied from mt-loader -->
-    <%- loadingIndicator.html %>
+    <%- loadingIndicator.markup %>
 
     <script type="text/javascript">
         window.startApplication = () => Shopware.Application.start({

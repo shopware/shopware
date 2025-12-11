@@ -8,18 +8,18 @@
             assetPath: '{{ asset('', 'asset') }}',
         };
 
-        {{ loadingIndicator.js | raw }}
+        {{ sw_include('app/administration/src/app/component/structure/sw-loading-indicator/index.js') }}
     </script>
 
     <style>
-        {{ loadingIndicator.css | raw }}
+        {{ sw_include('app/administration/src/app/component/structure/sw-loading-indicator/sw-loading-indicator.css') }}
     </style>
 {% endblock %}
 
 {% block administration_content %}
     <div id="app"></div>
 
-    {{ loadingIndicator.html | raw }}
+    {{ sw_include('app/administration/src/app/component/structure/sw-loading-indicator/sw-loading-indicator.html') }}
 
     {% block administration_templates %}{% endblock %}
 

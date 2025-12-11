@@ -106,12 +106,6 @@ class AdministrationController extends AbstractController
     {
         $template = $this->finder->find('@Administration/administration/index.html.twig');
 
-        $loadingIndicator = [
-            'js' => $this->readSharedResourceFile('page-loading-indicator/script.js'),
-            'css' => $this->readSharedResourceFile('page-loading-indicator/style.css'),
-            'html' => $this->readSharedResourceFile('page-loading-indicator/markup.html'),
-        ];
-
         $defaultCurrency = $this->currencyRepository->search(new Criteria([Defaults::CURRENCY]), $context)->getEntities()->first();
 
         $refreshTokenInterval = new \DateInterval($this->refreshTokenTtl);
@@ -119,7 +113,6 @@ class AdministrationController extends AbstractController
 
         return $this->render($template, [
             'features' => Feature::getAll(),
-            'loadingIndicator' => $loadingIndicator,
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
             'systemCurrencyId' => Defaults::CURRENCY,
@@ -134,28 +127,6 @@ class AdministrationController extends AbstractController
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
             'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
         ]);
-    }
-
-    private function readSharedResourceFile(string $relativePath): ?string
-    {
-        $administrationSrc = \dirname(__DIR__); // src/Administration
-        $fullPath = $administrationSrc . '/Resources/shared/' . $relativePath;
-
-        if (!\is_readable($fullPath)) {
-            throw new \RuntimeException('Shared resource not found or not readable: ' . $fullPath);
-        }
-
-        try {
-            $contents = \file_get_contents($fullPath);
-        } catch (\Throwable $e) {
-            throw new \RuntimeException('Failed reading shared resource: ' . $fullPath, 0, $e);
-        }
-
-        if ($contents === false) {
-            throw new \RuntimeException('Failed reading shared resource (false returned): ' . $fullPath);
-        }
-
-        return $contents;
     }
 
     #[Route(path: '/api/_admin/snippets', name: 'api.admin.snippets', defaults: ['auth_required' => false], methods: ['GET'])]

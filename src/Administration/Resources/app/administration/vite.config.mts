@@ -38,12 +38,12 @@ if (fs.existsSync(flagsPath)) {
 
 const loadingIndicatorPath = path.join(
     process.env.PROJECT_ROOT,
-    'src/Administration/Resources/shared/page-loading-indicator',
+    'src/Administration/Resources/app/administration/src/app/component/structure/sw-loading-indicator',
 );
 const loadingIndicator = {
-    js: fs.readFileSync(path.join(loadingIndicatorPath, 'script.js')),
-    css: fs.readFileSync(path.join(loadingIndicatorPath, 'style.css')),
-    html: fs.readFileSync(path.join(loadingIndicatorPath, 'markup.html')),
+    script: fs.readFileSync(path.join(loadingIndicatorPath, 'index.js')),
+    style: fs.readFileSync(path.join(loadingIndicatorPath, 'sw-loading-indicator.css')),
+    markup: fs.readFileSync(path.join(loadingIndicatorPath, 'sw-loading-indicator.html')),
 };
 
 // eslint-disable-next-line

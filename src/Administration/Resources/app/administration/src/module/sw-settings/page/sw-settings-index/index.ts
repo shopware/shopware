@@ -7,6 +7,10 @@ import './sw-settings-index.scss';
 
 const { hasOwnProperty } = Shopware.Utils.object;
 
+type SettingsItemHere = Omit<SettingsItem, 'label'> & {
+    label?: string | { label: string; translated: boolean };
+} & { privilege?: string };
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -32,7 +36,7 @@ export default Shopware.Component.wrapComponentConfig({
      */
     created() {
         if (!Shopware.Feature.isActive('v6.8.0.0')) {
-            this.getUserConfig();
+            void this.getUserConfig();
         }
     },
 
@@ -44,10 +48,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         settingsGroups() {
-            type SettingsItemHere = Omit<SettingsItem, 'label'> & {
-                label?: string | { label: string; translated: boolean };
-            } & { privilege?: string };
-
             // Helpers
             const labelOfSetting = (setting: SettingsItemHere) =>
                 typeof setting.label === 'string' ? setting.label : (setting.label?.label ?? '');
@@ -134,7 +134,8 @@ export default Shopware.Component.wrapComponentConfig({
          */
         async getUserConfig() {
             const response = await this.userConfigService.search(['settings.hideRenameBanner']);
-            this.hideSettingRenameBanner = !!response.data['settings.hideRenameBanner']?.value;
+            // @ts-expect-error - type error won't be fixed as it is deprecated anyway
+            this.hideSettingRenameBanner = !!response?.data['settings.hideRenameBanner']?.value;
         },
 
         /**
@@ -145,6 +146,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             await this.userConfigService.upsert({
                 'settings.hideRenameBanner': {
+                    // @ts-expect-error - type error won't be fixed as it is deprecated anyway
                     value: true,
                 },
             });
@@ -154,7 +156,7 @@ export default Shopware.Component.wrapComponentConfig({
             return hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0;
         },
 
-        getRouteConfig(settingsItem) {
+        getRouteConfig(settingsItem: SettingsItemHere) {
             if (!hasOwnProperty(settingsItem, 'to')) {
                 return {};
             }
@@ -170,7 +172,7 @@ export default Shopware.Component.wrapComponentConfig({
             return {};
         },
 
-        getLabel(settingsItem) {
+        getLabel(settingsItem: SettingsItemHere) {
             if (!hasOwnProperty(settingsItem, 'label')) {
                 return '';
             }

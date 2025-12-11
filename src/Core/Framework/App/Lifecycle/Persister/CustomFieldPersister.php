@@ -105,8 +105,7 @@ class CustomFieldPersister
                     ['setId' => Uuid::fromHexToBytes($existingCustomFieldSets[$customFieldSet->getName()])]
                 )
             );
-            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields);
-            $entityData['id'] = $existingCustomFieldSets[$customFieldSet->getName()];
+            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields, $existingCustomFieldSets[$customFieldSet->getName()]);
 
             $obsoleteRelations = array_merge($obsoleteRelations, array_values($existingRelations));
             $obsoleteFields = array_merge($obsoleteFields, array_values($existingFields));

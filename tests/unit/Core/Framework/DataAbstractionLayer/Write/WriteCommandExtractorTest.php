@@ -212,6 +212,6 @@ class WriteCommandExtractorTest extends TestCase
 
         $violations = $exception->getViolations();
         static::assertCount(1, $violations);
-        static::assertSame('The field immutableField is immutable and cannot be updated.', $violations->get(0)->getMessage());
+        static::assertSame('The field "immutableField" of "immutable_test" is immutable and cannot be updated.', $violations->get(0)->getMessage());
     }
 }

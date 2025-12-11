@@ -573,7 +573,7 @@ class WriteCommandExtractor
 
     private function addImmutableViolation(KeyValuePair $data, WriteParameterBag $parameters): void
     {
-        $message = \sprintf('The field %s is immutable and cannot be updated.', $data->getKey());
+        $message = \sprintf('The field "%s" of "%s" is immutable and cannot be updated.', $data->getKey(), $parameters->getDefinition()->getEntityName());
 
         $violationList = new ConstraintViolationList();
         $violationList->add(
@@ -588,7 +588,7 @@ class WriteCommandExtractor
         );
 
         $parameters->getContext()->getExceptions()->add(
-            new WriteConstraintViolationException($violationList, $parameters->getPath() . '/' . $data->getKey())
+            new WriteConstraintViolationException($violationList, $parameters->getPath() . '/')
         );
     }
 }

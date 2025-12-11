@@ -38,7 +38,7 @@ shopware:
         description: "Experimental! Execute flows after the main unit of work has concluded"
       - name: PERFORMANCE_TWEAKS
         default: false
-        major: false
+        major: true
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
       - name: CACHE_CONTEXT_HASH_RULES_OPTIMIZATION

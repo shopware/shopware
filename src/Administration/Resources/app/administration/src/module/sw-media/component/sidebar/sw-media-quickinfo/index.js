@@ -126,10 +126,11 @@ export default {
         },
 
         editorTooltip() {
+            const isDisabled = !this.acl.can('media.editor');
             return {
                 message: this.$t('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('media.editor'),
-                showOnDisabledElements: true,
+                showOnDisabledElements: isDisabled,
             };
         },
 

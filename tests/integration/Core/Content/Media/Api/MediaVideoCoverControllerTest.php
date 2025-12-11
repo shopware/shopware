@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Api\MediaVideoCoverController;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\VideoType;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -62,13 +63,26 @@ class MediaVideoCoverControllerTest extends TestCase
     {
         $video = $this->createVideoMedia();
 
-        $response = $this->getController()->assignVideoCover(
+        $this->expectExceptionObject(MediaException::invalidRequestParameter('coverMediaId'));
+
+        $this->getController()->assignVideoCover(
             $video->getId(),
             new Request([], ['coverMediaId' => ['invalid']]),
             $this->context,
         );
+    }
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    public function testAssignVideoCoverReturnsBadRequestOnNonStringCoverMediaId(): void
+    {
+        $video = $this->createVideoMedia();
+
+        $this->expectExceptionObject(MediaException::invalidRequestParameter('coverMediaId'));
+
+        $this->getController()->assignVideoCover(
+            $video->getId(),
+            new Request([], ['coverMediaId' => 123]),
+            $this->context,
+        );
     }
 
     private function getController(): MediaVideoCoverController

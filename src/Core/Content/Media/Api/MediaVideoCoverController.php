@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Api;
 
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Service\VideoCoverService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -29,11 +30,11 @@ class MediaVideoCoverController extends AbstractController
         try {
             $coverMediaId = $request->request->get('coverMediaId');
         } catch (BadRequestException) {
-            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
+            throw MediaException::invalidRequestParameter('coverMediaId');
         }
 
         if ($coverMediaId !== null && !\is_string($coverMediaId)) {
-            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
+            throw MediaException::invalidRequestParameter('coverMediaId');
         }
 
         $this->videoCoverService->assignCoverToVideo($mediaId, $coverMediaId, $context);

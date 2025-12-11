@@ -11,13 +11,15 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * To allow custom server parameters,
  */
 #[Package('framework')]
-class TwigAppVariable extends AppVariable
+class TwigAppVariable extends AppVariable implements ResetInterface
 {
+    public static bool $displayed_flashes = false;
     private ?Request $request = null;
 
     /**
@@ -110,6 +112,17 @@ class TwigAppVariable extends AppVariable
      */
     public function getFlashes(string|array|null $types = null): array
     {
-        return $this->appVariable->getFlashes($types);
+        $flashes = $this->appVariable->getFlashes($types);
+
+        if ($flashes === []) {
+            self::$displayed_flashes = true;
+        }
+
+        return $flashes;
+    }
+
+    public function reset(): void
+    {
+        self::$displayed_flashes = false;
     }
 }

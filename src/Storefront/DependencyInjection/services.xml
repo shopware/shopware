@@ -503,6 +503,8 @@
         <service id="Shopware\Storefront\Framework\Twig\TwigAppVariable" decorates="twig.app_variable">
             <argument type="service" id="Shopware\Storefront\Framework\Twig\TwigAppVariable.inner"/>
             <argument>%shopware.twig.app_variable.allowed_server_params%</argument>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\DomainNotMappedListener">

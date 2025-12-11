@@ -10,9 +10,11 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Twig\TwigAppVariable;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
@@ -31,6 +33,7 @@ class CacheHashService
         private readonly CacheRelevantRulesResolver $ruleResolver,
         private readonly array $cookies,
         private readonly EventDispatcherInterface $dispatcher,
+        private readonly FlashBagAwareSessionInterface $session
     ) {
     }
 
@@ -115,6 +118,14 @@ class CacheHashService
         }
 
         $event = new HttpCacheCookieEvent($request, $context, $parts);
+
+        if ($this->session->getFlashBag()->keys() !== [] || TwigAppVariable::$displayed_flashes) {
+            // mark as uncacheable if there are any flash messages
+            // if the flashback is filled it means they will be displayed on the next request, e.g. on forwards
+            // therefore we need to change the cache hash, to pass the cache on the next request as well
+            $event->isCacheable = false;
+        }
+
         $this->dispatcher->dispatch($event);
 
         return $event->getHash();

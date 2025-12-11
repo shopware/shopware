@@ -135,6 +135,10 @@ async function createWrapper(
                         template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-settings-item': await wrapTestComponent('sw-settings-item'),
+                    'mt-search': {
+                        template: '<div class="mt-search"><slot></slot></div>',
+                    },
+                    'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'router-link': {
                         template: '<a><slot></slot></a>',
                     },

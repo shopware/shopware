@@ -29,6 +29,8 @@ export default Shopware.Component.wrapComponentConfig({
         SwSettingsUsageDataConsentCheckList,
     },
 
+    inject: ['acl'],
+
     props: {
         initialStoreDataConsent: {
             type: Object as PropType<ConsentStruct>,
@@ -62,6 +64,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         showStoreDataConsent() {
             if (this.initialStoreDataConsent.value) {
+                return false;
+            }
+
+            if (!this.acl.can('system.system_config')) {
                 return false;
             }
 

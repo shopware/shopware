@@ -38,13 +38,21 @@ class ThemeRuntimeConfig
     public function __construct(
         public readonly string $themeId,
         public readonly ?string $technicalName,
-        /** @var array<string, mixed> */
+        /**
+         * @var array<string, mixed>
+         */
         public readonly array $resolvedConfig,
-        /** @var array<string> */
+        /**
+         * @var array<string>
+         */
         public readonly array $viewInheritance,
-        /** @var array<string>|null */
+        /**
+         * @var array<string>|null
+         */
         public readonly ?array $scriptFiles,
-        /** @var array<string, array{path: string, namespace: string}> */
+        /**
+         * @var array<string, array{path: string, namespace: string}>
+         */
         public readonly array $iconSets,
         public readonly \DateTimeInterface $updatedAt
     ) {

@@ -33,7 +33,6 @@ async function createWrapper() {
                 mediaService: {},
             },
             stubs: {
-                'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
                 'sw-media-list-selection-item-v2': await wrapTestComponent('sw-media-list-selection-item-v2'),
                 'sw-media-preview-v2': {

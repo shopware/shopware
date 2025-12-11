@@ -1141,4 +1141,40 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'sw-import-export-entity-path-select__result-list',
         );
     });
+
+    it('should filter out password, legacy_password and legacy_encoder', async () => {
+        const wrapper = await createWrapper('customer');
+        await flushPromises();
+
+        const pathSelection = wrapper.find('.sw-import-export-entity-path-select__selection-input');
+        await pathSelection.trigger('click');
+        await flushPromises();
+
+        const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
+
+        expect(possibleSelectionResult).toContain('firstName');
+        expect(possibleSelectionResult).toContain('lastName');
+        expect(possibleSelectionResult).toContain('email');
+
+        expect(possibleSelectionResult).not.toContain('password');
+        expect(possibleSelectionResult).not.toContain('legacyPassword');
+        expect(possibleSelectionResult).not.toContain('legacyEncoder');
+    });
+
+    it('should filter out user association because user has WriteProtection', async () => {
+        // For test reasons, use "acl_user_role" because it has an association to "user". User is by definition write protected.
+        const wrapper = await createWrapper('acl_user_role');
+        await flushPromises();
+
+        const pathSelection = wrapper.find('.sw-import-export-entity-path-select__selection-input');
+        await pathSelection.trigger('click');
+        await flushPromises();
+
+        const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
+
+        expect(possibleSelectionResult).toContain('aclRoleId');
+        expect(possibleSelectionResult).toContain('userId');
+
+        expect(possibleSelectionResult).not.toContain('user');
+    });
 });

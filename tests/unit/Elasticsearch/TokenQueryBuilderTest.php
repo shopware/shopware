@@ -145,7 +145,8 @@ class TokenQueryBuilderTest extends TestCase
     public function testBuildWithSynonyms(): void
     {
         $config = [
-            self::config(field: 'name', ranking: 1000, tokenize: true, and: false, prefixMatch: false),
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false, prefixMatch: true),
+            self::config(field: 'name', ranking: 800, tokenize: true, and: true, prefixMatch: false),
             self::config(field: 'tags.name', ranking: 500, tokenize: true, and: false),
         ];
 
@@ -169,6 +170,10 @@ class TokenQueryBuilderTest extends TestCase
                 self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, $expectedFuzziness, 'or', $expectedMaxExpansions),
                 self::prefix('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 0.4),
             ], 1000),
+            self::disMax([
+                self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, $expectedFuzziness, 'and', $expectedMaxExpansions),
+            ], 800),
             self::nested('tags', self::disMax([
                 self::term('tags.name', 'foo', 1),
                 self::match('tags.name.search', 'foo', 0.8, $expectedFuzziness, 'or', $expectedMaxExpansions),
@@ -242,6 +247,43 @@ class TokenQueryBuilderTest extends TestCase
             ]),
         ];
 
+        yield 'Test term is normalized' => [
+            'config' => [
+                self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+            ],
+            'term' => ' FoO ',
+            'expected' => self::disMax([
+                self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 0.4),
+            ], 1000),
+        ];
+
+        yield 'Test term with spaces is normalized' => [
+            'config' => [
+                self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+            ],
+            'term' => ' FoO     BaR    Baz    ',
+            'expected' => self::disMax([
+                self::terms('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', 'bar', 'baz'], 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo bar baz', 0.8, 'AUTO:3,8', 'or', 5),
+                self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo bar baz', 0.6, 3, 5),
+            ], 1000),
+        ];
+
+        yield 'Tokenized field uses ngram match for long term' => [
+            'config' => [
+                self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+            ],
+            'term' => 'foooooooooo',
+            'expected' => self::disMax([
+                self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foooooooooo', 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.8, 'AUTO:3,8', 'or', 20),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM, 'foooooooooo', 0.4),
+                self::matchSimple('name.' . Defaults::LANGUAGE_SYSTEM . '.ngram', 'foooooooooo', 0.4),
+            ], 1000),
+        ];
+
         yield 'Test multiple fields' => [
             'config' => [
                 self::config(field: 'name', ranking: 1000),
@@ -281,6 +323,7 @@ class TokenQueryBuilderTest extends TestCase
                 self::disMax([
                     self::term($prefix . 'evolvesText', '2023', 1),
                     self::match($prefix . 'evolvesText.search', '2023', 0.8, 0, 'and', 10),
+                    self::prefix($prefix . 'evolvesText', '2023', 0.4),
                 ], 500),
                 self::term($prefix . 'evolvesInt', 2023, 400),
                 self::term($prefix . 'evolvesFloat', 2023.0, 500),
@@ -370,10 +413,12 @@ class TokenQueryBuilderTest extends TestCase
                     self::disMax([
                         self::term($prefixCfLang1 . 'evolvesText', '2023', 1),
                         self::match($prefixCfLang1 . 'evolvesText.search', '2023', 0.8, 0, 'and', 10),
+                        self::prefix($prefixCfLang1 . 'evolvesText', '2023', 0.4),
                     ], 500),
                     self::disMax([
                         self::term($prefixCfLang2 . 'evolvesText', '2023', 1),
                         self::match($prefixCfLang2 . 'evolvesText.search', '2023', 0.8, 0, 'and', 10),
+                        self::prefix($prefixCfLang2 . 'evolvesText', '2023', 0.4),
                     ], 400),
                 ]),
                 self::disMax([
@@ -513,6 +558,21 @@ class TokenQueryBuilderTest extends TestCase
         return [
             'match' => [
                 $field => array_filter($payload, static fn ($value) => $value !== null),
+            ],
+        ];
+    }
+
+    /**
+     * @return array{match: array<string, array{query: string, boost: float}>}
+     */
+    private static function matchSimple(string $field, string $query, float $boost): array
+    {
+        return [
+            'match' => [
+                $field => [
+                    'query' => $query,
+                    'boost' => $boost,
+                ],
             ],
         ];
     }

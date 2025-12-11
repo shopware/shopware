@@ -20,7 +20,6 @@ describe('src/app/component/media/sw-media-field', () => {
                         </div>
                     `,
                     },
-                    'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
                     'sw-simple-search-field': true,
                     'sw-loader': true,

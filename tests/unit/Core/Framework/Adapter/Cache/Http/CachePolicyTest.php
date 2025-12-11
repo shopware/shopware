@@ -69,12 +69,12 @@ class CachePolicyTest extends TestCase
     public function testNoCache(): void
     {
         $policy = CachePolicy::noCache();
-
-        static::assertFalse($policy->cacheControl->public);
-        static::assertTrue($policy->cacheControl->private);
         static::assertTrue($policy->cacheControl->noStore);
+        static::assertTrue($policy->cacheControl->noCache);
         static::assertTrue($policy->cacheControl->mustRevalidate);
         static::assertSame(0, $policy->cacheControl->maxAge);
         static::assertSame(0, $policy->cacheControl->sMaxAge);
+        static::assertNull($policy->cacheControl->public);
+        static::assertNull($policy->cacheControl->private);
     }
 }

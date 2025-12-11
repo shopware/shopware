@@ -236,13 +236,14 @@ class CacheHeadersServiceTest extends TestCase
         });
 
         $secondResponse = new Response();
-        $this->cacheHeadersService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $secondResponse);
+        $result = $this->cacheHeadersService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $secondResponse);
 
         $secondCacheCookie = $secondResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
         static::assertInstanceOf(Cookie::class, $secondCacheCookie);
 
         static::assertNotSame($firstCacheCookie->getValue(), $secondCacheCookie->getValue());
         static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $secondCacheCookie->getValue());
+        static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $result);
     }
 
     public function testSetLanguageCurrencyHeaders(): void

@@ -41,9 +41,7 @@ export default defineConfig(({ command }) => {
     const isProd = command === 'build';
     const isDev = !isProd;
     const base = isProd ? '/bundles/administration/administration' : undefined;
-    // const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
-    // TODO: Just for testing
-    const useSourceMap = true;
+    const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
 
     if (isProd) {

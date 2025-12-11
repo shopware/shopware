@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearch extends MigrationStep
 {
+    private const CONFIG_KEY = 'core.listing.loadPreviewsOnSearch';
+
     public function getCreationTimestamp(): int
     {
         return 1765376847;
@@ -21,11 +23,22 @@ class Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearch extends Migr
 
     public function update(Connection $connection): void
     {
+        if ($this->hasConfigValue($connection)) {
+            return;
+        }
+
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.listing.loadPreviewsOnSearch',
             'configuration_value' => '{"_value": true}',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function hasConfigValue(Connection $connection): bool
+    {
+        return (bool) $connection->fetchOne('SELECT 1 FROM `system_config` WHERE `configuration_key` = :key', [
+            'key' => self::CONFIG_KEY,
         ]);
     }
 }

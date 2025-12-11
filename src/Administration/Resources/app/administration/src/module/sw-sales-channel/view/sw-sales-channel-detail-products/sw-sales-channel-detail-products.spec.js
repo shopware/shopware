@@ -506,7 +506,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await flushPromises();
 
         expect(wrapper.getComponent('.mt-card').attributes('is-loading')).toBeUndefined();
-        expect(wrapper.find('.sw-empty-state').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
     });
 
     it('should return filters from filter registry', async () => {

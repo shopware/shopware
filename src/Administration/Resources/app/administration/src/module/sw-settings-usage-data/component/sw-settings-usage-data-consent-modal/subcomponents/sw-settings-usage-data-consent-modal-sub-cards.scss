@@ -1,4 +1,6 @@
 .sw-settings-usage-data-consent-modal-sub-card {
+    display: flow-root;
+    position: relative;
     padding: var(--scale-size-16) var(--scale-size-24);
     border-radius: var(--border-radius-m);
     border: 1px solid var(--color-border-primary-default);

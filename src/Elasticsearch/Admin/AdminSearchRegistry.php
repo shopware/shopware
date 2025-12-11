@@ -456,8 +456,18 @@ class AdminSearchRegistry implements EventSubscriberInterface
         $mapping = $indexer->mapping([
             'properties' => [
                 'id' => ['type' => 'keyword'],
-                'textBoosted' => ['type' => 'text'],
-                'text' => ['type' => 'text'],
+                'textBoosted' => [
+                    'type' => 'text',
+                    'fields' => [
+                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                    ],
+                ],
+                'text' => [
+                    'type' => 'text',
+                    'fields' => [
+                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                    ],
+                ],
                 'entityName' => ['type' => 'keyword'],
                 'parameters' => ['type' => 'keyword'],
             ],

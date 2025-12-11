@@ -48,6 +48,12 @@ As part of this change, the following deprecations were made:
 If you have using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
 
+### Performance improvements for generating category SEO-Urls
+
+We don't synchronously fetch and generate the SEO-Urls for all child categories anymore. 
+Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
+This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
+
 ## Administration
 
 ## Storefront

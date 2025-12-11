@@ -19,6 +19,7 @@ type ConsentStruct = {
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+    name: 'sw-settings-usage-data-consent-modal',
 
     components: {
         MtModal,

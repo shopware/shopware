@@ -40,6 +40,12 @@ The `assignRecursive` method enables deeply nested, JSON-serialized data structu
 
 Note: `assignRecursive` uses reflection and creates nested struct instances, so it is noticeably slower than the classic shallow `assign` and is intended for import/export and (re-)hydration scenarios rather than tight, performance-critical loops.
 
+### Performance improvements for generating category SEO-Urls
+
+We don't synchronously fetch and generate the SEO-Urls for all child categories anymore. 
+Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
+This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
+
 ## Administration
 
 ## Storefront

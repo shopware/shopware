@@ -6,8 +6,6 @@ use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\Custom
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldTypeFactory;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -53,7 +51,7 @@ class CustomFieldSet extends XmlElement
      *
      * @return CustomFieldSetArray
      */
-    public function toEntityArray(string $appId, array &$existingRelations, array &$existingFields/*, ?string $existingSetId */): array
+    public function toEntityArray(string $appId, array &$existingRelations, array &$existingFields/* , ?string $existingSetId */): array
     {
         /** @var string|null $existingSetId */
         $existingSetId = \func_num_args() > 3

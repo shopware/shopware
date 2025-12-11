@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @description This flag indicates that the field is write-once and then read-only
  */
 #[Package('framework')]
 class Immutable extends Flag

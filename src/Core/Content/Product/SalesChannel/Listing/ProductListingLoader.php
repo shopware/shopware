@@ -320,7 +320,7 @@ class ProductListingLoader
             return true;
         }
 
-        return false;
+        return !$isSearchRoute;
     }
 
     /**

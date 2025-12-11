@@ -32,6 +32,12 @@ The following classes and constants were deprecated as they will not be used any
 Additionally, the following configuration was deprecated:
 * `shopware.cache.invalidation.http_cache`
 
+### Performance improvements for generating category SEO-Urls
+
+We don't synchronously fetch and generate the SEO-Urls for all child categories anymore. 
+Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
+This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
+
 ### Make the find best variant on searching as non default behaviour
 
 Since [6.7.2.0](https://github.com/shopware/shopware/pull/11107), the "find best variant" feature was always the default behaviour on the search. It means that if a product has variants, the best matching variant is returned instead of what merchant has configured in the product's Storefront presentation > Product listings > "Show main product or variant" setting.

@@ -425,6 +425,12 @@ class ProductListingLoaderTest extends TestCase
         $criteria = new Criteria();
         $criteria->addState($state);
 
+        $this->systemConfigService->set(
+            'core.listing.loadPreviewsOnSearch',
+            false,
+            $this->salesChannelContext->getSalesChannelId()
+        );
+
         $listing = $this->fetchListing($criteria, 'greenL');
 
         // only the main variant should be returned

@@ -56,7 +56,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             return new IdSearchResult(0, [], $criteria, $context);
         }
 
-        return $this->decorated->search($definition, $criteria, $context);
         try {
             $search = $this->createSearch($criteria, $definition, $context);
 

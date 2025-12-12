@@ -104,8 +104,8 @@ runs:
               shopware-version: ${{ github.ref }}
               shopware-repository: ${{ github.repository }}
               install: ${{ inputs.install }}
-              install-admin: ${{ inputs.install }}
-              install-storefront: ${{ inputs.install }}
+              install-admin: true
+              install-storefront: true
               env: prod
               composer-root-version: ${{ inputs.major != '' && '6.8.9999999-dev' || '.auto' }}
               php-version: ${{ inputs.php-version }}

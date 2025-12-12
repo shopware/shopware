@@ -98,6 +98,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-media-modal-replace': true,
                 'sw-media-modal-delete': true,
                 'sw-media-modal-move': true,
+                'sw-media-modal-v2': true,
                 'mt-url-field': MtUrlField,
                 'sw-app-action-button': true,
                 'sw-time-ago': true,

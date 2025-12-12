@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\Token;
 
 use Doctrine\DBAL\Connection;
-use Lcobucci\Clock\FrozenClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -107,7 +107,7 @@ class JWTFactoryV2Test extends TestCase
     public function testExpiredToken(): void
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
-        $configuration = $configuration->withValidationConstraints(new StrictValidAt(new FrozenClock(new \DateTimeImmutable('now - 1 day'))));
+        $configuration = $configuration->withValidationConstraints(new StrictValidAt(new MockClock(new \DateTimeImmutable('now - 1 day'))));
         $tokenFactory = new JWTFactoryV2($configuration, $this->createMock(Connection::class));
 
         $transaction = self::createTransaction();

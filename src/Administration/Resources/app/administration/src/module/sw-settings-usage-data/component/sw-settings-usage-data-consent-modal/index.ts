@@ -19,6 +19,7 @@ type ConsentStruct = {
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+    name: 'sw-settings-usage-data-consent-modal',
 
     components: {
         MtModal,
@@ -28,6 +29,11 @@ export default Shopware.Component.wrapComponentConfig({
         SwSettingsUsageDataUserDataConsentCard,
         SwSettingsUsageDataConsentCheckList,
     },
+
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     props: {
         initialStoreDataConsent: {
@@ -62,6 +68,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         showStoreDataConsent() {
             if (this.initialStoreDataConsent.value) {
+                return false;
+            }
+
+            if (!this.acl.can('system.system_config')) {
                 return false;
             }
 

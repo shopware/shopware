@@ -9,6 +9,7 @@ import './sw-settings-usage-data-consent-check-list.scss';
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+    name: 'sw-settings-usage-data-consent-check-list',
 
     functional: true,
 });

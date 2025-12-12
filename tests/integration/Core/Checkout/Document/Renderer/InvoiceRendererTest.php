@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -78,11 +79,27 @@ class InvoiceRendererTest extends TestCase
 
         $priceRuleId = Uuid::randomHex();
 
+        $shippingAddressId = Uuid::randomHex();
+        $options = [
+            'defaultShippingAddressId' => $shippingAddressId,
+        ];
+
+        $additionalAddress = [
+            'id' => $shippingAddressId,
+            'countryId' => $this->getValidCountryId(),
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Maximilian',
+            'lastName' => 'Musterfrau',
+            'street' => 'Ebbinghoff 10a',
+            'zipcode' => '48624',
+            'city' => 'Schöppingen',
+        ];
+
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
-                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
+                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer($options, $additionalAddress),
             ]
         );
 
@@ -365,7 +382,7 @@ class InvoiceRendererTest extends TestCase
             },
         ];
 
-        yield 'render with shipping address' => [
+        yield 'render with shipping address and displayDivergentDeliveryAddress is true' => [
             [7],
             function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
@@ -422,7 +439,7 @@ class InvoiceRendererTest extends TestCase
             },
         ];
 
-        yield 'render with billing address' => [
+        yield 'render with displayDivergentDeliveryAddress is false' => [
             [7],
             function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
@@ -440,6 +457,7 @@ class InvoiceRendererTest extends TestCase
 
                 $operation->assign([
                     'config' => [
+                        'displayDivergentDeliveryAddress' => false,
                         'displayLineItems' => true,
                         'displayFooter' => true,
                         'displayHeader' => true,
@@ -447,24 +465,18 @@ class InvoiceRendererTest extends TestCase
                 ]);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
-                $orderAddress = $order->getAddresses()?->first();
-                self::assertNotNull($orderAddress);
-
-                $country = $orderAddress->getCountry();
+                $rendered = $rendered->getContent();
+                static::assertNotNull($orderDeliveries = $order->getDeliveries());
+                $shippingAddress = $orderDeliveries->getShippingAddress()->first();
+                static::assertInstanceOf(OrderAddressEntity::class, $shippingAddress);
+                $country = $shippingAddress->getCountry();
                 static::assertNotNull($country);
-                $salutation = $orderAddress->getSalutation();
-                static::assertNotNull($salutation);
 
                 static::assertNotNull($country->getName());
-                static::assertNotNull($salutation->getLetterName());
-                static::assertNotNull($salutation->getDisplayName());
-                static::assertNotNull($orderAddress->getZipcode());
+                static::assertNotNull($shippingAddress->getZipcode());
 
-                $rendered = $rendered->getContent();
-                static::assertStringContainsString($orderAddress->getStreet(), $rendered);
-                static::assertStringContainsString($orderAddress->getZipcode(), $rendered);
-                static::assertStringContainsString($orderAddress->getCity(), $rendered);
-                static::assertStringContainsString($country->getName(), $rendered);
+                static::assertStringNotContainsString($shippingAddress->getFirstName(), $rendered);
+                static::assertStringNotContainsString($shippingAddress->getLastName(), $rendered);
             },
         ];
 
@@ -635,8 +647,7 @@ class InvoiceRendererTest extends TestCase
                     LineItem::CREDIT_LINE_ITEM_TYPE,
                     null,
                     1
-                )
-                ;
+                );
                 $creditLineItem->setLabel('credit-item-1');
                 $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition(-20.0));
 

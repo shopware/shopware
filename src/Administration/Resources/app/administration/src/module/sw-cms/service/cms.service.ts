@@ -534,7 +534,7 @@ function CmsElementEnrich<EntityName extends keyof EntitySchema.Entities>(
     Object.keys(slot.config).forEach((configKey) => {
         const entity = slot.config[configKey].entity;
 
-        if (!entity) {
+        if (!entity || !slot.config[configKey].value) {
             return;
         }
 

@@ -140,6 +140,10 @@ export default {
         showCustomFields() {
             return this.productStream && this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        productStreamIndexingEnabled() {
+            return Context.app.productStreamIndexingEnabled ?? true;
+        },
     },
 
     watch: {

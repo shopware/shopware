@@ -4,6 +4,12 @@
 
 ## API
 
+### Video cover management `/api/_action/media/{mediaId}/video-cover`
+Added endpoint to assign or remove cover images for video media files. Requires `media.editor` ACL permission.
+Accepts `coverMediaId` (string or null) in request body.
+Cover image reference is stored in `metaData.video.coverMediaId`.
+When a cover image is deleted, all video references are automatically cleaned up via `VideoCoverCleanupSubscriber`.
+
 ### Document download `/store-api/document/download/`
 The endpoint now selects the document file type based on the `Accept` header.
 When no `Accept` header is set or with `*/*`, `PDF` will be returned. (PR #12944)
@@ -46,7 +52,7 @@ Note: `assignRecursive` uses reflection and creates nested struct instances, so 
 
 ### Performance improvements for generating category SEO-Urls
 
-We don't synchronously fetch and generate the SEO-Urls for all child categories anymore. 
+We don't synchronously fetch and generate the SEO-Urls for all child categories anymore.
 Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
 This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
 

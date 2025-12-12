@@ -63,6 +63,9 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#$usageKey changed from string to string|null', '/'),
         preg_quote('CHANGED: The parameter $usageKey of Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity#setUsageKey() changed from string to string|null', '/'),
 
+        // Fix for @internal annotation placed in the wrong place
+        preg_quote('REMOVED: Class Shopware\Core\Framework\Adapter\Cache\Http\CacheHashService has been deleted'),
+
         // PDF will be the default when no $fileType is given and Accept header is not present or is a wildcard
         preg_quote('CHANGED: Default parameter value for parameter $fileType of Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute#download() changed from \'pdf\' to NULL', '/'),
     ],

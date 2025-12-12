@@ -113,6 +113,16 @@ class AdapterExceptionTest extends TestCase
         static::assertSame(['parameter' => 'test'], $exception->getParameters());
     }
 
+    public function testInvalidCachePolicyConfiguration(): void
+    {
+        $exception = AdapterException::invalidCachePolicyConfiguration('missing required parameter test');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(AdapterException::INVALID_CACHE_POLICY_CONFIGURATION, $exception->getErrorCode());
+        static::assertSame('Used cache policy configuration is invalid: missing required parameter test', $exception->getMessage());
+        static::assertSame(['error' => 'missing required parameter test'], $exception->getParameters());
+    }
+
     public function testCacheCleanerLocked(): void
     {
         $exception = AdapterException::cacheCleanerLocked('operationName', 'keyValue');

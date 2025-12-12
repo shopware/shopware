@@ -15,11 +15,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('framework')]
 /**
  * @internal
  */
-class CacheHashService
+#[Package('framework')]
+class CacheHeadersService
 {
     /**
      * @param array<string> $cookies
@@ -34,31 +34,23 @@ class CacheHashService
     ) {
     }
 
-    public function applyCacheHash(Request $request, SalesChannelContext $context, Cart $cart, Response $response): void
+    public function applyCacheHeaders(SalesChannelContext $context, Response $response): void
     {
-        if ($request->headers->has(PlatformRequest::HEADER_CURRENCY_ID)) {
-            $response->headers->set(
-                PlatformRequest::HEADER_CURRENCY_ID,
-                $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID)
-            );
-        }
-
-        if ($request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
-            $response->headers->set(
-                PlatformRequest::HEADER_LANGUAGE_ID,
-                $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
-            );
-        }
+        $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
+        $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
 
         $newVaryArray = array_merge($response->getVary(), [
-            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-            PlatformRequest::HEADER_CURRENCY_ID,
             PlatformRequest::HEADER_LANGUAGE_ID,
+            PlatformRequest::HEADER_CURRENCY_ID,
+            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
         ]);
         $newVaryArray = array_unique(array_map(fn (string $v) => \trim($v), $newVaryArray));
 
         $response->setVary($newVaryArray);
+    }
 
+    public function applyCacheHash(Request $request, SalesChannelContext $context, Cart $cart, Response $response): ?string
+    {
         $isCacheHashRequired = $this->extensions->publish(
             CacheHashRequiredExtension::NAME,
             new CacheHashRequiredExtension($request, $context, $cart),
@@ -71,7 +63,7 @@ class CacheHashService
                 $response->headers->clearCookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE);
             }
 
-            return;
+            return null;
         }
 
         $newValue = $this->buildCacheHash($request, $context);
@@ -84,6 +76,8 @@ class CacheHashService
         }
 
         $response->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
+
+        return $newValue;
     }
 
     private function buildCacheHash(Request $request, SalesChannelContext $context): string

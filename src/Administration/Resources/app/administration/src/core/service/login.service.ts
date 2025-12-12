@@ -442,21 +442,13 @@ export default function createLoginService(
                             // Calling toDataURL on a canvas with images from a different origin or css rules
                             // that contain urls to images from a different origin will throw a security error in Safari.
                         }
-
-                        sessionStorage.setItem('lastKnownUser', Shopware.Store.get('session').currentUser?.username ?? '');
-
-                        window.processingInactivityLogout = true;
-
-                        void router.push({
-                            name: 'sw.inactivity.login.index',
-                            params: { id },
-                        });
                     })
                     .catch((error) => {
                         // If html2canvas fails to load or execute, still proceed with logout
-                        // but without the background screenshot
+                        // in ".finally" block below
                         console.error('Failed to capture inactivity logout screenshot:', error);
-
+                    })
+                    .finally(() => {
                         sessionStorage.setItem('lastKnownUser', Shopware.Store.get('session').currentUser?.username ?? '');
 
                         window.processingInactivityLogout = true;

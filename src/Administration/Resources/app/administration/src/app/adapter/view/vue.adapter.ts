@@ -451,8 +451,6 @@ export default class VueAdapter extends ViewAdapter {
                 return;
             }
 
-            // load async components
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.registerAsyncComponent(
                 componentName,
                 // @ts-expect-error - resolved config does not match completely a standard vue component

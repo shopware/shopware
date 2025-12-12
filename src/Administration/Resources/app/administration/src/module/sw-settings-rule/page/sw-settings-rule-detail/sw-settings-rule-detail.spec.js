@@ -1,5 +1,5 @@
 import { config, mount } from '@vue/test-utils';
-import { kebabCase } from 'lodash-es';
+import kebabCase from 'lodash-es/kebabCase';
 import { createRouter, createWebHistory } from 'vue-router';
 
 /**

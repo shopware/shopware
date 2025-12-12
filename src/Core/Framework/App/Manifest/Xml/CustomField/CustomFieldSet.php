@@ -74,8 +74,9 @@ class CustomFieldSet extends XmlElement
             if (\array_key_exists($field->getName(), $existingFields)) {
                 $fieldData['id'] = $existingFields[$field->getName()];
 
-                // custom_fields.name is immutable, thus only set if the set is new
+                // custom_fields.name and custom_fields.type is immutable, thus only set if the set is new
                 unset($fieldData['name']);
+                unset($fieldData['type']);
                 unset($existingFields[$field->getName()]);
             }
 

@@ -197,6 +197,11 @@ class CustomFieldRepositoryTest extends TestCase
         static::assertNotNull($event);
         static::assertCount(2, $event->getPayloads());
 
+        foreach ($attributes as &$attribute) {
+            unset($attribute['name']);
+            unset($attribute['type']);
+        }
+
         $result = $this->repo->upsert($attributes, Context::createDefaultContext());
         $event = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
         static::assertNotNull($event);

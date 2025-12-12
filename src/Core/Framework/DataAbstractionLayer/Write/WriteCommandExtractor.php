@@ -310,7 +310,6 @@ class WriteCommandExtractor
             try {
                 if ($field->is(Immutable::class) && !$isCreate && !$kvPair->isDefault()) {
                     $this->addImmutableViolation($kvPair, $parameters);
-
                     continue;
                 }
 

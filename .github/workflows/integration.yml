@@ -67,6 +67,7 @@ jobs:
           install: ${{ matrix.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
           install-admin: true
           install-storefront: true
+          skip-js-build: ${{ matrix.name == 'Install' }}
           env: prod
           php-version: ${{ matrix.php-version }}
 

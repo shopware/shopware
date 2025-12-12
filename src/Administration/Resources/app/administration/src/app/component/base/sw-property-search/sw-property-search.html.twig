@@ -215,21 +215,16 @@
         </sw-grid>
         {% endblock %}
         {% block sw_property_search_empty %}
-        <sw-empty-state
+        <mt-empty-state
             v-else
-            :absolute="false"
-            :title="$tc('sw-property-search.noPropertiesFound')"
-            :subline="$tc('sw-property-search.noPropertiesFoundDescription')"
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-property-search.noPropertiesFound')"
+            :description="$tc('sw-property-search.noPropertiesFoundDescription')"
         >
-            <template #icon>
-                {% block sw_property_search_empty_image %}
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-property-search.noPropertiesFound')"
-                >
-                {% endblock %}
-            </template>
-        </sw-empty-state>
+            <!-- @deprecated tag:v6.8.0 - block will be removed -->
+            {% block sw_property_search_empty_image %}
+            {% endblock %}
+        </mt-empty-state>
         {% endblock %}
     </div>
     {% endblock %}

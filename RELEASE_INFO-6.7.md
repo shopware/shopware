@@ -11,6 +11,12 @@
 
 ## API
 
+### Video cover management `/api/_action/media/{mediaId}/video-cover`
+Added endpoint to assign or remove cover images for video media files. Requires `media.editor` ACL permission.
+Accepts `coverMediaId` (string or null) in request body.
+Cover image reference is stored in `metaData.video.coverMediaId`.
+When a cover image is deleted, all video references are automatically cleaned up via `VideoCoverCleanupSubscriber`.
+
 ### StoreAPI HTTP caching support
 Selected Store API routes now support HTTP caching with `Cache-Control` headers:
 - `/store-api/breadcrumb/{id}`

@@ -9,7 +9,7 @@ use Shopware\Core\System\Consent\ConsentStatus;
  * @codeCoverageIgnore
  */
 #[Package('data-services')]
-readonly class ConsentStateHistoryItem
+readonly class ConsentStateLogRecord
 {
     public function __construct(
         public ConsentStatus $status,

@@ -3,13 +3,11 @@
 namespace Shopware\Core\System\Consent;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Consent\DTO\Consent;
-use Shopware\Core\System\Consent\DTO\ConsentState;
-use Shopware\Core\System\Consent\DTO\ConsentStateHistoryItem;
+use Shopware\Core\System\Consent\DTO\ConsentStateLogRecord;
+use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 
 /**
  * @internal
@@ -21,58 +19,18 @@ class ConsentRepository
     {
     }
 
-    public function create(string $name, ConsentScope $scope): void
-    {
-        try {
-            $this->connection->insert('consent', [
-                'id' => Uuid::randomBytes(),
-                'name' => $name,
-                'scope' => $scope->value,
-                'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]);
-        } catch (UniqueConstraintViolationException $e) {
-            throw ConsentException::alreadyExists($name);
-        }
-    }
-
     /**
-     * @return array<Consent>
-     */
-    public function fetchAllConsents(): array
-    {
-        $result = $this->connection->fetchAllAssociative('SELECT * FROM consent');
-
-        return array_map(function (array $row) {
-            $createdAt = \DateTimeImmutable::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $row['created_at']);
-            $updatedAt = $row['updated_at'] ? \DateTimeImmutable::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $row['updated_at']) : null;
-
-            if ($createdAt === false || $updatedAt === false) {
-                throw ConsentException::invalidConsent();
-            }
-
-            return new Consent(
-                id: Uuid::fromBytesToHex($row['id']),
-                name: $row['name'],
-                scope: ConsentScope::from($row['scope']),
-                createdAt: $createdAt,
-                updatedAt: $updatedAt,
-            );
-        }, $result);
-    }
-
-    /**
-     * @return list<ConsentState>
+     * @return list<ConsentStateRecord>
      */
     public function fetchAllConsentStates(): array
     {
         $result = $this->connection->fetchAllAssociative(
-            'SELECT consent_state.actor_id, identifier, state, consent.name, consent.scope FROM consent_state LEFT JOIN consent ON consent.id = consent_state.consent_id'
+            'SELECT name, identifier, state, consent_state.actor_id FROM consent_state'
         );
 
         return array_map(
-            fn (array $row) => new ConsentState(
+            fn (array $row) => new ConsentStateRecord(
                 $row['name'],
-                ConsentScope::from($row['scope']),
                 $row['identifier'] ? Uuid::fromBytesToHex($row['identifier']) : null,
                 ConsentStatus::from($row['state']),
                 Uuid::fromBytesToHex($row['actor_id'])
@@ -82,15 +40,15 @@ class ConsentRepository
     }
 
     public function updateConsentState(
-        Consent $consent,
+        ConsentDefinition $consent,
         ?string $identifier,
         ConsentStatus $state,
         string $actorId
     ): void {
         $existing = $this->connection->fetchOne(
-            'SELECT id FROM consent_state WHERE consent_id = :consentId AND identifier <=> :identifier',
+            'SELECT id FROM consent_state WHERE name = :consentName AND identifier <=> :identifier',
             [
-                'consentId' => Uuid::fromHexToBytes($consent->id),
+                'consentName' => $consent->getName(),
                 'identifier' => $identifier ? Uuid::fromHexToBytes($identifier) : null,
             ]
         );
@@ -110,7 +68,7 @@ class ConsentRepository
         } else {
             $this->connection->insert('consent_state', [
                 'id' => Uuid::randomBytes(),
-                'consent_id' => Uuid::fromHexToBytes($consent->id),
+                'name' => $consent->getName(),
                 'identifier' => $identifier ? Uuid::fromHexToBytes($identifier) : null,
                 'state' => $state->value,
                 'actor_id' => Uuid::fromHexToBytes($actorId),
@@ -118,9 +76,9 @@ class ConsentRepository
             ]);
         }
 
-        $this->connection->insert('consent_state_history', [
+        $this->connection->insert('consent_log', [
             'id' => Uuid::randomBytes(),
-            'consent_id' => Uuid::fromHexToBytes($consent->id),
+            'name' => $consent->getName(),
             'identifier' => $identifier ? Uuid::fromHexToBytes($identifier) : null,
             'state' => $state->value,
             'actor_id' => Uuid::fromHexToBytes($actorId),
@@ -129,32 +87,32 @@ class ConsentRepository
     }
 
     /**
-     * @return list<ConsentStateHistoryItem>
+     * @return list<ConsentStateLogRecord>
      */
-    public function getHistory(string $consentId, ?string $identifier): array
+    public function getHistory(string $consentName, ?string $identifier): array
     {
         $result = $this->connection->fetchAllAssociative(
             'SELECT state, actor_id, created_at
-             FROM consent_state_history
-             WHERE consent_id = :consentId AND identifier <=> :identifier
+             FROM consent_log
+             WHERE name = :name AND identifier <=> :identifier
              ORDER BY created_at DESC',
             [
-                'consentId' => Uuid::fromHexToBytes($consentId),
+                'name' => $consentName,
                 'identifier' => $identifier ? Uuid::fromHexToBytes($identifier) : null,
             ]
         );
 
         return array_map(
-            function (array $row) {
+            function (array $row) use ($identifier) {
                 $createdAt = \DateTimeImmutable::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $row['created_at']);
 
                 if ($createdAt === false) {
                     throw ConsentException::invalidConsent();
                 }
 
-                return new ConsentStateHistoryItem(
+                return new ConsentStateLogRecord(
                     ConsentStatus::from($row['state']),
-                    Uuid::fromBytesToHex($row['actor_id']),
+                    $identifier,
                     Uuid::fromBytesToHex($row['actor_id']),
                     $createdAt
                 );

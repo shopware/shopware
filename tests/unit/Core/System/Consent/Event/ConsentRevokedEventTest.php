@@ -5,9 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\Consent\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\ConsentScope;
-use Shopware\Core\System\Consent\DTO\Consent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
 
 /**
@@ -20,11 +18,13 @@ class ConsentRevokedEventTest extends TestCase
     public function testEvent(): void
     {
         $event = new ConsentRevokedEvent(
-            new Consent(Uuid::randomHex(), 'my-consent', ConsentScope::ADMIN_USER, new \DateTimeImmutable(), null),
+            'my-consent',
+            ConsentScope::ADMIN_USER,
             'user-456'
         );
 
-        static::assertSame('my-consent', $event->consent->name);
+        static::assertSame('my-consent', $event->consentName);
+        static::assertSame(ConsentScope::ADMIN_USER, $event->consentScope);
         static::assertSame('user-456', $event->identifier);
     }
 }

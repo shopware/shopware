@@ -6,15 +6,18 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
-use Shopware\Core\System\Consent\DTO\Consent;
+use Shopware\Core\System\Consent\ConsentScope;
 
 #[Package('data-services')]
 readonly class ConsentRevokedEvent implements Hookable
 {
     public const EVENT_NAME = 'consent.revoked';
 
-    public function __construct(public Consent $consent, public string $identifier)
-    {
+    public function __construct(
+        public string $consentName,
+        public ConsentScope $consentScope,
+        public string $identifier
+    ) {
     }
 
     public function getName(): string
@@ -28,8 +31,8 @@ readonly class ConsentRevokedEvent implements Hookable
     public function getWebhookPayload(?AppEntity $app = null): array
     {
         return [
-            'consent' => $this->consent->name,
-            'scope' => $this->consent->scope->value,
+            'consent' => $this->consentName,
+            'scope' => $this->consentScope->value,
             'identifier' => $this->identifier,
         ];
     }

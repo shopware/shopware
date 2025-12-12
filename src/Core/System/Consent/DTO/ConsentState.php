@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Consent\DTO;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Consent\ConsentDefinition;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 
@@ -19,5 +20,10 @@ class ConsentState
         public readonly ConsentStatus $status,
         public readonly ?string $actorId,
     ) {
+    }
+
+    public static function fromDefinitionAndRecord(ConsentDefinition $consent, ConsentStateRecord $record): self
+    {
+        return new self($consent->getName(), $consent->getScope(), $record->identifier, $record->status, $record->actorId);
     }
 }

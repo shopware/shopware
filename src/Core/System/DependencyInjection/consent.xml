@@ -12,15 +12,18 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\System\Consent\Service\ConsentService">
-            <argument type="service" id="Shopware\Core\System\Consent\ConsentRepository"/>
-            <argument type="service" id="event_dispatcher"/>
+        <service id="Shopware\Core\System\Consent\Definition\BackendData">
+            <tag name="shopware.consent.definition"/>
         </service>
 
-        <service id="Shopware\Core\System\Consent\Command\TestCommand">
-            <argument type="service" id="Shopware\Core\System\Consent\Service\ConsentService"/>
+        <service id="Shopware\Core\System\Consent\Definition\Tracking">
+            <tag name="shopware.consent.definition"/>
+        </service>
 
-            <tag name="console.command" />
+        <service id="Shopware\Core\System\Consent\Service\ConsentService">
+            <argument type="tagged_iterator" tag="shopware.consent.definition"/>
+            <argument type="service" id="Shopware\Core\System\Consent\ConsentRepository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
 </container>

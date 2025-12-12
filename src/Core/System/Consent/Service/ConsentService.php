@@ -5,13 +5,13 @@ namespace Shopware\Core\System\Consent\Service;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentContext;
+use Shopware\Core\System\Consent\ConsentDefinition;
 use Shopware\Core\System\Consent\ConsentException;
 use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
-use Shopware\Core\System\Consent\DTO\Consent;
 use Shopware\Core\System\Consent\DTO\ConsentState;
-use Shopware\Core\System\Consent\DTO\ConsentStateHistoryItem;
+use Shopware\Core\System\Consent\DTO\ConsentStateLogRecord;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
 
@@ -22,19 +22,28 @@ use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
 class ConsentService
 {
     /**
-     * @var array<string, Consent>|null
+     * @var array<string, ConsentDefinition>
      */
-    private ?array $consents = null;
+    private array $consentDefinitions;
 
     /**
      * @var array<string, ConsentState>
      */
     private ?array $states = null;
 
+    /**
+     * @param iterable<ConsentDefinition> $consentDefinitions
+     */
     public function __construct(
+        iterable $consentDefinitions,
         private readonly ConsentRepository $consentRepository,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
+        $definitions = [];
+        foreach ($consentDefinitions as $definition) {
+            $definitions[$definition->getName()] = $definition;
+        }
+        $this->consentDefinitions = $definitions;
     }
 
     /**
@@ -42,46 +51,45 @@ class ConsentService
      */
     public function list(ConsentContext $context): array
     {
-        $consents = $this->fetchConsents();
         $states = $this->fetchStates();
 
-        return array_map(function (Consent $consent) use ($context, $states) {
-            $identifier = $context->getIdentifierForScope($consent->scope);
+        return array_map(function (ConsentDefinition $consent) use ($context, $states) {
+            $identifier = $context->getIdentifierForScope($consent->getScope());
             $key = $this->key(
-                $consent->name,
-                $consent->scope->value,
+                $consent->getName(),
+                $consent->getScope()->value,
                 $identifier
             );
 
             return $states[$key] ?? new ConsentState(
-                name: $consent->name,
-                scope: $consent->scope,
+                name: $consent->getName(),
+                scope: $consent->getScope(),
                 identifier: $identifier,
                 status: ConsentStatus::REQUESTED,
                 actorId: null,
             );
-        }, $consents);
+        }, $this->consentDefinitions);
     }
 
-    public function getConsentStatus(string $name, ?string $identifier = null): ConsentState
+    public function getConsentState(string $name, ?string $identifier = null): ConsentState
     {
-        $consent = $this->fetchConsent($name);
+        $consent = $this->getConsentDefinition($name);
 
-        if ($consent->scope !== ConsentScope::GLOBAL && $identifier === null) {
+        if ($consent->getScope() !== ConsentScope::GLOBAL && $identifier === null) {
             throw ConsentException::identifierRequired();
         }
 
         $states = $this->fetchStates();
 
-        $key = $this->key($consent->name, $consent->scope->value, $identifier);
+        $key = $this->key($consent->getName(), $consent->getScope()->value, $identifier);
 
         if (isset($states[$key])) {
             return $states[$key];
         }
 
         return new ConsentState(
-            name: $consent->name,
-            scope: $consent->scope,
+            name: $consent->getName(),
+            scope: $consent->getScope(),
             identifier: $identifier,
             status: ConsentStatus::REQUESTED,
             actorId: null,
@@ -90,9 +98,9 @@ class ConsentService
 
     public function acceptConsent(string $name, string $identifier): void
     {
-        $consent = $this->fetchConsent($name);
+        $consent = $this->getConsentDefinition($name);
 
-        $key = $this->key($consent->name, $consent->scope->value, $identifier);
+        $key = $this->key($consent->getName(), $consent->getScope()->value, $identifier);
 
         $states = $this->fetchStates();
         if (isset($states[$key]) && $states[$key]->status === ConsentStatus::ACCEPTED) {
@@ -101,21 +109,21 @@ class ConsentService
 
         $this->consentRepository->updateConsentState(
             $consent,
-            $consent->scope === ConsentScope::GLOBAL ? null : $identifier,
+            $consent->getScope() === ConsentScope::GLOBAL ? null : $identifier,
             ConsentStatus::ACCEPTED,
             $identifier
         );
 
-        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($consent, $identifier));
+        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($consent->getName(), $consent->getScope(), $identifier));
 
         $this->invalidateState();
     }
 
     public function revokeConsent(string $name, string $identifier): void
     {
-        $consent = $this->fetchConsent($name);
+        $consent = $this->getConsentDefinition($name);
 
-        $key = $this->key($consent->name, $consent->scope->value, $identifier);
+        $key = $this->key($consent->getName(), $consent->getScope()->value, $identifier);
 
         $states = $this->fetchStates();
         if (isset($states[$key]) && $states[$key]->status === ConsentStatus::REVOKED) {
@@ -124,52 +132,36 @@ class ConsentService
 
         $this->consentRepository->updateConsentState(
             $consent,
-            $consent->scope === ConsentScope::GLOBAL ? null : $identifier,
+            $consent->getScope() === ConsentScope::GLOBAL ? null : $identifier,
             ConsentStatus::REVOKED,
             $identifier
         );
-        $this->eventDispatcher->dispatch(new ConsentRevokedEvent($consent, $identifier));
+        $this->eventDispatcher->dispatch(new ConsentRevokedEvent($consent->getName(), $consent->getScope(), $identifier));
 
         $this->invalidateState();
     }
 
     /**
-     * @return list<ConsentStateHistoryItem>
+     * @return list<ConsentStateLogRecord>
      */
-    public function getHistory(string $name, string $identifier): array
+    public function getHistory(string $name, ?string $identifier = null): array
     {
-        $consent = $this->fetchConsent($name);
-        $scopeIdentifier = $consent->scope === ConsentScope::GLOBAL ? null : $identifier;
+        $consent = $this->getConsentDefinition($name);
 
-        return $this->consentRepository->getHistory($consent->id, $scopeIdentifier);
-    }
-
-    /**
-     * @return array<string, Consent>
-     */
-    private function fetchConsents(): array
-    {
-        if ($this->consents !== null) {
-            return $this->consents;
+        if ($consent->getScope() !== ConsentScope::GLOBAL && $identifier === null) {
+            throw ConsentException::identifierRequired();
         }
 
-        $consents = $this->consentRepository->fetchAllConsents();
-
-        return $this->consents = array_combine(
-            array_column($consents, 'name'),
-            $consents,
-        );
+        return $this->consentRepository->getHistory($consent->getName(), $identifier);
     }
 
-    private function fetchConsent(string $name): Consent
+    private function getConsentDefinition(string $name): ConsentDefinition
     {
-        $consents = $this->fetchConsents();
-
-        if (!isset($consents[$name])) {
+        if (!isset($this->consentDefinitions[$name])) {
             throw ConsentException::notFound($name);
         }
 
-        return $consents[$name];
+        return $this->consentDefinitions[$name];
     }
 
     /**
@@ -183,7 +175,12 @@ class ConsentService
 
         $states = [];
 
-        foreach ($this->consentRepository->fetchAllConsentStates() as $state) {
+        foreach ($this->consentRepository->fetchAllConsentStates() as $record) {
+            $state = ConsentState::fromDefinitionAndRecord(
+                $this->getConsentDefinition($record->name),
+                $record
+            );
+
             $states[$this->stateKey($state)] = $state;
         }
 
@@ -210,6 +207,5 @@ class ConsentService
     private function invalidateState(): void
     {
         $this->states = null;
-        $this->consents = null;
     }
 }

@@ -15,6 +15,7 @@
         white
     );
     opacity: 0;
+    /* `animation-delay` matches `DELAY` that is used in `vue.adapter.ts` > `createApp({ mounted() {...} })` */
     animation: 100ms loading-screen-appear 2s 1 forwards;
 }
 

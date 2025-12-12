@@ -8,18 +8,18 @@
             assetPath: '{{ asset('', 'asset') }}',
         };
 
-        {{ sw_include('app/administration/src/app/component/structure/sw-loading-indicator/index.js') }}
+        {{ sw_include('shared/page-loading-screen/page-loading-screen.js') }}
     </script>
 
     <style>
-        {{ sw_include('app/administration/src/app/component/structure/sw-loading-indicator/sw-loading-indicator.css') }}
+        {{ sw_include('shared/page-loading-screen/page-loading-screen.css') }}
     </style>
 {% endblock %}
 
 {% block administration_content %}
     <div id="app"></div>
 
-    {{ sw_include('app/administration/src/app/component/structure/sw-loading-indicator/sw-loading-indicator.html') }}
+    {{ sw_include('shared/page-loading-screen/page-loading-screen.html') }}
 
     {% block administration_templates %}{% endblock %}
 

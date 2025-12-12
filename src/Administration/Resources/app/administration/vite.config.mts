@@ -36,14 +36,11 @@ if (fs.existsSync(flagsPath)) {
     featureFlags = JSON.parse(fs.readFileSync(flagsPath, 'utf-8'));
 }
 
-const loadingIndicatorPath = path.join(
-    process.env.PROJECT_ROOT,
-    'src/Administration/Resources/app/administration/src/app/component/structure/sw-loading-indicator',
-);
+const loadingIndicatorPath = path.join(process.env.PROJECT_ROOT, 'src/Administration/Resources/shared/page-loading-screen');
 const loadingIndicator = {
-    script: fs.readFileSync(path.join(loadingIndicatorPath, 'index.js')),
-    style: fs.readFileSync(path.join(loadingIndicatorPath, 'sw-loading-indicator.css')),
-    markup: fs.readFileSync(path.join(loadingIndicatorPath, 'sw-loading-indicator.html')),
+    script: fs.readFileSync(path.join(loadingIndicatorPath, 'page-loading-screen.js')),
+    style: fs.readFileSync(path.join(loadingIndicatorPath, 'page-loading-screen.css')),
+    markup: fs.readFileSync(path.join(loadingIndicatorPath, 'page-loading-screen.html')),
 };
 
 // eslint-disable-next-line

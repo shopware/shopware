@@ -82,11 +82,14 @@ module.exports = {
     ],
 
     moduleNameMapper: {
+        '^lodash-es/debounce$': '<rootDir>/test/_mocks_/lodash-es-debounce.js',
         '^test(.*)$': '<rootDir>/test$1',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
         '^\@shopware-ag\/meteor-admin-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
         '^@shopware-ag/meteor-component-library$': '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/index.js',
+        '^@shopware-ag/meteor-component-library/dist/esm/(.*)$': '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/$1',
         '^lodash-es$': 'lodash',
+        '^lodash-es/(.*)$': 'lodash/$1',
         vue$: 'vue/dist/vue.cjs.js',
     },
 

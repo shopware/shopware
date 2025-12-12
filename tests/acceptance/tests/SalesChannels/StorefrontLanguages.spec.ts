@@ -3,7 +3,7 @@ import { formatPrice, getLanguageData, getSnippetSetId, test } from '@fixtures/A
 test(
     'Shop customers should be able to view products in different languages.',
     { tag: ['@Languages', '@Storefront'] },
-    async ({ ShopCustomer, TestDataService, StorefrontHome }) => {
+    async ({ ShopCustomer, TestDataService, StorefrontHeader, StorefrontHome }) => {
         const product = await TestDataService.createBasicProduct();
 
         const salesChannelId = TestDataService.defaultSalesChannel.id;
@@ -22,11 +22,12 @@ test(
 
         const productListing = StorefrontHome.productListItems.filter({ has: StorefrontHome.page.getByRole('link', { name: product.name }) });
         const addToCartButton = productListing.filter({ has: StorefrontHome.page.getByRole('button') });
+        const languageDropdown = StorefrontHome.page.locator("#languagesDropdown-top-bar");
 
         await ShopCustomer.expects(async () => {
             await test.step('Customer can view languages menu', async () => {
                 await ShopCustomer.goesTo(germanDomainUrl);
-                await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('Deutsch');
+                await ShopCustomer.expects(languageDropdown).toContainText('Deutsch');
                 await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
             });
         }).toPass({
@@ -34,12 +35,12 @@ test(
         });
 
         await test.step('Customer can select a different language', async () => {
-            await StorefrontHome.languagesDropdown.click();
+            await ShopCustomer.presses(languageDropdown);
             // Select the second li.top-bar-list-item (index 1) and click the button inside it
             // covers both cases: with and without feature flag v6.8.0 and English and English (United Kingdom)
             const secondListItem = StorefrontHome.page.locator('li.top-bar-list-item').nth(1);
-            await secondListItem.locator('button.dropdown-item').click();
-            await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('English');
+            await ShopCustomer.presses(secondListItem.locator('button.dropdown-item'));
+            await ShopCustomer.expects(languageDropdown).toContainText('English');
             await ShopCustomer.expects(addToCartButton).toContainText('Add to shopping cart');
         });
     }

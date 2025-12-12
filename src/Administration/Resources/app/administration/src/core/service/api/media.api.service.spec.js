@@ -128,4 +128,21 @@ describe('storeService', () => {
 
         spyRepository.mockRestore();
     });
+
+    it('assigns video cover via API route', async () => {
+        const mediaApiService = getMediaApiService();
+        const httpClientPostSpy = jest.spyOn(mediaApiService.httpClient, 'post').mockResolvedValue({
+            data: null,
+        });
+
+        await mediaApiService.assignVideoCover('media-id', 'cover-id');
+
+        expect(httpClientPostSpy).toHaveBeenCalledWith(
+            '/_action/media/media-id/video-cover',
+            JSON.stringify({ coverMediaId: 'cover-id' }),
+            expect.objectContaining({
+                headers: expect.objectContaining({ Authorization: expect.any(String) }),
+            }),
+        );
+    });
 });

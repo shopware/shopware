@@ -4,6 +4,10 @@
 
 ## API
 
+### Document download `/store-api/document/download/`
+The endpoint now selects the document file type based on the `Accept` header.
+When no `Accept` header is set or with `*/*`, `PDF` will be returned. (PR #12944)
+
 ## Core
 
 ### PHP 8.5 support
@@ -31,6 +35,14 @@ The following classes and constants were deprecated as they will not be used any
 
 Additionally, the following configuration was deprecated:
 * `shopware.cache.invalidation.http_cache`
+
+### Add recursive assign method to AssignArrayTrait
+
+A new method `assignRecursive` has been added to `Shopware\Core\Framework\Struct\AssignArrayTrait`. Along with it, the new `Shopware\Core\Framework\Struct\AssignArrayInterface` has been introduced.
+To make full use of `assignRecursive`, every class using `AssignArrayTrait` must also implement the new `AssignArrayInterface`.
+The `assignRecursive` method enables deeply nested, JSON-serialized data structures - for example, a fully serialized `ProductEntity` including associations such as `properties` - to be converted back into a fully populated `ProductEntity` instance, including all nested `Struct` and `Collection` objects.
+
+Note: `assignRecursive` uses reflection and creates nested struct instances, so it is noticeably slower than the classic shallow `assign` and is intended for import/export and (re-)hydration scenarios rather than tight, performance-critical loops.
 
 ### Performance improvements for generating category SEO-Urls
 

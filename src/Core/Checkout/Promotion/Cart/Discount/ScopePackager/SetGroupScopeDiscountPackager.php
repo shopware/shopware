@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -98,7 +99,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
                     $group['packagerKey'],
                     $group['value'],
                     $group['sorterKey'],
-                    $group['rules']
+                    $this->getRules($group['rules'] ?? null)
                 );
             }
 
@@ -142,10 +143,23 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
                 $group['packagerKey'],
                 $group['value'],
                 $group['sorterKey'],
-                $group['rules']
+                $this->getRules($group['rules'] ?? null)
             );
         }
 
         return $definitions;
+    }
+
+    /**
+     * @param RuleCollection|array<mixed>|null $rules
+     */
+    private function getRules(RuleCollection|array|null $rules): RuleCollection
+    {
+        $rules ??= new RuleCollection();
+        if (!\is_array($rules)) {
+            return $rules;
+        }
+
+        return (new RuleCollection())->assignRecursive($rules);
     }
 }

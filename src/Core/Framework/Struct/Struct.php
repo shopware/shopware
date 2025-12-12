@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Struct;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-abstract class Struct implements \JsonSerializable, ExtendableInterface
+abstract class Struct implements \JsonSerializable, ExtendableInterface, AssignArrayInterface
 {
     // allows to assign array data to this object
     use AssignArrayTrait;

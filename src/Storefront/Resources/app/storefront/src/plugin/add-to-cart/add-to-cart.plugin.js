@@ -100,7 +100,13 @@ export default class AddToCartPlugin extends Plugin {
      * @private
      */
     _shouldOpenOffcanvas() {
-        return window.disableOffcanvasAfterAddToCart !== '1';
+        const flag = window.disableOffcanvasAfterAddToCart;
+
+        if (flag === undefined) {
+            return true;
+        }
+
+        return flag !== '1';
     }
 
     /**
@@ -115,10 +121,13 @@ export default class AddToCartPlugin extends Plugin {
         fetch(requestUrl, {
             method: 'POST',
             body: formData,
-        }).then(() => {
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error('Add to cart failed');
+            }
+
             // Update the cart widget to show the new item count
-            const CartWidgetPluginInstances = window.PluginManager.getPluginInstances('CartWidget');
-            CartWidgetPluginInstances.forEach((instance) => {
+            window.PluginManager.getPluginInstances('CartWidget')?.forEach((instance) => {
                 instance.fetch();
             });
 
@@ -126,6 +135,9 @@ export default class AddToCartPlugin extends Plugin {
             this._showSuccessAlert();
 
             this.$emitter.publish('addToCartWithoutOffcanvas');
+        }).catch(() => {
+            // Fall back to offcanvas behaviour on error to show any cart errors
+            this._openOffCanvasCarts(requestUrl, formData);
         });
     }
 

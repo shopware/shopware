@@ -144,14 +144,60 @@ describe('AddToCartPlugin tests', () => {
         jest.useRealTimers();
     });
 
-    test('should return true for _shouldOpenOffcanvas when not disabled', () => {
-        window.disableOffcanvasAfterAddToCart = '0';
+    test('should return true for _shouldOpenOffcanvas when flag is undefined', () => {
+        delete window.disableOffcanvasAfterAddToCart;
         expect(pluginInstance._shouldOpenOffcanvas()).toBe(true);
     });
 
-    test('should return false for _shouldOpenOffcanvas when disabled', () => {
+    test('should fall back to offcanvas when fetch fails', async () => {
         window.disableOffcanvasAfterAddToCart = '1';
-        expect(pluginInstance._shouldOpenOffcanvas()).toBe(false);
+        global.fetch = jest.fn(() => Promise.resolve({ ok: false }));
+
+        const openOffCanvasSpy = jest.spyOn(pluginInstance, '_openOffCanvasCarts');
+
+        const button = document.querySelector('button');
+        button.click();
+
+        // Wait for the fetch promise to resolve and the catch block to execute
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(openOffCanvasSpy).toHaveBeenCalled();
+    });
+
+    test('should fall back to offcanvas when fetch throws network error', async () => {
+        window.disableOffcanvasAfterAddToCart = '1';
+        global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
+
+        const openOffCanvasSpy = jest.spyOn(pluginInstance, '_openOffCanvasCarts');
+
+        const button = document.querySelector('button');
+        button.click();
+
+        // Wait for the promise to reject and the catch block to execute
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(openOffCanvasSpy).toHaveBeenCalled();
+    });
+
+    test('should handle missing CartWidget instances gracefully', async () => {
+        window.disableOffcanvasAfterAddToCart = '1';
+        window.PluginManager.getPluginInstances = jest.fn((pluginName) => {
+            if (pluginName === 'OffCanvasCart') {
+                return [mockOffCanvasInstance];
+            }
+            return []; // No CartWidget instances
+        });
+
+        const button = document.querySelector('button');
+        button.click();
+
+        await Promise.resolve();
+
+        // Should not throw error and should still show success alert
+        const alert = document.querySelector('.add-to-cart-alert');
+        expect(alert).not.toBeNull();
     });
 
     test('should throw an error when no form can be found', () => {

@@ -1,4 +1,5 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
+import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
@@ -27,8 +28,18 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
             return;
         }
 
-        const productData = ProductPageHelper.getProductData(productId);
-        const categories = ProductPageHelper.getCategories();
+        // Try to get product data from product detail/listing page first
+        let productData = ProductPageHelper.getProductData(productId);
+        let categories = ProductPageHelper.getCategories();
+
+        // Fallback to line item data (cart/checkout/finish pages)
+        if (!productData.name) {
+            const lineItemData = LineItemHelper.getProductData(productId);
+            if (lineItemData) {
+                productData = lineItemData;
+                categories = lineItemData.categories || {};
+            }
+        }
 
         gtag('event', 'add_to_wishlist', {
             'currency': productData.currency,

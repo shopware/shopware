@@ -52,4 +52,39 @@ export default class LineItemHelper
             tax: lineItemsContainer.getAttribute('data-tax'),
         };
     }
+
+    /**
+     * Get product data for a specific product ID from hidden line items
+     * @param {string} productId
+     * @returns {Object|null}
+     */
+    static getProductData(productId) {
+        if (!document.querySelector('.hidden-line-items-information')) {
+            return null;
+        }
+
+        const lineItems = LineItemHelper.getLineItems();
+        const lineItem = lineItems.find(item => item.id === productId);
+        if (!lineItem) {
+            return null;
+        }
+
+        const additionalProperties = LineItemHelper.getAdditionalProperties();
+
+        // Extract categories from line item
+        const categories = {};
+        for (const [key, value] of Object.entries(lineItem)) {
+            if (key.startsWith('item_category')) {
+                categories[key] = value;
+            }
+        }
+
+        return {
+            name: lineItem.name,
+            brand: lineItem.brand,
+            value: lineItem.price,
+            currency: additionalProperties.currency,
+            categories,
+        };
+    }
 }

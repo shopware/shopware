@@ -27,7 +27,7 @@ export default class EventAwareAnalyticsEvent extends AnalyticsEvent
 
         // Skip if the plugin has no instances on the current page.
         // This happens when the plugin is registered globally but has no DOM elements to attach to.
-        const instances = plugin.get('instances');
+        const instances = typeof plugin.get === 'function' ? plugin.get('instances') : null;
         if (!instances || instances.length === 0) {
             return;
         }

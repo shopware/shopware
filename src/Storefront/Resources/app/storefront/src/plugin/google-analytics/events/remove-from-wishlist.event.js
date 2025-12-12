@@ -1,4 +1,5 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class RemoveFromWishlistEvent extends AnalyticsEvent
@@ -20,7 +21,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             return;
         }
 
-        const instances = plugin.get('instances');
+        const instances = typeof plugin.get === 'function' ? plugin.get('instances') : null;
         if (!instances || instances.length === 0) {
             return;
         }
@@ -80,8 +81,18 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
      * @private
      */
     _sendEvent(productId, form = null) {
-        const productData = ProductPageHelper.getProductData(productId, form);
-        const categories = ProductPageHelper.getCategories();
+        // Try to get product data from product detail/listing page first
+        let productData = ProductPageHelper.getProductData(productId, form);
+        let categories = ProductPageHelper.getCategories();
+
+        // Fallback to line item data (cart/checkout/finish pages)
+        if (!productData.name) {
+            const lineItemData = LineItemHelper.getProductData(productId);
+            if (lineItemData) {
+                productData = lineItemData;
+                categories = lineItemData.categories || {};
+            }
+        }
 
         gtag('event', 'remove_from_wishlist', {
             'currency': productData.currency,

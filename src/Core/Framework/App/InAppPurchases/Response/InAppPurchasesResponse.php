@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\InAppPurchases\Response;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\AssignArrayInterface;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 
 /**
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Struct\AssignArrayTrait;
  * @codeCoverageIgnore
  */
 #[Package('checkout')]
-class InAppPurchasesResponse
+class InAppPurchasesResponse implements AssignArrayInterface
 {
     use AssignArrayTrait;
 

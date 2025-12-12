@@ -1,4 +1,5 @@
 import template from './sw-settings-usage-data-general.html.twig';
+import SwSettingsUsageDataStoreDataConsent from '../../component/sw-settings-usage-data-store-data-consent';
 
 /**
  * @sw-package data-services
@@ -10,8 +11,13 @@ export default Shopware.Component.wrapComponentConfig({
 
     template,
 
+    components: {
+        SwSettingsUsageDataStoreDataConsent,
+    },
+
     inject: [
         'usageDataService',
+        'feature',
     ],
 
     methods: {

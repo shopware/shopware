@@ -151,22 +151,16 @@
                     {% endblock %}
 
                     {% block sw_product_properties_filled_state_body_empty_state %}
-                    <sw-empty-state
+                    <mt-empty-state
                         v-if="properties.length <= 0"
                         class="sw-product-properties__empty-state has--no-search-result"
-                        :absolute="false"
-                        :show-description="false"
-                        :title="$tc('sw-product.properties.titleEmptyStateList')"
+                        :icon="$route.meta.$module.icon"
+                        :headline="$t('sw-product.properties.titleEmptyStateList')"
                     >
-                        <template #icon>
-                            {% block sw_product_properties_filled_state_body_empty_state_image %}
-                            <img
-                                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                                :alt="$tc('sw-product.properties.titleEmptyStateList')"
-                            >
-                            {% endblock %}
-                        </template>
-                    </sw-empty-state>
+                        <!-- @deprecated tag:v6.8.0 - block will be removed -->
+                        {% block sw_product_properties_filled_state_body_empty_state_image %}
+                        {% endblock %}
+                    </mt-empty-state>
                     {% endblock %}
 
                     {% block sw_product_properties_filled_state_body_loading_state %}
@@ -177,27 +171,21 @@
             </template>
 
             {% block sw_product_properties_empty_state %}
-            <sw-empty-state
+            <mt-empty-state
                 v-if="!productHasProperties"
                 class="sw-product-properties__empty-state has--no-properties"
-                :absolute="false"
-                :show-description="false"
-                :title="$tc('sw-product.properties.titleEmptyState')"
+                :icon="$route.meta.$module.icon"
+                :headline="$t('sw-product.properties.titleEmptyState')"
+                :description="$t('sw-product.properties.descriptionEmptyState')"
             >
-                <template #icon>
-                    {% block sw_product_properties_empty_state_image %}
-                    <img
-                        :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                        :alt="$tc('sw-product.properties.titleEmptyState')"
-                    >
-                    {% endblock %}
-                </template>
-
-                <template #actions>
+                <!-- @deprecated tag:v6.8.0 - block will be removed -->
+                {% block sw_product_properties_empty_state_image %}
+                {% endblock %}
+                <template #button>
                     {% block sw_product_properties_empty_state_button %}
                     <mt-button
                         v-tooltip="{
-                            message: $tc('sw-privileges.tooltip.warning'),
+                            message: $t('sw-privileges.tooltip.warning'),
                             disabled: acl.can('product.editor'),
                             showOnDisabledElements: true
                         }"
@@ -206,11 +194,11 @@
                         variant="secondary"
                         @click="turnOnAddPropertiesModal"
                     >
-                        {{ $tc('sw-product.properties.buttonAddProperties') }}
+                        {{ $t('sw-product.properties.buttonAddProperties') }}
                     </mt-button>
                     {% endblock %}
                 </template>
-            </sw-empty-state>
+            </mt-empty-state>
             {% endblock %}
         </mt-card>
         {% endblock %}

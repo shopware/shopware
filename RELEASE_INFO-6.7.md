@@ -2,7 +2,31 @@
 
 ## Features
 
+### HTTP caching rework
+
+- Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
+  and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
+  together with other HTTP caching improvements.
+- Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
+
 ## API
+
+### StoreAPI HTTP caching support
+Selected Store API routes now support HTTP caching with `Cache-Control` headers:
+- `/store-api/breadcrumb/{id}`
+- `/store-api/category`
+- `/store-api/category/{navigationId}`
+- `/store-api/navigation/{activeId}/{rootId}`
+- `/store-api/cms/{id}`
+- `/store-api/product`
+- `/store-api/seo-url`
+- `/store-api/country`
+- `/store-api/country-state/{countryId}`
+- `/store-api/currency`
+- `/store-api/language`
+- `/store-api/salutation`
+
+It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Document download `/store-api/document/download/`
 The endpoint now selects the document file type based on the `Accept` header.
@@ -36,6 +60,14 @@ The following classes and constants were deprecated as they will not be used any
 Additionally, the following configuration was deprecated:
 * `shopware.cache.invalidation.http_cache`
 
+### HTTP Caching Policies
+
+Added support for caching policies to define HTTP cache behavior via configuration.
+
+You can now configure named caching policies that define how the Cache-Control header is formed. These policies can be assigned per area (`storefront`, `store_api`) and per route. The header controls how caches (browser, reverse proxy, CDN, Symfony cache layer) should cache the response.
+
+The feature is enabled using the `CACHE_REWORK` feature flag. For more details see the [caching policies documentation](https://developer.shopware.com/docs/guides/hosting/performance/caches.html#http-caching-policies).
+
 ### Add recursive assign method to AssignArrayTrait
 
 A new method `assignRecursive` has been added to `Shopware\Core\Framework\Struct\AssignArrayTrait`. Along with it, the new `Shopware\Core\Framework\Struct\AssignArrayInterface` has been introduced.
@@ -60,6 +92,16 @@ The domain part of email addresses may now contain internationalized domain name
 
 ## App System
 
+### App Script caching control
+
+As before, app developers can control caching via in app scripts using syntax `{% do response.cache.<directive> %}`, which map to `ResponseCacheConfiguration` methods.
+Next changes were made to `ResponseCacheConfiguration` methods:
+- added `sharedMaxAge(seconds)` - set shared (reverse proxy/CDN) cache TTL, equivalent to `s-maxage` cache control directive.
+- added `clientMaxAge(seconds)` - set client-side (browser) cache TTL, equivalent to `max-age` cache control directive. Has effect only if `CACHE_REWORK` feature flag is enabled.
+- deprecated `maxAge(seconds)` - use sharedMaxAge() instead.
+
+Admins can override policies per script using `route_policies` with `route#hook` pattern in configuration (see HTTP caching policies description in the Core section).
+
 ## Hosting & Configuration
 
 ### Possibility to disable extensions when setting up staging mode
@@ -72,6 +114,15 @@ shopware:
         extensions:
             disable: ["TheExtensionName", "AnotherExtensionName"]
 ```
+
+### Deprecated HTTP cache configuration
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable.
+- `shopware.http.cache.default_ttl` parameter.
+- `shopware.http_cache.stale_while_revalidate` parameter.
+- `shopware.http_cache.stale_if_error` parameter.
+
+Deprecated parameters will have no effect when `CACHE_REWORK` feature flag is enabled, and will be removed in 6.8.0.0.
 
 ## Critical fixes
 

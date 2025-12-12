@@ -386,6 +386,42 @@ $parsed = $parser->parse('Disallow: /admin/', $context);
 new DomainRuleStruct($parsed, '/en');
 ```
 
+## Removed `PlatformRequest::ATTRIBUTE_HTTP_CACHE` states support
+
+The `$states` property in `Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute` is removed.
+
+**Migration**: Remove usage of `$states`, as state-based invalidation is not supported anymore.
+
+Using `#[Route]` attribute:
+
+```diff
+ #[Route(
+     path: '/store-api/my-route',
+     name: 'store-api.my-route',
+     methods: ['GET'],
+     defaults: [
+         PlatformRequest::ATTRIBUTE_HTTP_CACHE => [
+-            'states' => ['cart-filled'],
+         ],
+     ]
+ )]
+```
+
+Using request attributes:
+
+```diff
+ $request->attributes->set(
+     PlatformRequest::ATTRIBUTE_HTTP_CACHE,
+     new CacheAttribute(
+-        states: ['cart-filled', 'logged-in'],
+     )
+ );
+```
+
+## Removed `ResponseCacheConfiguration` methods
+Script\Api\ResponseCacheConfiguration::maxAge()` and
+`\Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration::invalidationState()` were removed with no replacement.
+
 ## Removal of product manufacturer link column
 
 The column `link` of the table `product_manufacturer` was removed.
@@ -732,11 +768,61 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
 
 The `CountryStateController` route `/country/country-state-data` now supports only GET methods. This change improves compatibility with HTTP caching and aligns with the best practices for data retrieval routes.
 
+## App scripts methods maxAge() and invalidationState() removed
+
+Method `response.cache.maxAge()` was removed. Use `sharedMaxAge()` to set `s-maxage` instead. The `clientMaxAge()` method is also available for setting `max-age`.
+
+```diff
+-{% do response.cache.maxAge(3600) %}
++{% do response.cache.sharedMaxAge(3600) %}
+```
+
+Method `response.cache.invalidationState()` was removed. State-based invalidation is not supported anymore.
+
+```diff
+-{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
++{# No replacement #}
+```
+
 </details>
 
 # Hosting & Configuration
 
 <details>
+
+## HTTP Cache Changes
+
+The following configuration parameters were removed:
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable
+- `shopware.http.cache.default_ttl` parameter
+- `shopware.http_cache.stale_while_revalidate` parameter
+- `shopware.http_cache.stale_if_error` parameter
+
+**Migration**: Use cache policies instead:
+
+```diff
+-shopware:
+-  http:
+-    cache:
+-      default_ttl: 7200
++shopware:
++  http_cache:
++    policies:
++      my_cacheable:
++        headers:
++          cache_control:
++            public: true
++            ## replaces shopware.http.cache.default_ttl parameter (and related env var)
++            s_maxage: 7200
++            # replaces shopware.http_cache.stale_while_revalidate parameter
++            stale_while_revalidate: 120
++            # replaces shopware.http_cache.stale_if_error parameter
++            stale_if_error: 360
++    default_policies:
++      storefront:
++        cacheable: my_cacheable
+```
 
 ## Dropped support for OpenSearch 1.x
 

@@ -1,9 +1,10 @@
 /**
  * @sw-package framework
  */
-
 import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
-import { get, debounce, cloneDeepWith } from 'lodash';
+import get from 'lodash-es/get';
+import debounce from 'lodash-es/debounce';
+import cloneDeepWith from 'lodash-es/cloneDeepWith';
 import type { App } from 'vue';
 import { selectData } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/selectData';
 import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';

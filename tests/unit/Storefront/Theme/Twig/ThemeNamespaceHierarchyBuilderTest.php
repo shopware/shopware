@@ -179,7 +179,9 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
             [
                 'context' => $context,
             ],
-            [],
+            [
+                'Storefront' => true,
+            ],
             null,
         ];
 

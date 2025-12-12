@@ -412,4 +412,16 @@ class MediaExceptionTest extends TestCase
         static::assertSame('Unknown location type', $exception->getMessage());
         static::assertSame([], $exception->getParameters());
     }
+
+    public function testInvalidRequestParameter(): void
+    {
+        $parameterName = 'coverMediaId';
+
+        $exception = MediaException::invalidRequestParameter($parameterName);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_INVALID_REQUEST_PARAMETER, $exception->getErrorCode());
+        static::assertSame('The parameter "coverMediaId" is invalid.', $exception->getMessage());
+        static::assertSame(['parameter' => $parameterName], $exception->getParameters());
+    }
 }

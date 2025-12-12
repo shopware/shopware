@@ -23,7 +23,10 @@
 
                 <sw-settings-usage-data-consent-check-list />
 
-                <sw-settings-usage-data-store-data-consent-card  v-if="showStoreDataConsent" v-model:consent="storeDataConsent" />
+                <sw-settings-usage-data-store-data-consent-card
+                    v-if="showStoreDataConsent"
+                    v-model:consent="storeDataConsent"
+                />
                 <sw-settings-usage-data-user-data-consent-card v-model:consent="userDataConsent" />
 
                 <div class="sw-setting-usage-data-consent-modal__legal">

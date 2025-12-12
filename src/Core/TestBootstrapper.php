@@ -230,7 +230,7 @@ class TestBootstrapper
         }
 
         $parts = explode('\\', (string) $baseClass);
-        $pluginName = array_last($parts);
+        $pluginName = $parts[array_key_last($parts)];
 
         $this->addActivePlugins($pluginName);
 

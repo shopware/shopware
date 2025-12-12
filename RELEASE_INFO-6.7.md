@@ -29,8 +29,12 @@ Selected Store API routes now support HTTP caching with `Cache-Control` headers:
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Store API: compressed criteria parameter support
-Criteria be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. Please check
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. Please check
 the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
+
+### Document download `/store-api/document/download/`
+The endpoint now selects the document file type based on the `Accept` header.
+When no `Accept` header is set or with `*/*`, `PDF` will be returned. (PR #12944)
 
 ## Core
 
@@ -67,6 +71,14 @@ Added support for caching policies to define HTTP cache behavior via configurati
 You can now configure named caching policies that define how the Cache-Control header is formed. These policies can be assigned per area (`storefront`, `store_api`) and per route. The header controls how caches (browser, reverse proxy, CDN, Symfony cache layer) should cache the response.
 
 The feature is enabled using the `CACHE_REWORK` feature flag. For more details see the [caching policies documentation](https://developer.shopware.com/docs/guides/hosting/performance/caches.html#http-caching-policies).
+
+### Add recursive assign method to AssignArrayTrait
+
+A new method `assignRecursive` has been added to `Shopware\Core\Framework\Struct\AssignArrayTrait`. Along with it, the new `Shopware\Core\Framework\Struct\AssignArrayInterface` has been introduced.
+To make full use of `assignRecursive`, every class using `AssignArrayTrait` must also implement the new `AssignArrayInterface`.
+The `assignRecursive` method enables deeply nested, JSON-serialized data structures - for example, a fully serialized `ProductEntity` including associations such as `properties` - to be converted back into a fully populated `ProductEntity` instance, including all nested `Struct` and `Collection` objects.
+
+Note: `assignRecursive` uses reflection and creates nested struct instances, so it is noticeably slower than the classic shallow `assign` and is intended for import/export and (re-)hydration scenarios rather than tight, performance-critical loops.
 
 ### Performance improvements for generating category SEO-Urls
 

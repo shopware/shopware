@@ -4,6 +4,10 @@
 
 ## API
 
+### Document download `/store-api/document/download/`
+The endpoint now selects the document file type based on the `Accept` header.
+When no `Accept` header is set or with `*/*`, `PDF` will be returned. (PR #12944)
+
 ## Core
 
 ### PHP 8.5 support

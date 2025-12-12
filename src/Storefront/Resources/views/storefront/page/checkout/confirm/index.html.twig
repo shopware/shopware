@@ -297,8 +297,6 @@
                     {% endblock %}
                 </div>
             {% else %}
-                <input type="hidden" name="tos" value="1" form="confirmOrderForm">
-
                 {% set tosModalTagOpen = '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
                 {% set tosModalTagClose = '</button>' %}
 

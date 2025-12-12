@@ -25,10 +25,10 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const { cleanupNeedsTriage } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
@@ -74,7 +74,7 @@ jobs:
           echo "${{ github.actor }} is member of teams: ${{ steps.actorTeams.outputs.teams }}"
           echo "Is custom user: ${{ steps.customUserCheck.outputs.is_custom_user }}"
       - if: ${{ contains(steps.actorTeams.outputs.teams, 'customer-support') || steps.customUserCheck.outputs.is_custom_user == 'true' }}
-        uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const issueNumber = context.payload.issue.number;
@@ -100,7 +100,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - id: sts
         continue-on-error: true
         uses: shopware/octo-sts-action@main
@@ -109,7 +109,7 @@ jobs:
           identity: ManageProjects
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ steps.sts.outputs.token }}
           script: |
@@ -125,10 +125,10 @@ jobs:
       issues: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           PROJECT_NUMBER: 27 # Framework Group
           DRY_RUN: true
@@ -147,10 +147,10 @@ jobs:
       issues: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           DRY_RUN: true
         with:
@@ -167,7 +167,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - id: sts
         continue-on-error: true
         uses: shopware/octo-sts-action@main
@@ -176,7 +176,7 @@ jobs:
           identity: ManageProjects
       - shell: bash
         run: npm ci --prefix .github/bin/js/
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ steps.sts.outputs.token }}
           script: |

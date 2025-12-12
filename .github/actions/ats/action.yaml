@@ -131,12 +131,12 @@ runs:
               SYMFONY_ALLOW_ALL_IP: "1"
           run: symfony server:start
 
-        - uses: actions/setup-node@v4
+        - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
           with:
               node-version: 22
 
         - name: Cache npm packages
-          uses: actions/cache@v4
+          uses: actions/cache@a7833574556fa59680c1b7cb190c1735db73ebf0 # v5.0.0
           with:
               path: |
                   ${{ inputs.directory }}/node_modules
@@ -170,7 +170,7 @@ runs:
           run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
           continue-on-error: ${{ contains(inputs.project, 'visual') }} # Visual tests are allowed to fail; the results will be uploaded regardless and checked regularly
 
-        - uses: actions/upload-artifact@v4
+        - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
           if: always()
           with:
               name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
@@ -186,7 +186,7 @@ runs:
 
         - name: Create Pull Request
           if: steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' && contains(inputs.project, 'visual') && contains(inputs.extra-options, 'update-snapshots')
-          uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+          uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v8.0.0
           with:
               token: ${{ steps.create-pr-token.outputs.token }}
               add-paths: |

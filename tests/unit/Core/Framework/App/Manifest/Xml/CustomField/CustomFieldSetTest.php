@@ -24,6 +24,7 @@ class CustomFieldSetTest extends TestCase
         $payload = $customFieldSet->toEntityArray('app-id', $existingRelations, $existingFields);
 
         static::assertSame('app-id', $payload['appId']);
+        static::assertArrayHasKey('name', $payload);
         static::assertSame('custom_field_test', $payload['name']);
         static::assertSame(['label' => $customFieldSet->getLabel(), 'translated' => true], $payload['config']);
         static::assertCount(2, $payload['relations']);
@@ -47,6 +48,7 @@ class CustomFieldSetTest extends TestCase
 
         $payload = $customFieldSet->toEntityArray('app-id', $existingRelations, $existingFields, $existingSetId);
 
+        static::assertArrayHasKey('id', $payload);
         static::assertSame($existingSetId, $payload['id']);
         static::assertArrayNotHasKey('name', $payload);
         static::assertCount(2, $payload['relations']);

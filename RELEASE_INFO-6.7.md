@@ -18,7 +18,7 @@ Cover image reference is stored in `metaData.video.coverMediaId`.
 When a cover image is deleted, all video references are automatically cleaned up via `VideoCoverCleanupSubscriber`.
 
 ### StoreAPI HTTP caching support
-Selected Store API routes now support HTTP caching with `Cache-Control` headers:
+HTTP caching support was added for the following Store API endpoints:
 - `/store-api/breadcrumb/{id}`
 - `/store-api/category`
 - `/store-api/category/{navigationId}`
@@ -31,6 +31,16 @@ Selected Store API routes now support HTTP caching with `Cache-Control` headers:
 - `/store-api/currency`
 - `/store-api/language`
 - `/store-api/salutation`
+
+`GET` methods and HTTP caching support were added for the following Store API endpoints:
+- `/store-api/media`
+- `/store-api/product/{productId}/cross-selling`
+- `/store-api/product/{productId}`
+- `/store-api/product/{productId}/find-variant`
+- `/store-api/product-listing/{categoryId}`
+- `/store-api/product/{productId}/reviews`
+- `/store-api/search`
+- `/store-api/search-suggest`
 
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 

@@ -901,6 +901,65 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
                 ->scalarNode('stale_if_error')->defaultValue(null)->end()
                 ->scalarNode('soft_purge')->defaultValue(false)->end()
+                ->arrayNode('policies')
+                    ->useAttributeAsKey('name')
+                    ->defaultValue([])
+                    ->arrayPrototype()
+                        ->performNoDeepMerging()
+                        ->children()
+                            ->arrayNode('headers')
+                                ->children()
+                                    ->arrayNode('cache_control')
+                                        ->children()
+                                            ->booleanNode('public')->defaultNull()->end()
+                                            ->booleanNode('private')->defaultNull()->end()
+                                            ->booleanNode('no_cache')->defaultNull()->end()
+                                            ->booleanNode('no_store')->defaultNull()->end()
+                                            ->booleanNode('no_transform')->defaultNull()->end()
+                                            ->booleanNode('must_revalidate')->defaultNull()->end()
+                                            ->booleanNode('proxy_revalidate')->defaultNull()->end()
+                                            ->booleanNode('immutable')->defaultNull()->end()
+                                            ->integerNode('max_age')->min(0)->defaultNull()->end()
+                                            ->integerNode('s_maxage')->min(0)->defaultNull()->end()
+                                            ->integerNode('stale_while_revalidate')->min(0)->defaultNull()->end()
+                                            ->integerNode('stale_if_error')->min(0)->defaultNull()->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('default_policies')
+                    ->info('Default cache policies per area. Currently only "storefront" and "store_api" are supported.')
+                    ->useAttributeAsKey('area')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('cacheable')
+                                ->info('Policy name to use for cacheable responses')
+                                ->defaultNull()
+                            ->end()
+                            ->scalarNode('uncacheable')
+                                ->info('Policy name to use for uncacheable responses')
+                                ->defaultNull()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->validate()
+                        ->ifTrue(function ($areas) {
+                            $allowedAreas = ['storefront', 'store_api'];
+                            $providedAreas = array_keys($areas);
+
+                            return !empty(array_diff($providedAreas, $allowedAreas));
+                        })
+                        ->thenInvalid('Only "storefront" and "store_api" areas are currently supported in default_policies. Config contains unsupported area(s): %s')
+                    ->end()
+                ->end()
+                ->arrayNode('route_policies')
+                    ->useAttributeAsKey('route')
+                    ->defaultValue([])
+                    ->scalarPrototype()->end()
+                ->end()
                 ->arrayNode('cookies')
                     ->performNoDeepMerging()
                     ->scalarPrototype()->end()
@@ -939,6 +998,33 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(function (array $config) {
+                    $policies = array_keys($config['policies'] ?? []);
+
+                    // Check default_policies references
+                    foreach ((array) ($config['default_policies'] ?? []) as $defaults) {
+                        if (!\is_array($defaults)) {
+                            continue;
+                        }
+                        foreach ($defaults as $name) {
+                            if ($name !== null && $name !== '' && !\in_array($name, $policies, true)) {
+                                return true;
+                            }
+                        }
+                    }
+
+                    // Check route_policies references
+                    foreach ((array) ($config['route_policies'] ?? []) as $name) {
+                        if ($name !== null && $name !== '' && !\in_array($name, $policies, true)) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
+                ->thenInvalid('Configuration references unknown cache policies. All policy names in default_policies and route_policies must be defined under shopware.http_cache.policies.')
             ->end()
         ->end();
 

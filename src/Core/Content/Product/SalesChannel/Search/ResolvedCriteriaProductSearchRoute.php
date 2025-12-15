@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -41,7 +42,12 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/search', name: 'store-api.search', methods: ['POST'], defaults: ['_entity' => 'product'])]
+    #[Route(
+        path: '/store-api/search',
+        name: 'store-api.search',
+        methods: [Request::METHOD_POST, Request::METHOD_GET],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
         $criteria->addState(self::STATE);

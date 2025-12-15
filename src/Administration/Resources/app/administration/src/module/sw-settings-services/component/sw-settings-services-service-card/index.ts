@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import type { PropType } from 'vue';
-import { MtPopoverItem, MtModalRoot, MtModal, MtModalAction } from '@shopware-ag/meteor-component-library';
 import type { CategorizedPermissions, ServiceDescription } from '../../service/shopware-services.service';
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
@@ -15,13 +14,6 @@ export default Shopware.Component.wrapComponentConfig({
     name: 'sw-settings-services-service-card',
 
     template,
-
-    components: {
-        MtPopoverItem,
-        MtModalAction,
-        MtModalRoot,
-        MtModal,
-    },
 
     props: {
         service: {

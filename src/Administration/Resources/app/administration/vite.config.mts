@@ -16,6 +16,7 @@ import TwigPlugin from './build/vite-plugins/twigjs-plugin';
 import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
+import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -91,6 +92,7 @@ export default defineConfig(({ command }) => {
                 AssetPlugin(isProd, __dirname, extensions),
                 AssetPathPlugin(),
                 ImageDeprecationPlugin(__dirname),
+                AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
 
                 // Twig.JS loads node modules, so we need to polyfill them
                 nodePolyfills({

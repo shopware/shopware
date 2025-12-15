@@ -4,6 +4,7 @@
     <mt-text-field
         v-if="textField"
         v-bind="$attrs"
+        class="sw-snippet-field__text"
         :model-value="textValue"
         :type="fieldType"
         disabled
@@ -12,6 +13,7 @@
     <mt-textarea
         v-else-if="textareaField"
         v-bind="$attrs"
+        class="sw-snippet-field__textarea"
         :model-value="textValue"
         :type="fieldType"
         disabled
@@ -24,7 +26,7 @@
     <mt-icon
         v-else
         v-tooltip="{
-            message: $tc('global.sw-snippet-field.tooltip'),
+            message: $t('global.sw-snippet-field.tooltip'),
         }"
         class="sw-snippet-field__icon"
         name="regular-globe-stand"

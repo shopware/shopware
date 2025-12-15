@@ -305,6 +305,8 @@
       "labelContextMenuRename": "Rename",
       "labelContextMenuDetail": "Details",
       "labelContextMenuMove": "Move",
+      "labelContextMenuSetCover": "Set cover image",
+      "labelContextMenuRemoveCover": "Remove cover",
       "notification": {
         "errorBlankItemName": {
           "message": "Media item could not be saved: Please enter a name."
@@ -320,6 +322,18 @@
         },
         "settingsSuccess": {
           "message": "Settings have been saved."
+        },
+        "coverSaveSuccess": {
+          "message": "Cover image has been saved."
+        },
+        "coverRemoveSuccess": {
+          "message": "Cover image has been removed."
+        },
+        "coverSelectionInvalid": {
+          "message": "Please select an image to use as the cover."
+        },
+        "coverSaveError": {
+          "message": "Cover image could not be saved."
         }
       },
       "labelUploading": "Uploading..."

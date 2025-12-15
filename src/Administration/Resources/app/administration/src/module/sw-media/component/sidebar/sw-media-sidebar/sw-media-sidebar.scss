@@ -45,13 +45,19 @@ $sw-media-sidebar-color-quick-action-danger: $color-crimson-500;
             width: 100%;
             height: 100%;
         }
-    }
 
-    .sw-media-sidebar__empty-state {
-        display: flex;
-        flex-direction: column;
-        align-content: center;
-        justify-content: center;
+        &:has(.mt-empty-state) {
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            justify-content: center;
+
+            & > * {
+                position: relative;
+                width: auto;
+                height: auto;
+            }
+        }
     }
 
     .sw-media-sidebar__empty-state-label {

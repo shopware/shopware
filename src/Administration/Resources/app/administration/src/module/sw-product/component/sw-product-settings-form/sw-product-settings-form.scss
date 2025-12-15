@@ -1,11 +1,11 @@
 .sw-product-settings-form {
     .sw-product-settings-form__release-date {
-        .wrapper {
-            row-gap: 0;
+        .sw-inherit-wrapper__toggle-wrapper {
+            margin-bottom: var(--scale-size-0);
         }
 
         .mt-datepicker__hint {
-            margin-top: 6px;
+            margin-top: var(--scale-size-12);
         }
     }
 }

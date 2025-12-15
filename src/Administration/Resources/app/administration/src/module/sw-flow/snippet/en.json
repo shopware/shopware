@@ -191,8 +191,7 @@
         "forceTransition": "Force status transitions",
         "forceTransitionHelpText": "Status changes will be made regardless of their starting point and neglecting the usually required transition paths (state machine).",
         "transitionWarning": {
-          "title": "Warning",
-          "message": "Be careful when using status transitions, as they can lead to failing flows if the status transition isn't valid. Consider enabling 'Force status transitions' to avoid such issues."
+          "message": "Be careful when using status transitions, as they can lead to failing flows if the status transition isn't valid. Consider enabling \"Force status transitions\" to avoid such issues."
         }
       },
       "document": {

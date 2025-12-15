@@ -135,6 +135,15 @@ shopware:
             disable: ["TheExtensionName", "AnotherExtensionName"]
 ```
 
+### Deprecated HTTP cache configuration
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable.
+- `shopware.http.cache.default_ttl` parameter.
+- `shopware.http_cache.stale_while_revalidate` parameter.
+- `shopware.http_cache.stale_if_error` parameter.
+
+Deprecated parameters will have no effect when `CACHE_REWORK` feature flag is enabled, and will be removed in 6.8.0.0.
+
 ## Critical fixes
 
 # 6.7.5.0

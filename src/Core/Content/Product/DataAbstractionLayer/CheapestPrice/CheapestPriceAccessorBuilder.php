@@ -125,12 +125,7 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
             );
         }
 
-        $coalesceArguments = implode(',', $select);
-        if ($isPercentageAccessor) {
-            $coalesceArguments .= ', 0';
-        }
-
-        return \sprintf('COALESCE(%s)', $coalesceArguments);
+        return \sprintf('COALESCE(%s)', implode(',', $select));
     }
 
     private function useCashRounding(Context $context): bool

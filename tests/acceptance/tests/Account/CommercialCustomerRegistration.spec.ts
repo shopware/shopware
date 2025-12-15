@@ -15,6 +15,7 @@ test('New customers can register as commercial customers in the Storefront.', { 
 
     await test.step('Register as a commercial customer', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect);
         await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
         await ShopCustomer.attemptsTo(Register(customer));
     });
@@ -41,6 +42,7 @@ test('New customers cannot register as commercial customers without a VAT Reg.No
 
     await test.step('Attempt to register without a VAT Reg.No.', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect);
         await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
         await ShopCustomer.attemptsTo(Register(customer));
     });
@@ -70,6 +72,7 @@ test('New customers cannot register as commercial customers with an invalid VAT 
 
     await test.step('Attempt to register with an invalid VAT Reg.No.', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect);
         await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
         await ShopCustomer.attemptsTo(Register(customer));
     });

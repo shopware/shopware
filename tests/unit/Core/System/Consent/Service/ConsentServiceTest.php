@@ -79,6 +79,17 @@ class ConsentServiceTest extends TestCase
         $service->list($context);
     }
 
+    public function testGetConsentStatusThrowsExceptionWhenNoIdentifierGivenForAdminScope(): void
+    {
+        $service = $this->createService(null, [
+            'consent-1' => ConsentScope::ADMIN_USER,
+        ]);
+
+        self::expectExceptionObject(ConsentException::identifierRequired());
+
+        $service->getConsentState('consent-1', null);
+    }
+
     public function testGetConsentStatus(): void
     {
         $service = $this->createService(null, [
@@ -101,6 +112,25 @@ class ConsentServiceTest extends TestCase
         static::assertSame('user-123', $result->actorId);
     }
 
+    public function testGetConsentStatusReturnsRequestedStateByDefault(): void
+    {
+        $service = $this->createService(null, [
+            'consent-1' => ConsentScope::GLOBAL,
+        ]);
+
+        $this->consentRepository
+            ->expects($this->once())
+            ->method('fetchAllConsentStates')
+            ->willReturn([]);
+
+        $result = $service->getConsentState('consent-1', null);
+
+        static::assertSame('consent-1', $result->name);
+        static::assertSame(ConsentStatus::REQUESTED, $result->status);
+        static::assertNull($result->identifier);
+        static::assertNull($result->actorId);
+    }
+
     public function testGetConsentStatusThrowsExceptionWhenConsentNotFound(): void
     {
         $service = $this->createService(null, []);
@@ -109,6 +139,24 @@ class ConsentServiceTest extends TestCase
         $this->expectExceptionMessage('Consent with name "non-existent" not found.');
 
         $service->getConsentState('non-existent', 'user-123');
+    }
+
+    public function testAcceptConsentIsNoopWhenConsentAlreadyAccepted(): void
+    {
+        $service = $this->createService(null, [
+            'consent-1' => ConsentScope::GLOBAL,
+        ]);
+
+        $this->consentRepository
+            ->expects($this->once())
+            ->method('fetchAllConsentStates')
+            ->willReturn([new ConsentStateRecord('consent-1', null, ConsentStatus::ACCEPTED, 'user-123')]);
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $service->acceptConsent('consent-1', 'user-123');
     }
 
     public function testAcceptConsent(): void
@@ -149,6 +197,24 @@ class ConsentServiceTest extends TestCase
         $service->acceptConsent('non-existent', 'user-123');
     }
 
+    public function testRevokeConsentIsNoopWhenConsentAlreadyRevoked(): void
+    {
+        $service = $this->createService(null, [
+            'consent-1' => ConsentScope::GLOBAL,
+        ]);
+
+        $this->consentRepository
+            ->expects($this->once())
+            ->method('fetchAllConsentStates')
+            ->willReturn([new ConsentStateRecord('consent-1', null, ConsentStatus::REVOKED, 'user-123')]);
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $service->revokeConsent('consent-1', 'user-123');
+    }
+
     public function testRevokeConsent(): void
     {
         $eventDispatcher = new AssertingEventDispatcher($this, [
@@ -185,6 +251,17 @@ class ConsentServiceTest extends TestCase
         $this->expectExceptionMessage('Consent with name "non-existent" not found.');
 
         $service->revokeConsent('non-existent', 'user-123');
+    }
+
+    public function testGetHistoryThrowsExceptionWhenNoIdentifierGivenForAdminScope(): void
+    {
+        $service = $this->createService(null, [
+            'consent-1' => ConsentScope::ADMIN_USER,
+        ]);
+
+        self::expectExceptionObject(ConsentException::identifierRequired());
+
+        $service->getHistory('consent-1', null);
     }
 
     public function testGetHistory(): void

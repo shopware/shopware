@@ -27,16 +27,6 @@ class ConsentException extends HttpException
         );
     }
 
-    public static function alreadyExists(string $name): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::ALREADY_EXISTS,
-            'Consent with name "{{ name }}" already exists.',
-            ['name' => $name]
-        );
-    }
-
     /**
      * @param list<string> $options
      */

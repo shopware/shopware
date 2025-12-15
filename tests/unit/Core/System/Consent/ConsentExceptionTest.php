@@ -25,16 +25,6 @@ class ConsentExceptionTest extends TestCase
         static::assertSame(['name' => 'test-consent'], $e->getParameters());
     }
 
-    public function testAlreadyExists(): void
-    {
-        $e = ConsentException::alreadyExists('duplicate-consent');
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertSame(ConsentException::ALREADY_EXISTS, $e->getErrorCode());
-        static::assertSame('Consent with name "duplicate-consent" already exists.', $e->getMessage());
-        static::assertSame(['name' => 'duplicate-consent'], $e->getParameters());
-    }
-
     public function testInvalidStorage(): void
     {
         $options = ['storage1', 'storage2', 'storage3'];
@@ -77,5 +67,14 @@ class ConsentExceptionTest extends TestCase
         static::assertSame(ConsentException::INVALID_SCOPE, $e->getErrorCode());
         static::assertSame('No scope resolver found for scope "invalid-scope".', $e->getMessage());
         static::assertSame(['scope' => 'invalid-scope'], $e->getParameters());
+    }
+
+    public function testIdentifierRequired(): void
+    {
+        $e = ConsentException::identifierRequired();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ConsentException::IDENTIFIER_REQUIRED, $e->getErrorCode());
+        static::assertSame('Consents with non global scope require an identifier.', $e->getMessage());
     }
 }

@@ -24,6 +24,7 @@ export default {
         'searchRankingService',
         'userConfigService',
         'ssoSettingsService',
+        'feature',
     ],
 
     mixins: [

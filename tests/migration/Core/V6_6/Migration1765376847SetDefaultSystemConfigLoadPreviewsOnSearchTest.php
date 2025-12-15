@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_7;
+namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearch;
+use Shopware\Core\Migration\V6_6\Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearch;
 use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**

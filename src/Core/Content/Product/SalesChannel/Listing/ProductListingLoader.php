@@ -311,8 +311,8 @@ class ProductListingLoader
 
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
 
-        $shouldLoadPreviewsOnSearch = $this->systemConfigService->getBool(
-            'core.listing.loadPreviewsOnSearch',
+        $shouldLoadPreviewsOnSearch = !$this->systemConfigService->getBool(
+            'core.listing.findBestVariant',
             $context->getSalesChannelId()
         );
 

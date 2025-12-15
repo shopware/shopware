@@ -426,8 +426,8 @@ class ProductListingLoaderTest extends TestCase
         $criteria->addState($state);
 
         $this->systemConfigService->set(
-            'core.listing.loadPreviewsOnSearch',
-            false,
+            'core.listing.findBestVariant',
+            true,
             $this->salesChannelContext->getSalesChannelId()
         );
 
@@ -448,8 +448,8 @@ class ProductListingLoaderTest extends TestCase
     public function testLoadPreviewsOnSearchPage(): void
     {
         $this->systemConfigService->set(
-            'core.listing.loadPreviewsOnSearch',
-            true,
+            'core.listing.findBestVariant',
+            false,
             $this->salesChannelContext->getSalesChannelId()
         );
 
@@ -482,8 +482,8 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($foundProduct->hasExtension('search'));
 
         $this->systemConfigService->set(
-            'core.listing.loadPreviewsOnSearch',
-            false,
+            'core.listing.findBestVariant',
+            true,
             $this->salesChannelContext->getSalesChannelId()
         );
 

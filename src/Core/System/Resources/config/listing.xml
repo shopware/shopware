@@ -39,11 +39,11 @@
         </input-field>
 
         <input-field type="bool">
-            <name>loadPreviewsOnSearch</name>
-            <label>Load product previews on search page</label>
-            <label lang="de-DE">Produktvorschauen auf der Suchseite laden</label>
-            <helpText>Activate to load product previews that you have configured in the "Storefront presentation > Product listings" settings on the search page. Disable to ignore the setting and show the best match variant on the search page.</helpText>
-            <helpText lang="de-DE">Aktivieren, um Produktvorschauen zu laden, die Sie in den Einstellungen "Storefront-Präsentation > Produktlistings" auf der Suchseite konfiguriert haben. Deaktivieren, um die Einstellung zu ignorieren und die Best-Match-Variante auf der Suchseite anzuzeigen.</helpText>
+            <name>findBestVariant</name>
+            <label>Preview best matching variant for search results</label>
+            <label lang="de-DE">Am besten zutreffende Variante in Suchergebnis anzeigen</label>
+            <helpText>Activate to ignore the "Storefront presentation > Product Listing" configuration of the product for the product search. Preview the best matching product variant as search result instead.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert wird die "Storefront-Darstellung > Produktliste" Einstellung der Produkte für die Produktsuche ignoriert. Stattdessen wird die am besten zutreffende Produktvariante als Suchergebnis angezeigt</helpText>
         </input-field>
 
         <input-field type="bool">

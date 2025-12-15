@@ -17,13 +17,14 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 class Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearchTest extends TestCase
 {
     use MigrationTestTrait;
+    private const CONFIG_KEY = 'core.listing.findBestVariant';
 
     private Connection $connection;
 
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-        $this->connection->delete('system_config', ['configuration_key' => 'core.listing.loadPreviewsOnSearch']);
+        $this->connection->delete('system_config', ['configuration_key' => self::CONFIG_KEY]);
     }
 
     public function testMigration(): void
@@ -38,10 +39,11 @@ class Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearchTest extends 
 
         static::assertArrayHasKey('configuration_key', $record);
         static::assertArrayHasKey('configuration_value', $record);
-        static::assertSame('core.listing.loadPreviewsOnSearch', $record['configuration_key']);
+        static::assertSame(self::CONFIG_KEY, $record['configuration_key']);
+        static::assertSame('{"_value": false}', $record['configuration_value']);
 
         $value = \sprintf('{"_value": "%s"}', Uuid::randomHex());
-        $this->connection->update('system_config', ['configuration_value' => $value], ['configuration_key' => 'core.listing.loadPreviewsOnSearch']);
+        $this->connection->update('system_config', ['configuration_value' => $value], ['configuration_key' => self::CONFIG_KEY]);
 
         $migration->update($this->connection);
         $migration->update($this->connection);
@@ -50,7 +52,7 @@ class Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearchTest extends 
 
         static::assertArrayHasKey('configuration_key', $record);
         static::assertArrayHasKey('configuration_value', $record);
-        static::assertSame('core.listing.loadPreviewsOnSearch', $record['configuration_key']);
+        static::assertSame(self::CONFIG_KEY, $record['configuration_key']);
         static::assertSame($value, $record['configuration_value']);
     }
 
@@ -59,8 +61,8 @@ class Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearchTest extends 
      */
     private function getConfig(): array
     {
-        return $this->connection->fetchAssociative(
-            'SELECT * FROM system_config WHERE configuration_key = \'core.listing.loadPreviewsOnSearch\''
-        ) ?: [];
+        return $this->connection->fetchAssociative('SELECT * FROM system_config WHERE configuration_key = :key', [
+            'key' => self::CONFIG_KEY,
+        ]) ?: [];
     }
 }

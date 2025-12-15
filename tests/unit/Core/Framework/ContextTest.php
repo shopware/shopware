@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -18,6 +19,9 @@ use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Twig\Environment;
+use Twig\Error\RuntimeError;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
@@ -90,5 +94,27 @@ class ContextTest extends TestCase
         static::assertInstanceOf(Context::class, $deserialized);
 
         static::assertEmpty($deserialized->getVars()['extensions']);
+    }
+
+    public static function twigMethodProviders(): \Generator
+    {
+        yield 'enableInheritance' => ['{{ context.enableInheritance("print_r") }}'];
+        yield 'disableInheritance' => ['{{ context.disableInheritance("print_r") }}'];
+        yield 'scope' => ['{{ context.scope("system", "print_r") }}'];
+        yield 'tpl' => ['{{ context.enableInheritance("print_r") }}'];
+    }
+
+    #[DataProvider('twigMethodProviders')]
+    public function testCallableCannotBeCalledFromTwig(string $tpl): void
+    {
+        $context = Context::createDefaultContext();
+
+        $twig = new Environment(new ArrayLoader([
+            'tpl' => $tpl,
+        ]));
+
+        $this->expectException(RuntimeError::class);
+
+        $twig->render('tpl', ['context' => $context]);
     }
 }

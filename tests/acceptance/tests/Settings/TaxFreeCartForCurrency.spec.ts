@@ -9,6 +9,7 @@ test(
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
+        StorefrontHome,
         ChangeStorefrontCurrency,
         Login,
         AddProductToCart,
@@ -27,7 +28,10 @@ test(
     await ShopCustomer.attemptsTo(Login(customer));
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.isoCode));
+    
+    //temp workaround until https://github.com/shopware/acceptance-test-suite/issues/546 is resolved
+    await StorefrontHome.currenciesDropdown.click();
+    await StorefrontHome.currenciesMenuOptions.getByText(currency.symbol).click();
 
     let productPrice = `${currency.isoCode} 24.00`;
     let totalPrice = `${currency.isoCode} 20.16`;

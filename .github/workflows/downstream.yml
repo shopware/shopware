@@ -1,7 +1,7 @@
 name: Downstream
 
 on:
-  pull_request_target:
+  pull_request:
   merge_group:
   workflow_dispatch:
     inputs:
@@ -21,62 +21,57 @@ jobs:
   rufus:
     name: Rufus
     runs-on: ubuntu-24.04
-    if: ${{ !github.event.pull_request }}
     steps:
-      - name: Check user permission
-        id: check
-        uses: scherermichael-oss/action-has-permission@master
+      - id: sts
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
         with:
-          required-permission: write
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          scope: shopware
+          identity: ShopwareDownstream
       - name: Rufus
         uses: shopware/github-actions/downstream@main
-        if: steps.check.outputs.has-permission || inputs.nightly == 'true'
+        if: steps.sts.outputs.token
         with:
           repo: shopware/rufus
-          workflow: Downstream
+          workflow: .github/workflows/downstream.yml
           ref: .auto
           timeout: 30m
-          token-scope: shopware
-          identity: ShopwareDownstream
-          env:
-            NIGHTLY=${{ inputs.nightly }}
-  
+          token: ${{ steps.sts.outputs.token }}
+          env: NIGHTLY=${{ inputs.nightly }}
+
   commercial:
     name: Commercial
     runs-on: ubuntu-24.04
     steps:
-      - name: Check user permission
-        id: check
-        uses: scherermichael-oss/action-has-permission@master
+      - id: sts
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
         with:
-          required-permission: write
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          scope: shopware
+          identity: ShopwareDownstream
       - name: Commercial
         uses: shopware/github-actions/downstream@main
-        if: steps.check.outputs.has-permission || inputs.nightly == 'true'
+        if: steps.sts.outputs.token
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream
           ref: .auto
-          timeout: 40m
-          token-scope: shopware
-          identity: ShopwareDownstream
-          env:
-            NIGHTLY=${{ inputs.nightly }}
+          timeout: 60m
+          poll_interval: 1m
+          token: ${{ steps.sts.outputs.token }}
+          env: NIGHTLY=${{ inputs.nightly }}
 
   downstream-check:
     if: always()
     needs:
-    - rufus
-    - commercial
+      - rufus
+      - commercial
 
     runs-on: Ubuntu-latest
     steps:
-    - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@release/v1
-      with:
-        allowed-skips: rufus, commercial
-        jobs: ${{ toJSON(needs) }}
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          allowed-skips: rufus, commercial
+          jobs: ${{ toJSON(needs) }}
+

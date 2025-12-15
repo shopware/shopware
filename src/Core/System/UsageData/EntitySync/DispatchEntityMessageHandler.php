@@ -101,7 +101,7 @@ final class DispatchEntityMessageHandler
     }
 
     /**
-     * @return never-return
+     * @return never
      */
     private function throwUnrecoverableMessageHandlingException(DispatchEntityMessage $message, string $errorMessage): void
     {

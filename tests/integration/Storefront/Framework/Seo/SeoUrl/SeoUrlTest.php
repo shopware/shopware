@@ -33,7 +33,6 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
  */
 #[Package('inventory')]
 #[Group('slow')]
-#[Group('skip-paratest')]
 class SeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;

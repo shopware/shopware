@@ -42,6 +42,7 @@ async function createWrapper(customCmsElementConfig) {
                     'sw-field': true,
                     'sw-text-field': true,
                     'sw-select-field': true,
+                    'sw-number-field': true,
                     'sw-select-result': true,
                     'sw-modal': true,
                     'sw-entity-single-select': true,

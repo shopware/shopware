@@ -1,6 +1,6 @@
 services:
     web:
-        image: ghcr.io/shopware/docker-dev:php8.4-node24-caddy
+        image: ghcr.io/shopware/docker-dev:php8.3-node24-caddy
         ports:
             - 8000:8000
             - 8080:8080

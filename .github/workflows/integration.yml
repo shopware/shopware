@@ -26,7 +26,6 @@ jobs:
           - ''
         php-version:
           - '8.2'
-          - '8.4'
         include:
           - name: 'Platform'
             accessibility: 'accessibility'
@@ -66,8 +65,9 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install: ${{ matrix.name != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
-          install-admin: ${{ matrix.name != 'Install' }}
-          install-storefront: ${{ matrix.name != 'Install' }}
+          install-admin: true
+          install-storefront: true
+          skip-js-build: ${{ matrix.name == 'Install' }}
           env: prod
           php-version: ${{ matrix.php-version }}
 
@@ -131,7 +131,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
-    steps: 
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
       - id: generate-matrix
@@ -319,13 +319,6 @@ jobs:
           composer -d src/Storefront config version ${SW_RECOVERY_NEXT_VERSION}
           composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
 
-      - name: Build updater
-        working-directory: new-shopware/src/WebInstaller
-        run: |
-          composer config platform.php 8.2
-          composer install
-          composer build-phar
-
       - name: Checkout template
         uses: actions/checkout@v4
         with:
@@ -338,7 +331,12 @@ jobs:
 
       - name: Require shopware
         working-directory: old-shopware
-        run: composer require shopware/core:${{ matrix.update.version }}
+        run: |
+          # Note: We expect to see vulnerabilities in the older versions we're using here.
+          jq '.config.audit = { "block-insecure": false }' composer.json > composer.json.new
+          mv composer.json.new composer.json
+
+          composer require shopware/core:${{ matrix.update.version }}
 
       - name: Install
         working-directory: old-shopware
@@ -346,8 +344,9 @@ jobs:
           sed -i -e "s/shopware.store.frw: '1'/shopware.store.frw: '0'"/ config/services.yaml
           bin/console system:install --basic-setup --drop-database --create-database
 
-      - name: Copy WebInstaller
-        run: cp new-shopware/src/WebInstaller/shopware-installer.phar.php old-shopware/public/shopware-installer.phar.php
+      - name: Download latest WebInstaller
+        run: |
+          curl -L https://github.com/shopware/web-installer/releases/latest/download/shopware-installer.phar.php -o old-shopware/public/shopware-installer.phar.php
 
       - name: Start web server
         working-directory: old-shopware
@@ -427,7 +426,7 @@ jobs:
 
       - name: Run integration tests
         if: ${{ contains(github.workflow_ref, 'nightly') }}
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --exclude-group=needsWebserver,skip-paratest,not-deterministic --stop-on-error --stop-on-failure
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --exclude-group=needsWebserver,not-deterministic --stop-on-error --stop-on-failure
 
       - name: Install Shopware in previous major version
         if: ${{ !contains(github.workflow_ref, 'nightly') }}

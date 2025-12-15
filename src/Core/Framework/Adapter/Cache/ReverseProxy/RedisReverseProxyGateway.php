@@ -54,7 +54,9 @@ LUA;
         protected array $singlePurge,
         protected array $entirePurge,
         private readonly int $concurrency,
-        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
+        /**
+         * @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future)
+         */
         private $redis,
         private readonly Client $client
     ) {

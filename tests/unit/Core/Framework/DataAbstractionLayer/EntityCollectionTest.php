@@ -141,9 +141,13 @@ class MyCollectionEntity extends Entity
      * @param array<string, mixed>|null $customFields
      */
     public function __construct(
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
+        /**
+         * @deprecated tag:v6.7.0 - Will be natively typed
+         */
         protected $_uniqueIdentifier,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
+        /**
+         * @deprecated tag:v6.7.0 - Will be natively typed
+         */
         protected $customFields = []
     ) {
     }

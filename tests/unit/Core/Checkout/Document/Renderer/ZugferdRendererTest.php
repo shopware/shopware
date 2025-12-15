@@ -41,7 +41,7 @@ class ZugferdRendererTest extends TestCase
             $this->createMock(ZugferdBuilder::class),
             $this->createMock(EventDispatcherInterface::class),
             new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
-            $this->createMock(NumberRangeValueGeneratorInterface::class)
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
         );
 
         static::assertEquals('zugferd_invoice', $renderer->supports());
@@ -91,7 +91,7 @@ class ZugferdRendererTest extends TestCase
             $builder,
             $this->createMock(EventDispatcherInterface::class),
             new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
-            $this->createMock(NumberRangeValueGeneratorInterface::class)
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
         );
 
         $rendered = $renderer->render(

@@ -34,7 +34,9 @@ class FieldConfig extends Struct
     public function __construct(
         string $name,
         string $source,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
+        /**
+         * @deprecated tag:v6.7.0 - Will be natively typed
+         */
         protected $value
     ) {
         $this->name = $name;

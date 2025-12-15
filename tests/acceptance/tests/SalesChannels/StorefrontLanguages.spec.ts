@@ -7,8 +7,8 @@ test ('Shop customers should be able to view products in different languages.', 
 }) => {
 
     const salesChannelId = TestDataService.defaultSalesChannel.id;
-    const language = await getLanguageData('de-DE', TestDataService.AdminApiClient);
-    const snippetSetId = await getSnippetSetId('de-DE', TestDataService.AdminApiClient);
+    const language = await getLanguageData(TestDataService.AdminApiClient, 'de-DE');
+    const snippetSetId = await getSnippetSetId(TestDataService.AdminApiClient, 'de-DE');
 
     await TestDataService.assignSalesChannelLanguage(salesChannelId, language.id);
     await TestDataService.createSalesChannelDomain({ languageId: language.id, snippetSetId: snippetSetId });

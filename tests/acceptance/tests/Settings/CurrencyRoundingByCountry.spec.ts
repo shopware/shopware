@@ -47,7 +47,11 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
 
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontHome.url());
-    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.isoCode));
+    
+    //temp workaround until https://github.com/shopware/acceptance-test-suite/issues/546 is resolved
+    await StorefrontHome.currenciesDropdown.click();
+    await StorefrontHome.currenciesMenuOptions.getByText(currency.symbol).click();
+
     const productListingLocatorsByProductId = await StorefrontHome.getListingItemByProductName(product.name);
     await ShopCustomer.expects(productListingLocatorsByProductId.productPrice).toContainText(currency.isoCode+' 22.556');
 

@@ -28,9 +28,13 @@ class EntityIndexingMessage implements AsyncMessageInterface
      * @param array{offset: int|null}|null $offset
      */
     public function __construct(
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
+        /**
+         * @deprecated tag:v6.7.0 - Will be natively typed
+         */
         protected $data,
-        /** @deprecated tag:v6.7.0 - Will be natively typed */
+        /**
+         * @deprecated tag:v6.7.0 - Will be natively typed
+         */
         protected $offset = null,
         ?Context $context = null,
         public bool $forceQueue = false,

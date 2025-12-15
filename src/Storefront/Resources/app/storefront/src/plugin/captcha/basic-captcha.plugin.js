@@ -32,6 +32,7 @@ export default class BasicCaptchaPlugin extends Plugin {
 
         if (window.Feature.isActive('ACCESSIBILITY_TWEAKS')) {
             window.formValidation.addErrorMessage('basicCaptcha', this.options.invalidFeedbackMessage);
+            this._setBasicCaptchaHandleSubmit();
         }
 
         /**
@@ -160,6 +161,20 @@ export default class BasicCaptchaPlugin extends Plugin {
      */
     _isCmsForm() {
         return this.formPluginInstances.has('FormCmsHandler');
+    }
+
+    /**
+     * Sets the formSubmittedByCaptcha flag on form handler plugins to prevent duplicate submissions.
+     * This is similar to GoogleReCaptchaBasePlugin._setGoogleReCaptchaHandleSubmit().
+     *
+     * @private
+     */
+    _setBasicCaptchaHandleSubmit() {
+        window.PluginManager.getPluginInstancesFromElement(this._form).forEach((plugin) => {
+            if (typeof plugin.sendAjaxFormSubmit === 'function') {
+                plugin.formSubmittedByCaptcha = true;
+            }
+        });
     }
 
     /**

@@ -33,6 +33,7 @@ class AdapterException extends HttpException
     public const INVALID_ASSET_URL = 'FRAMEWORK__INVALID_ASSET_URL';
     final public const INVALID_ARGUMENT = 'FRAMEWORK__INVALID_ARGUMENT_EXCEPTION';
     public const OPERATOR_NOT_SUPPORTED = 'FRAMEWORK__OPERATOR_NOT_SUPPORTED';
+    final public const CACHE_DIRECTORY_ERROR = 'FRAMEWORK__CACHE_DIRECTORY_ERROR';
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
@@ -191,6 +192,16 @@ class AdapterException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_ARGUMENT,
             $message
+        );
+    }
+
+    public static function cacheDirectoryError(string $directory): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CACHE_DIRECTORY_ERROR,
+            'Unable to write in the "{{ directory }}" directory',
+            ['directory' => $directory]
         );
     }
 }

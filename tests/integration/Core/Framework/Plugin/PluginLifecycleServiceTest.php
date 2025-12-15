@@ -47,7 +47,6 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginLifecycleServiceTest extends TestCase
 {
     use KernelTestBehaviour;

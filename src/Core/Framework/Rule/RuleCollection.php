@@ -44,13 +44,6 @@ class RuleCollection extends Collection
         $this->classes = [];
     }
 
-    /**
-     * @template T
-     *
-     * @param class-string<T> $class
-     *
-     * @return static<Rule&T>
-     */
     public function filterInstance(string $class): static
     {
         return new static(

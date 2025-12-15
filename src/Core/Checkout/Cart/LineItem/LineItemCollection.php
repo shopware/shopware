@@ -69,9 +69,6 @@ class LineItemCollection extends Collection
         return $this->has($this->getKey($lineItem));
     }
 
-    /**
-     * @return TElement|null
-     */
     public function get($identifier): ?LineItem
     {
         if ($this->has($identifier)) {

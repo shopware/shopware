@@ -55,18 +55,12 @@ class CompiledFieldCollection extends FieldCollection
         $this->addField($field);
     }
 
-    /**
-     * @param Field $field
-     */
     public function addNewField(Field $field): void
     {
         $field->compile($this->registry);
         $this->addField($field);
     }
 
-    /**
-     * @param Field $field
-     */
     public function addField(Field $field): void
     {
         $this->elements[$field->getPropertyName()] = $field;

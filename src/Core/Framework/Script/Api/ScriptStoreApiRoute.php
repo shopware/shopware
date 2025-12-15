@@ -133,7 +133,7 @@ class ScriptStoreApiRoute
         }
 
         $item->tag($cacheConfig->getCacheTags());
-        $item->expiresAfter($cacheConfig->getMaxAge());
+        $item->expiresAfter($cacheConfig->getSharedMaxAge());
 
         $this->cache->save($item);
     }

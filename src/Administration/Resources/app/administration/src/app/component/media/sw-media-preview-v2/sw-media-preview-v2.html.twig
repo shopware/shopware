@@ -56,8 +56,11 @@
                 :alt="mimeType"
             >
             <video
+                v-else
                 :controls="showControls"
                 :autoplay="autoplay"
+                :poster="hasVideoCover ? videoCoverPoster : null"
+                :preload="videoPreloadValue"
                 controlsList="nodownload"
                 class="sw-media-preview-v2__item"
             >

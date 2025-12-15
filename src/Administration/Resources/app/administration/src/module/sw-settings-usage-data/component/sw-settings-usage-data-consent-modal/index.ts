@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import type { PropType } from 'vue';
-import { MtModal, MtModalAction, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-usage-data-consent-modal.html.twig';
 import './sw-settings-usage-data-consent-modal.scss';
 
@@ -19,15 +18,18 @@ type ConsentStruct = {
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+    name: 'sw-settings-usage-data-consent-modal',
 
     components: {
-        MtModal,
-        MtModalRoot,
-        MtModalAction,
         SwSettingsUsageDataStoreDataConsentCard,
         SwSettingsUsageDataUserDataConsentCard,
         SwSettingsUsageDataConsentCheckList,
     },
+
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     props: {
         initialStoreDataConsent: {
@@ -62,6 +64,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         showStoreDataConsent() {
             if (this.initialStoreDataConsent.value) {
+                return false;
+            }
+
+            if (!this.acl.can('system.system_config')) {
                 return false;
             }
 

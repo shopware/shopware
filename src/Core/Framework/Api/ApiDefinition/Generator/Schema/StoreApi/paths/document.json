@@ -5,11 +5,10 @@
         "/document/download/{documentId}/{deepLinkCode}": {
             "post": {
                 "tags": [
-                    "Document",
-                    "Endpoints supporting Criteria "
+                    "Document"
                 ],
                 "summary": "Download generated document",
-                "description": "Returns blob file of a generated document to download.",
+                "description": "Returns generated document to download.",
                 "operationId": "download",
                 "parameters": [
                     {
@@ -32,25 +31,11 @@
                     {
                         "name": "sw-language-id",
                         "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "description": "If a document is rendered on the fly the provided language id is added to fallback languages while the order language has priority. It does not change already generated documents.",
                         "required": false,
                         "schema": {
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
-                        "name": "sw-include-search-info",
-                        "in": "header",
-                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "0",
-                                "1"
-                            ],
-                            "default": "1"
                         }
                     }
                 ],
@@ -59,25 +44,149 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "zipcode": {
+                                        "type": "string"
                                     }
-                                ]
+                                },
+                              "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Returns the document information and blob to download.",
+                        "description": "Success",
                         "content": {
-                            "application/json": {
+                            "application/pdf": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Document"
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            },
+                            "text/html": {
+                                  "schema": {
+                                    "type": "string"
+                                  }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                  "type": "string"
                                 }
                             }
                         }
+                    },
+                    "204": {
+                        "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
+                    },
+                    "403": {
+                        "description": "Forbidden."
+                    },
+                    "404": {
+                        "description": "Document not found."
+                    },
+                    "406": {
+                        "description": "The requested mime type is not supported."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": [],
+                        "ContextToken": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                  "Document"
+                ],
+                "summary": "Download generated document",
+                "description": "Returns generated document to download.",
+                "operationId": "downloadGet",
+                "parameters": [
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "deepLinkCode",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
+                    },
+                    {
+                        "name": "zipcode",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "If a document is rendered on the fly the provided language id is added to fallback languages while the order language has priority. It does not change already generated documents.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                      }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            },
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
+                    },
+                    "403": {
+                        "description": "Forbidden."
+                    },
+                    "404": {
+                        "description": "Document not found."
+                    },
+                    "406": {
+                        "description": "The requested mime type is not supported."
                     }
                 },
                 "security": [

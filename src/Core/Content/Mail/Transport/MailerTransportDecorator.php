@@ -20,7 +20,7 @@ use Symfony\Component\Mime\RawMessage;
  * @internal
  */
 #[Package('after-sales')]
-class MailerTransportDecorator implements TransportInterface
+class MailerTransportDecorator implements \Stringable, TransportInterface
 {
     /**
      * @param EntityRepository<DocumentCollection> $documentRepository

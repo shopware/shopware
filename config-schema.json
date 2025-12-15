@@ -1021,6 +1021,69 @@
                         }
                     },
                     "title": "Reverse proxy configuration"
+                },
+                "policies": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "headers": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "cache_control": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "public": { "type": "boolean" },
+                                            "private": { "type": "boolean" },
+                                            "no_cache": { "type": "boolean" },
+                                            "no_store": { "type": "boolean" },
+                                            "no_transform": { "type": "boolean" },
+                                            "must_revalidate": { "type": "boolean" },
+                                            "proxy_revalidate": { "type": "boolean" },
+                                            "immutable": { "type": "boolean" },
+                                            "max_age": { "type": "integer", "minimum": 0 },
+                                            "s_maxage": { "type": "integer", "minimum": 0 },
+                                            "stale_while_revalidate": { "type": "integer", "minimum": 0 },
+                                            "stale_if_error": { "type": "integer", "minimum": 0 }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "title": "Named cache control policies"
+                },
+                "default_policies": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "storefront": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "cacheable": { "type": ["string", "null"] },
+                                "uncacheable": { "type": ["string", "null"] }
+                            }
+                        },
+                        "store_api": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "cacheable": { "type": ["string", "null"] },
+                                "uncacheable": { "type": ["string", "null"] }
+                            }
+                        }
+                    },
+                    "title": "Default policies per area"
+                },
+                "route_policies": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" },
+                    "title": "Route name to policy mapping",
+                    "description": "Map route names to cache policies. Supports route#modifier pattern for granular script endpoint control (e.g., 'frontend.script_endpoint#hook-name')."
                 }
             }
         },

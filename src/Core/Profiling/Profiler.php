@@ -79,7 +79,7 @@ class Profiler
      */
     public static function start(string $title, string $category, array $tags): void
     {
-        self::$openTraces[] = $title;
+        self::$openTraces[$title] = true;
         $tags = array_merge(self::$tags, $tags);
 
         foreach (self::$profilers as $profiler) {

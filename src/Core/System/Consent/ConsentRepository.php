@@ -11,6 +11,8 @@ use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore integration tested with \Shopware\Tests\Integration\Core\System\Consent\ConsentRepositoryTest
  */
 #[Package('data-services')]
 class ConsentRepository

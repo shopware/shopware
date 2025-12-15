@@ -18,7 +18,7 @@ Cover image reference is stored in `metaData.video.coverMediaId`.
 When a cover image is deleted, all video references are automatically cleaned up via `VideoCoverCleanupSubscriber`.
 
 ### StoreAPI HTTP caching support
-Selected Store API routes now support HTTP caching with `Cache-Control` headers:
+HTTP caching support was added for the following Store API endpoints:
 - `/store-api/breadcrumb/{id}`
 - `/store-api/category`
 - `/store-api/category/{navigationId}`
@@ -32,7 +32,21 @@ Selected Store API routes now support HTTP caching with `Cache-Control` headers:
 - `/store-api/language`
 - `/store-api/salutation`
 
+`GET` methods and HTTP caching support were added for the following Store API endpoints:
+- `/store-api/media`
+- `/store-api/product/{productId}/cross-selling`
+- `/store-api/product/{productId}`
+- `/store-api/product/{productId}/find-variant`
+- `/store-api/product-listing/{categoryId}`
+- `/store-api/product/{productId}/reviews`
+- `/store-api/search`
+- `/store-api/search-suggest`
+
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
+
+### Store API: compressed criteria parameter support
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. Please check
+the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
 ### Document download `/store-api/document/download/`
 The endpoint now selects the document file type based on the `Accept` header.

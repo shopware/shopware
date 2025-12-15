@@ -50,13 +50,20 @@ class RequestCriteriaBuilder
         private readonly AggregationParser $aggregationParser,
         private readonly ApiCriteriaValidator $validator,
         private readonly CriteriaArrayConverter $converter,
-        private readonly ?int $maxLimit = null
+        private readonly CompressedCriteriaDecoder $compressedCriteriaDecoder,
+        private readonly ?int $maxLimit = null,
     ) {
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         if ($request->isMethod(Request::METHOD_GET)) {
+            // Check for _criteria parameter first
+            if ($request->query->has('_criteria')) {
+                $payload = $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'));
+
+                return $this->fromArray($payload, $criteria, $definition, $context);
+            }
             $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
         } else {
             $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);

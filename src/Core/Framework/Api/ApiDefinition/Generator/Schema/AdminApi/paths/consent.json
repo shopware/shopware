@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": [],
   "paths": {
-    "\/api\/consents": {
+    "\/consents": {
       "get": {
         "tags": [
           "Consent Management"
@@ -41,7 +41,7 @@
         }
       }
     },
-    "\/api\/consents\/{consent}\/accept": {
+    "\/consents\/{consent}\/accept": {
       "post": {
         "tags": [
           "Consent Management"
@@ -73,7 +73,7 @@
         }
       }
     },
-    "\/api\/consents\/{consent}\/revoke": {
+    "\/consents\/{consent}\/revoke": {
       "post": {
         "tags": [
           "Consent Management"

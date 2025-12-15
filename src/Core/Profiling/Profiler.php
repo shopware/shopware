@@ -98,7 +98,7 @@ class Profiler
 
     public static function cleanup(): void
     {
-        foreach (self::$openTraces as $name) {
+        foreach (array_keys(self::$openTraces) as $name) {
             foreach (self::$profilers as $profiler) {
                 $profiler->stop($name);
             }

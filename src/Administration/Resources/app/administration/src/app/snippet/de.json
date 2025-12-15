@@ -305,6 +305,8 @@
       "labelContextMenuRename": "Umbenennen",
       "labelContextMenuDetail": "Informationen",
       "labelContextMenuMove": "Verschieben",
+      "labelContextMenuSetCover": "Cover-Bild festlegen",
+      "labelContextMenuRemoveCover": "Cover entfernen",
       "notification": {
         "errorBlankItemName": {
           "message": "Das Medium konnte nicht umbenannt werden. Bitte füge einen Dateinamen hinzu."
@@ -320,6 +322,18 @@
         },
         "settingsSuccess": {
           "message": "Einstellungen erfolgreich gespeichert."
+        },
+        "coverSaveSuccess": {
+          "message": "Cover-Bild erfolgreich gespeichert."
+        },
+        "coverRemoveSuccess": {
+          "message": "Cover-Bild wurde entfernt."
+        },
+        "coverSelectionInvalid": {
+          "message": "Bitte wähle ein Bild als Cover aus."
+        },
+        "coverSaveError": {
+          "message": "Cover-Bild konnte nicht gespeichert werden."
         }
       },
       "labelUploading": "Wird hochgeladen ..."

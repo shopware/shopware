@@ -24,6 +24,8 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 </details>
 
 # API
+## Changed returned status code for `/store-api/document/download/` when no documents are found
+The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
 # Core
 
@@ -384,6 +386,42 @@ $parsed = $parser->parse('Disallow: /admin/', $context);
 new DomainRuleStruct($parsed, '/en');
 ```
 
+## Removed `PlatformRequest::ATTRIBUTE_HTTP_CACHE` states support
+
+The `$states` property in `Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute` is removed.
+
+**Migration**: Remove usage of `$states`, as state-based invalidation is not supported anymore.
+
+Using `#[Route]` attribute:
+
+```diff
+ #[Route(
+     path: '/store-api/my-route',
+     name: 'store-api.my-route',
+     methods: ['GET'],
+     defaults: [
+         PlatformRequest::ATTRIBUTE_HTTP_CACHE => [
+-            'states' => ['cart-filled'],
+         ],
+     ]
+ )]
+```
+
+Using request attributes:
+
+```diff
+ $request->attributes->set(
+     PlatformRequest::ATTRIBUTE_HTTP_CACHE,
+     new CacheAttribute(
+-        states: ['cart-filled', 'logged-in'],
+     )
+ );
+```
+
+## Removed `ResponseCacheConfiguration` methods
+Script\Api\ResponseCacheConfiguration::maxAge()` and
+`\Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration::invalidationState()` were removed with no replacement.
+
 ## Removal of product manufacturer link column
 
 The column `link` of the table `product_manufacturer` was removed.
@@ -463,6 +501,50 @@ Use the parent blocks instead
 
 ## File accessibility changed from public to private
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+
+## Removed .png and .jpg images
+
+In favor of WebP the following images have been removed:
+
+-   `administration/static/img/sw-login-background.png`
+-   `administration/static/img/plugin-manager--login.png`
+-   `administration/static/img/data-consent-background.png`
+-   `administration/static/img/flowbuilder/ui-sample.png`
+-   `administration/static/img/cms/preview_plant_small.jpg`
+-   `administration/static/img/cms/preview_glasses_large.jpg`
+-   `administration/static/img/cms/preview_page_default.png`
+-   `administration/static/img/cms/preview_page_sidebar.png`
+-   `administration/static/img/cms/preview_glasses_small.jpg`
+-   `administration/static/img/cms/preview_youtube.jpg`
+-   `administration/static/img/cms/preview_plant_large.jpg`
+-   `administration/static/img/cms/preview_custom_entity_detail_default.png`
+-   `administration/static/img/cms/preview_mountain_large.jpg`
+-   `administration/static/img/cms/default_preview_product_detail.jpg`
+-   `administration/static/img/cms/preview_custom_entity_detail_sidebar.png`
+-   `administration/static/img/cms/preview_product_detail_sidebar.png`
+-   `administration/static/img/cms/preview_product_detail_default.png`
+-   `administration/static/img/cms/preview_product_list_default.png`
+-   `administration/static/img/cms/preview_product_list_sidebar.png`
+-   `administration/static/img/cms/preview_mountain_small.jpg`
+-   `administration/static/img/cms/default_preview_product_list.jpg`
+-   `administration/static/img/cms/preview_landingpage_sidebar.png`
+-   `administration/static/img/cms/vimeo-icon.png`
+-   `administration/static/img/cms/preview_landingpage_default.png`
+-   `administration/static/img/cms/youtube-icon.png`
+-   `administration/static/img/cms/preview_camera_small.jpg`
+-   `administration/static/img/cms/preview_custom_entity_list_sidebar.png`
+-   `administration/static/img/cms/preview_camera_large.jpg`
+-   `administration/static/img/cms/preview_vimeo.jpg`
+-   `administration/static/img/cms/preview_custom_entity_list_default.png`
+-   `administration/static/img/theme/default_theme_preview.jpg`
+-   `administration/static/fixtures/sw-login-background.png`
+-   `administration/static/fixtures/sw-test-image.png`
+-   `administration/static/fixtures/sw-login-background-2.png`
+-   `administration/src/module/sw-login/page/index/assets/sw-login-background.png`
+-   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
+
+Update image references to their `.webp` equivalents.  
+For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`
 
 </details>
 
@@ -644,6 +726,15 @@ to:
 {% endblock %}
 ```
 
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}` has been updated. Instead of returning `204`, the route now returns `404` (Not Found) when no generated document exists.
+
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}` has been updated. Instead of returning `204`, the route now returns:
+- `406` (Not Acceptable) for invalid/unsupported `fileType` values
+- `404` (Not Found) when no generated document exists for the requested `fileType`.
+
+
 </details>
 
 # App System
@@ -677,11 +768,61 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
 
 The `CountryStateController` route `/country/country-state-data` now supports only GET methods. This change improves compatibility with HTTP caching and aligns with the best practices for data retrieval routes.
 
+## App scripts methods maxAge() and invalidationState() removed
+
+Method `response.cache.maxAge()` was removed. Use `sharedMaxAge()` to set `s-maxage` instead. The `clientMaxAge()` method is also available for setting `max-age`.
+
+```diff
+-{% do response.cache.maxAge(3600) %}
++{% do response.cache.sharedMaxAge(3600) %}
+```
+
+Method `response.cache.invalidationState()` was removed. State-based invalidation is not supported anymore.
+
+```diff
+-{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
++{# No replacement #}
+```
+
 </details>
 
 # Hosting & Configuration
 
 <details>
+
+## HTTP Cache Changes
+
+The following configuration parameters were removed:
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable
+- `shopware.http.cache.default_ttl` parameter
+- `shopware.http_cache.stale_while_revalidate` parameter
+- `shopware.http_cache.stale_if_error` parameter
+
+**Migration**: Use cache policies instead:
+
+```diff
+-shopware:
+-  http:
+-    cache:
+-      default_ttl: 7200
++shopware:
++  http_cache:
++    policies:
++      my_cacheable:
++        headers:
++          cache_control:
++            public: true
++            ## replaces shopware.http.cache.default_ttl parameter (and related env var)
++            s_maxage: 7200
++            # replaces shopware.http_cache.stale_while_revalidate parameter
++            stale_while_revalidate: 120
++            # replaces shopware.http_cache.stale_if_error parameter
++            stale_if_error: 360
++    default_policies:
++      storefront:
++        cacheable: my_cacheable
+```
 
 ## Dropped support for OpenSearch 1.x
 

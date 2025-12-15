@@ -355,6 +355,30 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\Subscriber\VideoCoverLoadedSubscriber">
+            <argument type="service" id="media.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Subscriber\VideoCoverCleanupSubscriber">
+            <argument type="service" id="media.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Service\VideoCoverService">
+            <argument type="service" id="media.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Api\MediaVideoCoverController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Media\Service\VideoCoverService"/>
+            <tag name="controller.service_arguments"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\Content\Media\SalesChannel\MediaRoute" public="true">
             <argument type="service" id="media.repository"/>
         </service>

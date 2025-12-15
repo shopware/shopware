@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,7 +32,12 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
+    #[Route(
+        path: '/store-api/navigation/{activeId}/{rootId}',
+        name: 'store-api.navigation',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => CategoryDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
         try {

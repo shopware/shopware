@@ -57,6 +57,59 @@
                         "ApiKey": []
                     }
                 ]
+            },
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Fetch cross-selling groups of a product",
+                "description": "This route is used to load the cross sellings for a product. A product has several cross selling definitions in which several products are linked. The route returns the cross sellings together with the linked products",
+                "operationId": "readProductCrossSellingsGet",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "sw-include-seo-urls",
+                        "in": "header",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "required": false,
+                        "schema": { "type": "boolean" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Found cross sellings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CrossSellingElementCollection"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
             }
         },
         "/product/{productId}": {
@@ -144,6 +197,83 @@
                         }
                     }
                 },
+                "responses": {
+                    "200": {
+                        "description": "Product information along with variant groups and options",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductDetailResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Fetch a single product",
+                "description": "This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
+                "operationId": "readProductDetailGet",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$'"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "in": "header",
+                        "name": "sw-include-seo-urls",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "description": "Instructs Shopware to skip loading the configurator data",
+                        "in": "query",
+                        "name": "skipConfigurator",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "description": "Instructs Shopware to skip loading the CMS page data",
+                        "in": "query",
+                        "name": "skipCmsPage",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "x-parameter-group": "noneFieldsCriteria"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Product information along with variant groups and options",
@@ -348,6 +478,71 @@
                         "ApiKey": []
                     }
                 ]
+            },
+            "get": {
+                "tags": [
+                    "Product",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch product reviews",
+                "description": "Perform a filtered search for product reviews.",
+                "operationId": "readProductReviewsGet",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Identifier of the product.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Entity search result containing product reviews",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/ProductReview"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
             }
         },
         "/product/{productId}/review": {
@@ -495,6 +690,73 @@
                         }
                     }
                 },
+                "responses": {
+                    "200": {
+                        "description": "Returns an FoundCombination struct containing the ids matching the search.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FindProductVariantRouteResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Search for a matching variant by product options.",
+                "description": "Performs a search for product variants and returns the best matching variant.",
+                "operationId": "searchProductVariantIdsGet",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "options[]",
+                        "in": "query",
+                        "description": "The options parameter for the variant to find. Array of option IDs.",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "switchedGroup",
+                        "in": "query",
+                        "description": "The id of the option group that has been switched.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Returns an FoundCombination struct containing the ids matching the search.",

@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import shuffle from 'lodash/shuffle';
+import shuffle from 'lodash-es/shuffle';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 

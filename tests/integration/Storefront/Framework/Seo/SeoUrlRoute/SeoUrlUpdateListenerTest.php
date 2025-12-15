@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Storefront\Framework\Seo\DataAbstractionLayer\Indexing;
+namespace Shopware\Tests\Integration\Storefront\Framework\Seo\SeoUrlRoute;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -36,7 +37,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
  */
 #[Package('inventory')]
 #[Group('slow')]
-class SeoUrlIndexerTest extends TestCase
+class SeoUrlUpdateListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
@@ -590,6 +591,86 @@ class SeoUrlIndexerTest extends TestCase
         $canonical = $seoUrls->filterByProperty('isCanonical', true)->first();
         static::assertNotNull($canonical);
         static::assertSame('updated/C2', $canonical->getSeoPathInfo());
+    }
+
+    public function testChildCategorySeoUrlIndexing(): void
+    {
+        $parentId = Uuid::randomHex();
+        $child1Id = Uuid::randomHex();
+        $child2Id = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $categoryRepository = $this->getContainer()->get('category.repository');
+        $categoryRepository->create([
+            [
+                'id' => $parentId,
+                'name' => 'parent',
+                'children' => [
+                    [
+                        'id' => $child1Id,
+                        'name' => 'child1',
+                    ],
+                    [
+                        'id' => $child2Id,
+                        'name' => 'child2',
+                    ],
+                ],
+            ],
+        ], $context);
+
+        // we don't check parent category here, because it's the home page and therefore has no seo url
+        $criteria = new Criteria([$child1Id, $child2Id]);
+        $criteria->addAssociation('seoUrls');
+        $categories = $categoryRepository->search($criteria, Context::createDefaultContext());
+
+        // check that seo Urls are empty, as the categories are not assigned to a sales channel yet
+        $child1 = $categories->get($child1Id);
+        static::assertInstanceOf(CategoryEntity::class, $child1);
+        $seoUrls = $child1->getSeoUrls();
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+        static::assertCount(0, $seoUrls);
+
+        $child2 = $categories->get($child2Id);
+        static::assertInstanceOf(CategoryEntity::class, $child2);
+        $seoUrls = $child2->getSeoUrls();
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+        static::assertCount(0, $seoUrls);
+
+        // assign categories to sales channel
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test', categoryEntrypoint: $parentId);
+
+        // update parent
+        $update = [
+            'id' => $parentId,
+            'name' => 'updated',
+        ];
+
+        $categoryRepository->update([$update], Context::createDefaultContext());
+
+        // we don't check parent category here, because it's the home page and therefore has no seo url
+        $criteria = new Criteria([$child1Id, $child2Id]);
+        $criteria->addAssociation('seoUrls');
+        $categories = $categoryRepository->search($criteria, Context::createDefaultContext());
+
+        $child1 = $categories->get($child1Id);
+        static::assertInstanceOf(CategoryEntity::class, $child1);
+        $seoUrls = $child1->getSeoUrls();
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+        static::assertCount(1, $seoUrls);
+        $seoUrl = $seoUrls->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
+        static::assertSame('child1/', $seoUrl->getSeoPathInfo());
+
+        $child2 = $categories->get($child2Id);
+        static::assertInstanceOf(CategoryEntity::class, $child2);
+        $seoUrls = $child2->getSeoUrls();
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+        static::assertCount(1, $seoUrls);
+        $seoUrl = $seoUrls->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
+        static::assertSame('child2/', $seoUrl->getSeoPathInfo());
     }
 
     public function testIndex(?int $seoUrlCount = 1): void

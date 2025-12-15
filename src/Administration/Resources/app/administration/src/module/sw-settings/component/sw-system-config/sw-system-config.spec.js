@@ -7,7 +7,7 @@
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
-import { kebabCase } from 'lodash';
+import kebabCase from 'lodash-es/kebabCase';
 import uuid from 'test/_helper_/uuid';
 import 'src/app/filter/media-name.filter';
 import 'src/app/filter/unicode-uri';
@@ -98,6 +98,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-media-modal-replace': true,
                 'sw-media-modal-delete': true,
                 'sw-media-modal-move': true,
+                'sw-media-modal-v2': true,
                 'mt-url-field': MtUrlField,
                 'sw-app-action-button': true,
                 'sw-time-ago': true,

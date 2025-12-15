@@ -3,6 +3,7 @@ import { getLanguageData, getSnippetSetId, test } from '@fixtures/AcceptanceTest
 test ('Shop customers should be able to view products in different languages.', { tag: ['@Languages', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
+    StorefrontHeader,
     StorefrontHome,
 }) => {
 
@@ -19,14 +20,14 @@ test ('Shop customers should be able to view products in different languages.', 
 
     await test.step('Customer can view languages menu', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
-        await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('English');
+        await ShopCustomer.expects(StorefrontHeader.languagesDropdown).toContainText('English');
         await ShopCustomer.expects(addToCartButton).toContainText('Add to shopping cart');
     });
 
     await test.step('Customer can select a different language', async () => {
-        await ShopCustomer.presses(StorefrontHome.languagesDropdown);
-        await ShopCustomer.presses(StorefrontHome.languagesMenuOptions.getByText('Deutsch'));
-        await ShopCustomer.expects(StorefrontHome.languagesDropdown).toContainText('Deutsch');
+        await ShopCustomer.presses(StorefrontHeader.languagesDropdown);
+        await ShopCustomer.presses(StorefrontHeader.languagesMenuOptions.getByText('Deutsch'));
+        await ShopCustomer.expects(StorefrontHeader.languagesDropdown).toContainText('Deutsch');
         await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
     });
 })

@@ -61,8 +61,6 @@ test(
             await ShopCustomer.fillsIn(StorefrontAccountLogin.shippingAddressCityInput, registrationData.city);
             await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressCountryInput);
             await StorefrontAccountLogin.shippingAddressCountryInput.selectOption({ label: shippableCountry.name });
-            await ShopCustomer.presses(StorefrontAccountLogin.shippingAddressStateInput);
-            await StorefrontAccountLogin.shippingAddressStateInput.selectOption({ label: registrationData.state });
             await ShopCustomer.presses(StorefrontAccountLogin.registerButton);
             const customerId = (await TestDataService.getCustomerByEmail(customer.email)).id;
             TestDataService.addCreatedRecord('customer', customerId);

@@ -2,7 +2,7 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test('Guest customer must be able to register in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
-    StorefrontCheckoutCart,
+    StorefrontCheckoutRegister,
     StorefrontProductDetail,
     StorefrontHome,
     StorefrontAccountLogin,
@@ -15,7 +15,9 @@ test('Guest customer must be able to register in the Storefront.', { tag: ['@Reg
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
     await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await ShopCustomer.presses(StorefrontCheckoutCart.goToCheckoutButton);
+    await StorefrontProductDetail.offCanvasCartGoToCheckoutButton.scrollIntoViewIfNeeded();
+    await ShopCustomer.presses(StorefrontProductDetail.offCanvasCartGoToCheckoutButton);
+    await StorefrontCheckoutRegister.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
 
     await ShopCustomer.attemptsTo(Register({ isGuest: true }));
     await ShopCustomer.goesTo(StorefrontHome.url());
@@ -28,7 +30,7 @@ test('Guest customer must be able to register in the Storefront.', { tag: ['@Reg
 test('Guest commercial customer must be able to register in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontHome,
-    StorefrontCheckoutCart,
+    StorefrontCheckoutRegister,
     StorefrontProductDetail,
     StorefrontAccountLogin,
     AddProductToCart,
@@ -41,7 +43,10 @@ test('Guest commercial customer must be able to register in the Storefront.', { 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
     await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await ShopCustomer.presses(StorefrontCheckoutCart.goToCheckoutButton);
+    await StorefrontProductDetail.offCanvasCartGoToCheckoutButton.scrollIntoViewIfNeeded();
+    await ShopCustomer.presses(StorefrontProductDetail.offCanvasCartGoToCheckoutButton);
+    await StorefrontCheckoutRegister.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
+
     await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect);
     await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
     await ShopCustomer.attemptsTo(Register({ isCommercial: true, isGuest: true }));

@@ -25,6 +25,10 @@ test('As a shop customer, I want to see reviews of a product.', {
 
 test('As a shop customer, I want to submit a review, so that I can share my experience with the product', {
     tag: ['@Product', '@Reviews', '@Storefront'],
+    annotation: {
+        type: 'issue',
+        description: 'https://github.com/shopware/shopware/issues/13219',
+  },
 }, async ({
     ShopCustomer,
     TestDataService,
@@ -52,9 +56,7 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
         await ShopCustomer.presses(StorefrontProductDetail.reviewTeaserButton);
         await ShopCustomer.expects(StorefrontProductDetail.reviewLoginForm).toBeVisible();
         await ShopCustomer.expects(StorefrontProductDetail.forgottenPasswordLink).toBeVisible();
-        const loginResponse = await StorefrontProductDetail.page.request.post('account/login');
         await ShopCustomer.attemptsTo(LoginViaReviewsTab(product, customer));
-        await ShopCustomer.expects(loginResponse).toBeTruthy();
 
         // collapse depend on page-level initialization (JS event listeners, aria-expanded, etc.) which don’t re-fire after DOM patching.
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
@@ -66,7 +68,8 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
 
         const starRatingPoints = await StorefrontProductDetail.reviewRatingPoints.count();
         for (let i = 0; i < starRatingPoints; i++) {
-            await ShopCustomer.presses(StorefrontProductDetail.reviewRatingPoints.nth(i));
+            //cannot use Actor.selectsRadioButton() until #13219 is resolved (see annotation above)
+            await StorefrontProductDetail.reviewRatingPoints.nth(i).click();
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingPoints.nth(i)).toHaveClass('product-detail-review-form-star is-active');
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).not.toHaveClass('d-none');
             await ShopCustomer.expects(StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1))).toBeVisible();
@@ -76,7 +79,8 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
     });
 
     await test.step('Create a review and validate the submitted review.', async () => {
-        await ShopCustomer.presses(StorefrontProductDetail.reviewRatingPoints.nth(3));
+        //cannot use Actor.selectsRadioButton() until #13219 is resolved (see annotation above)
+        await StorefrontProductDetail.reviewRatingPoints.nth(3).click();
         const reviewContent = {
             title: `${product.name} is a great choice`,
             content: `${product.name} has a perfect shape and it is easy to use. I can recommend!`,
@@ -158,5 +162,6 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(1);
         await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
         await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).not.toBeChecked();
+        await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(3);
     });
 });

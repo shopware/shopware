@@ -4,13 +4,13 @@ test('Customers can add or remove products from their wishlist.',{ tag: ['@Wishl
     TestDataService,
     ShopCustomer,
     StorefrontHome,
+    StorefrontHeader,
+    StorefrontOffCanvasCart,
+    StorefrontWishlist,
+    AddProductToCartFromWishlist,
     AddProductToWishlist,
     Login,
     RemoveProductFromWishlist,
-    StorefrontWishlist,
-    AddProductToCartFromWishlist,
-    StorefrontOffCanvasCart,
-    InstanceMeta,
 }) => {
     await TestDataService.setSystemConfig({ 'core.cart.wishlistEnabled': true });
 
@@ -30,18 +30,18 @@ test('Customers can add or remove products from their wishlist.',{ tag: ['@Wishl
         await ShopCustomer.attemptsTo(AddProductToWishlist(product2));
         await ShopCustomer.expects(product2Locators.wishlistAddedIcon).toBeVisible();
         await ShopCustomer.attemptsTo(AddProductToWishlist(product3));
-        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toContainText('3');
+        await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toContainText('3');
     });
 
     await test.step('Remove a product from the wishlist and verify that the basket updates to 2', async () => {
         await ShopCustomer.attemptsTo(RemoveProductFromWishlist(product3));
-        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toContainText('2');
+        await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toContainText('2');
         await ShopCustomer.expects(product3Locators.wishlistNotAddedIcon).toBeVisible();
     });
 
     await test.step('Navigate to the wishlist and verify that the products are visible', async () => {
-        await ShopCustomer.presses(StorefrontHome.wishlistIcon);
-        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('2');
+        await ShopCustomer.presses(StorefrontHeader.wishlistIcon);
+        await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toHaveText('2');
         await ShopCustomer.expects(StorefrontWishlist.wishListHeader).toBeVisible();
         await ShopCustomer.expects(product1Locators.productName).toBeVisible();
         await ShopCustomer.expects(product2Locators.productName).toBeVisible();
@@ -51,7 +51,7 @@ test('Customers can add or remove products from their wishlist.',{ tag: ['@Wishl
         const listedItemInWishlist = await StorefrontWishlist.getListingItemByProductName(product2.name);
         await ShopCustomer.presses(listedItemInWishlist.removeFromWishlistButton);
         await ShopCustomer.expects(StorefrontWishlist.removeAlert).toBeVisible();
-        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toContainText('1');
+        await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toContainText('1');
     });
 
     await test.step('Add product to cart from wishlist and verify it is added and wishlist icon is visible on offcanvas', async () => {

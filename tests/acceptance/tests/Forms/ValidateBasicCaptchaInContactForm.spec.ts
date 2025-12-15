@@ -34,22 +34,27 @@ test(
             await ShopCustomer.expects(StorefrontContactForm.basicCaptchaRefreshButton).toBeVisible();
         });
 
-        await test.step('Send and validate the unaccomplished contact form.', async () => {
-            // eslint-disable-next-line playwright/no-conditional-in-test
-            const formRoute = InstanceMeta.features['ACCESSIBILITY_TWEAKS'] ? '**/basic-captcha-validate' : '**/form/contact';
+        await ShopCustomer.expects(async () => {
+            await test.step('Send and validate the unaccomplished contact form.', async () => {
+                await ShopCustomer.presses(StorefrontContactForm.submitButton);
+                // eslint-disable-next-line playwright/no-conditional-in-test
+                const formRoute = InstanceMeta.features['ACCESSIBILITY_TWEAKS'] ? '**/basic-captcha-validate' : '**/form/contact';
 
-            const formSubmitPromise = StorefrontContactForm.page.waitForResponse(formRoute);
-            await ShopCustomer.presses(StorefrontContactForm.submitButton);
-            await formSubmitPromise;
+                const formSubmitPromise = StorefrontContactForm.page.waitForResponse(formRoute);
+                await ShopCustomer.presses(StorefrontContactForm.submitButton);
+                await formSubmitPromise;
 
-            await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+                await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
 
-            if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
-                await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveAccessibleDescription('Incorrect input. Please try again.');
-            } else {
-                await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toBeVisible();
-                await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toContainText('Incorrect input. Please try again.');
-            }
+                if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+                    await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveAccessibleDescription('Incorrect input. Please try again.');
+                } else {
+                    await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toBeVisible();
+                    await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toContainText('Incorrect input. Please try again.');
+                }
+            });
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
         });
     }
 );

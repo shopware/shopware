@@ -13,6 +13,7 @@ test(
 
         await test.step('Fill out all necessary contact information.', async () => {
             await ShopCustomer.presses(StorefrontContactForm.salutationSelect);
+            await StorefrontContactForm.salutationSelect.selectOption('Mr.');
             await ShopCustomer.fillsIn(StorefrontContactForm.firstNameInput, 'John');
             await ShopCustomer.fillsIn(StorefrontContactForm.lastNameInput, 'Doe');
             await ShopCustomer.fillsIn(StorefrontContactForm.emailInput, 'mail@test.com');

@@ -8,9 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @internal
  *
- * @template TElement of RequirementCheck = RequirementCheck
- *
- * @extends Collection<TElement>
+ * @extends Collection<RequirementCheck>
  */
 #[Package('framework')]
 class RequirementsCheckCollection extends Collection

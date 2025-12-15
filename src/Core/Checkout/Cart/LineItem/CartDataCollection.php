@@ -6,9 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @template TElement of mixed = mixed
- *
- * @extends Collection<TElement>
+ * @extends Collection<mixed>
  */
 #[Package('checkout')]
 class CartDataCollection extends Collection

@@ -13,9 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @template TElement of Field = Field
- *
- * @extends FieldCollection<TElement>
+ * @extends FieldCollection<Field>
  */
 #[Package('framework')]
 class CompiledFieldCollection extends FieldCollection
@@ -47,7 +45,7 @@ class CompiledFieldCollection extends FieldCollection
     }
 
     /**
-     * @param TElement $field
+     * @param Field $field
      */
     public function add($field): void
     {
@@ -58,7 +56,7 @@ class CompiledFieldCollection extends FieldCollection
     }
 
     /**
-     * @param TElement $field
+     * @param Field $field
      */
     public function addNewField(Field $field): void
     {
@@ -67,7 +65,7 @@ class CompiledFieldCollection extends FieldCollection
     }
 
     /**
-     * @param TElement $field
+     * @param Field $field
      */
     public function addField(Field $field): void
     {

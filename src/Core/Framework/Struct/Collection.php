@@ -155,20 +155,13 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @template T
-     *
-     * @param class-string<T> $class
-     *
-     * @return static<TElement&T, TKey>
+     * @param class-string $class
      */
     public function filterInstance(string $class): static
     {
-        /** @var static<TElement&T, TKey> $filtered */
-        $filtered = $this->filter(static function ($item) use ($class) {
+        return $this->filter(static function ($item) use ($class) {
             return $item instanceof $class;
         });
-
-        return $filtered;
     }
 
     /**

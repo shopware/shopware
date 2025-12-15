@@ -9,9 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @template TElement of LineItem = LineItem
- *
- * @extends Collection<TElement>
+ * @extends Collection<LineItem, string>
  */
 #[Package('checkout')]
 class LineItemCollection extends Collection

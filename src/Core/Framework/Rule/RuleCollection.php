@@ -7,9 +7,7 @@ use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @template TElement of Rule = Rule
- *
- * @extends Collection<TElement>
+ * @extends Collection<Rule>
  */
 #[Package('fundamentals@after-sales')]
 class RuleCollection extends Collection

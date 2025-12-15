@@ -7,9 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Util\Hasher;
 
 /**
- * @template TElement of Error = Error
- *
- * @extends Collection<TElement, string>
+ * @extends Collection<Error, string>
  */
 #[Package('checkout')]
 class ErrorCollection extends Collection

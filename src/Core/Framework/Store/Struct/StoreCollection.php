@@ -34,6 +34,7 @@ abstract class StoreCollection extends Collection
      */
     protected function getExpectedClass(): ?string
     {
+        /** @phpstan-ignore return.type (The StoreStruct class is used as fallback. Typically, there is a dedicated StoreStruct class) */
         return StoreStruct::class;
     }
 

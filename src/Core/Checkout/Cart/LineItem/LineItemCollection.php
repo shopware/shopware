@@ -155,7 +155,11 @@ class LineItemCollection extends Collection
         krsort($lineItemsByPricePriority);
 
         if (\count($lineItemsByPricePriority)) {
-            $this->elements = array_merge(...$lineItemsByPricePriority);
+            $merged = array_merge(...$lineItemsByPricePriority);
+            $this->elements = \array_combine(
+                \array_map($this->getKey(...), $merged),
+                $merged,
+            );
         }
     }
 

@@ -251,6 +251,7 @@ class EntityCollection extends Collection
 
     protected function getExpectedClass(): string
     {
+        /** @phpstan-ignore return.type (The base Entity class is used as fallback. Typically, there is a dedicated Entity class) */
         return Entity::class;
     }
 

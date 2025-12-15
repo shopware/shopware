@@ -801,7 +801,7 @@ class SeoUrlPersisterTest extends TestCase
 
         return $seoUrls->map(fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
-            'isCanonical' => $url->getIsCanonical(),
+            'isCanonical' => (bool) $url->getIsCanonical(),
             'isDeleted' => $url->getIsDeleted(),
             'languageId' => $url->getLanguageId(),
         ]);
@@ -826,7 +826,7 @@ class SeoUrlPersisterTest extends TestCase
 
         return $seoUrls->map(fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
-            'isCanonical' => $url->getIsCanonical(),
+            'isCanonical' => (bool) $url->getIsCanonical(),
             'isDeleted' => $url->getIsDeleted(),
             'languageId' => $url->getLanguageId(),
         ]);
@@ -850,7 +850,7 @@ class SeoUrlPersisterTest extends TestCase
 
         return $seoUrls->map(fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
-            'isCanonical' => $url->getIsCanonical(),
+            'isCanonical' => (bool) $url->getIsCanonical(),
             'isDeleted' => $url->getIsDeleted(),
             'languageId' => $url->getLanguageId(),
         ]);

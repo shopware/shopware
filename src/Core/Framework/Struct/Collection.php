@@ -125,7 +125,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     /**
      * @template T
      *
-     * @param \Closure(TElement): (T|null) $closure
+     * @param \Closure(TElement): (T|false|null) $closure
      *
      * @return array<TKey, T>
      */

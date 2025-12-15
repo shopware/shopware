@@ -65,9 +65,11 @@ class EntityLoadedEventFactoryTest extends TestCase
             (new LanguageEntity())->assign(['id' => $this->ids->create('l1'), '_entityName' => 'language']),
         ]));
 
-        $events = $this->entityLoadedEventFactory->create([$product], Context::createDefaultContext());
-        static::assertNotNull($events->getEvents());
-        $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
+        $events = $this->entityLoadedEventFactory->create([$product], Context::createDefaultContext())->getEvents();
+        static::assertNotNull($events);
+        static::assertContainsOnlyInstancesOf(EntityLoadedEvent::class, $events);
+        /** @var NestedEventCollection<EntityLoadedEvent> $events */
+        $createdEvents = $events->map(fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
         static::assertSame([
@@ -83,9 +85,11 @@ class EntityLoadedEventFactoryTest extends TestCase
     {
         $tax = (new TaxEntity())->assign(['_entityName' => 'tax']);
 
-        $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], Context::createDefaultContext());
-        static::assertNotNull($events->getEvents());
-        $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
+        $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], Context::createDefaultContext())->getEvents();
+        static::assertNotNull($events);
+        static::assertContainsOnlyInstancesOf(EntityLoadedEvent::class, $events);
+        /** @var NestedEventCollection<EntityLoadedEvent> $events */
+        $createdEvents = $events->map(fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
         static::assertSame([

@@ -2,7 +2,53 @@
 
 ## Features
 
+### HTTP caching rework
+
+- Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
+  and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
+  together with other HTTP caching improvements.
+- Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
+
 ## API
+
+### Video cover management `/api/_action/media/{mediaId}/video-cover`
+Added endpoint to assign or remove cover images for video media files. Requires `media.editor` ACL permission.
+Accepts `coverMediaId` (string or null) in request body.
+Cover image reference is stored in `metaData.video.coverMediaId`.
+When a cover image is deleted, all video references are automatically cleaned up via `VideoCoverCleanupSubscriber`.
+
+### StoreAPI HTTP caching support
+HTTP caching support was added for the following Store API endpoints:
+- `/store-api/breadcrumb/{id}`
+- `/store-api/category`
+- `/store-api/category/{navigationId}`
+- `/store-api/navigation/{activeId}/{rootId}`
+- `/store-api/cms/{id}`
+- `/store-api/product`
+- `/store-api/seo-url`
+- `/store-api/country`
+- `/store-api/country-state/{countryId}`
+- `/store-api/currency`
+- `/store-api/language`
+- `/store-api/salutation`
+
+`GET` methods and HTTP caching support were added for the following Store API endpoints:
+- `/store-api/media`
+- `/store-api/product/{productId}/cross-selling`
+- `/store-api/product/{productId}`
+- `/store-api/product/{productId}/find-variant`
+- `/store-api/product-listing/{categoryId}`
+- `/store-api/product/{productId}/reviews`
+- `/store-api/search`
+- `/store-api/search-suggest`
+
+It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
+
+### Store API: compressed criteria parameter support
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows 
+sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported. 
+Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
+Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
 ### Document download `/store-api/document/download/`
 The endpoint now selects the document file type based on the `Accept` header.
@@ -36,6 +82,14 @@ The following classes and constants were deprecated as they will not be used any
 Additionally, the following configuration was deprecated:
 * `shopware.cache.invalidation.http_cache`
 
+### HTTP Caching Policies
+
+Added support for caching policies to define HTTP cache behavior via configuration.
+
+You can now configure named caching policies that define how the Cache-Control header is formed. These policies can be assigned per area (`storefront`, `store_api`) and per route. The header controls how caches (browser, reverse proxy, CDN, Symfony cache layer) should cache the response.
+
+The feature is enabled using the `CACHE_REWORK` feature flag. For more details see the [caching policies documentation](https://developer.shopware.com/docs/guides/hosting/performance/caches.html#http-caching-policies).
+
 ### Add recursive assign method to AssignArrayTrait
 
 A new method `assignRecursive` has been added to `Shopware\Core\Framework\Struct\AssignArrayTrait`. Along with it, the new `Shopware\Core\Framework\Struct\AssignArrayInterface` has been introduced.
@@ -46,7 +100,7 @@ Note: `assignRecursive` uses reflection and creates nested struct instances, so 
 
 ### Performance improvements for generating category SEO-Urls
 
-We don't synchronously fetch and generate the SEO-Urls for all child categories anymore. 
+We don't synchronously fetch and generate the SEO-Urls for all child categories anymore.
 Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
 This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
 
@@ -60,6 +114,16 @@ The domain part of email addresses may now contain internationalized domain name
 
 ## App System
 
+### App Script caching control
+
+As before, app developers can control caching via in app scripts using syntax `{% do response.cache.<directive> %}`, which map to `ResponseCacheConfiguration` methods.
+Next changes were made to `ResponseCacheConfiguration` methods:
+- added `sharedMaxAge(seconds)` - set shared (reverse proxy/CDN) cache TTL, equivalent to `s-maxage` cache control directive.
+- added `clientMaxAge(seconds)` - set client-side (browser) cache TTL, equivalent to `max-age` cache control directive. Has effect only if `CACHE_REWORK` feature flag is enabled.
+- deprecated `maxAge(seconds)` - use sharedMaxAge() instead.
+
+Admins can override policies per script using `route_policies` with `route#hook` pattern in configuration (see HTTP caching policies description in the Core section).
+
 ## Hosting & Configuration
 
 ### Possibility to disable extensions when setting up staging mode
@@ -72,6 +136,15 @@ shopware:
         extensions:
             disable: ["TheExtensionName", "AnotherExtensionName"]
 ```
+
+### Deprecated HTTP cache configuration
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable.
+- `shopware.http.cache.default_ttl` parameter.
+- `shopware.http_cache.stale_while_revalidate` parameter.
+- `shopware.http_cache.stale_if_error` parameter.
+
+Deprecated parameters will have no effect when `CACHE_REWORK` feature flag is enabled, and will be removed in 6.8.0.0.
 
 ## Critical fixes
 

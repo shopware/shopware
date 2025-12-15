@@ -5,7 +5,10 @@ namespace Shopware\Core\Checkout\Cart\Event;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
@@ -21,7 +24,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, SalesChannelContextAware, OrderAware, MailAware, CustomerAware, CustomerGroupAware, FlowEventAware
+class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, SalesChannelContextAware, OrderAware, MailAware, CustomerAware, CustomerGroupAware, A11yRenderedDocumentAware, FlowEventAware
 {
     final public const EVENT_NAME = 'checkout.order.placed';
 
@@ -93,5 +96,18 @@ class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, Sales
     public function getCustomerGroupId(): string
     {
         return $this->context->getCustomerGroupId();
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getA11yDocumentIds(): array
+    {
+        $extension = $this->getContext()->getExtension(SendMailAction::MAIL_CONFIG_EXTENSION);
+        if (!$extension instanceof MailSendSubscriberConfig) {
+            return [];
+        }
+
+        return array_filter($extension->getDocumentIds());
     }
 }

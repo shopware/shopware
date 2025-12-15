@@ -54,36 +54,6 @@
     </div>
     {% endblock %}
 
-    {% block sw_product_add_properties_modal_empty_state %}
-    <sw-empty-state
-        v-if="!propertiesAvailable"
-        :absolute="false"
-        :title="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
-        :subline="$tc('sw-product.properties.addPropertiesModal.descriptionEmptyState')"
-    >
-        <template #icon>
-            {% block sw_product_add_properties_modal_empty_state_image %}
-            <img
-                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                :alt="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
-            >
-            {% endblock %}
-        </template>
-
-        <template #actions>
-            {% block sw_product_properties_empty_state_button_property %}
-            <mt-button
-                ghost
-                variant="secondary"
-                @click="onOpenProperties"
-            >
-                {{ $tc('sw-product.properties.buttonAddProperties') }}
-            </mt-button>
-            {% endblock %}
-        </template>
-    </sw-empty-state>
-    {% endblock %}
-
     <template #modal-footer>
         {% block sw_product_add_properties_modal_button_cancel %}
         <mt-button

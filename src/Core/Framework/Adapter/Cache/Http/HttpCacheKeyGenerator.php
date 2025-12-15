@@ -34,6 +34,13 @@ class HttpCacheKeyGenerator
      */
     final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
     /**
+     * Header to hint reverse proxy that cache was dynamically bypassed (and url still can be cached for other requests).
+     * This allows decreasing TTLs for `hit-for-pass` objects in reverse proxies for such cases, while keeping higher TTLs
+     * for generally not-cacheable pages.
+     */
+    final public const HEADER_DYNAMIC_CACHE_BYPASS = 'sw-dynamic-cache-bypass';
+
+    /**
      * Virtual path of the "domain"
      *
      * @example

@@ -42,6 +42,7 @@ class AdapterException extends HttpException
     final public const MISSING_REQUIRED_PARAMETER = 'FRAMEWORK__MISSING_REQUIRED_PARAMETER';
     final public const CIRCULAR_REFERENCE_ESI = 'FRAMEWORK__CIRCULAR_REFERENCE_ESI';
     final public const CACHE_CLEARER_LOCKED = 'FRAMEWORK__CACHE_CLEARER_LOCKED';
+    final public const INVALID_CACHE_POLICY_CONFIGURATION = 'FRAMEWORK__INVALID_CACHE_POLICY_CONFIGURATION';
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
@@ -327,6 +328,18 @@ class AdapterException extends HttpException
             [
                 'operation' => $operation,
                 'key' => $key,
+            ]
+        );
+    }
+
+    public static function invalidCachePolicyConfiguration(string $error): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_CACHE_POLICY_CONFIGURATION,
+            'Used cache policy configuration is invalid: {{ error }}',
+            [
+                'error' => $error,
             ]
         );
     }

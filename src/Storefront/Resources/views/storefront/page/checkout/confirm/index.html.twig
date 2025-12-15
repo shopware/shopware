@@ -224,7 +224,8 @@
         <form id="confirmOrderForm"
               action="{{ confirmOrderFormAction }}"
               data-form-preserver="true"
-              data-form-submit-loader="true"
+              data-form-handler="true"
+              data-form-handler-options="{{ { formFieldSelector: null }|json_encode }}"
               data-form-add-history="true"
               data-form-add-history-options="{{ formAddHistoryOptions|json_encode }}"
               method="post">

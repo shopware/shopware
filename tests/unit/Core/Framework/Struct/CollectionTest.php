@@ -6,8 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -234,6 +237,43 @@ class CollectionTest extends TestCase
         $collection->add('a2');
         $collection->add('a3');
         static::assertSame('a1', $collection->firstWhere(fn ($element) => str_starts_with($element, 'a')));
+    }
+
+    public function testFromAssociative(): void
+    {
+        $data = [
+            null,
+            0,
+            'some-string',
+            new \stdClass(),
+            ['some' => 'value'],
+        ];
+
+        $collection = (new TestCollection())->assignRecursive($data);
+
+        static::assertCount(5, $collection);
+
+        static::assertSame($data[0], $collection->get(0));
+        static::assertSame($data[1], $collection->get(1));
+        static::assertSame($data[2], $collection->get(2));
+        static::assertSame($data[3], $collection->get(3));
+        static::assertSame($data[4], $collection->get(4));
+    }
+
+    public function testFromAssociativeWithExpectedClass(): void
+    {
+        $data = [
+            'some-string',
+            new \stdClass(),
+            ['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()], // Entity class has no setId method
+            ['_uniqueIdentifier' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
+        ];
+
+        $collection = (new EntityCollection())->assignRecursive($data);
+
+        static::assertCount(1, $collection);
+        static::assertInstanceOf(Entity::class, $collection->first());
+        static::assertNotNull($collection->first()->getVersionId());
     }
 }
 

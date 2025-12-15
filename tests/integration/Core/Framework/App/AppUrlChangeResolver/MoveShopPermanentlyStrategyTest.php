@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -58,20 +59,19 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         $shopId = $this->changeAppUrl();
 
-        $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects($this->once())
-            ->method('registerApp')
+        $rotationService = $this->createMock(AppSecretRotationService::class);
+        $rotationService->expects($this->once())
+            ->method('rotateNow')
             ->with(
-                static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
                 $app->getId(),
-                static::isString(),
-                static::isInstanceOf(Context::class)
+                static::isInstanceOf(Context::class),
+                AppSecretRotationService::TRIGGER_CLI
             );
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
             new StaticSourceResolver(['test' => new Filesystem($appDir)]),
             static::getContainer()->get('app.repository'),
-            $registrationsService,
+            $rotationService,
             $this->shopIdProvider
         );
 
@@ -97,14 +97,14 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         $shopId = $this->changeAppUrl(false);
 
-        $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects($this->never())
-            ->method('registerApp');
+        $rotationService = $this->createMock(AppSecretRotationService::class);
+        $rotationService->expects($this->never())
+            ->method('rotateNow');
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
             new StaticSourceResolver(['no-setup' => new Filesystem($appDir)]),
             static::getContainer()->get('app.repository'),
-            $registrationsService,
+            $rotationService,
             $this->shopIdProvider
         );
 

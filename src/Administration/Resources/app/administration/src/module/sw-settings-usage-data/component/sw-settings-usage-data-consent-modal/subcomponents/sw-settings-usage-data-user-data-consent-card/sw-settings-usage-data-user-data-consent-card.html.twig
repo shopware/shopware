@@ -1,9 +1,12 @@
 <div class="sw-settings-usage-user-data-consent-card sw-settings-usage-data-consent-modal-sub-card">
+    <mt-loader v-if="isLoading" />
+
     <h4>{{ $t('sw-settings-usage-data.consent-modal.user-data.title') }}</h4>
 
     <i18n-t
         tag="p"
         keypath="sw-settings-usage-data.consent-modal.user-data.description"
+        scope="global"
     >
         <template #data>
             <span
@@ -17,6 +20,7 @@
 
     <mt-switch
         :model-value="consent"
+        :disabled="isLoading"
         :label="$t('sw-settings-usage-data.consent-modal.user-data.label-checkbox')"
         @update:model-value="$emit('update:consent', $event)"
     />

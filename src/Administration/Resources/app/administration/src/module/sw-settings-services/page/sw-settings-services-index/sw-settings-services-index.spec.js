@@ -1,6 +1,14 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { MtBanner, MtModalTrigger, MtModalAction, MtButton } from '@shopware-ag/meteor-component-library';
+import {
+    MtModal,
+    MtModalClose,
+    MtModalAction,
+    MtModalTrigger,
+    MtModalRoot,
+    MtButton,
+    MtBanner,
+} from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesIndex from './index';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import SwSettingsServicesHero from '../../component/sw-settings-services-hero';
@@ -95,6 +103,11 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                         </div>`,
                     },
                     'sw-settings-services-service-card': true,
+                    'mt-modal': MtModal,
+                    'mt-modal-close': MtModalClose,
+                    'mt-modal-action': MtModalAction,
+                    'mt-modal-trigger': MtModalTrigger,
+                    'mt-modal-root': MtModalRoot,
                 },
                 plugins: [pinia],
             },

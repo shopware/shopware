@@ -276,7 +276,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return class-string|null
+     * @return class-string<TElement>|null
      */
     protected function getExpectedClass(): ?string
     {

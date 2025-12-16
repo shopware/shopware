@@ -31,7 +31,7 @@ Currently, the product.states field has various issues:
 
 ### Introduce `product.type` field
 
-Product type field should have a clear definition: It represent the type of product, whether it's physical or digital or bundle etc, and it should be immutable once set. A product can only have one type at a time.
+Product type field should have a clear definition: It represents the type of product, whether it's physical or digital or bundle etc, and it should be immutable once set. A product can only have one type at a time.
 
 In a more detailed manner, we will make the following changes:
 
@@ -69,7 +69,7 @@ class ProductTypeRegistry
 - Querying by digital/physical products now becomes trivial (`product.type = 'digital'`), improving DAL and search performance and clarity.
 - The core will migrate existing `product.states` to `product.type` and the same from `order_line_item.states` to `order_line_item.payload.product_type` to preserve existing behavior.
 - Rule conditions must be updated to reference `cartLineItemProductType`; existing rules referencing `cartLineItemProductStates` will continue to work until 6.8 but should be migrated.
-- Similar to rule conditions, existing product stream filters must be updated to transist from `product.states` the new `product.type` field.
+- Similar to rule conditions, existing product stream filters must be updated to transition from `product.states` to the new `product.type` field.
 - We should warn on the UI when users use `states` field in product streams, rule conditions, product listing filters, guiding them to use to the new `type` field instead.
 
 ### For third-party developers

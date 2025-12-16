@@ -2,18 +2,24 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
 use Shopware\Core\Checkout\Gateway\Command\AbstractCheckoutGatewayCommand;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[CoversNothing]
 #[Package('checkout')]
-class TestCheckoutGatewayFooCommand extends AbstractCheckoutGatewayCommand
+class StubCheckoutGatewayCommand extends AbstractCheckoutGatewayCommand
 {
-    public const COMMAND_KEY = 'test-foo';
+    public const COMMAND_KEY = 'test';
+
+    /**
+     * @param string[] $paymentMethodTechnicalNames
+     */
+    public function __construct(
+        public readonly array $paymentMethodTechnicalNames
+    ) {
+    }
 
     public static function getDefaultKeyName(): string
     {

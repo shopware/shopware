@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
@@ -24,7 +23,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\CheckoutPermissions;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -160,12 +158,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 }
                 $definition->setQuantity($item->getQuantity());
 
-                $item->setPrice($this->calculator->calculate($definition, $context));
+                $price = $this->calculator->calculate($definition, $context);
+                $item->setPrice($price);
                 $item->setShippingCostAware(!$item->hasState(State::IS_DOWNLOAD));
 
                 if (\array_key_exists($item->getId(), $deliveryItems)) {
                     // clone, to prevent unexpected behavior when changing the price
-                    $deliveryItems[$item->getId()]->setPrice(clone $item->getPrice());
+                    $deliveryItems[$item->getId()]->setPrice(clone $price);
                 }
             }
 

@@ -195,8 +195,8 @@ class AssignArrayTraitTest extends TestCase
 
         static::assertSame('first-id', $array->getId());
         static::assertSame('second-id', $struct->getId());
-        static::assertArrayNotHasKey('id', $empty->getVars());
-        static::assertArrayNotHasKey('_uniqueIdentifier', $empty->getVars());
+        static::assertNull($empty->getVars()['id']);
+        static::assertNull($empty->getVars()['_uniqueIdentifier']);
     }
 
     public function testAssignWithWrongType(): void

@@ -45,8 +45,10 @@ HTTP caching support was added for the following Store API endpoints:
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Store API: compressed criteria parameter support
-Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. Please check
-the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows 
+sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported. 
+Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
+Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
 ### Document download `/store-api/document/download/`
 The endpoint now selects the document file type based on the `Accept` header.

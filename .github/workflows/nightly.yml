@@ -53,7 +53,7 @@ jobs:
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
-      currents: true
+      currents: ${{ github.event_name == 'schedule' }}
   php:
     uses: ./.github/workflows/php.yml
     secrets: inherit

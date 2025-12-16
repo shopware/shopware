@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
+use Shopware\Core\Content\Shared\MailFlow\CustomerCriteriaBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,7 +27,8 @@ class CustomerStorer extends FlowStorer
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CustomerCriteriaBuilder $customerCriteriaBuilder,
     ) {
     }
 
@@ -70,21 +72,13 @@ class CustomerStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
+        $criteria = $this->customerCriteriaBuilder->getCriteria($id);
 
         return $this->loadCustomer($criteria, $storableFlow->getContext(), $id);
     }
 
     private function loadCustomer(Criteria $criteria, Context $context, string $id): ?CustomerEntity
     {
-        $criteria->addAssociation('salutation');
-        $criteria->addAssociation('defaultBillingAddress.country');
-        $criteria->addAssociation('defaultBillingAddress.countryState');
-        $criteria->addAssociation('defaultBillingAddress.salutation');
-        $criteria->addAssociation('defaultShippingAddress.country');
-        $criteria->addAssociation('defaultShippingAddress.countryState');
-        $criteria->addAssociation('defaultShippingAddress.salutation');
-
         $event = new BeforeLoadStorableFlowDataEvent(
             CustomerDefinition::ENTITY_NAME,
             $criteria,

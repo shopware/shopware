@@ -92,7 +92,7 @@ class MailActionController extends AbstractController
         return new JsonResponse($renderedTemplate);
     }
 
-    #[Route(path: '/api/_action/mail-template/preview', name: 'api.action.mail_template.build2', methods: ['POST'])]
+    #[Route(path: '/api/_action/mail-template/preview', name: 'api.action.mail_template.preview', methods: ['POST'])]
     public function preview(RequestDataBag $post, Context $context): JsonResponse
     {
         $templateId = $post->get('mailTemplateId');

@@ -53,6 +53,28 @@
             <tag name="shopware.mail.data_provider" key="order"/>
         </service>
 
+        <service id="Shopware\Core\Content\MailTemplate\DataProvider\CustomerProvider">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\CustomerCriteriaBuilder"/>
+            <argument type="service" id="event_dispatcher"/>
+
+            <tag name="shopware.mail.data_provider" key="customer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\DataProvider\CustomerGroupProvider">
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+
+            <tag name="shopware.mail.data_provider" key="customer_group"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\DataProvider\ProductProvider">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+
+            <tag name="shopware.mail.data_provider" key="product"/>
+        </service>
+
         <service id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider">
             <argument type="tagged" tag="shopware.mail.data_provider" index-by="key"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>

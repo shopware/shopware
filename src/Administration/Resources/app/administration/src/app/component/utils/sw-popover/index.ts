@@ -16,6 +16,15 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: true,
         },
+
+        /**
+         * @deprecated tag:v6.9.0 - Will be removed, use "match-reference-width" instead.
+         */
+        resizeWidth: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {

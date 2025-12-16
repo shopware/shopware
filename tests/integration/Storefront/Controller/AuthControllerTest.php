@@ -603,6 +603,17 @@ class AuthControllerTest extends TestCase
         static::assertSame('/account/login', $response->headers->get('location'));
     }
 
+    public function testLoginWithUnwantedQueryParameter(): void
+    {
+        $responseContent = $this->request(
+            'GET',
+            '/account/login?loginError=1&waitTime=<a%20href%3D"https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FPhishing">Here<%2Fa>',
+            []
+        )->getContent();
+        static::assertIsString($responseContent);
+        static::assertStringNotContainsString('https://de.wikipedia.org/wiki/Phishing', $responseContent);
+    }
+
     private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void
     {
         $taxId = Uuid::randomHex();

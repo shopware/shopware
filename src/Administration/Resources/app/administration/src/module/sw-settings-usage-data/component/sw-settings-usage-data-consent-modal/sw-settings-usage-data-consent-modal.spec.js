@@ -1,5 +1,12 @@
 import { mount } from '@vue/test-utils';
-import { MtSwitch } from '@shopware-ag/meteor-component-library';
+import {
+    MtSwitch,
+    MtModal,
+    MtModalClose,
+    MtModalAction,
+    MtModalTrigger,
+    MtModalRoot,
+} from '@shopware-ag/meteor-component-library';
 import swSettingsUsageDataConsentModal from './index';
 
 function createConsentModal(storeDataConsent, userDataConsent) {
@@ -11,6 +18,11 @@ function createConsentModal(storeDataConsent, userDataConsent) {
         global: {
             stubs: {
                 Teleport: { template: '<div><slot /></div>' },
+                'mt-modal': MtModal,
+                'mt-modal-close': MtModalClose,
+                'mt-modal-action': MtModalAction,
+                'mt-modal-trigger': MtModalTrigger,
+                'mt-modal-root': MtModalRoot,
             },
         },
     });

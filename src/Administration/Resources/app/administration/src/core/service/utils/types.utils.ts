@@ -4,17 +4,17 @@
  * @module core/service/utils/types
  */
 
-import isObject from 'lodash/isObject';
-import isPlainObject from 'lodash/isPlainObject';
-import isEmpty from 'lodash/isEmpty';
-import isRegExp from 'lodash/isRegExp';
-import isArray from 'lodash/isArray';
-import isFunction from 'lodash/isFunction';
-import isDate from 'lodash/isDate';
-import isString from 'lodash/isString';
-import isBoolean from 'lodash/isBoolean';
-import isEqual from 'lodash/isEqual';
-import isNumber from 'lodash/isNumber';
+import isObject from 'lodash-es/isObject';
+import isPlainObject from 'lodash-es/isPlainObject';
+import isEmpty from 'lodash-es/isEmpty';
+import isRegExp from 'lodash-es/isRegExp';
+import isArray from 'lodash-es/isArray';
+import isFunction from 'lodash-es/isFunction';
+import isDate from 'lodash-es/isDate';
+import isString from 'lodash-es/isString';
+import isBoolean from 'lodash-es/isBoolean';
+import isEqual from 'lodash-es/isEqual';
+import isNumber from 'lodash-es/isNumber';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -6,9 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -18,6 +20,12 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(SalesChannelContext::class)]
 class SalesChannelContextTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        // reset field visibility, see `testGetTokenIsNotAccessibleFromTwigRenderingContext()` test
+        FieldVisibility::$isInTwigRenderingContext = false;
+    }
+
     public function testGetRuleIdsByAreas(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -133,5 +141,18 @@ class SalesChannelContextTest extends TestCase
         static::assertTrue($salesChannelContext->getContext()->hasState($manualState));
         static::assertFalse($salesChannelContext->hasState($closureState));
         static::assertFalse($salesChannelContext->getContext()->hasState($closureState));
+    }
+
+    public function testGetTokenIsNotAccessibleFromTwigRenderingContext(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        // outside of twig rendering context, token is accessible
+        $salesChannelContext->getToken();
+
+        // fake twig rendering context, see `\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute()`
+        FieldVisibility::$isInTwigRenderingContext = true;
+
+        static::expectExceptionObject(SalesChannelException::contextTokenNotAccessible());
+        $salesChannelContext->getToken();
     }
 }

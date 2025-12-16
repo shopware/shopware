@@ -74,7 +74,7 @@ export default {
         },
 
         currentError() {
-            return this.conditionValueFromTimeError || this.conditionValueToTimeError;
+            return this.conditionValueFromTimeError || this.conditionValueToTimeError || this.conditionValueTimezoneError;
         },
     },
 };

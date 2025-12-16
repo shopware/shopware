@@ -69,13 +69,13 @@ inputs:
         description: "Prefix for the artifact name"
 
 runs:
-    using: "composite"
-    steps:
-        - uses: octo-sts/action@e480437973a6f6ac2e9caa40ecabedc870d76395 # v1.0.1
+  using: "composite"
+  steps:
+        - uses: shopware/octo-sts-action@main
           id: create-pr-token
           with:
-              scope: shopware
-              identity: CreatePR
+            scope: shopware
+            identity: CreatePR
           continue-on-error: true
 
         - name: Start redis
@@ -104,8 +104,8 @@ runs:
               shopware-version: ${{ github.ref }}
               shopware-repository: ${{ github.repository }}
               install: ${{ inputs.install }}
-              install-admin: ${{ inputs.install }}
-              install-storefront: ${{ inputs.install }}
+              install-admin: true
+              install-storefront: true
               env: prod
               composer-root-version: ${{ inputs.major != '' && '6.8.9999999-dev' || '.auto' }}
               php-version: ${{ inputs.php-version }}

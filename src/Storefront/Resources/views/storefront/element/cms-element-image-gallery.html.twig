@@ -175,7 +175,7 @@
                         data-magnifier="true"
                     {% endif %}
                     {% if magnifierOptions|length > 0 %}
-                        data-magnifier-options='{{ magnifierOptions|json_encode|escape('js') }}'
+                        data-magnifier-options='{{ magnifierOptions|json_encode }}'
                     {% endif %}
                     {% if imageCount > 1 %}
                         data-gallery-slider="true"
@@ -313,7 +313,15 @@
 
                                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                                     media: image,
-                                                                                    attributes: attributes
+                                                                                    attributes: attributes,
+                                                                                    sizes: {
+                                                                                        xs: '100vw',
+                                                                                        sm: '100vw',
+                                                                                        md: '100vw',
+                                                                                        lg: '60vw',
+                                                                                        xl: '50vw',
+                                                                                        xxl: '800px'
+                                                                                    }
                                                                                 } %}
                                                                             {% endblock %}
                                                                         {% endif %}

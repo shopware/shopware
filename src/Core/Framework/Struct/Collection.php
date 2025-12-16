@@ -181,7 +181,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function first()
     {
-        return $this->elements[array_key_first($this->elements)] ?? null;
+        return array_first($this->elements);
     }
 
     /**
@@ -215,7 +215,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function last()
     {
-        return $this->elements[array_key_last($this->elements)] ?? null;
+        return array_last($this->elements);
     }
 
     /**
@@ -232,6 +232,30 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     public function getIterator(): \Traversable
     {
         yield from $this->elements;
+    }
+
+    public function assignRecursive(array $options): static
+    {
+        $baseObject = null;
+        if ($expectedClass = $this->getExpectedClass()) {
+            $baseObject = (new \ReflectionClass($expectedClass))->newInstanceWithoutConstructor();
+        }
+
+        $hasNecessaryInterface = $baseObject instanceof AssignArrayInterface;
+
+        foreach ($options as $value) {
+            if ($hasNecessaryInterface && \is_array($value)) {
+                $value = (clone $baseObject)->assignRecursive($value);
+            }
+
+            try {
+                $this->add($value);
+            } catch (\Throwable) {
+                // Try to add, ignore if the type is not the expected one.
+            }
+        }
+
+        return $this;
     }
 
     /**

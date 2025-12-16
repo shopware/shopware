@@ -24,6 +24,8 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 </details>
 
 # API
+## Changed returned status code for `/store-api/document/download/` when no documents are found
+The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
 # Core
 
@@ -131,7 +133,9 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
-## Only rules relevant for product prices are considered in the `sw-cache-hash`
+## Cache improvements
+
+### Only rules relevant for product prices are considered in the `sw-cache-hash`
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
 
 If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`. In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
@@ -155,8 +159,27 @@ class ResolveRuleIds implements EventSubscriberInterface
 
 If some custom entity has a relation to a rule, which might alter the storefront, you should add them to either an existing area, or your own are using the DAL flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on the rule association.
 
-## Removed unused `RuleAreas` constants
+### Removed unused `RuleAreas` constants
 The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed
+
+### Removed `sw-states` and `sw-currency` cache cookie handling
+The `sw-states` and `sw-currency` cache cookie handling is removed, which means by default the HTTP-Cache is also active for logged in customers or when the cart is filled.
+Due to the rework of the contained rules in the cache hash (see above), this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
+
+You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
+
+The following classes and constants were removed as they are no longer used:
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was removed:
+* `shopware.cache.invalidation.http_cache`
 
 ## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
 * For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.
@@ -219,7 +242,8 @@ All foreign key checks are now handled directly by the DAL, therefore the follow
 * `LanguageExceptionHandler`
 * `SalesChannelExceptionHandler`
 * `ThemeExceptionHandler`
-  This also means that the following exceptions are not thrown anymore and were removed as well:
+
+This also means that the following exceptions are not thrown anymore and were removed as well:
 * `LanguageOfOrderDeleteException`
 * `LanguageOfNewsletterDeleteException`
 * `LanguageForeignKeyDeleteException`
@@ -346,6 +370,28 @@ Refection has significantly improved in particular since PHP 8.1, therefore the 
 At the same time, the Storefront does not properly use this class.
 Therefore, the class, and the `route` property of `Shopware\Core\Checkout\Cart\Error\CartError` have been removed.
 
+## Removal of string parameter in `DomainRuleStruct` constructor
+
+The deprecated string parameter in the `Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct` constructor was removed.
+If your plugin or theme instantiates `DomainRuleStruct` with a string parameter, it will no longer work.
+Use `Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser::parse()` to create a `ParsedRobots` object instead.
+
+```php
+// Before:
+new DomainRuleStruct('Disallow: /admin/', '/en');
+
+// After:
+$parser = new RobotsDirectiveParser($eventDispatcher);
+$parsed = $parser->parse('Disallow: /admin/', $context);
+new DomainRuleStruct($parsed, '/en');
+```
+
+## Removal of product manufacturer link column
+
+The column `link` of the table `product_manufacturer` was removed.
+
+Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
+
 </details>
 
 # Administration
@@ -405,6 +451,64 @@ The following snippet keys have been removed:
 * `global.sw-condition.condition.lineItemOfTypeRule`
 * `global.sw-condition.condition.promotionCodeOfTypeRule`
 * `global.sw-condition.condition.dayOfWeekRule`
+
+## The following template blocks of the newsletter recipient filter have been removed
+* `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
+* `sw_newsletter_recipient_list_sidebar_filter_status_direct`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
+
+Use the parent blocks instead
+
+## Removement of component sw-newsletter-recipient-filter-switch
+`administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
+
+## File accessibility changed from public to private
+`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+
+## Removed .png and .jpg images
+
+In favor of WebP the following images have been removed:
+
+-   `administration/static/img/sw-login-background.png`
+-   `administration/static/img/plugin-manager--login.png`
+-   `administration/static/img/data-consent-background.png`
+-   `administration/static/img/flowbuilder/ui-sample.png`
+-   `administration/static/img/cms/preview_plant_small.jpg`
+-   `administration/static/img/cms/preview_glasses_large.jpg`
+-   `administration/static/img/cms/preview_page_default.png`
+-   `administration/static/img/cms/preview_page_sidebar.png`
+-   `administration/static/img/cms/preview_glasses_small.jpg`
+-   `administration/static/img/cms/preview_youtube.jpg`
+-   `administration/static/img/cms/preview_plant_large.jpg`
+-   `administration/static/img/cms/preview_custom_entity_detail_default.png`
+-   `administration/static/img/cms/preview_mountain_large.jpg`
+-   `administration/static/img/cms/default_preview_product_detail.jpg`
+-   `administration/static/img/cms/preview_custom_entity_detail_sidebar.png`
+-   `administration/static/img/cms/preview_product_detail_sidebar.png`
+-   `administration/static/img/cms/preview_product_detail_default.png`
+-   `administration/static/img/cms/preview_product_list_default.png`
+-   `administration/static/img/cms/preview_product_list_sidebar.png`
+-   `administration/static/img/cms/preview_mountain_small.jpg`
+-   `administration/static/img/cms/default_preview_product_list.jpg`
+-   `administration/static/img/cms/preview_landingpage_sidebar.png`
+-   `administration/static/img/cms/vimeo-icon.png`
+-   `administration/static/img/cms/preview_landingpage_default.png`
+-   `administration/static/img/cms/youtube-icon.png`
+-   `administration/static/img/cms/preview_camera_small.jpg`
+-   `administration/static/img/cms/preview_custom_entity_list_sidebar.png`
+-   `administration/static/img/cms/preview_camera_large.jpg`
+-   `administration/static/img/cms/preview_vimeo.jpg`
+-   `administration/static/img/cms/preview_custom_entity_list_default.png`
+-   `administration/static/img/theme/default_theme_preview.jpg`
+-   `administration/static/fixtures/sw-login-background.png`
+-   `administration/static/fixtures/sw-test-image.png`
+-   `administration/static/fixtures/sw-login-background-2.png`
+-   `administration/src/module/sw-login/page/index/assets/sw-login-background.png`
+-   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
+
+Update image references to their `.webp` equivalents.  
+For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`
 
 </details>
 
@@ -586,6 +690,15 @@ to:
 {% endblock %}
 ```
 
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}` has been updated. Instead of returning `204`, the route now returns `404` (Not Found) when no generated document exists.
+
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}` has been updated. Instead of returning `204`, the route now returns:
+- `406` (Not Acceptable) for invalid/unsupported `fileType` values
+- `404` (Not Found) when no generated document exists for the requested `fileType`.
+
+
 </details>
 
 # App System
@@ -624,6 +737,10 @@ The `CountryStateController` route `/country/country-state-data` now supports on
 # Hosting & Configuration
 
 <details>
+
+## Dropped support for OpenSearch 1.x
+
+OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported. Please update OpenSearch to the latest supported Version.
 
 ## Removed configuration of Filesystem visibility in config array
 

@@ -236,6 +236,7 @@
                                             class="sw-cms-el-config-image-slider__setting-auto-slide"
                                             :label="$t('sw-cms.elements.general.config.label.autoSlide')"
                                             :disabled="isInherited"
+                                            bordered
                                             @update:model-value="onChangeAutoSlide"
                                         />
                                     </template>
@@ -279,6 +280,7 @@
                                 :label="$t('sw-cms.elements.image.config.label.isDecorative')"
                                 :help-text="$t('sw-cms.elements.image.config.label.isDecorativeHelpText')"
                                 :disabled="isInherited"
+                                bordered
                                 @update:model-value="onChangeIsDecorative"
                             />
                         </template>
@@ -296,6 +298,7 @@
                                 :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
                                 :help-text="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItemHelpText')"
                                 :disabled="isInherited"
+                                bordered
                                 @update:model-value="onChangeUseFetchPriorityOnFirstItem"
                             />
                         </template>

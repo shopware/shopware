@@ -32,7 +32,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
-#[Package('framework')]
+#[Package('checkout')]
 class CartLineItemController extends StorefrontController
 {
     /**
@@ -68,6 +68,14 @@ class CartLineItemController extends StorefrontController
 
             return $this->createActionResponse($request);
         });
+    }
+
+    #[Route(path: '/checkout/cart/delete', name: 'frontend.checkout.cart.delete', defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
+    public function deleteCart(Request $request, SalesChannelContext $context): Response
+    {
+        $this->cartService->deleteCart($context);
+
+        return $this->createActionResponse($request);
     }
 
     /**
@@ -119,7 +127,7 @@ class CartLineItemController extends StorefrontController
     {
         return Profiler::trace('cart::add-promotion', function () use ($cart, $request, $context) {
             try {
-                $code = (string) $request->request->get('code');
+                $code = mb_trim((string) $request->request->get('code'));
 
                 if ($code === '') {
                     throw RoutingException::missingRequestParameter('code');

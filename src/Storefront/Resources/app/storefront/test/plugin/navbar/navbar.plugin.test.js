@@ -321,7 +321,7 @@ describe('NavbarPlugin', () => {
 
         jest.runAllTimers();
 
-        expect(navbarPlugin._closeAllDropdowns).toHaveBeenCalled();
+        expect(navbarPlugin._closeAllDropdowns).not.toHaveBeenCalled();
         expect(mockDropdown.hide).toHaveBeenCalled();
         expect(mockNoDropdown.show).not.toHaveBeenCalled();
     });

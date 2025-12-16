@@ -243,7 +243,10 @@ abstract class StorefrontController extends AbstractController
                 });
 
                 if ($error instanceof AddressErrorInterface && $error->getAddressId() !== null) {
-                    $parameters['%url%'] = $this->generateUrl('frontend.account.address.edit.page', ['addressId' => $error->getAddressId()]);
+                    $parameters['%url%'] = $this->generateUrl('frontend.account.address.edit.page', [
+                        'addressId' => $error->getAddressId(),
+                        'redirectTo' => $request?->attributes->get('_route'),
+                    ]);
                 }
 
                 $translatedMessage = $this->trans('checkout.' . $error->getMessageKey(), $parameters);

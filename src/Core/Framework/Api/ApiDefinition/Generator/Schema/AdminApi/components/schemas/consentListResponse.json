@@ -11,7 +11,7 @@
           "$ref": "#\/components\/schemas\/consentState"
         }
       },
-      "consentState": {
+      "ConsentState": {
         "type": "object",
         "description": "Represents the current state of a consent for a specific user",
         "properties": {

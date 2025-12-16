@@ -20,7 +20,7 @@
                     </h1>
                     <mt-search
                         v-model="searchQuery"
-                        :placeholder="$t('sw-settings.index.searchPlaceholder')"
+                        :placeholder="$t('sw-settings.index.search.placeholder')"
                         size="small"
                     />
                 </div>
@@ -83,10 +83,14 @@
                             </template>
                         </sw-settings-item>
                     </div>
-                    <div v-if="Object.keys(settingsGroups).length === 0">
-                        {{ $t('sw-settings.index.noEntries') }}
-                    </div>
                 </div>
+                <mt-empty-state
+                    v-if="Object.keys(settingsGroups).length === 0"
+                    :description="$t('sw-settings.index.search.noResultsDescription')"
+                    :headline="$t('sw-settings.index.search.noResultsHeadline')"
+                    icon="regular-cog"
+                    centered
+                />
                 {% endblock %}
             </mt-card>
             {% endblock %}

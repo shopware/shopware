@@ -38,6 +38,13 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
         return '6.2.0.0';
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'trackOffcanvasCart' => false,
+        ];
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -46,7 +53,7 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new BoolField('track_orders', 'trackOrders'),
             new BoolField('anonymize_ip', 'anonymizeIp'),
-            new BoolField('track_offcanvas_cart', 'trackOffcanvasCart'),
+            (new BoolField('track_offcanvas_cart', 'trackOffcanvasCart'))->addFlags(new Required()),
             new OneToOneAssociationField('salesChannel', 'id', 'analytics_id', SalesChannelDefinition::class, false),
         ]);
     }

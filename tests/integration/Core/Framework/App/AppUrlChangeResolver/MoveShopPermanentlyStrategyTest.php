@@ -7,8 +7,6 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
-use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy;
 use Shopware\Core\Framework\Context;
@@ -65,7 +63,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             ->with(
                 $app->getId(),
                 static::isInstanceOf(Context::class),
-                AppSecretRotationService::TRIGGER_CLI
+                AppSecretRotationService::TRIGGER_SHOP_MOVE
             );
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
@@ -78,16 +76,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $moveShopPermanentlyResolver->resolve($this->context);
 
         static::assertSame($shopId, $this->shopIdProvider->getShopId());
-
-        // assert secret access key changed
-        $updatedApp = $this->getInstalledApp($this->context);
-        static::assertNotNull($app->getIntegration());
-        static::assertNotNull($updatedApp->getIntegration());
-
-        static::assertNotSame(
-            $app->getIntegration()->getSecretAccessKey(),
-            $updatedApp->getIntegration()->getSecretAccessKey()
-        );
     }
 
     public function testItIgnoresAppsWithoutSetup(): void

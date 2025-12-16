@@ -8,8 +8,6 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
-use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
 use Shopware\Core\Framework\Context;
@@ -67,7 +65,7 @@ class ReinstallAppsStrategyTest extends TestCase
             ->with(
                 $app->getId(),
                 static::isInstanceOf(Context::class),
-                AppSecretRotationService::TRIGGER_CLI
+                AppSecretRotationService::TRIGGER_SHOP_MOVE
             );
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
@@ -86,16 +84,6 @@ class ReinstallAppsStrategyTest extends TestCase
         $reinstallAppsResolver->resolve($this->context);
 
         static::assertNotSame($shopId, $this->shopIdProvider->getShopId());
-
-        // assert secret access key changed
-        $updatedApp = $this->getInstalledApp($this->context);
-        static::assertNotNull($app->getIntegration());
-        static::assertNotNull($updatedApp->getIntegration());
-
-        static::assertNotSame(
-            $app->getIntegration()->getSecretAccessKey(),
-            $updatedApp->getIntegration()->getSecretAccessKey()
-        );
     }
 
     public function testItIgnoresAppsWithoutSetup(): void

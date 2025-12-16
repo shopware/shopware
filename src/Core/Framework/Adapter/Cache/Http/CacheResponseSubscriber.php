@@ -5,9 +5,11 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,21 +23,37 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type CacheAttributeArray from \Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute
+ * @phpstan-import-type CacheAttributeType from \Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute
  */
 #[Package('framework')]
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
+    private const POLICY_AREA_STOREFRONT = 'storefront';
+    private const POLICY_AREA_STORE_API = 'store_api';
+
     /**
      * @internal
      */
     public function __construct(
         private readonly CartService $cartService,
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use cache policies instead
+         */
         private readonly int $defaultTtl,
         private readonly bool $httpCacheEnabled,
         private readonly MaintenanceModeResolver $maintenanceResolver,
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use cache policies instead
+         */
         private readonly ?string $staleWhileRevalidate,
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use cache policies instead
+         */
         private readonly ?string $staleIfError,
-        private readonly CacheHashService $cacheHashService,
+        private readonly CacheHeadersService $cacheHeadersService,
+        private readonly CachePolicyProvider $policyProvider,
     ) {
     }
 
@@ -54,21 +72,25 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     public function setResponseCache(ResponseEvent $event): void
     {
-        if (!$this->httpCacheEnabled) {
-            return;
-        }
-
         $response = $event->getResponse();
-
         $request = $event->getRequest();
-
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         if (!$context instanceof SalesChannelContext) {
             return;
         }
 
+        $this->cacheHeadersService->applyCacheHeaders($context, $response);
+
+        if (!$this->httpCacheEnabled) {
+            return;
+        }
+
+        $area = $this->isStoreApi($request) ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT;
+
         if (!$this->maintenanceResolver->shouldBeCached($request)) {
+            $this->noCache($request, $response, $area);
+
             return;
         }
 
@@ -78,6 +100,20 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             // To still be able to serve 404 pages fast, we don't load the full context and cache the rendered html on application side
             // as we don't have the full context the state handling is broken as no customer or cart is available, even if the customer is logged in
             // @see \Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber::onError
+            $this->noCache($request, $response, $area);
+
+            return;
+        }
+
+        // Normalize attribute value to CacheAttribute instance or null
+        /** @var CacheAttributeType $cacheAttributeValue */
+        $cacheAttributeValue = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
+        $cacheAttribute = CacheAttribute::fromAttributeValue($cacheAttributeValue);
+
+        // Preventing applying cache headers to the routes that are marked for caching, but feature flag is disabled
+        if ($area === self::POLICY_AREA_STORE_API && !Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+            $this->noCache($request, $response, $area);
+
             return;
         }
 
@@ -102,47 +138,78 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         // when multiple permutations exist (e.g. different currencies etc)
         // therefore, it needs to be applied to every request (including POST), especially when POST-requests mutate the context,
         // even when the response is not cached itself, so that the cache-hash on the client is updated for the next request
-        $this->cacheHashService->applyCacheHash($request, $context, $cart, $response);
+        //
+        // It should be called here as side effects (cookie, header) should also appy for non-cacheable responses
+        $cacheHash = $this->cacheHeadersService->applyCacheHash($request, $context, $cart, $response);
 
-        if (!$request->isMethod(Request::METHOD_GET)
-        ) {
+        if (!$request->isMethod(Request::METHOD_GET)) {
+            $this->noCache($request, $response, $area);
+
             return;
         }
 
-        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
-        $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
-        if (!$cache) {
+        if ($cacheAttribute === null) {
+            $this->noCache($request, $response, $area);
+
             return;
         }
 
-        if ($cache === true) {
-            $cache = [];
+        // No cache when dynamic calculation says so
+        if ($cacheHash === HttpCacheCookieEvent::NOT_CACHEABLE) {
+            // Response is not cacheable because of dynamic calculation, giving a hint to the reverse proxy
+            $response->headers->set(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS, '1');
+            $this->noCache($request, $response, $area);
+
+            return;
         }
 
-        /** @deprecated tag:v6.8.0 - can be removed when cache states are always empty */
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
-            if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
+        // No cache when client cache hash does not match the expected one. This protects from cache poisoning
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $clientHash = $request->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE) ??
+                $request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '');
+            $expectedHash = $cacheHash ?? '';
+
+            if ($clientHash !== $expectedHash) {
+                $response->headers->set(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS, '1');
+                $this->noCache($request, $response, $area);
+
                 return;
             }
         }
 
-        $maxAge = $cache['maxAge'] ?? $this->defaultTtl;
+        /** @deprecated tag:v6.8.0 - can be removed when cache states are always empty */
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            if ($this->hasInvalidationState($cacheAttribute->states ?? [], $states)) {
+                $this->noCache($request, $response, $area);
 
-        $response->setSharedMaxAge($maxAge);
+                return;
+            }
+        }
+
         if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             $response->headers->set(
                 HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER,
-                implode(',', $cache['states'] ?? [])
+                implode(',', $cacheAttribute->states ?? [])
             );
         }
 
-        if ($this->staleIfError !== null) {
-            $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
+        // old behavior
+        if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+            $sMaxAge = $cacheAttribute->sMaxAge ?? $this->defaultTtl;
+            $response->setSharedMaxAge($sMaxAge);
+
+            if ($this->staleIfError !== null) {
+                $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
+            }
+
+            if ($this->staleWhileRevalidate !== null) {
+                $response->headers->addCacheControlDirective('stale-while-revalidate', $this->staleWhileRevalidate);
+            }
+
+            return;
         }
 
-        if ($this->staleWhileRevalidate !== null) {
-            $response->headers->addCacheControlDirective('stale-while-revalidate', $this->staleWhileRevalidate);
-        }
+        $this->applyPolicy($request, $response, $area, true, $cacheAttribute);
     }
 
     public function setResponseCacheHeader(ResponseEvent $event): void
@@ -155,13 +222,35 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
+        /** @var CacheAttributeType $cache */
         $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
         if (!$cache) {
             return;
         }
 
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
+    }
+
+    private function noCache(Request $request, Response $response, string $area): void
+    {
+        if (!Feature::isActive('CACHE_REWORK') && !Feature::isActive('v6.8.0.0')) {
+            // do nothing for backwards compatibility
+            return;
+        }
+        $this->applyPolicy($request, $response, $area, false, null);
+    }
+
+    private function applyPolicy(Request $request, Response $response, string $area, bool $cacheable, ?CacheAttribute $cacheAttribute): void
+    {
+        $route = (string) $request->attributes->get('_route', '');
+
+        $policy = $this->policyProvider->getPolicy($route, $area, $cacheable, $cacheAttribute);
+
+        // reset existing cache-control to avoid mixing policies
+        $response->headers->remove('cache-control');
+
+        // apply resolved policy to response
+        $response->setCache($policy->cacheControl->toArray());
     }
 
     /**
@@ -261,5 +350,14 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $cookie->setSecureDefault($request->isSecure());
 
         $response->headers->setCookie($cookie);
+    }
+
+    private function isStoreApi(Request $request): bool
+    {
+        return \in_array(
+            StoreApiRouteScope::ID,
+            (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
+            true
+        );
     }
 }

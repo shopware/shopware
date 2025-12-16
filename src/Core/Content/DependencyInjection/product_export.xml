@@ -6,6 +6,9 @@
     <parameters>
         <parameter key="product_export.directory">export</parameter>
         <parameter key="product_export.read_buffer_size">100</parameter>
+        <!-- Stale detection tuning: unlock stuck exports when older than max(min_seconds, factor * interval) -->
+        <parameter key="product_export.stale_min_seconds">300</parameter>
+        <parameter key="product_export.stale_interval_factor">2.0</parameter>
     </parameters>
     <services>
         <service id="Shopware\Core\Content\ProductExport\ProductExportDefinition">
@@ -60,10 +63,10 @@
         <service id="Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="product_export.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="messenger.default_bus"/>
+            <argument type="string">%product_export.stale_min_seconds%</argument>
+            <argument type="string">%product_export.stale_interval_factor%</argument>
             <tag name="messenger.message_handler"/>
         </service>
 

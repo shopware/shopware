@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 import EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-import { difference } from 'lodash';
+import difference from 'lodash-es/difference';
 import template from './sw-cms-layout-assignment-modal.html.twig';
 import './sw-cms-layout-assignment-modal.scss';
 

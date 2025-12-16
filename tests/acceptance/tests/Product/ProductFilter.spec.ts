@@ -268,6 +268,10 @@ test('Customer should see unavailable filter options disabled when filtering by 
     await test.step('When a rating is selected, verifies that any unavailable filter is disabled and that the products are filtered accordingly.', async () => {
         await ShopCustomer.presses(StorefrontHome.productRatingButton);
         const ratingLocator = await StorefrontHome.getRatingItemLocatorByRating(3);
+        /**
+         * Cannot use presses() as this opens a list of radio buttons but the inputs are lacking
+         *     a checked attribute so ShopCustomer.selectsRadioButton() cannot be used either.
+         */
         await ratingLocator.click();
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 

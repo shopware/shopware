@@ -291,6 +291,52 @@
                     }
                 }
             }
+        },
+        "\/_action\/media\/{mediaId}\/video-cover": {
+            "post": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Assign or remove a video cover image",
+                "description": "Assigns an image as a cover for a video media entity, or removes the cover if `coverMediaId` is null.",
+                "operationId": "assignVideoCover",
+                "parameters": [
+                    {
+                        "name": "mediaId",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID of the video media entity",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "coverMediaId": {
+                                        "type": ["string", "null"],
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "ID of the image media entity to use as cover. Set to null to remove the cover."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Video cover assigned or removed successfully"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    }
+                }
+            }
         }
     }
 }

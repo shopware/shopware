@@ -1,5 +1,17 @@
 # Changelog
-This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
+
+> ⚠️ **Note on changelog structure (Shopware 6.7.5 and newer)**  
+>  
+> Starting with **Shopware 6.7.5**, this file is no longer the main source of truth for release changes.
+>  
+> - **Curated, developer-facing release information** can be found in the versioned release info files, e.g.:  
+>   https://github.com/shopware/shopware/blob/trunk/RELEASE_INFO-6.7.md  
+>  
+> - **The complete, raw changelog (all merged PRs)** is generated automatically and published with each release:  
+>   https://github.com/shopware/shopware/releases  
+>  
+> This file is kept for historical reference and existing links.
+
 
 ## 6.7.4.2
 *  [#13416 - Improve shop id verification when used with atomic deployments](./changelog/release-6-7-4-2/2025-11-05-improve-shop-id-verification.md)

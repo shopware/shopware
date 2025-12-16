@@ -41,7 +41,7 @@
         }
       }
     },
-    "\/consents\/{consent}\/accept": {
+    "/consents/{consent}/accept": {
       "post": {
         "tags": [
           "Consent Management"

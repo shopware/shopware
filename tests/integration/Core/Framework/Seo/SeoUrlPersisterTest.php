@@ -787,7 +787,7 @@ class SeoUrlPersisterTest extends TestCase
     /**
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
      *
-     * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
+     * @return array<array{seoPathInfo: string, isCanonical?: bool, isDeleted: bool, languageId: string}>
      */
     private function getAllSeoUrlsForProduct(string $productId, EntityRepository $seoUrlRepository): array
     {
@@ -801,7 +801,7 @@ class SeoUrlPersisterTest extends TestCase
 
         return $seoUrls->map(fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
-            'isCanonical' => (bool) $url->getIsCanonical(),
+            'isCanonical' => $url->getIsCanonical(),
             'isDeleted' => $url->getIsDeleted(),
             'languageId' => $url->getLanguageId(),
         ]);
@@ -810,7 +810,7 @@ class SeoUrlPersisterTest extends TestCase
     /**
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
      *
-     * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
+     * @return array<array{seoPathInfo: string, isCanonical?: bool, isDeleted: bool, languageId: string}>
      */
     private function getCurrentCanonicalSeoUrls(string $productId, EntityRepository $seoUrlRepository): array
     {
@@ -826,7 +826,7 @@ class SeoUrlPersisterTest extends TestCase
 
         return $seoUrls->map(fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
-            'isCanonical' => (bool) $url->getIsCanonical(),
+            'isCanonical' => $url->getIsCanonical(),
             'isDeleted' => $url->getIsDeleted(),
             'languageId' => $url->getLanguageId(),
         ]);
@@ -835,7 +835,7 @@ class SeoUrlPersisterTest extends TestCase
     /**
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
      *
-     * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
+     * @return array<array{seoPathInfo: string, isCanonical?: bool, isDeleted: bool, languageId: string}>
      */
     private function getObsoleteSeoUrls(string $productId, EntityRepository $seoUrlRepository): array
     {
@@ -850,7 +850,7 @@ class SeoUrlPersisterTest extends TestCase
 
         return $seoUrls->map(fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
-            'isCanonical' => (bool) $url->getIsCanonical(),
+            'isCanonical' => $url->getIsCanonical(),
             'isDeleted' => $url->getIsDeleted(),
             'languageId' => $url->getLanguageId(),
         ]);

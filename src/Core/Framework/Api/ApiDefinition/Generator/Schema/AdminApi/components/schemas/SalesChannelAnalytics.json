@@ -17,8 +17,7 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "versionId": {
-                        "type": "string",
-                        "nullable": true
+                        "type": ["string", "null"]
                     },
                     "translated": {
                         "type": "array",
@@ -45,17 +44,15 @@
                         "description": "Track off-canvas cart interactions in Google Analytics"
                     },
                     "salesChannel": {
-                        "type": "object",
-                        "nullable": true
+                        "type": ["object", "null"]
                     },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time"
                     },
                     "updatedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
+                        "type": ["string", "null"],
+                        "format": "date-time"
                     },
                     "apiAlias": {
                         "type": "string",

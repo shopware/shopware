@@ -17,6 +17,7 @@ use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
+use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedHook;
@@ -207,7 +208,7 @@ class NavigationController extends StorefrontController
         ]);
     }
 
-    private function loadCategoryContentPage($page, Request $request, SalesChannelContext $context): ?ContentPage
+    private function loadCategoryContentPage(NavigationPage $page, Request $request, SalesChannelContext $context): ?ContentPage
     {
         $category = $page->getCategory();
         \assert($category !== null);

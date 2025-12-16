@@ -76,6 +76,7 @@ class ThemeCompilerTest extends TestCase
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
 
+        /** @var TwigComponentHelper $twigComponentHelper */
         $twigComponentHelper = static::getContainer()->get(TwigComponentHelper::class);
 
         $this->themeCompiler = new ThemeCompiler(
@@ -449,6 +450,7 @@ PHP_EOL;
         $fs = new Filesystem(new MemoryFilesystemAdapter());
         $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
 
+        /** @var TwigComponentHelper $twigComponentHelper */
         $twigComponentHelper = static::getContainer()->get(TwigComponentHelper::class);
 
         $compiler = new ThemeCompiler(

@@ -85,6 +85,9 @@ class TemplateConfigAccessor
         return $componentImportMap;
     }
 
+    /**
+     * @return string[]
+     */
     public function componentStyles(): array
     {
         $styles = [];

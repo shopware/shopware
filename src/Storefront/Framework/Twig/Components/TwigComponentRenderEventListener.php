@@ -6,6 +6,7 @@ namespace Shopware\Storefront\Framework\Twig\Components;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\UX\TwigComponent\ComponentAttributes;
 use Symfony\UX\TwigComponent\Event\PreRenderEvent;
 
 #[Package('framework')]
@@ -27,7 +28,7 @@ class TwigComponentRenderEventListener
         // Get the current attributes
         $attributes = $variables[$attributesVar] ?? null;
 
-        if ($attributes !== null) {
+        if ($attributes instanceof ComponentAttributes) {
             $additionalAttributes = [
                 'data-component-name' => $metadata->getName(),
             ];
@@ -62,8 +63,8 @@ class TwigComponentRenderEventListener
      */
     private function pathToComponentName(string $path): string
     {
-        $path = preg_replace('#^components/#', '', $path);
-        $path = preg_replace('#\.html\.twig$#', '', $path);
+        $path = preg_replace('#^components/#', '', $path) ?? $path;
+        $path = preg_replace('#\.html\.twig$#', '', $path) ?? $path;
         $parts = explode('/', $path);
         return implode(':', $parts);
     }

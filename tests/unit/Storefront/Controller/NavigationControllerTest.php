@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -53,7 +54,9 @@ class NavigationControllerTest extends TestCase
 
     private AbstractCategoryUrlGenerator $categoryUrlGenerator;
 
-    private SeoUrlPlaceholderHandlerInterface $seoUrlReplacer;
+    private SeoUrlPlaceholderHandlerInterface&MockObject $seoUrlReplacer;
+
+    private AbstractContentRoute&MockObject $contentRoute;
 
     protected function setUp(): void
     {
@@ -61,8 +64,9 @@ class NavigationControllerTest extends TestCase
         $this->offCanvasLoader = $this->createMock(MenuOffcanvasPageletLoaderInterface::class);
         $this->headerLoader = $this->createMock(HeaderPageletLoaderInterface::class);
         $this->footerLoader = $this->createMock(FooterPageletLoaderInterface::class);
+        $this->contentRoute = $this->createMock(AbstractContentRoute::class);
 
-        $this->seoUrlReplacer = $this->createMock(SeoUrlPlaceholderHandler::class);
+        $this->seoUrlReplacer = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->seoUrlReplacer->method('replace')
             ->willReturnCallback(fn (string $url) => $url);
         $this->seoUrlReplacer->method('generate')
@@ -83,6 +87,7 @@ class NavigationControllerTest extends TestCase
             $this->footerLoader,
             $this->categoryUrlGenerator,
             $this->seoUrlReplacer,
+            $this->contentRoute,
         );
     }
 

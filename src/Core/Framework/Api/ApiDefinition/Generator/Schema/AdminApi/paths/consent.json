@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": [],
   "paths": {
-    "\/consents": {
+    "/consents": {
       "get": {
         "tags": [
           "Consent Management"

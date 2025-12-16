@@ -5,7 +5,8 @@
 >  
 > Starting with **Shopware 6.7.5**, this file is no longer updated with the recent changes.
 >  
-> - **Curated, developer-facing release information** can be found in the versioned release info files, e.g.:  
+
+> - **Curated, developer-facing release information** can be found in the versioned [release info files](./RELEASE_INFO-6.7.md).  
 >   https://github.com/shopware/shopware/blob/trunk/RELEASE_INFO-6.7.md  
 >  
 > - **The complete, raw changelog (all merged PRs)** is generated automatically and published with each release:  

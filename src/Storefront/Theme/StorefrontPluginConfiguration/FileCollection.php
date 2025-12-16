@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @extends Collection<File>
@@ -45,9 +45,10 @@ class FileCollection extends Collection
             if (Feature::isActive('STOREFRONT_COMPONENTS')) {
                 if (str_contains($element->getFilepath(), 'Resources/views/components/')) {
                     // Build path - handle empty assetName (for root namespace components)
-                    $componentPath = $element->assetName !== null && $element->assetName !== '' 
+                    $componentPath = $element->assetName !== null && $element->assetName !== ''
                         ? $element->assetName . '/' . basename($element->getFilepath())
                         : basename($element->getFilepath());
+
                     return $prefix . '/components/' . $componentPath;
                 }
             }

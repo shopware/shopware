@@ -53,7 +53,7 @@ class ConfigExtension extends AbstractExtension
 
     /**
      * Returns all scripts, except components.
-     * 
+     *
      * @return array<int, string> $items
      */
     public function scripts(): array
@@ -63,7 +63,7 @@ class ConfigExtension extends AbstractExtension
 
     /**
      * Returns the component import map.
-     * 
+     *
      * @return array<string, mixed>
      */
     public function componentImportMap(): array
@@ -73,7 +73,7 @@ class ConfigExtension extends AbstractExtension
 
     /**
      * Returns all styles of components.
-     * 
+     *
      * @return array<int, string>
      */
     public function componentStyles(): array

@@ -40,7 +40,9 @@ class PreContentHydrationEvent extends Event implements ShopwareEvent
      * @param array<ContentElement> $elements
      */
     public function __construct(
-        /** @var array<ContentElement> */
+        /**
+         * @var array<ContentElement>
+         */
         public array $elements,
         public readonly string $layoutId,
         public readonly string $layoutName,

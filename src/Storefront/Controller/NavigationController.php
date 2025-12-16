@@ -5,9 +5,9 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Content\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Content\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
@@ -15,9 +15,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
+use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
-use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedHook;
@@ -73,7 +73,7 @@ class NavigationController extends StorefrontController
                     [
                         'page' => $page,
                         'contentPage' => $contentPage,
-                        'isNewContentStructure' => true
+                        'isNewContentStructure' => true,
                     ]
                 );
             }
@@ -118,7 +118,7 @@ class NavigationController extends StorefrontController
                     [
                         'page' => $page,
                         'contentPage' => $contentPage,
-                        'isNewContentStructure' => true
+                        'isNewContentStructure' => true,
                     ]
                 );
             }
@@ -145,7 +145,7 @@ class NavigationController extends StorefrontController
             [
                 'page' => $page,
                 'contentPage' => $contentPage,
-                'isNewContentStructure' => true
+                'isNewContentStructure' => true,
             ]
         );
     }

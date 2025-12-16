@@ -13,10 +13,13 @@ use Symfony\UX\TwigComponent\Event\PreRenderEvent;
 #[AsEventListener]
 class TwigComponentRenderEventListener
 {
-    /** @internal  */
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly string $environment
-    ) {}
+    ) {
+    }
 
     public function __invoke(PreRenderEvent $event): void
     {
@@ -55,10 +58,11 @@ class TwigComponentRenderEventListener
 
     /**
      * Converts a component path to a component name.
-     * 
+     *
      * Example: "components/Sw/Filter/Panel.html.twig" -> "Sw:Filter:Panel"
-     * 
+     *
      * @param string $path The component template path
+     *
      * @return string The component name in format "Namespace:Component:Name"
      */
     private function pathToComponentName(string $path): string
@@ -66,6 +70,7 @@ class TwigComponentRenderEventListener
         $path = preg_replace('#^components/#', '', $path) ?? $path;
         $path = preg_replace('#\.html\.twig$#', '', $path) ?? $path;
         $parts = explode('/', $path);
+
         return implode(':', $parts);
     }
 }

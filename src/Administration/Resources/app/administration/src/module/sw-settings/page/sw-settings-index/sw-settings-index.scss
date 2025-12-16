@@ -1,4 +1,4 @@
-@import "~scss/variables";
+@import '~scss/variables';
 
 .sw-settings-index {
     &__card-view {
@@ -89,6 +89,12 @@
             .mt-text-field {
                 width: 20rem;
             }
+        }
+
+        .sw-settings-index__empty-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     }
 }

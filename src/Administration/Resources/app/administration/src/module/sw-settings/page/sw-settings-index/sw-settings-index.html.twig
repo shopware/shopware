@@ -84,13 +84,15 @@
                         </sw-settings-item>
                     </div>
                 </div>
-                <mt-empty-state
-                    v-if="Object.keys(settingsGroups).length === 0"
-                    :description="$t('sw-settings.index.search.noResultsDescription')"
-                    :headline="$t('sw-settings.index.search.noResultsHeadline')"
-                    icon="regular-cog"
-                    centered
-                />
+                <div class="sw-settings-index__empty-state">
+                    <mt-empty-state
+                        v-if="Object.keys(settingsGroups).length === 0"
+                        :description="$t('sw-settings.index.search.noResultsDescription')"
+                        :headline="$t('sw-settings.index.search.noResultsHeadline')"
+                        icon="regular-cog"
+                        centered
+                    />
+                </div>
                 {% endblock %}
             </mt-card>
             {% endblock %}

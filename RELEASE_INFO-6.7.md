@@ -9,6 +9,9 @@
   together with other HTTP caching improvements.
 - Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
 
+### Send email on customer password change
+A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.
+
 ## API
 
 ### Video cover management `/api/_action/media/{mediaId}/video-cover`

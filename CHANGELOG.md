@@ -1,6 +1,7 @@
 # Changelog
 
-> ⚠️ **Note on changelog structure (Shopware 6.7.5 and newer)**  
+> [!WARNING]
+> **Note on changelog structure (Shopware 6.7.5 and newer)**  
 >  
 > Starting with **Shopware 6.7.5**, this file is no longer the main source of truth for release changes.
 >  

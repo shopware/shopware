@@ -73,7 +73,7 @@
         }
       }
     },
-    "\/consents\/{consent}\/revoke": {
+    "/consents/{consent}/revoke": {
       "post": {
         "tags": [
           "Consent Management"

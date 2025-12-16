@@ -52,15 +52,6 @@ export default Shopware.Component.wrapComponentConfig({
             const labelOfSetting = (setting: SettingsItemHere) =>
                 typeof setting.label === 'string' ? setting.label : (setting.label?.label ?? '');
 
-            const itemIsQueried = (label: string) => {
-                const item = label.trim().toLowerCase();
-                const query = this.searchQuery.trim().toLowerCase();
-                if (query === '') {
-                    return true;
-                }
-                return query.trim().includes(item) || item.includes(query);
-            };
-
             const mapSettings =
                 (
                     mapper: (settings: SettingsItemHere[], groupName: string) => SettingsItemHere[],
@@ -86,12 +77,12 @@ export default Shopware.Component.wrapComponentConfig({
             // Mappers
             const onlySearchResults = mapSettings((settings, groupName) => {
                 // if group name is queried => full group
-                if (itemIsQueried(this.getGroupLabel(groupName))) {
+                if (this.itemIsQueried(this.getGroupLabel(groupName))) {
                     return settings;
                 }
 
                 // try match each settings label
-                return settings.filter((setting) => itemIsQueried(this.getLabel(setting)));
+                return settings.filter((setting) => this.itemIsQueried(this.getLabel(setting)));
             });
 
             const onlyPrivilegedSettings = mapSettings((settings) =>
@@ -206,38 +197,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         itemIsQueried(label: string) {
-            if (this.searchQuery.trim() === '') {
-                return true;
-            }
-            return this.getSearchHighlights(label) !== null;
-        },
-
-        getSearchHighlights(label: string) {
             const query = this.searchQuery.trim().toLowerCase();
             const item = label.trim().toLowerCase();
             if (query === '') {
-                return null;
+                return true;
             }
-            // if query is in item
-            const itemInQueryIndex = item.indexOf(query);
-            if (itemInQueryIndex !== -1) {
-                return [
-                    {
-                        startIndex: itemInQueryIndex,
-                        endIndex: itemInQueryIndex + query.length,
-                    },
-                ];
-            }
-            // if item is in query
-            if (query.includes(item)) {
-                return [
-                    {
-                        startIndex: 0,
-                        endIndex: item.length,
-                    },
-                ];
-            }
-            return null;
+            return item.includes(query) || query.includes(item);
         },
     },
 });

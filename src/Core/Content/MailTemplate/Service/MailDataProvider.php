@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Mail\Service;
+namespace Shopware\Core\Content\MailTemplate\Service;
 
-use Shopware\Core\Content\Mail\DataProvider\DataProvider;
+use Shopware\Core\Content\MailTemplate\DataProvider\DataProvider;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;

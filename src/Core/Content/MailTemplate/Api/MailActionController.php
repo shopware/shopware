@@ -4,14 +4,12 @@ namespace Shopware\Core\Content\MailTemplate\Api;
 
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
-use Shopware\Core\Content\Mail\Service\MailDataProvider;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
+use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -31,16 +29,15 @@ class MailActionController extends AbstractController
     public function __construct(
         private readonly AbstractMailService $mailService,
         private readonly StringTemplateRenderer $templateRenderer,
-        private readonly EntityRepository $mailTemplateRepository,
-        private readonly MailDataProvider $mailDataProvider,
+        private readonly MailTemplateService $mailTemplateService,
     ) {
     }
 
     #[Route(
         path: '/api/_action/mail-template/send',
         name: 'api.action.mail_template.send',
-        methods: ['POST'],
-        defaults: ['_acl' => ['api_send_email']]
+        defaults: ['_acl' => ['api_send_email']],
+        methods: ['POST']
     )]
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
@@ -95,27 +92,13 @@ class MailActionController extends AbstractController
         return new JsonResponse($renderedTemplate);
     }
 
-    #[Route(path: '/api/_action/mail-template/build2', name: 'api.action.mail_template.build2', methods: ['POST'])]
-    public function build2(RequestDataBag $post, Context $context): JsonResponse
+    #[Route(path: '/api/_action/mail-template/preview', name: 'api.action.mail_template.build2', methods: ['POST'])]
+    public function preview(RequestDataBag $post, Context $context): JsonResponse
     {
         $templateId = $post->get('mailTemplateId');
         $entities = $post->get('entities', [])->all();
 
-        $criteria = new Criteria([$templateId]);
-        $criteria->addAssociation('mailTemplateType');
-        /** @var MailTemplateEntity $mailTemplate */
-        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
-
-        $template = $mailTemplate->getContentHtml();
-        if (!\is_string($template)) {
-            throw MailTemplateException::invalidMailTemplateContent();
-        }
-
-        $templateData = $this->mailDataProvider->getTemplateData($mailTemplate, $entities, $context);
-
-        $this->templateRenderer->enableTestMode();
-        $renderedTemplate = $this->templateRenderer->render($template, $templateData, $context);
-        $this->templateRenderer->disableTestMode();
+        $renderedTemplate = $this->mailTemplateService->preview($templateId, $entities, $context);
 
         return new JsonResponse($renderedTemplate);
     }
@@ -123,44 +106,15 @@ class MailActionController extends AbstractController
     #[Route(
         path: '/api/_action/mail-template/send2',
         name: 'api.action.mail_template.send2',
-        methods: ['POST'],
-        defaults: ['_acl' => ['api_send_email']]
+        defaults: ['_acl' => ['api_send_email']],
+        methods: ['POST']
     )]
     public function send2(RequestDataBag $post, Context $context): JsonResponse
     {
-        /** @var array{id: string} $data */
-        $data = $post->all();
-
         $templateId = $post->get('mailTemplateId');
         $entities = $post->get('entities', [])->all();
 
-        $criteria = new Criteria([$templateId]);
-        $criteria->addAssociation('mailTemplateType');
-        /** @var MailTemplateEntity $mailTemplate */
-        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
-
-        $data['contentHtml'] = $mailTemplate->getContentHtml();
-        $data['contentPlain'] = $mailTemplate->getContentPlain();
-        $data['subject'] = $mailTemplate->getSubject();
-        $data['senderName'] = $mailTemplate->getSenderName();
-
-        $templateData = $this->mailDataProvider->getTemplateData($mailTemplate, $entities, $context);
-
-        $extension = new MailSendSubscriberConfig(
-            false,
-            $data['documentIds'] ?? [],
-            $data['mediaIds'] ?? [],
-        );
-
-        $data['attachmentsConfig'] = new MailAttachmentsConfig(
-            $context,
-            new MailTemplateEntity(),
-            $extension,
-            [],
-            $mailTemplateData['order']['id'] ?? null,
-        );
-
-        $message = $this->mailService->send($data, $context, $templateData);
+        $message = $this->mailTemplateService->getTemplateDataAndSend($templateId, $entities, $context);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }

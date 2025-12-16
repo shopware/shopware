@@ -64,7 +64,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             ->with(
                 $app->getId(),
                 static::isInstanceOf(Context::class),
-                AppSecretRotationService::TRIGGER_CLI
+                AppSecretRotationService::TRIGGER_SHOP_MOVE
             );
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
@@ -77,16 +77,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $moveShopPermanentlyResolver->resolve($this->context);
 
         static::assertSame($shopId, $this->shopIdProvider->getShopId());
-
-        // assert secret access key changed
-        $updatedApp = $this->getInstalledApp($this->context);
-        static::assertNotNull($app->getIntegration());
-        static::assertNotNull($updatedApp->getIntegration());
-
-        static::assertNotSame(
-            $app->getIntegration()->getSecretAccessKey(),
-            $updatedApp->getIntegration()->getSecretAccessKey()
-        );
     }
 
     public function testItIgnoresAppsWithoutSetup(): void

@@ -3,7 +3,7 @@
 > [!WARNING]
 > **Note on changelog structure (Shopware 6.7.5 and newer)**  
 >  
-> Starting with **Shopware 6.7.5**, this file is no longer the main source of truth for release changes.
+> Starting with **Shopware 6.7.5**, this file is no longer updated with the recent changes.
 >  
 > - **Curated, developer-facing release information** can be found in the versioned release info files, e.g.:  
 >   https://github.com/shopware/shopware/blob/trunk/RELEASE_INFO-6.7.md  

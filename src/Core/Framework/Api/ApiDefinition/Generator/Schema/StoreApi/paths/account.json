@@ -927,7 +927,7 @@
                                         "type": "boolean"
                                     },
                                     "storefrontUrl": {
-                                        "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel.",
+                                        "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel. If not provided, the `sw-domain` header value will be used as fallback.",
                                         "type": "string"
                                     },
                                     "billingAddress": {
@@ -972,7 +972,6 @@
                                     "firstName",
                                     "lastName",
                                     "acceptedDataProtection",
-                                    "storefrontUrl",
                                     "billingAddress"
                                 ],
                                 "oneOf": [
@@ -1043,6 +1042,11 @@
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/sw-domain"
                     }
                 ]
             }
@@ -1117,8 +1121,7 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "email",
-                                    "storefrontUrl"
+                                    "email"
                                 ],
                                 "properties": {
                                     "email": {
@@ -1126,7 +1129,7 @@
                                         "type": "string"
                                     },
                                     "storefrontUrl": {
-                                        "description": "URL of the storefront to use for the generated reset link. It has to be a domain that is configured in the sales channel domain settings.",
+                                        "description": "URL of the storefront to use for the generated reset link. It has to be a domain that is configured in the sales channel domain settings. If not provided, the `sw-domain` header value will be used as fallback.",
                                         "type": "string"
                                     }
                                 },
@@ -1150,6 +1153,11 @@
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/sw-domain"
                     }
                 ]
             }

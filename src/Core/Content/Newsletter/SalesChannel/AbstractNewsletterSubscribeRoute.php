@@ -11,7 +11,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * This route is used to subscribe to the newsletter
  * The required parameters are: "email" and "option"
  * Valid "option" arguments: "subscribe" for double optin and "direct" to skip double optin
- * Optional parameters are: "salutationId", "firstName", "lastName", "street", "city" and "zipCode"
+ * Optional parameters are: "salutationId", "firstName", "lastName", "street", "city", "zipCode" and "storefrontUrl"
+ * The "storefrontUrl" parameter will fall back to the "sw-domain" header value if not provided
  */
 #[Package('after-sales')]
 abstract class AbstractNewsletterSubscribeRoute

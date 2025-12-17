@@ -72,11 +72,16 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     {
         EmailIdnConverter::encodeDataBag($data);
 
-        $this->validateRecoverEmail($data, $context, $validateStorefrontUrl);
-
+        // Use sw-domain header as fallback for storefrontUrl if not provided
         if (($request = $this->requestStack->getMainRequest()) !== null) {
+            if (!$data->has('storefrontUrl') && $request->headers->has(PlatformRequest::HEADER_DOMAIN)) {
+                $data->set('storefrontUrl', $request->headers->get(PlatformRequest::HEADER_DOMAIN));
+            }
+
             $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, strtolower($data->get('email') . '-' . $request->getClientIp()));
         }
+
+        $this->validateRecoverEmail($data, $context, $validateStorefrontUrl);
 
         try {
             $customer = $this->getCustomerByEmail($data->get('email'), $context);

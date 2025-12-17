@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\SalesChannelDomain;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -29,8 +30,14 @@ abstract class AbstractDomainLoader
             return null;
         }
 
-        // domain urls and request uri should be in same format, all with trailing slash
-        $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
+        // Check for sw-domain header first (for store-api requests)
+        $swDomainHeader = $request->headers->get(PlatformRequest::HEADER_DOMAIN);
+        if ($swDomainHeader !== null) {
+            $requestUrl = rtrim($swDomainHeader, '/') . '/';
+        } else {
+            // domain urls and request uri should be in same format, all with trailing slash
+            $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
+        }
 
         // direct hit
         if (\array_key_exists($requestUrl, $domains)) {

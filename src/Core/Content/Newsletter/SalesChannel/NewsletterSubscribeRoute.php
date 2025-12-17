@@ -110,6 +110,13 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             $validateStorefrontUrl = false;
         }
 
+        // Use sw-domain header as fallback for storefrontUrl if not provided (and no doubleOptInDomain is configured)
+        if (!$dataBag->has('storefrontUrl')) {
+            if (($request = $this->requestStack->getMainRequest()) !== null && $request->headers->has(PlatformRequest::HEADER_DOMAIN)) {
+                $dataBag->set('storefrontUrl', $request->headers->get(PlatformRequest::HEADER_DOMAIN));
+            }
+        }
+
         EmailIdnConverter::encodeDataBag($dataBag);
 
         $validator = $this->getOptInValidator($dataBag, $context, $validateStorefrontUrl);

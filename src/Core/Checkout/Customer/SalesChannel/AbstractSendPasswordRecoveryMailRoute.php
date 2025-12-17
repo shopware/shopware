@@ -9,7 +9,8 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 
 /**
  * This route is used to send a password recovery mail
- * The required parameters are: "email" and "storefrontUrl"
+ * The required parameter is: "email"
+ * The "storefrontUrl" parameter is optional - if not provided, it will fall back to the "sw-domain" header value
  * The process can be completed with the hash in the Route Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute
  */
 #[Package('checkout')]

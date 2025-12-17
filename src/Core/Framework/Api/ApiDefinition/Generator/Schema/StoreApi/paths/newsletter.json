@@ -61,8 +61,7 @@
                             "schema": {
                                 "required": [
                                     "email",
-                                    "option",
-                                    "storefrontUrl"
+                                    "option"
                                 ],
                                 "properties": {
                                     "email": {
@@ -74,7 +73,7 @@
                                         "type": "string"
                                     },
                                     "storefrontUrl": {
-                                        "description": "Url of the storefront of the shop. This will be used for generating the link to the /newsletter/confirm inside the confirm email.",
+                                        "description": "Url of the storefront of the shop. This will be used for generating the link to the /newsletter/confirm inside the confirm email. If not provided, the `sw-domain` header value will be used as fallback.",
                                         "type": "string"
                                     },
                                     "salutationId": {
@@ -129,6 +128,11 @@
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/sw-domain"
                     }
                 ]
             }

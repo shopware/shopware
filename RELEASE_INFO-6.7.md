@@ -172,6 +172,74 @@ The `link` property of the product manufacturer entity is now translatable.
 The Store API request context now includes additional information about the sales channel domain, such as the domain ID, language ID, and currency ID.
 Also a new flag `\Shopware\Core\SalesChannelRequest::ATTRIBUTE_IS_STORE_API_REQUEST`(`_is_store_api`) is set to the request attribute to indicate if the request was made via the Store API.
 
+#### `sw-domain` Header for Domain Resolution
+
+A new `sw-domain` header is now supported for Store API requests. This header is specifically designed for **headless frontends** and allows clients to specify which Shopware domain configuration to use, regardless of where the frontend is hosted.
+
+**Headless Use Case:**
+```http
+# Frontend hosted at https://frontend.vercel.app or localhost:3000
+# Store API at https://api.shop.example.com
+GET https://api.shop.example.com/store-api/product
+sw-domain: https://shop.example.com/de
+```
+
+The Store API will use the domain configuration for `https://shop.example.com/de` (language, currency, snippets) even though the actual request comes from a different domain.
+
+**Supported Domain Configurations:**
+- **Path-based:** `https://shop.example.com/en`, `https://shop.example.com/de`
+- **Subdomain-based:** `https://en.shop.example.com`, `https://de.shop.example.com`
+- **Mixed:** `https://de.shop.example.com/b2b`
+
+**Benefits:**
+- Enables proper domain resolution for headless frontends hosted on different domains (Vercel, Netlify, CDN, localhost)
+- Eliminates the need to rely on `Origin` or `Referer` headers for security reasons
+- Supports all domain configuration patterns (path-based, subdomain-based)
+- Maintains backward compatibility - when not provided, the system falls back to using the request URL
+
+**Priority Rules:**
+- When `sw-domain` header is present, it takes precedence for domain resolution
+- Individual context headers (e.g., `sw-language-id`) still override the domain's language configuration
+- The domain URL provided must match an existing sales channel domain configuration
+
+#### `storefrontUrl` Parameter Auto-Fallback
+
+Store API routes that require a `storefrontUrl` parameter (such as customer registration, password recovery, and newsletter subscription) now automatically fall back to the `sw-domain` header value when the parameter is not explicitly provided.
+
+**Affected Routes:**
+- `/store-api/account/register` - Customer registration with email confirmation
+- `/store-api/account/recovery-password` - Password recovery emails
+- `/store-api/newsletter/subscribe` - Newsletter subscription with double opt-in
+
+**Usage:**
+```http
+# Before: Had to send storefrontUrl in both header and body
+POST https://api.shop.example.com/store-api/account/register
+sw-domain: https://shop.example.com/de
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  "storefrontUrl": "https://shop.example.com/de",  // No longer required!
+  ...
+}
+
+# Now: sw-domain header is automatically used as storefrontUrl
+POST https://api.shop.example.com/store-api/account/register
+sw-domain: https://shop.example.com/de
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  ...
+}
+```
+
+**Benefits:**
+- Reduces redundancy - no need to send the same URL in both header and body
+- Simplifies API usage for headless frontends
+- Maintains backward compatibility - explicit `storefrontUrl` parameter still works and takes precedence
+
 ### Move Storefront DomainLoader to core
 
 The service `Shopware\Storefront\Framework\Routing\DomainLoader` has been moved from the Storefront to the Core namespace `Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader` to make it accessible for other parts of the system, the core `DomainLoader` will also dispatch a new event `\Shopware\Core\System\SalesChannel\SalesChannelDomain\SalesChannelDomainQueryEvent` so that the loaded domains can be modified.

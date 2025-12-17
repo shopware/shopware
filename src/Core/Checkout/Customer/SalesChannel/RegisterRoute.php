@@ -54,6 +54,7 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -103,8 +104,14 @@ class RegisterRoute extends AbstractRegisterRoute
         RequestDataBag $data,
         SalesChannelContext $context,
         bool $validateStorefrontUrl = true,
-        ?DataValidationDefinition $additionalValidationDefinitions = null
+        ?DataValidationDefinition $additionalValidationDefinitions = null,
+        ?Request $request = null
     ): CustomerResponse {
+        // Use sw-domain header as fallback for storefrontUrl if not provided
+        if ($request !== null && !$data->has('storefrontUrl') && $request->headers->has(PlatformRequest::HEADER_DOMAIN)) {
+            $data->set('storefrontUrl', $request->headers->get(PlatformRequest::HEADER_DOMAIN));
+        }
+
         EmailIdnConverter::encodeDataBag($data);
 
         $isGuest = $data->getBoolean('guest');

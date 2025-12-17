@@ -6,10 +6,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This route is used for customer registration
- * The required parameters are: "salutationId", "firstName", "lastName", "email", "password", "billingAddress" and "storefrontUrl"
+ * The required parameters are: "salutationId", "firstName", "lastName", "email", "password" and "billingAddress"
+ * The "storefrontUrl" parameter is optional - if not provided, it will fall back to the "sw-domain" header value
  * The "billingAddress" should has required parameters: "salutationId", "firstName", "lastName", "street", "zipcode", "city", "countyId".
  */
 #[Package('checkout')]
@@ -17,5 +19,5 @@ abstract class AbstractRegisterRoute
 {
     abstract public function getDecorated(): AbstractRegisterRoute;
 
-    abstract public function register(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true, ?DataValidationDefinition $additionalValidationDefinitions = null): CustomerResponse;
+    abstract public function register(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true, ?DataValidationDefinition $additionalValidationDefinitions = null, ?Request $request = null): CustomerResponse;
 }

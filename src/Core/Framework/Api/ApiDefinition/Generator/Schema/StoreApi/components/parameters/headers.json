@@ -1,0 +1,31 @@
+{
+    "components": {
+        "parameters": {
+            "sw-domain": {
+                "name": "sw-domain",
+                "in": "header",
+                "description": "URL of the storefront domain. Used as fallback when `storefrontUrl` is not provided in the request body. Must be one of the configured domains of the sales channel. This header is commonly used for customer registration, password recovery, and newsletter subscription endpoints.",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "format": "uri",
+                    "example": "https://example.com"
+                }
+            },
+            "sw-include-search-info": {
+                "name": "sw-include-search-info",
+                "in": "header",
+                "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "0",
+                        "1"
+                    ],
+                    "default": "1"
+                }
+            }
+        }
+    }
+}

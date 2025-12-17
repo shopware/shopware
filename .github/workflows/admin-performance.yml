@@ -30,11 +30,6 @@ jobs:
       - name: Define environment
         shell: bash
         run: |
-          PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
-
-          echo "PHP_VERSION=${PHP_VERSION}" >> $GITHUB_ENV
-          echo "PHP_FPM_SOCKET=/run/php/php${PHP_VERSION}-fpm.sock" >> $GITHUB_ENV
-          echo "DOCUMENT_ROOT=${GITHUB_WORKSPACE}/public" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
           echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
           echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
@@ -52,43 +47,18 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
-      - name: Stop Symfony server
-        run: |
-          # Stop the Symfony server started by setup-shopware
-          symfony server:stop || true
+      - name: Start Web Server
+        env:
+          SYMFONY_DAEMON: "1"
+          SYMFONY_NO_TLS: "1"
+          SYMFONY_ALLOW_HTTP: "1"
+          SYMFONY_PORT: "8000"
+          SYMFONY_ALLOW_ALL_IP: "1"
+        run: symfony server:start
 
-      - name: Install and Start Caddy
-        run: |
-          # 1. Install Caddy (Static Binary)
-          sudo apt-get update
-          sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
-          curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-          curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
-          sudo apt-get update
-          sudo apt-get install caddy
-
-          # 2. Create Caddyfile inline (Ensures paths are correct)
-          cat > Caddyfile <<EOF
-          :8000 {
-              root * ${{ github.workspace }}/public
-              
-              # Gzip and Cache-Control as requested
-              encode gzip
-              header Cache-Control "public, max-age=3600"
-
-              # PHP FastCGI Proxy
-              php_fastcgi 127.0.0.1:9000
-              
-              file_server
-          }
-          EOF
-
-          # 3. Start Caddy in background
-          caddy start --config Caddyfile
-  
       - name: Wait for server
         run: |
-          npx wait-on http://localhost:8000/admin --timeout 60000
+          timeout 30 bash -c 'until curl -s http://localhost:8000/admin > /dev/null; do sleep 1; done'
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12
@@ -108,4 +78,3 @@ jobs:
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           jobs: ${{ toJSON(needs) }}
-

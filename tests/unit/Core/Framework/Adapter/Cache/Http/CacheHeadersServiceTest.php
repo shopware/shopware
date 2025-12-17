@@ -232,7 +232,7 @@ class CacheHeadersServiceTest extends TestCase
         static::assertInstanceOf(Cookie::class, $firstCacheCookie);
 
         $this->addEventListener($this->eventDispatcher, HttpCacheCookieEvent::class, function (HttpCacheCookieEvent $event): void {
-            $event->isCacheable = false;
+            $event->passCache = true;
         });
 
         $secondResponse = new Response();
@@ -243,7 +243,7 @@ class CacheHeadersServiceTest extends TestCase
 
         static::assertNotSame($firstCacheCookie->getValue(), $secondCacheCookie->getValue());
         static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $secondCacheCookie->getValue());
-        static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $result);
+        static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $result->getHash());
     }
 
     public function testSetLanguageCurrencyHeaders(): void

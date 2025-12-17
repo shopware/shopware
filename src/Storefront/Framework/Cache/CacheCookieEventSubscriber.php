@@ -3,12 +3,14 @@
 namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\Service\ResetInterface;
 
+#[Package('framework')]
 class CacheCookieEventSubscriber implements EventSubscriberInterface, ResetInterface
 {
     private static bool $flashbagWasFilled = false;
@@ -31,6 +33,7 @@ class CacheCookieEventSubscriber implements EventSubscriberInterface, ResetInter
         // if flashbag is filled still when the response is sent, we need to pass the cache also for further requests
         if ($this->flashBagFilledForCurrentSession()) {
             $cookieEvent->passCache = true;
+
             return;
         }
 
@@ -47,6 +50,11 @@ class CacheCookieEventSubscriber implements EventSubscriberInterface, ResetInter
         self::$flashbagWasFilled = $this->flashBagFilledForCurrentSession();
     }
 
+    public function reset(): void
+    {
+        self::$flashbagWasFilled = false;
+    }
+
     private function flashBagFilledForCurrentSession(): bool
     {
         $session = $this->requestStack->getCurrentRequest()?->getSession();
@@ -56,10 +64,5 @@ class CacheCookieEventSubscriber implements EventSubscriberInterface, ResetInter
         }
 
         return $session->getFlashBag()->keys() !== [];
-    }
-
-    public function reset(): void
-    {
-        self::$flashbagWasFilled = false;
     }
 }

@@ -70,7 +70,7 @@ class HttpCacheCookieEvent
 
     public function getHash(): string
     {
-        if (!$this->passCache) {
+        if ($this->passCache) {
             return self::NOT_CACHEABLE;
         }
 
@@ -79,6 +79,6 @@ class HttpCacheCookieEvent
 
     public function doNotCacheResponse(): bool
     {
-        return $this->passCache && $this->doNotStore;
+        return $this->passCache || $this->doNotStore;
     }
 }

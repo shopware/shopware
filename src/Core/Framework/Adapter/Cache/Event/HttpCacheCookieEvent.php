@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache\Event;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -12,8 +13,13 @@ class HttpCacheCookieEvent
     public const RULE_IDS = 'rule-ids';
     public const VERSION_ID = 'version-id';
     public const CURRENCY_ID = 'currency-id';
+    public const LANGUAGE_ID = 'language-id';
     public const TAX_STATE = 'tax-state';
     public const LOGGED_IN_STATE = 'logged-in';
+
+    public const NOT_CACHEABLE = 'not-cacheable';
+
+    public bool $isCacheable = true;
 
     /**
      * @param array<string, string|array<string>|null> $parts
@@ -55,5 +61,14 @@ class HttpCacheCookieEvent
         ksort($parts);
 
         return $parts;
+    }
+
+    public function getHash(): string
+    {
+        if (!$this->isCacheable) {
+            return self::NOT_CACHEABLE;
+        }
+
+        return Hasher::hash($this->getParts());
     }
 }

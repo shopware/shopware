@@ -48,7 +48,7 @@ class OrderCustomFieldRule extends FlowRule
 
         $orderCustomFields = $scope->getOrder()->getCustomFields() ?? [];
 
-        return CustomFieldRule::match($this->renderedField, $this->renderedFieldValue, $this->operator, $orderCustomFields);
+        return CustomFieldRule::match($this->renderedField, $this->renderedFieldValue, $this->operator, $orderCustomFields, $scope->getSalesChannelContext());
     }
 
     public function getConstraints(): array

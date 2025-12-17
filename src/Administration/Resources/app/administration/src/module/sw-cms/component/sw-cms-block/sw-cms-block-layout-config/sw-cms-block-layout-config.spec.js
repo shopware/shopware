@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
-import { kebabCase } from 'lodash';
+import kebabCase from 'lodash-es/kebabCase';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const expectedProps = {

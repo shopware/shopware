@@ -1,6 +1,20 @@
 import { mount } from '@vue/test-utils';
-import { MtModal, MtModalClose, MtModalAction } from '@shopware-ag/meteor-component-library';
+import { MtModal, MtModalClose, MtModalAction, MtModalTrigger, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesDeactivateModal from './index';
+
+const createWrapper = async () => {
+    return mount(SwSettingsServicesDeactivateModal, {
+        global: {
+            stubs: {
+                'mt-modal': MtModal,
+                'mt-modal-close': MtModalClose,
+                'mt-modal-action': MtModalAction,
+                'mt-modal-trigger': MtModalTrigger,
+                'mt-modal-root': MtModalRoot,
+            },
+        },
+    });
+};
 
 describe('src/module/sw-settings-services/component/sw-settings-services-deactivate-modal', () => {
     const location = window.location;
@@ -23,7 +37,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
     });
 
     it('can be opened and closed', async () => {
-        const deactivateModal = await mount(SwSettingsServicesDeactivateModal);
+        const deactivateModal = await createWrapper();
         await flushPromises();
 
         let modal = deactivateModal.getComponent(MtModal);
@@ -52,7 +66,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
             disabled: true,
         }));
 
-        const deactivateModal = await mount(SwSettingsServicesDeactivateModal);
+        const deactivateModal = await createWrapper();
         await flushPromises();
 
         await deactivateModal.get('button').trigger('click');
@@ -72,7 +86,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
             throw new Error('Deactivation failed');
         });
 
-        const deactivateModal = await mount(SwSettingsServicesDeactivateModal);
+        const deactivateModal = await createWrapper();
         await flushPromises();
 
         await deactivateModal.get('button').trigger('click');

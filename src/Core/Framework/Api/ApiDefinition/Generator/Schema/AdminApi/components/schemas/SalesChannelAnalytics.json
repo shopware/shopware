@@ -4,24 +4,13 @@
     "paths": [],
     "components": {
         "schemas": {
-            "SalesChannelAnalyticsData": {
+            "SalesChannelAnalytics": {
                 "type": "object",
                 "description": "Sales channel analytics configuration",
                 "properties": {
                     "id": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
-                    },
-                    "_uniqueIdentifier": {
-                        "type": "string",
-                        "pattern": "^[0-9a-f]{32}$"
-                    },
-                    "versionId": {
-                        "type": ["string", "null"]
-                    },
-                    "translated": {
-                        "type": "array",
-                        "items": { "type": "object" }
                     },
                     "trackingId": {
                         "type": "string",
@@ -43,9 +32,6 @@
                         "type": "boolean",
                         "description": "Track off-canvas cart interactions in Google Analytics"
                     },
-                    "salesChannel": {
-                        "type": ["object", "null"]
-                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -53,41 +39,9 @@
                     "updatedAt": {
                         "type": ["string", "null"],
                         "format": "date-time"
-                    },
-                    "apiAlias": {
-                        "type": "string",
-                        "enum": ["sales_channel_analytics"]
                     }
                 },
-                "required": ["id", "active", "trackOrders", "anonymizeIp", "trackOffcanvasCart", "createdAt", "apiAlias"]
-            },
-            "SalesChannelAnalyticsListResponse": {
-                "type": "object",
-                "properties": {
-                    "total": {
-                        "type": "integer"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/SalesChannelAnalyticsData"
-                        }
-                    },
-                    "aggregations": {
-                        "type": "array",
-                        "items": { "type": "object" }
-                    }
-                },
-                "required": ["total", "data"]
-            },
-            "SalesChannelAnalyticsSingleResponse": {
-                "type": "object",
-                "properties": {
-                    "data": {
-                        "$ref": "#/components/schemas/SalesChannelAnalyticsData"
-                    }
-                },
-                "required": ["data"]
+                "required": ["id", "active", "trackOrders", "anonymizeIp", "trackOffcanvasCart", "createdAt"]
             }
         }
     }

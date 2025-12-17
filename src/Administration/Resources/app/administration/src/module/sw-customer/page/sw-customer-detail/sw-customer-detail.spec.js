@@ -150,7 +150,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         await wrapper.setData({
             customer: {
                 active: true,
-            }
+            },
         });
 
         await flushPromises();
@@ -169,7 +169,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         await wrapper.setData({
             customer: {
                 active: true,
-            }
+            },
         });
 
         await flushPromises();

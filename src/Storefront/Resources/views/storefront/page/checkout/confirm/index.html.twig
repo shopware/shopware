@@ -177,6 +177,7 @@
     {% endblock %}
 
     {% if feature('v6.8.0.0') and page.showRevocation() %}
+        <div class="confirm-tos-bottom">
         {% block page_checkout_confirm_revocation_section %}
         {% block page_checkout_confirm_revocation_section_header %}
             <div class="card-title">
@@ -204,6 +205,7 @@
         </div>
         {% endblock %}
         {% endblock %}
+        </div>
     {% endif %}
 {% endblock %}
 

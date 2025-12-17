@@ -17,8 +17,8 @@ module.exports = {
         collect: {
             // Measure the dashboard after login (authenticated performance)
             url: [
-                'http://localhost:8001/admin#/sw/dashboard/index',
-                'http://localhost:8001/admin#/sw/product/index',
+                'http://localhost:8000/admin#/sw/dashboard/index',
+                'http://localhost:8000/admin#/sw/product/index',
             ],
             numberOfRuns: 3,
             // Use puppeteer script to authenticate before running Lighthouse

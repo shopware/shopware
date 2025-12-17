@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       APP_ENV: prod
-      APP_URL: http://localhost:8001
+      APP_URL: http://localhost:8000
       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       BLUE_GREEN_DEPLOYMENT: 1
 
@@ -47,19 +47,22 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
+      - name: Stop already running Symfony server
+        run: symfony server:stop || true
+
       - name: Start Web Server
         env:
           SYMFONY_DAEMON: "1"
           SYMFONY_NO_TLS: "1"
           SYMFONY_ALLOW_HTTP: "1"
-          SYMFONY_PORT: "8000"
+          SYMFONY_PORT: "8001"
           SYMFONY_ALLOW_ALL_IP: "1"
         run: symfony server:start
 
       - name: Write Caddyfile
         run: |
           cat <<'EOF' > Caddyfile
-          :8001 {
+          :8000 {
             encode gzip zstd
 
             @static {
@@ -67,16 +70,16 @@ jobs:
             }
             header @static Cache-Control "public, max-age=31536000, immutable"
 
-            reverse_proxy 127.0.0.1:8000
+            reverse_proxy 127.0.0.1:8001
           }
           EOF
 
       - name: Start Caddy reverse proxy
-        run: docker run --name caddy-proxy -p 8001:8001 -v $PWD/Caddyfile:/etc/caddy/Caddyfile:ro -d caddy:2.8
+        run: docker run --name caddy-proxy -p 8000:8000 -v $PWD/Caddyfile:/etc/caddy/Caddyfile:ro -d caddy:2.8
 
       - name: Wait for server
         run: |
-          timeout 30 bash -c 'until curl -s http://localhost:8001/admin > /dev/null; do sleep 1; done'
+          timeout 30 bash -c 'until curl -s http://localhost:8000/admin > /dev/null; do sleep 1; done'
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12

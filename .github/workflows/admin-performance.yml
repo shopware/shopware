@@ -57,34 +57,34 @@ jobs:
           # Stop the Symfony server started by setup-shopware
           symfony server:stop || true
 
-          - name: Install and Start Caddy
-          run: |
-            # 1. Install Caddy (Static Binary)
-            sudo apt-get update
-            sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
-            curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-            curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
-            sudo apt-get update
-            sudo apt-get install caddy
-  
-            # 2. Create Caddyfile inline (Ensures paths are correct)
-            cat > Caddyfile <<EOF
-            :8000 {
-                root * ${{ github.workspace }}/public
-                
-                # Gzip and Cache-Control as requested
-                encode gzip
-                header Cache-Control "public, max-age=3600"
-  
-                # PHP FastCGI Proxy
-                php_fastcgi 127.0.0.1:9000
-                
-                file_server
-            }
-            EOF
-  
-            # 3. Start Caddy in background
-            caddy start --config Caddyfile
+      - name: Install and Start Caddy
+        run: |
+          # 1. Install Caddy (Static Binary)
+          sudo apt-get update
+          sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
+          curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+          curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+          sudo apt-get update
+          sudo apt-get install caddy
+
+          # 2. Create Caddyfile inline (Ensures paths are correct)
+          cat > Caddyfile <<EOF
+          :8000 {
+              root * ${{ github.workspace }}/public
+              
+              # Gzip and Cache-Control as requested
+              encode gzip
+              header Cache-Control "public, max-age=3600"
+
+              # PHP FastCGI Proxy
+              php_fastcgi 127.0.0.1:9000
+              
+              file_server
+          }
+          EOF
+
+          # 3. Start Caddy in background
+          caddy start --config Caddyfile
   
       - name: Wait for server
         run: |

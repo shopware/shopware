@@ -20,9 +20,9 @@ class HttpCacheCookieEvent
     public const NOT_CACHEABLE = 'not-cacheable';
 
     /**
-     * @var bool set to true to bypass the cache for further requests, the cache will be passed until this is set to true again for the cache state
+     * @var bool set to false to bypass the cache for further requests, the cache will be passed until this is set to true again for the cache state
      */
-    public bool $isCacheable = false;
+    public bool $isCacheable = true;
 
     /**
      * @var bool set to true to not store the current response in the cache, however the cache will be used for further requests
@@ -73,7 +73,7 @@ class HttpCacheCookieEvent
 
     public function getHash(): string
     {
-        if ($this->isCacheable) {
+        if (!$this->isCacheable) {
             return self::NOT_CACHEABLE;
         }
 
@@ -82,6 +82,6 @@ class HttpCacheCookieEvent
 
     public function shouldResponseBeCached(): bool
     {
-        return !$this->isCacheable && !$this->doNotStore;
+        return $this->isCacheable && !$this->doNotStore;
     }
 }

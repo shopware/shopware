@@ -232,7 +232,7 @@ class CacheHeadersServiceTest extends TestCase
         static::assertInstanceOf(Cookie::class, $firstCacheCookie);
 
         $this->addEventListener($this->eventDispatcher, HttpCacheCookieEvent::class, function (HttpCacheCookieEvent $event): void {
-            $event->isCacheable = true;
+            $event->isCacheable = false;
         });
 
         $secondResponse = new Response();

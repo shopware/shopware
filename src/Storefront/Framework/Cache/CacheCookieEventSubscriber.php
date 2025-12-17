@@ -36,7 +36,7 @@ class CacheCookieEventSubscriber implements EventSubscriberInterface, ResetInter
     {
         // if flashbag is filled still when the response is sent, we need to pass the cache also for further requests
         if ($this->flashBagFilledForCurrentSession()) {
-            $cookieEvent->isCacheable = true;
+            $cookieEvent->isCacheable = false;
 
             return;
         }

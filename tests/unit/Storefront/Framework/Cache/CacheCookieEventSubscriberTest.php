@@ -43,7 +43,7 @@ class CacheCookieEventSubscriberTest extends TestCase
         $subscriber->onKernelRequest();
         $subscriber->passCacheForFlashMessages($event);
 
-        static::assertFalse($event->isCacheable);
+        static::assertTrue($event->isCacheable);
         static::assertFalse($event->doNotStore);
     }
 
@@ -67,7 +67,7 @@ class CacheCookieEventSubscriberTest extends TestCase
         $subscriber->onKernelRequest();
         $subscriber->passCacheForFlashMessages($event);
 
-        static::assertFalse($event->isCacheable);
+        static::assertTrue($event->isCacheable);
         static::assertFalse($event->doNotStore);
     }
 
@@ -95,7 +95,7 @@ class CacheCookieEventSubscriberTest extends TestCase
         $subscriber->passCacheForFlashMessages($event);
 
         // when flashes are present, we can't use the cache for the next requests, until the flashes are displayed
-        static::assertTrue($event->isCacheable);
+        static::assertFalse($event->isCacheable);
         static::assertFalse($event->doNotStore);
     }
 
@@ -125,7 +125,7 @@ class CacheCookieEventSubscriberTest extends TestCase
 
         $subscriber->passCacheForFlashMessages($event);
 
-        static::assertFalse($event->isCacheable);
+        static::assertTrue($event->isCacheable);
         // the current request should not be stored, but all further requests can use the cache
         static::assertTrue($event->doNotStore);
     }
@@ -156,7 +156,7 @@ class CacheCookieEventSubscriberTest extends TestCase
 
         $subscriber->passCacheForFlashMessages($event);
 
-        static::assertFalse($event->isCacheable);
+        static::assertTrue($event->isCacheable);
         // the current request should not be stored, but all further requests can use the cache
         static::assertTrue($event->doNotStore);
 
@@ -170,7 +170,7 @@ class CacheCookieEventSubscriberTest extends TestCase
         $subscriber->passCacheForFlashMessages($event);
 
         // after reset the cache should be unaffected
-        static::assertFalse($event->isCacheable);
+        static::assertTrue($event->isCacheable);
         static::assertFalse($event->doNotStore);
     }
 }

@@ -47,7 +47,7 @@ class HttpCacheCookieEventTest extends TestCase
         static::assertSame('cf2f7bb725c46c276355ae235de7ad52', $event->getHash());
         static::assertFalse($event->shouldResponseBeCached());
 
-        $event->isCacheable = true;
+        $event->isCacheable = false;
 
         static::assertSame(HttpCacheCookieEvent::NOT_CACHEABLE, $event->getHash());
         static::assertFalse($event->shouldResponseBeCached());

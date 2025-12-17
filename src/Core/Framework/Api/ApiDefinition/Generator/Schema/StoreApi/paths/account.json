@@ -927,7 +927,7 @@
                                         "type": "boolean"
                                     },
                                     "storefrontUrl": {
-                                        "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel. If not provided, the `sw-domain` header value will be used as fallback.",
+                                        "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel. If not provided, the `sw-domain` header value will be used as fallback. **At least one of `storefrontUrl` (body) or `sw-domain` (header) must be provided.**",
                                         "type": "string"
                                     },
                                     "billingAddress": {
@@ -1129,7 +1129,7 @@
                                         "type": "string"
                                     },
                                     "storefrontUrl": {
-                                        "description": "URL of the storefront to use for the generated reset link. It has to be a domain that is configured in the sales channel domain settings. If not provided, the `sw-domain` header value will be used as fallback.",
+                                        "description": "URL of the storefront to use for the generated reset link. It has to be a domain that is configured in the sales channel domain settings. If not provided, the `sw-domain` header value will be used as fallback. **At least one of `storefrontUrl` (body) or `sw-domain` (header) must be provided.**",
                                         "type": "string"
                                     }
                                 },

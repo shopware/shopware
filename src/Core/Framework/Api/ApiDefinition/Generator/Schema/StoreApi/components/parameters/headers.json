@@ -4,7 +4,7 @@
             "sw-domain": {
                 "name": "sw-domain",
                 "in": "header",
-                "description": "URL of the storefront domain. Used as fallback when `storefrontUrl` is not provided in the request body. Must be one of the configured domains of the sales channel. This header is commonly used for customer registration, password recovery, and newsletter subscription endpoints.",
+                "description": "URL of the storefront domain. Used as fallback when `storefrontUrl` is not provided in the request body. Must be one of the configured domains of the sales channel. **Note:** For endpoints that send emails (registration, password recovery, newsletter), either this header OR `storefrontUrl` in the request body is required - at least one must be provided.",
                 "required": false,
                 "schema": {
                     "type": "string",

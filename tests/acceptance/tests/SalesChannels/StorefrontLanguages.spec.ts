@@ -1,4 +1,5 @@
 import { formatPrice, getLanguageData, getSnippetSetId, test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 test(
     'Shop customers should be able to view products in different languages.',
@@ -40,11 +41,11 @@ test(
             // covers both cases: with and without feature flag v6.8.0 and English and English (United Kingdom)
 
             // eslint-disable-next-line playwright/no-conditional-in-test
-            if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+            if (satisfies(InstanceMeta.version, '<6.7') && !InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+                await StorefrontHeader.page.locator('.top-bar-language').getByRole('list').getByText('English').click();
+            } else {
                 const secondListItem = StorefrontHome.page.locator('li.top-bar-list-item').nth(1);
                 await ShopCustomer.presses(secondListItem.locator('button.dropdown-item'));
-            } else {
-                await StorefrontHeader.page.locator('.top-bar-language').getByRole('list').getByText('English').click();
             }
             
             await ShopCustomer.expects(languageDropdown).toContainText('English');

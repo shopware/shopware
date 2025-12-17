@@ -20,3 +20,4 @@ entity-schema-types
 .vscode
 .idea
 vite-server-mapping.json
+.lighthouseci

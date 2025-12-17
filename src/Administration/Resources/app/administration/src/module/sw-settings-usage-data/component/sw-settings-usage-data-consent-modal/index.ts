@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import type { PropType } from 'vue';
-import { MtModal, MtModalAction, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-usage-data-consent-modal.html.twig';
 import './sw-settings-usage-data-consent-modal.scss';
 
@@ -22,9 +21,6 @@ export default Shopware.Component.wrapComponentConfig({
     name: 'sw-settings-usage-data-consent-modal',
 
     components: {
-        MtModal,
-        MtModalRoot,
-        MtModalAction,
         SwSettingsUsageDataStoreDataConsentCard,
         SwSettingsUsageDataUserDataConsentCard,
         SwSettingsUsageDataConsentCheckList,

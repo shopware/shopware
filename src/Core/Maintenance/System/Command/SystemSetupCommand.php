@@ -7,6 +7,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
 use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Maintenance\MaintenanceException;
@@ -64,10 +65,13 @@ class SystemSetupCommand extends Command
             ->addOption('admin-es-enabled', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Enabled', $this->getDefault('SHOPWARE_ADMIN_ES_ENABLED', '0'))
             ->addOption('admin-es-refresh-indices', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Refresh Indices', $this->getDefault('SHOPWARE_ADMIN_ES_REFRESH_INDICES', '0'))
             ->addOption('http-cache-enabled', null, InputOption::VALUE_OPTIONAL, 'Http-Cache enabled', $this->getDefault('SHOPWARE_HTTP_CACHE_ENABLED', '1'))
-            ->addOption('http-cache-ttl', null, InputOption::VALUE_OPTIONAL, 'Http-Cache TTL', $this->getDefault('SHOPWARE_HTTP_DEFAULT_TTL', '7200'))
             ->addOption('cdn-strategy', null, InputOption::VALUE_OPTIONAL, 'CDN Strategy', $this->getDefault('SHOPWARE_CDN_STRATEGY_DEFAULT', 'id'))
             ->addOption('mailer-url', null, InputOption::VALUE_OPTIONAL, 'Mailer URL', $this->getDefault('MAILER_DSN', 'native://default'))
             ->addOption('dump-env', null, InputOption::VALUE_NONE, 'Dump the generated .env file in a optimized .env.local.php file, to skip parsing of the .env file on each request');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->addOption('http-cache-ttl', null, InputOption::VALUE_OPTIONAL, 'Http-Cache TTL. Deprecated, will be removed in v6.8.0.0, Use cache policies instead (see UPGRADE-6.8.md).', $this->getDefault('SHOPWARE_HTTP_DEFAULT_TTL', '7200'));
+        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -85,12 +89,15 @@ class SystemSetupCommand extends Command
             'SHOPWARE_ADMIN_ES_ENABLED' => $input->getOption('admin-es-enabled'),
             'SHOPWARE_ADMIN_ES_REFRESH_INDICES' => $input->getOption('admin-es-refresh-indices'),
             'SHOPWARE_HTTP_CACHE_ENABLED' => $input->getOption('http-cache-enabled'),
-            'SHOPWARE_HTTP_DEFAULT_TTL' => $input->getOption('http-cache-ttl'),
             'SHOPWARE_CDN_STRATEGY_DEFAULT' => $input->getOption('cdn-strategy'),
             'BLUE_GREEN_DEPLOYMENT' => $input->getOption('blue-green'),
             'MAILER_DSN' => $input->getOption('mailer-url'),
             'COMPOSER_HOME' => $input->getOption('composer-home'),
         ];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $env['SHOPWARE_HTTP_DEFAULT_TTL'] = $input->getOption('http-cache-ttl');
+        }
 
         if ($ca = $input->getOption('database-ssl-ca')) {
             $env['DATABASE_SSL_CA'] = $ca;

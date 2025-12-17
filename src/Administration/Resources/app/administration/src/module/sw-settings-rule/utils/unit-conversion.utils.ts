@@ -1,4 +1,4 @@
-import round from 'lodash/round';
+import round from 'lodash-es/round';
 
 /**
  * This object contains all the unit conversion functions.

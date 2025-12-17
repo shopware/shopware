@@ -75,11 +75,11 @@ jobs:
           EOF
 
       - name: Start Caddy reverse proxy
-        run: docker run --name caddy-proxy -p 8000:8000 -v $PWD/Caddyfile:/etc/caddy/Caddyfile:ro -d caddy:2.8
+        run: docker run --name caddy-proxy --network host -v $PWD/Caddyfile:/etc/caddy/Caddyfile:ro -d caddy:2.8
 
       - name: Wait for server
         run: |
-          timeout 30 bash -c 'until curl -s http://localhost:8000/admin > /dev/null; do sleep 1; done'
+          timeout 30 bash -c 'until curl -sf http://localhost:8000/admin > /dev/null; do sleep 1; done'
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12

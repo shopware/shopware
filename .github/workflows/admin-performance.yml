@@ -47,6 +47,11 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
+      - name: Stop Symfony server
+        run: |
+          # Stop the Symfony server started by setup-shopware
+          symfony server:stop || true
+
       - name: Install Caddy
         run: |
           sudo apt-get update

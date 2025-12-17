@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition\DefinitionValidatorTestDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition\DefinitionValidatorWithNonStorageAwarePrimaryKeyTestDefinition;
 
@@ -50,6 +51,30 @@ class DefinitionValidatorTest extends TestCase
         foreach ($expectedMessages as $expectedMessage) {
             static::assertStringContainsString($expectedMessage, $violation);
         }
+    }
+
+    /**
+     * @return \Generator<string, array{list<string>, list<string>}>
+     */
+    public static function primaryKeyMismatchProvider(): \Generator
+    {
+        yield 'mismatched primary key' => [
+            ['foo'],
+            [
+                'Primary key mismatch in entity "definition_validator_test"',
+                'Table has PRIMARY KEY (foo)',
+                'entity definition has PrimaryKey flags on (id)',
+            ],
+        ];
+
+        yield 'no primary key' => [
+            [],
+            [
+                'Primary key mismatch in entity "definition_validator_test"',
+                'Table has PRIMARY KEY ()',
+                'entity definition has PrimaryKey flags on (id)',
+            ],
+        ];
     }
 
     public function testPrimaryKeyMatchReportsNoViolation(): void
@@ -109,33 +134,9 @@ class DefinitionValidatorTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{list<string>, list<string>}>
-     */
-    public static function primaryKeyMismatchProvider(): \Generator
-    {
-        yield 'mismatched primary key' => [
-            ['foo'],
-            [
-                'Primary key mismatch in entity "definition_validator_test"',
-                'Table has PRIMARY KEY (foo)',
-                'entity definition has PrimaryKey flags on (id)',
-            ],
-        ];
-
-        yield 'no primary key' => [
-            [],
-            [
-                'Primary key mismatch in entity "definition_validator_test"',
-                'Table has PRIMARY KEY ()',
-                'entity definition has PrimaryKey flags on (id)',
-            ],
-        ];
-    }
-
-    /**
      * @param list<string> $dbPrimaryKeys
      */
-    private function createValidatorWithTable(DefinitionValidatorTestDefinition $definition, array $dbPrimaryKeys): DefinitionValidator
+    private function createValidatorWithTable(EntityDefinition $definition, array $dbPrimaryKeys): DefinitionValidator
     {
         $connection = $this->createMock(Connection::class);
         $schemaManager = $this->createMock(AbstractSchemaManager::class);
@@ -178,7 +179,7 @@ class DefinitionValidatorTest extends TestCase
         return new DefinitionValidator($registry, $connection);
     }
 
-    private function createValidatorWithNonExistentTable(DefinitionValidatorTestDefinition $definition): DefinitionValidator
+    private function createValidatorWithNonExistentTable(EntityDefinition $definition): DefinitionValidator
     {
         $connection = $this->createMock(Connection::class);
         $schemaManager = $this->createMock(AbstractSchemaManager::class);

@@ -768,8 +768,11 @@ class CacheResponseSubscriberTest extends TestCase
         if ($serviceHash !== null) {
             $eventMock = $this->createMock(HttpCacheCookieEvent::class);
             $eventMock->method('getHash')->willReturn($serviceHash);
+
             if ($serviceHash === HttpCacheCookieEvent::NOT_CACHEABLE) {
-                $eventMock->method('doNotCacheResponse')->willReturn(true);
+                $eventMock->method('shouldResponseBeCached')->willReturn(false);
+            } else {
+                $eventMock->method('shouldResponseBeCached')->willReturn(true);
             }
             $cacheHeadersService->expects($this->once())
                 ->method('applyCacheHash')

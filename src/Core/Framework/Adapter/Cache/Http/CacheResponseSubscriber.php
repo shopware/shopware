@@ -154,7 +154,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         // No cache when dynamic calculation says so
-        if ($cacheHashEvent && $cacheHashEvent->doNotCacheResponse()) {
+        if ($cacheHashEvent && !$cacheHashEvent->shouldResponseBeCached()) {
             // Response is not cacheable because of dynamic calculation, giving a hint to the reverse proxy
             $response->headers->set(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS, '1');
             $this->noCache($request, $response, $area);

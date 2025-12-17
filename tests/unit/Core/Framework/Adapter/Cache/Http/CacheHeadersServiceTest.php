@@ -232,11 +232,12 @@ class CacheHeadersServiceTest extends TestCase
         static::assertInstanceOf(Cookie::class, $firstCacheCookie);
 
         $this->addEventListener($this->eventDispatcher, HttpCacheCookieEvent::class, function (HttpCacheCookieEvent $event): void {
-            $event->passCache = true;
+            $event->isCacheable = true;
         });
 
         $secondResponse = new Response();
         $result = $this->cacheHeadersService->applyCacheHash($request, $salesChannelContext, new Cart('cart'), $secondResponse);
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $result);
 
         $secondCacheCookie = $secondResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
         static::assertInstanceOf(Cookie::class, $secondCacheCookie);

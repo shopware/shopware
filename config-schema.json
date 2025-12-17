@@ -1630,6 +1630,11 @@
                 "dynamic_templates": {
                     "type": "array",
                     "title": "Dynamic Templates Config"
+                },
+                "use_language_analyzer": {
+                    "type": "boolean",
+                    "description": "Use language-specific analyzers for search queries. When disabled (false), searches use sw_whitespace_analyzer for more precise results.",
+                    "default": true
                 }
             }
         },

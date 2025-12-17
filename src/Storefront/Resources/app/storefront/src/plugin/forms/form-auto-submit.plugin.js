@@ -162,7 +162,9 @@ export default class FormAutoSubmitPlugin extends Plugin {
             this._form.submit();
         }
 
-        PageLoadingIndicatorUtil.create();
+        if (this._form.checkValidity()) {
+            PageLoadingIndicatorUtil.create();
+        }
     }
 
     /**

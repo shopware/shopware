@@ -52,29 +52,56 @@ jobs:
           # Stop the Symfony server started by setup-shopware
           symfony server:stop || true
 
-      - name: Install Caddy
+      - name: Install Caddy and PHP-FPM
         run: |
+          PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
+          
+          # Install PHP-FPM (not included in shivammathur/setup-php)
           sudo apt-get update
+          sudo apt-get install -y php${PHP_VERSION}-fpm
+          
+          # Install Caddy
           sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https curl
           curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
           curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
           sudo apt-get update
           sudo apt-get install caddy
 
-      - name: Configure PHP-FPM
+      - name: Configure and start PHP-FPM
         run: |
-          # Configure PHP-FPM to listen on port 9000
           PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
-          sudo sed -i 's|listen = /run/php/.*|listen = 127.0.0.1:9000|g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
-          sudo systemctl restart php${PHP_VERSION}-fpm
+          
+          # Configure PHP-FPM to listen on port 9000
+          sudo sed -i 's|listen = .*|listen = 127.0.0.1:9000|g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+          
+          # Start PHP-FPM
+          sudo systemctl start php${PHP_VERSION}-fpm
+          sudo systemctl status php${PHP_VERSION}-fpm
 
       - name: Start Caddy
         run: |
+          # Replace placeholder in Caddyfile with actual path
+          sed -i "s|root \* public|root * ${GITHUB_WORKSPACE}/public|g" .github/ci/lighthouse/Caddyfile
           caddy start --config .github/ci/lighthouse/Caddyfile
+          
+          # Show Caddy logs for debugging
+          sleep 2
+          caddy status || true
 
       - name: Wait for server
         run: |
-          timeout 30 bash -c 'until curl -s http://localhost:8000/admin > /dev/null; do sleep 1; done'
+          echo "Waiting for server to be ready..."
+          for i in {1..30}; do
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/admin | grep -q "200\|301\|302"; then
+              echo "Server is ready!"
+              exit 0
+            fi
+            echo "Attempt $i: Server not ready yet, waiting..."
+            sleep 1
+          done
+          echo "Server failed to start. Checking logs..."
+          curl -v http://localhost:8000/admin || true
+          exit 1
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12

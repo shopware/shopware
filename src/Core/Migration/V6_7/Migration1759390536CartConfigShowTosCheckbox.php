@@ -38,7 +38,7 @@ class Migration1759390536CartConfigShowTosCheckbox extends MigrationStep
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => $key,
-            'configuration_value' => json_encode(['_value' => true]),
+            'configuration_value' => json_encode(['_value' => false]),
             'sales_channel_id' => null,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);

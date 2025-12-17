@@ -34,11 +34,11 @@ class Migration1759390536CartConfigShowTosCheckboxTest extends TestCase
         $id = array_key_first($newConfiguration);
 
         static::assertCount(1, $newConfiguration);
-        static::assertSame(['_value' => true], $newConfiguration[$id]);
+        static::assertSame(['_value' => false], $newConfiguration[$id]);
 
         $connection->update(
             'system_config',
-            ['configuration_value' => '{"_value": false}'],
+            ['configuration_value' => '{"_value": true}'],
             ['id' => Uuid::fromHexToBytes((string) $id)]
         );
 
@@ -48,7 +48,7 @@ class Migration1759390536CartConfigShowTosCheckboxTest extends TestCase
         $id = array_key_first($newConfiguration);
 
         static::assertCount(1, $newConfiguration);
-        static::assertSame(['_value' => false], $newConfiguration[$id]);
+        static::assertSame(['_value' => true], $newConfiguration[$id]);
     }
 
     /**

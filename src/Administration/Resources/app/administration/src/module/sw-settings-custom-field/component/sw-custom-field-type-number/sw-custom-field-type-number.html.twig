@@ -34,6 +34,14 @@
         :label="$tc('sw-settings-custom-field.customField.detail.labelMax')"
     />
     {% endblock %}
+
+    {% block sw_custom_field_type_number_container_allow_empty %}
+    <mt-switch
+        v-model="currentCustomField.config.allowEmpty"
+        bordered
+        :label="$tc('sw-settings-custom-field.customField.detail.labelAllowEmpty')"
+    />
+    {% endblock %}
 </sw-container>
 {% endblock %}
 {% endblock %}

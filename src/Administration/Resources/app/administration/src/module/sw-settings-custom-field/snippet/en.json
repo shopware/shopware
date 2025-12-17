@@ -69,6 +69,7 @@
         "labelTimeForm": "24-hour time format",
         "labelCustomFieldPosition": "Position",
         "labelMultiSelect": "Multi select",
+        "labelAllowEmpty": "Can have no value",
         "helpTextMultiSelect": "The multi select option cannot be toggled once the custom field has been created.",
         "labelEntityTypeSelect": "Entity type",
         "helpTextEntitySelect": "The entity type cannot be changed once the custom field has been created.",

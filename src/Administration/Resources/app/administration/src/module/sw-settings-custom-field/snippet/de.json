@@ -69,6 +69,7 @@
         "labelTimeForm": "24-Stunden-Zeitformat",
         "labelCustomFieldPosition": "Position",
         "labelMultiSelect": "Mehrfachauswahl",
+        "labelAllowEmpty": "Kann keinen Wert haben",
         "helpTextMultiSelect": "Die Mehrfachauswahloption kann nach Erstellen des Zusatzfeldes nicht mehr geändert werden.",
         "labelEntityTypeSelect": "Objekttyp",
         "helpTextEntitySelect": "Der Objekttyp kann nach Erstellen des Zusatzfeldes nicht mehr geändert werden.",

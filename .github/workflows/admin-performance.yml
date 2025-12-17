@@ -71,20 +71,48 @@ jobs:
         run: |
           PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
           
-          # Configure PHP-FPM to listen on port 9000
-          sudo sed -i 's|listen = .*|listen = 127.0.0.1:9000|g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+          # Find the PHP-FPM socket path
+          PHP_FPM_SOCKET="/run/php/php${PHP_VERSION}-fpm.sock"
+          echo "PHP_FPM_SOCKET=${PHP_FPM_SOCKET}" >> $GITHUB_ENV
+          
+          # Ensure the socket directory exists and has correct permissions
+          sudo mkdir -p /run/php
+          sudo chown www-data:www-data /run/php
+          
+          # Configure PHP-FPM - ensure socket has correct permissions for Caddy
+          sudo sed -i 's|listen.owner = .*|listen.owner = www-data|g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+          sudo sed -i 's|listen.group = .*|listen.group = www-data|g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+          sudo sed -i 's|listen.mode = .*|listen.mode = 0666|g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
           
           # Start PHP-FPM
           sudo systemctl start php${PHP_VERSION}-fpm
+          
+          # Verify PHP-FPM is running and socket exists
+          sleep 2
           sudo systemctl status php${PHP_VERSION}-fpm
+          ls -la /run/php/
+          
+          # Test PHP-FPM is working
+          echo "Testing PHP-FPM socket..."
+          if [ -S "${PHP_FPM_SOCKET}" ]; then
+            echo "PHP-FPM socket exists at ${PHP_FPM_SOCKET}"
+          else
+            echo "ERROR: PHP-FPM socket not found!"
+            exit 1
+          fi
 
       - name: Start Caddy
+        env:
+          DOCUMENT_ROOT: ${{ github.workspace }}/public
         run: |
-          # Replace placeholder in Caddyfile with actual path
-          sed -i "s|root \* public|root * ${GITHUB_WORKSPACE}/public|g" .github/ci/lighthouse/Caddyfile
-          caddy start --config .github/ci/lighthouse/Caddyfile
+          echo "Starting Caddy with:"
+          echo "  DOCUMENT_ROOT=${DOCUMENT_ROOT}"
+          echo "  PHP_FPM_SOCKET=${PHP_FPM_SOCKET}"
           
-          # Show Caddy logs for debugging
+          # Start Caddy with environment variables
+          DOCUMENT_ROOT="${DOCUMENT_ROOT}" PHP_FPM_SOCKET="${PHP_FPM_SOCKET}" caddy start --config .github/ci/lighthouse/Caddyfile
+          
+          # Show Caddy status
           sleep 2
           caddy status || true
 

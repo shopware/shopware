@@ -2081,4 +2081,3 @@ parameters:
 			identifier: shopware.domainException
 			count: 1
 			path: src/Storefront/Theme/ThemeFileResolver.php
-

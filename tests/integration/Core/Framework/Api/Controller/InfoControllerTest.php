@@ -346,6 +346,8 @@ class InfoControllerTest extends TestCase
                     ],
                 ],
                 'aware' => [
+                    A11yRenderedDocumentAware::class,
+                    lcfirst((new \ReflectionClass(A11yRenderedDocumentAware::class))->getShortName()),
                     CustomerAware::class,
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
                     CustomerGroupAware::class,

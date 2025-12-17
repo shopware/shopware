@@ -1,0 +1,19 @@
+{
+	# Disable admin interface - not needed for CI
+	admin off
+}
+
+:8000 {
+	root * public
+	encode zstd gzip
+
+	# Efficient cache policy for static assets (1 year, immutable)
+	@static path /bundles/* /theme/* /media/* /thumbnail/* /css/* /fonts/* /js/*
+	header @static Cache-Control "public, max-age=31536000, immutable"
+
+	# PHP-FPM for dynamic requests
+	@dynamic not path /bundles/* /theme/* /media/* /thumbnail/* /css/* /fonts/* /js/* /sitemap/*
+	php_fastcgi @dynamic 127.0.0.1:9000
+
+	file_server
+}

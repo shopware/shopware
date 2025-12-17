@@ -47,15 +47,25 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
-      - name: Start Web Server
-        env:
-          SYMFONY_DAEMON: "1"
-#          SYMFONY_NO_TLS: "1"
-          SYMFONY_ALLOW_HTTP: "1"
-          SYMFONY_PORT: "8000"
-          SYMFONY_ALLOW_ALL_IP: "1"
-          SYMFONY_USE_GZIP: "1"
-        run: symfony server:start
+      - name: Install Caddy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https curl
+          curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+          curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+          sudo apt-get update
+          sudo apt-get install caddy
+
+      - name: Configure PHP-FPM
+        run: |
+          # Configure PHP-FPM to listen on port 9000
+          PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
+          sudo sed -i 's|listen = /run/php/.*|listen = 127.0.0.1:9000|g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+          sudo systemctl restart php${PHP_VERSION}-fpm
+
+      - name: Start Caddy
+        run: |
+          caddy start --config .github/ci/lighthouse/Caddyfile
 
       - name: Wait for server
         run: |

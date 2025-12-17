@@ -34,12 +34,15 @@ module.exports = {
                 throttling: {
                     cpuSlowdownMultiplier: 1,
                 },
-                // Skip audits that are not relevant for an admin panel
+                // Skip audits that are not relevant for an admin panel or localhost testing
                 skipAudits: [
                     'is-crawlable',
                     'robots-txt',
                     'canonical',
                     'structured-data',
+                    // Skip HTTPS audit since we're testing on localhost
+                    'is-on-https',
+                    'redirects-http',
                 ],
             },
         },

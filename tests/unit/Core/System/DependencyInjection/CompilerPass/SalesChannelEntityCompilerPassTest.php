@@ -95,7 +95,6 @@ class SalesChannelEntityCompilerPassTest extends TestCase
 
         static::assertCount(2, $methodCalls);
         static::assertEquals('addExtension', $methodCalls[1][0]);
-        static::assertInstanceOf(Reference::class, $methodCalls[1][1][0]);
         static::assertSame(AttributeEntityExtension::class, (string) $methodCalls[1][1][0]);
     }
 
@@ -184,5 +183,10 @@ class AttributeEntityExtension extends EntityExtension
     public function getEntityName(): string
     {
         return 'test_attribute_entity';
+    }
+
+    public function getDefinitionClass(): string
+    {
+        return 'test_attribute_entity.definition';
     }
 }

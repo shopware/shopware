@@ -56,7 +56,8 @@ test('As a customer, I can perform a registration by validating to be not a robo
         });
 
         await test.step('Customer validates via the reCaptcha V2', async () => {
-            await ShopCustomer.presses(reCaptchaCheckbox);
+            // We cannot use presses() because the reCaptcha does not add a border/outline/box-shadow for its visible focus state.
+            await reCaptchaCheckbox.click();
             await ShopCustomer.expects(reCaptchaCheckbox).toBeChecked();
         });
 
@@ -110,7 +111,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
     }
 );
 
-test.skip('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V2 even after a false input.',
+test('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V2 even after a false input.',
     { tag: ['@Storefront', '@Form', '@Registration', '@Captcha'] },
     async ({
         ShopCustomer,
@@ -158,6 +159,7 @@ test.skip('As a customer, I can perform a registration that is validated by the 
 
         await test.step('Customer attempts to register but forgets to fill out a required field', async () => {
 
+            await ShopCustomer.presses(StorefrontAccountLogin.salutationSelect);
             await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
             await ShopCustomer.fillsIn(StorefrontAccountLogin.firstNameInput, customer.firstName);
             await ShopCustomer.fillsIn(StorefrontAccountLogin.registerEmailInput, customer.email);
@@ -166,6 +168,7 @@ test.skip('As a customer, I can perform a registration that is validated by the 
             await ShopCustomer.fillsIn(StorefrontAccountLogin.streetAddressInput, customer.street);
             await ShopCustomer.fillsIn(StorefrontAccountLogin.postalCodeInput, customer.postalCode);
             await ShopCustomer.fillsIn(StorefrontAccountLogin.cityInput, customer.city);
+            await ShopCustomer.presses(StorefrontAccountLogin.countryInput);
             await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
 
             await ShopCustomer.presses(StorefrontAccountLogin.registerButton);
@@ -189,7 +192,7 @@ test.skip('As a customer, I can perform a registration that is validated by the 
             await ShopCustomer.fillsIn(StorefrontAccountLogin.lastNameInput, customer.lastName);
 
             await ShopCustomer.presses(StorefrontAccountLogin.registerButton);
-
+            await StorefrontAccount.page.waitForURL('**/account', { waitUntil: 'commit' });
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         });
     }
@@ -207,6 +210,7 @@ test('As a customer, I want to fill out and submit the contact form that is vali
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
+        test.slow(); //Necessary for multiple retries due to rate limiting
 
         await TestDataService.setSystemConfig({
             'core.basicInformation.activeCaptchasV2': {
@@ -232,6 +236,7 @@ test('As a customer, I want to fill out and submit the contact form that is vali
         });
 
         await test.step('Fill out all necessary contact information.', async () => {
+            await ShopCustomer.presses(StorefrontContactForm.salutationSelect);
             await StorefrontContactForm.salutationSelect.selectOption('Mr.');
             await ShopCustomer.fillsIn(StorefrontContactForm.firstNameInput, 'John');
             await ShopCustomer.fillsIn(StorefrontContactForm.lastNameInput, 'Doe');
@@ -242,19 +247,28 @@ test('As a customer, I want to fill out and submit the contact form that is vali
             await ShopCustomer.presses(StorefrontContactForm.privacyPolicyCheckbox);
         });
 
-        await test.step('Send and validate the contact form.', async () => {
-            const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
-            );
+        await ShopCustomer.expects(async () => {
+            await test.step('Send and validate the contact form.', async () => {
+                const contactFormPromise = StorefrontContactForm.page.waitForResponse(
+                    `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
+                );
 
-            await ShopCustomer.presses(StorefrontContactForm.submitButton);
-            const contactFormResponse = await contactFormPromise;
+                // eslint-disable-next-line playwright/no-conditional-in-test
+                if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+                    await ShopCustomer.presses(StorefrontContactForm.submitButton);
+                } else {
+                    await StorefrontContactForm.submitButton.click();
+                }
 
-            expect(contactFormResponse.ok()).toBeTruthy();
+                const contactFormResponse = await contactFormPromise;
 
-            await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toHaveText(
-                'We have received your contact request and will process it as soon as possible.'
-            );
+                expect(contactFormResponse.ok()).toBeTruthy();
+                await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toHaveText(
+                    'We have received your contact request and will process it as soon as possible.'
+                );
+            });
+        }).toPass({
+            intervals: [30_000], // retry after 30 seconds
         });
     }
 );

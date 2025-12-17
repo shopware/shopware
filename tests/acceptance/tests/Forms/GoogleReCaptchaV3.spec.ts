@@ -1,11 +1,10 @@
 import { expect, test } from '@fixtures/AcceptanceTest';
-import { satisfies } from 'compare-versions';
 
 const reCaptcha_V3_site_key = '6LeNJ-UqAAAAAPmLzX0ekQuuv7f4HR8FVyaF4FrR';
 const reCaptcha_V3_secret_key = '6LeNJ-UqAAAAAGIxrxNBjVvQwPUZ6_DJxWlqXC9u';
 
 test.skip('As a customer, I can perform a registration by validating to be not a robot via the Google reCaptcha V3.',
-    { tag: ['@Storefront', '@Form', '@Registration', '@Captcha'] },
+    { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontAccountLogin,
@@ -13,7 +12,7 @@ test.skip('As a customer, I can perform a registration by validating to be not a
         TestDataService,
         IdProvider,
         Register,
-        InstanceMeta,
+        InstanceMeta ,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -48,14 +47,14 @@ test.skip('As a customer, I can perform a registration by validating to be not a
 );
 
 test.skip('As a customer, I can perform a registration that is validated by the invisible Google reCaptcha V3 even after a false input.',
-    { tag: ['@Storefront', '@Form', '@Registration', '@Captcha'] },
+    { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontAccountLogin,
         StorefrontAccount,
         TestDataService,
         IdProvider,
-        InstanceMeta,
+        InstanceMeta ,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -96,16 +95,16 @@ test.skip('As a customer, I can perform a registration that is validated by the 
         await test.step('Customer attempts to register but forgets to fill out a required field', async () => {
 
             await StorefrontAccountLogin.salutationSelect.selectOption(customer.salutation);
-            await ShopCustomer.fillsIn(StorefrontAccountLogin.firstNameInput, customer.firstName);
-            await ShopCustomer.fillsIn(StorefrontAccountLogin.registerEmailInput, customer.email);
-            await ShopCustomer.fillsIn(StorefrontAccountLogin.registerPasswordInput, customer.password);
+            await StorefrontAccountLogin.firstNameInput.fill(customer.firstName);
+            await StorefrontAccountLogin.registerEmailInput.fill(customer.email);
+            await StorefrontAccountLogin.registerPasswordInput.fill(customer.password);
 
-            await ShopCustomer.fillsIn(StorefrontAccountLogin.streetAddressInput, customer.street);
-            await ShopCustomer.fillsIn(StorefrontAccountLogin.postalCodeInput, customer.postalCode);
-            await ShopCustomer.fillsIn(StorefrontAccountLogin.cityInput, customer.city);
+            await StorefrontAccountLogin.streetAddressInput.fill(customer.street);
+            await StorefrontAccountLogin.postalCodeInput.fill(customer.postalCode);
+            await StorefrontAccountLogin.cityInput.fill(customer.city);
             await StorefrontAccountLogin.countryInput.selectOption({ label: customer.country });
 
-            await ShopCustomer.presses(StorefrontAccountLogin.registerButton);
+            await StorefrontAccountLogin.registerButton.click();
 
             /**
              * Submitting the form triggers a request to google to validate the captcha.
@@ -114,19 +113,13 @@ test.skip('As a customer, I can perform a registration that is validated by the 
              */
             await StorefrontAccountLogin.page.waitForResponse(resp => resp.url().includes('google.com/recaptcha/api2/clr'));
 
-
-            // eslint-disable-next-line playwright/no-conditional-in-test
-            if (!InstanceMeta.features['ACCESSIBILITY_TWEAKS'] && satisfies(InstanceMeta.version, '<6.7')) {
-                await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass('form-control');
-            } else {
-                await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
-            }
+            await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
         });
 
-        await test.step('Customer fills out the missing field and re-attempts the registration', async () => {
-            await ShopCustomer.fillsIn(StorefrontAccountLogin.lastNameInput, customer.lastName);
+        await test.step('Customer fills out the missing field and re-attempts the registration', async() => {
+            await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
 
-            await ShopCustomer.presses(StorefrontAccountLogin.registerButton);
+            await StorefrontAccountLogin.registerButton.click();
 
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
         });
@@ -134,14 +127,14 @@ test.skip('As a customer, I can perform a registration that is validated by the 
 );
 
 test.skip('As a customer, I want to fill out and submit the contact form that is validated by the invisible Google reCaptcha V3.',
-    { tag: ['@Storefront', '@Form', '@Contact', '@Captcha'] },
+    { tag: ['@Form', '@Contact', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontHome,
         StorefrontContactForm,
         DefaultSalesChannel,
         TestDataService,
-        InstanceMeta,
+        InstanceMeta ,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -162,7 +155,7 @@ test.skip('As a customer, I want to fill out and submit the contact form that is
 
         await test.step('Open the contact form modal on home page.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
-            await ShopCustomer.presses(StorefrontHome.contactFormLink);
+            await StorefrontHome.contactFormLink.click();
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
 
             const reCaptchaNotice = StorefrontContactForm.page.getByText('This site is protected by reCAPTCHA');
@@ -171,13 +164,12 @@ test.skip('As a customer, I want to fill out and submit the contact form that is
 
         await test.step('Fill out all necessary contact information.', async () => {
             await StorefrontContactForm.salutationSelect.selectOption('Mr.');
-            await ShopCustomer.fillsIn(StorefrontContactForm.firstNameInput, 'John');
-            await ShopCustomer.fillsIn(StorefrontContactForm.lastNameInput, 'Doe');
-            await ShopCustomer.fillsIn(StorefrontContactForm.emailInput, 'mail@test.com');
-            await ShopCustomer.fillsIn(StorefrontContactForm.phoneInput, '0123456789');
-            await ShopCustomer.fillsIn(StorefrontContactForm.subjectInput, 'Test: Product question');
-            await ShopCustomer.fillsIn(StorefrontContactForm.commentInput, 'Test: Hello, I have a question about your products.');
-            await ShopCustomer.presses(StorefrontContactForm.privacyPolicyCheckbox);
+            await StorefrontContactForm.firstNameInput.fill('John');
+            await StorefrontContactForm.lastNameInput.fill('Doe');
+            await StorefrontContactForm.emailInput.fill('mail@test.com');
+            await StorefrontContactForm.phoneInput.fill('0123456789');
+            await StorefrontContactForm.subjectInput.fill('Test: Product question');
+            await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
         });
 
         await test.step('Send and validate the contact form.', async () => {
@@ -185,7 +177,7 @@ test.skip('As a customer, I want to fill out and submit the contact form that is
                 `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
             );
 
-            await ShopCustomer.presses(StorefrontContactForm.submitButton);
+            await StorefrontContactForm.submitButton.click();
             const contactFormResponse = await contactFormPromise;
 
             expect(contactFormResponse.ok()).toBeTruthy();

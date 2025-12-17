@@ -22,7 +22,7 @@ test(
 
     await test.step('Dismiss cookie banner using the configure option', async () => {
         await ShopCustomer.presses(StorefrontHome.consentConfigureButton);
-        await ShopCustomer.presses(StorefrontHome.offcanvasBackdrop);
+        await ShopCustomer.presses(StorefrontHome.consentDialogCloseButton);;
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
     });
 

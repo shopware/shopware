@@ -22,7 +22,7 @@ test(
         });
 
         await test.step('Customer can select a different currency', async () => {
-            await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.symbol));
+            await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
             await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText(currency.name);
             await ShopCustomer.expects(productListing.productPrice).toContainText(currency.isoCode);
         });

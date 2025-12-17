@@ -1,33 +1,54 @@
-import { getLanguageData, getSnippetSetId, test } from '@fixtures/AcceptanceTest';
+import { formatPrice, getLanguageData, getSnippetSetId, test } from '@fixtures/AcceptanceTest';
 
-test ('Shop customers should be able to view products in different languages.', { tag: ['@Languages', '@Storefront'] }, async ({
-    ShopCustomer,
-    TestDataService,
-    StorefrontHeader,
-    StorefrontHome,
-}) => {
+test(
+    'Shop customers should be able to view products in different languages.',
+    { tag: ['@Languages', '@Storefront'] },
+    async ({ ShopCustomer, TestDataService, InstanceMeta, StorefrontHeader, StorefrontHome }) => {
+        const product = await TestDataService.createBasicProduct();
 
-    const salesChannelId = TestDataService.defaultSalesChannel.id;
-    const language = await getLanguageData(TestDataService.AdminApiClient, 'de-DE');
-    const snippetSetId = await getSnippetSetId(TestDataService.AdminApiClient, 'de-DE');
+        const salesChannelId = TestDataService.defaultSalesChannel.id;
+        const language = await getLanguageData(TestDataService.AdminApiClient, 'de-DE');
+        const snippetSetId = await getSnippetSetId(TestDataService.AdminApiClient, 'de-DE');
+        const germanDomainUrl = `${(process.env.APP_URL || 'http://localhost:8000').replace(/\/$/, '')}/de-DE/`;
 
-    await TestDataService.assignSalesChannelLanguage(salesChannelId, language.id);
-    await TestDataService.createSalesChannelDomain({ languageId: language.id, snippetSetId: snippetSetId });
+        await TestDataService.assignSalesChannelLanguage(salesChannelId, language.id);
+        await TestDataService.createSalesChannelDomain({
+            languageId: language.id,
+            snippetSetId: snippetSetId,
+            url: germanDomainUrl
+        });
 
-    const product = await TestDataService.createBasicProduct();
-    const productListing = StorefrontHome.productListItems.filter({ has: StorefrontHome.page.getByRole('link', { name: product.name })});
-    const addToCartButton = productListing.filter({ has: StorefrontHome.page.getByRole('button')});
+        await TestDataService.clearCaches();
 
-    await test.step('Customer can view languages menu', async () => {
-        await ShopCustomer.goesTo(StorefrontHome.url());
-        await ShopCustomer.expects(StorefrontHeader.languagesDropdown).toContainText('English');
-        await ShopCustomer.expects(addToCartButton).toContainText('Add to shopping cart');
-    });
+        const productListing = StorefrontHome.productListItems.filter({ has: StorefrontHome.page.getByRole('link', { name: product.name }) });
+        const addToCartButton = productListing.filter({ has: StorefrontHome.page.getByRole('button') });
+        const languageDropdown = StorefrontHome.page.locator("#languagesDropdown-top-bar");
 
-    await test.step('Customer can select a different language', async () => {
-        await ShopCustomer.presses(StorefrontHeader.languagesDropdown);
-        await ShopCustomer.presses(StorefrontHeader.languagesMenuOptions.getByText('Deutsch'));
-        await ShopCustomer.expects(StorefrontHeader.languagesDropdown).toContainText('Deutsch');
-        await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
-    });
-})
+        await ShopCustomer.expects(async () => {
+            await test.step('Customer can view languages menu', async () => {
+                await ShopCustomer.goesTo(germanDomainUrl);
+                await ShopCustomer.expects(languageDropdown).toContainText('Deutsch');
+                await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
+            });
+        }).toPass({
+            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        });
+
+        await test.step('Customer can select a different language', async () => {
+            await ShopCustomer.presses(languageDropdown);
+            // Select the second li.top-bar-list-item (index 1) and click the button inside it
+            // covers both cases: with and without feature flag v6.8.0 and English and English (United Kingdom)
+
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+                const secondListItem = StorefrontHome.page.locator('li.top-bar-list-item').nth(1);
+                await ShopCustomer.presses(secondListItem.locator('button.dropdown-item'));
+            } else {
+                await StorefrontHeader.page.locator('.top-bar-language').getByRole('list').getByText('English').click();
+            }
+            
+            await ShopCustomer.expects(languageDropdown).toContainText('English');
+            await ShopCustomer.expects(addToCartButton).toContainText('Add to shopping cart');
+        });
+    }
+);

@@ -21,7 +21,7 @@ async function createWrapper(
             icon: 'regular-laptop',
             id: 'sw-settings-store',
             name: 'settings-store',
-            label: 'c',
+            label: 'Storefront',
             privilege: 'store.viewer',
         },
         {
@@ -30,7 +30,7 @@ async function createWrapper(
             icon: 'regular-user',
             id: 'sw-settings-user',
             name: 'settings-user',
-            label: 'a',
+            label: 'Users & Permissions',
             privilege: 'user.viewer',
         },
         {
@@ -39,7 +39,7 @@ async function createWrapper(
             icon: 'regular-user',
             id: 'sw-settings-foo',
             name: 'settings-foo',
-            label: 'b',
+            label: "User's Foo & Bar",
             privilege: 'foo.viewer',
         },
         {
@@ -48,7 +48,7 @@ async function createWrapper(
             icon: 'regular-globe',
             id: 'sw-settings-snippet',
             name: 'settings-snippet',
-            label: 'h',
+            label: 'Snippets',
             privilege: 'snippet.viewer',
         },
         {
@@ -57,7 +57,7 @@ async function createWrapper(
             icon: 'regular-products',
             id: 'sw-settings-listing',
             name: 'settings-listing',
-            label: 's',
+            label: 'Listings',
             privilege: 'listing.viewer',
         },
         {
@@ -66,7 +66,7 @@ async function createWrapper(
             icon: 'regular-truck',
             id: 'sw-settings-shipping',
             name: 'settings-shipping',
-            label: 'a',
+            label: 'Shipping',
             privilege: 'shipping.viewer',
         },
         {
@@ -135,6 +135,10 @@ async function createWrapper(
                         template: '<div class="mt-card"><slot></slot></div>',
                     },
                     'sw-settings-item': await wrapTestComponent('sw-settings-item'),
+                    'mt-search': {
+                        template: '<div class="mt-search"><slot></slot></div>',
+                    },
+                    'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'router-link': {
                         template: '<a><slot></slot></a>',
                     },
@@ -437,6 +441,83 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             'settings.hideRenameBanner': {
                 value: true,
             },
+        });
+    });
+
+    describe('search functionality', () => {
+        it('should filter items based on search term (term is part of label, case insensitive, white space around)', async () => {
+            const wrapper = await createWrapper();
+            wrapper.vm.searchQuery = '  uSeR  ';
+            await wrapper.vm.$nextTick();
+
+            const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
+
+            expect(settingsGroups).toHaveLength(1);
+            const [
+                groupName,
+                settingsItems,
+            ] = settingsGroups[0];
+            expect(groupName).toBe('system');
+            expect(settingsItems).toStrictEqual([
+                {
+                    group: 'system',
+                    to: 'sw.settings.foo.list',
+                    icon: 'regular-user',
+                    id: 'sw-settings-foo',
+                    name: 'settings-foo',
+                    label: "User's Foo & Bar",
+                    privilege: 'foo.viewer',
+                },
+                {
+                    group: 'system',
+                    to: 'sw.settings.user.list',
+                    icon: 'regular-user',
+                    id: 'sw-settings-user',
+                    name: 'settings-user',
+                    label: 'Users & Permissions',
+                    privilege: 'user.viewer',
+                },
+            ]);
+        });
+
+        it('should filter items based on search term (label is part of term)', async () => {
+            // Item 'Snippets' is expected to be found with search term 'Snippets and more'
+            const wrapper = await createWrapper();
+            wrapper.vm.searchQuery = 'Snippets and more';
+            await wrapper.vm.$nextTick();
+
+            const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
+
+            expect(settingsGroups).toHaveLength(1);
+            const [
+                groupName,
+                settingsItems,
+            ] = settingsGroups[0];
+            expect(groupName).toBe('shop');
+            expect(settingsItems).toStrictEqual([
+                {
+                    group: 'shop',
+                    to: 'sw.settings.snippet.index',
+                    icon: 'regular-globe',
+                    id: 'sw-settings-snippet',
+                    name: 'settings-snippet',
+                    label: 'Snippets',
+                    privilege: 'snippet.viewer',
+                },
+            ]);
+        });
+
+        it('should show empty state when no settings items are available due to search filtering', async () => {
+            const wrapper = await createWrapper();
+            wrapper.vm.searchQuery = 'non-existing';
+            await wrapper.vm.$nextTick();
+
+            const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
+
+            expect(settingsGroups).toHaveLength(0);
+
+            const emptyState = wrapper.findComponent({ name: 'mt-empty-state' });
+            expect(emptyState.exists()).toBe(true);
         });
     });
 });

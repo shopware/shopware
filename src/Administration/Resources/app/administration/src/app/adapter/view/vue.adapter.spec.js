@@ -707,6 +707,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-select',
                 'mt-switch',
                 'mt-text-field',
+                'mt-search',
                 'mt-textarea',
                 'mt-icon',
                 'mt-data-table',

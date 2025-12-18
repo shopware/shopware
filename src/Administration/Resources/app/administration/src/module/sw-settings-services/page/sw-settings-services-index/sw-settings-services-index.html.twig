@@ -14,9 +14,17 @@
         v-if="!suspended"
         #content
     >
+        <sw-extension-component-section
+            position-identifier="sw-settings-services-header"
+        />
+
         <sw-settings-services-hero
             :documentation-link="currentRevision.links['docs-url']"
             :feedback-link="currentRevision.links['feedback-url']"
+        />
+
+        <sw-extension-component-section
+            position-identifier="sw-settings-services-content__before"
         />
 
         <div class="sw-settings-services-index__content">
@@ -111,5 +119,9 @@
                 />
             </div>
         </div>
+
+        <sw-extension-component-section
+            position-identifier="sw-settings-services-footer"
+        />
     </template>
 </sw-page>

@@ -1177,4 +1177,20 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         expect(possibleSelectionResult).not.toContain('user');
     });
+
+    it('should not filter out read-only properties', async () => {
+        const wrapper = await createWrapper('customer');
+        await flushPromises();
+
+        const pathSelection = wrapper.find('.sw-import-export-entity-path-select__selection-input');
+        await pathSelection.trigger('click');
+        await flushPromises();
+
+        const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
+
+        expect(possibleSelectionResult).toContain('lastOrderDate');
+        expect(possibleSelectionResult).toContain('orderCount');
+        expect(possibleSelectionResult).toContain('orderTotalAmount');
+        expect(possibleSelectionResult).toContain('reviewCount');
+    });
 });

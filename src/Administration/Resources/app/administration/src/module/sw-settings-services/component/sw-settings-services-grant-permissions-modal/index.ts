@@ -1,7 +1,6 @@
 /**
  * @sw-package framework
  */
-import { MtModal, MtModalRoot, MtModalAction, MtModalClose } from '@shopware-ag/meteor-component-library';
 import useSession from 'src/app/composables/use-session';
 import template from './sw-settings-services-grant-permissions-modal.html.twig';
 import './sw-settings-services-grant-permissions-modal.scss';
@@ -15,13 +14,6 @@ import { grantPermissions } from '../../composables/permissions';
 export default Shopware.Component.wrapComponentConfig({
     name: 'sw-settings-services-grant-permissions-modal',
     template,
-
-    components: {
-        MtModal,
-        MtModalRoot,
-        MtModalAction,
-        MtModalClose,
-    },
 
     data() {
         const assetFilter = Shopware.Filter.getByName('asset');

@@ -19,7 +19,7 @@ test('As a shop customer, I want to use an "Accept All Cookies" button in the ba
     });
 
     await test.step('Click "Accept All Cookies" and verify cookies are accepted', async () => {
-        await StorefrontHome.consentAcceptAllCookiesButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentAcceptAllCookiesButton);
 
         // Wait for banner to disappear, which indicates cookies have been set
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible({ timeout: COOKIE_BANNER_VISIBILITY_TIMEOUT });

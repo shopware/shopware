@@ -1,0 +1,22 @@
+.sw-settings-usage-data-store-data-consent {
+    .sw-settings-usage-data-store-data-consent__intro {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        column-gap: var(--scale-size-16);
+        margin-bottom: var(--scale-size-24);
+        font-size: var(--font-size-xs);
+    }
+
+    .sw-settings-usage-data-store-data-consent__consent {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: var(--scale-size-16);
+    }
+
+    .sw-settings-usage-data-store-data-consent__legal-links {
+        margin-top: var(--scale-size-12);
+        font-size: var(--font-size-xs);
+    }
+}

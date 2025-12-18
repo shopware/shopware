@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Test\Media\File;
 use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
 #[Package('discovery')]
 class FileUrlValidatorMock implements FileUrlValidatorInterface
 {

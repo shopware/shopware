@@ -119,6 +119,10 @@ Trying to update these columns now results in a `WriteConstraintViolationExcepti
 
 ## Administration
 
+### Search filter for settings module
+
+In the settings module, there is now a search bar in the top right. It can be used to filter settings based on a search term to quickly find what you need.
+
 ## Storefront
 
 ### The email validation supports IDN email addresses
@@ -138,6 +142,16 @@ Next changes were made to `ResponseCacheConfiguration` methods:
 Admins can override policies per script using `route_policies` with `route#hook` pattern in configuration (see HTTP caching policies description in the Core section).
 
 ## Hosting & Configuration
+
+### Control language analyzer usage in Elasticsearch search queries
+
+A new environment variable `SHOPWARE_ES_USE_LANGUAGE_ANALYZER` has been added to control whether language-specific analyzers (like `sw_english_analyzer`, `sw_german_analyzer`) are used for search queries.
+
+By default (`SHOPWARE_ES_USE_LANGUAGE_ANALYZER=1`), search queries use the same analyzer as the indexed field, which includes language-specific features like stopword filtering and stemming. This provides broader, more fuzzy search results.
+
+When set to `0` (`SHOPWARE_ES_USE_LANGUAGE_ANALYZER=0`), search queries use `sw_whitespace_analyzer` instead, providing less fuzzy search results with fewer matches.
+
+**Note:** This setting only affects search queries, not indexing. Indexed data continues to use language analyzers for proper tokenization.
 
 ### Possibility to disable extensions when setting up staging mode
 

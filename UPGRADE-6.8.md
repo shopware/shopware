@@ -552,6 +552,9 @@ For example instead of `administration/static/img/sw-login-background.png` use `
 
 <details>
 
+## TOS checkbox position update
+The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
+
 ## Removal of hardcoded language flags
 
 Hardcoded CSS language flags in `src/Storefront/Resources/app/storefront/src/scss/component/_flags.scss` were removed.

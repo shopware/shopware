@@ -34,6 +34,10 @@ Additionally, the following configuration was deprecated:
 
 ## Administration
 
+### Loading indicator for whole page
+
+When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
+
 ## Storefront
 
 ### The email validation supports IDN email addresses

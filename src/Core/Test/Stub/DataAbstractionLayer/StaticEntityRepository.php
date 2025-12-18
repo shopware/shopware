@@ -54,7 +54,7 @@ class StaticEntityRepository extends EntityRepository
      * @param array<callable(Criteria, Context): (ResultTypes)|ResultTypes> $searches
      */
     public function __construct(
-        private array $searches,
+        public array $searches,
         private readonly ?EntityDefinition $definition = null
     ) {
         if (!$definition) {

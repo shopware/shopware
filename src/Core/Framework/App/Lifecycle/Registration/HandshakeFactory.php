@@ -16,17 +16,17 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
  * @final
  */
 #[Package('framework')]
-class HandshakeFactory
+readonly class HandshakeFactory
 {
     public function __construct(
-        private readonly string $shopUrl,
-        private readonly ShopIdProvider $shopIdProvider,
-        private readonly StoreClient $storeClient,
-        private readonly string $shopwareVersion
+        private string $shopUrl,
+        private ShopIdProvider $shopIdProvider,
+        private StoreClient $storeClient,
+        private string $shopwareVersion,
     ) {
     }
 
-    public function create(Manifest $manifest, ?AppEntity $app = null): AppHandshakeInterface
+    public function create(Manifest $manifest, AppEntity $app): AppHandshakeInterface
     {
         $setup = $manifest->getSetup();
         $metadata = $manifest->getMetadata();
@@ -51,7 +51,7 @@ class HandshakeFactory
         }
 
         // Get current app secret for re-registration (secret rotation)
-        $currentAppSecret = $app?->getAppSecret();
+        $currentAppSecret = $app->getAppSecret();
 
         if ($privateSecret) {
             return new PrivateHandshake(

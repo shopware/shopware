@@ -48,8 +48,8 @@ HTTP caching support was added for the following Store API endpoints:
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Store API: compressed criteria parameter support
-Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows 
-sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported. 
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows
+sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported.
 Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
 Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
@@ -100,6 +100,10 @@ To make full use of `assignRecursive`, every class using `AssignArrayTrait` must
 The `assignRecursive` method enables deeply nested, JSON-serialized data structures - for example, a fully serialized `ProductEntity` including associations such as `properties` - to be converted back into a fully populated `ProductEntity` instance, including all nested `Struct` and `Collection` objects.
 
 Note: `assignRecursive` uses reflection and creates nested struct instances, so it is noticeably slower than the classic shallow `assign` and is intended for import/export and (re-)hydration scenarios rather than tight, performance-critical loops.
+
+### Improved translation installation
+
+Installing a translation now will always create a corresponding snippet set. This fixes issues with shop instances that are migrating from translations provided by a plugin to the core, where uninstalling the plugin could lead to a missing snippet set.
 
 ### Performance improvements for generating category SEO-Urls
 

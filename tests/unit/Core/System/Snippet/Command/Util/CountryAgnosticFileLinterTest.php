@@ -6,8 +6,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
 use Shopware\Core\System\Snippet\Struct\LintedTranslationFileOptions;
 use Shopware\Core\System\Snippet\Struct\LintedTranslationFileStruct;
@@ -31,11 +38,23 @@ class CountryAgnosticFileLinterTest extends TestCase
 
     private MockObject&Filesystem $filesystem;
 
+    /**
+     * @var MockObject&EntityRepository<PluginCollection>
+     */
+    private MockObject&EntityRepository $pluginRepository;
+
+    /**
+     * @var MockObject&EntityRepository<AppCollection>
+     */
+    private MockObject&EntityRepository $appRepository;
+
     protected function setUp(): void
     {
         // Mock Finder to avoid filesystem scanning
         $this->finder = $this->createMock(Finder::class);
         $this->filesystem = $this->createMock(Filesystem::class);
+        $this->pluginRepository = $this->createMock(EntityRepository::class);
+        $this->appRepository = $this->createMock(EntityRepository::class);
 
         // Configure Finder mock to be chainable
         $this->finder->method('files')->willReturnSelf();
@@ -49,8 +68,8 @@ class CountryAgnosticFileLinterTest extends TestCase
 
         $this->fileLinter = new CountryAgnosticFileLinter(
             $this->filesystem,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
+            $this->pluginRepository,
+            $this->appRepository,
             $this->finder,
         );
     }
@@ -177,6 +196,96 @@ class CountryAgnosticFileLinterTest extends TestCase
 
         $result = $this->fileLinter->checkTranslationFiles($options);
 
+        $this->assertEmptyResult($result);
+    }
+
+    public function testGetFinderWithExtensionPaths(): void
+    {
+        $pluginSearchResult = $this->createPluginSearchResult('/path/to/plugin1', 'plugin-id-1');
+        $appSearchResult = $this->createAppSearchResult('/path/to/app1', 'app-id-1');
+
+        $this->pluginRepository->expects(static::once())->method('search')->willReturn($pluginSearchResult);
+        $this->appRepository->expects(static::once())->method('search')->willReturn($appSearchResult);
+
+        // Verify that Finder->in() is called with an array containing both paths
+        // The exact structure depends on entity IDs from map(), so we check values
+        $this->finder->expects($this->once())
+            ->method('in')
+            ->willReturnCallback(function ($paths) {
+                $pathValues = array_values($paths);
+                static::assertContains('/path/to/plugin1', $pathValues);
+                static::assertContains('/path/to/app1', $pathValues);
+
+                return $this->finder;
+            });
+
+        $options = $this->createOptionsWithExtensions('MyPlugin,MyApp');
+
+        $this->finder->method('count')->willReturn(0);
+        $this->finder->method('getIterator')->willReturn(new \ArrayIterator([]));
+
+        $result = $this->fileLinter->checkTranslationFiles($options);
+        $this->assertEmptyResult($result);
+    }
+
+    /**
+     * @return EntitySearchResult<PluginCollection>
+     */
+    private function createPluginSearchResult(string $path, string $id): EntitySearchResult
+    {
+        $plugin = new PluginEntity();
+        $plugin->setPath($path);
+        $plugin->setUniqueIdentifier($id);
+
+        $collection = new PluginCollection([$plugin]);
+
+        return new EntitySearchResult(
+            'plugin',
+            1,
+            $collection,
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+    }
+
+    /**
+     * @return EntitySearchResult<AppCollection>
+     */
+    private function createAppSearchResult(string $path, string $id): EntitySearchResult
+    {
+        $app = new AppEntity();
+        $app->setPath($path);
+        $app->setUniqueIdentifier($id);
+
+        $collection = new AppCollection([$app]);
+
+        return new EntitySearchResult(
+            'app',
+            1,
+            $collection,
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+    }
+
+    private function createOptionsWithExtensions(string $extensions): LintedTranslationFileOptions
+    {
+        $input = $this->createMock(InputInterface::class);
+        $input->method('getOption')->willReturnMap([
+            ['fix', false],
+            ['all', false],
+            ['extensions', $extensions],
+            ['ignore', ''],
+            ['dir', ''],
+        ]);
+
+        return LintedTranslationFileOptions::fromInputInterface($input);
+    }
+
+    private function assertEmptyResult(LintedTranslationFileStruct $result): void
+    {
         static::assertCount(0, $result->getCompleteCollection(), 'Should have no files when Finder returns empty result');
         static::assertCount(0, $result->getSpecificCollection(), 'Should have no country-specific files');
         static::assertCount(0, $result->getFixableFiles(), 'Should have no fixable files');

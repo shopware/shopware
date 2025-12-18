@@ -109,6 +109,10 @@ This prevents cases where SEO-Urls were generated multiple times for the same ca
 
 ## Administration
 
+### Search filter for settings module
+
+In the settings module, there is now a search bar in the top right. It can be used to filter settings based on a search term to quickly find what you need.
+
 ## Storefront
 
 ### The email validation supports IDN email addresses

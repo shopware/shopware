@@ -6,14 +6,15 @@ test(
         ShopCustomer,
         TestDataService,
         DefaultSalesChannel,
-        StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
-        ChangeStorefrontCurrency,
-        Login,
+        StorefrontHeader,
+        StorefrontProductDetail,
         AddProductToCart,
-        ProceedFromProductToCheckout,
+        ChangeStorefrontCurrency,
         ConfirmTermsAndConditions,
+        Login,
+        ProceedFromProductToCheckout,
         SelectPaymentMethod,
         SelectShippingMethod,
         SubmitOrder,
@@ -27,8 +28,16 @@ test(
     await ShopCustomer.attemptsTo(Login(customer));
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
 
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (satisfies(InstanceMeta.version, '<6.7') && !InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+        await StorefrontHeader.currenciesDropdown.click();
+        await StorefrontHeader.currenciesMenuOptions.getByText(currency.symbol).click();
+    }   
+    else {
+        await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
+    }
+    
     let productPrice = `${currency.isoCode} 24.00`;
     let totalPrice = `${currency.isoCode} 20.16`;
 

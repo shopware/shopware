@@ -20,23 +20,23 @@
 }
 
 .sw-multi-tag-select-validation-popover {
-    .sw-multi-tag-select-valid,
-    .sw-multi-tag-select-invalid {
-        padding: 0.3rem 0.5rem;
-        margin: 0.3rem 0.5rem;
-        border-radius: $border-radius-default;
-    }
-
-    .sw-multi-tag-select-valid {
-        cursor: pointer;
-        background: $color-shopware-brand-50;
-    }
-
-    .sw-multi-tag-select-invalid {
-        background: $color-gray-50;
-    }
-
     &.sw-popover__wrapper.--placement-bottom-outside {
         transform: none;
     }
+}
+
+.sw-multi-tag-select-valid,
+.sw-multi-tag-select-invalid {
+    padding: 0.3rem 0.5rem;
+    margin: 0.3rem 0.5rem;
+    border-radius: $border-radius-default;
+}
+
+.sw-multi-tag-select-valid {
+    cursor: pointer;
+    background: $color-shopware-brand-50;
+}
+
+.sw-multi-tag-select-invalid {
+    background: $color-gray-50;
 }

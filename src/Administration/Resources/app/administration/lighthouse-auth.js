@@ -37,9 +37,9 @@ module.exports = async (browser, context) => {
     // Click the login button
     await page.click('button[type="submit"]');
 
-    // Wait for successful login - the dashboard should load
+    // Wait for successful login - the admin should load
     // This indicates the boot process has completed
-    await page.waitForSelector('.sw-dashboard-index__welcome-message', { timeout: 60000 });
+    await page.waitForSelector('.sw-help-center__button', { timeout: 60000 });
 
     // Wait additional 3 seconds to ensure everything is fully loaded
     await new Promise((resolve) => {setTimeout(resolve, 3000)});

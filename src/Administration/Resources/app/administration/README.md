@@ -27,6 +27,8 @@ npm run e2e
 npm test
 ```
 
+For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
 ## Performance Testing
 
 Performance tests use Lighthouse CI to measure real-world runtime performance of the Administration panel, focusing on boot process and interactivity metrics.
@@ -61,8 +63,6 @@ The performance tests measure:
 - **Performance Score**: Overall composite score
 
 Configuration is in `lighthouserc.js`. Reports are saved to `.lighthouseci/` directory.
-
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 
 ## Twig Linting Setup

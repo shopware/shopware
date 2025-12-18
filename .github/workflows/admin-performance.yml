@@ -55,10 +55,11 @@ jobs:
           SYMFONY_DAEMON: "1"
           SYMFONY_NO_TLS: "1"
           SYMFONY_ALLOW_HTTP: "1"
-          SYMFONY_PORT: "8001"
+          SYMFONY_PORT: "8001" # Symfony server will run on port 8001, Caddy will proxy on 8000
           SYMFONY_ALLOW_ALL_IP: "1"
         run: symfony server:start
 
+      # Caddy reverse proxy to add caching headers and compression for better Lighthouse results
       - name: Write Caddyfile
         run: |
           cat <<'EOF' > Caddyfile

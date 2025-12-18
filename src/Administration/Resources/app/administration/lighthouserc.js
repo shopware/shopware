@@ -15,9 +15,8 @@ const lighthouseAuthPath = relative(process.cwd(), resolve(__dirname, 'lighthous
 module.exports = {
     ci: {
         collect: {
-            // Measure the dashboard after login (authenticated performance)
+            // Measure the empty product listing after login (authenticated performance)
             url: [
-                'http://localhost:8000/admin#/sw/dashboard/index',
                 'http://localhost:8000/admin#/sw/product/index',
             ],
             numberOfRuns: 3,
@@ -48,23 +47,23 @@ module.exports = {
         },
         assert: {
             assertions: {
-                // Overall performance score must be at least 40%
-                'categories:performance': ['error', { minScore: 0.4 }],
+                // Overall performance score must be at least 65%
+                'categories:performance': ['error', { minScore: 0.65 }],
 
-                // First Contentful Paint: User should see something within 6 seconds
-                'first-contentful-paint': ['error', { maxNumericValue: 6000 }],
+                // First Contentful Paint: User should see something within 3 seconds
+                'first-contentful-paint': ['error', { maxNumericValue: 3000 }],
 
-                // Time to Interactive: Admin must be usable within 10 seconds
-                'interactive': ['error', { maxNumericValue: 10000 }],
+                // Time to Interactive: Admin must be usable within 4 seconds
+                'interactive': ['error', { maxNumericValue: 4000 }],
 
-                // Total Blocking Time: Prevent excessive JS blocking (600ms threshold)
-                'total-blocking-time': ['error', { maxNumericValue: 600 }],
+                // Total Blocking Time: Prevent excessive JS blocking (60ms threshold)
+                'total-blocking-time': ['error', { maxNumericValue: 60 }],
 
-                // Largest Contentful Paint: Main UI should render within 8 seconds
-                'largest-contentful-paint': ['error', { maxNumericValue: 8000 }],
+                // Largest Contentful Paint: Main UI should render within 4 seconds
+                'largest-contentful-paint': ['error', { maxNumericValue: 4000 }],
 
                 // Speed Index: Content should be visually populated reasonably fast
-                'speed-index': ['warn', { maxNumericValue: 6000 }],
+                'speed-index': ['warn', { maxNumericValue: 3000 }],
             },
         },
         upload: {

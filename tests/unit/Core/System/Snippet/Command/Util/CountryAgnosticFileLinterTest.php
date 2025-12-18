@@ -204,8 +204,8 @@ class CountryAgnosticFileLinterTest extends TestCase
         $pluginSearchResult = $this->createPluginSearchResult('/path/to/plugin1', 'plugin-id-1');
         $appSearchResult = $this->createAppSearchResult('/path/to/app1', 'app-id-1');
 
-        $this->pluginRepository->expects(static::once())->method('search')->willReturn($pluginSearchResult);
-        $this->appRepository->expects(static::once())->method('search')->willReturn($appSearchResult);
+        $this->pluginRepository->expects($this->once())->method('search')->willReturn($pluginSearchResult);
+        $this->appRepository->expects($this->once())->method('search')->willReturn($appSearchResult);
 
         // Verify that Finder->in() is called with an array containing both paths
         // The exact structure depends on entity IDs from map(), so we check values

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\Snippet\Command\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -12,46 +12,62 @@ use Shopware\Core\System\Snippet\Struct\LintedTranslationFileOptions;
 use Shopware\Core\System\Snippet\Struct\LintedTranslationFileStruct;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-#[Group('slow')]
 #[CoversClass(CountryAgnosticFileLinter::class)]
 class CountryAgnosticFileLinterTest extends TestCase
 {
     private const FIXTURES_SOURCE_PATH = 'tests/unit/Core/System/Snippet/Command/_fixtures';
-    private const FIXTURES_PATH = self::FIXTURES_SOURCE_PATH . '/../temp';
 
     public CountryAgnosticFileLinter $fileLinter;
 
+    private MockObject&Finder $finder;
+
+    private MockObject&Filesystem $filesystem;
+
     protected function setUp(): void
     {
-        $filesystem = new Filesystem();
-        $filesystem->mirror(self::FIXTURES_SOURCE_PATH, self::FIXTURES_PATH);
+        // Mock Finder to avoid filesystem scanning
+        $this->finder = $this->createMock(Finder::class);
+        $this->filesystem = $this->createMock(Filesystem::class);
+
+        // Configure Finder mock to be chainable
+        $this->finder->method('files')->willReturnSelf();
+        $this->finder->method('ignoreUnreadableDirs')->willReturnSelf();
+        $this->finder->method('ignoreDotFiles')->willReturnSelf();
+        $this->finder->method('ignoreVCS')->willReturnSelf();
+        $this->finder->method('exclude')->willReturnSelf();
+        $this->finder->method('name')->willReturnSelf();
+        $this->finder->method('sortByName')->willReturnSelf();
+        $this->finder->method('in')->willReturnSelf();
 
         $this->fileLinter = new CountryAgnosticFileLinter(
-            $filesystem,
+            $this->filesystem,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
+            $this->finder,
         );
-    }
-
-    protected function tearDown(): void
-    {
-        (new Filesystem())->remove(self::FIXTURES_PATH);
     }
 
     public function testCheckTranslationFiles(): void
     {
+        // Configure mock Finder to return fake translation files
+        $mockFiles = $this->createMockTranslationFiles();
+        $this->finder->method('count')->willReturn(\count($mockFiles));
+        $this->finder->method('getIterator')->willReturn(new \ArrayIterator($mockFiles));
+
         $input = $this->createMock(InputInterface::class);
         $input->method('getOption')->willReturnMap([
             ['fix', false],
             ['all', false],
             ['extensions', ''],
             ['ignore', ''],
-            ['dir', self::FIXTURES_PATH],
+            ['dir', self::FIXTURES_SOURCE_PATH],
         ]);
 
         $options = LintedTranslationFileOptions::fromInputInterface($input);
@@ -71,13 +87,18 @@ class CountryAgnosticFileLinterTest extends TestCase
 
     public function testFixFilenames(): void
     {
+        // Configure mock Finder to return fake translation files
+        $mockFiles = $this->createMockTranslationFiles();
+        $this->finder->method('count')->willReturn(\count($mockFiles));
+        $this->finder->method('getIterator')->willReturn(new \ArrayIterator($mockFiles));
+
         $input = $this->createMock(InputInterface::class);
         $input->method('getOption')->willReturnMap([
             ['fix', true],
             ['all', false],
             ['extensions', ''],
             ['ignore', ''],
-            ['dir', self::FIXTURES_PATH],
+            ['dir', self::FIXTURES_SOURCE_PATH],
         ]);
 
         $options = LintedTranslationFileOptions::fromInputInterface($input);
@@ -105,5 +126,50 @@ class CountryAgnosticFileLinterTest extends TestCase
         }
 
         return $lintedFileStruct;
+    }
+
+    /**
+     * @return array<SplFileInfo>
+     */
+    private function createMockTranslationFiles(): array
+    {
+        $basePath = self::FIXTURES_SOURCE_PATH;
+        $mockFiles = [];
+
+        // Root directory files
+        // Administration files (base path)
+        $mockFiles[] = $this->createMockFile('be-BE.json', $basePath);
+        $mockFiles[] = $this->createMockFile('be.json', $basePath);
+        $mockFiles[] = $this->createMockFile('jp-JP.json', $basePath);
+        $mockFiles[] = $this->createMockFile('nl-BE.json', $basePath);
+        $mockFiles[] = $this->createMockFile('nl-NL.json', $basePath);
+
+        // Storefront files (base path)
+        $mockFiles[] = $this->createMockFile('storefront.de-DE.json', $basePath);
+        $mockFiles[] = $this->createMockFile('storefront.de.json', $basePath);
+        $mockFiles[] = $this->createMockFile('storefront.fr-BE.json', $basePath);
+        $mockFiles[] = $this->createMockFile('storefront.fr-FR.json', $basePath);
+        $mockFiles[] = $this->createMockFile('storefront.it-IT.json', $basePath);
+
+        // Subdirectory files
+        $subPath = $basePath . '/subdir';
+        // Administration files (subdir)
+        $mockFiles[] = $this->createMockFile('hr-HR.json', $subPath);
+        $mockFiles[] = $this->createMockFile('hr.json', $subPath);
+        $mockFiles[] = $this->createMockFile('ko-KR.json', $subPath);
+
+        // Storefront files (subdir)
+        $mockFiles[] = $this->createMockFile('storefront.en-GB.json', $subPath);
+        $mockFiles[] = $this->createMockFile('storefront.en-US.json', $subPath);
+        $mockFiles[] = $this->createMockFile('storefront.en.json', $subPath);
+        $mockFiles[] = $this->createMockFile('storefront.es-AR.json', $subPath);
+        $mockFiles[] = $this->createMockFile('storefront.es-ES.json', $subPath);
+
+        return $mockFiles;
+    }
+
+    private function createMockFile(string $filename, string $path): SplFileInfo
+    {
+        return new SplFileInfo($path . '/' . $filename, $path, $filename);
     }
 }

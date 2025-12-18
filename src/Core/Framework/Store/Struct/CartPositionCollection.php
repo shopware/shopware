@@ -27,6 +27,9 @@ class CartPositionCollection extends Collection
         return CartPositionStruct::class;
     }
 
+    /**
+     * @param array<string, mixed> $element
+     */
     protected function getElementFromArray(array $element): CartPositionStruct
     {
         return CartPositionStruct::fromArray($element);

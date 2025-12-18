@@ -18,8 +18,14 @@ class CartStruct extends Struct
 
     protected CartPositionCollection $positions;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $shop;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): CartStruct
     {
         $data['positions'] = new CartPositionCollection($data['positions']);
@@ -77,11 +83,17 @@ class CartStruct extends Struct
         $this->positions = $positions;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getShop(): array
     {
         return $this->shop;
     }
 
+    /**
+     * @param array<string, mixed> $shop
+     */
     public function setShop(array $shop): void
     {
         $this->shop = $shop;

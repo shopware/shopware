@@ -34,6 +34,9 @@ class StoreLicenseViolationStruct extends Struct
         return $this->text;
     }
 
+    /**
+     * @return array<StoreActionStruct>
+     */
     public function getActions(): array
     {
         return $this->actions;

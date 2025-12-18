@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\Snippet\Command\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -116,6 +117,69 @@ class CountryAgnosticFileLinterTest extends TestCase
         static::assertCount(6, $hydratedFileStruct->getFixableFiles()->getMapping());
         static::assertCount(9, $hydratedFileStruct->getFixableFiles());
         static::assertCount(6, $hydratedFileStruct->getFixingCollection());
+    }
+
+    /**
+     * @return \Generator<string, array{dir: string, isAll: bool, expectedPaths: array<string>, callCount: int}>
+     */
+    public static function getFinderPathProvider(): \Generator
+    {
+        yield 'custom directory' => [
+            'dir' => '/custom/path',
+            'isAll' => false,
+            'expectedPaths' => ['/custom/path'],
+            'callCount' => 1,
+        ];
+
+        yield 'default src directory' => [
+            'dir' => '',
+            'isAll' => false,
+            'expectedPaths' => ['src'],
+            'callCount' => 1,
+        ];
+
+        yield 'all option includes custom' => [
+            'dir' => '',
+            'isAll' => true,
+            'expectedPaths' => ['src', 'custom'],
+            'callCount' => 2,
+        ];
+    }
+
+    /**
+     * @param array<string> $expectedPaths
+     */
+    #[DataProvider('getFinderPathProvider')]
+    public function testGetFinderWithDifferentPaths(string $dir, bool $isAll, array $expectedPaths, int $callCount): void
+    {
+        $this->finder->expects($this->exactly($callCount))
+            ->method('in')
+            ->willReturnCallback(function ($path) use ($expectedPaths) {
+                static::assertContains($path, $expectedPaths);
+
+                return $this->finder;
+            });
+
+        $input = $this->createMock(InputInterface::class);
+        $input->method('getOption')->willReturnMap([
+            ['fix', false],
+            ['all', $isAll],
+            ['extensions', ''],
+            ['ignore', ''],
+            ['dir', $dir],
+        ]);
+
+        $options = LintedTranslationFileOptions::fromInputInterface($input);
+
+        // Mock empty result
+        $this->finder->method('count')->willReturn(0);
+        $this->finder->method('getIterator')->willReturn(new \ArrayIterator([]));
+
+        $result = $this->fileLinter->checkTranslationFiles($options);
+
+        static::assertCount(0, $result->getCompleteCollection(), 'Should have no files when Finder returns empty result');
+        static::assertCount(0, $result->getSpecificCollection(), 'Should have no country-specific files');
+        static::assertCount(0, $result->getFixableFiles(), 'Should have no fixable files');
     }
 
     private function hydrateFixingCollection(LintedTranslationFileStruct $lintedFileStruct): LintedTranslationFileStruct

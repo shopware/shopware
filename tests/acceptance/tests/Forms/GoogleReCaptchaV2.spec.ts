@@ -1,4 +1,4 @@
-import { expect, test } from '@fixtures/AcceptanceTest';
+import { expect, test, getLocale } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
 const reCaptcha_V2_site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
@@ -146,7 +146,7 @@ test('As a customer, I can perform a registration that is validated by the invis
             password: 'shopware',
             street: 'Ebbinghof 10',
             city: 'Schöppingen',
-            country: 'Germany',
+            country: 'United Kingdom',
             postalCode: '48624',
         };
 

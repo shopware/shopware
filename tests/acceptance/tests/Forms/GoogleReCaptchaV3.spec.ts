@@ -1,4 +1,5 @@
 import { expect, test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 const reCaptcha_V3_site_key = '6LeNJ-UqAAAAAPmLzX0ekQuuv7f4HR8FVyaF4FrR';
 const reCaptcha_V3_secret_key = '6LeNJ-UqAAAAAGIxrxNBjVvQwPUZ6_DJxWlqXC9u';
@@ -12,7 +13,7 @@ test.skip('As a customer, I can perform a registration by validating to be not a
         TestDataService,
         IdProvider,
         Register,
-        InstanceMeta ,
+        InstanceMeta,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -54,7 +55,7 @@ test.skip('As a customer, I can perform a registration that is validated by the 
         StorefrontAccount,
         TestDataService,
         IdProvider,
-        InstanceMeta ,
+        InstanceMeta,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -113,10 +114,16 @@ test.skip('As a customer, I can perform a registration that is validated by the 
              */
             await StorefrontAccountLogin.page.waitForResponse(resp => resp.url().includes('google.com/recaptcha/api2/clr'));
 
-            await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
+
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (!InstanceMeta.features['ACCESSIBILITY_TWEAKS'] && satisfies(InstanceMeta.version, '<6.7')) {
+                await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass('form-control');
+            } else {
+                await ShopCustomer.expects(StorefrontAccountLogin.lastNameInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
+            }
         });
 
-        await test.step('Customer fills out the missing field and re-attempts the registration', async() => {
+        await test.step('Customer fills out the missing field and re-attempts the registration', async () => {
             await StorefrontAccountLogin.lastNameInput.fill(customer.lastName);
 
             await StorefrontAccountLogin.registerButton.click();
@@ -127,14 +134,14 @@ test.skip('As a customer, I can perform a registration that is validated by the 
 );
 
 test.skip('As a customer, I want to fill out and submit the contact form that is validated by the invisible Google reCaptcha V3.',
-    { tag: ['@Form', '@Contact', '@Captcha', '@Storefront'] },
+    { tag: ['@Form', '@Registration', '@Captcha', '@Storefront'] },
     async ({
         ShopCustomer,
         StorefrontHome,
         StorefrontContactForm,
         DefaultSalesChannel,
         TestDataService,
-        InstanceMeta ,
+        InstanceMeta,
     }) => {
 
         test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
@@ -170,6 +177,7 @@ test.skip('As a customer, I want to fill out and submit the contact form that is
             await StorefrontContactForm.phoneInput.fill('0123456789');
             await StorefrontContactForm.subjectInput.fill('Test: Product question');
             await StorefrontContactForm.commentInput.fill('Test: Hello, I have a question about your products.');
+            await StorefrontContactForm.privacyPolicyCheckbox.click();
         });
 
         await test.step('Send and validate the contact form.', async () => {

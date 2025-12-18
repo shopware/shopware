@@ -4,8 +4,11 @@
  * @module core/factory/http
  */
 import Axios from 'axios';
+// eslint-disable-next-line import/no-unresolved
+import AxiosV1 from 'axios-v1';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
+import { createAxiosV0Adapter, createAxiosV1Adapter } from 'src/core/factory/http-client-adapter';
 
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
@@ -36,19 +39,30 @@ export const { CancelToken, isCancel, Cancel } = Axios;
  * @returns {AxiosInstance}
  */
 function createClient() {
-    const client = Axios.create({
+    const baseConfig = {
         baseURL: Shopware.Context.api.apiPath,
         // Add request/response size limits to mitigate DoS vulnerability
         maxContentLength: 50 * 1024 * 1024, // 50MB limit
         maxBodyLength: 50 * 1024 * 1024, // 50MB limit
         timeout: 30000, // 30 second timeout
-    });
+    };
 
-    refreshTokenInterceptor(client);
-    globalErrorHandlingInterceptor(client);
-    storeSessionExpiredInterceptor(client);
-    client.CancelToken = CancelToken;
-    tracingInterceptor(client);
+    // Create both axios v0 and v1 instances
+    const axiosV0 = Axios.create(baseConfig);
+    const axiosV1 = AxiosV1.create(baseConfig);
+
+    // Apply all interceptors to both clients
+    refreshTokenInterceptor(axiosV0);
+    refreshTokenInterceptor(axiosV1);
+
+    globalErrorHandlingInterceptor(axiosV0);
+    globalErrorHandlingInterceptor(axiosV1);
+
+    storeSessionExpiredInterceptor(axiosV0);
+    storeSessionExpiredInterceptor(axiosV1);
+
+    tracingInterceptor(axiosV0);
+    tracingInterceptor(axiosV1);
 
     /**
      * Don´t use cache in unit tests because it is possible
@@ -56,12 +70,64 @@ function createClient() {
      * (e.g. error, success) in a short amount of time.
      * So in test cases we are using the originalAdapter directly
      * and skipping the caching mechanism.
+     *
+     * Note: Cache adapter is only applied to axios v0 because axios v1
+     * has a different adapter architecture that requires modifications
+     * to the cache adapter factory to work correctly.
      */
     if (process?.env?.NODE_ENV !== 'test') {
-        requestCacheAdapterInterceptor(client);
+        requestCacheAdapterInterceptor(axiosV0);
+        // Skip cache interceptor for v1 to avoid adapter compatibility issues
+        // requestCacheAdapterInterceptor(axiosV1);
     }
 
-    return client;
+    // Create adapters for both versions
+    const adapterV0 = createAxiosV0Adapter(axiosV0);
+    const adapterV1 = createAxiosV1Adapter(axiosV1);
+
+    /**
+     * Dispatcher function that routes requests to the appropriate axios version
+     * based on the useAxiosV1 flag in the request config
+     *
+     * @param {Object} config - Axios request config
+     * @returns {Promise} - Promise that resolves with the response
+     */
+    const dispatcher = (config) => {
+        // Determine which axios version to use:
+        // 1. If useAxiosV1 is explicitly set (true/false), use that
+        // 2. Otherwise, check V6_8_0_0 feature flag (defaults to v1 when active)
+        // 3. Fall back to v0 for backward compatibility
+        const shouldUseV1 = config.useAxiosV1 ?? Shopware?.Feature?.isActive('V6_8_0_0') ?? false;
+        const targetAdapter = shouldUseV1 ? adapterV1 : adapterV0;
+
+        return targetAdapter.runRequest(config);
+    };
+
+    // Add standard axios methods to the dispatcher
+    dispatcher.request = (config) => dispatcher(config);
+    dispatcher.get = (url, config = {}) => dispatcher({ ...config, method: 'get', url });
+    dispatcher.delete = (url, config = {}) => dispatcher({ ...config, method: 'delete', url });
+    dispatcher.head = (url, config = {}) => dispatcher({ ...config, method: 'head', url });
+    dispatcher.options = (url, config = {}) => dispatcher({ ...config, method: 'options', url });
+    dispatcher.post = (url, data, config = {}) => dispatcher({ ...config, method: 'post', url, data });
+    dispatcher.put = (url, data, config = {}) => dispatcher({ ...config, method: 'put', url, data });
+    dispatcher.patch = (url, data, config = {}) => dispatcher({ ...config, method: 'patch', url, data });
+
+    // Add isCancel method that checks both adapters
+    dispatcher.isCancel = (value) => {
+        return adapterV0.isCancel(value) || adapterV1.isCancel(value);
+    };
+
+    // Keep CancelToken for backward compatibility with axios v0
+    dispatcher.CancelToken = CancelToken;
+
+    // Add interceptors property to maintain compatibility
+    dispatcher.interceptors = axiosV0.interceptors;
+
+    // Add defaults property to maintain compatibility
+    dispatcher.defaults = axiosV0.defaults;
+
+    return dispatcher;
 }
 
 /**

@@ -153,4 +153,57 @@ describe('core/factory/http.factory.js', () => {
 
         await httpClient.get('/test');
     });
+
+    it('should have standard axios methods (get, post, etc.)', () => {
+        expect(typeof httpClient.get).toBe('function');
+        expect(typeof httpClient.post).toBe('function');
+        expect(typeof httpClient.put).toBe('function');
+        expect(typeof httpClient.patch).toBe('function');
+        expect(typeof httpClient.delete).toBe('function');
+        expect(typeof httpClient.request).toBe('function');
+    });
+
+    it('should use axios v0 by default (without useAxiosV1 flag)', async () => {
+        mock.onGet('/test-v0-default').reply(200, { version: 'v0' });
+
+        const response = await httpClient.get('/test-v0-default');
+
+        expect(response.data).toEqual({ version: 'v0' });
+        expect(mock.history.get).toHaveLength(1);
+    });
+
+    it('should support requests with useAxiosV1 flag in config', async () => {
+        // This tests that the useAxiosV1 flag is accepted without errors
+        // Full integration testing of v1 routing requires more complex mock setup
+        mock.onPost('/test-with-flag').reply(200, { success: true });
+
+        const response = await httpClient.post(
+            '/test-with-flag',
+            { data: 'test' },
+            {
+                useAxiosV1: false, // Explicitly use v0 to ensure mock works
+            },
+        );
+
+        expect(response.data).toEqual({ success: true });
+    });
+
+    it('should have an isCancel method that detects cancellations', () => {
+        // Test axios v0 style cancellation - axios.isCancel checks for __CANCEL__ property
+        const v0CancelError = { __CANCEL__: true };
+        expect(httpClient.isCancel(v0CancelError)).toBe(true);
+
+        // Test axios v1 style cancellation
+        const v1CancelError = { name: 'CanceledError', code: 'ERR_CANCELED' };
+        expect(httpClient.isCancel(v1CancelError)).toBe(true);
+
+        // Test non-cancellation error
+        const regularError = new Error('Regular error');
+        expect(httpClient.isCancel(regularError)).toBe(false);
+    });
+
+    it('should have CancelToken for backward compatibility', () => {
+        expect(httpClient.CancelToken).toBeDefined();
+        expect(typeof httpClient.CancelToken.source).toBe('function');
+    });
 });

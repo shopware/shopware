@@ -26,7 +26,10 @@ test(
             await ShopCustomer.fillsIn(StorefrontContactForm.subjectInput, 'Test: Product question');
             await ShopCustomer.fillsIn(StorefrontContactForm.commentInput, 'Test: Hello, I have a question about your products.');
             await ShopCustomer.fillsIn(StorefrontContactForm.basicCaptchaInput, '1234');
-            await ShopCustomer.presses(StorefrontContactForm.privacyPolicyCheckbox);
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (!InstanceMeta.features['ACCESSIBILITY_TWEAKS'] && satisfies(InstanceMeta.version, '<6.7')) {
+                await ShopCustomer.presses(StorefrontContactForm.privacyPolicyCheckbox);
+            }
         });
 
         await test.step('Validate the basic captcha is available.', async () => {

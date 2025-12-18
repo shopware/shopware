@@ -9,6 +9,7 @@ import '../sw-settings-usage-data-consent-modal-sub-cards.scss';
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+    name: 'SwSettingsUsageDataUserDataConsentCard',
 
     emits: ['update:consent'],
 
@@ -16,6 +17,11 @@ export default Shopware.Component.wrapComponentConfig({
         consent: {
             type: Boolean,
             required: true,
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 });

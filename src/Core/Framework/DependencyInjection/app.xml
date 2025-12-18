@@ -296,6 +296,7 @@
             <argument type="service" id="custom_entity.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -737,6 +738,17 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\FingerprintGenerator"/>
 
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\DeletedApps\RememberDeletedAppsSecretSubscriber">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

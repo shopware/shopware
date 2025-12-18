@@ -130,7 +130,7 @@
     "@babel/plugin-syntax-import-meta": "7.10.4",
     "@babel/plugin-transform-runtime": "7.25.9",
     "@babel/register": "7.25.9",
-    "@lhci/cli": "0.12.0",
+    "@lhci/cli": "0.15.1",
     "@shopware-ag/eslint-config-base": "2.0.0",
     "@shopware-ag/jest-preset-sw6-admin": "6.0.4",
     "@testing-library/jest-dom": "5.17.0",
@@ -225,6 +225,7 @@
     "tmp": "0.2.5",
     "braces": "3.0.3",
     "micromatch": "4.0.8",
-    "test-exclude": "7.0.1"
+    "test-exclude": "7.0.1",
+    "@sentry/node": "10.31.0"
   }
 }

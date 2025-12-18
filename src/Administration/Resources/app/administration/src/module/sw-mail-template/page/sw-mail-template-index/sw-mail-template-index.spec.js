@@ -26,16 +26,12 @@ const createWrapper = async () => {
                     'sw-page': {
                         template: `
                     <div class="sw-page">
-                        <slot name="search-bar"></slot>
                         <slot name="smart-bar-actions"></slot>
-                        <slot></slot>
+                        <slot name="content"></slot>
                     </div>`,
                     },
                     'sw-card-view': {
-                        template: '<div><slot></slot></div>',
-                    },
-                    'sw-container': {
-                        template: '<div><slot></slot></div>',
+                        template: '<div class="sw-card-view"><slot></slot></div>',
                     },
                     'sw-context-button': {
                         template: `
@@ -45,13 +41,13 @@ const createWrapper = async () => {
                      </div>`,
                     },
                     'sw-context-menu-item': true,
-                    'sw-search-bar': {
-                        name: 'sw-search-bar',
-                        template: '<div class="sw-search-bar"></div>',
-                    },
+                    'sw-search-bar': true,
                     'sw-language-switch': true,
                     'sw-mail-template-list': true,
                     'sw-mail-header-footer-list': true,
+                    'sw-tabs': true,
+                    'sw-tabs-item': true,
+                    'router-view': true,
                 },
             },
         },
@@ -59,7 +55,7 @@ const createWrapper = async () => {
 };
 
 describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
-    it('should not allow to create', async () => {
+    it('should not allow to create without privilege', async () => {
         const wrapper = await createWrapper();
 
         const createButton = wrapper.findByText('button', 'global.default.add');
@@ -67,7 +63,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
         expect(createButton.attributes('disabled') !== undefined).toBe(true);
     });
 
-    it('should allow to create', async () => {
+    it('should allow to create with privilege', async () => {
         global.activeAclRoles = ['mail_templates.creator'];
 
         const wrapper = await createWrapper();
@@ -77,18 +73,32 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
         expect(createButton.attributes('disabled')).toBeUndefined();
     });
 
-    it('should update the route when searching mail templates', async () => {
-        const wrapper = await createWrapper();
+    describe('without V6_8_0_0 feature flag', () => {
+        it('should render both lists directly', async () => {
+            const wrapper = await createWrapper();
 
-        const searchBar = wrapper.getComponent({ name: 'sw-search-bar' });
-        searchBar.vm.$emit('search', 'Invoice');
+            expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        });
+    });
 
-        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(
-            expect.objectContaining({
-                query: expect.objectContaining({
-                    term: 'Invoice',
-                }),
-            }),
-        );
+    describe('with V6_8_0_0 feature flag', () => {
+        beforeEach(() => {
+            global.activeFeatureFlags = ['V6_8_0_0'];
+        });
+
+        afterEach(() => {
+            global.activeFeatureFlags = [];
+        });
+
+        it('should render tabs with router-view instead of lists', async () => {
+            const wrapper = await createWrapper();
+
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'router-view' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(false);
+            expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(false);
+        });
     });
 });

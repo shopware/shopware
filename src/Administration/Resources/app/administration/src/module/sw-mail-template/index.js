@@ -1,6 +1,6 @@
 import './acl';
 
-const { Module } = Shopware;
+const { Module, Feature } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-mail-template-list', () => import('./component/sw-mail-template-list'));
@@ -18,6 +18,9 @@ Shopware.Component.extend(
     'sw-mail-header-footer-detail',
     () => import('./page/sw-mail-header-footer-create'),
 );
+
+Shopware.Component.register('sw-mail-template-view-templates', () => import('./view/sw-mail-template-view-templates'));
+Shopware.Component.register('sw-mail-template-view-header-footer', () => import('./view/sw-mail-template-view-header-footer'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
@@ -37,16 +40,40 @@ Module.register('sw-mail-template', {
     entity: 'mail_template',
 
     routes: {
-        index: {
-            components: {
-                default: 'sw-mail-template-index',
-            },
-            path: 'index',
-            meta: {
-                parentPath: 'sw.settings.index',
-                privilege: 'mail_templates.viewer',
-            },
-        },
+        index: (() => {
+            const route = {
+                component: 'sw-mail-template-index',
+                path: 'index',
+                meta: {
+                    parentPath: 'sw.settings.index',
+                    privilege: 'mail_templates.viewer',
+                },
+            };
+
+            if (Feature.isActive('V6_8_0_0')) {
+                route.redirect = { name: 'sw.mail.template.index.templates' };
+                route.children = {
+                    templates: {
+                        component: 'sw-mail-template-view-templates',
+                        path: 'templates',
+                        meta: {
+                            parentPath: 'sw.settings.index',
+                            privilege: 'mail_templates.viewer',
+                        },
+                    },
+                    header_footer: {
+                        component: 'sw-mail-template-view-header-footer',
+                        path: 'header-footer',
+                        meta: {
+                            parentPath: 'sw.settings.index',
+                            privilege: 'mail_templates.viewer',
+                        },
+                    },
+                };
+            }
+
+            return route;
+        })(),
         create: {
             component: 'sw-mail-template-create',
             path: 'create',

@@ -1,10 +1,14 @@
 {% block sw_mail_template_list %}
 <sw-page class="sw-mail-template-list">
+    {#
+        @deprecated tag:v6.8.0 - The `initial-search` binding and `onSearch` handler will be removed.
+        In v6.8, each tab's list component handles its own search via the listing mixin.
+    #}
     {% block sw_mail_templates_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
             initial-search-type="mail_template"
-            :initial-search="term"
+            :initial-search="useTabs ? currentSearchTerm : term"
             @search="onSearch"
         />
     </template>
@@ -81,16 +85,61 @@
     {% block sw_mail_template_list_content %}
     <template #content>
         <sw-card-view>
-            {% block sw_mail_template_list_content_card %}
-            <sw-mail-template-list
-                ref="mailTemplateList"
-                :search-term="term"
-            />
+            {#
+                @deprecated tag:v6.8.0 - The v-if="useTabs" condition will be removed.
+                Tabs will always be rendered.
+            #}
+            <template v-if="useTabs">
+                {% block sw_mail_template_list_tabs %}
+                <sw-tabs
+                    class="sw-mail-template-list__tabs"
+                    position-identifier="sw-mail-template-index"
+                >
+                    {% block sw_mail_template_list_tabs_templates %}
+                    <sw-tabs-item
+                        class="sw-mail-template-list__tab-templates"
+                        :route="{ name: 'sw.mail.template.index.templates' }"
+                    >
+                        {{ $tc('sw-mail-template.list.tabMailTemplates') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-            <sw-mail-header-footer-list
-                ref="mailHeaderFooterList"
-                :search-term="term"
-            />
+                    {% block sw_mail_template_list_tabs_header_footer %}
+                    <sw-tabs-item
+                        class="sw-mail-template-list__tab-header-footer"
+                        :route="{ name: 'sw.mail.template.index.header_footer' }"
+                    >
+                        {{ $tc('sw-mail-template.list.tabHeaderFooter') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_mail_template_list_tabs_extension %}
+                    {% endblock %}
+                </sw-tabs>
+                {% endblock %}
+
+                {% block sw_mail_template_list_router_view %}
+                <router-view @on-change-language="onChangeLanguage" />
+                {% endblock %}
+            </template>
+
+            {#
+                @deprecated tag:v6.8.0 - This block will be removed.
+                Legacy mode: Both lists visible without tabs.
+                In v6.8, only tabs mode with child routes is used.
+            #}
+            {% block sw_mail_template_list_content_card %}
+            <template v-if="!useTabs">
+                <sw-mail-template-list
+                    ref="mailTemplateList"
+                    :search-term="term"
+                />
+
+                <sw-mail-header-footer-list
+                    ref="mailHeaderFooterList"
+                    :search-term="term"
+                />
+            </template>
             {% endblock %}
         </sw-card-view>
     </template>

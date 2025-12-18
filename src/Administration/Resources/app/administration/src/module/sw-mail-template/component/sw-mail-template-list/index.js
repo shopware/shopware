@@ -22,10 +22,22 @@ export default {
     ],
 
     props: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed.
+         */
         searchTerm: {
             type: String,
             required: false,
             default: '',
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with searchTerm prop.
+         */
+        showSearch: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -53,23 +65,40 @@ export default {
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with searchTerm prop.
+         */
+        currentSearchTerm() {
+            if (this.searchTerm) {
+                return this.searchTerm;
+            }
+
+            return this.term;
+        },
     },
 
     watch: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with searchTerm prop.
+         */
         searchTerm() {
             this.getList();
         },
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.8.0 - `currentSearchTerm` will be replaced with `this.term`.
+         */
         getList() {
             this.isLoading = true;
 
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('mailTemplateType').addSorting(Criteria.sort('mailTemplateType.name'));
 
-            if (this.searchTerm) {
-                criteria.setTerm(this.searchTerm);
+            if (this.currentSearchTerm) {
+                criteria.setTerm(this.currentSearchTerm);
             }
 
             this.mailTemplateRepository.search(criteria).then((items) => {

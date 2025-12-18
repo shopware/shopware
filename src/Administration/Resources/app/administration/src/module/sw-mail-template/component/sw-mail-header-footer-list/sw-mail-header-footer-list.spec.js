@@ -64,8 +64,9 @@ const createWrapper = async (privileges = []) => {
             },
             stubs: {
                 'mt-card': {
-                    template: '<div><slot name="grid"></slot></div>',
+                    template: '<div><slot name="toolbar"></slot><slot name="grid"></slot></div>',
                 },
+                'sw-simple-search-field': true,
                 'sw-entity-listing': {
                     props: [
                         'items',

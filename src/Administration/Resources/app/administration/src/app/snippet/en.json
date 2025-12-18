@@ -1083,6 +1083,7 @@
       "customer_group_registration_accepted": "Customer group registration request accepted",
       "customer_group_registration_declined": "Customer group registration request declined",
       "customer_recovery_request": "Customer requests new password",
+      "customer_password_changed": "Customer password changed",
       "mail_after_create_message": "Email created",
       "mail_before_send": "Email is being sent",
       "mail_sent": "Email sent",

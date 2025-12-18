@@ -159,6 +159,5 @@ class TranslationLoaderTest extends TestCase
             return;
         }
         $this->snippetSetRepository->delete([['id' => $snippetSetId]], $context);
-
     }
 }

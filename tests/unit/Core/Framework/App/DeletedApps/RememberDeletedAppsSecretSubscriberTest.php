@@ -47,14 +47,14 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
     public function testGetSubscribedEvents(): void
     {
         static::assertSame([
-            AppDeletedEvent::class => 'safeSecretFromDeletedApp',
+            AppDeletedEvent::class => 'saveSecretFromDeletedApp',
             AppInstalledEvent::class => 'removeDeletedAppSecret',
             ShopIdChangedEvent::class => 'purgeOldSecrets',
             ShopIdDeletedEvent::class => 'purgeOldSecrets',
         ], RememberDeletedAppsSecretSubscriber::getSubscribedEvents());
     }
 
-    public function testSafeSecretFromDeletedApp(): void
+    public function testSaveSecretFromDeletedApp(): void
     {
         $appId = Uuid::randomHex();
         $event = new AppDeletedEvent(
@@ -73,10 +73,10 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
             ->method('insertSecretForDeletedApp')
             ->with('test-app', 'secret-123');
 
-        $this->subscriber->safeSecretFromDeletedApp($event);
+        $this->subscriber->saveSecretFromDeletedApp($event);
     }
 
-    public function testWhenAppHasNoSecretNothingIsSafed(): void
+    public function testWhenAppHasNoSecretNothingIsSaved(): void
     {
         $appId = Uuid::randomHex();
         $event = new AppDeletedEvent(
@@ -93,7 +93,7 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
         $this->deletedAppsGateway->expects($this->never())
             ->method('insertSecretForDeletedApp');
 
-        $this->subscriber->safeSecretFromDeletedApp($event);
+        $this->subscriber->saveSecretFromDeletedApp($event);
     }
 
     public function testOldSecretIsDeletedWhenAppIsSucessfullyInstalled(): void
@@ -113,7 +113,7 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
         $this->deletedAppsGateway->expects($this->never())
             ->method('insertSecretForDeletedApp');
 
-        $this->subscriber->safeSecretFromDeletedApp($event);
+        $this->subscriber->saveSecretFromDeletedApp($event);
     }
 
     public function testRemoveDeletedAppSecret(): void

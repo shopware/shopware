@@ -234,6 +234,30 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         yield from $this->elements;
     }
 
+    public function assignRecursive(array $options): static
+    {
+        $baseObject = null;
+        if ($expectedClass = $this->getExpectedClass()) {
+            $baseObject = (new \ReflectionClass($expectedClass))->newInstanceWithoutConstructor();
+        }
+
+        $hasNecessaryInterface = $baseObject instanceof AssignArrayInterface;
+
+        foreach ($options as $value) {
+            if ($hasNecessaryInterface && \is_array($value)) {
+                $value = (clone $baseObject)->assignRecursive($value);
+            }
+
+            try {
+                $this->add($value);
+            } catch (\Throwable) {
+                // Try to add, ignore if the type is not the expected one.
+            }
+        }
+
+        return $this;
+    }
+
     /**
      * @return class-string<TElement>|null
      */

@@ -71,14 +71,13 @@ function createClient() {
      * So in test cases we are using the originalAdapter directly
      * and skipping the caching mechanism.
      *
-     * Note: Cache adapter is only applied to axios v0 because axios v1
-     * has a different adapter architecture that requires modifications
-     * to the cache adapter factory to work correctly.
+     * Note: Axios v1 uses a different adapter architecture (array of adapter names)
+     * that requires resolving to a function before wrapping with the cache adapter.
+     * The requestCacheAdapterInterceptorV1 function handles this resolution.
      */
     if (process?.env?.NODE_ENV !== 'test') {
         requestCacheAdapterInterceptor(axiosV0);
-        // Skip cache interceptor for v1 to avoid adapter compatibility issues
-        // requestCacheAdapterInterceptor(axiosV1);
+        requestCacheAdapterInterceptorV1(axiosV1);
     }
 
     // Create adapters for both versions
@@ -132,6 +131,7 @@ function createClient() {
 
 /**
  * Sets up an interceptor to handle automatic cache of same requests in short time amount
+ * for Axios v0.x
  *
  * @param {AxiosInstance} client
  * @returns {AxiosInstance}
@@ -142,6 +142,32 @@ function requestCacheAdapterInterceptor(client) {
         const originalAdapter = config.adapter;
 
         config.adapter = cacheAdapterFactory(originalAdapter, requestCaches);
+
+        return config;
+    });
+}
+
+/**
+ * Sets up an interceptor to handle automatic cache of same requests in short time amount
+ * for Axios v1.x
+ *
+ * In Axios v1, the adapter is an array of adapter names (e.g., ['xhr', 'http', 'fetch'])
+ * that need to be resolved to an actual adapter function before wrapping.
+ *
+ * @param {AxiosInstance} client - The Axios v1 instance
+ * @returns {AxiosInstance}
+ */
+function requestCacheAdapterInterceptorV1(client) {
+    const requestCaches = {};
+    client.interceptors.request.use((config) => {
+        const originalAdapter = config.adapter;
+
+        // In Axios v1, config.adapter is an array of adapter names
+        // We need to resolve it to an actual adapter function
+        const resolvedAdapter = AxiosV1.getAdapter(originalAdapter);
+
+        // Now wrap the resolved adapter with the cache adapter
+        config.adapter = cacheAdapterFactory(resolvedAdapter, requestCaches);
 
         return config;
     });
@@ -368,7 +394,7 @@ function refreshTokenInterceptor(client) {
                             // replace the expired token and retry
                             originalRequest.headers.Authorization = `Bearer ${newToken}`;
                             originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
-                            resolve(Axios(originalRequest));
+                            resolve(client.request(originalRequest));
                         },
                         (err) => {
                             if (!Shopware.Application.getApplicationRoot()) {

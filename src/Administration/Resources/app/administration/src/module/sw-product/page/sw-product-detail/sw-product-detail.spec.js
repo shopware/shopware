@@ -57,7 +57,13 @@ const defaultSalesChannelData = {
 };
 
 describe('module/sw-product/page/sw-product-detail', () => {
-    async function createWrapper(searchFunction = () => Promise.resolve([]), getFunction = () => { return Promise.resolve({ variation: [] }); }, productId = '1234') {
+    async function createWrapper(
+        searchFunction = () => Promise.resolve([]),
+        getFunction = () => {
+            return Promise.resolve({ variation: [] });
+        },
+        productId = '1234',
+    ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
                 mocks: {
@@ -795,9 +801,13 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should handle the purchase price if its not set', async () => {
-        wrapper = await createWrapper(() => Promise.resolve([]), () => Promise.resolve({
-            id: 'test',
-        }));
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                }),
+        );
 
         await wrapper.setProps({
             productId: '1234',
@@ -807,14 +817,18 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([ { currencyId: undefined, net: 0, linked: true, gross: 0 } ]);
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
     });
 
     it('should handle the purchase price if its null', async () => {
-        wrapper = await createWrapper(() => Promise.resolve([]), () => Promise.resolve({
-            id: 'test',
-            purchasePrices: null
-        }));
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    purchasePrices: null,
+                }),
+        );
 
         await wrapper.setProps({
             productId: '1234',
@@ -824,14 +838,18 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([ { currencyId: undefined, net: 0, linked: true, gross: 0 } ]);
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
     });
 
     it('should handle the purchase price if its undefined', async () => {
-        wrapper = await createWrapper(() => Promise.resolve([]), () => Promise.resolve({
-            id: 'test',
-            purchasePrices: undefined
-        }));
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    purchasePrices: undefined,
+                }),
+        );
 
         await wrapper.setProps({
             productId: '1234',
@@ -841,19 +859,25 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([ { currencyId: undefined, net: 0, linked: true, gross: 0 } ]);
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
     });
 
     it('should ignore purchase price if its set', async () => {
-        wrapper = await createWrapper(() => Promise.resolve([]), () => Promise.resolve({
-            id: 'test',
-            purchasePrices: [{
-                currencyId: undefined,
-                net: 10,
-                gross: 19,
-                linked: false,
-            }]
-        }));
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    purchasePrices: [
+                        {
+                            currencyId: undefined,
+                            net: 10,
+                            gross: 19,
+                            linked: false,
+                        },
+                    ],
+                }),
+        );
 
         await wrapper.setProps({
             productId: '1234',
@@ -863,6 +887,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([ { currencyId: undefined, net: 10, linked: false, gross: 19 } ]);
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 10, linked: false, gross: 19 }]);
     });
 });

@@ -10,7 +10,7 @@ export default {
     template,
 
     methods: {
-        onLanguageChange() {
+        getList() {
             this.$refs.mailHeaderFooterList?.getList();
         },
     },

@@ -1,14 +1,10 @@
 {% block sw_mail_template_list %}
 <sw-page class="sw-mail-template-list">
-    {#
-        @deprecated tag:v6.8.0 - The `initial-search` binding and `onSearch` handler will be removed.
-        In v6.8, each tab's list component handles its own search via the listing mixin.
-    #}
     {% block sw_mail_templates_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
-            initial-search-type="mail_template"
-            :initial-search="useTabs ? currentSearchTerm : term"
+            :initial-search-type="searchType"
+            :initial-search="term"
             @search="onSearch"
         />
     </template>
@@ -85,10 +81,7 @@
     {% block sw_mail_template_list_content %}
     <template #content>
         <sw-card-view>
-            {#
-                @deprecated tag:v6.8.0 - The v-if="useTabs" condition will be removed.
-                Tabs will always be rendered.
-            #}
+            {# @deprecated tag:v6.8.0 - The template wrapper will be removed. #}
             <template v-if="useTabs">
                 {% block sw_mail_template_list_tabs %}
                 <sw-tabs
@@ -119,15 +112,16 @@
                 {% endblock %}
 
                 {% block sw_mail_template_list_router_view %}
-                <router-view @on-change-language="onChangeLanguage" />
+                <router-view v-slot="{ Component }">
+                    <component
+                        :is="Component"
+                        ref="tabContent"
+                    />
+                </router-view>
                 {% endblock %}
             </template>
 
-            {#
-                @deprecated tag:v6.8.0 - This block will be removed.
-                Legacy mode: Both lists visible without tabs.
-                In v6.8, only tabs mode with child routes is used.
-            #}
+            {# @deprecated tag:v6.8.0 - This block will be removed. #}
             {% block sw_mail_template_list_content_card %}
             <template v-if="!useTabs">
                 <sw-mail-template-list

@@ -94,7 +94,9 @@ Module.register('sw-mail-template', {
             component: 'sw-mail-header-footer-create',
             path: 'create-head-foot',
             meta: {
-                parentPath: 'sw.mail.template.index',
+                parentPath: Feature.isActive('V6_8_0_0')
+                    ? 'sw.mail.template.index.header_footer'
+                    : 'sw.mail.template.index',
                 privilege: 'mail_templates.creator',
             },
         },
@@ -102,7 +104,9 @@ Module.register('sw-mail-template', {
             component: 'sw-mail-header-footer-detail',
             path: 'detail-head-foot/:id',
             meta: {
-                parentPath: 'sw.mail.template.index',
+                parentPath: Feature.isActive('V6_8_0_0')
+                    ? 'sw.mail.template.index.header_footer'
+                    : 'sw.mail.template.index',
                 privilege: 'mail_templates.viewer',
             },
         },

@@ -30,15 +30,6 @@ export default {
             required: false,
             default: '',
         },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed together with searchTerm prop.
-         */
-        showSearch: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
     },
 
     data() {

@@ -1,11 +1,7 @@
 {% block sw_mail_template_view_header_footer %}
 <div class="sw-mail-template-view-header-footer">
-    {# @deprecated tag:v6.8.0 - The `show-search` prop will be removed. #}
     {% block sw_mail_template_view_header_footer_list %}
-    <sw-mail-header-footer-list
-        ref="mailHeaderFooterList"
-        show-search
-    />
+    <sw-mail-header-footer-list ref="mailHeaderFooterList" />
     {% endblock %}
 </div>
 {% endblock %}

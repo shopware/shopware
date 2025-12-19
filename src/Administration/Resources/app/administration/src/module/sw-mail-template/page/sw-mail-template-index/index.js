@@ -37,10 +37,14 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed.
+         * Returns the search type based on active tab/route.
          */
-        currentSearchTerm() {
-            return this.$route.query.term || '';
+        searchType() {
+            if (this.$route.name === 'sw.mail.template.index.header_footer') {
+                return 'mail_header_footer';
+            }
+
+            return 'mail_template';
         },
     },
 
@@ -52,12 +56,14 @@ export default {
 
     methods: {
         /**
-         * @deprecated tag:v6.8.0 - The if block will be removed.
+         * @deprecated tag:v6.8.0 - The if/else block will be replaced with just the if-branch logic.
          */
         onChangeLanguage(languageId) {
             Shopware.Store.get('context').setApiLanguageId(languageId);
 
-            if (!this.useTabs) {
+            if (this.useTabs) {
+                this.$refs.tabContent?.getList();
+            } else {
                 this.$refs.mailHeaderFooterList?.getList();
                 this.$refs.mailTemplateList?.getList();
             }

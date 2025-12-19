@@ -55,7 +55,7 @@ const createWrapper = async () => {
 };
 
 describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
-    it('should not allow to create without privilege', async () => {
+    it('should not allow to create', async () => {
         const wrapper = await createWrapper();
 
         const createButton = wrapper.findByText('button', 'global.default.add');
@@ -63,7 +63,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
         expect(createButton.attributes('disabled') !== undefined).toBe(true);
     });
 
-    it('should allow to create with privilege', async () => {
+    it('should allow to create', async () => {
         global.activeAclRoles = ['mail_templates.creator'];
 
         const wrapper = await createWrapper();

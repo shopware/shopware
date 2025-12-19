@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -56,6 +57,7 @@ class ProductPageLoader
         private readonly AbstractProductDetailRoute $productDetailRoute,
         private readonly EntityRepository $productReviewRepository,
         private readonly SystemConfigService $systemConfigService,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
     }
 
@@ -97,6 +99,16 @@ class ProductPageLoader
 
         if ($category = $product->getSeoCategory()) {
             $request->request->set('navigationId', $category->getId());
+        }
+
+        if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+            if ($this->systemConfigService->getBool('core.listing.buildBreadcrumbByRefererCategory', $context->getSalesChannelId())) {
+                $refererCategoryId = $this->breadcrumbBuilder->getCategoryIdByReferer($request, $context);
+
+                if ($refererCategoryId !== null && \in_array($refererCategoryId, $product->getCategoryIds() ?? [], true)) {
+                    $request->request->set('navigationId', $refererCategoryId);
+                }
+            }
         }
 
         $page = $this->genericLoader->load($request, $context);

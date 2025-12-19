@@ -17,6 +17,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
+ */
 #[Package('framework')]
 class BuildBreadcrumbExtension extends AbstractExtension
 {

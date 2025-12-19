@@ -188,8 +188,11 @@
             <argument type="service" id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Breadcrumb\BreadcrumbPageletLoader"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

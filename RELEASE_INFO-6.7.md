@@ -48,8 +48,8 @@ HTTP caching support was added for the following Store API endpoints:
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Store API: compressed criteria parameter support
-Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows 
-sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported. 
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows
+sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported.
 Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
 Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
@@ -117,10 +117,11 @@ The Google Analytics integration has been updated to align with `GA4` standards,
 - The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure.
 - Furthermore, new events for `add_to_wishlist`, `remove_from_wishlist`, `view_cart`, `add_shipping_info`, and `add_payment_info` have been implemented to provide a more comprehensive view of user interactions.
 - The checkout funnel now tracks shipping and payment method selections, including when users change their selections.
+- The `view_item_list` event now fires when users navigate through product listings via pagination or apply filters, not just on initial page load.
 
 #### New Configuration: Track Offcanvas Cart
 
-A new configuration option `Track offcanvas cart` has been added to the Sales Channel Analytics settings. When enabled, the `view_cart` GA4 event will fire whenever the offcanvas cart is opened.
+A new configuration option `Track offcanvas cart` has been added to the Sales Channel Analytics settings. When enabled, the `view_cart` GA4 event will fire whenever the offcanvas cart is opened or its content is updated (e.g., quantity changes, product removals, promotions).
 
 #### New Configuration: Disable Automatic Offcanvas Cart
 

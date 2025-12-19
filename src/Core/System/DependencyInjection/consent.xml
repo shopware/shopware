@@ -34,5 +34,15 @@
             <argument type="service" id="Shopware\Core\System\Consent\ConsentRepository"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <!-- Log -->
+        <service id="Shopware\Core\System\Consent\Log\ConsentLogInterface"
+                 class="Shopware\Core\System\Consent\Log\DatabaseLog">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\System\Consent\Log\ConsentChangedSubscriber">
+            <argument type="service" id="Shopware\Core\System\Consent\Log\ConsentLogInterface" on-invalid="null"/>
+        </service>
     </services>
 </container>

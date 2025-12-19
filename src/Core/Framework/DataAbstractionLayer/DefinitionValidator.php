@@ -171,8 +171,7 @@ class DefinitionValidator
 
         foreach ($this->registry->getDefinitions() as $definition) {
             $definitionClass = $definition->getClass();
-            // ignore definitions from a test namespace https://regex101.com/r/hpxAVN/1
-            if (preg_match('/.*\\\\Tests?\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
+            if ($this->shouldSkipDefinition($definitionClass)) {
                 continue;
             }
             if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
@@ -235,6 +234,17 @@ class DefinitionValidator
         $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
 
         return array_filter($violations);
+    }
+
+    /**
+     * Check if a definition should be skipped during validation
+     *
+     * @see https://regex101.com/r/hpxAVN/1
+     */
+    protected function shouldSkipDefinition(string $definitionClass): bool
+    {
+        return (bool) preg_match('/.*\\\\Tests?\\\\.*/', $definitionClass)
+            || (bool) preg_match('/.*ComposerChild\\\\.*/', $definitionClass);
     }
 
     /**

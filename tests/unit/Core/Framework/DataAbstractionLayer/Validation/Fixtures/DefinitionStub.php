@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -13,11 +13,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- * Test fixture for DefinitionValidator tests
- * Note: This is in a non-Test namespace so DefinitionValidator doesn't filter it out
  */
 #[Package('framework')]
-class DefinitionValidatorTestDefinition extends EntityDefinition
+class DefinitionStub extends EntityDefinition
 {
     public const ENTITY_NAME = 'definition_validator_test';
 

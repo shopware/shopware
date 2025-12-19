@@ -17,8 +17,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition\DefinitionValidatorTestDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Validation\TestDefinition\DefinitionValidatorWithNonStorageAwarePrimaryKeyTestDefinition;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionStub;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithNonStorageAwarePrimaryKeyStub;
 
 /**
  * @internal
@@ -33,7 +33,7 @@ class DefinitionValidatorTest extends TestCase
     #[DataProvider('primaryKeyMismatchProvider')]
     public function testPrimaryKeyMismatchReportsViolation(array $dbPrimaryKeys, array $expectedMessages): void
     {
-        $definition = new DefinitionValidatorTestDefinition();
+        $definition = new DefinitionStub();
         $validator = $this->createValidatorWithTable($definition, $dbPrimaryKeys);
 
         $violations = $validator->validate();
@@ -79,7 +79,7 @@ class DefinitionValidatorTest extends TestCase
 
     public function testPrimaryKeyMatchReportsNoViolation(): void
     {
-        $definition = new DefinitionValidatorTestDefinition();
+        $definition = new DefinitionStub();
         $validator = $this->createValidatorWithTable($definition, ['id']);
 
         $violations = $validator->validate();
@@ -96,7 +96,7 @@ class DefinitionValidatorTest extends TestCase
 
     public function testPrimaryKeyValidationHandlesTableNotFoundException(): void
     {
-        $definition = new DefinitionValidatorTestDefinition();
+        $definition = new DefinitionStub();
         $validator = $this->createValidatorWithNonExistentTable($definition);
 
         $violations = $validator->validate();
@@ -116,7 +116,7 @@ class DefinitionValidatorTest extends TestCase
     public function testPrimaryKeyValidationSkipsNonStorageAwareFields(): void
     {
         // Use a definition with a non-StorageAware field marked as PrimaryKey
-        $definition = new DefinitionValidatorWithNonStorageAwarePrimaryKeyTestDefinition();
+        $definition = new DefinitionWithNonStorageAwarePrimaryKeyStub();
         $validator = $this->createValidatorWithTable($definition, ['id']);
 
         $violations = $validator->validate();
@@ -176,7 +176,14 @@ class DefinitionValidatorTest extends TestCase
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);
 
-        return new DefinitionValidator($registry, $connection);
+        // Create a custom validator that doesn't skip test definitions
+        // @phpstan-ignore class.extendsFinalByPhpDoc
+        return new class($registry, $connection) extends DefinitionValidator {
+            protected function shouldSkipDefinition(string $definitionClass): bool
+            {
+                return false;
+            }
+        };
     }
 
     private function createValidatorWithNonExistentTable(EntityDefinition $definition): DefinitionValidator
@@ -185,12 +192,21 @@ class DefinitionValidatorTest extends TestCase
         $schemaManager = $this->createMock(AbstractSchemaManager::class);
         $connection->method('createSchemaManager')->willReturn($schemaManager);
         $schemaManager->method('introspectTable')->willThrowException(new \Exception('Table does not exist'));
+        $schemaManager->method('listTableColumns')->willReturn([]);
+        $schemaManager->method('listTables')->willReturn([]);
 
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         $definition->compile($registry);
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);
 
-        return new DefinitionValidator($registry, $connection);
+        // Create a custom validator that doesn't skip test definitions
+        // @phpstan-ignore class.extendsFinalByPhpDoc
+        return new class($registry, $connection) extends DefinitionValidator {
+            protected function shouldSkipDefinition(string $definitionClass): bool
+            {
+                return false;
+            }
+        };
     }
 }

@@ -19,6 +19,6 @@ class FileUrlValidatorStub implements FileUrlValidatorInterface
             return false;
         }
 
-        return true
+        return true;
     }
 }

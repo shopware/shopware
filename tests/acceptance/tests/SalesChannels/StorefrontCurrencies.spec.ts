@@ -17,7 +17,7 @@ test(
                 const currencySymbol = getCurrencySymbolFromLocale();
                 // eslint-disable-next-line playwright/no-conditional-in-test
                 if (satisfies(InstanceMeta.version, '<6.7') && !InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
-                    await ShopCustomer.expects(StorefrontHome.currenciesDropdown).toContainText(currencySymbol);
+                    await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText('Pound');
                 }   
                 else {
                     await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText(currencySymbol);

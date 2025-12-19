@@ -11,6 +11,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Symfony\ServiceMap;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route as RouteAnnotation;
 
 /**
  * @internal
@@ -37,7 +38,7 @@ class NoRouteOverrideInDecoratorsRule implements Rule
 
         $reflection = $node->getClassReflection();
 
-        if ($this->isServiceDecorator($reflection->getName()) === false) {
+        if (!$this->isServiceDecorator($reflection->getName())) {
             return [];
         }
 
@@ -64,6 +65,9 @@ class NoRouteOverrideInDecoratorsRule implements Rule
         if ($native->getAttributes(Route::class) !== []) {
             return true;
         }
+        if ($native->getAttributes(RouteAnnotation::class) !== []) {
+            return true;
+        }
 
         // check method level attributes for Route
         foreach ($native->getMethods() as $method) {
@@ -73,6 +77,9 @@ class NoRouteOverrideInDecoratorsRule implements Rule
             }
 
             if ($method->getAttributes(Route::class) !== []) {
+                return true;
+            }
+            if ($method->getAttributes(RouteAnnotation::class) !== []) {
                 return true;
             }
         }

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\DeletedApps;
 
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
@@ -31,14 +30,14 @@ readonly class RememberDeletedAppsSecretSubscriber implements EventSubscriberInt
     public static function getSubscribedEvents()
     {
         return [
-            AppDeletedEvent::class => 'safeSecretFromDeletedApp',
+            AppDeletedEvent::class => 'saveSecretFromDeletedApp',
             AppInstalledEvent::class => 'removeDeletedAppSecret',
             ShopIdChangedEvent::class => 'purgeOldSecrets',
             ShopIdDeletedEvent::class => 'purgeOldSecrets',
         ];
     }
 
-    public function safeSecretFromDeletedApp(AppDeletedEvent $event): void
+    public function saveSecretFromDeletedApp(AppDeletedEvent $event): void
     {
         $criteria = new Criteria([$event->getAppId()]);
         $app = $this->appRepository->search($criteria, $event->getContext())->first();

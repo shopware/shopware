@@ -81,7 +81,7 @@
 
             {% block sw_category_tree_field_input_transition %}
             {% block sw_category_tree_field_input_results %}
-            <sw-popover
+            <sw-popover-deprecated
                 v-if="isExpanded"
                 class="sw-category-tree-field__results_base"
                 popover-class="sw-category-tree-field__results_popover"
@@ -223,7 +223,7 @@
                 </p>
                 {% endblock %}
 
-            </sw-popover>
+            </sw-popover-deprecated>
             {% endblock %}
             {% endblock %}
         </template>

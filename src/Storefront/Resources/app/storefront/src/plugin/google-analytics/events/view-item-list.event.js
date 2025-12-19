@@ -1,7 +1,7 @@
-import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
-export default class ViewItemListEvent extends AnalyticsEvent
+export default class ViewItemListEvent extends EventAwareAnalyticsEvent
 {
     /**
      * @param {string} controllerName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
@@ -14,7 +14,29 @@ export default class ViewItemListEvent extends AnalyticsEvent
         return !!listingWrapper;
     }
 
+    getPluginName() {
+        return 'Listing';
+    }
+
+    getEvents() {
+        return {
+            'Listing/afterRenderResponse': this._onListingChange.bind(this),
+        };
+    }
+
     execute() {
+        // Fire on initial page load
+        this._fireViewItemListEvent();
+
+        // Subscribe to listing updates (pagination, filters)
+        super.execute();
+    }
+
+    _onListingChange() {
+        this._fireViewItemListEvent();
+    }
+
+    _fireViewItemListEvent() {
         if (!this.active) {
             return;
         }

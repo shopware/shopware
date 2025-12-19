@@ -18,6 +18,8 @@ export default class ViewCartEvent extends AnalyticsEvent
             return;
         }
 
+        this._debounceTimeout = null;
+
         // Fire immediately on cart page
         if (window.activeRoute === 'frontend.checkout.cart.page') {
             this._fireViewCartEvent();
@@ -49,16 +51,29 @@ export default class ViewCartEvent extends AnalyticsEvent
         }
 
         instances.forEach((pluginInstance) => {
-            pluginInstance.$emitter.subscribe('offCanvasOpened', this._onOffCanvasOpened.bind(this));
+            // Fire on initial offcanvas opening
+            pluginInstance.$emitter.subscribe('offCanvasOpened', this._onOffCanvasCartChange.bind(this));
+            // Fire on cart content updates (quantity change, product removal, promotion, shipping)
+            // registerEvents fires at the very end after DOM is fully updated
+            pluginInstance.$emitter.subscribe('registerEvents', this._onOffCanvasCartChange.bind(this));
         });
     }
 
-    _onOffCanvasOpened() {
+    _onOffCanvasCartChange() {
         if (!this.active) {
             return;
         }
 
-        this._fireViewCartEvent();
+        // Debounce to avoid duplicate events when multiple events fire in quick succession
+        // (e.g., offCanvasOpened and registerEvents both fire during cart updates)
+        if (this._debounceTimeout) {
+            clearTimeout(this._debounceTimeout);
+        }
+
+        this._debounceTimeout = setTimeout(() => {
+            this._fireViewCartEvent();
+            this._debounceTimeout = null;
+        }, 50);
     }
 
     _fireViewCartEvent() {

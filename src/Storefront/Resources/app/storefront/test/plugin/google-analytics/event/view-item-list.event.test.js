@@ -4,6 +4,9 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
         window.currencyIsoCode = 'EUR';
+        window.PluginManager = {
+            getPlugin: jest.fn(),
+        };
     });
 
     afterEach(() => {
@@ -55,5 +58,51 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         new ViewItemListEvent().execute();
 
         expect(window.gtag).not.toHaveBeenCalled();
+    });
+
+    test('subscribes to Listing plugin for AJAX updates and fires event on listing change', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='{ "id": "product-1", "name": "Laptop", "price": 999.99 }'></div>
+            </div>
+        `;
+
+        const mockEmitter = {
+            subscribe: jest.fn(),
+        };
+
+        const mockPluginInstance = {
+            $emitter: mockEmitter,
+        };
+
+        window.PluginManager.getPlugin.mockReturnValue({
+            get: jest.fn().mockReturnValue([mockPluginInstance]),
+        });
+
+        const event = new ViewItemListEvent();
+        event.execute();
+
+        // Verify it fired on initial page load
+        expect(window.gtag).toHaveBeenCalledTimes(1);
+
+        // Verify it subscribed to the Listing plugin's afterRenderResponse event
+        expect(mockEmitter.subscribe).toHaveBeenCalledWith(
+            'Listing/afterRenderResponse',
+            expect.any(Function)
+        );
+
+        // Simulate a listing change (pagination/filter)
+        const subscribeCallback = mockEmitter.subscribe.mock.calls[0][1];
+        subscribeCallback();
+
+        // Verify it fired again after listing change
+        expect(window.gtag).toHaveBeenCalledTimes(2);
+    });
+
+    test('returns correct plugin name and events for EventAwareAnalyticsEvent', () => {
+        const event = new ViewItemListEvent();
+
+        expect(event.getPluginName()).toBe('Listing');
+        expect(event.getEvents()).toHaveProperty('Listing/afterRenderResponse');
     });
 });

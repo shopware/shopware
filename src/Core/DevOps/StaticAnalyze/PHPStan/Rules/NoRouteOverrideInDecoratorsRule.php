@@ -10,8 +10,8 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Symfony\ServiceMap;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Annotation\Route as RouteAnnotation;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal

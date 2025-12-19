@@ -63,4 +63,12 @@ class UtilExceptionTest extends TestCase
         static::assertSame('CONTENT__OPERATOR_NOT_SUPPORTED', $e->getErrorCode());
         static::assertSame('Operator "$" is not supported.', $e->getMessage());
     }
+
+    public function testBase64DecodingFailed(): void
+    {
+        $e = UtilException::base64DecodingFailed();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('UTIL__BASE64_DECODING_FAILED', $e->getErrorCode());
+        static::assertSame('Failed to decode base64url data', $e->getMessage());
+    }
 }

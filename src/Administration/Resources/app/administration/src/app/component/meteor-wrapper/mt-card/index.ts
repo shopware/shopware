@@ -1,4 +1,4 @@
-import { MtCard } from '@shopware-ag/meteor-component-library';
+import MtCard from '@shopware-ag/meteor-component-library/dist/esm/MtCard';
 import template from './mt-card.html.twig';
 
 /**

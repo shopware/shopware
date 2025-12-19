@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('New customers can register as commercial customers in the Storefront.', { tag: '@Registration' }, async ({
+test('New customers can register as commercial customers in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccount,
@@ -17,6 +17,7 @@ test('New customers can register as commercial customers in the Storefront.', { 
 
     await test.step('Register as a commercial customer', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect);
         await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
         await ShopCustomer.attemptsTo(Register(customer));
     });
@@ -28,7 +29,7 @@ test('New customers can register as commercial customers in the Storefront.', { 
 
 });
 
-test('New customers cannot register as commercial customers without a VAT Reg.No.', { tag: '@Registration' }, async ({
+test('New customers cannot register as commercial customers without a VAT Reg.No.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     Register,
@@ -45,6 +46,7 @@ test('New customers cannot register as commercial customers without a VAT Reg.No
 
     await test.step('Attempt to register without a VAT Reg.No.', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect);
         await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
         await ShopCustomer.attemptsTo(Register(customer));
     });
@@ -64,7 +66,7 @@ test('New customers cannot register as commercial customers without a VAT Reg.No
 
 });
 
-test('New customers cannot register as commercial customers with an invalid VAT Reg.No.', { tag: '@Registration' }, async ({
+test('New customers cannot register as commercial customers with an invalid VAT Reg.No.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     IdProvider,
@@ -83,6 +85,7 @@ test('New customers cannot register as commercial customers with an invalid VAT 
 
     await test.step('Attempt to register with an invalid VAT Reg.No.', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+        await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect);
         await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
         await ShopCustomer.attemptsTo(Register(customer));
     });

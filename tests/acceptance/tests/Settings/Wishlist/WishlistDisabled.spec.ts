@@ -1,12 +1,13 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customer is able to verify that wishlist icons disappear when it is disabled.', { tag: '@Wishlist' }, async ({
+test('Customer is able to verify that wishlist icons disappear when it is disabled.', { tag: ['@Wishlist', '@Storefront'] }, async ({
     TestDataService,
     ShopCustomer,
+    StorefrontHeader,
     StorefrontHome,
+    StorefrontOffCanvasCart,
     StorefrontProductDetail,
     AddProductToCart,
-    StorefrontOffCanvasCart,
 }) => {
     const product1 = await TestDataService.createBasicProduct();
     const product1Locators = await StorefrontHome.getListingItemByProductName(product1.name);
@@ -17,7 +18,7 @@ test('Customer is able to verify that wishlist icons disappear when it is disabl
 
     await test.step('Wishlist icon is not displayed in the header', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
-        await ShopCustomer.expects(StorefrontHome.wishlistBasket).not.toBeVisible();
+        await ShopCustomer.expects(StorefrontHeader.wishlistBasket).not.toBeVisible();
     });
 
     await test.step('Wishlist icon is not displayed on Product Listings', async () => {

@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('The Storefront should implement accessibility best practices.', { tag: '@Accessibility' }, async ({
+test('The Storefront should implement accessibility best practices.', { tag: ['@Accessibility', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     ValidateAccessibility,

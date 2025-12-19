@@ -1,21 +1,24 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
-test('As a merchant, I would be able to adjust storefront rounding for defined country', { tag: '@Settings' }, async ({
+test('As a merchant, I would be able to adjust storefront rounding for defined country', { tag: ['@Settings', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     DefaultSalesChannel,
-    StorefrontProductDetail,
     StorefrontCheckoutConfirm,
     StorefrontCheckoutFinish,
-    ChangeStorefrontCurrency,
+    StorefrontHeader,
     StorefrontHome,
+    StorefrontProductDetail,
+    AddProductToCart,
+    ChangeStorefrontCurrency,
+    ConfirmTermsAndConditions,
     Login,
     ProceedFromProductToCheckout,
-    AddProductToCart,
-    ConfirmTermsAndConditions,
-    SelectInvoicePaymentOption,
-    SelectStandardShippingOption,
+    SelectPaymentMethod,
+    SelectShippingMethod,
     SubmitOrder,
+    InstanceMeta,
 }) => {
     const product = await TestDataService.createBasicProduct();
     const currency = await TestDataService.createCurrency({ factor: 2.25555 });
@@ -41,6 +44,7 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
             salutationId: salutation.id,
         },
     });
+
     await TestDataService.assignCurrencyCountryRounding(currency.id, country.id, 3);
     await TestDataService.assignSalesChannelCurrency(DefaultSalesChannel.salesChannel.id, currency.id);
     await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, country.id);
@@ -48,28 +52,33 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontHome.url());
     
-    //temp workaround until https://github.com/shopware/acceptance-test-suite/issues/546 is resolved
-    await StorefrontHome.currenciesDropdown.click();
-    await StorefrontHome.currenciesMenuOptions.getByText(currency.symbol).click();
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (satisfies(InstanceMeta.version, '<6.7') && !InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+        await StorefrontHeader.currenciesDropdown.click();
+        await StorefrontHeader.currenciesMenuOptions.getByText(currency.symbol).click();
+    }   
+    else {
+        await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
+    }
 
     const productListingLocatorsByProductId = await StorefrontHome.getListingItemByProductName(product.name);
-    await ShopCustomer.expects(productListingLocatorsByProductId.productPrice).toContainText(currency.isoCode+' 22.556');
+    await ShopCustomer.expects(productListingLocatorsByProductId.productPrice).toContainText(currency.isoCode + ' 22.556');
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(currency.isoCode+' 22.556');
+    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(currency.isoCode + ' 22.556');
 
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toContainText(currency.isoCode+' 22.556');
+    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toContainText(currency.isoCode + ' 22.556');
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-    await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+    await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+    await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
-    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(currency.isoCode+' 22.556');
+    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(currency.isoCode + ' 22.556');
 
     await ShopCustomer.attemptsTo(SubmitOrder());
-    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(currency.isoCode+' 22.556');
+    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(currency.isoCode + ' 22.556');
 
     const orderId = StorefrontCheckoutFinish.getOrderId();
 

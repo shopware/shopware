@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customers are able to cancel orders in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are able to cancel orders in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     TestDataService,
@@ -20,9 +20,9 @@ test('Customers are able to cancel orders in storefront account.', { tag: '@Orde
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-    await orderItemLocators.orderActionsButton.click();
-    await orderItemLocators.orderCancelButton.click();
-    await StorefrontAccountOrder.dialogOrderCancelButton.click();
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+    await ShopCustomer.presses(orderItemLocators.orderCancelButton);
+    await ShopCustomer.presses(StorefrontAccountOrder.dialogOrderCancelButton);
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     await ShopCustomer.expects(orderItemLocators.orderShippingStatus).toContainText('Open');
     await ShopCustomer.expects(orderItemLocators.orderPaymentStatus).toContainText('Open');
@@ -32,7 +32,7 @@ test('Customers are able to cancel orders in storefront account.', { tag: '@Orde
     await ShopCustomer.expects(orderItemLocators.orderStatus).not.toContainText('Open');
 });
 
-test('Customers are able to cancel orders on the final checkout page in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are able to cancel orders on the final checkout page in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     TestDataService,
@@ -53,10 +53,10 @@ test('Customers are able to cancel orders on the final checkout page in storefro
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-    await orderItemLocators.orderActionsButton.click();
-    await orderItemLocators.orderChangePaymentMethodButton.click();
-    await StorefrontCheckoutOrderEdit.orderCancelButton.click();
-    await StorefrontCheckoutOrderEdit.dialogOrderCancelButton.click();
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+    await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton);
+    await ShopCustomer.presses(StorefrontCheckoutOrderEdit.orderCancelButton);
+    await ShopCustomer.presses(StorefrontCheckoutOrderEdit.dialogOrderCancelButton);
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     await ShopCustomer.expects(orderItemLocators.orderShippingStatus).toContainText('Open');
     await ShopCustomer.expects(orderItemLocators.orderPaymentStatus).toContainText('Open');
@@ -66,7 +66,7 @@ test('Customers are able to cancel orders on the final checkout page in storefro
     await ShopCustomer.expects(orderItemLocators.orderStatus).not.toContainText('Open');
 });
 
-test('Customers are not able to cancel orders on the final checkout page in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are not able to cancel orders on the final checkout page in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     TestDataService,
@@ -87,12 +87,12 @@ test('Customers are not able to cancel orders on the final checkout page in stor
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-    await orderItemLocators.orderActionsButton.click();
-    await orderItemLocators.orderChangePaymentMethodButton.click();
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+    await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton);
     await ShopCustomer.expects(StorefrontCheckoutOrderEdit.orderCancelButton).not.toBeVisible();
 });
 
-test('Customers are not able to cancel orders in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are not able to cancel orders in storefront account.', { tag: ['@Order', '@Account', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     TestDataService,
@@ -112,6 +112,6 @@ test('Customers are not able to cancel orders in storefront account.', { tag: '@
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-    await orderItemLocators.orderActionsButton.click();
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
     await ShopCustomer.expects(orderItemLocators.orderCancelButton).not.toBeVisible();
 });

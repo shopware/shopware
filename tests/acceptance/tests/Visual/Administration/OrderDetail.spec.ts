@@ -10,7 +10,7 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
     await test.step('Creates a screenshot of the order detail page General tab.', async () => {
 
         const product = await TestDataService.createBasicProduct();
-        const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer);
+        const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer, {shippingDateLatest: '2025-10-10T00:00:00.000+00:00' });
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id));
 
         await setViewport(AdminOrderDetail.page, {
@@ -44,6 +44,7 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
             '.dp__input_reg',
             'input[aria-label="Email"]',
             'div.sw-field[label="Sales channel"] .sw-entity-single-select__selection-text',
+            '.dp__input_icon_pad',
         ]);
 
         await assertScreenshot(AdminOrderDetail.page, 'Order-Detail-Details-Tab.png');

@@ -49,7 +49,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     }
 
     /**
-     * @comment Though this is a GET route, caching was not added as the output may be altered depending on dynamic rules,
+     * Though this is a GET route, caching was not added as the output may be altered depending on dynamic rules,
      * which is not taken into account during the cache hash calculation.
      */
     #[Route(

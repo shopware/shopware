@@ -41,6 +41,7 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
@@ -55,6 +56,7 @@ use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -91,6 +93,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly StoreApiCustomFieldMapper $customFieldMapper,
         private readonly EntityRepository $salutationRepository,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -107,9 +110,18 @@ class RegisterRoute extends AbstractRegisterRoute
         ?DataValidationDefinition $additionalValidationDefinitions = null,
         ?Request $request = null
     ): CustomerResponse {
-        // Use sw-domain header as fallback for storefrontUrl if not provided
-        if ($request !== null && !$data->has('storefrontUrl') && $request->headers->has(PlatformRequest::HEADER_DOMAIN)) {
-            $data->set('storefrontUrl', $request->headers->get(PlatformRequest::HEADER_DOMAIN));
+        $request ??= $this->requestStack->getMainRequest();
+
+        // Fallback chain for storefrontUrl (for backward compatibility):
+        // 1. Explicit storefrontUrl in request body (highest priority)
+        // 2. sw-domain header (for headless/Store API)
+        // 3. sw-storefront-url attribute (set by Storefront RequestTransformer)
+        if ($request !== null && !$data->has('storefrontUrl')) {
+            if ($request->headers->has(PlatformRequest::HEADER_DOMAIN)) {
+                $data->set('storefrontUrl', $request->headers->get(PlatformRequest::HEADER_DOMAIN));
+            } elseif ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_STOREFRONT_URL)) {
+                $data->set('storefrontUrl', $request->attributes->get(SalesChannelRequest::ATTRIBUTE_STOREFRONT_URL));
+            }
         }
 
         EmailIdnConverter::encodeDataBag($data);

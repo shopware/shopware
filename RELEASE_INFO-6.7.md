@@ -204,41 +204,40 @@ The Store API will use the domain configuration for `https://shop.example.com/de
 
 #### `storefrontUrl` Parameter Auto-Fallback
 
-Store API routes that require a `storefrontUrl` parameter (such as customer registration, password recovery, and newsletter subscription) now automatically fall back to the `sw-domain` header value when the parameter is not explicitly provided.
+Store API routes that require a `storefrontUrl` parameter (such as customer registration, password recovery, and newsletter subscription) now automatically resolve the value through a fallback chain when not explicitly provided.
 
 **Affected Routes:**
 - `/store-api/account/register` - Customer registration with email confirmation
 - `/store-api/account/recovery-password` - Password recovery emails
 - `/store-api/newsletter/subscribe` - Newsletter subscription with double opt-in
 
+**Fallback Chain:**
+The system tries to resolve `storefrontUrl` in the following order:
+1. **Explicit `storefrontUrl` in request body** (highest priority)
+2. **`sw-domain` header** (for headless/Store API requests)
+3. **`sw-storefront-url` request attribute** (automatically set by Storefront RequestTransformer)
+
+This ensures **full backward compatibility** - existing code that relies on the `sw-storefront-url` attribute continues to work without changes.
+
 **Usage:**
 ```http
-# Before: Had to send storefrontUrl in both header and body
+# Headless frontend using sw-domain header
 POST https://api.shop.example.com/store-api/account/register
 sw-domain: https://shop.example.com/de
 Content-Type: application/json
 
 {
   "email": "customer@example.com",
-  "storefrontUrl": "https://shop.example.com/de",  // No longer required!
-  ...
-}
-
-# Now: sw-domain header is automatically used as storefrontUrl
-POST https://api.shop.example.com/store-api/account/register
-sw-domain: https://shop.example.com/de
-Content-Type: application/json
-
-{
-  "email": "customer@example.com",
+  // storefrontUrl no longer required - uses sw-domain header
   ...
 }
 ```
 
 **Benefits:**
-- Reduces redundancy - no need to send the same URL in both header and body
-- Simplifies API usage for headless frontends
-- Maintains backward compatibility - explicit `storefrontUrl` parameter still works and takes precedence
+- **Backward compatible** - existing Storefront requests continue to work
+- **Simpler for headless** - no need to send the same URL in both header and body
+- **Flexible** - explicit `storefrontUrl` parameter still works and takes precedence
+- **No breaking changes** - all existing code paths remain functional
 
 ### Move Storefront DomainLoader to core
 

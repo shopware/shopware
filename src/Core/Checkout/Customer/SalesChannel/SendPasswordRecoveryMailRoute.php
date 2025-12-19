@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
@@ -72,10 +73,17 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     {
         EmailIdnConverter::encodeDataBag($data);
 
-        // Use sw-domain header as fallback for storefrontUrl if not provided
+        // Fallback chain for storefrontUrl (for backward compatibility):
+        // 1. Explicit storefrontUrl in request body (highest priority)
+        // 2. sw-domain header (for headless/Store API)
+        // 3. sw-storefront-url attribute (set by Storefront RequestTransformer)
         if (($request = $this->requestStack->getMainRequest()) !== null) {
-            if (!$data->has('storefrontUrl') && $request->headers->has(PlatformRequest::HEADER_DOMAIN)) {
-                $data->set('storefrontUrl', $request->headers->get(PlatformRequest::HEADER_DOMAIN));
+            if (!$data->has('storefrontUrl')) {
+                if ($request->headers->has(PlatformRequest::HEADER_DOMAIN)) {
+                    $data->set('storefrontUrl', $request->headers->get(PlatformRequest::HEADER_DOMAIN));
+                } elseif ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_STOREFRONT_URL)) {
+                    $data->set('storefrontUrl', $request->attributes->get(SalesChannelRequest::ATTRIBUTE_STOREFRONT_URL));
+                }
             }
 
             $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, strtolower($data->get('email') . '-' . $request->getClientIp()));

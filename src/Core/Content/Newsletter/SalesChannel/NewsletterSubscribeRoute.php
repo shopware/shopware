@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -110,10 +111,17 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             $validateStorefrontUrl = false;
         }
 
-        // Use sw-domain header as fallback for storefrontUrl if not provided (and no doubleOptInDomain is configured)
+        // Fallback chain for storefrontUrl (for backward compatibility):
+        // 1. Explicit storefrontUrl in request body (highest priority)
+        // 2. sw-domain header (for headless/Store API)
+        // 3. sw-storefront-url attribute (set by Storefront RequestTransformer)
         if (!$dataBag->has('storefrontUrl')) {
-            if (($request = $this->requestStack->getMainRequest()) !== null && $request->headers->has(PlatformRequest::HEADER_DOMAIN)) {
-                $dataBag->set('storefrontUrl', $request->headers->get(PlatformRequest::HEADER_DOMAIN));
+            if (($request = $this->requestStack->getMainRequest()) !== null) {
+                if ($request->headers->has(PlatformRequest::HEADER_DOMAIN)) {
+                    $dataBag->set('storefrontUrl', $request->headers->get(PlatformRequest::HEADER_DOMAIN));
+                } elseif ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_STOREFRONT_URL)) {
+                    $dataBag->set('storefrontUrl', $request->attributes->get(SalesChannelRequest::ATTRIBUTE_STOREFRONT_URL));
+                }
             }
         }
 

@@ -20,7 +20,10 @@ Shopware.Component.extend(
 );
 
 Shopware.Component.register('sw-mail-template-view-templates', () => import('./view/sw-mail-template-view-templates'));
-Shopware.Component.register('sw-mail-template-view-header-footer', () => import('./view/sw-mail-template-view-header-footer'));
+Shopware.Component.register(
+    'sw-mail-template-view-header-footer',
+    () => import('./view/sw-mail-template-view-header-footer'),
+);
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
@@ -94,9 +97,7 @@ Module.register('sw-mail-template', {
             component: 'sw-mail-header-footer-create',
             path: 'create-head-foot',
             meta: {
-                parentPath: Feature.isActive('V6_8_0_0')
-                    ? 'sw.mail.template.index.header_footer'
-                    : 'sw.mail.template.index',
+                parentPath: Feature.isActive('V6_8_0_0') ? 'sw.mail.template.index.header_footer' : 'sw.mail.template.index',
                 privilege: 'mail_templates.creator',
             },
         },
@@ -104,9 +105,7 @@ Module.register('sw-mail-template', {
             component: 'sw-mail-header-footer-detail',
             path: 'detail-head-foot/:id',
             meta: {
-                parentPath: Feature.isActive('V6_8_0_0')
-                    ? 'sw.mail.template.index.header_footer'
-                    : 'sw.mail.template.index',
+                parentPath: Feature.isActive('V6_8_0_0') ? 'sw.mail.template.index.header_footer' : 'sw.mail.template.index',
                 privilege: 'mail_templates.viewer',
             },
         },

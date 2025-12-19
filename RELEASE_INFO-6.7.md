@@ -2,11 +2,69 @@
 
 ## Features
 
+### HTTP caching rework
+
+- Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
+  and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
+  together with other HTTP caching improvements.
+- Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
+
+### Send email on customer password change
+A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.
+
 ## API
+
+### Video cover management `/api/_action/media/{mediaId}/video-cover`
+Added endpoint to assign or remove cover images for video media files. Requires `media.editor` ACL permission.
+Accepts `coverMediaId` (string or null) in request body.
+Cover image reference is stored in `metaData.video.coverMediaId`.
+When a cover image is deleted, all video references are automatically cleaned up via `VideoCoverCleanupSubscriber`.
+
+### StoreAPI HTTP caching support
+HTTP caching support was added for the following Store API endpoints:
+- `/store-api/breadcrumb/{id}`
+- `/store-api/category`
+- `/store-api/category/{navigationId}`
+- `/store-api/navigation/{activeId}/{rootId}`
+- `/store-api/cms/{id}`
+- `/store-api/product`
+- `/store-api/seo-url`
+- `/store-api/country`
+- `/store-api/country-state/{countryId}`
+- `/store-api/currency`
+- `/store-api/language`
+- `/store-api/salutation`
+
+`GET` methods and HTTP caching support were added for the following Store API endpoints:
+- `/store-api/media`
+- `/store-api/product/{productId}/cross-selling`
+- `/store-api/product/{productId}`
+- `/store-api/product/{productId}/find-variant`
+- `/store-api/product-listing/{categoryId}`
+- `/store-api/product/{productId}/reviews`
+- `/store-api/search`
+- `/store-api/search-suggest`
+
+It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
+
+### Store API: compressed criteria parameter support
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows 
+sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported. 
+Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
+Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
+
+### Document download `/store-api/document/download/`
+The endpoint now selects the document file type based on the `Accept` header.
+When no `Accept` header is set or with `*/*`, `PDF` will be returned. (PR #12944)
 
 ## Core
 
+### PHP 8.5 support
+
+Shopware is now fully compatible with PHP 8.5.
+
 ### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
+
 The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
 You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
 
@@ -27,7 +85,37 @@ The following classes and constants were deprecated as they will not be used any
 Additionally, the following configuration was deprecated:
 * `shopware.cache.invalidation.http_cache`
 
+### HTTP Caching Policies
+
+Added support for caching policies to define HTTP cache behavior via configuration.
+
+You can now configure named caching policies that define how the Cache-Control header is formed. These policies can be assigned per area (`storefront`, `store_api`) and per route. The header controls how caches (browser, reverse proxy, CDN, Symfony cache layer) should cache the response.
+
+The feature is enabled using the `CACHE_REWORK` feature flag. For more details see the [caching policies documentation](https://developer.shopware.com/docs/guides/hosting/performance/caches.html#http-caching-policies).
+
+### Add recursive assign method to AssignArrayTrait
+
+A new method `assignRecursive` has been added to `Shopware\Core\Framework\Struct\AssignArrayTrait`. Along with it, the new `Shopware\Core\Framework\Struct\AssignArrayInterface` has been introduced.
+To make full use of `assignRecursive`, every class using `AssignArrayTrait` must also implement the new `AssignArrayInterface`.
+The `assignRecursive` method enables deeply nested, JSON-serialized data structures - for example, a fully serialized `ProductEntity` including associations such as `properties` - to be converted back into a fully populated `ProductEntity` instance, including all nested `Struct` and `Collection` objects.
+
+Note: `assignRecursive` uses reflection and creates nested struct instances, so it is noticeably slower than the classic shallow `assign` and is intended for import/export and (re-)hydration scenarios rather than tight, performance-critical loops.
+
+### Performance improvements for generating category SEO-Urls
+
+We don't synchronously fetch and generate the SEO-Urls for all child categories anymore.
+Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
+This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
+
 ## Administration
+
+### Loading indicator for whole page
+
+When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
+
+### Search filter for settings module
+
+In the settings module, there is now a search bar in the top right. It can be used to filter settings based on a search term to quickly find what you need.
 
 ## Storefront
 
@@ -37,7 +125,27 @@ The domain part of email addresses may now contain internationalized domain name
 
 ## App System
 
+### App Script caching control
+
+As before, app developers can control caching via in app scripts using syntax `{% do response.cache.<directive> %}`, which map to `ResponseCacheConfiguration` methods.
+Next changes were made to `ResponseCacheConfiguration` methods:
+- added `sharedMaxAge(seconds)` - set shared (reverse proxy/CDN) cache TTL, equivalent to `s-maxage` cache control directive.
+- added `clientMaxAge(seconds)` - set client-side (browser) cache TTL, equivalent to `max-age` cache control directive. Has effect only if `CACHE_REWORK` feature flag is enabled.
+- deprecated `maxAge(seconds)` - use sharedMaxAge() instead.
+
+Admins can override policies per script using `route_policies` with `route#hook` pattern in configuration (see HTTP caching policies description in the Core section).
+
 ## Hosting & Configuration
+
+### Control language analyzer usage in Elasticsearch search queries
+
+A new environment variable `SHOPWARE_ES_USE_LANGUAGE_ANALYZER` has been added to control whether language-specific analyzers (like `sw_english_analyzer`, `sw_german_analyzer`) are used for search queries.
+
+By default (`SHOPWARE_ES_USE_LANGUAGE_ANALYZER=1`), search queries use the same analyzer as the indexed field, which includes language-specific features like stopword filtering and stemming. This provides broader, more fuzzy search results.
+
+When set to `0` (`SHOPWARE_ES_USE_LANGUAGE_ANALYZER=0`), search queries use `sw_whitespace_analyzer` instead, providing less fuzzy search results with fewer matches.
+
+**Note:** This setting only affects search queries, not indexing. Indexed data continues to use language analyzers for proper tokenization.
 
 ### Possibility to disable extensions when setting up staging mode
 
@@ -49,6 +157,15 @@ shopware:
         extensions:
             disable: ["TheExtensionName", "AnotherExtensionName"]
 ```
+
+### Deprecated HTTP cache configuration
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable.
+- `shopware.http.cache.default_ttl` parameter.
+- `shopware.http_cache.stale_while_revalidate` parameter.
+- `shopware.http_cache.stale_if_error` parameter.
+
+Deprecated parameters will have no effect when `CACHE_REWORK` feature flag is enabled, and will be removed in 6.8.0.0.
 
 ## Critical fixes
 
@@ -95,6 +212,11 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 ```
 
 ## Core
+
+### Automatic indexer execution for plugin migrations
+
+The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+This ensures that registered indexers are executed when plugin migrations have run.
 
 ### Improved Store API OpenAPI documentation with field descriptions
 

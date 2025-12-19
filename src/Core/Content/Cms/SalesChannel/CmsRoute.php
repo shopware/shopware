@@ -31,7 +31,12 @@ class CmsRoute extends AbstractCmsRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/cms/{id}', name: 'store-api.cms.detail', methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/store-api/cms/{id}',
+        name: 'store-api.cms.detail',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(string $id, Request $request, SalesChannelContext $context): CmsRouteResponse
     {
         $criteria = new Criteria([$id]);

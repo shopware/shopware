@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use OpenSearchDSL\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -136,6 +137,45 @@ class ProductAdminSearchIndexerTest extends TestCase
         );
 
         static::assertSame([$productId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testGlobalCriteria(): void
+    {
+        $indexer = new ProductAdminSearchIndexer(
+            $this->createMock(Connection::class),
+            $this->createMock(IteratorFactory::class),
+            $this->createMock(EntityRepository::class),
+            100
+        );
+
+        $search = new Search();
+        $result = $indexer->globalCriteria('test', $search);
+
+        $boolQuery = $result->getQueries();
+        $boolQueryArray = $boolQuery->toArray();
+        $shouldQueries = $boolQueryArray['bool']['should'];
+
+        static::assertCount(2, $shouldQueries);
+
+        $matchQuery = null;
+        $simpleQueryStringQuery = null;
+        foreach ($shouldQueries as $query) {
+            if (isset($query['match']['textBoosted.ngram'])) {
+                $matchQuery = $query['match']['textBoosted.ngram'];
+            } elseif (isset($query['simple_query_string'])) {
+                $simpleQueryStringQuery = $query['simple_query_string'];
+            }
+        }
+
+        static::assertNotNull($matchQuery, 'MatchQuery for textBoosted.ngram should be present');
+        static::assertSame('test', $matchQuery['query']);
+        static::assertSame(10, $matchQuery['boost']);
+
+        static::assertNotNull($simpleQueryStringQuery, 'SimpleQueryStringQuery for textBoosted should be present');
+        static::assertSame(['textBoosted'], $simpleQueryStringQuery['fields']);
+        static::assertSame('test*', $simpleQueryStringQuery['query']);
+        static::assertSame(10, $simpleQueryStringQuery['boost']);
+        static::assertTrue($simpleQueryStringQuery['lenient']);
     }
 
     private function getConnection(): Connection

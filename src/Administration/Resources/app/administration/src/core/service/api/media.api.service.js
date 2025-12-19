@@ -266,6 +266,24 @@ class MediaApiService extends ApiService {
             });
     }
 
+    assignVideoCover(videoId, coverMediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(videoId)}/video-cover`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                JSON.stringify({
+                    coverMediaId,
+                }),
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     async getDefaultFolderId(entity) {
         const { Criteria } = Shopware.Data;
 

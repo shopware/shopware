@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 
 /**
  * @internal
@@ -26,6 +28,13 @@ readonly class CacheControlListener
             return;
         }
 
+        if (
+            $this->isStoreApiRequest($event)
+            && (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0'))
+        ) {
+            return;
+        }
+
         $response = $event->getResponse();
 
         $noStore = $response->headers->getCacheControlDirective('no-store');
@@ -44,5 +53,16 @@ readonly class CacheControlListener
         } else {
             $response->headers->addCacheControlDirective('no-cache');
         }
+    }
+
+    private function isStoreApiRequest(BeforeSendResponseEvent $event): bool
+    {
+        $request = $event->getRequest();
+
+        return \in_array(
+            StoreApiRouteScope::ID,
+            (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
+            true
+        );
     }
 }

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('discovery')]
-class FileUrlValidatorMock implements FileUrlValidatorInterface
+class FileUrlValidatorStub implements FileUrlValidatorInterface
 {
     public function isValid(string $source): bool
     {
@@ -19,6 +19,6 @@ class FileUrlValidatorMock implements FileUrlValidatorInterface
             return false;
         }
 
-        return true;
+        return true
     }
 }

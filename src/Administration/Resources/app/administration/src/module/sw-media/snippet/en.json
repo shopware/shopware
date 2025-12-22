@@ -26,7 +26,9 @@
         "arPlacement": "AR placement",
         "arPlacementHelpText": "Select whether the object is placed on a horizontal surface, like the floor, or on a vertical surface, like a wall.",
         "horizontal": "Horizontal",
-        "vertical": "Vertical"
+        "vertical": "Vertical",
+        "setCover": "Set cover image",
+        "removeCover": "Remove cover"
       },
       "sections": {
         "actions": "Actions",

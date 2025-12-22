@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\JWT\SalesChannel;
 
-use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
@@ -22,6 +21,7 @@ use Shopware\Core\Framework\JWT\Struct\JWTStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -169,7 +169,7 @@ class JWTGeneratorTest extends TestCase
         $config = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText(Random::getAlphanumericString(32)));
         $config = $config->withValidationConstraints(
             new SignedWith($config->signer(), $config->verificationKey()),
-            new LooseValidAt(SystemClock::fromUTC()),
+            new LooseValidAt(new NativeClock('UTC')),
             new PermittedFor('expected-aud') // will fail
         );
 
@@ -233,7 +233,7 @@ class JWTGeneratorTest extends TestCase
         // Ensure all constraints succeed
         $config = $config->withValidationConstraints(
             new SignedWith($config->signer(), $config->verificationKey()),
-            new LooseValidAt(SystemClock::fromUTC()),
+            new LooseValidAt(new NativeClock('UTC')),
             new PermittedFor('aud-ok'),
             new IssuedBy('iss-ok'),
             new RelatedTo('sub-ok'),
@@ -298,7 +298,7 @@ class JWTGeneratorTest extends TestCase
         // Set validation constraints that would fail (aud mismatch)
         $config = $config->withValidationConstraints(
             new SignedWith($config->signer(), $config->verificationKey()),
-            new LooseValidAt(SystemClock::fromUTC()),
+            new LooseValidAt(new NativeClock('UTC')),
             new PermittedFor('expected-aud')
         );
 

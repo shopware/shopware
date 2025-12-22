@@ -14,4 +14,8 @@
         color: $color-shopware-brand-500;
         cursor: pointer;
     }
+
+    .sw-snippet-field__text input {
+        padding-right: 40px;
+    }
 }

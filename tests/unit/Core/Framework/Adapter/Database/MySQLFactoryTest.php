@@ -87,6 +87,76 @@ class MySQLFactoryTest extends TestCase
         ]);
     }
 
+    public function testDriverOptionsFromDsnArePreserved(): void
+    {
+        // PDO::MYSQL_ATTR_LOCAL_INFILE = 1001 (enable LOAD DATA LOCAL INFILE)
+        $customOption = 1001;
+        $customValue = 1;
+
+        $this->setEnvVars([
+            'DATABASE_URL' => \sprintf(
+                'mysql://user:pass@localhost:3306/shopware?driverOptions[%d]=%d',
+                $customOption,
+                $customValue
+            ),
+        ]);
+
+        $connection = MySQLFactory::create();
+        $params = $connection->getParams();
+
+        static::assertArrayHasKey('driverOptions', $params);
+
+        // Verify default options are present
+        static::assertArrayHasKey(\PDO::ATTR_STRINGIFY_FETCHES, $params['driverOptions']);
+        static::assertTrue($params['driverOptions'][\PDO::ATTR_STRINGIFY_FETCHES]);
+        static::assertArrayHasKey(\PDO::ATTR_TIMEOUT, $params['driverOptions']);
+        static::assertSame(5, $params['driverOptions'][\PDO::ATTR_TIMEOUT]);
+
+        // Verify custom option from DSN is preserved
+        static::assertArrayHasKey($customOption, $params['driverOptions']);
+        static::assertSame('1', $params['driverOptions'][$customOption]);
+    }
+
+    public function testDriverOptionsFromDsnArePreservedInReplicaConfiguration(): void
+    {
+        // PDO::MYSQL_ATTR_LOCAL_INFILE = 1001, PDO::MYSQL_ATTR_FOUND_ROWS = 1004
+        $customOption = 1001;
+        $customValue = 1;
+        $replicaCustomOption = 1004;
+        $replicaCustomValue = 1;
+
+        $this->setEnvVars([
+            'DATABASE_URL' => \sprintf(
+                'mysql://user:pass@localhost:3306/shopware?driverOptions[%d]=%d',
+                $customOption,
+                $customValue
+            ),
+            'DATABASE_REPLICA_0_URL' => \sprintf(
+                'mysql://replica_user:replica_pass@replica_host:3307/replica_db?driverOptions[%d]=%d',
+                $replicaCustomOption,
+                $replicaCustomValue
+            ),
+        ]);
+
+        $connection = MySQLFactory::create();
+        $params = $connection->getParams();
+
+        // Verify primary connection has both default and custom options
+        static::assertArrayHasKey('primary', $params);
+        static::assertArrayHasKey('driverOptions', $params['primary']);
+        static::assertArrayHasKey(\PDO::ATTR_STRINGIFY_FETCHES, $params['primary']['driverOptions']);
+        static::assertArrayHasKey($customOption, $params['primary']['driverOptions']);
+        static::assertSame('1', $params['primary']['driverOptions'][$customOption]);
+
+        // Verify replica connection has both default and custom options
+        static::assertArrayHasKey('replica', $params);
+        static::assertCount(1, $params['replica']);
+        static::assertArrayHasKey('driverOptions', $params['replica'][0]);
+        static::assertArrayHasKey(\PDO::ATTR_STRINGIFY_FETCHES, $params['replica'][0]['driverOptions']);
+        static::assertArrayHasKey($replicaCustomOption, $params['replica'][0]['driverOptions']);
+        static::assertSame('1', $params['replica'][0]['driverOptions'][$replicaCustomOption]);
+    }
+
     /**
      * @param array<string, mixed> $actualParams
      * @param array<string, mixed> $expectedParams

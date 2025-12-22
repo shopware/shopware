@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
@@ -56,7 +57,14 @@ class ScriptController extends StorefrontController
         );
 
         if ($response->getCache()->isEnabled()) {
-            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, ['maxAge' => $response->getCache()->getMaxAge(), 'states' => $response->getCache()->getInvalidationStates()]);
+            $cacheAttribute = new CacheAttribute(
+                maxAge: $response->getCache()->getClientMaxAge(),
+                sMaxAge: $response->getCache()->getSharedMaxAge(),
+                states: $response->getCache()->getInvalidationStates(),
+                policyModifier: $hookName,
+            );
+
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, $cacheAttribute);
             $symfonyResponse->headers->set(CacheStore::TAG_HEADER, \json_encode($response->getCache()->getCacheTags(), \JSON_THROW_ON_ERROR));
         }
 

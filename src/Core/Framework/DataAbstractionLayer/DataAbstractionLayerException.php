@@ -119,6 +119,7 @@ class DataAbstractionLayerException extends HttpException
      * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
      */
     public const INVALID_UUID = 'FRAMEWORK__DAL_INVALID_UUID';
+    public const INVALID_COMPRESSED_CRITERIA_PARAMETER = 'FRAMEWORK__INVALID_COMPRESSED_CRITERIA_PARAMETER';
     public const DBAL_UNMAPPED_FIELD = 'FRAMEWORK__DBAL_UNMAPPED_FIELD';
     public const DBAL_UNEXPECTED_FIELD_TYPE = 'FRAMEWORK__DBAL_UNEXPECTED_FIELD_TYPE';
     public const DBAL_INVALID_IDENTIFIER = 'FRAMEWORK__DBAL_INVALID_IDENTIFIER';
@@ -1139,6 +1140,16 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::INVALID_SYNC_OPERATION_EXCEPTION,
             $message
+        );
+    }
+
+    public static function invalidCompressedCriteriaParameter(string $message): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_COMPRESSED_CRITERIA_PARAMETER,
+            'Invalid _criteria parameter: {{ message }}',
+            ['message' => $message]
         );
     }
 }

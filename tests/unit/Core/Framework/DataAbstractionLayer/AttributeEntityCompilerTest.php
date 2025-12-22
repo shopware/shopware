@@ -72,6 +72,9 @@ class AttributeEntityCompilerTest extends TestCase
         static::assertSame($this->getExpectedCompilationResult(), $compiledResult);
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function getExpectedCompilationResult(): array
     {
         return [

@@ -25,14 +25,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Api\ResponseFields;
-use Shopware\Core\System\SalesChannel\Api\StructEncoder;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
@@ -222,6 +221,36 @@ class AttributeEntityIntegrationTest extends TestCase
             ->search(new Criteria($ids->getList(['first-key'])), $context);
 
         static::assertCount(0, $search);
+    }
+
+    public function testRequiredTranslatedFieldFailsIfNotProvided(): void
+    {
+        $ids = new IdsCollection();
+
+        $context = Context::createDefaultContext();
+
+        $wasThrown = false;
+        try {
+            $this->repository('attribute_entity')->create([
+                [
+                    'id' => $ids->create('first-key'),
+                    'string' => 'string',
+                    'emptyString' => '',
+                    'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+                ],
+            ], $context);
+        } catch (WriteException $e) {
+            $wasThrown = true;
+
+            $innerExceptions = $e->getExceptions();
+            static::assertCount(1, $innerExceptions);
+
+            $innerException = $innerExceptions[0];
+            static::assertInstanceOf(WriteConstraintViolationException::class, $innerException);
+            static::assertSame('/0/translations/' . Defaults::LANGUAGE_SYSTEM, $innerException->getPath());
+        }
+
+        static::assertTrue($wasThrown);
     }
 
     public function testScalarValues(): void

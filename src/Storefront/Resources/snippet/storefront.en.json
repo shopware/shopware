@@ -498,7 +498,7 @@
     "confirmRevocationNoticeModal": "Please note our %revocationModalTagOpen%cancellation policy%revocationModalTagClose%.",
     "confirmRevocationNoticePage": "Please note our <a href=\"%url%\">cancellation policy</a>.",
     "confirmTermsText": "I have read and accepted the <a class=\"checkout-confirm-terms-modal\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\">general terms and conditions</a>.",
-    "confirmTermsTextModal": "I have read and accepted the %tosModalTagOpen%general terms%tosModalTagClose% and %tosModalTagOpen%conditions%tosModalTagClose%.",
+    "confirmTermsTextModal": "I have read and accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
     "confirmTermsTextPage": "I have read and accepted the <a href=\"%url%\">general terms and conditions</a>.",
     "autoConfirmTermsText": "By placing your order you accept our %tosModalTagOpen%Terms and Conditions%tosModalTagClose% and %revocationModalTagOpen%cancellation policy%revocationModalTagClose%.",
     "confirmTermsReminderText": "You have already accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",

@@ -44,6 +44,7 @@ HTTP caching support was added for the following Store API endpoints:
 - `/store-api/product/{productId}/reviews`
 - `/store-api/search`
 - `/store-api/search-suggest`
+- `/store-api/landing-page/{landingPageId}`
 
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
@@ -108,6 +109,10 @@ Instead, we rely on the CategoryIndexer to trigger the re-index of children asyn
 This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
 
 ## Administration
+
+### Loading indicator for whole page
+
+When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
 
 ### Search filter for settings module
 

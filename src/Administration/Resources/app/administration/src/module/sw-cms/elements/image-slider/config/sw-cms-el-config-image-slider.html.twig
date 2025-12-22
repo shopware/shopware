@@ -58,6 +58,14 @@
                 </sw-cms-inherit-wrapper>
                 {% endblock %}
 
+                {% block sw_cms_element_image_slider_config_media_upload_listener %}
+                <sw-upload-listener
+                    :upload-tag="uploadTag"
+                    auto-upload
+                    @media-upload-finish="onImageUpload"
+                />
+                {% endblock %}
+
                 {% block sw_cms_element_image_slider_config_media_modal %}
                 <sw-media-modal-v2
                     v-if="mediaModalIsOpen"
@@ -236,6 +244,7 @@
                                             class="sw-cms-el-config-image-slider__setting-auto-slide"
                                             :label="$t('sw-cms.elements.general.config.label.autoSlide')"
                                             :disabled="isInherited"
+                                            bordered
                                             @update:model-value="onChangeAutoSlide"
                                         />
                                     </template>
@@ -279,6 +288,7 @@
                                 :label="$t('sw-cms.elements.image.config.label.isDecorative')"
                                 :help-text="$t('sw-cms.elements.image.config.label.isDecorativeHelpText')"
                                 :disabled="isInherited"
+                                bordered
                                 @update:model-value="onChangeIsDecorative"
                             />
                         </template>
@@ -296,6 +306,7 @@
                                 :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
                                 :help-text="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItemHelpText')"
                                 :disabled="isInherited"
+                                bordered
                                 @update:model-value="onChangeUseFetchPriorityOnFirstItem"
                             />
                         </template>

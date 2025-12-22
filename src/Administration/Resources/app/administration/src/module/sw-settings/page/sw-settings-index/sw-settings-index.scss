@@ -39,6 +39,19 @@
         .sw-settings__content-header {
             text-align: left;
             margin-bottom: 48px;
+            display: flex;
+            flex-direction: column;
+
+            @container (min-width: 500px) {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: start;
+                gap: 10rem;
+
+                .mt-text-field {
+                    width: 30rem;
+                }
+            }
         }
 
         .sw-settings__content-grid {
@@ -67,6 +80,21 @@
             @container (max-width: 500px) {
                 padding-bottom: 32px;
             }
+        }
+
+        .sw-settings__search-bar-container {
+            display: flex;
+            justify-content: right;
+
+            .mt-text-field {
+                width: 20rem;
+            }
+        }
+
+        .sw-settings-index__empty-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     }
 }

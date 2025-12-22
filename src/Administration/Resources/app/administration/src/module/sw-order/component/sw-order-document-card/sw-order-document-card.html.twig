@@ -1,10 +1,8 @@
 {% block sw_order_document_card %}
 <mt-card
-    v-if="!isDataLoading"
     position-identifier="sw-order-document-card"
     :title="$tc('sw-order.documentCard.cardTitle')"
     :class="documentCardStyles"
-    :is-loading="isDataLoading"
     class="sw-order-detail-base__document-grid"
 >
     <template #grid>
@@ -55,18 +53,17 @@
         {% endblock %}
 
         {% block sw_order_document_card_grid %}
-        <sw-data-grid
+        <sw-entity-listing
             v-if="!documentsEmpty"
-            :data-source="documents"
+            :repository="documentRepository"
+            :items="documents"
+            :is-loading="documentsLoading"
             :columns="getDocumentColumns"
-            :full-page="false"
             :show-settings="false"
             :show-selection="false"
-            :show-actions="!attachView"
-            :is-loading="isLoading"
             :allow-column-edit="false"
-            :allow-inline-edit="false"
-            identifier="sw-order-document-grid"
+            :full-page="false"
+            :plain-appearance="true"
         >
 
             {% block sw_order_document_card_grid_column_date %}
@@ -185,7 +182,7 @@
             </template>
             {% endblock %}
 
-        </sw-data-grid>
+        </sw-entity-listing>
         {% endblock %}
 
     </template>
@@ -228,7 +225,7 @@
 
     {% block sw_order_document_card_empty_state %}
     <mt-empty-state
-        v-if="documentsEmpty"
+        v-if="documentsEmpty && !isDataLoading && !term"
         :icon="$route.meta.$module.icon"
         :headline="emptyStateTitle"
     >

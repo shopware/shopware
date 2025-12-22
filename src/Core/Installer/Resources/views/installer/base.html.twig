@@ -40,12 +40,19 @@
                             <img class="language-flag"
                                  src="{{ asset('bundles/installer/assets/images/flags/' ~ app.request.locale ~ '.svg', 'asset') }}"
                                  alt="{{ app.request.locale }}">
-                            <select id="language" name="language" class="language-selection"
-                                    onchange="changeLanguage(this.value);"
-                                    onmousedown="if (this.disabled) { event.preventDefault(); }">
+                            <select
+                                id="language"
+                                name="language"
+                                class="language-selection"
+                                onchange="changeLanguage(this.value);"
+                                onmousedown="if (this.disabled) { event.preventDefault(); }"
+                            >
                                 {% for baseTag, language in supportedLanguages %}
-                                    <option value="{{ baseTag }}" data-flag="{{ baseTag }}"
-                                            {% if app.request.locale == baseTag %}selected{% endif %}>
+                                    <option
+                                        value="{{ baseTag }}"
+                                        data-flag="{{ baseTag }}"
+                                        {% if app.request.locale == baseTag %}selected{% endif %}
+                                    >
                                         {{ language.label }}
                                     </option>
                                 {% endfor %}
@@ -62,7 +69,7 @@
                     <ul class="navigation--list">
                         {% for entry in menu %}
                             <li class="navigation--entry {% if entry.active %}is--active{% endif %} {% if entry.isCompleted %}is--complete{% endif %}">
-                                <span class="navigation--link">{{ ("shopware.installer.menuitem_" ~ entry.label)|trans }}</span>
+                                <span class="navigation--link">{{ ("shopware.installer.menuitem." ~ entry.label)|trans }}</span>
                             </li>
                         {% endfor %}
                     </ul>
@@ -74,13 +81,65 @@
             </div>
         </div>
 
-    </body>
-    <script>
-        function changeLanguage(language) {
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('language', language);
+        <div class="footer-main">
+            <div class="help-container">
+                {% set tooltipContent %}{% include '@Installer/installer/_help_tooltip.html.twig' %}{% endset %}
+                <i class="icon-help"></i>
+                <a class="help-badge" href="#" data-tooltip="{{ tooltipContent|e('html_attr') }}">
+                    {{ 'shopware.installer.help.title'|trans }}
+                </a>
+            </div>
+        </div>
 
-            window.location.href = currentUrl.toString();
-        }
-    </script>
+        <script>
+            function changeLanguage(language) {
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('language', language);
+
+                window.location.href = currentUrl.toString();
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const tooltipElements = document.querySelectorAll('[data-tooltip]');
+
+                tooltipElements.forEach(function (element) {
+                    // Create tooltip container
+                    const tooltipContainer = document.createElement('div');
+                    tooltipContainer.className = 'tooltip-content';
+                    tooltipContainer.innerHTML = element.getAttribute('data-tooltip');
+                    element.appendChild(tooltipContainer);
+
+                    // Create tooltip arrow
+                    const tooltipArrow = document.createElement('div');
+                    tooltipArrow.className = 'tooltip-arrow';
+                    element.appendChild(tooltipArrow);
+
+                    // Prevent clicks inside tooltip content from closing it
+                    tooltipContainer.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                    });
+
+                    element.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        element.classList.toggle('tooltip-active');
+
+                        tooltipElements.forEach(function (otherElement) {
+                            if (otherElement !== element) {
+                                otherElement.classList.remove('tooltip-active');
+                            }
+                        });
+                    });
+                });
+
+                // Close tooltip when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!e.target.closest('[data-tooltip]')) {
+                        tooltipElements.forEach(function (element) {
+                            element.classList.remove('tooltip-active');
+                        });
+                    }
+                });
+            })
+        </script>
+    </body>
 </html>

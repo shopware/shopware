@@ -23,6 +23,7 @@ async function createWrapper() {
             },
             props: {
                 element: {
+                    type: 'image',
                     config: {},
                     data: {},
                 },
@@ -76,7 +77,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
 
         const img = wrapper.find('img');
         expect(img.attributes('src')).toBe(
-            wrapper.vm.assetFilter('administration/administration/static/img/cms/preview_mountain_large.jpg'),
+            wrapper.vm.assetFilter('administration/administration/static/img/cms/preview_mountain_large.webp'),
         );
     });
 
@@ -85,6 +86,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
 
         await wrapper.setProps({
             element: {
+                type: 'image',
                 config: {
                     ...wrapper.props().element.config,
                     media: {
@@ -107,6 +109,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
 
         await wrapper.setProps({
             element: {
+                type: 'image',
                 config: {
                     ...wrapper.props().element.config,
                     media: {
@@ -120,7 +123,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
 
         const img = wrapper.find('img');
         expect(img.attributes('src')).toBe(
-            wrapper.vm.assetFilter('administration/administration/static/img/cms/preview_mountain_large.jpg'),
+            wrapper.vm.assetFilter('administration/administration/static/img/cms/preview_mountain_large.webp'),
         );
     });
 });

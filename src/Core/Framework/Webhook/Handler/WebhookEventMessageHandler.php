@@ -75,19 +75,20 @@ final readonly class WebhookEventMessageHandler
 
         $context = Context::createDefaultContext();
 
-        $this->webhookEventLogRepository->update([
+        $this->updateLogIfItExists(
             [
                 'id' => $message->getWebhookEventId(),
                 'deliveryStatus' => WebhookEventLogDefinition::STATUS_RUNNING,
                 'timestamp' => $timestamp,
                 'requestContent' => $requestContent,
             ],
-        ], $context);
+            $context
+        );
 
         try {
             $response = $this->client->post($url, $requestContent);
 
-            $this->webhookEventLogRepository->update([
+            $this->updateLogIfItExists(
                 [
                     'id' => $message->getWebhookEventId(),
                     'deliveryStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
@@ -99,7 +100,8 @@ final readonly class WebhookEventMessageHandler
                     'responseStatusCode' => $response->getStatusCode(),
                     'responseReasonPhrase' => $response->getReasonPhrase(),
                 ],
-            ], $context);
+                $context
+            );
 
             try {
                 $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);
@@ -130,13 +132,25 @@ final readonly class WebhookEventMessageHandler
                 ]);
             }
 
-            $this->webhookEventLogRepository->update([$payload], $context);
+            $this->updateLogIfItExists($payload, $context);
 
             if ($e instanceof BadResponseException && $message->getAppId()) {
                 throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $e);
             }
 
             throw WebhookException::webhookFailedException($message->getWebhookId(), $e);
+        }
+    }
+
+    /**
+     * @param array<string, mixed|null> $payload
+     */
+    private function updateLogIfItExists(array $payload, Context $context): void
+    {
+        try {
+            $this->webhookEventLogRepository->update([$payload], $context);
+        } catch (WriteTypeIntendException $e) {
+            // ignore, as that indicates the log entry was already deleted, in that case we don't need to update it
         }
     }
 }

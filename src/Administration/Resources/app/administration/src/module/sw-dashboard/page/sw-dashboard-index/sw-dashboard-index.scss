@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 $content-max-width: 960px;
 
 [data-theme="dark"] {
@@ -18,7 +16,7 @@ $content-max-width: 960px;
 
     &__welcome-title {
         width: 100%;
-        margin-top: 40px;
+        margin-top: var(--scale-size-40);
         margin-bottom: var(--scale-size-2);
         color: var(--color-text-primary-default);
 
@@ -32,32 +30,30 @@ $content-max-width: 960px;
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         font-family: var(--font-family-body);
-
-        @media (min-width: 1024px) {
-            width: 33%;
-        }
+        max-width: 480px;
+        width: 100%;
     }
 
     &__intro {
         display: flex;
-        padding: 30px;
+        padding: var(--scale-size-30);
     }
 
     &__intro-content {
         min-width: 400px;
 
         h1 {
-            font-size: ($font-size-s * 2);
-            margin-bottom: 20px;
+            font-size: var(--font-size-3xl);
+            margin-bottom: var(--scale-size-20);
         }
     }
 
     &__title {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semi-bold);
     }
 
     &__help-text {
-        margin-left: 8px;
+        margin-left: var(--scale-size-8);
     }
 
     &__card-grid {
@@ -101,18 +97,18 @@ $content-max-width: 960px;
         }
     }
 
-    &__card-title {
-        font-size: var(--font-size-xs);
-        line-height: var(--font-line-height-xs);
-        margin-bottom: var(--scale-size-12);
-        color: var(--color-text-primary-default);
-    }
-
+    &__card-title,
     &__card-text {
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         color: var(--color-text-primary-default);
-        letter-spacing: 0.1px;
+    }
+
+    &__card-title {
+        margin-bottom: var(--scale-size-12);
+    }
+
+    &__card-text {
         margin: var(--scale-size-14) 0 var(--scale-size-20);
     }
 
@@ -127,17 +123,16 @@ $content-max-width: 960px;
         margin-bottom: var(--scale-size-12);
     }
 
-    /* increase width smart-bar head-area on dashboard index */
     &.sw-page {
         .sw-page__head-area {
-            /* stylelint-disable-next-line max-line-length */
-            grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, $content-max-width) [header-content-end] 1fr [smart-bar-end];
+            grid-template-columns:
+                [head-start back-btn-start] 1fr
+                [back-btn-end header-content-start] minmax(0, $content-max-width)
+                [header-content-end] 1fr
+                [smart-bar-end];
         }
 
-        .smart-bar__content {
-            max-width: $content-max-width;
-        }
-
+        .smart-bar__content,
         .sw-search-bar__container {
             max-width: $content-max-width;
         }

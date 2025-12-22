@@ -1,13 +1,16 @@
 shopware.installer:
     header_title: Installation
-    menuitem_welcome: Start
-    menuitem_requirements: Systemvoraussetzungen
-    menuitem_database-configuration: Datenbank-Konfiguration
-    menuitem_database-import: Installation
-    menuitem_edition: Shopware-Lizenz
-    menuitem_configuration: Konfiguration
-    menuitem_finish: Fertig
-    menuitem_license: AGB
+    menuitem:
+        start: Start
+        configure_php: PHP-Binärdatei
+        download: Herunterladen
+        requirements: Systemvoraussetzungen
+        license: AGB
+        database-configuration: Datenbank-Konfiguration
+        database-import: Installation
+        configuration: Shop-Konfiguration
+        translation: Sprachen-Download
+        finish: Fertig
     license_incorrect: 'Der eingegebene Lizenzschlüssel ist ungültig.'
     license_does_not_match: 'Der eingegebene Lizenzschlüssel passt zu keiner kommerziellen Shopware-Version'
     license_domain_error: 'Der eingegebene Lizenzschlüssel ist nicht gültig für die Domain: '
@@ -300,10 +303,13 @@ shopware.installer:
     select_country_yem: Jemen
     select_country_zmb: Sambia
     select_country_zwe: Simbabwe
-    welcome_title: 'Willkommen in Shopware 6'
     language-selection_select_language: 'Sprache des Installations-Assistenten'
-    welcome_header: 'Deine Shopware-Installation'
-    welcome_message: 'Wir freuen uns, dass Du Teil unserer großartigen, weltweiten Shopware-Community werden möchtest! Jetzt begleiten wir Dich Schritt für Schritt durch den Installationsprozess. Sollten sich Fragen ergeben, schaue bitte zuerst in unser <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Forum</a>, kontaktiere uns telefonisch unter <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> oder schreibe uns eine <a class="is--nowrap" href="mailto:info@shopware.com">E-Mail</a>.'
+    welcome:
+        title: 'Willkommen in Shopware 6'
+        header: 'Deine Shopware-Installation'
+        message: >
+            Wir freuen uns, dass Sie Teil unserer globalen Shopware-Community werden! Dieser Installer führt Sie
+            durch alle Schritte, die für eine reibungslose Installation von Shopware 6 erforderlich sind.
     requirements_header: Systemvoraussetzungen
     requirements_header_files: 'Dateien und Verzeichnisse'
     requirements_header_system: System
@@ -417,7 +423,6 @@ shopware.installer:
         <p>
             Viel Spaß und Erfolg mit Deinem neuen Onlineshop!
         </p>"
-    menuitem_translation: 'Sprachen-Download'
     configuration_admin_shop_headline: 'Shop-Daten'
     configuration_admin_language_headline: 'Sprachen'
     configuration_admin_language_select_all: 'Alle auswählen'
@@ -433,3 +438,10 @@ shopware.installer:
     finish_continue: 'Zum Shop fortfahren'
     translations_install_error_message: 'Bei der Übersetzungsinstallation ist etwas schiefgelaufen.'
     translations_install_retry_link: 'Hier klicken, um es erneut zu versuchen'
+    help:
+        title: Benötigen Sie Hilfe?
+        support_channel: Wählen Sie den Supportkanal, der Ihnen am besten zusagt
+        forum: Forum
+        phone_number_call: +492555928850
+        phone_number_formatted: (+49) 2555 928850
+        email: E-Mail

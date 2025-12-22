@@ -137,6 +137,8 @@ class InfoControllerTest extends TestCase
                     'sub',
                     'ass',
                     'ssa',
+                    'step',
+                    'stp',
                 ],
                 'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,
@@ -344,6 +346,8 @@ class InfoControllerTest extends TestCase
                     ],
                 ],
                 'aware' => [
+                    A11yRenderedDocumentAware::class,
+                    lcfirst((new \ReflectionClass(A11yRenderedDocumentAware::class))->getShortName()),
                     CustomerAware::class,
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
                     CustomerGroupAware::class,
@@ -384,9 +388,9 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $event) {
             $actualEvents = array_values(array_filter($response, static fn ($x) => $x['name'] === $event['name']));
+            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             sort($event['aware']);
             sort($actualEvents[0]['aware']);
-            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvents);
             static::assertSame($event, $actualEvents[0], $event['name']);
         }

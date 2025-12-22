@@ -120,6 +120,7 @@ async function createWrapper(buttonConfig) {
                 'mt-url-field': MtUrlField,
                 'sw-app-action-button': true,
                 'sw-time-ago': true,
+                'sw-media-modal-v2': true,
             },
         },
         props: {

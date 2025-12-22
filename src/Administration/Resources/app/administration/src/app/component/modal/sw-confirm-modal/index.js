@@ -40,6 +40,12 @@ export default {
             default: '',
         },
 
+        textConfirm: {
+            type: String,
+            required: false,
+            default: '',
+        },
+
         variant: {
             type: String,
             required: false,
@@ -105,6 +111,10 @@ export default {
         },
 
         confirmText() {
+            if (this.textConfirm) {
+                return this.textConfirm;
+            }
+
             switch (this.type) {
                 case 'delete':
                     return this.$tc('global.default.delete');

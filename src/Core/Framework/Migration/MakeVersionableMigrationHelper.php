@@ -281,7 +281,7 @@ EOD;
     private function determineAddColumnSql(ForeignKeyConstraint $fk, array $keyStructure, string $foreignKeyColumnName, string $default): string
     {
         \assert(\is_string($keyStructure['TABLE_NAME']));
-        $columnName = end($keyStructure['COLUMN_NAME']);
+        $columnName = array_last($keyStructure['COLUMN_NAME']);
         \assert(\is_string($columnName));
 
         $isNullable = $fk->getOnDeleteAction()->value === 'SET NULL';

@@ -131,6 +131,7 @@ async function createWrapper() {
                 'sw-sidebar-renderer': true,
                 'sw-error-boundary': true,
                 'sw-settings-services-grant-permissions-modal': true,
+                'sw-settings-usage-data-consent-modal': true,
             },
             provide: {
                 shopIdChangeService: {

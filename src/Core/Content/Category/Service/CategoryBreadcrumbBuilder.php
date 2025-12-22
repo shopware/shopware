@@ -104,12 +104,7 @@ class CategoryBreadcrumbBuilder
 
         $criteria->addFilter($this->getSalesChannelFilter($context->getSalesChannel()));
 
-        $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
-        if ($categories->count() > 0) {
-            return $categories->first();
-        }
-
-        return null;
+        return $this->categoryRepository->search($criteria, $context->getContext())->first();
     }
 
     public function getCategoryBreadcrumbUrls(CategoryEntity $category, Context $context, SalesChannelEntity $salesChannel): BreadcrumbCollection
@@ -256,7 +251,7 @@ class CategoryBreadcrumbBuilder
     /**
      * @param array<string> $categoryIds
      *
-     * @return array<int, array<string, string|mixed>>
+     * @return list<array<string, string|mixed>>
      */
     private function loadSeoUrls(array $categoryIds, Context $context, SalesChannelEntity $salesChannel): array
     {
@@ -283,7 +278,7 @@ class CategoryBreadcrumbBuilder
     }
 
     /**
-     * @param array<int, array<string, string|mixed>> $seoUrls
+     * @param list<array<string, string|mixed>> $seoUrls
      */
     private function convertCategoriesToBreadcrumbUrls(CategoryCollection $categories, array $seoUrls): BreadcrumbCollection
     {

@@ -40,7 +40,9 @@ class CookieProvider
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly TranslatorInterface $translator,
         array $sessionOptions = [],
-        /** @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! This will be fixed with the next major version as it is not used anymore) */
+        /**
+         * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! This will be fixed with the next major version as it is not used anymore)
+         */
         private readonly ?CookieProviderInterface $legacyCookieProvider = null,
     ) {
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
@@ -135,6 +137,7 @@ class CookieProvider
         $cookieGroupComfortFeatures = new CookieGroup(self::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
         $cookieGroupComfortFeatures->setEntries(new CookieEntryCollection([
             $this->getYoutubeVideoEntry(),
+            $this->getVimeoVideoEntry(),
         ]));
 
         return $cookieGroupComfortFeatures;
@@ -148,6 +151,16 @@ class CookieProvider
         $entryYoutubeVideo->expiration = 30;
 
         return $entryYoutubeVideo;
+    }
+
+    private function getVimeoVideoEntry(): CookieEntry
+    {
+        $entryVimeoVideo = new CookieEntry('vimeo-video');
+        $entryVimeoVideo->name = 'cookie.groupComfortFeaturesVimeoVideo';
+        $entryVimeoVideo->value = '1';
+        $entryVimeoVideo->expiration = 30;
+
+        return $entryVimeoVideo;
     }
 
     private function getCookieGroupMarketing(): CookieGroup

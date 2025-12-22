@@ -13,13 +13,10 @@
             "cweagans/composer-patches": true,
             "bamarni/composer-bin-plugin": true,
             "phpstan/extension-installer": true
-        },
-        "platform": {
-            "php": "8.3.9"
         }
     },
     "require": {
-        "roave/backward-compatibility-check": "^8.0",
+        "roave/backward-compatibility-check": "^8.14",
         "cweagans/composer-patches": "^1.7"
     },
     "extra": {

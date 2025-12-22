@@ -24,6 +24,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -41,6 +42,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @internal
  */
 #[CoversClass(CartLineItemController::class)]
+#[Package('checkout')]
 class CartLineItemControllerTest extends TestCase
 {
     private CartLineItemController $controller;
@@ -627,6 +629,18 @@ class CartLineItemControllerTest extends TestCase
         $this->controller->deleteLineItems($cart, $request, $context);
 
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public function testDeleteCart(): void
+    {
+        $request = new Request([], ['all' => true]);
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->cartService->expects($this->once())
+            ->method('deleteCart')
+            ->with($context);
+
+        $this->controller->deleteCart($request, $context);
     }
 
     public function testUpdateLineItems(): void

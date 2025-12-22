@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Event\BeforeSalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
@@ -61,7 +62,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -76,6 +76,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -570,20 +571,11 @@ class OrderConverterTest extends TestCase
         static::assertArrayHasKey('position', $lineItemB['downloads'][0]);
     }
 
-    public function testAssembleSalesChannelContextEventIsDispatched(): void
+    public function testAssembleSalesChannelContextEventsAreDispatched(): void
     {
         $order = $this->getOrder();
         $salesChannelContext = $this->getSalesChannelContext(true);
-
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher
-            ->expects($this->once())
-            ->method('dispatch')
-            ->with(static::callback(static function (SalesChannelContextAssembledEvent $event) use ($order): bool {
-                static::assertSame($order, $event->getOrder());
-
-                return true;
-            }));
+        $dispatcher = new CollectingEventDispatcher();
 
         $address = new OrderAddressEntity();
         $address->setId('order-address-id');
@@ -623,6 +615,13 @@ class OrderConverterTest extends TestCase
         );
 
         $converter->assembleSalesChannelContext($order, $salesChannelContext->getContext());
+
+        static::assertCount(2, $dispatcher->getEvents());
+        static::assertInstanceOf(BeforeSalesChannelContextAssembledEvent::class, $dispatcher->getEvents()[0]);
+        static::assertSame($order, $dispatcher->getEvents()[0]->getOrder());
+        static::assertSame(OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS, $dispatcher->getEvents()[0]->getOptions()[SalesChannelContextService::PERMISSIONS]);
+        static::assertInstanceOf(SalesChannelContextAssembledEvent::class, $dispatcher->getEvents()[1]);
+        static::assertSame($order, $dispatcher->getEvents()[1]->getOrder());
     }
 
     public function testAssembleSalesChannelContextWithCustomerRestoresAddresses(): void
@@ -896,7 +895,7 @@ class OrderConverterTest extends TestCase
         $productDownloadRepository->method('search')->willReturnCallback(function (Criteria $criteria) use ($productDownload): EntitySearchResult {
             $filters = $criteria->getFilters();
             if (isset($filters[0]) && $filters[0] instanceof EqualsAnyFilter) {
-                $value = ReflectionHelper::getPropertyValue($filters[0], 'value');
+                $value = (new \ReflectionProperty(EqualsAnyFilter::class, 'value'))->getValue($filters[0]);
                 $productDownload->setProductId($value[0] ?? null);
             }
 

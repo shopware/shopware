@@ -2,14 +2,7 @@
 
 This guide walks you through how to properly document changes in Shopware releases. The goal is to make sure all developer-facing updates and important upgrade changes are logged clearly, structured well, and easy to find.
 
-## Why This Process Exists
-
-We’re moving away from inconsistent and manual-heavy documentation. With this new workflow:
-
-1. Developers must document every notable change directly in the PR.
-2. Compliance is automatically enforced, while DevRel and TDMs curate key entries for clarity.
-3. We maintain one single source of truth (SSOT) in GitHub and
-4. Reduce redundancy and align with internal delivery workflows.
+- Related doc: [Changelog and Release Info Process](../adr/2025-10-28-changelog-release-info-process.md)
 
 ## Why This Process Exists
 To have a structured and automated workflow:
@@ -20,31 +13,56 @@ To have a structured and automated workflow:
 4. Documentation is centralized in GitHub as a Single Source of Truth (SSOT).
 
 ## Where to Document Changes
+
 Every PR that introduces a significant change must update one or both of these files:
 
 - RELEASE_INFO.md: Tracks new features, API updates, and general improvements.
 - UPGRADE.md: Covers breaking changes, migration steps, and any required developer action.
 
-Developers should manually edit the RELEASE_INFO.md and UPGRADE.md files directly. The changelog:generate command is deprecated and will be removed.
+Developers must edit the version-scoped files RELEASE_INFO-6.x.md and UPGRADE-6.x.md directly in the repository.
 
-## How Do I Know Where to Add My Change?
-A simple rule of thumb:
+### What needs to go into RELEASE_INFO.md?
+* New or major reworked user facing features
+* improvements / new developer features
+  * This **does include**:
+    * Added extension points
+    * new/changed best practices / guidelines
+    * Quality of life improvements for other developers
+  * This **does not include**:
+    * Refactorings of internal code
+    * “under the hood” improvements that are backwards compatible
+* deprecations we made
+* everything else we changed that developers should be aware of
+* Critical bugs (not every bug, therefore we have the complete changelog, but critical ones, esp when we do a patch release because of them should be documented)
 
-- Use `RELEASE_INFO.md` for:
-  - Features, API updates, improvements, and non-breaking changes.
-  - Example: "Added a new admin UI filter for orders."
+Remember: The release notes should describe **why** we made a change and **why** external developers should care; it is **not** (primarily) about **what** you changed.
 
-- Use `UPGRADE.md` for:
-  - Breaking changes, migration steps, and required developer actions.
-  - Example: "Deprecated sw-popover, use mt-floating-ui instead."
- 
+### What needs to go into UPGRADE.md?
+* Everything that might cause a break in projects, extensions, integrations etc.
+* Especially every break defined by our backwards compatibility promise needs to be documented: https://developer.shopware.com/docs/resources/guidelines/code/backward-compatibility.html#backward-compatibility
+
+### When you do not need to (explicitly) document a change
+
+* Everything not included above (esp. non-critical bug fixes, internal refactorings) does not need to be documented in RELEASE_INFO.md or UPGRADE.md.
+
+Those changes do not need to be explicitly documented in the release notes, as we will generate a complete changelog for each release based on the semantic PR titles.
+The complete raw changelog for each release is generated automatically from GitHub when a tag is created.  
+It includes every merged PR and commit and is published on the GitHub **Releases** page.  
+This changelog is **not curated** and complements the human-maintained `RELEASE_INFO` and `UPGRADE` files.  
+It’s primarily for internal engineers, support, and partners.
+
+### Where do deprecations go?
 When a deprecation is introduced (e.g., in a minor release), document the alternative and the timeline in RELEASE_INFO.md. When the breaking change takes effect (e.g., in a major release), document it in UPGRADE.md with full migration steps.
+
+## What information do we need to provide per topic?
+* What we changed
+* Why we changed it, the benefit of the change
+* Why and when externals need to care
+* How they can/need to adjust
 
 ## Content Structure
 
 All documented changes should follow this structured format:
-
-1. `RELEASE_INFO.md` (Developer-Facing Changes)
 
 ```
 # Features
@@ -61,94 +79,6 @@ For storefront / theming changes.
 For changes in the app system.
 # Hosting & Configuration
 For config and infrastructure related changes.
-```
-
-2. `UPGRADE.md` (Breaking Changes & Migration Guides)
-
-Each entry should include:
-
-```
-Changes [A] due to [B], so that [C].
-Required Actions: [D].
-```
-
-- Example:
-```
-Changes sw-popover due to UI consistency, so that extensions follow a unified component model.
-Required Actions: Replace sw-popover with mt-floating-ui.
-```
-
-## Markdown Formatting Guidelines
-
-To maintain a consistent structure and reduce merge conflicts, follow these formatting rules when updating RELEASE_INFO.md and UPGRADE.md:
-
-### General Formatting Rules
-1. Newlines Before and After Entries
-- Every new entry must have a blank line before and after it.
-- Example:
-```
-## Features
-
-- Added support for XYZ functionality.
-
-## API
-
-- Introduced new API endpoint for retrieving order statuses.
-```
-2. Headings Must Have a Blank Line Above and Below
-Example:
-```
-## Storefront
-
-- Improved checkout performance.
-```
-3. Use Bullet Points (-) for Entries
-- All changes should be written in a bullet list format.
-Example:
-```
-- Fixed an issue where tax calculations were incorrect in certain cases.
-```
-4. Use Consistent Sentence Structure
-- Start with a verb and describe what was added, changed, or removed.
-- ✅ Correct:
-```- Added a new admin UI filter for orders.
-- Fixed an issue where the tax rate was miscalculated.
-- Deprecated the `sw-popover` component in favor of `mt-floating-ui`.
-```
-- ❌ Incorrect:
-```
-- New admin UI filter for orders.
-- Tax rate miscalculation fix.
-- The `sw-popover` component has been deprecated.
-```
-5. Code Formatting
-- Use backticks () for inline code and commands.
-- Example:
-```
-- Deprecated `sw-popover`, use `mt-floating-ui` instead.
-```
-### Example of a Well-Formatted Entry
-```
-## Features
-
-- Added support for multi-warehouse inventory tracking.
-
-## API
-
-- Introduced `GET /api/v1/orders/status` for fetching order statuses.
-
-## Core
-
-- Refactored product import logic to improve performance.
-
-## UPGRADE.md
-
-### Breaking Changes
-
-- **What changed**: Deprecated `sw-popover`, use `mt-floating-ui` instead.
-- **Why**: Improved UI consistency.
-- **Impact**: Affects custom admin extensions using `sw-popover`.
-- **Required Actions**: Replace `sw-popover` with `mt-floating-ui`.
 ```
 
 ## How This is Made Consistent

@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,7 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 class CacheControlListenerTest extends TestCase
 {
     #[DataProvider('headerCases')]
-    public function testResponseHeaders(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
+    #[DisabledFeatures(['v6.8.0.0', 'PERFORMANCE_TWEAKS', 'CACHE_REWORK'])]
+    public function testResponseHeadersDeprecated(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
     {
         $response = new Response();
         $response->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, 'foo');
@@ -38,8 +42,24 @@ class CacheControlListenerTest extends TestCase
         }
     }
 
+    #[DataProvider('headerCases')]
+    public function testResponseHeaders(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
+    {
+        $response = new Response();
+
+        if ($beforeHeader) {
+            $response->headers->set('cache-control', $beforeHeader);
+        }
+
+        $subscriber = new CacheControlListener($reverseProxyEnabled);
+
+        $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
+
+        static::assertSame($afterHeader, $response->headers->get('cache-control'));
+    }
+
     /**
-     * @return array<string, array<int, bool|string|null>>
+     * @return iterable<string, array<int, bool|string|null>>
      */
     public static function headerCases(): iterable
     {
@@ -85,5 +105,35 @@ class CacheControlListenerTest extends TestCase
             'private, no-store',
             'no-store, private', // Symfony sorts the cache-control
         ];
+    }
+
+    public function testStoreApiHeadersNotModified(): void
+    {
+        $response = new Response();
+        $response->headers->set('cache-control', 'public, s-maxage=64000');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+
+        $subscriber = new CacheControlListener(false);
+
+        $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
+
+        static::assertSame('public, s-maxage=64000', $response->headers->get('cache-control'));
+    }
+
+    #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
+    public function testStoreApiHeadersWithoutFeatureFlags(): void
+    {
+        $response = new Response();
+        $response->headers->set('cache-control', 'public, s-maxage=64000');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+
+        $subscriber = new CacheControlListener(false);
+        $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
+
+        static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 }

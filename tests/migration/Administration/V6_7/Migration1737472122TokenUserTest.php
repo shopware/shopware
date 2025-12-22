@@ -23,6 +23,12 @@ class Migration1737472122TokenUserTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testCreationTimestamp(): void
+    {
+        $migration = new Migration1737472122TokenUser();
+        static::assertSame(1737472122, $migration->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         if ($this->tableExists()) {
@@ -32,6 +38,7 @@ class Migration1737472122TokenUserTest extends TestCase
         static::assertFalse($this->tableExists());
 
         $migration = new Migration1737472122TokenUser();
+
         $migration->update($this->connection);
         $migration->update($this->connection);
 

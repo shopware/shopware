@@ -74,8 +74,7 @@ class BlockedShippingMethodSwitcher
 
             // Default excluded take next shipping method
             $criteria = (new Criteria())
-                ->addFilter(new NotEqualsAnyFilter('id', $blockedShippingMethodIds))
-                ->setLimit(1);
+                ->addFilter(new NotEqualsAnyFilter('id', $blockedShippingMethodIds));
         } else {
             $blockedShippingMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getName() : null);
 
@@ -91,8 +90,7 @@ class BlockedShippingMethodSwitcher
 
             // Default excluded take next shipping method
             $criteria = (new Criteria())
-                ->addFilter(new NotEqualsAnyFilter('name', $blockedShippingMethodNames))
-                ->setLimit(1);
+                ->addFilter(new NotEqualsAnyFilter('name', $blockedShippingMethodNames));
         }
 
         return $this->shippingMethodRoute->load(

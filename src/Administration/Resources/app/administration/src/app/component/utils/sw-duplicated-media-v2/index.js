@@ -188,7 +188,7 @@ export default {
         },
 
         isDuplicatedNameError(error) {
-            return error.response.data.errors.some((err) => {
+            return error?.response?.data?.errors?.some((err) => {
                 return err.code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
             });
         },

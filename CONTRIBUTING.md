@@ -6,7 +6,7 @@ If you want more details about available licensing or the contribution agreement
 
 ## Contributing to the Shopware code base
 If you want to learn how to contribute code to Shopware, please refer to [Contributing Code](https://developer.shopware.com/docs/resources/guidelines/code/contribution.html).
-Also, make sure that you add a changelog file that describes your changes in a meaningful way. For more information refer to [this document](https://github.com/shopware/shopware/blob/trunk/adr/2020-08-03-implement-new-changelog.md).
+Also, make sure that if you change something in a manner that is relevant to external developers please describe your change in a meaningful way. For more information refer to [this document](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).
 
 ## Local Docker Setup
 
@@ -98,6 +98,7 @@ services:
         ports: !override []
         environment:
             APP_URL: https://web.sw-trunk.orb.local
+            SYMFONY_TRUSTED_PROXIES: 'private_ranges'
     database:
         ports: !override []
     adminer:
@@ -114,10 +115,16 @@ The APP_URL environment variable always starts with `web.<project-name>.orb.loca
 
 You can also open `https://orb.local` in your browser and see all running containers and their URLs.
 
+The `SYMFONY_TRUSTED_PROXIES` setting is required to access Shopware via HTTPS using OrbStack's `.orb.local` domains.
+
 To run the Storefront Watcher you will need to set an additional `PROXY_URL` environment variable. This is needed to make the watcher work with the OrbStack routing.
 
 ```bash
 docker compose run --rm -p 9998:9998 -p 9999:9999 -e PROXY_URL=http://localhost web composer watch:storefront
+```
+and for the admin watcher accordingly:
+```bash
+docker compose run --rm -p 5173:5173 -e PROXY_URL=http://localhost web composer watch:admin
 ```
 
 ## Command Overview

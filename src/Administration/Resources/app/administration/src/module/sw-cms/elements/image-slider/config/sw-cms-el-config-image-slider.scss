@@ -4,7 +4,7 @@
     .sw-cms-el-config-image-slider__setting-option {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 0 32px;
+        column-gap: 16px;
     }
 
     &__setting-auto-slide-switch > .mt-switch,
@@ -19,6 +19,8 @@
     .sw-cms-el-config-image-slider__settings-links {
         .sw-cms-el-config-image-slider__settings-link {
             margin-top: 8px;
+            border-top: 1px solid var(--color-border-primary-default);
+            padding-top: 20px;
 
             .sw-cms-el-config-image-slider__settings-link-prefix {
                 display: flex;

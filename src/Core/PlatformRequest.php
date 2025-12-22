@@ -3,7 +3,6 @@
 namespace Shopware\Core;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService;
 
 #[Package('framework')]
 final class PlatformRequest
@@ -29,6 +28,7 @@ final class PlatformRequest
     public const HEADER_APP_USER_ID = 'sw-app-user-id';
     public const HEADER_INDEXING_BEHAVIOR = 'indexing-behavior';
     public const HEADER_INDEXING_SKIP = 'indexing-skip';
+    public const HEADER_INDEXING_ONLY = 'indexing-only';
     public const HEADER_FORCE_CACHE_INVALIDATE = 'sw-force-cache-invalidate';
 
     public const HEADER_MEASUREMENT_WEIGHT_UNIT = 'sw-measurement-weight-unit';
@@ -41,7 +41,7 @@ final class PlatformRequest
     public const HEADER_EXPECT_PACKAGES = 'sw-expect-packages';
 
     /**
-     * Context hash header used for cache differentiation on user-independent routes, @see ContextAwareCacheHeadersService
+     * Context hash header used for cache differentiation on user-independent routes
      *
      * The hash is used to differentiate cache entries for the same route when the context
      * changes (e.g., different language, currency, or rules). This ensures that
@@ -52,7 +52,9 @@ final class PlatformRequest
      * header together with HEADER_LANGUAGE_ID and HEADER_CURRENCY_ID to ensure proper
      * cache separation by reverse proxies and CDNs.
      *
-     * Header has to be include in every request to ensure cache hits.
+     * Header has to be included in every request to ensure cache hits.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed, use HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE instead
      */
     public const HEADER_CONTEXT_HASH = 'sw-context-hash';
 

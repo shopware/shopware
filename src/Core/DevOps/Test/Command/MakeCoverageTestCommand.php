@@ -115,7 +115,7 @@ class MakeCoverageTestCommand extends Command
     /**
      * @param array<string> $classes
      *
-     * @return array<class-string>
+     * @return list<class-string>
      */
     private function filterExcludedClasses(array $classes, InputInterface $input, SymfonyStyle $io): array
     {
@@ -128,14 +128,14 @@ class MakeCoverageTestCommand extends Command
         $excludedFiles = $xml->source()->excludeFiles();
 
         foreach ($classes as $class) {
-            $class = $this->getClassname($class);
+            $className = $this->getClassname($class);
 
-            if ($class === null || !class_exists($class)) {
-                $io->warning(\sprintf('Class or file %s does not exist', $class));
+            if ($className === null || !class_exists($className)) {
+                $io->warning(\sprintf('Class or file "%s" does not exist', $className ?? $class));
 
                 continue;
             }
-            $reflection = new \ReflectionClass($class);
+            $reflection = new \ReflectionClass($className);
             $fileName = str_replace($this->projectDir, '', (string) $reflection->getFileName());
 
             $failReason = null;
@@ -175,7 +175,7 @@ class MakeCoverageTestCommand extends Command
                 continue;
             }
 
-            $filteredClasses[] = $class;
+            $filteredClasses[] = $className;
         }
 
         return array_values(array_unique($filteredClasses));

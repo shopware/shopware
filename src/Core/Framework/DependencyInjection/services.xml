@@ -37,7 +37,9 @@ frame-ancestors 'none';
         <parameter key="shopware_http_cache_enabled_default">1</parameter>
         <parameter key="shopware.http.cache.enabled">%env(default:shopware_http_cache_enabled_default:SHOPWARE_HTTP_CACHE_ENABLED)%</parameter>
 
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <parameter key="shopware_http_cache_default_ttl_default">7200</parameter>
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <parameter key="shopware.http.cache.default_ttl">%env(default:shopware_http_cache_default_ttl_default:SHOPWARE_HTTP_DEFAULT_TTL)%</parameter>
     </parameters>
 
@@ -682,14 +684,5 @@ frame-ancestors 'none';
             <argument>%shopware.cache.invalidation.http_cache%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheRelevantRulesResolver"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersSubscriber">
-            <argument type="service" id="Shopware\Core\Framework\Routing\ContextAwareCacheHeadersService"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
     </services>
 </container>

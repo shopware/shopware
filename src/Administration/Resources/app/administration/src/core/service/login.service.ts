@@ -4,7 +4,6 @@
 
 import { CookieStorage } from 'cookie-storage';
 import type { CookieOptions } from 'cookie-storage/lib/cookie-options';
-import html2canvas from 'html2canvas';
 import type { Router } from 'vue-router';
 import type { ContextStore } from '../../app/store/context.store';
 
@@ -422,27 +421,43 @@ export default function createLoginService(
                 if (window.processingInactivityLogout) {
                     return;
                 }
-                // @ts-expect-error - The app element exists
-                void html2canvas(document.querySelector('#app'), {
-                    scale: 0.1,
-                }).then((canvas) => {
-                    try {
-                        sessionStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
-                    } catch (e) {
-                        // empty catch intended
-                        // Calling toDataURL on a canvas with images from a different origin or css rules
-                        // that contain urls to images from a different origin will throw a security error in Safari.
-                    }
 
-                    sessionStorage.setItem('lastKnownUser', Shopware.Store.get('session').currentUser?.username ?? '');
+                // Dynamically import html2canvas only when needed to reduce initial bundle size
+                void import('html2canvas')
+                    .then((module) => {
+                        const html2canvas = module.default;
+                        const appElement = document.querySelector('#app') as HTMLElement;
+                        if (!appElement) {
+                            throw new Error('App element not found');
+                        }
+                        return html2canvas(appElement, {
+                            scale: 0.1,
+                        });
+                    })
+                    .then((canvas) => {
+                        try {
+                            sessionStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
+                        } catch (e) {
+                            // empty catch intended
+                            // Calling toDataURL on a canvas with images from a different origin or css rules
+                            // that contain urls to images from a different origin will throw a security error in Safari.
+                        }
+                    })
+                    .catch((error) => {
+                        // If html2canvas fails to load or execute, still proceed with logout
+                        // in ".finally" block below
+                        console.error('Failed to capture inactivity logout screenshot:', error);
+                    })
+                    .finally(() => {
+                        sessionStorage.setItem('lastKnownUser', Shopware.Store.get('session').currentUser?.username ?? '');
 
-                    window.processingInactivityLogout = true;
+                        window.processingInactivityLogout = true;
 
-                    void router.push({
-                        name: 'sw.inactivity.login.index',
-                        params: { id },
+                        void router.push({
+                            name: 'sw.inactivity.login.index',
+                            params: { id },
+                        });
                     });
-                });
             } else {
                 sessionStorage.setItem('refresh-after-logout', 'true');
 

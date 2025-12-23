@@ -6,6 +6,7 @@ test('Customers can update the payment method for an existing order in the store
     StorefrontCheckoutOrderEdit,
     TestDataService,
     Login,
+    SelectPaymentMethod,
 }) => {
     const product = await TestDataService.createBasicProduct();
     const customer = await TestDataService.createCustomer();
@@ -22,20 +23,11 @@ test('Customers can update the payment method for an existing order in the store
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText('Invoice');
 
-    await orderItemLocators.orderActionsButton.click();
-    await orderItemLocators.orderChangePaymentMethodButton.click();
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+    await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton);
 
-    const invoiceInputValue = await StorefrontCheckoutOrderEdit.getPaymentMethodButton('Invoice').getAttribute('value');
-    await StorefrontCheckoutOrderEdit.getPaymentMethodButton(newPaymentMethod.name).click();
-
-    const paymentMethodInput = ShopCustomer.page.locator('input[type=hidden][name="paymentMethodId"]');
-    await ShopCustomer.expects(paymentMethodInput).not.toHaveValue(invoiceInputValue, { timeout: 15_000 });
-
-    // for some reason checking the state of the inputs actually changes the state of the inputs
-    await ShopCustomer.expects(StorefrontCheckoutOrderEdit.getPaymentMethodButton('Invoice')).not.toBeChecked();
-    await ShopCustomer.expects(StorefrontCheckoutOrderEdit.getPaymentMethodButton(newPaymentMethod.name)).toBeChecked();
-
-    await StorefrontCheckoutOrderEdit.completePaymentButton.click();
+    await ShopCustomer.attemptsTo(SelectPaymentMethod(newPaymentMethod.name));
+    await ShopCustomer.presses(StorefrontCheckoutOrderEdit.completePaymentButton);
 
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText(newPaymentMethod.name);

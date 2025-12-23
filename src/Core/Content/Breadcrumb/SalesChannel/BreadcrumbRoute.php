@@ -30,7 +30,13 @@ class BreadcrumbRoute extends AbstractBreadcrumbRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/breadcrumb/{id}', name: 'store-api.breadcrumb', requirements: ['id' => '[0-9a-f]{32}'], methods: ['GET'])]
+    #[Route(
+        path: '/store-api/breadcrumb/{id}',
+        name: 'store-api.breadcrumb',
+        requirements: ['id' => '[0-9a-f]{32}'],
+        methods: [Request::METHOD_GET],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
+    )]
     public function load(Request $request, SalesChannelContext $salesChannelContext): BreadcrumbRouteResponse
     {
         $id = $request->get('id', '');

@@ -36,6 +36,12 @@ class DocumentException extends HttpException
 
     public const DOCUMENT_ZIP_READ_ERROR = 'DOCUMENT__ZIP_READ_ERROR';
 
+    public const DOCUMENT_FILE_TYPE_UNAVAILABLE = 'DOCUMENT__FILE_TYPE_UNAVAILABLE';
+
+    public const DOCUMENT_ACCEPT_HEADER_MIME_TYPES_NOT_SUPPORTED = 'DOCUMENT__ACCEPT_HEADER_MIME_TYPES_NOT_SUPPORTED';
+
+    public const DOCUMENT_FILE_TYPE_NOT_SUPPORTED = 'DOCUMENT__FILE_TYPE_NOT_SUPPORTED';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new self(
@@ -204,6 +210,51 @@ class DocumentException extends HttpException
             'Cannot read document ZIP file: {{ filePath }}',
             ['filePath' => $filePath],
             $previous
+        );
+    }
+
+    /**
+     * @param array<string> $fileExtensions
+     */
+    public static function documentFileTypeUnavailable(string $documentId, array $fileExtensions): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_FILE_TYPE_UNAVAILABLE,
+            'Document with id {{ documentId }} has no generated document with file extension {{ fileExtensions }}.',
+            [
+                'documentId' => $documentId,
+                'fileExtensions' => implode(',', $fileExtensions),
+            ]
+        );
+    }
+
+    /**
+     * @param array<string> $requestedMimeTypes
+     * @param array<string> $supportedMimeTypes
+     */
+    public static function documentAcceptHeaderMimeTypesNotSupported(array $requestedMimeTypes, array $supportedMimeTypes): self
+    {
+        return new self(
+            Response::HTTP_NOT_ACCEPTABLE,
+            self::DOCUMENT_ACCEPT_HEADER_MIME_TYPES_NOT_SUPPORTED,
+            'The requested mime types are not supported: {{ requestedMimeTypes }}. Supported mime types are: {{ supportedMimeTypes }}.',
+            [
+                'requestedMimeTypes' => implode(',', $requestedMimeTypes),
+                'supportedMimeTypes' => implode(',', $supportedMimeTypes),
+            ]
+        );
+    }
+
+    public static function documentFileTypeNotSupported(string $fileType): self
+    {
+        return new self(
+            Response::HTTP_NOT_ACCEPTABLE,
+            self::DOCUMENT_FILE_TYPE_NOT_SUPPORTED,
+            'The requested file type is not supported: {{ requestedFileType }}.',
+            [
+                'requestedFileType' => $fileType,
+            ]
         );
     }
 }

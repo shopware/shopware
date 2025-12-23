@@ -135,6 +135,41 @@ shopware:
             - 'klar_cpid'
             - 'klar_adid'
 
+        # Cache policies (feature flag CACHE_REWORK)
+        policies:
+            no_cache_private:
+                headers:
+                    cache_control:
+                        private: true
+                        no_cache: true
+                        max_age: 0
+                        s_maxage: 0
+
+            store_api.cacheable:
+                headers:
+                    cache_control:
+                        public: true
+                        max_age: 0
+                        s_maxage: 1800
+                        stale_while_revalidate: 86400
+                        stale_if_error: 7200
+
+            storefront.cacheable:
+                headers:
+                    cache_control:
+                        public: true
+                        max_age: 0
+                        must_revalidate: true
+                        s_maxage: 7200
+
+        default_policies:
+            storefront:
+                cacheable: storefront.cacheable
+                uncacheable: no_cache_private
+            store_api:
+                cacheable: store_api.cacheable
+                uncacheable: no_cache_private
+
     profiler:
         integrations: []
     filesystem:

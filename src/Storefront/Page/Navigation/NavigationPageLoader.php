@@ -59,6 +59,10 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
                 ? $this->seoUrlReplacer->generate('frontend.home.page')
                 : $this->seoUrlReplacer->generate(NavigationPageSeoUrlRoute::ROUTE_NAME, ['navigationId' => $navigationId]);
 
+            if ($request->query->has('p') && $request->query->getInt('p') > 1) {
+                $canonical .= '?p=' . $request->query->get('p');
+            }
+
             $page->getMetaInformation()->setCanonical($canonical);
         }
 

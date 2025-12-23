@@ -16,6 +16,7 @@ import TwigPlugin from './build/vite-plugins/twigjs-plugin';
 import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
+import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -35,6 +36,13 @@ let featureFlags = {};
 if (fs.existsSync(flagsPath)) {
     featureFlags = JSON.parse(fs.readFileSync(flagsPath, 'utf-8'));
 }
+
+const pageLoadingScreenPath = path.join(process.env.PROJECT_ROOT, 'src/Administration/Resources/shared/page-loading-screen');
+const pageLoadingScreen = {
+    script: fs.readFileSync(path.join(pageLoadingScreenPath, 'page-loading-screen.js')),
+    style: fs.readFileSync(path.join(pageLoadingScreenPath, 'page-loading-screen.css')),
+    markup: fs.readFileSync(path.join(pageLoadingScreenPath, 'page-loading-screen.html')),
+};
 
 // eslint-disable-next-line
 export default defineConfig(({ command }) => {
@@ -91,6 +99,7 @@ export default defineConfig(({ command }) => {
                 AssetPlugin(isProd, __dirname, extensions),
                 AssetPathPlugin(),
                 ImageDeprecationPlugin(__dirname),
+                AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
 
                 // Twig.JS loads node modules, so we need to polyfill them
                 nodePolyfills({
@@ -126,6 +135,7 @@ export default defineConfig(({ command }) => {
                             data: {
                                 featureFlags: JSON.stringify(featureFlags),
                                 serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
+                                pageLoadingScreen,
                             },
                         },
                     }),

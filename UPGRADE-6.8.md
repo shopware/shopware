@@ -551,7 +551,7 @@ For example instead of `administration/static/img/sw-login-background.png` use `
 The mail template index page now uses separate tabs for templates and headers/footers.
 
 Changes in `sw-mail-template-list` and `sw-mail-header-footer-list`:
-* `searchTerm` prop was removed
+* `searchTerm` prop and watcher were removed
 * `currentSearchTerm` computed was removed
 * `@page-change` handler now uses `onPageChange` directly
 

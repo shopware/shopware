@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -270,11 +271,11 @@ class ProductDefinition extends EntityDefinition
 
         if (Feature::isActive('v6.8.0.0')) {
             $fields->add(
-                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Required()),
             );
         } else {
             $fields->add(
-                (new StringField('type', 'type'))->addFlags(new ApiAware()),
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable()),
             );
 
             $fields->add(

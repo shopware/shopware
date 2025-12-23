@@ -3,19 +3,16 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
-use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\PlatformRequest;
+use Shopware\Core\Framework\Adapter\Cache\Http\Extension\CacheHashRequiredExtension;
+use Shopware\Core\Framework\Adapter\Session\SessionFactory;
+use Shopware\Core\Framework\Adapter\Session\StatefulFlashBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber;
-use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
@@ -23,40 +20,113 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[CoversClass(CacheCookieEventSubscriber::class)]
 class CacheCookieEventSubscriberTest extends TestCase
 {
+    private SessionFactory&MockObject $sessionFactoryMock;
+
+    private CacheCookieEventSubscriber $subscriber;
+
+    protected function setUp(): void
+    {
+        $this->sessionFactoryMock = $this->createMock(SessionFactory::class);
+
+        $this->subscriber = new CacheCookieEventSubscriber($this->sessionFactoryMock);
+    }
+
     public function testGetSubscribedEvents(): void
     {
         static::assertSame(
             [
-                KernelEvents::REQUEST => 'onKernelRequest',
                 HttpCacheCookieEvent::class => 'passCacheForFlashMessages',
+                CacheHashRequiredExtension::NAME . '.post' => 'onRequireCacheHash',
             ],
             CacheCookieEventSubscriber::getSubscribedEvents()
         );
     }
 
+    public function testCacheHashNotRequiredWhenNoFlashMessagesArePresent(): void
+    {
+        $flashBagMock = $this->createMock(StatefulFlashBag::class);
+        $flashBagMock->expects($this->once())
+            ->method('hasAnyFlashes')
+            ->willReturn(false);
+
+        $this->sessionFactoryMock->expects($this->once())
+            ->method('getFlashBag')
+            ->willReturn($flashBagMock);
+
+        $event = new CacheHashRequiredExtension(
+            new Request(),
+            $this->createMock(SalesChannelContext::class),
+            new Cart('test')
+        );
+        $event->result = false;
+
+        $this->subscriber->onRequireCacheHash($event);
+
+        static::assertFalse($event->result);
+    }
+
+    public function testCacheHashIsRequiredWhenFlashMessagesArePresent(): void
+    {
+        $flashBagMock = $this->createMock(StatefulFlashBag::class);
+        $flashBagMock->expects($this->once())
+            ->method('hasAnyFlashes')
+            ->willReturn(true);
+
+        $this->sessionFactoryMock->expects($this->once())
+            ->method('getFlashBag')
+            ->willReturn($flashBagMock);
+
+        $event = new CacheHashRequiredExtension(
+            new Request(),
+            $this->createMock(SalesChannelContext::class),
+            new Cart('test')
+        );
+        $event->result = false;
+
+        $this->subscriber->onRequireCacheHash($event);
+
+        static::assertTrue($event->result);
+    }
+
     public function testCacheIsUsedWhenNoFlashMessagesArePresent(): void
     {
-        $request = new Request();
-        $request->setSession(
-            new Session(new MockArraySessionStorage())
-        );
+        $flashBagMock = $this->createMock(StatefulFlashBag::class);
+        $flashBagMock->expects($this->once())
+            ->method('hasAnyFlashes')
+            ->willReturn(false);
+        $flashBagMock->expects($this->once())
+            ->method('displayedAnyFlashes')
+            ->willReturn(false);
+
+        $this->sessionFactoryMock->expects($this->once())
+            ->method('getFlashBag')
+            ->willReturn($flashBagMock);
 
         $event = new HttpCacheCookieEvent(
-            $request,
+            new Request(),
             $this->createMock(SalesChannelContext::class),
             []
         );
 
-        $subscriber = new CacheCookieEventSubscriber();
+        $this->subscriber->passCacheForFlashMessages($event);
 
-        $subscriber->onKernelRequest(
-            new RequestEvent(
-                $this->createMock(HttpKernelInterface::class),
-                $request,
-                HttpKernelInterface::MAIN_REQUEST
-            )
+        static::assertTrue($event->isCacheable);
+        static::assertFalse($event->doNotStore);
+    }
+
+    public function testCacheIsUsedWhenNoFlashBagIsAvailable(): void
+    {
+        $this->sessionFactoryMock->expects($this->once())
+            ->method('getFlashBag')
+            ->willReturn(null);
+
+        $event = new HttpCacheCookieEvent(
+            new Request(),
+            $this->createMock(SalesChannelContext::class),
+            []
         );
-        $subscriber->passCacheForFlashMessages($event);
+
+        $this->subscriber->passCacheForFlashMessages($event);
 
         static::assertTrue($event->isCacheable);
         static::assertFalse($event->doNotStore);
@@ -64,31 +134,24 @@ class CacheCookieEventSubscriberTest extends TestCase
 
     public function testCacheIsPassedWhenFlashesArePresentOnCacheCookieEvent(): void
     {
-        $request = new Request();
-        $session = new Session(new MockArraySessionStorage());
-        $request->setSession($session);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, StorefrontRouteScope::ID);
+        $flashBagMock = $this->createMock(StatefulFlashBag::class);
+        $flashBagMock->expects($this->once())
+            ->method('hasAnyFlashes')
+            ->willReturn(true);
+        $flashBagMock->expects($this->never())
+            ->method('displayedAnyFlashes');
+
+        $this->sessionFactoryMock->expects($this->once())
+            ->method('getFlashBag')
+            ->willReturn($flashBagMock);
 
         $event = new HttpCacheCookieEvent(
-            $request,
+            new Request(),
             $this->createMock(SalesChannelContext::class),
             []
         );
 
-        $subscriber = new CacheCookieEventSubscriber();
-
-        $subscriber->onKernelRequest(
-            new RequestEvent(
-                $this->createMock(HttpKernelInterface::class),
-                $request,
-                HttpKernelInterface::MAIN_REQUEST
-            )
-        );
-
-        // flashes were added during the request and not displayed
-        $session->getFlashBag()->add('warning', 'This is a flash message');
-
-        $subscriber->passCacheForFlashMessages($event);
+        $this->subscriber->passCacheForFlashMessages($event);
 
         // when flashes are present, we can't use the cache for the next requests, until the flashes are displayed
         static::assertFalse($event->isCacheable);
@@ -97,118 +160,28 @@ class CacheCookieEventSubscriberTest extends TestCase
 
     public function testCacheIsNotStoredWhenFlashesAreDisplayedDuringRequest(): void
     {
-        $request = new Request();
-        $session = new Session(new MockArraySessionStorage());
-        $request->setSession($session);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, StorefrontRouteScope::ID);
+        $flashBagMock = $this->createMock(StatefulFlashBag::class);
+        $flashBagMock->expects($this->once())
+            ->method('hasAnyFlashes')
+            ->willReturn(false);
+        $flashBagMock->expects($this->once())
+            ->method('displayedAnyFlashes')
+            ->willReturn(true);
+
+        $this->sessionFactoryMock->expects($this->once())
+            ->method('getFlashBag')
+            ->willReturn($flashBagMock);
 
         $event = new HttpCacheCookieEvent(
-            $request,
+            new Request(),
             $this->createMock(SalesChannelContext::class),
             []
         );
 
-        $subscriber = new CacheCookieEventSubscriber();
-
-        // we have flashes at the beginning of the request
-        $session->getFlashBag()->add('warning', 'This is a flash message');
-
-        $subscriber->onKernelRequest(
-            new RequestEvent(
-                $this->createMock(HttpKernelInterface::class),
-                $request,
-                HttpKernelInterface::MAIN_REQUEST
-            )
-        );
-
-        // we clear the flashbag, simulating that the messages were displayed during the request
-        $session->getFlashBag()->all();
-
-        $subscriber->passCacheForFlashMessages($event);
+        $this->subscriber->passCacheForFlashMessages($event);
 
         static::assertTrue($event->isCacheable);
         // the current request should not be stored, but all further requests can use the cache
         static::assertTrue($event->doNotStore);
-    }
-
-    public function testCacheIsNotAlteredOutsideStorefrontRouteScope(): void
-    {
-        $request = new Request();
-        $session = new Session(new MockArraySessionStorage());
-        $request->setSession($session);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ApiRouteScope::ID);
-
-        $event = new HttpCacheCookieEvent(
-            $request,
-            $this->createMock(SalesChannelContext::class),
-            []
-        );
-
-        $subscriber = new CacheCookieEventSubscriber();
-
-        // we have flashes at the beginning of the request
-        $session->getFlashBag()->add('warning', 'This is a flash message');
-
-        $subscriber->onKernelRequest(
-            new RequestEvent(
-                $this->createMock(HttpKernelInterface::class),
-                $request,
-                HttpKernelInterface::MAIN_REQUEST
-            )
-        );
-
-        $subscriber->passCacheForFlashMessages($event);
-
-        static::assertTrue($event->isCacheable);
-        static::assertFalse($event->doNotStore);
-    }
-
-    public function testResetResetsInternalState(): void
-    {
-        $request = new Request();
-        $session = new Session(new MockArraySessionStorage());
-        $request->setSession($session);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, StorefrontRouteScope::ID);
-
-        $event = new HttpCacheCookieEvent(
-            $request,
-            $this->createMock(SalesChannelContext::class),
-            []
-        );
-
-        $subscriber = new CacheCookieEventSubscriber();
-
-        // we have flashes at the beginning of the request
-        $session->getFlashBag()->add('warning', 'This is a flash message');
-
-        $subscriber->onKernelRequest(
-            new RequestEvent(
-                $this->createMock(HttpKernelInterface::class),
-                $request,
-                HttpKernelInterface::MAIN_REQUEST
-            )
-        );
-
-        // we clear the flashbag, simulating that the messages were displayed during the request
-        $session->getFlashBag()->all();
-
-        $subscriber->passCacheForFlashMessages($event);
-
-        static::assertTrue($event->isCacheable);
-        // the current request should not be stored, but all further requests can use the cache
-        static::assertTrue($event->doNotStore);
-
-        $subscriber->reset();
-
-        $event = new HttpCacheCookieEvent(
-            $request,
-            $this->createMock(SalesChannelContext::class),
-            []
-        );
-        $subscriber->passCacheForFlashMessages($event);
-
-        // after reset the cache should be unaffected
-        static::assertTrue($event->isCacheable);
-        static::assertFalse($event->doNotStore);
     }
 }

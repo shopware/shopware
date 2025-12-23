@@ -103,7 +103,7 @@ class MediaDefinition extends EntityDefinition
             (new TranslatedField('alt'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('title'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime(['path', 'private', 'updatedAt'])),
-            (new StringField('path', 'path'))->addFlags(new ApiAware()),
+            (new StringField('path', 'path', 2048))->addFlags(new ApiAware()),
             (new BoolField('has_file', 'hasFile'))->addFlags(new ApiAware(), new Runtime()),
             (new BoolField('private', 'private'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),

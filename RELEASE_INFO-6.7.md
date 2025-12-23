@@ -2,6 +2,11 @@
 
 ## Features
 
+### Support of media paths with up to 2046 characters
+Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the
+database field already supported up to 2046 characters. This limitation has now been lifted and media paths can be up to
+2046 characters long.
+
 ### HTTP caching rework
 
 - Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
@@ -49,8 +54,8 @@ HTTP caching support was added for the following Store API endpoints:
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Store API: compressed criteria parameter support
-Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows 
-sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported. 
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows
+sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported.
 Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
 Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 

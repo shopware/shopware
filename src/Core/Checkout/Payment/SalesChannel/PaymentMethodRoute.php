@@ -48,6 +48,10 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
         return 'payment-method-route-' . $salesChannelId;
     }
 
+    /**
+     * Though this is a GET route, caching was not added as the output may be altered depending on dynamic rules,
+     * which is not taken into account during the cache hash calculation.
+     */
     #[Route(
         path: '/store-api/payment-method',
         name: 'store-api.payment.method',

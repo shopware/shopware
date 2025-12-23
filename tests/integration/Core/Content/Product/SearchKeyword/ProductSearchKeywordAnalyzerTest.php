@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -40,6 +41,11 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
      */
     private EntityRepository $productSearchConfigRepository;
 
+    /**
+     * @var EntityRepository<CustomFieldSetCollection>
+     */
+    private EntityRepository $customFieldSetRepository;
+
     private Connection $connection;
 
     private Context $context;
@@ -53,6 +59,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     protected function setUp(): void
     {
         $this->productRepository = static::getContainer()->get('product.repository');
+        $this->customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
         $this->productSearchConfigRepository = static::getContainer()->get('product_search_config.repository');
         $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
@@ -368,6 +375,116 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $this->enSearchConfigId = $this->getEnSearchConfig()->getId();
         $this->deSearchConfigId = $this->getDeSearchConfig()->getId();
 
+        $this->createCustomFieldSet();
+
+        $products = [
+            [
+                'id' => $this->ids->create('product_id'),
+                'name' => 'test product',
+                'description' => 'product description',
+                'productNumber' => 'f023204e895b4cec8492ec14194e10d2',
+                'manufacturerNumber' => '123456123123123',
+                'ean' => 'test ean',
+                'metaTitle' => 'metaTitle test',
+                'metaDescription' => 'metaDescription test',
+                'stock' => 10,
+                'customFields' => [
+                    'custom_test_field_1' => 'tet CustomField',
+                    'custom_test_field_2' => 123456,
+                ],
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'manufacturer' => [
+                    'id' => $this->ids->create('manufacturer_id'),
+                    'name' => 'test',
+                    'customFields' => [
+                        'custom_test_field_text' => 'manufacturer customfield',
+                        'custom_test_field_int' => 123456789,
+                    ],
+                ],
+                'categories' => [
+                    [
+                        'id' => $this->ids->create('category_id1'),
+                        'name' => 'Test category',
+                        'customFields' => [
+                            'custom_test_field_text' => 'category customfield',
+                            'custom_test_field_int' => 123456789,
+                        ],
+                    ],
+                ],
+                'tax' => ['id' => '98432def39fc4624b33213a56b8c944f', 'name' => 'test', 'taxRate' => 15],
+                'customSearchKeywords' => ['Search Keyword Update'],
+                'properties' => [
+                    [
+                        'id' => $this->ids->create('property_id'),
+                        'name' => 'red',
+                        'group' => ['id' => $this->ids->create('group_id'), 'name' => 'color'],
+                    ],
+                ],
+                'tags' => [
+                    ['id' => $this->ids->create('tag1'), 'name' => 'tag1'],
+                    ['id' => $this->ids->create('tag2'), 'name' => 'tag2'],
+                ],
+                'customFieldSet' => [
+                    'id' => $this->ids->get('custom_field_set_id'),
+                ],
+            ],
+            [
+                'id' => $this->ids->create('product_id_2'),
+                'name' => 'test product',
+                'description' => 'product description',
+                'productNumber' => 'f023204e895b4cec8492ec14194e10d2.1',
+                'manufacturerNumber' => '123456123123123',
+                'ean' => 'test ean',
+                'metaTitle' => 'metaTitle test',
+                'metaDescription' => 'metaDescription test',
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'manufacturer' => [
+                    'id' => $this->ids->get('manufacturer_id'),
+                    'name' => 'test',
+                    'customFields' => [
+                        'custom_test_field_text' => 'manufacturer customfield',
+                        'custom_test_field_int' => 123456789,
+                    ],
+                ],
+                'categories' => [
+                    [
+                        'id' => $this->ids->get('category_id1'),
+                        'name' => 'Test category',
+                        'customFields' => [
+                            'custom_test_field_text' => 'category customfield',
+                            'custom_test_field_int' => 123456789,
+                        ],
+                    ],
+                ],
+                'tax' => ['id' => '98432def39fc4624b33213a56b8c944f', 'name' => 'test', 'taxRate' => 15],
+                'customSearchKeywords' => ['Search Keyword Update'],
+                'options' => [
+                    [
+                        'id' => $this->ids->create('red'),
+                        'groupId' => $this->ids->get('group_id'),
+                        'name' => 'small',
+                    ],
+                ],
+                'tags' => [
+                    ['id' => $this->ids->get('tag1'), 'name' => 'tag1'],
+                    ['id' => $this->ids->get('tag2'), 'name' => 'tag2'],
+                ],
+                'customFieldSet' => [
+                    'id' => $this->ids->get('custom_field_set_id'),
+                ],
+            ],
+        ];
+
+        $this->productRepository->create($products, $this->context);
+    }
+
+    private function createCustomFieldSet(): void
+    {
         $customFieldSetData = [
             'id' => $this->ids->create('custom_field_set_id'),
             'name' => 'custom_Test',
@@ -470,106 +587,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             ],
         ];
 
-        $products = [
-            [
-                'id' => $this->ids->create('product_id'),
-                'name' => 'test product',
-                'description' => 'product description',
-                'productNumber' => 'f023204e895b4cec8492ec14194e10d2',
-                'manufacturerNumber' => '123456123123123',
-                'ean' => 'test ean',
-                'metaTitle' => 'metaTitle test',
-                'metaDescription' => 'metaDescription test',
-                'stock' => 10,
-                'customFields' => [
-                    'custom_test_field_1' => 'tet CustomField',
-                    'custom_test_field_2' => 123456,
-                ],
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-                ],
-                'manufacturer' => [
-                    'id' => $this->ids->create('manufacturer_id'),
-                    'name' => 'test',
-                    'customFields' => [
-                        'custom_test_field_text' => 'manufacturer customfield',
-                        'custom_test_field_int' => 123456789,
-                    ],
-                ],
-                'categories' => [
-                    [
-                        'id' => $this->ids->create('category_id1'),
-                        'name' => 'Test category',
-                        'customFields' => [
-                            'custom_test_field_text' => 'category customfield',
-                            'custom_test_field_int' => 123456789,
-                        ],
-                    ],
-                ],
-                'tax' => ['id' => '98432def39fc4624b33213a56b8c944f', 'name' => 'test', 'taxRate' => 15],
-                'customSearchKeywords' => ['Search Keyword Update'],
-                'properties' => [
-                    [
-                        'id' => $this->ids->create('property_id'),
-                        'name' => 'red',
-                        'group' => ['id' => $this->ids->create('group_id'), 'name' => 'color'],
-                    ],
-                ],
-                'tags' => [
-                    ['id' => $this->ids->create('tag1'), 'name' => 'tag1'],
-                    ['id' => $this->ids->create('tag2'), 'name' => 'tag2'],
-                ],
-                'customFieldSets' => [$customFieldSetData],
-            ],
-            [
-                'id' => $this->ids->create('product_id_2'),
-                'name' => 'test product',
-                'description' => 'product description',
-                'productNumber' => 'f023204e895b4cec8492ec14194e10d2.1',
-                'manufacturerNumber' => '123456123123123',
-                'ean' => 'test ean',
-                'metaTitle' => 'metaTitle test',
-                'metaDescription' => 'metaDescription test',
-                'stock' => 10,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-                ],
-                'manufacturer' => [
-                    'id' => $this->ids->get('manufacturer_id'),
-                    'name' => 'test',
-                    'customFields' => [
-                        'custom_test_field_text' => 'manufacturer customfield',
-                        'custom_test_field_int' => 123456789,
-                    ],
-                ],
-                'categories' => [
-                    [
-                        'id' => $this->ids->get('category_id1'),
-                        'name' => 'Test category',
-                        'customFields' => [
-                            'custom_test_field_text' => 'category customfield',
-                            'custom_test_field_int' => 123456789,
-                        ],
-                    ],
-                ],
-                'tax' => ['id' => '98432def39fc4624b33213a56b8c944f', 'name' => 'test', 'taxRate' => 15],
-                'customSearchKeywords' => ['Search Keyword Update'],
-                'options' => [
-                    [
-                        'id' => $this->ids->create('red'),
-                        'groupId' => $this->ids->get('group_id'),
-                        'name' => 'small',
-                    ],
-                ],
-                'tags' => [
-                    ['id' => $this->ids->get('tag1'), 'name' => 'tag1'],
-                    ['id' => $this->ids->get('tag2'), 'name' => 'tag2'],
-                ],
-                'customFieldSets' => [$customFieldSetData],
-            ],
-        ];
-
-        $this->productRepository->create($products, $this->context);
+        $this->customFieldSetRepository->upsert([$customFieldSetData], $this->context);
     }
 
     private function getEnSearchConfig(): ProductSearchConfigEntity

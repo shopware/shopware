@@ -356,6 +356,21 @@ We also deprecate
 `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` which will be removed with v6.8.0.0 and
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js` which will be private in v6.8.0.0.
 
+### Deprecations in mail template components
+
+The mail template index will be split into separate tabs for templates and headers/footers in v6.8.0.0.
+
+The following deprecations apply to `sw-mail-template-list` and `sw-mail-header-footer-list`:
+* `searchTerm` prop will be removed in v6.8.0.0
+* `currentSearchTerm` computed will be removed in v6.8.0.0
+* `@page-change` handler will change to `onPageChange` in v6.8.0.0
+
+The following deprecations apply to `sw-mail-template-index`:
+* The `listing` mixin will be removed in v6.8.0.0
+* `term` data property will be removed in v6.8.0.0
+* `useTabs` computed will be removed in v6.8.0.0
+* `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
+
 ## Storefront
 
 ### Language selector twig blocks

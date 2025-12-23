@@ -724,6 +724,7 @@
  "sw_cms_element_image_slider_config_content",
  "sw_cms_element_image_slider_config_media_modal",
  "sw_cms_element_image_slider_config_media_selection",
+ "sw_cms_element_image_slider_config_media_upload_listener",
  "sw_cms_element_image_slider_config_settings",
  "sw_cms_element_image_slider_config_settings_auto_slide",
  "sw_cms_element_image_slider_config_settings_autoplay_timeout",

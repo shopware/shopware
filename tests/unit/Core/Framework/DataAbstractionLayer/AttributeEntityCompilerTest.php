@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
@@ -33,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -41,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
@@ -209,72 +210,6 @@ class AttributeEntityCompilerTest extends TestCase
                 ],
                 'source' => 'attribute_entity',
                 'reference' => 'order',
-            ],
-            [
-                'type' => 'mapping',
-                'parent' => null,
-                'entity_class' => ArrayEntity::class,
-                'entity_name' => 'my_own_mapping_table_name',
-                'fields' => [
-                    [
-                        'class' => FkField::class,
-                        'translated' => false,
-                        'args' => [
-                            'attribute_entity_id',
-                            'attributeEntityId',
-                            'attribute_entity',
-                        ],
-                        'flags' => [
-                            PrimaryKey::class => [
-                                'class' => PrimaryKey::class,
-                            ],
-                            Required::class => [
-                                'class' => Required::class,
-                            ],
-                        ],
-                    ],
-                    [
-                        'class' => FkField::class,
-                        'translated' => false,
-                        'args' => [
-                            'product_id',
-                            'productId',
-                            'product',
-                        ],
-                        'flags' => [
-                            PrimaryKey::class => [
-                                'class' => PrimaryKey::class,
-                            ],
-                            Required::class => [
-                                'class' => Required::class,
-                            ],
-                        ],
-                    ],
-                    [
-                        'class' => ManyToOneAssociationField::class,
-                        'translated' => false,
-                        'args' => [
-                            'attributeEntity',
-                            'attribute_entity_id',
-                            'attribute_entity',
-                            'id',
-                        ],
-                        'flags' => [],
-                    ],
-                    [
-                        'class' => ManyToOneAssociationField::class,
-                        'translated' => false,
-                        'args' => [
-                            'product',
-                            'product_id',
-                            'product',
-                            'id',
-                        ],
-                        'flags' => [],
-                    ],
-                ],
-                'source' => 'attribute_entity',
-                'reference' => 'product',
             ],
             [
                 'type' => 'entity',
@@ -623,24 +558,6 @@ class AttributeEntityCompilerTest extends TestCase
                         ],
                     ],
                     [
-                        'type' => FieldType::STRING,
-                        'name' => 'emptyString',
-                        'class' => StringField::class,
-                        'flags' => [
-                            Required::class => [
-                                'class' => Required::class,
-                            ],
-                            AllowEmptyString::class => [
-                                'class' => AllowEmptyString::class,
-                            ],
-                        ],
-                        'translated' => false,
-                        'args' => [
-                            'empty_string',
-                            'emptyString',
-                        ],
-                    ],
-                    [
                         'type' => ForeignKey::TYPE,
                         'name' => 'followId',
                         'class' => FkField::class,
@@ -785,27 +702,6 @@ class AttributeEntityCompilerTest extends TestCase
                         ],
                     ],
                     [
-                        'type' => ManyToMany::TYPE,
-                        'name' => 'ownMapping',
-                        'class' => ManyToManyAssociationField::class,
-                        'flags' => [
-                            Required::class => [
-                                'class' => Required::class,
-                            ],
-                            AsArray::class => [
-                                'class' => AsArray::class,
-                            ],
-                        ],
-                        'translated' => false,
-                        'args' => [
-                            'ownMapping',
-                            'product',
-                            'my_own_mapping_table_name',
-                            'attribute_entity_id',
-                            'product_id',
-                        ],
-                    ],
-                    [
                         'type' => FieldType::STRING,
                         'name' => 'htmlString',
                         'class' => StringField::class,
@@ -824,6 +720,22 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'html_string',
                             'htmlString',
+                        ],
+                    ],
+                    [
+                        'type' => FieldType::OBJECT,
+                        'name' => 'object',
+                        'class' => ObjectField::class,
+                        'flags' => [
+                            Runtime::class => [
+                                'class' => Runtime::class,
+                                'args' => [],
+                            ],
+                        ],
+                        'translated' => false,
+                        'args' => [
+                            'object',
+                            'object',
                         ],
                     ],
                     [

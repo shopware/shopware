@@ -3,39 +3,54 @@
 namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
+use Shopware\Core\Framework\Adapter\Cache\Http\Extension\CacheHashRequiredExtension;
+use Shopware\Core\Framework\Adapter\Session\SessionFactory;
+use Shopware\Core\Framework\Adapter\Session\StatefulFlashBag;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Contracts\Service\ResetInterface;
+use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class CacheCookieEventSubscriber implements EventSubscriberInterface, ResetInterface
+class CacheCookieEventSubscriber implements EventSubscriberInterface
 {
-    private static bool $flashbagWasFilled = false;
-
-    public function __construct(
-        private readonly RequestStack $requestStack
-    ) {
+    public function __construct(private readonly SessionFactoryInterface $sessionFactory)
+    {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => 'onKernelRequest',
             HttpCacheCookieEvent::class => 'passCacheForFlashMessages',
+            CacheHashRequiredExtension::NAME . '.post' => 'onRequireCacheHash',
         ];
+    }
+
+    public function onRequireCacheHash(CacheHashRequiredExtension $extension): void
+    {
+        $flashBag = $this->getStateFullFlashBagIfExists();
+
+        if (!$flashBag) {
+            return;
+        }
+
+        if ($flashBag->hasAnyFlashes()) {
+            $extension->result = true;
+        }
     }
 
     public function passCacheForFlashMessages(HttpCacheCookieEvent $cookieEvent): void
     {
+        $flashBag = $this->getStateFullFlashBagIfExists();
+
+        if (!$flashBag) {
+            return;
+        }
+
         // if flashbag is filled still when the response is sent, we need to pass the cache also for further requests
-        if ($this->flashBagFilledForCurrentSession()) {
+        if ($flashBag->hasAnyFlashes()) {
             $cookieEvent->isCacheable = false;
 
             return;
@@ -44,33 +59,17 @@ class CacheCookieEventSubscriber implements EventSubscriberInterface, ResetInter
         // if flashbag was filled before, but is empty now that means that the response contains flash messages
         // therefore we cannot store the response in the cache
         // however in general the cache should be used for the next requests
-        if (self::$flashbagWasFilled) {
+        if ($flashBag->displayedAnyFlashes()) {
             $cookieEvent->doNotStore = true;
         }
     }
 
-    public function onKernelRequest(): void
+    private function getStateFullFlashBagIfExists(): ?StatefulFlashBag
     {
-        self::$flashbagWasFilled = $this->flashBagFilledForCurrentSession();
-    }
-
-    public function reset(): void
-    {
-        self::$flashbagWasFilled = false;
-    }
-
-    private function flashBagFilledForCurrentSession(): bool
-    {
-        try {
-            $session = $this->requestStack->getCurrentRequest()?->getSession();
-        } catch (SessionNotFoundException) {
-            return false;
+        if (!$this->sessionFactory instanceof SessionFactory) {
+            return null;
         }
 
-        if (!$session instanceof FlashBagAwareSessionInterface) {
-            return false;
-        }
-
-        return $session->getFlashBag()->keys() !== [];
+        return $this->sessionFactory->getFlashBag();
     }
 }

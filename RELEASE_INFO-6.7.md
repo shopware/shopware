@@ -44,6 +44,7 @@ HTTP caching support was added for the following Store API endpoints:
 - `/store-api/product/{productId}/reviews`
 - `/store-api/search`
 - `/store-api/search-suggest`
+- `/store-api/landing-page/{landingPageId}`
 
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
@@ -107,7 +108,25 @@ We don't synchronously fetch and generate the SEO-Urls for all child categories 
 Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
 This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
 
+### Introduce Immutable DAL flag
+
+A new `Immutable` flag is available for Data Abstraction Layer fields. Fields marked as immutable can be set during entity creation but cannot be updated later. This prevents accidental renames of technical identifiers that other subsystems rely on. Core entities now using the flag include:
+
+* `custom_field.name`
+* `custom_field.type`
+* `custom_field_set.name`
+
+Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
+
 ## Administration
+
+### Loading indicator for whole page
+
+When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
+
+### Search filter for settings module
+
+In the settings module, there is now a search bar in the top right. It can be used to filter settings based on a search term to quickly find what you need.
 
 ## Storefront
 

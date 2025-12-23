@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -56,8 +57,8 @@ class CustomFieldDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            (new StringField('type', 'type'))->addFlags(new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required(), new Immutable()),
+            (new StringField('type', 'type'))->addFlags(new Required(), new Immutable()),
             new JsonField('config', 'config', [], []),
             new BoolField('active', 'active'),
             new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class),

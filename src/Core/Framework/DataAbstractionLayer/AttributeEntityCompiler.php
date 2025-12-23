@@ -288,6 +288,12 @@ class AttributeEntityCompiler
             $flags[Required::class] = ['class' => Required::class];
         }
 
+        // Translation association fields need to be marked as required,
+        // because otherwise required fields in the association are not validated
+        if ($field instanceof Translations) {
+            $flags[Required::class] = ['class' => Required::class];
+        }
+
         if ($this->getAttribute($property, PrimaryKeyAttr::class)) {
             $flags[PrimaryKey::class] = ['class' => PrimaryKey::class];
             $flags[Required::class] = ['class' => Required::class];

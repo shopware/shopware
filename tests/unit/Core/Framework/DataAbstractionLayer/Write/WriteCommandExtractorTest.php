@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\PrimaryKeyBag;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
@@ -130,5 +132,86 @@ class WriteCommandExtractorTest extends TestCase
             new AdminApiSource(Uuid::randomHex()),
             true,
         ];
+    }
+
+    public function testImmutableFieldCanOnlyBeSetOnCreate(): void
+    {
+        $definition = new class extends EntityDefinition {
+            final public const ENTITY_NAME = 'immutable_test';
+
+            public function getEntityName(): string
+            {
+                return self::ENTITY_NAME;
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([
+                    (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+                    (new StringField('name', 'name'))->addFlags(new Required()),
+                    (new StringField('immutable_field', 'immutableField'))->addFlags(new Immutable()),
+                ]);
+            }
+        };
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [$definition],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        $existenceGateway = $this->createMock(EntityWriteGatewayInterface::class);
+        $existenceGateway->expects($this->exactly(2))
+            ->method('getExistence')
+            ->willReturnOnConsecutiveCalls(
+                new EntityExistence($definition::ENTITY_NAME, [], false, false, false, []),
+                new EntityExistence($definition::ENTITY_NAME, [], true, false, false, [])
+            );
+
+        $extractor = new WriteCommandExtractor(
+            $existenceGateway,
+            $registry
+        );
+
+        $id = Uuid::randomHex();
+
+        $createParameters = new WriteParameterBag(
+            $registry->get($definition::class),
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            '',
+            new WriteCommandQueue(),
+            new PrimaryKeyBag()
+        );
+
+        $extractor->extract([
+            'id' => $id,
+            'name' => 'immutable entity',
+            'immutableField' => 'initial',
+        ], $createParameters);
+
+        static::assertCount(0, $createParameters->getContext()->getExceptions()->getExceptions());
+
+        $updateParameters = new WriteParameterBag(
+            $registry->get($definition::class),
+            WriteContext::createFromContext(Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()))),
+            '',
+            new WriteCommandQueue(),
+            new PrimaryKeyBag()
+        );
+
+        $extractor->extract([
+            'id' => $id,
+            'name' => 'immutable entity',
+            'immutableField' => 'updated',
+        ], $updateParameters);
+
+        $exceptions = $updateParameters->getContext()->getExceptions()->getExceptions();
+        static::assertCount(1, $exceptions);
+        $exception = \array_shift($exceptions);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
+
+        $violations = $exception->getViolations();
+        static::assertCount(1, $violations);
+        static::assertSame('The field "immutableField" of "immutable_test" is immutable and cannot be updated.', $violations->get(0)->getMessage());
     }
 }

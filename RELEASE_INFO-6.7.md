@@ -44,6 +44,7 @@ HTTP caching support was added for the following Store API endpoints:
 - `/store-api/product/{productId}/reviews`
 - `/store-api/search`
 - `/store-api/search-suggest`
+- `/store-api/landing-page/{landingPageId}`
 
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
@@ -118,6 +119,10 @@ A new `Immutable` flag is available for Data Abstraction Layer fields. Fields ma
 Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
 
 ## Administration
+
+### Loading indicator for whole page
+
+When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
 
 ### Search filter for settings module
 

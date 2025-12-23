@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Theme\Twig;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -98,11 +98,11 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
     {
         $themes = [];
         // get name if theme is not inherited
-        $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
+        $theme = $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value);
 
         if (!$theme) {
             // get theme name from base theme because for inherited themes the name is always null
-            $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
+            $theme = $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_THEME_BASE_NAME->value);
         }
 
         if (!$theme) {

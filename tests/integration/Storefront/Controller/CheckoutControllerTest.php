@@ -43,7 +43,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -917,7 +917,7 @@ class CheckoutControllerTest extends TestCase
 
         $request->attributes->add([
             RequestTransformer::STOREFRONT_URL => EnvironmentHelper::getVariable('APP_URL'),
-            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true,
         ]);
 
         if ($context instanceof SalesChannelContext) {

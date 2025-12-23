@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -321,7 +321,7 @@ class RegisterControllerTest extends TestCase
         $request = new Request();
         $request->setSession($this->getSession());
         $request->request->add(['errorRoute' => 'frontend.checkout.register.page']);
-        $request->attributes->add(['_route' => 'frontend.checkout.register.page', SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
+        $request->attributes->add(['_route' => 'frontend.checkout.register.page', SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true]);
         $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
 
         static::getContainer()->get('request_stack')->push($request);

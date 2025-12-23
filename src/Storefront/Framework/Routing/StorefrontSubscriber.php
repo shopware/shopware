@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -75,7 +75,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         if (!$mainRequest) {
             return;
         }
-        if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+        if (!$mainRequest->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value)) {
             return;
         }
 
@@ -133,7 +133,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         if (!$mainRequest) {
             return;
         }
-        if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+        if (!$mainRequest->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value)) {
             return;
         }
 
@@ -151,7 +151,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function customerNotLoggedInHandler(ExceptionEvent $event): void
     {
-        if (!$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+        if (!$event->getRequest()->attributes->has(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value)) {
             return;
         }
 

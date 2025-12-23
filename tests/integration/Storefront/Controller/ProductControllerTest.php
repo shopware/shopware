@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -374,7 +374,7 @@ class ProductControllerTest extends TestCase
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $context,
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $context->getSalesChannelId(),
             'productId' => $productId,
-            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true,
         ]);
 
         static::getContainer()->get('request_stack')->push($request);

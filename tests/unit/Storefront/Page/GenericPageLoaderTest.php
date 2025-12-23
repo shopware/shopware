@@ -6,7 +6,7 @@ namespace Shopware\Tests\Unit\Storefront\Page;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -29,7 +29,7 @@ class GenericPageLoaderTest extends TestCase
             $this->createMock(EventDispatcherInterface::class)
         );
 
-        $request = new Request(attributes: [SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE => 'en-GB']);
+        $request = new Request(attributes: [SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value => 'en-GB']);
 
         $metaInformation = $loader->load($request, Generator::generateSalesChannelContext())->getMetaInformation();
         static::assertNotNull($metaInformation);

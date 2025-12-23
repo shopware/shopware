@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Locale\LocaleException;
 use Shopware\Core\System\Snippet\SnippetService;
@@ -244,8 +244,8 @@ class Translator extends AbstractTranslator
         $currentRequest = $this->requestStack->getMainRequest();
 
         // when document is rendered from admin, SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID is not set thus we use snippetSetId from injectSetting method
-        if ($currentRequest !== null && $currentRequest->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID)) {
-            $snippetSetId = $currentRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
+        if ($currentRequest !== null && $currentRequest->attributes->has(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value)) {
+            $snippetSetId = $currentRequest->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value);
         }
 
         if ($locale === null) {

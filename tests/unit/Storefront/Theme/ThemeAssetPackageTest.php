@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\ThemeAssetPackage;
 use Symfony\Component\Asset\VersionStrategy\StaticVersionStrategy;
@@ -71,7 +71,7 @@ class ThemeAssetPackageTest extends TestCase
 
         $request = Request::create('http://localhost');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'salesChannelId');
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'themeId');
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value, 'themeId');
 
         yield 'theme path prefix is applied on storefront requests' => [
             'path/to/file',

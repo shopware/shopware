@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Routing;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\MaintenanceModeRequestEvent;
 use Shopware\Core\Framework\Util\Json;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -49,7 +49,7 @@ class MaintenanceModeResolver
      */
     private static function getIps(Request $request): array
     {
-        $whitelist = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST) ?? '';
+        $whitelist = $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST->value) ?? '';
 
         /** @var list<string> $allowedIps */
         $allowedIps = Json::decodeToList((string) $whitelist);
@@ -59,6 +59,6 @@ class MaintenanceModeResolver
 
     private function isActive(Request $request): bool
     {
-        return (bool) $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE);
+        return (bool) $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE->value);
     }
 }

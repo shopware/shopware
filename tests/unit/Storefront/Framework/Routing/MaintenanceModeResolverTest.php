@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver as CoreMaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -263,9 +263,9 @@ class MaintenanceModeResolverTest extends TestCase
             $request->server->set('REMOTE_ADDR', $clientIp);
         }
 
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, $isSalesChannelRequest);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, $isMaintenanceModeActive);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, json_encode($allowedIpAddresses, \JSON_THROW_ON_ERROR));
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value, $isSalesChannelRequest);
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE->value, $isMaintenanceModeActive);
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST->value, json_encode($allowedIpAddresses, \JSON_THROW_ON_ERROR));
 
         return $request;
     }

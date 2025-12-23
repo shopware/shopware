@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
@@ -119,7 +119,7 @@ class MaintenanceController extends StorefrontController
 
     private function addWhitelistIpHeader(Request $request, Response $response): void
     {
-        if ($ips = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST)) {
+        if ($ips = $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST->value)) {
             $ips = implode(',', json_decode($ips, true, flags: \JSON_THROW_ON_ERROR));
 
             $response->headers->set(HttpCacheKernel::MAINTENANCE_WHITELIST_HEADER, $ips);

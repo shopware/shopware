@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -55,7 +55,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
         }
 
         $salesChannelId = $currentRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-        $themeId = $currentRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
+        $themeId = $currentRequest->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value);
 
         if ($themeId === null || $salesChannelId === null) {
             return '';

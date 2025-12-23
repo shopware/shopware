@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Doctrine\FakeConnection;
 use Shopware\Storefront\Controller\NavigationController;
@@ -59,7 +59,7 @@ class TemplateDataExtensionTest extends TestCase
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
             '_route' => $activeRoute,
             '_controller' => $controller . '::index',
-            SalesChannelRequest::ATTRIBUTE_THEME_ID => $themeId,
+            SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value => $themeId,
         ]);
 
         $connection = $this->createMock(Connection::class);

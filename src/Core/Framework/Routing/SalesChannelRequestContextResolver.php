@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -58,8 +58,8 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID),
             $usedContextToken,
             $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
-            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID),
+            $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value),
+            $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_ID->value),
             $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT),
             null,
             $session?->get(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID),

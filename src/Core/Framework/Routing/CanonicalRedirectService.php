@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Routing;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Extension\CanonicalRedirectExtension;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,7 +41,7 @@ class CanonicalRedirectService
     private function _getRedirect(Request $request): ?Response
     {
         // This attribute has been set by the RequestTransformer if the requested URL was superseded.
-        $canonical = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK);
+        $canonical = $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value);
         $shouldRedirect = $this->configService->get('core.seo.redirectToCanonicalUrl');
 
         if (!$shouldRedirect) {

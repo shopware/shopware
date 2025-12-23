@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
@@ -67,8 +67,8 @@ class TranslatorTest extends TestCase
 
         // fake request
         $request = new Request();
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en-GB'));
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en-GB');
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value, $this->getSnippetSetIdForLocale('en-GB'));
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value, 'en-GB');
 
         $stack->push($request);
         $result = $this->translator->getCatalogue('en-GB')->get('frontend.note.item.NoteLinkZoom');
@@ -95,8 +95,8 @@ class TranslatorTest extends TestCase
         // fake request
         $request = new Request();
 
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en-GB'));
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en-GB');
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value, $this->getSnippetSetIdForLocale('en-GB'));
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value, 'en-GB');
 
         static::getContainer()->get(RequestStack::class)->push($request);
 
@@ -236,8 +236,8 @@ class TranslatorTest extends TestCase
         // fake request
         $request = new Request();
 
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en-GB'));
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en-GB');
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value, $this->getSnippetSetIdForLocale('en-GB'));
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value, 'en-GB');
 
         static::getContainer()->get(RequestStack::class)->push($request);
 

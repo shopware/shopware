@@ -6,7 +6,7 @@ use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -51,27 +51,6 @@ class RequestTransformer implements RequestTransformerInterface
 
     final public const ORIGINAL_REQUEST_URI = 'sw-original-request-uri';
 
-    private const INHERITABLE_ATTRIBUTE_NAMES = [
-        self::SALES_CHANNEL_BASE_URL,
-        self::SALES_CHANNEL_ABSOLUTE_BASE_URL,
-        self::STOREFRONT_URL,
-        self::SALES_CHANNEL_RESOLVED_URI,
-
-        PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID,
-        SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST,
-
-        SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE,
-        SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID,
-        SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID,
-        SalesChannelRequest::ATTRIBUTE_DOMAIN_ID,
-
-        SalesChannelRequest::ATTRIBUTE_THEME_ID,
-        SalesChannelRequest::ATTRIBUTE_THEME_NAME,
-        SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME,
-
-        SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
-    ];
-
     private const DOES_NOT_REQUIRE_SALESCHANNEL = [
         '/_wdt/',
         '/_profiler/',
@@ -81,6 +60,11 @@ class RequestTransformer implements RequestTransformerInterface
         '/_fragment/',
         '/robots.txt',
     ];
+
+    /**
+     * @var array<string>
+     */
+    private readonly array $inheritableAttributeNames;
 
     /**
      * @internal
@@ -93,6 +77,22 @@ class RequestTransformer implements RequestTransformerInterface
         private readonly array $registeredApiPrefixes,
         private readonly AbstractDomainLoader $domainLoader
     ) {
+        $this->inheritableAttributeNames = [
+            self::SALES_CHANNEL_BASE_URL,
+            self::SALES_CHANNEL_ABSOLUTE_BASE_URL,
+            self::STOREFRONT_URL,
+            self::SALES_CHANNEL_RESOLVED_URI,
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID,
+            SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value,
+            SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value,
+            SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value,
+            SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value,
+            SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_ID->value,
+            SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value,
+            SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value,
+            SalesChannelRequestEnum::ATTRIBUTE_THEME_BASE_NAME->value,
+            SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value,
+        ];
     }
 
     public function transform(Request $request): Request
@@ -170,22 +170,22 @@ class RequestTransformer implements RequestTransformerInterface
         $transformedRequest->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
 
         $transformedRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, $salesChannel['locale']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $salesChannel['snippetSetId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $salesChannel['currencyId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, $salesChannel['id']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $salesChannel['themeId']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, $salesChannel['themeName']);
-        $transformedRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
+        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value, true);
+        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value, $salesChannel['locale']);
+        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value, $salesChannel['snippetSetId']);
+        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value, $salesChannel['currencyId']);
+        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_ID->value, $salesChannel['id']);
+        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value, $salesChannel['themeId']);
+        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, $salesChannel['themeName']);
+        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_BASE_NAME->value, $salesChannel['parentThemeName']);
 
         $transformedRequest->attributes->set(
-            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE,
+            SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE->value,
             (bool) $salesChannel['maintenance']
         );
 
         $transformedRequest->attributes->set(
-            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST,
+            SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST->value,
             $salesChannel['maintenanceIpWhitelist']
         );
 
@@ -201,7 +201,7 @@ class RequestTransformer implements RequestTransformerInterface
             }
 
             $transformedRequest->attributes->set(
-                SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
+                SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value,
                 $this->getSchemeAndHttpHost($request) . $baseUrlPath . $resolved['canonicalPathInfo']
             );
         }
@@ -222,7 +222,7 @@ class RequestTransformer implements RequestTransformerInterface
         $inheritableAttributes = $this->decorated
             ->extractInheritableAttributes($sourceRequest);
 
-        foreach (self::INHERITABLE_ATTRIBUTE_NAMES as $attributeName) {
+        foreach ($this->inheritableAttributeNames as $attributeName) {
             if (!$sourceRequest->attributes->has($attributeName)) {
                 continue;
             }

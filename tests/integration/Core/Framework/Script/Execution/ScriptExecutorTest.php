@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Test\Script\Execution\FunctionWillBeRequiredTestHook
 use Shopware\Core\Framework\Test\Script\Execution\StoppableTestHook;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -117,8 +117,8 @@ class ScriptExecutorTest extends TestCase
         // fake request
         $request = new Request();
 
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en-GB'));
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en-GB');
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value, $this->getSnippetSetIdForLocale('en-GB'));
+        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value, 'en-GB');
 
         static::getContainer()->get(RequestStack::class)->push($request);
 

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\SalesChannelRequestEnum;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
@@ -81,11 +81,11 @@ class RequestTransformerTest extends TestCase
 
             static::assertSame($expectedRequest->salesChannelId, $resolved->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
 
-            static::assertSame($expectedRequest->domainId, $resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID));
-            static::assertSame($expectedRequest->isStorefrontRequest, $resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST));
-            static::assertSame($expectedRequest->locale, $resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE));
-            static::assertSame($expectedRequest->currency, $resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
-            static::assertSame($expectedSnippetSetId, $resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID));
+            static::assertSame($expectedRequest->domainId, $resolved->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_ID->value));
+            static::assertSame($expectedRequest->isStorefrontRequest, $resolved->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value));
+            static::assertSame($expectedRequest->locale, $resolved->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value));
+            static::assertSame($expectedRequest->currency, $resolved->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value));
+            static::assertSame($expectedSnippetSetId, $resolved->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value));
             static::assertSame($expectedRequest->baseUrl, $resolved->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL), $expectedRequest->url);
             static::assertSame($expectedRequest->resolvedUrl, $resolved->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI));
             static::assertSame($expectedLanguageId, $resolved->headers->get(PlatformRequest::HEADER_LANGUAGE_ID));
@@ -296,7 +296,7 @@ class RequestTransformerTest extends TestCase
 
         $resolved = $this->requestTransformer->transform($request);
 
-        static::assertSame('http://base.test' . $resolvedUrl, $resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK));
+        static::assertSame('http://base.test' . $resolvedUrl, $resolved->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value));
     }
 
     /**

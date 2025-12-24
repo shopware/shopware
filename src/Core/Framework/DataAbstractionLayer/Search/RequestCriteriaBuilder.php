@@ -37,6 +37,24 @@ class RequestCriteriaBuilder
      */
     public const STATE_NO_EXPLICIT_LIMIT_IN_REQUEST = 'no-explicit-limit-in-request';
 
+    final public const KNOWN_FIELDS = [
+        'ids',
+        'total-count-mode',
+        'limit',
+        'page',
+        'includes',
+        'excludes',
+        'filter',
+        'grouping',
+        'post-filter',
+        'query',
+        'term',
+        'sort',
+        'aggregations',
+        'associations',
+        'fields',
+    ];
+
     private const TOTAL_COUNT_MODE_MAPPING = [
         'none' => Criteria::TOTAL_COUNT_MODE_NONE,
         'exact' => Criteria::TOTAL_COUNT_MODE_EXACT,

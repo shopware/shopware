@@ -9,6 +9,9 @@
   together with other HTTP caching improvements.
 - Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
 
+### Send email on customer password change
+A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.
+
 ## API
 
 ### Video cover management `/api/_action/media/{mediaId}/video-cover`
@@ -45,8 +48,10 @@ HTTP caching support was added for the following Store API endpoints:
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Store API: compressed criteria parameter support
-Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. Please check
-the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows 
+sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported. 
+Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
+Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
 ### Document download `/store-api/document/download/`
 The endpoint now selects the document file type based on the `Accept` header.
@@ -123,6 +128,16 @@ Next changes were made to `ResponseCacheConfiguration` methods:
 Admins can override policies per script using `route_policies` with `route#hook` pattern in configuration (see HTTP caching policies description in the Core section).
 
 ## Hosting & Configuration
+
+### Control language analyzer usage in Elasticsearch search queries
+
+A new environment variable `SHOPWARE_ES_USE_LANGUAGE_ANALYZER` has been added to control whether language-specific analyzers (like `sw_english_analyzer`, `sw_german_analyzer`) are used for search queries.
+
+By default (`SHOPWARE_ES_USE_LANGUAGE_ANALYZER=1`), search queries use the same analyzer as the indexed field, which includes language-specific features like stopword filtering and stemming. This provides broader, more fuzzy search results.
+
+When set to `0` (`SHOPWARE_ES_USE_LANGUAGE_ANALYZER=0`), search queries use `sw_whitespace_analyzer` instead, providing less fuzzy search results with fewer matches.
+
+**Note:** This setting only affects search queries, not indexing. Indexed data continues to use language analyzers for proper tokenization.
 
 ### Possibility to disable extensions when setting up staging mode
 

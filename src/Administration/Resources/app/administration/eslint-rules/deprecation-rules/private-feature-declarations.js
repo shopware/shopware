@@ -5,13 +5,24 @@
 /* eslint-disable max-len */
 
 const nodeContainsLeadingBlockComment = (node) => {
-    const leadingComment = node?.parent?.comments?.find(c => c.range[1] === (node.range[0] - 1));
+    const comments = findComments(node);
+
+    const leadingComment = comments?.find(c => c.loc.end.line === (node.loc.start.line - 1));
+
     if (!leadingComment) {
         return false;
     }
 
     return leadingComment.type === 'Block' && (leadingComment.value.includes('@private') || leadingComment.value.includes('@deprecated tag:'));
 };
+
+function findComments(node) {
+    while (node.comments === undefined && node.parent) {
+        node = node.parent;
+    }
+
+    return node.comments;
+}
 
 /**
  * This rule validates that new features are either private or deprecated to be private in the future.

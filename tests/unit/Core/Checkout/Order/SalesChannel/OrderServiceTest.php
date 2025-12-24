@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Validation;
 
@@ -45,10 +46,11 @@ class OrderServiceTest extends TestCase
         $this->cartService = $this->createMock(CartService::class);
         $this->paymentMethodRepository = $this->createMock(EntityRepository::class);
         $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
 
         $this->orderService = new OrderService(
             new DataValidator(Validation::createValidatorBuilder()->getValidator()),
-            new OrderValidationFactory(),
+            new OrderValidationFactory($systemConfigService),
             $eventDispatcher,
             $this->cartService,
             $this->paymentMethodRepository,

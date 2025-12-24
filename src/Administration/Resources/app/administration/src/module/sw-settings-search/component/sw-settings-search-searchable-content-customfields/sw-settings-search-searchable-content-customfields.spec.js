@@ -282,33 +282,33 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         expect(wrapper.emitted('config-save')).toBeTruthy();
     });
 
-    it('should filter custom fields by searchable = true in customFieldCriteria', async () => {
+    it('should filter custom fields by includeInSearch = true in customFieldCriteria', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         const criteria = wrapper.vm.customFieldCriteria;
 
         const filters = criteria.filters || [];
-        const searchableFilter = filters.find((filter) => {
-            return filter.type === 'equals' && filter.field === 'searchable' && filter.value === true;
+        const includeInSearchFilter = filters.find((filter) => {
+            return filter.type === 'equals' && filter.field === 'includeInSearch' && filter.value === true;
         });
 
-        expect(searchableFilter).toBeDefined();
-        expect(searchableFilter.value).toBe(true);
+        expect(includeInSearchFilter).toBeDefined();
+        expect(includeInSearchFilter.value).toBe(true);
     });
 
-    it('should filter custom fields by searchable = true in customFieldFilteredCriteria', async () => {
+    it('should filter custom fields by includeInSearch = true in customFieldFilteredCriteria', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         const criteria = wrapper.vm.customFieldFilteredCriteria;
 
         const filters = criteria.filters || [];
-        const searchableFilter = filters.find((filter) => {
-            return filter.type === 'equals' && filter.field === 'searchable' && filter.value === true;
+        const includeInSearchFilter = filters.find((filter) => {
+            return filter.type === 'equals' && filter.field === 'includeInSearch' && filter.value === true;
         });
 
-        expect(searchableFilter).toBeDefined();
-        expect(searchableFilter.value).toBe(true);
+        expect(includeInSearchFilter).toBeDefined();
+        expect(includeInSearchFilter.value).toBe(true);
     });
 });

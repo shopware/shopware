@@ -237,7 +237,7 @@ class CustomFieldUpdaterTest extends TestCase
         );
 
         $writeResults = [
-            new EntityWriteResult($customFieldId, ['name' => 'test', 'type' => 'text', 'searchable' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($customFieldId, ['name' => 'test', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
         ];
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
@@ -547,8 +547,8 @@ class CustomFieldUpdaterTest extends TestCase
         );
 
         $writeResults = [
-            new EntityWriteResult($customFieldId1, ['name' => 'field1', 'type' => 'text', 'searchable' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
-            new EntityWriteResult($customFieldId2, ['name' => 'field2', 'type' => 'text', 'searchable' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($customFieldId1, ['name' => 'field1', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($customFieldId2, ['name' => 'field2', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
         ];
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
@@ -600,7 +600,7 @@ class CustomFieldUpdaterTest extends TestCase
         );
 
         $writeResults = [
-            new EntityWriteResult($customFieldId, ['name' => 'nonSearchableField', 'type' => 'text', 'searchable' => false], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($customFieldId, ['name' => 'nonSearchableField', 'type' => 'text', 'includeInSearch' => false], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
         ];
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
@@ -721,7 +721,7 @@ class CustomFieldUpdaterTest extends TestCase
         );
 
         $writeResults = [
-            new EntityWriteResult($customFieldId, ['name' => 'searchableField', 'type' => 'text', 'searchable' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($customFieldId, ['name' => 'searchableField', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
         ];
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
@@ -774,7 +774,7 @@ class CustomFieldUpdaterTest extends TestCase
         );
 
         $writeResults = [
-            new EntityWriteResult($customFieldId, ['name' => 'nonSearchableField', 'type' => 'text', 'searchable' => false], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
+            new EntityWriteResult($customFieldId, ['name' => 'nonSearchableField', 'type' => 'text', 'includeInSearch' => false], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
         ];
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
@@ -923,7 +923,7 @@ class CustomFieldUpdaterTest extends TestCase
         );
 
         $writeResults = [
-            new EntityWriteResult($customFieldId, ['name' => 'searchableField', 'type' => 'text', 'searchable' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
+            new EntityWriteResult($customFieldId, ['name' => 'searchableField', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
         ];
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());

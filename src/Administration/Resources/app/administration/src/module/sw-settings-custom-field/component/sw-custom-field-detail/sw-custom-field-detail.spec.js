@@ -242,18 +242,18 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         expect(wrapper.find('.sw-custom-field-detail__technical-name .mt-field__error').text()).toBe('test');
     });
 
-    it('should set searchable to false by default for new custom fields', async () => {
+    it('should set includeInSearch to false by default for new custom fields', async () => {
         const wrapper = await createWrapper(defaultProps, ['custom_field.editor']);
         await flushPromises();
 
-        expect(wrapper.vm.currentCustomField.searchable).toBe(false);
+        expect(wrapper.vm.currentCustomField.includeInSearch).toBe(false);
     });
 
-    it('should preserve searchable value for existing custom fields', async () => {
+    it('should preserve includeInSearch value for existing custom fields', async () => {
         const existingField = {
             ...customFieldFixture,
             _isNew: false,
-            searchable: true,
+            includeInSearch: true,
         };
 
         const wrapper = await createWrapper(
@@ -265,7 +265,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         );
         await flushPromises();
 
-        expect(wrapper.vm.currentCustomField.searchable).toBe(true);
+        expect(wrapper.vm.currentCustomField.includeInSearch).toBe(true);
     });
 
     it('should show searchable toggle', async () => {

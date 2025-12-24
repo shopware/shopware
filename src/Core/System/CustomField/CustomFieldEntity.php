@@ -36,7 +36,7 @@ class CustomFieldEntity extends Entity
 
     protected bool $storeApiAware = true;
 
-    protected bool $searchable = false;
+    protected bool $includeInSearch = false;
 
     public function getName(): string
     {
@@ -144,13 +144,13 @@ class CustomFieldEntity extends Entity
         $this->storeApiAware = $storeApiAware;
     }
 
-    public function isSearchable(): bool
+    public function isIncludeInSearch(): bool
     {
-        return $this->searchable;
+        return $this->includeInSearch;
     }
 
-    public function setSearchable(bool $searchable): void
+    public function setIncludeInSearch(bool $includeInSearch): void
     {
-        $this->searchable = $searchable;
+        $this->includeInSearch = $includeInSearch;
     }
 }

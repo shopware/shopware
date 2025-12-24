@@ -220,7 +220,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
 
                 $payload = $writeResult->getPayload();
 
-                return \array_key_exists('searchable', $payload) && (bool) $payload['searchable'];
+                return \array_key_exists('includeInSearch', $payload) && (bool) $payload['includeInSearch'];
             },
             \ARRAY_FILTER_USE_BOTH
         );
@@ -241,7 +241,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
     ): void {
         $customFieldIds = $containerEvent->getPrimaryKeysWithPropertyChange(
             CustomFieldDefinition::ENTITY_NAME,
-            ['searchable']
+            ['includeInSearch']
         );
 
         if (empty($customFieldIds)) {
@@ -263,7 +263,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
             }
 
             $payload = $writeResult->getPayload();
-            if (!\array_key_exists('searchable', $payload) || !(bool) $payload['searchable']) {
+            if (!\array_key_exists('includeInSearch', $payload) || !(bool) $payload['includeInSearch']) {
                 continue;
             }
 

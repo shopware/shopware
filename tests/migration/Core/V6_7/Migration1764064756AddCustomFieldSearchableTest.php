@@ -26,7 +26,7 @@ class Migration1764064756AddCustomFieldSearchableTest extends TestCase
         $this->migration = new Migration1764064756AddCustomFieldSearchable();
 
         try {
-            $this->connection->executeStatement('ALTER TABLE `custom_field` DROP COLUMN `searchable`;');
+            $this->connection->executeStatement('ALTER TABLE `custom_field` DROP COLUMN `include_in_search`;');
         } catch (\Throwable) {
         }
     }
@@ -39,15 +39,15 @@ class Migration1764064756AddCustomFieldSearchableTest extends TestCase
     public function testAddColumn(): void
     {
         $columns = $this->getTableColumns('custom_field');
-        static::assertArrayNotHasKey('searchable', $columns);
+        static::assertArrayNotHasKey('include_in_search', $columns);
 
         $this->migration->update($this->connection);
         $this->migration->update($this->connection);
 
         $columns = $this->getTableColumns('custom_field');
-        static::assertArrayHasKey('searchable', $columns);
-        static::assertFalse($columns['searchable']['nullable']);
-        static::assertSame('0', $columns['searchable']['default']);
+        static::assertArrayHasKey('include_in_search', $columns);
+        static::assertFalse($columns['include_in_search']['nullable']);
+        static::assertSame('0', $columns['include_in_search']['default']);
     }
 
     /**

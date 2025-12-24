@@ -131,8 +131,8 @@ export default {
                 this.currentCustomField.config.customFieldPosition = 1;
             }
 
-            if (!this.currentCustomField.searchable) {
-                this.currentCustomField.searchable = false;
+            if (!this.currentCustomField.includeInSearch) {
+                this.currentCustomField.includeInSearch = false;
             }
 
             if (!this.currentCustomField.allowCartExpose) {

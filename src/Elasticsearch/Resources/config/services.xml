@@ -258,6 +258,7 @@
             <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" />
             <argument>%elasticsearch.analysis.filter.sw_ngram_filter.min_gram%</argument>
+            <argument>%elasticsearch.use_language_analyzer%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">

@@ -607,6 +607,87 @@ jobs:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: php .github/bin/blue-green-check.php
 
+  blue-green-minor-previous-current-previous:
+    name: "PHP blue green previous -> current -> previous"
+    runs-on: ubuntu-24.04
+    env:
+      APP_ENV: test
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      OPENSEARCH_URL: 127.0.0.1:9200
+      ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
+      BLUE_GREEN_DEPLOYMENT: 1
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+    services:
+      elasticsearch:
+        image: "opensearchproject/opensearch:3"
+        env:
+          discovery.type: single-node
+          plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
+        ports:
+          - "9200:9200"
+
+    steps:
+      - name: Get shopware versions
+        uses: shopware/github-actions/versions@feat/output-previous-minor
+        id: versions
+
+      - name: Setup previous minor version
+        uses: shopware/setup-shopware@main
+        with:
+          install: "false"
+          shopware-version: ${{ steps.versions.outputs.previous-minor }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Start Webserver
+        run: symfony server:start -d
+
+      - name: Install Shopware in previous minor version on test DB
+        run: composer init:testdb
+
+      - name: Checkout current minor version
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Update to current minor version
+        env:
+          COMPOSER_ROOT_VERSION: "6.7.9999999-dev"
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: |
+          rm -rf vendor-bin
+          rm -rf vendor
+          composer update -o
+          bin/console system:update:finish
+
+      - name: Checkout previous minor version again
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
+        with:
+          ref: ${{ steps.versions.outputs.previous-minor }}
+
+      - name: Setup Composer in previous minor version again
+        run: |
+          rm -rf vendor-bin
+          composer update -o
+
+      - name: Refresh theme in previous minor version
+        if: inputs.nightly == 'true'
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: bin/console theme:refresh
+
+      - name: Run integration tests in previous minor version
+        if: inputs.nightly == 'true'
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+
+      - name: Run blue-green check
+        if: inputs.nightly != 'true'
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: php .github/bin/blue-green-check.php
+
   update-66-67:
     name: "PHP update 6.6 -> 6.7"
     runs-on: ubuntu-24.04

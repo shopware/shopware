@@ -480,7 +480,10 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata['active'] = false;
         // when the app was installed before and we have the old secret stored, we set it here
         // so the registration is signed correctly with the old secret
-        $metadata['appSecret'] = $this->deletedAppsGateway->getDeletedAppSecret($appName);
+        $oldSecret = $this->deletedAppsGateway->getDeletedAppSecret($appName);
+        if ($oldSecret !== null) {
+            $metadata['appSecret'] = $oldSecret;
+        }
 
         return $metadata;
     }

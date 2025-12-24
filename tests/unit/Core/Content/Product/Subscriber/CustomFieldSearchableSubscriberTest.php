@@ -45,7 +45,7 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 
         $writeResult = new EntityWriteResult(
             $customFieldId,
-            ['name' => 'test_field', 'type' => 'text', 'searchable' => false],
+            ['name' => 'test_field', 'type' => 'text', 'includeInSearch' => false],
             CustomFieldDefinition::ENTITY_NAME,
             EntityWriteResult::OPERATION_UPDATE
         );
@@ -87,7 +87,7 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 
         $writeResult = new EntityWriteResult(
             $customFieldId,
-            ['name' => 'test_field', 'type' => 'text', 'searchable' => true],
+            ['name' => 'test_field', 'type' => 'text', 'includeInSearch' => true],
             CustomFieldDefinition::ENTITY_NAME,
             EntityWriteResult::OPERATION_UPDATE
         );
@@ -109,14 +109,14 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 
         $writeResult1 = new EntityWriteResult(
             $customFieldId1,
-            ['name' => 'test_field_1', 'type' => 'text', 'searchable' => false],
+            ['name' => 'test_field_1', 'type' => 'text', 'includeInSearch' => false],
             CustomFieldDefinition::ENTITY_NAME,
             EntityWriteResult::OPERATION_UPDATE
         );
 
         $writeResult2 = new EntityWriteResult(
             $customFieldId2,
-            ['name' => 'test_field_2', 'type' => 'text', 'searchable' => false],
+            ['name' => 'test_field_2', 'type' => 'text', 'includeInSearch' => false],
             CustomFieldDefinition::ENTITY_NAME,
             EntityWriteResult::OPERATION_UPDATE
         );

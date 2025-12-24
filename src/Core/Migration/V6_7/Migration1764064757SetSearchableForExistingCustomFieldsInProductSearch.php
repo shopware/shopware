@@ -32,7 +32,7 @@ class Migration1764064757SetSearchableForExistingCustomFieldsInProductSearch ext
         }
 
         $connection->executeStatement(
-            'UPDATE custom_field SET searchable = 1 WHERE id IN (:ids)',
+            'UPDATE custom_field SET include_in_search = 1 WHERE id IN (:ids)',
             ['ids' => $customFieldIds],
             ['ids' => ArrayParameterType::BINARY]
         );

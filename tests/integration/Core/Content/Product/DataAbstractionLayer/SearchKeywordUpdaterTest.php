@@ -425,8 +425,8 @@ class SearchKeywordUpdaterTest extends TestCase
 
         $customFieldId = Uuid::randomHex();
         $this->connection->executeStatement(
-            'INSERT INTO custom_field (id, name, type, config, active, set_id, created_at, searchable)
-            VALUES (:id, :name, :type, :config, :active, :setId, NOW(), :searchable)',
+            'INSERT INTO custom_field (id, name, type, config, active, set_id, created_at, include_in_search)
+            VALUES (:id, :name, :type, :config, :active, :setId, NOW(), :includeInSearch)',
             [
                 'id' => Uuid::fromHexToBytes($customFieldId),
                 'name' => $fieldName,
@@ -434,7 +434,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 'config' => json_encode([]),
                 'active' => $active ? 1 : 0,
                 'setId' => Uuid::fromHexToBytes($customFieldSetId),
-                'searchable' => $searchable ? 1 : 0,
+                'includeInSearch' => $searchable ? 1 : 0,
             ]
         );
 

@@ -28,7 +28,7 @@ class Migration1764064757SetSearchableForExistingCustomFieldsInProductSearchTest
         $this->migration = new Migration1764064757SetSearchableForExistingCustomFieldsInProductSearch();
 
         try {
-            $this->connection->executeStatement('ALTER TABLE `custom_field` ADD COLUMN `searchable` TINYINT(1) NOT NULL DEFAULT 0;');
+            $this->connection->executeStatement('ALTER TABLE `custom_field` ADD COLUMN `include_in_search` TINYINT(1) NOT NULL DEFAULT 0;');
         } catch (\Throwable) {
             // Column already exists, ignore
         }
@@ -69,7 +69,7 @@ class Migration1764064757SetSearchableForExistingCustomFieldsInProductSearchTest
             'config' => '{}',
             'active' => 1,
             'set_id' => $customFieldSetId,
-            'searchable' => 0,
+            'include_in_search' => 0,
             'created_at' => $now,
         ]);
 
@@ -81,7 +81,7 @@ class Migration1764064757SetSearchableForExistingCustomFieldsInProductSearchTest
             'config' => '{}',
             'active' => 1,
             'set_id' => $customFieldSetId,
-            'searchable' => 0,
+            'include_in_search' => 0,
             'created_at' => $now,
         ]);
 
@@ -93,7 +93,7 @@ class Migration1764064757SetSearchableForExistingCustomFieldsInProductSearchTest
             'config' => '{}',
             'active' => 1,
             'set_id' => $customFieldSetId,
-            'searchable' => 0,
+            'include_in_search' => 0,
             'created_at' => $now,
         ]);
 
@@ -145,44 +145,44 @@ class Migration1764064757SetSearchableForExistingCustomFieldsInProductSearchTest
             'created_at' => $now,
         ]);
 
-        // Verify custom fields have searchable = 0 before migration
-        $searchable1 = $this->connection->fetchOne(
-            'SELECT `searchable` FROM `custom_field` WHERE `id` = :id',
+        // Verify custom fields have include_in_search = 0 before migration
+        $includeInSearch1 = $this->connection->fetchOne(
+            'SELECT `include_in_search` FROM `custom_field` WHERE `id` = :id',
             ['id' => $customFieldId1]
         );
-        $searchable2 = $this->connection->fetchOne(
-            'SELECT `searchable` FROM `custom_field` WHERE `id` = :id',
+        $includeInSearch2 = $this->connection->fetchOne(
+            'SELECT `include_in_search` FROM `custom_field` WHERE `id` = :id',
             ['id' => $customFieldId2]
         );
-        $searchable3 = $this->connection->fetchOne(
-            'SELECT `searchable` FROM `custom_field` WHERE `id` = :id',
+        $includeInSearch3 = $this->connection->fetchOne(
+            'SELECT `include_in_search` FROM `custom_field` WHERE `id` = :id',
             ['id' => $customFieldId3]
         );
 
-        static::assertSame('0', $searchable1);
-        static::assertSame('0', $searchable2);
-        static::assertSame('0', $searchable3);
+        static::assertSame('0', $includeInSearch1);
+        static::assertSame('0', $includeInSearch2);
+        static::assertSame('0', $includeInSearch3);
 
         $this->migration->update($this->connection);
         $this->migration->update($this->connection);
 
-        $searchable1 = $this->connection->fetchOne(
-            'SELECT `searchable` FROM `custom_field` WHERE `id` = :id',
+        $includeInSearch1 = $this->connection->fetchOne(
+            'SELECT `include_in_search` FROM `custom_field` WHERE `id` = :id',
             ['id' => $customFieldId1]
         );
-        $searchable2 = $this->connection->fetchOne(
-            'SELECT `searchable` FROM `custom_field` WHERE `id` = :id',
+        $includeInSearch2 = $this->connection->fetchOne(
+            'SELECT `include_in_search` FROM `custom_field` WHERE `id` = :id',
             ['id' => $customFieldId2]
         );
 
-        static::assertSame('1', $searchable1, 'Custom field 1 should be searchable');
-        static::assertSame('1', $searchable2, 'Custom field 2 should be searchable');
+        static::assertSame('1', $includeInSearch1, 'Custom field 1 should be included in search');
+        static::assertSame('1', $includeInSearch2, 'Custom field 2 should be included in search');
 
-        $searchable3 = $this->connection->fetchOne(
-            'SELECT `searchable` FROM `custom_field` WHERE `id` = :id',
+        $includeInSearch3 = $this->connection->fetchOne(
+            'SELECT `include_in_search` FROM `custom_field` WHERE `id` = :id',
             ['id' => $customFieldId3]
         );
 
-        static::assertSame('0', $searchable3, 'Custom field 3 should not be searchable');
+        static::assertSame('0', $includeInSearch3, 'Custom field 3 should not be included in search');
     }
 }

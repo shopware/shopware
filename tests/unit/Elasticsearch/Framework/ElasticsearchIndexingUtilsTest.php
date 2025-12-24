@@ -66,7 +66,7 @@ class ElasticsearchIndexingUtilsTest extends TestCase
             ->method('fetchAllKeyValue')
             ->with(
                 static::callback(function (string $sql): bool {
-                    return str_contains($sql, 'custom_field.searchable = 1')
+                    return str_contains($sql, 'custom_field.include_in_search = 1')
                         && str_contains($sql, 'custom_field.active = 1');
                 }),
                 static::anything()

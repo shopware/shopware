@@ -83,7 +83,7 @@
         {% block sw_custom_field_detail_modal_allow_searchable %}
         <mt-switch
             v-if="isProductCustomField"
-            v-model="currentCustomField.searchable"
+            v-model="currentCustomField.includeInSearch"
             bordered
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowSearchable')"
             class="sw-custom-field-detail__allow-searchable"

@@ -22,7 +22,7 @@ class Migration1764064756AddCustomFieldSearchable extends MigrationStep
         $this->addColumn(
             connection: $connection,
             table: 'custom_field',
-            column: 'searchable',
+            column: 'include_in_search',
             type: 'TINYINT(1)',
             nullable: false,
             default: '0',

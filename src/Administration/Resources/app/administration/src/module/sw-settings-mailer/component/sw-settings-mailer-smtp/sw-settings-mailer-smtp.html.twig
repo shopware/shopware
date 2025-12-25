@@ -16,7 +16,7 @@
     <mt-number-field
         v-model="mailerSettings['core.mailerSettings.port']"
         number-type="int"
-        step="1"
+        :step="1"
         :max="65536"
         :label="$tc('sw-settings-mailer.card-smtp.port')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.port-placeholder')"

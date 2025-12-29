@@ -13,16 +13,4 @@
         text-decoration: none;
         color: inherit;
     }
-
-    .sw-flow-list-my-templates {
-        .sw-flow-list-my_templates__empty-state {
-            min-height: 550px;
-        }
-    }
-
-    .sw-data-grid__cell.sw-data-grid__cell--createFlow.sw-data-grid__cell--align-right {
-        .sw-internal-link {
-            color: $color-shopware-brand-500;
-        }
-    }
 }

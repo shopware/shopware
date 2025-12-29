@@ -1,12 +1,13 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 test('As a customer, I must be able to change my email via account.', { tag: ['@Account', '@Storefront'] }, async ({
-    ShopCustomer,
-    StorefrontAccountLogin,
-    StorefrontAccount,
     IdProvider,
-    Register,
+    ShopCustomer,
+    StorefrontAccount,
+    StorefrontAccountLogin,
     StorefrontAccountProfile,
+    Register,
 }) => {
 
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' , password: IdProvider.getIdPair().uuid };
@@ -64,17 +65,19 @@ test('As a customer, I must be able to change my email via account.', { tag: ['@
         await ShopCustomer.fillsIn(StorefrontAccountLogin.emailInput, newEmail);
         await ShopCustomer.fillsIn(StorefrontAccountLogin.passwordInput, customer.password);
         await ShopCustomer.presses(StorefrontAccountLogin.loginButton);
+        await StorefrontAccount.page.waitForURL('**/account', { waitUntil: 'commit' });
         await ShopCustomer.expects(StorefrontAccount.personalDataCardTitle).toBeVisible();
     });
 });
 
 test('As a customer, I must be able to change my password via account.', { tag: ['@Account', '@Storefront'] }, async ({
-    ShopCustomer,
-    StorefrontAccountLogin,
-    StorefrontAccount,
     IdProvider,
-    Register,
+    InstanceMeta,
+    ShopCustomer,
+    StorefrontAccount,
+    StorefrontAccountLogin,
     StorefrontAccountProfile,
+    Register,
 }) => {
 
     const customer = { email: IdProvider.getIdPair().uuid + '@test.com' , password: IdProvider.getIdPair().uuid };
@@ -95,6 +98,15 @@ test('As a customer, I must be able to change my password via account.', { tag: 
         await ShopCustomer.fillsIn(StorefrontAccountProfile.newPasswordConfirmInput, invalidPassword.password);
         await ShopCustomer.fillsIn(StorefrontAccountProfile.currentPasswordInput, customer.password);
         await ShopCustomer.presses(StorefrontAccountProfile.saveNewPasswordButton);
+        
+        // eslint-disable-next-line playwright/no-conditional-in-test
+        if (satisfies(InstanceMeta.version, '<6.7') && !InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+            await StorefrontAccountProfile.saveNewPasswordButton.click();
+        }   
+        else {
+            await ShopCustomer.presses(StorefrontAccountProfile.saveNewPasswordButton);
+        }
+
         await ShopCustomer.expects(StorefrontAccountProfile.passwordUpdateFailureAlert).toBeVisible();
     });
 
@@ -122,6 +134,7 @@ test('As a customer, I must be able to change my password via account.', { tag: 
         await ShopCustomer.fillsIn(StorefrontAccountLogin.emailInput, customer.email);
         await ShopCustomer.fillsIn(StorefrontAccountLogin.passwordInput, newPassword);
         await ShopCustomer.presses(StorefrontAccountLogin.loginButton);
+        await StorefrontAccount.page.waitForURL('**/account', { waitUntil: 'commit' });
         await ShopCustomer.expects(StorefrontAccount.personalDataCardTitle).toBeVisible();
     });
 });

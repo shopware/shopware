@@ -7,11 +7,19 @@
         window.__sw__ = {
             assetPath: '{{ asset('', 'asset') }}',
         };
+
+        {{ sw_include('shared/page-loading-screen/page-loading-screen.js') }}
     </script>
+
+    <style>
+        {{ sw_include('shared/page-loading-screen/page-loading-screen.css') }}
+    </style>
 {% endblock %}
 
 {% block administration_content %}
     <div id="app"></div>
+
+    {{ sw_include('shared/page-loading-screen/page-loading-screen.html') }}
 
     {% block administration_templates %}{% endblock %}
 

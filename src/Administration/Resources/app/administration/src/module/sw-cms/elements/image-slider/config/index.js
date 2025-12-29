@@ -170,7 +170,13 @@ export default {
             }
         },
 
-        onImageUpload(mediaItem) {
+        async onImageUpload(mediaItem) {
+            const resolvedMediaItem = await this.getMediaItem(mediaItem);
+
+            if (!resolvedMediaItem) {
+                return;
+            }
+
             const sliderItems = this.element.config.sliderItems;
             if (sliderItems.source === 'default') {
                 sliderItems.value = [];
@@ -179,32 +185,40 @@ export default {
 
             // Check if mediaItem already exists in mediaItems
             const mediaItemExists = this.mediaItems.find((item) => {
-                return item.id === mediaItem.id;
+                return item.id === resolvedMediaItem.id;
             });
 
             // Remove previous mediaItem if it already exists
             if (mediaItemExists) {
                 this.mediaItems = this.mediaItems.filter((item) => {
-                    return item.id !== mediaItem.id;
+                    return item.id !== resolvedMediaItem.id;
                 });
 
                 sliderItems.value = sliderItems.value.filter((item) => {
-                    return item.mediaId !== mediaItem.id;
+                    return item.mediaId !== resolvedMediaItem.id;
                 });
             }
 
             sliderItems.value.push({
-                mediaUrl: mediaItem.url,
-                mediaId: mediaItem.id,
+                mediaUrl: resolvedMediaItem.url,
+                mediaId: resolvedMediaItem.id,
                 ariaLabel: null,
                 url: null,
                 newTab: false,
             });
 
-            this.mediaItems.push(mediaItem);
+            this.mediaItems.push(resolvedMediaItem);
 
             this.updateMediaDataValue();
             this.emitUpdateEl();
+        },
+
+        async getMediaItem(mediaItem) {
+            if (!mediaItem?.targetId) {
+                return mediaItem;
+            }
+
+            return this.mediaRepository.get(mediaItem.targetId);
         },
 
         onItemRemove(mediaItem, index) {

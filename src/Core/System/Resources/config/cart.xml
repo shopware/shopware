@@ -55,6 +55,12 @@
         <title lang="de-DE">Bestellabschluss</title>
 
         <input-field type="bool">
+            <name>showTosCheckbox</name>
+            <label>Customers are required to agree to the terms and conditions</label>
+            <label lang="de-DE">Eine Zustimmung der AGB durch den Kunden ist erforderlich</label>
+        </input-field>
+
+        <input-field type="bool">
             <name>showCustomerComment</name>
             <label>Show comment field on checkout confirm page</label>
             <label lang="de-DE">Kommentarfeld auf der Bestellabschlussseite anzeigen</label>

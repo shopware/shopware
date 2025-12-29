@@ -55,17 +55,6 @@ export default {
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed together with searchTerm prop.
-         */
-        currentSearchTerm() {
-            if (this.searchTerm) {
-                return this.searchTerm;
-            }
-
-            return this.term;
-        },
     },
 
     watch: {
@@ -90,7 +79,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - `currentSearchTerm` will be replaced with `this.term`.
+         * @deprecated tag:v6.8.0 - `searchTerm` variable will be replaced with `this.term`.
          */
         getList() {
             this.isLoading = true;
@@ -98,8 +87,9 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('salesChannels').addSorting(Criteria.sort('name'));
 
-            if (this.currentSearchTerm) {
-                criteria.setTerm(this.currentSearchTerm);
+            const searchTerm = this.feature.isActive('V6_8_0_0') ? this.term : this.searchTerm;
+            if (searchTerm) {
+                criteria.setTerm(searchTerm);
             }
 
             this.mailHeaderFooterRepository.search(criteria).then((items) => {

@@ -373,7 +373,7 @@ The mail template index will be split into separate tabs for templates and heade
 
 The following deprecations apply to `sw-mail-template-list` and `sw-mail-header-footer-list`:
 * `searchTerm` prop and watcher will be removed in v6.8.0.0
-* `currentSearchTerm` computed will be removed in v6.8.0.0
+* `getList()` method: `searchTerm` variable will be replaced with `this.term` in v6.8.0.0
 * `@page-change` handler will change to `onPageChange` in v6.8.0.0
 
 The following deprecations apply to `sw-mail-template-index`:

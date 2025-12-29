@@ -552,7 +552,7 @@ The mail template index page now uses separate tabs for templates and headers/fo
 
 Changes in `sw-mail-template-list` and `sw-mail-header-footer-list`:
 * `searchTerm` prop and watcher were removed
-* `currentSearchTerm` computed was removed
+* `getList()` method: `searchTerm` variable was replaced with `this.term`
 * `@page-change` handler now uses `onPageChange` directly
 
 Changes in `sw-mail-template-index`:

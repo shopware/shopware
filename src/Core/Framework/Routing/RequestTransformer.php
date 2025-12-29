@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader;

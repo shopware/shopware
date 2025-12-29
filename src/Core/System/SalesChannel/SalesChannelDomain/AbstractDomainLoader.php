@@ -7,7 +7,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @phpstan-type Domain = array{url: string, id: string, salesChannelId: string, typeId: string, snippetSetId: string, currencyId: string, languageId: string, themeId: string, maintenance: string, maintenanceIpWhitelist: string, locale: string, themeName: string, parentThemeName: string}
+ * @phpstan-type Domain = array{url: string, id: string, salesChannelId: string, typeId: string, snippetSetId: string, currencyId: string, languageId: string, themeId?: string, maintenance: string, maintenanceIpWhitelist: string, locale: string, themeName?: string, parentThemeName?: string}
  */
 #[Package('framework')]
 abstract class AbstractDomainLoader

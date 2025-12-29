@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader;
@@ -25,7 +26,7 @@ class RequestTransformer implements RequestTransformerInterface
             return $request;
         }
 
-        if (!$this->isStoreApiRequest($request->getPathInfo())) {
+        if (!$this->isStoreApiRequest($request)) {
             return $request;
         }
 
@@ -69,14 +70,18 @@ class RequestTransformer implements RequestTransformerInterface
         return [];
     }
 
-    private function isStoreApiRequest(string $pathInfo): bool
+    private function isStoreApiRequest(Request $request): bool
     {
-        $pathInfo = '/' . trim($pathInfo, '/') . '/';
-
-        if (str_contains($pathInfo, '/' . StoreApiRouteScope::ID . '/')) {
+        // Check route scope first (if routing already happened)
+        /** @var list<string> $scope */
+        $scope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+        if (\in_array(StoreApiRouteScope::ID, $scope, true)) {
             return true;
         }
 
-        return false;
+        // Fall back to path-based check (before routing)
+        $pathInfo = '/' . trim($request->getPathInfo(), '/') . '/';
+
+        return str_contains($pathInfo, '/' . StoreApiRouteScope::ID . '/');
     }
 }

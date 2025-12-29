@@ -241,7 +241,26 @@ Content-Type: application/json
 
 ### Move Storefront DomainLoader to core
 
-The service `Shopware\Storefront\Framework\Routing\DomainLoader` has been moved from the Storefront to the Core namespace `Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader` to make it accessible for other parts of the system, the core `DomainLoader` will also dispatch a new event `\Shopware\Core\System\SalesChannel\SalesChannelDomain\SalesChannelDomainQueryEvent` so that the loaded domains can be modified.
+The service `Shopware\Storefront\Framework\Routing\DomainLoader` has been moved from the Storefront to the Core namespace `Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader` to make it accessible for other parts of the system. The core `DomainLoader` will also dispatch a new event `\Shopware\Core\System\SalesChannel\SalesChannelDomain\SalesChannelDomainQueryEvent` so that the loaded domains can be modified.
+
+**Deprecated classes (will be removed in v6.8.0):**
+- `Shopware\Storefront\Framework\Routing\AbstractDomainLoader` → Use `Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader`
+- `Shopware\Storefront\Framework\Routing\DomainLoader` → Use `Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader`
+
+**Migration:**
+If you extended or type-hinted against the Storefront classes, update your code to use the Core classes:
+
+```php
+// Before
+use Shopware\Storefront\Framework\Routing\AbstractDomainLoader;
+use Shopware\Storefront\Framework\Routing\DomainLoader;
+
+// After
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\AbstractDomainLoader;
+use Shopware\Core\System\SalesChannel\SalesChannelDomain\DomainLoader;
+```
+
+The Storefront classes now extend the Core classes, so existing code will continue to work during the deprecation period.
 
 ## Administration
 

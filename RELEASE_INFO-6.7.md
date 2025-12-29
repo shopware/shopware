@@ -12,7 +12,7 @@ database field already supported up to 2046 characters. This limitation has now 
 - Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
   and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
   together with other HTTP caching improvements.
-- Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
+- Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers and cache tagging for invalidation.
 
 ### Send email on customer password change
 A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.

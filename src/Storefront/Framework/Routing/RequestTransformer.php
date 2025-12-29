@@ -212,13 +212,9 @@ class RequestTransformer implements RequestTransformerInterface
             );
         }
 
+        $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
+        // add all headers from the original request, overrides the headers from the domain mapping if they are passed on the request directly
         $transformedRequest->headers->add($request->headers->all());
-
-        // store-api request can override the language id header but normal storefront requests not
-        if (!$isStoreApiRequest || !$transformedRequest->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
-            $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
-        }
-
         $transformedRequest->attributes->set(self::ORIGINAL_REQUEST_URI, $currentRequestUri);
 
         return $transformedRequest;

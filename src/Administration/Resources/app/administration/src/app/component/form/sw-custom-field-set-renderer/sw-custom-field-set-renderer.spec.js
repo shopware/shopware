@@ -92,6 +92,7 @@ async function createWrapper(props) {
                     'sw-media-modal-replace': true,
                     'sw-media-modal-delete': true,
                     'sw-media-modal-move': true,
+                    'sw-media-modal-v2': true,
                     'sw-context-button': true,
                     'sw-product-variant-info': true,
                     'sw-app-action-button': true,

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -305,6 +306,19 @@ class SearchKeywordUpdaterTest extends TestCase
         ];
     }
 
+    public function testGetConfigFieldsFiltersCustomFieldsBySearchable(): void
+    {
+        $customFieldName = 'searchable_field';
+        $this->createCustomFieldWithSearchConfig($customFieldName, active: true, searchable: true);
+
+        $configFields = $this->queryConfigFieldsDirectly();
+        $customFieldFields = array_filter($configFields, fn ($field) => str_starts_with($field['field'] ?? '', 'customFields.' . $customFieldName));
+        static::assertCount(1, $customFieldFields);
+
+        $includedField = reset($customFieldFields);
+        static::assertSame('customFields.' . $customFieldName, $includedField['field']);
+    }
+
     /**
      * @param string[] $expectedKeywords
      */
@@ -384,5 +398,79 @@ class SearchKeywordUpdaterTest extends TestCase
         static::assertIsString($firstId);
 
         return $firstId;
+    }
+
+    private function createCustomFieldWithSearchConfig(string $fieldName, bool $active = true, bool $searchable = true): string
+    {
+        $customFieldSetId = Uuid::randomHex();
+        $this->connection->executeStatement(
+            'INSERT INTO custom_field_set (id, name, config, active, created_at)
+            VALUES (:id, :name, :config, 1, NOW())',
+            [
+                'id' => Uuid::fromHexToBytes($customFieldSetId),
+                'name' => 'test_set',
+                'config' => json_encode([]),
+            ]
+        );
+
+        $this->connection->executeStatement(
+            'INSERT INTO custom_field_set_relation (id, set_id, entity_name, created_at)
+            VALUES (:id, :setId, :entityName, NOW())',
+            [
+                'id' => Uuid::randomBytes(),
+                'setId' => Uuid::fromHexToBytes($customFieldSetId),
+                'entityName' => 'product',
+            ]
+        );
+
+        $customFieldId = Uuid::randomHex();
+        $this->connection->executeStatement(
+            'INSERT INTO custom_field (id, name, type, config, active, set_id, created_at, include_in_search)
+            VALUES (:id, :name, :type, :config, :active, :setId, NOW(), :includeInSearch)',
+            [
+                'id' => Uuid::fromHexToBytes($customFieldId),
+                'name' => $fieldName,
+                'type' => 'text',
+                'config' => json_encode([]),
+                'active' => $active ? 1 : 0,
+                'setId' => Uuid::fromHexToBytes($customFieldSetId),
+                'includeInSearch' => $searchable ? 1 : 0,
+            ]
+        );
+
+        $searchConfigId = $this->connection->fetchOne(
+            'SELECT id FROM product_search_config WHERE language_id = :languageId',
+            ['languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+
+        $this->connection->executeStatement(
+            'INSERT INTO product_search_config_field (id, product_search_config_id, field, searchable, tokenize, ranking, custom_field_id, created_at)
+            VALUES (:id, :configId, :field, 1, 0, 1000, :customFieldId, NOW())',
+            [
+                'id' => Uuid::randomBytes(),
+                'configId' => $searchConfigId,
+                'field' => 'customFields.' . $fieldName,
+                'customFieldId' => Uuid::fromHexToBytes($customFieldId),
+            ]
+        );
+
+        return $customFieldId;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function queryConfigFieldsDirectly(): array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('configField.field', 'configField.tokenize', 'configField.ranking', 'LOWER(HEX(config.language_id)) as language_id');
+        $query->from('product_search_config', 'config');
+        $query->join('config', 'product_search_config_field', 'configField', 'config.id = configField.product_search_config_id');
+        $query->andWhere('config.language_id IN (:languageIds)');
+        $query->andWhere('configField.searchable = 1');
+
+        $query->setParameter('languageIds', Uuid::fromHexToBytesList([Defaults::LANGUAGE_SYSTEM]), ArrayParameterType::BINARY);
+
+        return $query->executeQuery()->fetchAllAssociative();
     }
 }

@@ -191,6 +191,13 @@ jobs:
           path: ./api-types/adminApiSchema.json
           retention-days: 1
 
+      - name: Run OpenAPI Snapshot Action for AdminAPI
+        if: github.repository == 'shopware/shopware'
+        uses: patzick/explore-openapi-snapshot@7ea174b327803e6d4b5cfe98c3044edf011a874b # v2.0.0
+        with:
+          schema-file: "./api-types/adminApiSchema.json"
+          project: "shopware/admin-api"
+
       - name: Lint OpenApi AdminAPI schema
         run: |
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
@@ -228,7 +235,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
-          php-version: 8.4
+          php-version: 8.2
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           keep-composer-tools: true
@@ -239,7 +246,7 @@ jobs:
       - name: Migration test suite setup
         if: ${{ matrix.suite == 'migration' }}
         run: |
-          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Core/Migration</directory>|' phpunit.xml.dist
+          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Administration/Migration</directory><directory suffix=".php">src/Core/Migration</directory><directory suffix=".php">src/ElasticSearch/Migration</directory><directory suffix=".php">src/Storefront/Migration</directory>|' phpunit.xml.dist
           echo "FEATURE_ALL=major" >> $GITHUB_ENV
 
       - name: Install Shopware

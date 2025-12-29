@@ -26,7 +26,7 @@ jobs:
         name:
           - "Platform"
         php-version:
-          - "8.4"
+          - "8.2"
         shard:
           - '1'
           - '2'
@@ -60,7 +60,7 @@ jobs:
           workers: 1
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
-          use-currents: ${{ inputs.nightly == 'true' && matrix.no-currents != 'true' || '' }}
+          use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
 
@@ -342,7 +342,7 @@ jobs:
           # Note: We expect to see vulnerabilities in the older versions we're using here.
           jq '.config.audit = { "block-insecure": false }' composer.json > composer.json.new
           mv composer.json.new composer.json
-          
+
           composer require shopware/core:${{ matrix.update.version }}
 
       - name: Install

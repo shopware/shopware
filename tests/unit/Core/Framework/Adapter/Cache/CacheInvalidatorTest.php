@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
@@ -272,5 +273,39 @@ class CacheInvalidatorTest extends TestCase
         $invalidator->invalidate(['foo']);
 
         static::assertFalse($adapter->hasItem('http_invalidation_foo_timestamp'));
+    }
+
+    public function testStoreFailureFallsBackToImmediateInvalidation(): void
+    {
+        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
+        $tagAwareAdapter
+            ->expects($this->once())
+            ->method('invalidateTags')
+            ->with(['foo']);
+
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects($this->once())
+            ->method('store')
+            ->willThrowException(new \RuntimeException('Redis connection failed'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects($this->once())
+            ->method('error')
+            ->with('Failed to store cache invalidation tags, invalidating immediately. Error: Redis connection failed');
+
+        $invalidator = new CacheInvalidator(
+            [$tagAwareAdapter],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            $logger,
+            new RequestStack([new Request()]),
+            $this->createMock(TagAwareAdapterInterface::class),
+            false,
+            true
+        );
+
+        $invalidator->invalidate(['foo']);
     }
 }

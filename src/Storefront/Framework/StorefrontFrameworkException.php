@@ -15,13 +15,11 @@ use Symfony\Component\HttpFoundation\Response;
 class StorefrontFrameworkException extends HttpException
 {
     public const APP_TEMPLATE_FILE_NOT_READABLE = 'STOREFRONT__APP_TEMPLATE_NOT_READABLE';
-
     public const APP_REQUEST_NOT_AVAILABLE = 'STOREFRONT__APP_REQUEST_NOT_AVAILABLE';
     public const SALES_CHANNEL_CONTEXT_OBJECT_NOT_FOUND = 'STOREFRONT__SALES_CHANNEL_CONTEXT_OBJECT_NOT_FOUND';
     public const MEDIA_ILLEGAL_FILE_TYPE = 'STOREFRONT__MEDIA_ILLEGAL_FILE_TYPE';
-    public const INVALID_SALES_CHANNEL_MAPPING = 'FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING';
-
     public const INVALID_ARGUMENT = 'STOREFRONT__INVALID_ARGUMENT';
+    public const SALES_CHANNEL_MAPPING_EXCEPTION = 'FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING';
 
     public static function appTemplateFileNotReadable(string $path): self
     {
@@ -94,7 +92,7 @@ class StorefrontFrameworkException extends HttpException
 
         return new self(
             Response::HTTP_NOT_FOUND,
-            self::INVALID_SALES_CHANNEL_MAPPING,
+            self::SALES_CHANNEL_MAPPING_EXCEPTION,
             'Unable to find a matching sales channel for the request: "{{url}}". Please make sure the domain mapping is correct.',
             ['url' => $url]
         );

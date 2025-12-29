@@ -7,8 +7,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class SnippetsThemeResolveEvent extends Event

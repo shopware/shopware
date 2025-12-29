@@ -217,7 +217,7 @@ class AppRegistrationServiceTest extends TestCase
             $this->shopUrl,
             $shopIdProviderMock,
             static::getContainer()->get(StoreClient::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
         );
 
         $shopIdMock = $this->createMock(ShopIdProvider::class);

@@ -515,6 +515,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                         'customFieldPosition' => 1,
                     ],
                     'active' => true,
+                    'includeInSearch' => true,
                     'customFieldSetId' => $this->ids->get('custom_field_set_id'),
                     'productSearchConfigFields' => [
                         [
@@ -555,6 +556,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                         'customFieldPosition' => 1,
                     ],
                     'active' => true,
+                    'includeInSearch' => true,
                     'customFieldSetId' => $this->ids->get('custom_field_set_id'),
                     'productSearchConfigFields' => [
                         [

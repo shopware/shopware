@@ -82,20 +82,20 @@
                     class="sw-flow-detail-flow__position list-item"
                 >
                     {% block sw_flow_sequence_icon_plus %}
-                        <mt-button
-                            class="sw-flow-detail-flow__position-plus"
-                            :disabled="!acl.can('flow.editor')"
-                            variant="secondary"
-                            size="x-small"
-                            tabindex="0"
-                            square
-                            @click="onAddRootSequence"
-                        >
-                            <mt-icon
-                                size="12px"
-                                name="regular-plus-xs"
-                            />
-                        </mt-button>
+                    <mt-button
+                        class="sw-flow-detail-flow__position-plus"
+                        :disabled="!acl.can('flow.editor')"
+                        variant="secondary"
+                        size="x-small"
+                        tabindex="0"
+                        square
+                        @click="onAddRootSequence"
+                    >
+                        <mt-icon
+                            size="12px"
+                            name="regular-plus-xs"
+                        />
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_flow_sequence_icon_connection %}

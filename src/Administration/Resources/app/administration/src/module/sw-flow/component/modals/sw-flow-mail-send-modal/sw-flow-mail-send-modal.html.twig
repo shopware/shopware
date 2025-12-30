@@ -6,12 +6,12 @@
     @modal-close="onClose"
 >
     {% block sw_flow_mail_send_modal_document_warning %}
-        <mt-banner
-            class="sw-flow-mail-send-modal__document_warning"
-            variant="info"
-        >
-            {{ $tc('sw-flow.modals.mail.documentDescription') }}
-        </mt-banner>
+    <mt-banner
+        class="sw-flow-mail-send-modal__document_warning"
+        variant="info"
+    >
+        {{ $tc('sw-flow.modals.mail.documentDescription') }}
+    </mt-banner>
     {% endblock %}
 
     <sw-single-select
@@ -168,7 +168,7 @@
             />
 
             <span class="sw-flow-mail-send-modal__mail-template-type-name">
-               {{ item.mailTemplateType.translated.name }}
+                {{ item.mailTemplateType.translated.name }}
             </span>
         </template>
     </sw-entity-single-select>

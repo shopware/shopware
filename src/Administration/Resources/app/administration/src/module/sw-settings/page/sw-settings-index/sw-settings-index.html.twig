@@ -14,9 +14,16 @@
                 position-identifier="sw-settings-index"
             >
                 {% block sw_settings_content_card_view_header %}
-                <h1 class="sw-settings__content-header">
-                    {{ $tc('sw-settings.index.title') }}
-                </h1>
+                <div class="sw-settings__content-header">
+                    <h1>
+                        {{ $tc('sw-settings.index.title') }}
+                    </h1>
+                    <mt-search
+                        v-model="searchQuery"
+                        :placeholder="$t('sw-settings.index.search.placeholder')"
+                        size="small"
+                    />
+                </div>
                 {% endblock %}
 
                 {# @deprecated tag:v6.8.0 - will be removed without replacement #}
@@ -42,7 +49,13 @@
                         :key="settingsGroup"
                         class="sw-settings__content-group"
                     >
-                        <h2>{{ getGroupLabel(settingsGroup) }}</h2>
+                        <h2>
+                            <sw-highlight-text
+                                :text="getGroupLabel(settingsGroup)"
+                                :search-term="searchQuery"
+                            />
+                            {{''}} {# show eslint that there is content for h2 (which will be provided by sw-highlighted-text but it can't detect that) #}
+                        </h2>
 
                         <sw-settings-item
                             v-for="settingsItem in settingsItems"
@@ -62,8 +75,23 @@
                                     size="16px"
                                 />
                             </template>
+                            <template #label>
+                                <sw-highlight-text
+                                    :text="getLabel(settingsItem)"
+                                    :search-term="searchQuery"
+                                />
+                            </template>
                         </sw-settings-item>
                     </div>
+                </div>
+                <div class="sw-settings-index__empty-state">
+                    <mt-empty-state
+                        v-if="Object.keys(settingsGroups).length === 0"
+                        :description="$t('sw-settings.index.search.noResultsDescription')"
+                        :headline="$t('sw-settings.index.search.noResultsHeadline')"
+                        icon="regular-cog"
+                        centered
+                    />
                 </div>
                 {% endblock %}
             </mt-card>

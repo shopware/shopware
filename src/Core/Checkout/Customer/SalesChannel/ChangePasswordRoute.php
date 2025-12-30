@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerPasswordChangedEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -61,6 +62,8 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         ];
 
         $this->customerRepository->update([$customerData], $context->getContext());
+
+        $this->eventDispatcher->dispatch(new CustomerPasswordChangedEvent($context, $customer));
 
         return new ContextTokenResponse($context->getToken());
     }

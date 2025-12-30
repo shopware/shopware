@@ -59,6 +59,7 @@ use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -83,9 +84,16 @@ class AppLifecycleTest extends TestCase
      */
     private EntityRepository $actionButtonRepository;
 
+    /**
+     * @var EntityRepository<CustomFieldSetCollection>
+     */
+    private EntityRepository $customFieldSetRepository;
+
     private EventDispatcherInterface $eventDispatcher;
 
     private Connection $connection;
+
+    private IdsCollection $ids;
 
     /**
      * @var EntityRepository<CustomEntityCollection>
@@ -112,6 +120,9 @@ class AppLifecycleTest extends TestCase
 
         $this->connection = static::getContainer()->get(Connection::class);
         $this->customEntityRepository = static::getContainer()->get('custom_entity.repository');
+        $this->customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
+
+        $this->ids = new IdsCollection();
     }
 
     public function testInstall(): void
@@ -553,9 +564,11 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateActiveApp(): void
     {
+        $this->createCustomFieldSet();
+
         $id = Uuid::randomHex();
         $roleId = Uuid::randomHex();
-        $customFieldSetId = Uuid::randomHex();
+        $customFieldSetId = $this->ids->get('custom_field_set_id');
 
         $context = Context::createDefaultContext();
         $this->appRepository->create([[
@@ -600,25 +613,6 @@ class AppLifecycleTest extends TestCase
             'customFieldSets' => [
                 [
                     'id' => $customFieldSetId,
-                    'name' => 'custom_field_test',
-                    'relations' => [
-                        [
-                            'entityName' => 'product',
-                        ],
-                        [
-                            'entityName' => 'to be deleted',
-                        ],
-                    ],
-                    'customFields' => [
-                        [
-                            'name' => 'bla_test',
-                            'type' => 'text',
-                        ],
-                        [
-                            'name' => 'to_be_deleted',
-                            'type' => 'text',
-                        ],
-                    ],
                 ],
                 [
                     'name' => 'to_be_deleted',
@@ -2429,5 +2423,33 @@ class AppLifecycleTest extends TestCase
             ],
             $aware
         );
+    }
+
+    private function createCustomFieldSet(): void
+    {
+        $customFieldSetData = [
+            'id' => $this->ids->create('custom_field_set_id'),
+            'name' => 'custom_field_test',
+            'relations' => [
+                [
+                    'entityName' => 'product',
+                ],
+                [
+                    'entityName' => 'to be deleted',
+                ],
+            ],
+            'customFields' => [
+                [
+                    'name' => 'bla_test',
+                    'type' => 'text',
+                ],
+                [
+                    'name' => 'to_be_deleted',
+                    'type' => 'text',
+                ],
+            ],
+        ];
+
+        $this->customFieldSetRepository->upsert([$customFieldSetData], $this->context);
     }
 }

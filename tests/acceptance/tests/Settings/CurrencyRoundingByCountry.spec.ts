@@ -1,22 +1,25 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 test('As a merchant, I would be able to adjust storefront rounding for defined country', { tag: ['@Settings', '@Storefront'] }, async ({
     ShopCustomer,
     TestDataService,
     DefaultSalesChannel,
-    StorefrontProductDetail,
+    HomeProduct,
     StorefrontCheckoutConfirm,
     StorefrontCheckoutFinish,
-    ChangeStorefrontCurrency,
+    StorefrontHeader,
     StorefrontHome,
+    StorefrontProductDetail,
+    AddProductToCart,
+    ChangeStorefrontCurrency,
+    ConfirmTermsAndConditions,
     Login,
     ProceedFromProductToCheckout,
-    AddProductToCart,
-    ConfirmTermsAndConditions,
-    SelectInvoicePaymentOption,
-    SelectStandardShippingOption,
+    SelectPaymentMethod,
+    SelectShippingMethod,
     SubmitOrder,
-    HomeProduct,
+    InstanceMeta,
 }) => {
     const product = HomeProduct;
     const currency = await TestDataService.createCurrency({ factor: 2.25555 });
@@ -49,7 +52,16 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
 
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontHome.url());
-    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
+    
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (satisfies(InstanceMeta.version, '<6.7') && !InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+        await StorefrontHeader.currenciesDropdown.click();
+        await StorefrontHeader.currenciesMenuOptions.getByText(currency.symbol).click();
+    }   
+    else {
+        await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
+    }
+
     const productListingLocatorsByProductId = await StorefrontHome.getListingItemByProductName(product.name);
     await ShopCustomer.expects(productListingLocatorsByProductId.productPrice).toContainText(currency.isoCode + ' 22.556');
 
@@ -61,8 +73,8 @@ test('As a merchant, I would be able to adjust storefront rounding for defined c
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-    await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+    await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+    await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
     await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(currency.isoCode + ' 22.556');
 

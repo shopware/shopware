@@ -56,6 +56,38 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         ], $formatted);
     }
 
+    public function testGetCustomFieldTypesOnlyReturnsSearchableFields(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag([]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->with(
+                static::callback(function (string $sql): bool {
+                    return str_contains($sql, 'custom_field.include_in_search = 1')
+                        && str_contains($sql, 'custom_field.active = 1');
+                }),
+                static::anything()
+            )
+            ->willReturn([
+                'searchable_field' => 'text',
+            ]);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $result = $utils->getCustomFieldTypes(ProductDefinition::ENTITY_NAME, new Context(new SystemSource()));
+
+        static::assertSame([
+            'searchable_field' => 'text',
+        ], $result);
+    }
+
     public function testStripText(): void
     {
         $input1 = '<p>This is <b>bold</b> text.</p>';

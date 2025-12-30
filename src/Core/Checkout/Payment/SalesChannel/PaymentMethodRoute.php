@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -55,7 +56,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     #[Route(
         path: '/store-api/payment-method',
         name: 'store-api.payment.method',
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => 'payment_method'],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => PaymentMethodDefinition::ENTITY_NAME],
         methods: ['GET', 'POST']
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse

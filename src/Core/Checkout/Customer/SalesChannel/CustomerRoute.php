@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -32,7 +33,12 @@ class CustomerRoute extends AbstractCustomerRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/customer', name: 'store-api.account.customer', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_ENTITY => 'customer'])]
+    #[Route(
+        path: '/store-api/account/customer',
+        name: 'store-api.account.customer',
+        methods: ['GET', 'POST'],
+        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_ENTITY => CustomerDefinition::ENTITY_NAME],
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
     {
         $criteria->setIds([$customer->getId()]);

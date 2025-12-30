@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -55,7 +56,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     #[Route(
         path: '/store-api/shipping-method',
         name: 'store-api.shipping.method',
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => 'shipping_method'],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ShippingMethodDefinition::ENTITY_NAME],
         methods: ['GET', 'POST']
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse

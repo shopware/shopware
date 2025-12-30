@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -36,7 +37,12 @@ class ListAddressRoute extends AbstractListAddressRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/list-address', name: 'store-api.account.address.list.get', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_ENTITY => 'customer_address'])]
+    #[Route(
+        path: '/store-api/account/list-address',
+        name: 'store-api.account.address.list.get',
+        methods: ['GET', 'POST'],
+        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_ENTITY => CustomerAddressDefinition::ENTITY_NAME],
+    )]
     public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse
     {
         $criteria

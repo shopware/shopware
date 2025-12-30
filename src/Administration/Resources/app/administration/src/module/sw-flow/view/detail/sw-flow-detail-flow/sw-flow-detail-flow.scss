@@ -21,7 +21,7 @@
     }
 
     &__trigger-select {
-        min-width: 324px;
+        min-width: 20.5rem;
         background: var(--color-elevation-surface-raised);
         border-radius: var(--border-radius-card);
         border: 1px solid var(--color-border-secondary-default);
@@ -60,7 +60,7 @@
         height: var(--scale-size-12);
         background: var(--color-elevation-surface-raised);
         border: 1px solid var(--color-border-primary-default);
-        border-radius: 50%;
+        border-radius: var(--border-radius-round);
     }
 
     &__sequence-diagram {
@@ -96,7 +96,7 @@
 
         &:last-child .sw-flow-detail-flow__position-plus {
             z-index: 2;
-            border-radius: 50%;
+            border-radius: var(--border-radius-round);
             position: absolute;
             top: 155px;
             left: -11px;

@@ -730,7 +730,7 @@ export default {
             return this.productRepository
                 .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
                 .then(async (product) => {
-                    if (!product.purchasePrices?.length > 0 && !product.parentId) {
+                    if (!product.purchasePrices || (!product.purchasePrices?.length > 0 && !product.parentId)) {
                         if (!this.defaultCurrency?.id) {
                             await this.loadCurrencies();
                         }

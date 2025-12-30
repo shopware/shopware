@@ -58,6 +58,14 @@
                 </sw-cms-inherit-wrapper>
                 {% endblock %}
 
+                {% block sw_cms_element_image_slider_config_media_upload_listener %}
+                <sw-upload-listener
+                    :upload-tag="uploadTag"
+                    auto-upload
+                    @media-upload-finish="onImageUpload"
+                />
+                {% endblock %}
+
                 {% block sw_cms_element_image_slider_config_media_modal %}
                 <sw-media-modal-v2
                     v-if="mediaModalIsOpen"

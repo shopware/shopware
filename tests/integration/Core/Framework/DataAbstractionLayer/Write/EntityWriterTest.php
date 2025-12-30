@@ -245,6 +245,47 @@ class EntityWriterTest extends TestCase
         static::assertCount(0, $deleteResult->getNotFound());
     }
 
+    public function testDeleteWithMultiplePrimaryColumnsThroughCascadeDelete(): void
+    {
+        $productId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+
+        $context = $this->createWriteContext();
+        $this->getWriter()->insert(static::getContainer()->get(ProductDefinition::class), [
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => 'test 1',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
+                'manufacturer' => ['name' => 'test'],
+                'categories' => [
+                    ['id' => $categoryId, 'name' => 'test'],
+                ],
+            ],
+        ], $context);
+
+        $exists = $this->connection->fetchAllAssociative(
+            'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
+            ['product' => Uuid::fromHexToBytes($productId), 'category' => Uuid::fromHexToBytes($categoryId)]
+        );
+        static::assertCount(1, $exists);
+
+        $deleteResult = $this->getWriter()->delete(static::getContainer()->get(ProductDefinition::class), [
+            ['id' => $productId],
+        ], $context);
+
+        $exists = $this->connection->fetchAllAssociative(
+            'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
+            ['product' => Uuid::fromHexToBytes($productId), 'category' => Uuid::fromHexToBytes($categoryId)]
+        );
+        static::assertEmpty($exists);
+
+        static::assertCount(1, $deleteResult->getDeleted()[ProductCategoryDefinition::ENTITY_NAME]);
+        static::assertCount(0, $deleteResult->getNotFound());
+    }
+
     public function testRequiresAllPrimaryKeyValuesForDelete(): void
     {
         $this->expectException(DataAbstractionLayerException::class);

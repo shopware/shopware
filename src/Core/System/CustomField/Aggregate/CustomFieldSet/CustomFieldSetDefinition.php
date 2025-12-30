@@ -65,6 +65,7 @@ class CustomFieldSetDefinition extends EntityDefinition
             (new BoolField('global', 'global'))->setDescription('When set to `true`, the custom field set can be used across all sales channels.'),
             (new IntField('position', 'position'))->setDescription('The order of the tabs of your defined custom field set to be displayed.'),
             (new FkField('app_id', 'appId', AppDefinition::class))->setDescription('Unique identity of an app.'),
+
             (new OneToManyAssociationField('customFields', CustomFieldDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('relations', CustomFieldSetRelationDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCustomFieldSetDefinition::class, 'custom_field_set_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('customFieldSets')),

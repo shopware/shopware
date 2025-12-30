@@ -55,7 +55,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     #[Route(
         path: '/store-api/shipping-method',
         name: 'store-api.shipping.method',
-        defaults: ['_entity' => 'shipping_method'],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => 'shipping_method'],
         methods: ['GET', 'POST']
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse

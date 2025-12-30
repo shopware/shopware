@@ -32,7 +32,7 @@ class CustomerRoute extends AbstractCustomerRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/customer', name: 'store-api.account.customer', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'customer'])]
+    #[Route(path: '/store-api/account/customer', name: 'store-api.account.customer', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_ENTITY => 'customer'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
     {
         $criteria->setIds([$customer->getId()]);

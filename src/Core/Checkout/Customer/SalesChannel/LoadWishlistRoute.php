@@ -51,7 +51,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/customer/wishlist', name: 'store-api.customer.wishlist.load', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'product'])]
+    #[Route(path: '/store-api/customer/wishlist', name: 'store-api.customer.wishlist.load', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, PlatformRequest::ATTRIBUTE_ENTITY => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
     {
         if (!$criteria->getTitle()) {

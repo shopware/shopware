@@ -55,7 +55,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     #[Route(
         path: '/store-api/payment-method',
         name: 'store-api.payment.method',
-        defaults: ['_entity' => 'payment_method'],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => 'payment_method'],
         methods: ['GET', 'POST']
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse

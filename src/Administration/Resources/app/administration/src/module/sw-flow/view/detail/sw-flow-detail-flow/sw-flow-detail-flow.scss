@@ -27,11 +27,7 @@
         border: 1px solid var(--color-border-secondary-default);
         padding: var(--scale-size-24);
         transition: all 100ms ease-in-out;
-        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 20%);
-
-        &:hover {
-            box-shadow: 0 6px 10px 0 rgba(120, 138, 155, 20%);
-        }
+        box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
     }
 
     &__trigger-explain {

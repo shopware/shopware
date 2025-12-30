@@ -51,7 +51,12 @@ class CmsController extends StorefrontController
      * Rendering a CMS layout as a widget, meaning that the layout is rendered standalone without the surrounding page template.
      * Use this if you want to load content via JS and embed into an existing page or modal.
      */
-    #[Route(path: '/widgets/cms/{id}', name: 'frontend.cms.page', defaults: ['id' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/cms/{id}',
+        name: 'frontend.cms.page',
+        defaults: ['id' => null, 'XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: ['GET', 'POST']
+    )]
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {
@@ -72,7 +77,12 @@ class CmsController extends StorefrontController
      * Rendering a CMS layout as a full page, example including stylesheets, scripts, header, footer, etc.
      * Use this for internal page links pointing to a layout.
      */
-    #[Route(path: '/page/cms/{id}', name: 'frontend.cms.page.full', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/page/cms/{id}',
+        name: 'frontend.cms.page.full',
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: ['GET', 'POST']
+    )]
     public function pageFull(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
@@ -87,7 +97,7 @@ class CmsController extends StorefrontController
     #[Route(
         path: '/widgets/cms/navigation/{navigationId}',
         name: 'frontend.cms.navigation.page',
-        defaults: ['navigationId' => null, 'XmlHttpRequest' => true, '_httpCache' => true],
+        defaults: ['navigationId' => null, 'XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
         methods: ['GET', 'POST']
     )]
     public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
@@ -117,7 +127,7 @@ class CmsController extends StorefrontController
     #[Route(
         path: '/widgets/cms/navigation/{navigationId}/filter',
         name: 'frontend.cms.navigation.filter',
-        defaults: ['XmlHttpRequest' => true, '_httpCache' => true],
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
         methods: ['GET', 'POST']
     )]
     public function filter(string $navigationId, Request $request, SalesChannelContext $context): Response
@@ -151,7 +161,7 @@ class CmsController extends StorefrontController
     #[Route(
         path: '/widgets/cms/buybox/{productId}/switch',
         name: 'frontend.cms.buybox.switch',
-        defaults: ['productId' => null, 'XmlHttpRequest' => true, '_httpCache' => true],
+        defaults: ['productId' => null, 'XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
         methods: ['GET']
     )]
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response

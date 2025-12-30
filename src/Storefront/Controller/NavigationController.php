@@ -50,7 +50,7 @@ class NavigationController extends StorefrontController
         path: '/',
         name: 'frontend.home.page',
         options: ['seo' => true],
-        defaults: ['_httpCache' => true],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
         methods: ['GET'],
     )]
     public function home(Request $request, SalesChannelContext $context): Response
@@ -66,7 +66,7 @@ class NavigationController extends StorefrontController
         path: '/navigation/{navigationId}',
         name: NavigationPageSeoUrlRoute::ROUTE_NAME,
         options: ['seo' => true],
-        defaults: ['_httpCache' => true],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
         methods: ['GET'],
     )]
     public function index(SalesChannelContext $context, Request $request): Response
@@ -95,7 +95,7 @@ class NavigationController extends StorefrontController
     #[Route(
         path: '/widgets/menu/offcanvas',
         name: 'frontend.menu.offcanvas',
-        defaults: ['XmlHttpRequest' => true, '_httpCache' => true],
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
         methods: ['GET'],
     )]
     public function offcanvas(Request $request, SalesChannelContext $context): Response
@@ -117,7 +117,7 @@ class NavigationController extends StorefrontController
     #[Route(
         path: '/_esi/global/header',
         name: 'frontend.header',
-        defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true],
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true, '_esi' => true],
         methods: ['GET'],
     )]
     public function header(Request $request, SalesChannelContext $context): Response
@@ -135,7 +135,7 @@ class NavigationController extends StorefrontController
     #[Route(
         path: '/_esi/global/footer',
         name: 'frontend.footer',
-        defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true],
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true, '_esi' => true],
         methods: ['GET'],
     )]
     public function footer(Request $request, SalesChannelContext $context): Response

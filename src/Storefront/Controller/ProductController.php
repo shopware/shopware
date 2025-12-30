@@ -49,7 +49,12 @@ class ProductController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/detail/{productId}', name: 'frontend.detail.page', defaults: ['_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/detail/{productId}',
+        name: 'frontend.detail.page',
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: ['GET']
+    )]
     public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->productPageLoader->load($request, $context);
@@ -59,7 +64,12 @@ class ProductController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/content/product-detail.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/detail/{productId}/switch', name: 'frontend.detail.switch', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/detail/{productId}/switch',
+        name: 'frontend.detail.switch',
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: ['GET']
+    )]
     public function switch(string $productId, Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $switchedGroup = $request->query->has('switched') ? (string) $request->query->get('switched') : null;

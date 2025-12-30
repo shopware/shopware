@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(defaults: false)]
 class InvalidAclRouteInRouteAttributeController extends StorefrontController
 {
-    #[Route(defaults: ['_httpCache' => true])]
+    #[Route(defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true])]
     public function noAcl(): void
     {
     }

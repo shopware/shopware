@@ -35,7 +35,12 @@ class MaintenanceController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/maintenance', name: 'frontend.maintenance.page', defaults: ['allow_maintenance' => true, '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/maintenance',
+        name: 'frontend.maintenance.page',
+        defaults: ['allow_maintenance' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: ['GET']
+    )]
     public function renderMaintenancePage(Request $request, SalesChannelContext $context): ?Response
     {
         $salesChannel = $context->getSalesChannel();
@@ -80,7 +85,12 @@ class MaintenanceController extends StorefrontController
     /**
      * Route for stand alone cms pages during maintenance
      */
-    #[Route(path: '/maintenance/singlepage/{id}', name: 'frontend.maintenance.singlepage', defaults: ['allow_maintenance' => true, '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/maintenance/singlepage/{id}',
+        name: 'frontend.maintenance.singlepage',
+        defaults: ['allow_maintenance' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: ['GET']
+    )]
     public function renderSinglePage(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {

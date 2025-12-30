@@ -98,7 +98,12 @@ class SearchController extends StorefrontController
     /**
      * Route to load the available listing filters
      */
-    #[Route(path: '/widgets/search/filter', name: 'widgets.search.filter', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/search/filter',
+        name: 'widgets.search.filter',
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: ['GET', 'POST']
+    )]
     public function filter(Request $request, SalesChannelContext $context): Response
     {
         $term = $request->get('search');

@@ -118,6 +118,7 @@
     &__action-icon {
         display: flex;
         color: var(--color-icon-primary-default);
+        margin-right: var(--scale-size-6);
     }
 
     &__action-name {
@@ -129,7 +130,6 @@
             font-size: var(--font-size-xs);
             font-weight: var(--font-weight-medium);
             color: var(--color-text-primary-default);
-            margin-left: var(--scale-size-8);
             margin-bottom: 0;
         }
 
@@ -176,6 +176,11 @@
     }
 
     &__popover {
+        .sw-select-result__item {
+            padding-bottom: var(--scale-size-4);
+            margin-bottom: var(--scale-size-4);
+        }
+
         .sw-select-result__result-item-text {
             flex-direction: row !important;
             text-transform: capitalize;

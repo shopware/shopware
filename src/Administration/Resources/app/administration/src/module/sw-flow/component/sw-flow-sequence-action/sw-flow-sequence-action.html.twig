@@ -105,9 +105,12 @@
                             <div v-else>
                                 {% block sw_flow_sequence_action_actions_item_header %}
                                 <div class="sw-flow-sequence-action__action-header">
-                                    <div class="sw-flow-sequence-action__action-icon">
+                                    <div
+                                        v-if="item.icon || item.iconRaw"
+                                        class="sw-flow-sequence-action__action-icon"
+                                    >
                                         <mt-icon
-                                            v-if="!item.iconRaw"
+                                            v-if="item.icon"
                                             :name="`${item.icon}`"
                                             size="12px"
                                             class="mt-icon-action"

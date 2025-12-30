@@ -13,4 +13,9 @@
             min-width: var(--scale-size-12);
         }
     }
+
+    .sw-custom-field-detail__searchable-banner {
+        grid-column: span 2;
+        margin-top: var(--scale-size-4);
+    }
 }

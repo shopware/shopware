@@ -113,5 +113,11 @@
     "release_date": "2025-11-04",
     "extended_eol": false,
     "security_eol": "2028-02-28"
+  },
+  {
+    "version": "6.7.5.0",
+    "release_date": "2025-12-02",
+    "extended_eol": false,
+    "security_eol": "2028-02-28"
   }
 ]

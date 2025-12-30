@@ -305,6 +305,8 @@
       "labelContextMenuRename": "Rename",
       "labelContextMenuDetail": "Details",
       "labelContextMenuMove": "Move",
+      "labelContextMenuSetCover": "Set cover image",
+      "labelContextMenuRemoveCover": "Remove cover",
       "notification": {
         "errorBlankItemName": {
           "message": "Media item could not be saved: Please enter a name."
@@ -320,6 +322,18 @@
         },
         "settingsSuccess": {
           "message": "Settings have been saved."
+        },
+        "coverSaveSuccess": {
+          "message": "Cover image has been saved."
+        },
+        "coverRemoveSuccess": {
+          "message": "Cover image has been removed."
+        },
+        "coverSelectionInvalid": {
+          "message": "Please select an image to use as the cover."
+        },
+        "coverSaveError": {
+          "message": "Cover image could not be saved."
         }
       },
       "labelUploading": "Uploading..."
@@ -450,6 +464,10 @@
       "buttonSwitchToFileUpload": "Upload file from your computer",
       "buttonSwitchToUrlUpload": "Upload file from URL",
       "buttonOpenMedia": "Open media",
+      "snackbar": {
+        "message": "Uploading file | Uploading files",
+        "errorMessage": "File could not be uploaded. | Some files could not be uploaded."
+      },
       "notification": {
         "success": {
           "message": "No file has been saved. | File has been saved. | {count} / {total} files have been saved."
@@ -466,6 +484,12 @@
         "illegalFileUrl": {
           "title": "Invalid URL",
           "message": "Upload from local URLs not allowed."
+        },
+        "illegalFileType": {
+          "message": "The file \"{name}\" could not be uploaded. This file type is not supported."
+        },
+        "requestCanceled": {
+          "message": "The upload has been cancelled."
         }
       },
       "caption": "Drag files here to upload"
@@ -1059,6 +1083,7 @@
       "customer_group_registration_accepted": "Customer group registration request accepted",
       "customer_group_registration_declined": "Customer group registration request declined",
       "customer_recovery_request": "Customer requests new password",
+      "customer_password_changed": "Customer password changed",
       "mail_after_create_message": "Email created",
       "mail_before_send": "Email is being sent",
       "mail_sent": "Email sent",

@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Admin;
 
 use OpenSearch\Client;
 use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -113,6 +114,9 @@ class AdminSearcher
         $splitTerms = explode(' ', $term);
         $lastPart = end($splitTerms);
 
+        $ngramQuery = new MatchQuery('text.ngram', $term);
+        $search->addQuery($ngramQuery, BoolQuery::SHOULD);
+
         // If the end of the search term is not a symbol, apply the prefix search query
         if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {
             $term .= '*';
@@ -120,8 +124,8 @@ class AdminSearcher
 
         $query = new SimpleQueryStringQuery($term, [
             'fields' => ['text'],
+            'lenient' => true,
         ]);
-
         $search->addQuery($query, BoolQuery::SHOULD);
         $search->setSize($limit);
 

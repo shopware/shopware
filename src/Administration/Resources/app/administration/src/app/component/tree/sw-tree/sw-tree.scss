@@ -52,13 +52,13 @@
 
             &::before {
                 content: "";
-                background: var(--color-border-secondary-default);
+                background: var(--color-border-primary-default);
                 position: absolute;
                 left: 15.5px;
                 top: 50%;
                 transform: translateY(-50%);
                 height: calc(100% - var(--scale-size-8));
-                width: 1px;
+                width: 1.5px;
             }
         }
 

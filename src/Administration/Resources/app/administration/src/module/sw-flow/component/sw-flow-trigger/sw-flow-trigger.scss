@@ -29,6 +29,7 @@
         .sw-block-field__block input {
             text-overflow: ellipsis;
             padding-right: var(--scale-size-32);
+            background: var(--color-background-primary-default);
 
             &::placeholder {
                 text-transform: none;

@@ -62,13 +62,13 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     #[Route(
         path: '/store-api/account/address',
         name: 'store-api.account.address.create',
-        defaults: ['addressId' => null, '_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        defaults: ['addressId' => null, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
         methods: ['POST']
     )]
     #[Route(
         path: '/store-api/account/address/{addressId}',
         name: 'store-api.account.address.update',
-        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
         methods: ['PATCH']
     )]
     public function upsert(

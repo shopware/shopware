@@ -35,8 +35,18 @@ class DocumentController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account/order/document/{documentId}/{deepLinkCode}', name: 'frontend.account.order.single.document', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['GET'])]
-    #[Route(path: '/account/order/document/{documentId}/{deepLinkCode}/{fileType}', name: 'frontend.account.order.single.document.a11y', defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/account/order/document/{documentId}/{deepLinkCode}',
+        name: 'frontend.account.order.single.document',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
+        methods: ['GET']
+    )]
+    #[Route(
+        path: '/account/order/document/{documentId}/{deepLinkCode}/{fileType}',
+        name: 'frontend.account.order.single.document.a11y',
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: ['GET', 'POST']
+    )]
     public function downloadDocument(Request $request, SalesChannelContext $context, string $documentId): Response
     {
         $fileType = $request->get('fileType', PdfRenderer::FILE_EXTENSION);

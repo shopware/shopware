@@ -47,7 +47,12 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/customer/wishlist/add/{productId}', name: 'store-api.customer.wishlist.add', methods: ['POST'], defaults: ['_loginRequired' => true])]
+    #[Route(
+        path: '/store-api/customer/wishlist/add/{productId}',
+        name: 'store-api.customer.wishlist.add',
+        methods: ['POST'],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true]
+    )]
     public function add(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannelId())) {

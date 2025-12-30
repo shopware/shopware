@@ -62,7 +62,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     #[Route(
         path: '/store-api/order/payment',
         name: 'store-api.order.set-payment',
-        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
         methods: ['POST'],
     )]
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse

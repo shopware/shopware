@@ -37,7 +37,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
     #[Route(
         path: '/store-api/account/address/{addressId}',
         name: 'store-api.account.address.delete',
-        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
         methods: ['DELETE']
     )]
     public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse

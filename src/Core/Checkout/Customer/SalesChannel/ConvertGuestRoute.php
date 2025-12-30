@@ -44,7 +44,12 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/convert-guest', name: 'store-api.account.convert-guest', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/account/convert-guest',
+        name: 'store-api.account.convert-guest',
+        methods: ['POST'],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true]
+    )]
     public function convertGuest(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer, ?DataValidationDefinition $additionalValidationDefinitions = null): SuccessResponse
     {
         if (!$customer->getGuest()) {

@@ -127,7 +127,12 @@ class ProductController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/product/{productId}/rating', name: 'frontend.detail.review.save', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/product/{productId}/rating',
+        name: 'frontend.detail.review.save',
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: ['POST']
+    )]
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if (!Feature::isActive('v6.8.0.0')) {

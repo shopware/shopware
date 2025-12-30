@@ -37,7 +37,7 @@ class CustomerRoute extends AbstractCustomerRoute
         path: '/store-api/account/customer',
         name: 'store-api.account.customer',
         methods: ['GET', 'POST'],
-        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_ENTITY => CustomerDefinition::ENTITY_NAME],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true, PlatformRequest::ATTRIBUTE_ENTITY => CustomerDefinition::ENTITY_NAME],
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
     {

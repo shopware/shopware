@@ -54,7 +54,12 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/change-email', name: 'store-api.account.change-email', methods: ['POST'], defaults: ['_loginRequired' => true])]
+    #[Route(
+        path: '/store-api/account/change-email',
+        name: 'store-api.account.change-email',
+        methods: ['POST'],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true]
+    )]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         EmailIdnConverter::encodeDataBag($requestDataBag);

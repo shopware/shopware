@@ -31,7 +31,12 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/customer', name: 'store-api.account.customer.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/account/customer',
+        name: 'store-api.account.customer.delete',
+        methods: ['DELETE'],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true]
+    )]
     public function delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->customerRepository->delete([['id' => $customer->getId()]], $context->getContext());

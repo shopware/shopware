@@ -45,7 +45,12 @@ class ChangeLanguageRoute extends AbstractChangeLanguageRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/change-language', name: 'store-api.account.change-language', methods: ['POST'], defaults: ['_loginRequired' => true])]
+    #[Route(
+        path: '/store-api/account/change-language',
+        name: 'store-api.account.change-language',
+        methods: ['POST'],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true]
+    )]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $this->validateLanguageId($requestDataBag, $context);

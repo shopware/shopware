@@ -61,7 +61,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     #[Route(
         path: '/store-api/account/change-profile',
         name: 'store-api.account.change-profile',
-        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
         methods: ['POST']
     )]
     public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse

@@ -76,7 +76,7 @@ class AccountOrderController extends StorefrontController
         path: '/account/order',
         name: 'frontend.account.order.page',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: ['GET', 'POST']
     )]
     #[Route(
@@ -156,7 +156,7 @@ class AccountOrderController extends StorefrontController
         path: '/widgets/account/order/detail/{id}',
         name: 'widgets.account.order.detail',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true],
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
         methods: ['GET']
     )]
     public function ajaxOrderDetail(Request $request, SalesChannelContext $context): Response
@@ -184,7 +184,7 @@ class AccountOrderController extends StorefrontController
     #[Route(
         path: '/account/order/edit/{orderId}',
         name: 'frontend.account.edit-order.page',
-        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: ['GET']
     )]
     #[Route(

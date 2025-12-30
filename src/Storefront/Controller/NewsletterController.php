@@ -65,7 +65,12 @@ class NewsletterController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/newsletter/confirm-subscribe.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/widgets/account/newsletter', name: 'frontend.account.newsletter', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/widgets/account/newsletter',
+        name: 'frontend.account.newsletter',
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: ['POST']
+    )]
     public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $pagelet = $this->newsletterAccountPageletLoader->action($request, $dataBag, $context, $customer);

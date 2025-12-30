@@ -44,13 +44,13 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
     #[Route(
         path: '/store-api/account/address/default-shipping/{addressId}',
         name: 'store-api.account.address.change.default.shipping',
-        defaults: ['type' => 'shipping', '_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        defaults: ['type' => 'shipping', PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
         methods: ['PATCH']
     )]
     #[Route(
         path: '/store-api/account/address/default-billing/{addressId}',
         name: 'store-api.account.address.change.default.billing',
-        defaults: ['type' => 'billing', '_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        defaults: ['type' => 'billing', PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
         methods: ['PATCH']
     )]
     public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse

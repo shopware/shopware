@@ -23,7 +23,7 @@ class ControllerWithoutRouteAttribute extends AbstractController
     #[Route(
         path: '/api/_action/2',
         name: 'api.action.media-folder.dissolve2',
-        defaults: ['_routeScope' => ['api']],
+        defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']],
         methods: ['POST']
     )]
     public function withScope(string $folderId, Context $context): Response

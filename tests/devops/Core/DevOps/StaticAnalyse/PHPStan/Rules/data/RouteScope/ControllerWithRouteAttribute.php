@@ -3,6 +3,7 @@
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\RouteScope;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -10,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['api']])]
 class ControllerWithRouteAttribute extends AbstractController
 {
     #[Route(path: '/api/_action/1', name: 'api.action.media-folder.dissolve', methods: ['POST'])]
@@ -19,7 +20,7 @@ class ControllerWithRouteAttribute extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/2', name: 'api.action.media-folder.dissolve', methods: ['POST'], defaults: ['_routeScope' => []])]
+    #[Route(path: '/api/_action/2', name: 'api.action.media-folder.dissolve', methods: ['POST'], defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => []])]
     public function resetScope(string $folderId, Context $context): Response
     {
         return new Response(null, Response::HTTP_NO_CONTENT);

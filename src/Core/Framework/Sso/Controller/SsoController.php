@@ -88,13 +88,13 @@ class SsoController extends AbstractController
         return $this->redirect($url);
     }
 
-    #[Route(path: '/api/_info/is-sso', name: 'api.info.is-sso', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['GET'])]
+    #[Route(path: '/api/_info/is-sso', name: 'api.info.is-sso', defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration']], methods: ['GET'])]
     public function isSso(): JsonResponse
     {
         return new JsonResponse(['isSso' => $this->ssoService->isSso()]);
     }
 
-    #[Route(path: '/api/_action/sso/invite-user', name: 'api.action.sso.invite-user', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['POST'])]
+    #[Route(path: '/api/_action/sso/invite-user', name: 'api.action.sso.invite-user', defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration']], methods: ['POST'])]
     public function inviteUser(RequestDataBag $requestDataBag, Context $context): JsonResponse
     {
         $email = $requestDataBag->get('email');

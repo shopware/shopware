@@ -20,7 +20,7 @@ class ControllerWithRouteAttributeConstant extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/2', name: 'api.action.media-folder2', methods: ['POST'], defaults: ['_routeScope' => []])]
+    #[Route(path: '/api/_action/2', name: 'api.action.media-folder2', methods: ['POST'], defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => []])]
     public function resetScope(string $folderId, Context $context): Response
     {
         return new Response(null, Response::HTTP_NO_CONTENT);

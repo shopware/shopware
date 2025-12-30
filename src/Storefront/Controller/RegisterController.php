@@ -72,7 +72,7 @@ class RegisterController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account/register', name: 'frontend.account.register.page', defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/account/register', name: 'frontend.account.register.page', defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function accountRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer() && $context->getCustomer()->getGuest()) {
@@ -105,7 +105,7 @@ class RegisterController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/customer-group-registration/{customerGroupId}', name: 'frontend.account.customer-group-registration.page', defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/customer-group-registration/{customerGroupId}', name: 'frontend.account.customer-group-registration.page', defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function customerGroupRegistration(string $customerGroupId, Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer() && $context->getCustomer()->getGuest()) {
@@ -142,7 +142,7 @@ class RegisterController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/checkout/register', name: 'frontend.checkout.register.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/checkout/register', name: 'frontend.checkout.register.page', options: ['seo' => false], defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $redirect = $request->get('redirectTo', 'frontend.checkout.confirm.page');

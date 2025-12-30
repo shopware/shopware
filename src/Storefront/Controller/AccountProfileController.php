@@ -45,7 +45,7 @@ class AccountProfileController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account', name: 'frontend.account.home.page', defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/account', name: 'frontend.account.home.page', defaults: ['_loginRequired' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->overviewPageLoader->load($request, $context, $customer);
@@ -55,7 +55,7 @@ class AccountProfileController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/account/profile', name: 'frontend.account.profile.page', defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/account/profile', name: 'frontend.account.profile.page', defaults: ['_loginRequired' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->profilePageLoader->load($request, $context);

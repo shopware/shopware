@@ -76,14 +76,14 @@ class AccountOrderController extends StorefrontController
         path: '/account/order',
         name: 'frontend.account.order.page',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_noStore' => true],
+        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: ['GET', 'POST']
     )]
     #[Route(
         path: '/account/order',
         name: 'frontend.account.order.page',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, '_noStore' => true],
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: ['GET', 'POST']
     )]
     public function orderOverview(Request $request, SalesChannelContext $context): Response
@@ -125,7 +125,7 @@ class AccountOrderController extends StorefrontController
         path: '/account/order/{deepLinkCode}',
         name: 'frontend.account.order.single.page',
         options: ['seo' => false],
-        defaults: ['_noStore' => true],
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: ['GET', 'POST']
     )]
     public function orderSingleOverview(Request $request, SalesChannelContext $context): Response
@@ -184,13 +184,13 @@ class AccountOrderController extends StorefrontController
     #[Route(
         path: '/account/order/edit/{orderId}',
         name: 'frontend.account.edit-order.page',
-        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_noStore' => true],
+        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: ['GET']
     )]
     #[Route(
         path: '/account/order/edit/{orderId}',
         name: 'frontend.account.edit-order.page',
-        defaults: ['_noStore' => true],
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: ['GET']
     )]
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response

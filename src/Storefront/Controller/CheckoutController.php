@@ -75,7 +75,7 @@ class CheckoutController extends StorefrontController
         path: '/checkout/cart',
         name: 'frontend.checkout.cart.page',
         options: ['seo' => false],
-        defaults: ['_noStore' => true],
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: ['GET']
     )]
     public function cartPage(Request $request, SalesChannelContext $context): Response
@@ -118,7 +118,7 @@ class CheckoutController extends StorefrontController
         path: '/checkout/confirm',
         name: 'frontend.checkout.confirm.page',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, '_noStore' => true],
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: ['GET']
     )]
     public function confirmPage(Request $request, SalesChannelContext $context): Response
@@ -163,7 +163,7 @@ class CheckoutController extends StorefrontController
         path: '/checkout/finish',
         name: 'frontend.checkout.finish.page',
         options: ['seo' => false],
-        defaults: ['_noStore' => true],
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: ['GET']
     )]
     public function finishPage(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response

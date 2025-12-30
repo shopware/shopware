@@ -54,7 +54,7 @@ class WishlistController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/wishlist', name: 'frontend.wishlist.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/wishlist', name: 'frontend.wishlist.page', options: ['seo' => false], defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function index(Request $request, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();

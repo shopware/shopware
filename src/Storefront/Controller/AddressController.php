@@ -67,7 +67,7 @@ class AddressController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account/address', name: 'frontend.account.address.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/account/address', name: 'frontend.account.address.page', options: ['seo' => false], defaults: ['_loginRequired' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function accountAddressOverview(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->addressListingPageLoader->load($request, $context, $customer);
@@ -77,7 +77,7 @@ class AddressController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/account/address/create', name: 'frontend.account.address.create.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/account/address/create', name: 'frontend.account.address.create.page', options: ['seo' => false], defaults: ['_loginRequired' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function accountCreateAddress(Request $request, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);
@@ -90,7 +90,7 @@ class AddressController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/address/{addressId}', name: 'frontend.account.address.edit.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/account/address/{addressId}', name: 'frontend.account.address.edit.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function accountEditAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);

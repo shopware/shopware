@@ -23,7 +23,7 @@ final readonly class AppController
     {
     }
 
-    #[Route(path: '/app-system/{name}/generate-token', name: 'frontend.app-system.generate-token', defaults: ['_noStore' => true], methods: ['POST'])]
+    #[Route(path: '/app-system/{name}/generate-token', name: 'frontend.app-system.generate-token', defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['POST'])]
     public function generateToken(string $name, SalesChannelContext $context): Response
     {
         try {

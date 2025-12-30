@@ -61,7 +61,7 @@ class AuthController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account/login', name: 'frontend.account.login.page', defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/account/login', name: 'frontend.account.login.page', defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         // Add '_httpCache' => true, to defaults in Route and remove _noStore
@@ -97,7 +97,7 @@ class AuthController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/guest/login', name: 'frontend.account.guest.login.page', defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(path: '/account/guest/login', name: 'frontend.account.guest.login.page', defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
     public function guestLoginPage(Request $request, SalesChannelContext $context): Response
     {
         /** @var string|null $redirect */

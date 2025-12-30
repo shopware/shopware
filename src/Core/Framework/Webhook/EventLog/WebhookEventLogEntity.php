@@ -25,6 +25,10 @@ class WebhookEventLogEntity extends Entity
 
     protected ?int $processingTime = null;
 
+    protected int $executionCount = 0;
+
+    protected ?\DateTimeInterface $nextRetryAt = null;
+
     protected ?string $appVersion = null;
 
     /**
@@ -108,6 +112,26 @@ class WebhookEventLogEntity extends Entity
     public function setProcessingTime(?int $processingTime): void
     {
         $this->processingTime = $processingTime;
+    }
+
+    public function getExecutionCount(): int
+    {
+        return $this->executionCount;
+    }
+
+    public function setExecutionCount(int $executionCount): void
+    {
+        $this->executionCount = $executionCount;
+    }
+
+    public function getNextRetryAt(): ?\DateTimeInterface
+    {
+        return $this->nextRetryAt;
+    }
+
+    public function setNextRetryAt(?\DateTimeInterface $nextRetryAt): void
+    {
+        $this->nextRetryAt = $nextRetryAt;
     }
 
     public function getAppVersion(): ?string

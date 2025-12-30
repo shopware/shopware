@@ -2,11 +2,8 @@
 
 namespace Shopware\Core\Framework\Webhook\Handler;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
-use Shopware\Core\Framework\App\Exception\AppNotFoundException;
-use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
@@ -15,6 +12,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
+use Shopware\Core\Framework\Webhook\Service\WebhookSender;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -25,16 +23,13 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[Package('framework')]
 final readonly class WebhookEventMessageHandler
 {
-    private const TIMEOUT = 20;
-    private const CONNECT_TIMEOUT = 10;
-
     /**
      * @internal
      *
      * @param EntityRepository<ScheduledTaskCollection> $webhookEventLogRepository
      */
     public function __construct(
-        private Client $client,
+        private WebhookSender $webhookSender,
         private EntityRepository $webhookEventLogRepository,
         private RelatedWebhooks $relatedWebhooks,
     ) {
@@ -42,77 +37,40 @@ final readonly class WebhookEventMessageHandler
 
     public function __invoke(WebhookEventMessage $message): void
     {
-        $shopwareVersion = $message->getShopwareVersion();
-
-        $payload = $message->getPayload();
-        $url = $message->getUrl();
-
+        $webhookEventId = $message->getWebhookEventId();
+        $requestContent = $this->webhookSender->buildRequestOptions($message);
         $timestamp = time();
-        $payload['timestamp'] = $timestamp;
 
-        $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
-
-        $headers = ['Content-Type' => 'application/json',
-            'sw-version' => $shopwareVersion, ];
-
-        // LanguageId and UserLocale will be required from 6.5.0 onward
-        if ($message->getLanguageId() && $message->getUserLocale()) {
-            $headers = array_merge($headers, [AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $message->getLanguageId(), AuthMiddleware::SHOPWARE_USER_LANGUAGE => $message->getUserLocale()]);
-        }
-
-        $requestContent = [
-            'headers' => $headers,
-            'body' => $jsonPayload,
-            'connect_timeout' => self::CONNECT_TIMEOUT,
-            'timeout' => self::TIMEOUT,
-        ];
-
-        if ($message->getSecret()) {
-            $requestContent[AuthMiddleware::APP_REQUEST_TYPE] = [
-                AuthMiddleware::APP_SECRET => $message->getSecret(),
-            ];
-        }
-
-        $context = Context::createDefaultContext();
-
-        $this->updateLogIfItExists(
-            [
-                'id' => $message->getWebhookEventId(),
-                'deliveryStatus' => WebhookEventLogDefinition::STATUS_RUNNING,
-                'timestamp' => $timestamp,
-                'requestContent' => $requestContent,
-            ],
-            $context
-        );
+        $this->updateLogIfItExists([
+            'id' => $webhookEventId,
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_RUNNING,
+            'timestamp' => $timestamp,
+            'requestContent' => $requestContent,
+        ], Context::createDefaultContext());
 
         try {
-            $response = $this->client->post($url, $requestContent);
+            $response = $this->webhookSender->send($message);
 
-            $this->updateLogIfItExists(
-                [
-                    'id' => $message->getWebhookEventId(),
-                    'deliveryStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
-                    'processingTime' => time() - $timestamp,
-                    'responseContent' => [
-                        'headers' => $response->getHeaders(),
-                        'body' => \json_decode($response->getBody()->getContents(), true),
-                    ],
-                    'responseStatusCode' => $response->getStatusCode(),
-                    'responseReasonPhrase' => $response->getReasonPhrase(),
+            $this->updateLogIfItExists([
+                'id' => $webhookEventId,
+                'deliveryStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                'processingTime' => time() - $timestamp,
+                'responseContent' => [
+                    'headers' => $response->getHeaders(),
+                    'body' => \json_decode($response->getBody()->getContents(), true),
                 ],
-                $context
-            );
+                'responseStatusCode' => $response->getStatusCode(),
+                'responseReasonPhrase' => $response->getReasonPhrase(),
+            ], Context::createDefaultContext());
 
             try {
-                $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);
-            } catch (AppNotFoundException|WriteTypeIntendException $e) {
-                // may happen if app or webhook got deleted in the meantime,
-                // we don't need to update the error-count in that case, so we can ignore the error
+                $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], Context::createDefaultContext());
+            } catch (\Throwable) {
             }
         } catch (\Throwable $e) {
-            $payload = [
-                'id' => $message->getWebhookEventId(),
-                'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED, // we use the message retry mechanism to retry the message here so we set the status to queued, because it will be automatically executed again.
+            $updates = [
+                'id' => $webhookEventId,
+                'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
                 'processingTime' => time() - $timestamp,
             ];
 
@@ -122,17 +80,15 @@ final readonly class WebhookEventMessageHandler
                 if (json_validate($body)) {
                     $body = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
                 }
-                $payload = array_merge($payload, [
-                    'responseContent' => [
-                        'headers' => $response->getHeaders(),
-                        'body' => $body,
-                    ],
-                    'responseStatusCode' => $response->getStatusCode(),
-                    'responseReasonPhrase' => $response->getReasonPhrase(),
-                ]);
+                $updates['responseContent'] = [
+                    'headers' => $response->getHeaders(),
+                    'body' => $body,
+                ];
+                $updates['responseStatusCode'] = $response->getStatusCode();
+                $updates['responseReasonPhrase'] = $response->getReasonPhrase();
             }
 
-            $this->updateLogIfItExists($payload, $context);
+            $this->updateLogIfItExists($updates, Context::createDefaultContext());
 
             if ($e instanceof BadResponseException && $message->getAppId()) {
                 throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $e);

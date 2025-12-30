@@ -40,6 +40,9 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Service\WebhookOutboxProcessor;
+use Shopware\Core\Framework\Webhook\Service\WebhookOutboxWriter;
+use Shopware\Core\Framework\Webhook\Service\WebhookWorkerRegistry;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -1060,7 +1063,6 @@ class WebhookManagerTest extends TestCase
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
             static::getContainer()->get('event_dispatcher'),
-            static::getContainer()->get(Connection::class),
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),
@@ -1068,7 +1070,10 @@ class WebhookManagerTest extends TestCase
             $this->bus,
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $adminWorkerEnabled
+            $adminWorkerEnabled,
+            static::getContainer()->get(WebhookOutboxProcessor::class),
+            static::getContainer()->get(WebhookOutboxWriter::class),
+            false
         );
     }
 

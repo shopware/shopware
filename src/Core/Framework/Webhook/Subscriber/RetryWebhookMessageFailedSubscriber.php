@@ -25,7 +25,8 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly RelatedWebhooks $relatedWebhooks
+        private readonly RelatedWebhooks $relatedWebhooks,
+        private readonly bool $isOutboxEnabled = false,
     ) {
     }
 
@@ -38,6 +39,11 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 
     public function failed(WorkerMessageFailedEvent $event): void
     {
+        if ($this->isOutboxEnabled) {
+            // when outbox is enabled, the failure is handled by the outbox mechanism.
+            return;
+        }
+
         if ($event->willRetry()) {
             return;
         }

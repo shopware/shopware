@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -24,6 +25,8 @@ class WebhookEventLogDefinition extends EntityDefinition
     final public const STATUS_QUEUED = 'queued';
 
     final public const STATUS_RUNNING = 'running';
+
+    final public const STATUS_PENDING_RETRY = 'pending_retry';
 
     final public const STATUS_FAILED = 'failed';
 
@@ -50,6 +53,7 @@ class WebhookEventLogDefinition extends EntityDefinition
     {
         return [
             'onlyLiveVersion' => false,
+            'executionCount' => 0,
         ];
     }
 
@@ -68,6 +72,11 @@ class WebhookEventLogDefinition extends EntityDefinition
             (new StringField('delivery_status', 'deliveryStatus'))->addFlags(new Required())->setDescription('Parameter that records \\\"success or failed\\\" status of the event.'),
             (new IntField('timestamp', 'timestamp'))->setDescription('Time at which the event occurred.'),
             (new IntField('processing_time', 'processingTime'))->setDescription('Time the event took to process.'),
+            (new StringField('partition_key', 'partitionKey')),
+            (new IntField('sequence', 'sequence'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IntField('execution_count', 'executionCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new DateTimeField('next_retry_at', 'nextRetryAt'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new DateTimeField('last_attempt_at', 'lastAttemptAt'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new StringField('app_version', 'appVersion'))->setDescription('Version of teh app.'),
             (new JsonField('request_content', 'requestContent'))->setDescription('Represents the content sent as part of the Request.'),
             (new JsonField('response_content', 'responseContent'))->setDescription('Represents the content sent as part of the Response.'),

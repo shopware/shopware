@@ -14,6 +14,17 @@ class WebhookException extends HttpException
     public const APP_WEBHOOK_FAILED = 'FRAMEWORK__APP_WEBHOOK_FAILED';
     public const INVALID_DATA_MAPPING = 'FRAMEWORK__WEBHOOK_INVALID_DATA_MAPPING';
     public const UNKNOWN_DATA_TYPE = 'FRAMEWORK__WEBHOOK_UNKNOWN_DATA_TYPE';
+    public const PROCESSING_ERROR = 'FRAMEWORK__WEBHOOK_PROCESSING_ERROR';
+
+    public static function invalidSerializedMessage(string $id, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PROCESSING_ERROR,
+            'Failed to process webhook entry "{{ id }}": {{ reason }}',
+            ['id' => $id, 'reason' => $reason]
+        );
+    }
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {

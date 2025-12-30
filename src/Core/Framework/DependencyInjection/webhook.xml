@@ -14,10 +14,14 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookOutboxWriter">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
         <service lazy="true" id="Shopware\Core\Framework\Webhook\Service\WebhookManager">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookLoader"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppLocaleProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
@@ -26,6 +30,9 @@
             <argument type="string">%env(APP_URL)%</argument>
             <argument>%kernel.shopware_version%</argument>
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookOutboxProcessor"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookOutboxWriter"/>
+            <argument>%env(bool:default:defaults_bool_false:SHOPWARE_WEBHOOK_OUTBOX)%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">
@@ -69,10 +76,72 @@
             <argument type="tagged_iterator" tag="shopware.entity.hookable"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookSenderFactory">
             <argument type="service" id="shopware.app_system.guzzle"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookSender">
+            <argument type="service" id="shopware.app_system.guzzle"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookSender"/>
             <argument type="service" id="webhook_event_log.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <!--   Make configurable.     -->
+        <service id="Shopware\Core\Framework\Webhook\Service\Outbox\OutboxConfig">
+            <argument>5</argument> <!-- maxRetries -->
+            <argument>5</argument> <!-- baseDelaySeconds -->
+            <argument>2</argument> <!-- delayMultiplier -->
+            <argument>10</argument> <!-- batchSize -->
+            <argument>20</argument> <!-- timeLimitSeconds -->
+            <argument>3</argument> <!-- inlineRetryMinBackoffSeconds -->
+            <argument>10</argument> <!-- maxWebhookErrorCount -->
+            <argument>20</argument> <!-- requestTimeout -->
+            <argument>10</argument> <!-- connectTimeout -->
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\Outbox\StreamLockService">
+             <argument type="service" id="Doctrine\DBAL\Connection"/>
+             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\Outbox\OutboxConfig"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\Outbox\OutboxEventRepository">
+             <argument type="service" id="Doctrine\DBAL\Connection"/>
+             <argument type="service" id="Psr\Clock\ClockInterface"/>
+             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\Outbox\OutboxConfig"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\Outbox\RetryCalculator">
+             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\Outbox\OutboxConfig"/>
+             <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\Outbox\DeliveryExecutor">
+            <argument type="service">
+                <service class="Shopware\Core\Framework\Webhook\Service\WebhookSender">
+                    <factory service="Shopware\Core\Framework\Webhook\Service\WebhookSenderFactory" method="create"/>
+                </service>
+            </argument>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\Outbox\RetryCalculator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookOutboxProcessor">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\Outbox\StreamLockService"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\Outbox\OutboxEventRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\Outbox\DeliveryExecutor"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\Outbox\OutboxConfig"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Handler\WebhookOutboxSignalMessageHandler">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookOutboxProcessor"/>
+            <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -97,6 +166,19 @@
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\ScheduledTask\DrainWebhookOutboxTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\ScheduledTask\DrainWebhookOutboxTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="messenger.bus.default"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\Outbox\OutboxEventRepository"/>
+
             <tag name="messenger.message_handler"/>
         </service>
     </services>

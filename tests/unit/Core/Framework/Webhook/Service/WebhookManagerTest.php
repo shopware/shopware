@@ -30,6 +30,9 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Service\WebhookOutboxProcessor;
+use Shopware\Core\Framework\Webhook\Service\WebhookOutboxWriter;
+use Shopware\Core\Framework\Webhook\Service\WebhookWorkerRegistry;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
@@ -46,8 +49,6 @@ class WebhookManagerTest extends TestCase
 
     private EventDispatcherInterface&MockObject $eventDispatcher;
 
-    private Connection&MockObject $connection;
-
     private MockHandler $clientMock;
 
     private Client $client;
@@ -56,15 +57,20 @@ class WebhookManagerTest extends TestCase
 
     private CollectingMessageBus $bus;
 
+    private WebhookOutboxWriter&MockObject $outboxWriter;
+
+    private WebhookOutboxProcessor&MockObject $outboxProcessor;
+
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->connection = $this->createMock(Connection::class);
         $this->clientMock = new MockHandler([new Response(200)]);
         $this->client = new Client(['handler' => HandlerStack::create($this->clientMock)]);
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
+        $this->outboxWriter = $this->createMock(WebhookOutboxWriter::class);
+        $this->outboxProcessor = $this->createMock(WebhookOutboxProcessor::class);
     }
 
     public function testDispatchesTwoConsecutiveEventsCorrectly(): void
@@ -417,7 +423,6 @@ class WebhookManagerTest extends TestCase
         return new WebhookManager(
             $this->webhookLoader,
             $this->eventDispatcher,
-            $this->connection,
             $this->eventFactory,
             $this->createMock(AppLocaleProvider::class),
             $appPayloadServiceHelper,
@@ -425,7 +430,10 @@ class WebhookManagerTest extends TestCase
             $this->bus,
             'https://example.com',
             '0.0.0',
-            $isAdminWorkerEnabled
+            $isAdminWorkerEnabled,
+            $this->outboxProcessor,
+            $this->outboxWriter,
+            false
         );
     }
 

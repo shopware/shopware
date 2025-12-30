@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
+use Shopware\Core\Framework\App\Event\ManifestChangedEvent;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
@@ -24,11 +25,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
-use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Message\WebhookOutboxSignalMessage;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -53,7 +54,6 @@ class WebhookManager implements ResetInterface
     public function __construct(
         private readonly WebhookLoader $webhookLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly Connection $connection,
         private readonly HookableEventFactory $eventFactory,
         private readonly AppLocaleProvider $appLocaleProvider,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
@@ -62,6 +62,9 @@ class WebhookManager implements ResetInterface
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,
         private readonly bool $isAdminWorkerEnabled,
+        private readonly WebhookOutboxProcessor $outboxProcessor,
+        private readonly WebhookOutboxWriter $outboxWriter,
+        private readonly bool $outboxEnabled = false,
     ) {
     }
 
@@ -106,15 +109,33 @@ class WebhookManager implements ResetInterface
         $languageId = $context->getLanguageId();
         $userLocale = $this->appLocaleProvider->getLocaleFromContext($context);
 
-        $affectedRoleIds = array_values(array_filter(array_map(fn (Webhook $webhook) => $webhook->appAclRoleId, $webhooksForEvent)));
+        $affectedRoleIds = array_values(array_filter(array_map(fn(Webhook $webhook) => $webhook->appAclRoleId, $webhooksForEvent)));
         $this->loadPrivileges($event->getName(), $affectedRoleIds);
+
+        if ($this->outboxEnabled) {
+            $eventLogIds = $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $languageId, $userLocale);
+
+            if ($this->isAdminWorkerEnabled || $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated) {
+                if (\count($eventLogIds) === 0) {
+                    return;
+                }
+
+                $this->outboxProcessor->flush($eventLogIds, $this->getFlushEventNames($event));
+            }
+
+            if (\count($eventLogIds) > 0) {
+                $this->bus->dispatch(new WebhookOutboxSignalMessage());
+            }
+
+            return;
+        }
 
         // If the admin worker is enabled we send all events synchronously, as we can't guarantee timely delivery otherwise.
         // Additionally, all app lifecycle events are sent synchronously as those can lead to nasty race conditions otherwise.
         if ($this->isAdminWorkerEnabled || $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated) {
             Profiler::trace(
                 'webhook::dispatch-sync',
-                fn () => $this->callWebhooksSynchronous($webhooksForEvent, $event, $languageId, $userLocale)
+                fn() => $this->callWebhooksSynchronous($webhooksForEvent, $event, $languageId, $userLocale)
             );
 
             return;
@@ -122,19 +143,23 @@ class WebhookManager implements ResetInterface
 
         Profiler::trace(
             'webhook::dispatch-async',
-            fn () => $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $languageId, $userLocale)
+            fn() => $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $languageId, $userLocale)
         );
     }
 
     /**
      * @param array<Webhook> $webhooksForEvent
+     *
+     * @return list<string> List of webhook event log IDs (hex)
      */
     private function dispatchWebhooksToQueue(
         array $webhooksForEvent,
         Hookable $event,
         string $languageId,
         string $userLocale
-    ): void {
+    ): array {
+        $eventLogIds = [];
+
         foreach ($webhooksForEvent as $webhook) {
             if (!$this->isEventDispatchingAllowed($webhook, $event)) {
                 continue;
@@ -156,32 +181,20 @@ class WebhookManager implements ResetInterface
                 $webhook->url,
                 $webhook->appSecret,
                 $languageId,
-                $userLocale
+                $userLocale,
             );
 
-            $this->logWebhookWithEvent($webhook, $webhookEventMessage);
+            $this->outboxWriter->write($webhook, $webhookEventMessage, $event);
+            $eventLogIds[] = $webhookEventMessage->getWebhookEventId();
+
+            if ($this->outboxEnabled) {
+                continue;
+            }
 
             $this->bus->dispatch($webhookEventMessage);
         }
-    }
 
-    private function logWebhookWithEvent(Webhook $webhook, WebhookEventMessage $webhookEventMessage): void
-    {
-        $this->connection->insert(
-            'webhook_event_log',
-            [
-                'id' => Uuid::fromHexToBytes($webhookEventMessage->getWebhookEventId()),
-                'app_name' => $webhook->appName,
-                'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
-                'webhook_name' => $webhook->webhookName,
-                'event_name' => $webhook->eventName,
-                'app_version' => $webhook->appVersion,
-                'url' => $webhook->url,
-                'only_live_version' => (int) $webhook->onlyLiveVersion,
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'serialized_webhook_message' => serialize($webhookEventMessage),
-            ]
-        );
+        return $eventLogIds;
     }
 
     /**
@@ -243,6 +256,21 @@ class WebhookManager implements ResetInterface
             $pool = new Pool($this->guzzle, $requests);
             $pool->promise()->wait();
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getFlushEventNames(Hookable $event): array
+    {
+        if ($event instanceof AppChangedEvent || $event instanceof AppDeletedEvent || $event instanceof AppPermissionsUpdated) {
+            return array_values(array_unique(array_merge(
+                ManifestChangedEvent::LIFECYCLE_EVENTS,
+                [AppPermissionsUpdated::NAME]
+            )));
+        }
+
+        return [$event->getName()];
     }
 
     /**
@@ -383,4 +411,5 @@ class WebhookManager implements ResetInterface
             return !$isVersioned;
         }));
     }
+
 }

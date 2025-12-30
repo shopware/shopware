@@ -42,7 +42,7 @@ class WebhookCleanup
         $this->deleteLogsOlderThanWithStatus($entryLifetimeSeconds, WebhookEventLogDefinition::STATUS_SUCCESS, WebhookEventLogDefinition::STATUS_FAILED);
         // after double the entry lifetime, we also delete queued entries,
         // because we assume they are stuck in queued state (as we rely on message retry to retry failed webhooks)
-        $this->deleteLogsOlderThanWithStatus($entryLifetimeSeconds * 2, WebhookEventLogDefinition::STATUS_QUEUED);
+        $this->deleteLogsOlderThanWithStatus($entryLifetimeSeconds * 2, WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY);
     }
 
     private function deleteLogsOlderThanWithStatus(int $entryLifetimeSeconds, string ...$status): void

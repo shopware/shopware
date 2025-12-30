@@ -76,16 +76,6 @@ Shopware is:
 
 ## Installation
 
-### Extending Shopware
-
-There are already a lot of extensions available in the [Shopware store](https://store.shopware.com/).
-
-After setting up [Shopware locally for development](https://developer.shopware.com/docs/guides/installation), you can start with our extension guides in the documentation.
-
-The preferred way of extending Shopware is through the [App System](https://developer.shopware.com/docs/guides/plugins/apps/app-base-guide).
-If the feature you want to implement needs direct access to the Shopware process and the database, you can also use the [plugin system](https://developer.shopware.com/docs/guides/plugins/plugins/plugin-base-guide).    
-You can find an [overview and differentiation in the documentation](https://developer.shopware.com/docs/guides/plugins/overview.html).
-
 ### Production setup
 
 The easiest way to run a Shopware shop is by booking a commercial plan in the [Shopware cloud](https://www.shopware.com/en/shopware-cloud/), a fully managed setup, ready to use.

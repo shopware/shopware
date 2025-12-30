@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('fundamentals@framework')]
 class AccessKeyController extends AbstractController
 {
-    #[Route(path: '/api/_action/access-key/intergration', name: 'api.action.access-key.integration', methods: ['GET'], defaults: ['_acl' => ['api_action_access-key_integration']])]
+    #[Route(path: '/api/_action/access-key/intergration', name: 'api.action.access-key.integration', methods: ['GET'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_action_access-key_integration']])]
     public function generateIntegrationKey(): JsonResponse
     {
         return new JsonResponse([

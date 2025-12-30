@@ -30,7 +30,7 @@ class SystemConfigController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/system-config/check', name: 'api.action.core.system-config.check', defaults: ['_acl' => ['system_config:read']], methods: ['GET'])]
+    #[Route(path: '/api/_action/system-config/check', name: 'api.action.core.system-config.check', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']], methods: ['GET'])]
     public function checkConfiguration(Request $request, Context $context): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
@@ -54,7 +54,7 @@ class SystemConfigController extends AbstractController
         return new JsonResponse($this->configurationService->getConfiguration($domain, $context));
     }
 
-    #[Route(path: '/api/_action/system-config', name: 'api.action.core.system-config.value', defaults: ['_acl' => ['system_config:read']], methods: ['GET'])]
+    #[Route(path: '/api/_action/system-config', name: 'api.action.core.system-config.value', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']], methods: ['GET'])]
     public function getConfigurationValues(Request $request): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
@@ -79,7 +79,7 @@ class SystemConfigController extends AbstractController
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
-    #[Route(path: '/api/_action/system-config', name: 'api.action.core.save.system-config', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
+    #[Route(path: '/api/_action/system-config', name: 'api.action.core.save.system-config', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
     public function saveConfiguration(Request $request): JsonResponse
     {
         $salesChannelId = $request->query->get('salesChannelId');
@@ -93,7 +93,7 @@ class SystemConfigController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/system-config/batch', name: 'api.action.core.save.system-config.batch', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
+    #[Route(path: '/api/_action/system-config/batch', name: 'api.action.core.save.system-config.batch', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
     public function batchSaveConfiguration(Request $request, Context $context): JsonResponse
     {
         $this->systemConfigValidator->validate($request->request->all(), $context);

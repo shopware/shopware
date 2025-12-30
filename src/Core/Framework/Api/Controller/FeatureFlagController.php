@@ -25,7 +25,7 @@ class FeatureFlagController
     ) {
     }
 
-    #[Route(path: '/api/_action/feature-flag/enable/{feature}', name: 'api.action.feature-flag.enable', defaults: ['auth_required' => true, '_acl' => ['api_feature_flag_toggle']], methods: ['POST'])]
+    #[Route(path: '/api/_action/feature-flag/enable/{feature}', name: 'api.action.feature-flag.enable', defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_feature_flag_toggle']], methods: ['POST'])]
     public function enable(string $feature): JsonResponse
     {
         $this->featureFlagService->enable($feature);
@@ -35,7 +35,7 @@ class FeatureFlagController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/feature-flag/disable/{feature}', name: 'api.action.feature-flag.disable', defaults: ['auth_required' => true, '_acl' => ['api_feature_flag_toggle']], methods: ['POST'])]
+    #[Route(path: '/api/_action/feature-flag/disable/{feature}', name: 'api.action.feature-flag.disable', defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_feature_flag_toggle']], methods: ['POST'])]
     public function disable(string $feature): JsonResponse
     {
         $this->featureFlagService->disable($feature);
@@ -45,7 +45,7 @@ class FeatureFlagController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/feature-flag', name: 'api.action.feature-flag.load', defaults: ['auth_required' => true, '_acl' => ['api_feature_flag_toggle']], methods: ['GET'])]
+    #[Route(path: '/api/_action/feature-flag', name: 'api.action.feature-flag.load', defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_feature_flag_toggle']], methods: ['GET'])]
     public function load(): JsonResponse
     {
         $featureFlags = Feature::getRegisteredFeatures();

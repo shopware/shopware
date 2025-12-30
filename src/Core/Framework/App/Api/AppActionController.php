@@ -39,7 +39,7 @@ class AppActionController extends AbstractController
         ]);
     }
 
-    #[Route(path: 'api/app-system/action-button/run/{id}', name: 'api.app_system.action_button.run', methods: ['POST'], defaults: ['_acl' => ['app']])]
+    #[Route(path: 'api/app-system/action-button/run/{id}', name: 'api.app_system.action_button.run', methods: ['POST'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['app']])]
     public function runAction(string $id, Request $request, Context $context): Response
     {
         $entityIds = $request->get('ids', []);

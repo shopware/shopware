@@ -118,7 +118,7 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/switch-customer',
         name: 'api.proxy.switch-customer',
-        defaults: ['_acl' => ['api_proxy_switch-customer']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_proxy_switch-customer']],
         methods: ['PATCH']
     )]
     public function assignCustomer(Request $request, Context $context): Response
@@ -154,7 +154,7 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/generate-imitate-customer-token',
         name: 'api.proxy.generate-imitate-customer-token',
-        defaults: ['_acl' => ['api_proxy_imitate-customer']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_proxy_imitate-customer']],
         methods: ['POST']
     )]
     public function generateImitateCustomerToken(RequestDataBag $data, Context $context): JsonResponse

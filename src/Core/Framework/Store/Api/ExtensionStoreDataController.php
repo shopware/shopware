@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], '_acl' => ['system.plugin_maintain']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']])]
 #[Package('checkout')]
 class ExtensionStoreDataController extends AbstractController
 {

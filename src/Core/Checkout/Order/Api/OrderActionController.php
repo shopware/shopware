@@ -148,7 +148,7 @@ class OrderActionController extends AbstractController
     /**
      * @throws PaymentException
      */
-    #[Route(path: '/api/_action/order_transaction_capture_refund/{refundId}', name: 'api.action.order.order_transaction_capture_refund', methods: ['POST'], defaults: ['_acl' => ['order_refund.editor']])]
+    #[Route(path: '/api/_action/order_transaction_capture_refund/{refundId}', name: 'api.action.order.order_transaction_capture_refund', methods: ['POST'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_refund.editor']])]
     public function refundOrderTransactionCapture(string $refundId, Context $context): JsonResponse
     {
         $this->paymentRefundProcessor->processRefund($refundId, $context);

@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], '_acl' => ['system.plugin_maintain']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']])]
 #[Package('checkout')]
 class ExtensionStoreActionsController extends AbstractController
 {
@@ -50,7 +50,7 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/upload', name: 'api.extension.upload', defaults: ['_acl' => ['system.plugin_upload']], methods: ['POST'])]
+    #[Route(path: '/api/_action/extension/upload', name: 'api.extension.upload', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_upload']], methods: ['POST'])]
     public function uploadExtensions(Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();

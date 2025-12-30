@@ -40,7 +40,7 @@ class NotificationController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/notification', name: 'api.notification', defaults: ['_acl' => ['notification:create']], methods: ['POST'])]
+    #[Route(path: '/api/notification', name: 'api.notification', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['notification:create']], methods: ['POST'])]
     public function saveNotification(Request $request, Context $context): Response
     {
         $status = (string) $request->request->get('status');

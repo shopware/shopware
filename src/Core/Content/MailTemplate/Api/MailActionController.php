@@ -35,7 +35,7 @@ class MailActionController extends AbstractController
         path: '/api/_action/mail-template/send',
         name: 'api.action.mail_template.send',
         methods: ['POST'],
-        defaults: ['_acl' => ['api_send_email']]
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_send_email']]
     )]
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {

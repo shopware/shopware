@@ -202,7 +202,7 @@ class AdministrationController extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/api/_admin/reset-excluded-search-term', name: 'api.admin.reset-excluded-search-term', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
+    #[Route(path: '/api/_admin/reset-excluded-search-term', name: 'api.admin.reset-excluded-search-term', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
     public function resetExcludedSearchTerm(Context $context): JsonResponse
     {
         $searchConfigId = $this->connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);

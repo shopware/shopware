@@ -24,7 +24,7 @@ class AdminTagController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/_admin/tag-filter-ids', name: 'api.admin.tag-filter-ids', defaults: ['_acl' => ['tag:read'], '_entity' => 'tag'], methods: ['POST'])]
+    #[Route(path: '/api/_admin/tag-filter-ids', name: 'api.admin.tag-filter-ids', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['tag:read'], '_entity' => 'tag'], methods: ['POST'])]
     public function filterIds(Request $request, Criteria $criteria, Context $context): JsonResponse
     {
         $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);

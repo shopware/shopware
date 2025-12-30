@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -13,12 +14,12 @@ class InvalidAclRouteInRouteAttributeController extends StorefrontController
     {
     }
 
-    #[Route(defaults: ['_acl' => 'string here'])]
+    #[Route(defaults: [PlatformRequest::ATTRIBUTE_ACL => 'string here'])]
     public function aclIsNotArray(): void
     {
     }
 
-    #[Route(defaults: ['_acl' => [null]])]
+    #[Route(defaults: [PlatformRequest::ATTRIBUTE_ACL => [null]])]
     public function aclContainInvalidValues(): void
     {
     }

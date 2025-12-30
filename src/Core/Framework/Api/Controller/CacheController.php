@@ -32,7 +32,7 @@ class CacheController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/cache_info', name: 'api.action.cache.info', methods: ['GET'], defaults: ['_acl' => ['system:cache:info']])]
+    #[Route(path: '/api/_action/cache_info', name: 'api.action.cache.info', methods: ['GET'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:cache:info']])]
     public function info(): JsonResponse
     {
         return new JsonResponse([
@@ -42,7 +42,7 @@ class CacheController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/index', name: 'api.action.cache.index', methods: ['POST'], defaults: ['_acl' => ['api_action_cache_index']])]
+    #[Route(path: '/api/_action/index', name: 'api.action.cache.index', methods: ['POST'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_action_cache_index']])]
     public function index(RequestDataBag $dataBag): Response
     {
         $data = $dataBag->all();
@@ -55,7 +55,7 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/cache', name: 'api.action.cache.delete', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
+    #[Route(path: '/api/_action/cache', name: 'api.action.cache.delete', methods: ['DELETE'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:clear:cache']])]
     public function clearCache(): Response
     {
         $this->cacheClearer->clear();
@@ -63,7 +63,7 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/cache-delayed', name: 'api.action.cache.delete-delayed', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
+    #[Route(path: '/api/_action/cache-delayed', name: 'api.action.cache.delete-delayed', methods: ['DELETE'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:clear:cache']])]
     public function clearDelayedCache(): Response
     {
         $this->cacheInvalidator->invalidateExpired();
@@ -71,7 +71,7 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/cleanup', name: 'api.action.cache.cleanup', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
+    #[Route(path: '/api/_action/cleanup', name: 'api.action.cache.cleanup', methods: ['DELETE'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:clear:cache']])]
     public function clearOldCacheFolders(): Response
     {
         $this->cacheClearer->scheduleCacheFolderCleanup();
@@ -79,7 +79,7 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/container_cache', name: 'api.action.container-cache.delete', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
+    #[Route(path: '/api/_action/container_cache', name: 'api.action.container-cache.delete', methods: ['DELETE'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:clear:cache']])]
     public function clearContainerCache(): Response
     {
         $this->cacheClearer->clearContainerCache();

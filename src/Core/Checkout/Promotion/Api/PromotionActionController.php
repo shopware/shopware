@@ -26,7 +26,7 @@ class PromotionActionController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/promotion/setgroup/packager', name: 'api.action.promotion.setgroup.packager', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
+    #[Route(path: '/api/_action/promotion/setgroup/packager', name: 'api.action.promotion.setgroup.packager', methods: ['GET'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion:read']])]
     public function getSetGroupPackagers(): JsonResponse
     {
         $packagerKeys = [];
@@ -39,7 +39,7 @@ class PromotionActionController extends AbstractController
         return new JsonResponse($packagerKeys);
     }
 
-    #[Route(path: '/api/_action/promotion/setgroup/sorter', name: 'api.action.promotion.setgroup.sorter', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
+    #[Route(path: '/api/_action/promotion/setgroup/sorter', name: 'api.action.promotion.setgroup.sorter', methods: ['GET'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion:read']])]
     public function getSetGroupSorters(): JsonResponse
     {
         $sorterKeys = [];
@@ -52,7 +52,7 @@ class PromotionActionController extends AbstractController
         return new JsonResponse($sorterKeys);
     }
 
-    #[Route(path: '/api/_action/promotion/discount/picker', name: 'api.action.promotion.discount.picker', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
+    #[Route(path: '/api/_action/promotion/discount/picker', name: 'api.action.promotion.discount.picker', methods: ['GET'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion:read']])]
     public function getDiscountFilterPickers(): JsonResponse
     {
         $pickerKeys = [];

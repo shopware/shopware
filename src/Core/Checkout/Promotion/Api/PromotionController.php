@@ -27,13 +27,13 @@ class PromotionController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/_action/promotion/codes/generate-fixed', name: 'api.action.promotion.codes.generate-fixed', methods: ['GET'], defaults: ['_acl' => ['promotion.editor']])]
+    #[Route(path: '/api/_action/promotion/codes/generate-fixed', name: 'api.action.promotion.codes.generate-fixed', methods: ['GET'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion.editor']])]
     public function generateFixedCode(): Response
     {
         return new JsonResponse($this->codeService->getFixedCode());
     }
 
-    #[Route(path: '/api/_action/promotion/codes/generate-individual', name: 'api.action.promotion.codes.generate-individual', methods: ['GET'], defaults: ['_acl' => ['promotion.editor']])]
+    #[Route(path: '/api/_action/promotion/codes/generate-individual', name: 'api.action.promotion.codes.generate-individual', methods: ['GET'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion.editor']])]
     public function generateIndividualCodes(Request $request): Response
     {
         $codePattern = (string) $request->query->get('codePattern');
@@ -49,7 +49,7 @@ class PromotionController extends AbstractController
         return new JsonResponse($this->codeService->generateIndividualCodes($codePattern, $amount));
     }
 
-    #[Route(path: '/api/_action/promotion/codes/replace-individual', name: 'api.action.promotion.codes.replace-individual', methods: ['PATCH'], defaults: ['_acl' => ['promotion.editor']])]
+    #[Route(path: '/api/_action/promotion/codes/replace-individual', name: 'api.action.promotion.codes.replace-individual', methods: ['PATCH'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion.editor']])]
     public function replaceIndividualCodes(Request $request, Context $context): Response
     {
         $promotionId = (string) $request->request->get('promotionId');
@@ -61,7 +61,7 @@ class PromotionController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/promotion/codes/add-individual', name: 'api.action.promotion.codes.add-individual', methods: ['POST'], defaults: ['_acl' => ['promotion.editor']])]
+    #[Route(path: '/api/_action/promotion/codes/add-individual', name: 'api.action.promotion.codes.add-individual', methods: ['POST'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion.editor']])]
     public function addIndividualCodes(Request $request, Context $context): Response
     {
         $promotionId = (string) $request->request->get('promotionId');
@@ -72,7 +72,7 @@ class PromotionController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/promotion/codes/preview', name: 'api.action.promotion.codes.preview', methods: ['GET'], defaults: ['_acl' => ['promotion.editor']])]
+    #[Route(path: '/api/_action/promotion/codes/preview', name: 'api.action.promotion.codes.preview', methods: ['GET'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion.editor']])]
     public function getCodePreview(Request $request): Response
     {
         $codePattern = (string) $request->query->get('codePattern');

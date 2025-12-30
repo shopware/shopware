@@ -31,7 +31,7 @@ class DocumentController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/document/{documentId}/{deepLinkCode}', name: 'api.action.download.document', methods: ['GET'], defaults: ['_acl' => ['document:read']])]
+    #[Route(path: '/api/_action/document/{documentId}/{deepLinkCode}', name: 'api.action.download.document', methods: ['GET'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:read']])]
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
         $download = $request->query->getBoolean('download');
@@ -51,7 +51,7 @@ class DocumentController extends AbstractController
         );
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview', name: 'api.action.document.preview', methods: ['GET'], defaults: ['_acl' => ['document:read']])]
+    #[Route(path: '/api/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview', name: 'api.action.document.preview', methods: ['GET'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:read']])]
     public function previewDocument(
         Request $request,
         string $orderId,
@@ -78,7 +78,7 @@ class DocumentController extends AbstractController
         );
     }
 
-    #[Route(path: '/api/_action/order/document/download', name: 'api.action.download.documents', methods: ['POST'], defaults: ['_acl' => ['document:read']])]
+    #[Route(path: '/api/_action/order/document/download', name: 'api.action.download.documents', methods: ['POST'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:read']])]
     public function downloadDocuments(Request $request, Context $context): Response
     {
         $documentIds = $request->get('documentIds', []);

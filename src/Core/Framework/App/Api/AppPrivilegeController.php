@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +30,7 @@ class AppPrivilegeController
     #[Route(
         path: '/api/app-system/privileges/requested',
         name: 'api.app_system.privileges.requested',
-        defaults: ['_acl' => ['system.plugin_maintain']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']],
         methods: [Request::METHOD_GET]
     )]
     public function getRequestedPrivileges(Context $context): JsonResponse
@@ -46,7 +47,7 @@ class AppPrivilegeController
     #[Route(
         path: '/api/app-system/{appName}/privileges',
         name: 'api.app_system.privileges.accept',
-        defaults: ['_acl' => ['system.plugin_maintain']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']],
         methods: [Request::METHOD_PATCH]
     )]
     public function updatePrivileges(Request $request, Context $context, string $appName): Response

@@ -38,7 +38,7 @@ class FormController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/form/contact', name: 'frontend.form.contact.send', defaults: ['XmlHttpRequest' => true, '_captcha' => true], methods: ['POST'])]
+    #[Route(path: '/form/contact', name: 'frontend.form.contact.send', defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_CAPTCHA => true], methods: ['POST'])]
     public function sendContactForm(RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
         $response = [];
@@ -81,7 +81,7 @@ class FormController extends StorefrontController
         return new JsonResponse($response);
     }
 
-    #[Route(path: '/form/newsletter', name: 'frontend.form.newsletter.register.handle', defaults: ['XmlHttpRequest' => true, '_captcha' => true], methods: ['POST'])]
+    #[Route(path: '/form/newsletter', name: 'frontend.form.newsletter.register.handle', defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_CAPTCHA => true], methods: ['POST'])]
     public function handleNewsletter(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
         $subscribe = $data->get('option') === self::SUBSCRIBE;

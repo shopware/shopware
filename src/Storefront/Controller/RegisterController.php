@@ -177,7 +177,7 @@ class RegisterController extends StorefrontController
         );
     }
 
-    #[Route(path: '/account/register', name: 'frontend.account.register.save', defaults: ['_captcha' => true], methods: ['POST'])]
+    #[Route(path: '/account/register', name: 'frontend.account.register.save', defaults: [PlatformRequest::ATTRIBUTE_CAPTCHA => true], methods: ['POST'])]
     public function register(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer()) {

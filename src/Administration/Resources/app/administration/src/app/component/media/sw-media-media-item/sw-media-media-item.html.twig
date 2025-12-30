@@ -1,6 +1,7 @@
 {% block sw_media_media_item %}
 <sw-media-base-item
     class="sw-media-media-item"
+    :item="item"
     v-bind="$attrs"
 >
 
@@ -69,7 +70,7 @@
                 :disabled="!item.hasFile || item.private || !allowEdit"
                 @click="startInlineEdit"
             >
-                {{ $tc('global.sw-media-media-item.labelContextMenuRename') }}
+                {{ $t('global.sw-media-media-item.labelContextMenuRename') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -78,7 +79,7 @@
                 v-if="item.hasFile"
                 @click="copyItemLink(item)"
             >
-                {{ $tc('global.sw-media-media-item.labelContextMenuCopyLink') }}
+                {{ $t('global.sw-media-media-item.labelContextMenuCopyLink') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -88,7 +89,7 @@
                 class="sw-media-context-item__replace-media-action"
                 @click="openModalReplace"
             >
-                {{ $tc('global.sw-media-media-item.labelContextMenuReplace') }}
+                {{ $t('global.sw-media-media-item.labelContextMenuReplace') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -98,7 +99,29 @@
                 class="sw-media-context-item__move-media-action"
                 @click="openModalMove"
             >
-                {{ $tc('global.sw-media-media-item.labelContextMenuMove') }}
+                {{ $t('global.sw-media-media-item.labelContextMenuMove') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_media_media_item_context_item_set_cover %}
+            <sw-context-menu-item
+                v-if="isVideoMedia"
+                :disabled="!allowEdit"
+                class="sw-media-context-item__set-video-cover-action"
+                @click="openCoverSelectionModal"
+            >
+                {{ $t('global.sw-media-media-item.labelContextMenuSetCover') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_media_media_item_context_item_remove_cover %}
+            <sw-context-menu-item
+                v-if="isVideoMedia && hasVideoCover"
+                :disabled="!allowEdit"
+                class="sw-media-context-item__remove-video-cover-action"
+                @click="removeVideoCover"
+            >
+                {{ $t('global.sw-media-media-item.labelContextMenuRemoveCover') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -117,7 +140,7 @@
                 variant="danger"
                 @click="openModalDelete"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -151,6 +174,16 @@
             :items-to-move="[item]"
             @media-move-modal-close="closeModalMove"
             @media-move-modal-items-move="onMediaItemMoved"
+        />
+        {% endblock %}
+
+        {% block sw_media_media_item_cover_modal %}
+        <sw-media-modal-v2
+            v-if="showCoverSelectionModal && allowEdit && isVideoMedia"
+            :allow-multi-select="false"
+            file-accept="image/*"
+            @modal-close="closeCoverSelectionModal"
+            @media-modal-selection-change="onCoverSelectionChange"
         />
         {% endblock %}
     </template>

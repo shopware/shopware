@@ -65,7 +65,7 @@
         }
     },
     "require": {
-        "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
@@ -84,10 +84,11 @@
         "ext-zlib": "*",
         "composer-runtime-api": "^2.1",
         "async-aws/core": "^1.22",
-        "cocur/slugify": "^4.3.0",
+        "cocur/slugify": "^4.7.0",
+        "composer/class-map-generator": "^1.7",
         "composer/composer": "^2.8.5",
         "composer/semver": "^3.4.0",
-        "doctrine/dbal": "^4.3.1",
+        "doctrine/dbal": "~4.3.1",
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "3.1.0",
         "dragonmantank/cron-expression": "^3.3",
@@ -95,13 +96,12 @@
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
         "horstoeko/zugferd": "^1.0.104",
-        "lcobucci/clock": "^3.1.0",
         "lcobucci/jwt": "^5.5",
         "league/flysystem": "^3.13.0",
         "league/flysystem-local": "^3.29.0",
         "league/flysystem-memory": "^3.10.3",
         "league/mime-type-detection": "^1.13.0",
-        "league/oauth2-server": "^9.1",
+        "league/oauth2-server": "^9.3",
         "meyfa/php-svg": "^0.16.1",
         "monolog/monolog": "^3.3.1",
         "nyholm/psr7": "^1.5",
@@ -185,16 +185,15 @@
         "bamarni/composer-bin-plugin": "^1.8.2",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
-        "friendsofphp/php-cs-fixer": "3.82.1",
+        "friendsofphp/php-cs-fixer": "3.91.2",
         "jdorn/sql-formatter": "^1.2.17",
-        "league/construct-finder": "^1.1",
         "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
         "nikic/php-parser": "^5.4.0",
         "opis/json-schema": "^2.3.0",
         "phpat/phpat": "0.12.0",
         "phpbench/phpbench": "^1.2.15",
-        "phpdocumentor/reflection-docblock": "^5.3.0",
+        "phpdocumentor/reflection-docblock": "^5.6.4",
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpdoc-parser": "^2.0.0",
@@ -361,7 +360,7 @@
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
         "ecs": "php-cs-fixer fix --dry-run --diff",
-        "ecs-fix": "php-cs-fixer fix",
+        "ecs-fix": "php-cs-fixer fix -v",
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront"
@@ -492,7 +491,8 @@
     },
     "autoload": {
         "files": [
-            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
+            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "src/Core/Framework/Adapter/Database/Mysql.php"
         ],
         "psr-4": {
             "Shopware\\": "src/"

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
@@ -58,13 +59,12 @@ class CustomFieldSetDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of a custom field set.'),
-            (new StringField('name', 'name'))->addFlags(new Required())->setDescription('Unique name of a custom field set.'),
+            (new StringField('name', 'name'))->addFlags(new Required(), new Immutable())->setDescription('Unique name of a custom field set.'),
             (new JsonField('config', 'config', [], []))->setDescription('Specifies detailed information about the component.'),
             (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the custom field set is enabled for use.'),
             (new BoolField('global', 'global'))->setDescription('When set to `true`, the custom field set can be used across all sales channels.'),
             (new IntField('position', 'position'))->setDescription('The order of the tabs of your defined custom field set to be displayed.'),
-            (new FkField('app_id', 'appId', AppDefinition::class))->setDescription('Unique identity of an app.'),
-
+            (new FkField('app_id', 'appId', AppDefinition::class))->setDescription('Unique identity of an app.')
             (new OneToManyAssociationField('customFields', CustomFieldDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('relations', CustomFieldSetRelationDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCustomFieldSetDefinition::class, 'custom_field_set_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('customFieldSets')),

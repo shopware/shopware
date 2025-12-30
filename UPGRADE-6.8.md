@@ -24,6 +24,8 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 </details>
 
 # API
+## Changed returned status code for `/store-api/document/download/` when no documents are found
+The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
 # Core
 
@@ -131,7 +133,9 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
-## Only rules relevant for product prices are considered in the `sw-cache-hash`
+## Cache improvements
+
+### Only rules relevant for product prices are considered in the `sw-cache-hash`
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
 
 If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`. In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
@@ -155,8 +159,27 @@ class ResolveRuleIds implements EventSubscriberInterface
 
 If some custom entity has a relation to a rule, which might alter the storefront, you should add them to either an existing area, or your own are using the DAL flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on the rule association.
 
-## Removed unused `RuleAreas` constants
+### Removed unused `RuleAreas` constants
 The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed
+
+### Removed `sw-states` and `sw-currency` cache cookie handling
+The `sw-states` and `sw-currency` cache cookie handling is removed, which means by default the HTTP-Cache is also active for logged in customers or when the cart is filled.
+Due to the rework of the contained rules in the cache hash (see above), this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
+
+You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
+
+The following classes and constants were removed as they are no longer used:
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was removed:
+* `shopware.cache.invalidation.http_cache`
 
 ## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
 * For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.
@@ -363,6 +386,42 @@ $parsed = $parser->parse('Disallow: /admin/', $context);
 new DomainRuleStruct($parsed, '/en');
 ```
 
+## Removed `PlatformRequest::ATTRIBUTE_HTTP_CACHE` states support
+
+The `$states` property in `Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute` is removed.
+
+**Migration**: Remove usage of `$states`, as state-based invalidation is not supported anymore.
+
+Using `#[Route]` attribute:
+
+```diff
+ #[Route(
+     path: '/store-api/my-route',
+     name: 'store-api.my-route',
+     methods: ['GET'],
+     defaults: [
+         PlatformRequest::ATTRIBUTE_HTTP_CACHE => [
+-            'states' => ['cart-filled'],
+         ],
+     ]
+ )]
+```
+
+Using request attributes:
+
+```diff
+ $request->attributes->set(
+     PlatformRequest::ATTRIBUTE_HTTP_CACHE,
+     new CacheAttribute(
+-        states: ['cart-filled', 'logged-in'],
+     )
+ );
+```
+
+## Removed `ResponseCacheConfiguration` methods
+Script\Api\ResponseCacheConfiguration::maxAge()` and
+`\Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration::invalidationState()` were removed with no replacement.
+
 ## Removal of product manufacturer link column
 
 The column `link` of the table `product_manufacturer` was removed.
@@ -429,11 +488,72 @@ The following snippet keys have been removed:
 * `global.sw-condition.condition.promotionCodeOfTypeRule`
 * `global.sw-condition.condition.dayOfWeekRule`
 
+## The following template blocks of the newsletter recipient filter have been removed
+* `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
+* `sw_newsletter_recipient_list_sidebar_filter_status_direct`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
+
+Use the parent blocks instead
+
+## Removement of component sw-newsletter-recipient-filter-switch
+`administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
+
+## File accessibility changed from public to private
+`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+
+## Removed .png and .jpg images
+
+In favor of WebP the following images have been removed:
+
+-   `administration/static/img/sw-login-background.png`
+-   `administration/static/img/plugin-manager--login.png`
+-   `administration/static/img/data-consent-background.png`
+-   `administration/static/img/flowbuilder/ui-sample.png`
+-   `administration/static/img/cms/preview_plant_small.jpg`
+-   `administration/static/img/cms/preview_glasses_large.jpg`
+-   `administration/static/img/cms/preview_page_default.png`
+-   `administration/static/img/cms/preview_page_sidebar.png`
+-   `administration/static/img/cms/preview_glasses_small.jpg`
+-   `administration/static/img/cms/preview_youtube.jpg`
+-   `administration/static/img/cms/preview_plant_large.jpg`
+-   `administration/static/img/cms/preview_custom_entity_detail_default.png`
+-   `administration/static/img/cms/preview_mountain_large.jpg`
+-   `administration/static/img/cms/default_preview_product_detail.jpg`
+-   `administration/static/img/cms/preview_custom_entity_detail_sidebar.png`
+-   `administration/static/img/cms/preview_product_detail_sidebar.png`
+-   `administration/static/img/cms/preview_product_detail_default.png`
+-   `administration/static/img/cms/preview_product_list_default.png`
+-   `administration/static/img/cms/preview_product_list_sidebar.png`
+-   `administration/static/img/cms/preview_mountain_small.jpg`
+-   `administration/static/img/cms/default_preview_product_list.jpg`
+-   `administration/static/img/cms/preview_landingpage_sidebar.png`
+-   `administration/static/img/cms/vimeo-icon.png`
+-   `administration/static/img/cms/preview_landingpage_default.png`
+-   `administration/static/img/cms/youtube-icon.png`
+-   `administration/static/img/cms/preview_camera_small.jpg`
+-   `administration/static/img/cms/preview_custom_entity_list_sidebar.png`
+-   `administration/static/img/cms/preview_camera_large.jpg`
+-   `administration/static/img/cms/preview_vimeo.jpg`
+-   `administration/static/img/cms/preview_custom_entity_list_default.png`
+-   `administration/static/img/theme/default_theme_preview.jpg`
+-   `administration/static/fixtures/sw-login-background.png`
+-   `administration/static/fixtures/sw-test-image.png`
+-   `administration/static/fixtures/sw-login-background-2.png`
+-   `administration/src/module/sw-login/page/index/assets/sw-login-background.png`
+-   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
+
+Update image references to their `.webp` equivalents.  
+For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`
+
 </details>
 
 # Storefront
 
 <details>
+
+## TOS checkbox position update
+The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
 
 ## Removal of hardcoded language flags
 
@@ -609,6 +729,15 @@ to:
 {% endblock %}
 ```
 
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}` has been updated. Instead of returning `204`, the route now returns `404` (Not Found) when no generated document exists.
+
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}` has been updated. Instead of returning `204`, the route now returns:
+- `406` (Not Acceptable) for invalid/unsupported `fileType` values
+- `404` (Not Found) when no generated document exists for the requested `fileType`.
+
+
 </details>
 
 # App System
@@ -642,11 +771,61 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
 
 The `CountryStateController` route `/country/country-state-data` now supports only GET methods. This change improves compatibility with HTTP caching and aligns with the best practices for data retrieval routes.
 
+## App scripts methods maxAge() and invalidationState() removed
+
+Method `response.cache.maxAge()` was removed. Use `sharedMaxAge()` to set `s-maxage` instead. The `clientMaxAge()` method is also available for setting `max-age`.
+
+```diff
+-{% do response.cache.maxAge(3600) %}
++{% do response.cache.sharedMaxAge(3600) %}
+```
+
+Method `response.cache.invalidationState()` was removed. State-based invalidation is not supported anymore.
+
+```diff
+-{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
++{# No replacement #}
+```
+
 </details>
 
 # Hosting & Configuration
 
 <details>
+
+## HTTP Cache Changes
+
+The following configuration parameters were removed:
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable
+- `shopware.http.cache.default_ttl` parameter
+- `shopware.http_cache.stale_while_revalidate` parameter
+- `shopware.http_cache.stale_if_error` parameter
+
+**Migration**: Use cache policies instead:
+
+```diff
+-shopware:
+-  http:
+-    cache:
+-      default_ttl: 7200
++shopware:
++  http_cache:
++    policies:
++      my_cacheable:
++        headers:
++          cache_control:
++            public: true
++            ## replaces shopware.http.cache.default_ttl parameter (and related env var)
++            s_maxage: 7200
++            # replaces shopware.http_cache.stale_while_revalidate parameter
++            stale_while_revalidate: 120
++            # replaces shopware.http_cache.stale_if_error parameter
++            stale_if_error: 360
++    default_policies:
++      storefront:
++        cacheable: my_cacheable
+```
 
 ## Dropped support for OpenSearch 1.x
 

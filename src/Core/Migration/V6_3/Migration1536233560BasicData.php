@@ -138,7 +138,7 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert('locale_translation', [
             'locale_id' => $localeEn,
             'language_id' => $languageDe,
-            'name' => 'Englisch',
+            'name' => 'EnglischZ',
             'territory' => 'Vereinigtes Königreich',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);

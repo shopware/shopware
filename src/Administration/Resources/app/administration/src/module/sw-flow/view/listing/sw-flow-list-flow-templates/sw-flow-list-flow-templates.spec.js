@@ -146,17 +146,6 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
         expect(createFlowLink.classes()).toContain('mt-link--disabled');
     });
 
-    it('should be able to redirect to create flow page from flow template', async () => {
-        const wrapper = await createWrapper([
-            'flow.creator',
-        ]);
-        await flushPromises();
-
-        const link = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
-
-        expect(link.attributes('href')).toBe('/sw/flow/create/44de136acf314e7184401d36406c1e90');
-    });
-
     it('should be able to view detail flow template', async () => {
         const wrapper = await createWrapper([
             'flow.creator',

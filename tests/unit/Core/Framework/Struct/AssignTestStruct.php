@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 class AssignTestStruct extends Struct
 {

@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\CloneTrait;
 use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\CloneStruct;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\CloneStructBackedEnum;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\CloneStructUnitEnum;
 
 /**
  * @internal
@@ -16,14 +18,14 @@ class CloneStructTest extends TestCase
     public function testClone(): void
     {
         $nestedStruct = new CloneStruct();
-        $nestedStruct->backedEnum = Fixture\CloneStructBackedEnum::Case;
-        $nestedStruct->unitEnum = Fixture\CloneStructUnitEnum::Case;
+        $nestedStruct->backedEnum = CloneStructBackedEnum::Case;
+        $nestedStruct->unitEnum = CloneStructUnitEnum::Case;
 
         $original = new CloneStruct();
         $original->arrayOfStructs = [$nestedStruct];
-        $original->backedEnum = Fixture\CloneStructBackedEnum::Case;
+        $original->backedEnum = CloneStructBackedEnum::Case;
         $original->nestedStruct = $nestedStruct;
-        $original->unitEnum = Fixture\CloneStructUnitEnum::Case;
+        $original->unitEnum = CloneStructUnitEnum::Case;
 
         $clone = clone $original;
 

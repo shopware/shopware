@@ -14,11 +14,11 @@ class CloneStructTest extends TestCase
 {
     public function testClone(): void
     {
-        $nestedStruct = new CloneStruct();
+        $nestedStruct = new Fixture\CloneStruct();
         $nestedStruct->backedEnum = CloneStructBackedEnum::Case;
         $nestedStruct->unitEnum = CloneStructUnitEnum::Case;
 
-        $original = new CloneStruct();
+        $original = new Fixture\CloneStruct();
         $original->arrayOfStructs = [$nestedStruct];
         $original->backedEnum = CloneStructBackedEnum::Case;
         $original->nestedStruct = $nestedStruct;
@@ -32,25 +32,6 @@ class CloneStructTest extends TestCase
         static::assertNotSame($original->arrayOfStructs[0], $clone->arrayOfStructs[0]);
         static::assertNotSame($original->nestedStruct, $clone->nestedStruct);
     }
-}
-
-/**
- * @internal
- */
-class CloneStruct
-{
-    use CloneTrait;
-
-    /**
-     * @var array<array-key, CloneStruct>
-     */
-    public array $arrayOfStructs;
-
-    public CloneStructBackedEnum $backedEnum;
-
-    public CloneStructUnitEnum $unitEnum;
-
-    public CloneStruct $nestedStruct;
 }
 
 /**

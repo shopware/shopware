@@ -14,7 +14,7 @@ class StateAwareTraitTest extends TestCase
 {
     public function testTrait(): void
     {
-        $struct = new StateStruct();
+        $struct = new Fixture\StateStruct();
 
         $struct->addState('foo');
 
@@ -45,7 +45,7 @@ class StateAwareTraitTest extends TestCase
         static::assertFalse($struct->hasState('foo', 'baz'));
 
         $value = $struct->state(
-            function (StateStruct $state) {
+            function (Fixture\StateStruct $state) {
                 return $state->hasState('baz');
             },
             'baz'
@@ -58,7 +58,7 @@ class StateAwareTraitTest extends TestCase
         static::assertFalse($struct->hasState('baz'), 'baz should not be set outside');
 
         $value = $struct->state(
-            function (StateStruct $state) {
+            function (Fixture\StateStruct $state) {
                 return $state->hasState('baz') && $state->hasState('foo');
             },
             'baz',
@@ -70,9 +70,9 @@ class StateAwareTraitTest extends TestCase
         static::assertSame(['bar'], $struct->getStates(), 'States do not match');
 
         $value = $struct->state(
-            function (StateStruct $state) {
+            function (Fixture\StateStruct $state) {
                 return $state->state(
-                    function (StateStruct $state) {
+                    function (Fixture\StateStruct $state) {
                         return $state->hasState('baz') && $state->hasState('foo');
                     },
                     'baz'
@@ -85,12 +85,4 @@ class StateAwareTraitTest extends TestCase
 
         static::assertSame(['bar'], $struct->getStates(), 'States do not match');
     }
-}
-
-/**
- * @internal
- */
-class StateStruct
-{
-    use StateAwareTrait;
 }

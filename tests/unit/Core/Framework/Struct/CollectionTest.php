@@ -21,7 +21,7 @@ class CollectionTest extends TestCase
     public function testConstructor(): void
     {
         $elements = ['a', 'b'];
-        $collection = new TestCollection($elements);
+        $collection = new Fixture\TestCollection($elements);
 
         static::assertSame($elements, $collection->getElements());
     }
@@ -29,14 +29,14 @@ class CollectionTest extends TestCase
     public function testConstructorKeepingKeys(): void
     {
         $elements = ['z' => 'a', 'y' => 'b'];
-        $collection = new TestCollection($elements);
+        $collection = new Fixture\TestCollection($elements);
 
         static::assertSame($elements, $collection->getElements());
     }
 
     public function testClear(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         $collection->add('a');
         $collection->add('b');
 
@@ -46,7 +46,7 @@ class CollectionTest extends TestCase
 
     public function testCount(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertCount(0, $collection);
 
         $collection->add('a');
@@ -56,7 +56,7 @@ class CollectionTest extends TestCase
 
     public function testGetNumericKeys(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertSame([], $collection->getKeys());
 
         $collection->add('a');
@@ -66,7 +66,7 @@ class CollectionTest extends TestCase
 
     public function testHasWithNumericKey(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertFalse($collection->has(0));
 
         $collection->add('a');
@@ -77,7 +77,7 @@ class CollectionTest extends TestCase
 
     public function testMap(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         $collection->map(function (): void {
             static::fail('map should not be called for empty collection');
         });
@@ -90,7 +90,7 @@ class CollectionTest extends TestCase
 
     public function testFmap(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         $collection->fmap(function (): void {
             static::fail('fmap should not be called for empty collection');
         });
@@ -103,7 +103,7 @@ class CollectionTest extends TestCase
 
     public function testSort(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
 
         $collection->sort(function (): void {
             static::fail('fmap should not be called for empty collection');
@@ -122,7 +122,7 @@ class CollectionTest extends TestCase
     {
         $productStruct = new ProductEntity();
         $categoryStruct = new CategoryEntity();
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertCount(0, $collection->filterInstance(ProductEntity::class));
 
         $collection->add('a');
@@ -135,7 +135,7 @@ class CollectionTest extends TestCase
 
     public function testFilter(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         $collection->filter(function (): void {
             static::fail('filter should not be called for empty collection');
         });
@@ -150,7 +150,7 @@ class CollectionTest extends TestCase
 
     public function testSlice(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertEmpty($collection->slice(0)->getElements());
 
         $collection->add('a');
@@ -164,7 +164,7 @@ class CollectionTest extends TestCase
     public function testGetElements(): void
     {
         $elements = ['a', 'b'];
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertSame([], $collection->getElements());
 
         $collection->add('a');
@@ -176,7 +176,7 @@ class CollectionTest extends TestCase
     public function testJsonSerialize(): void
     {
         $elements = ['a', 'b'];
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertSame(
             [],
             $collection->jsonSerialize()
@@ -193,7 +193,7 @@ class CollectionTest extends TestCase
 
     public function testFirst(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertNull($collection->first());
 
         $collection->add('a');
@@ -204,7 +204,7 @@ class CollectionTest extends TestCase
 
     public function testLast(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertNull($collection->last());
 
         $collection->add('a');
@@ -215,7 +215,7 @@ class CollectionTest extends TestCase
 
     public function testGetAt(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertFalse($collection->has(0));
 
         $collection->add('a');
@@ -226,13 +226,13 @@ class CollectionTest extends TestCase
 
     public function testFirstWhereWithEmptyCollectionWillReturnNull(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         static::assertNull($collection->firstWhere(fn ($element) => $element === 'a'));
     }
 
     public function testFirstWhereWithMatchingElementWillReturnFirstElement(): void
     {
-        $collection = new TestCollection();
+        $collection = new Fixture\TestCollection();
         $collection->add('a1');
         $collection->add('a2');
         $collection->add('a3');
@@ -249,7 +249,7 @@ class CollectionTest extends TestCase
             ['some' => 'value'],
         ];
 
-        $collection = (new TestCollection())->assignRecursive($data);
+        $collection = (new Fixture\TestCollection())->assignRecursive($data);
 
         static::assertCount(5, $collection);
 
@@ -265,7 +265,7 @@ class CollectionTest extends TestCase
         $data = [
             'some-string',
             new \stdClass(),
-            ['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()], // Entity class has no setId method
+            ['versionId' => Uuid::randomHex()], // Entity class has no setId method
             ['_uniqueIdentifier' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
         ];
 
@@ -275,15 +275,4 @@ class CollectionTest extends TestCase
         static::assertInstanceOf(Entity::class, $collection->first());
         static::assertNotNull($collection->first()->getVersionId());
     }
-}
-
-/**
- * @internal
- *
- * @template TElement
- *
- * @extends Collection<TElement>
- */
-class TestCollection extends Collection
-{
 }

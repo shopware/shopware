@@ -6,6 +6,8 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Service\VideoCoverService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('discovery')]
 class MediaVideoCoverController extends AbstractController
 {
@@ -24,7 +26,12 @@ class MediaVideoCoverController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/video-cover', name: 'api.action.media.set_video_cover', methods: ['POST'], defaults: ['_acl' => ['media.editor']])]
+    #[Route(
+        path: '/api/_action/media/{mediaId}/video-cover',
+        name: 'api.action.media.set_video_cover',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media.editor']],
+        methods: [Request::METHOD_POST]
+    )]
     public function assignVideoCover(string $mediaId, Request $request, Context $context): JsonResponse
     {
         try {

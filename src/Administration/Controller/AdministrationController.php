@@ -101,7 +101,12 @@ class AdministrationController extends AbstractController
             : true;
     }
 
-    #[Route(path: '/%shopware_administration.path_name%', name: 'administration.index', defaults: ['auth_required' => false], methods: ['GET'])]
+    #[Route(
+        path: '/%shopware_administration.path_name%',
+        name: 'administration.index',
+        defaults: ['auth_required' => false],
+        methods: [Request::METHOD_GET]
+    )]
     public function index(Request $request, Context $context): Response
     {
         $template = $this->finder->find('@Administration/administration/index.html.twig');
@@ -129,7 +134,12 @@ class AdministrationController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_admin/snippets', name: 'api.admin.snippets', defaults: ['auth_required' => false], methods: ['GET'])]
+    #[Route(
+        path: '/api/_admin/snippets',
+        name: 'api.admin.snippets',
+        defaults: ['auth_required' => false],
+        methods: [Request::METHOD_GET]
+    )]
     public function snippets(Request $request): Response
     {
         $snippets = [];
@@ -146,13 +156,17 @@ class AdministrationController extends AbstractController
         return new JsonResponse($snippets);
     }
 
-    #[Route(path: '/api/_admin/locales', name: 'api.admin.locales', defaults: ['auth_required' => false], methods: ['GET'])]
+    #[Route(
+        path: '/api/_admin/locales',
+        name: 'api.admin.locales',
+        defaults: ['auth_required' => false],
+        methods: [Request::METHOD_GET]
+    )]
     public function getLocales(Request $request, Context $context): Response
     {
         $criteria = (new Criteria())->addAssociation('locale');
 
         $languages = $this->languageRepository->search($criteria, $context);
-        /** @var array<string, string> $installedLocales */
         $installedLocales = $languages->reduce(static function (array $accumulator, LanguageEntity $language) {
             $locale = $language->getLocale();
             if ($locale !== null) {
@@ -165,7 +179,11 @@ class AdministrationController extends AbstractController
         return new JsonResponse($installedLocales);
     }
 
-    #[Route(path: '/api/_admin/known-ips', name: 'api.admin.known-ips', methods: ['GET'])]
+    #[Route(
+        path: '/api/_admin/known-ips',
+        name: 'api.admin.known-ips',
+        methods: [Request::METHOD_GET]
+    )]
     public function knownIps(Request $request): Response
     {
         $ips = [];
@@ -180,7 +198,12 @@ class AdministrationController extends AbstractController
         return new JsonResponse(['ips' => $ips]);
     }
 
-    #[Route(path: '/%shopware_administration.path_name%/{pluginName}/index.html', name: 'administration.plugin.index', defaults: ['auth_required' => false], methods: ['GET'])]
+    #[Route(
+        path: '/%shopware_administration.path_name%/{pluginName}/index.html',
+        name: 'administration.plugin.index',
+        defaults: ['auth_required' => false],
+        methods: [Request::METHOD_GET]
+    )]
     public function pluginIndex(string $pluginName): Response
     {
         try {
@@ -202,7 +225,12 @@ class AdministrationController extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/api/_admin/reset-excluded-search-term', name: 'api.admin.reset-excluded-search-term', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
+    #[Route(
+        path: '/api/_admin/reset-excluded-search-term',
+        name: 'api.admin.reset-excluded-search-term',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:update', 'system_config:create', 'system_config:delete']],
+        methods: [Request::METHOD_POST]
+    )]
     public function resetExcludedSearchTerm(Context $context): JsonResponse
     {
         $searchConfigId = $this->connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
@@ -241,7 +269,11 @@ class AdministrationController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_admin/check-customer-email-valid', name: 'api.admin.check-customer-email-valid', methods: ['POST'])]
+    #[Route(
+        path: '/api/_admin/check-customer-email-valid',
+        name: 'api.admin.check-customer-email-valid',
+        methods: [Request::METHOD_POST]
+    )]
     public function checkCustomerEmailValid(Request $request, Context $context): JsonResponse
     {
         $params = [];
@@ -289,7 +321,11 @@ class AdministrationController extends AbstractController
         throw new ConstraintViolationException($violations, $request->request->all());
     }
 
-    #[Route(path: '/api/_admin/sanitize-html', name: 'api.admin.sanitize-html', methods: ['POST'])]
+    #[Route(
+        path: '/api/_admin/sanitize-html',
+        name: 'api.admin.sanitize-html',
+        methods: [Request::METHOD_POST]
+    )]
     public function sanitizeHtml(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('html')) {

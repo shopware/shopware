@@ -40,7 +40,15 @@ class DownloadRoute extends AbstractDownloadRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/order/download/{orderId}/{downloadId}', name: 'store-api.account.order.single.download', methods: ['GET'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/order/download/{orderId}/{downloadId}',
+        name: 'store-api.account.order.single.download',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function load(Request $request, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();

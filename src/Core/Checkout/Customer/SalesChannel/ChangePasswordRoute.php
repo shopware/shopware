@@ -21,6 +21,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\Length;
@@ -29,7 +30,12 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID], '_contextTokenRequired' => true])]
+#[Route(
+    defaults: [
+        PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true,
+    ]
+)]
 #[Package('checkout')]
 class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
@@ -51,7 +57,12 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/change-password', name: 'store-api.account.change-password', methods: ['POST'], defaults: ['_loginRequired' => true])]
+    #[Route(
+        path: '/store-api/account/change-password',
+        name: 'store-api.account.change-password',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): ContextTokenResponse
     {
         $this->validatePasswordFields($requestDataBag, $context);
@@ -93,13 +104,13 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
 
         $this->validator->validate($data->all(), $definition);
 
-        $this->tryValidateEqualtoConstraint($data->all(), 'newPassword', $definition);
+        $this->tryValidateEqualToConstraint($data->all(), 'newPassword', $definition);
     }
 
     /**
-     * @param mixed[] $data
+     * @param array<string, mixed> $data
      */
-    private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
+    private function tryValidateEqualToConstraint(array $data, string $field, DataValidationDefinition $validation): void
     {
         $validations = $validation->getProperties();
 

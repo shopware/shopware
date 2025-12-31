@@ -29,7 +29,7 @@ class AdminTagController extends AbstractController
         path: '/api/_admin/tag-filter-ids',
         name: 'api.admin.tag-filter-ids',
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['tag:read'], PlatformRequest::ATTRIBUTE_ENTITY => TagDefinition::ENTITY_NAME],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function filterIds(Request $request, Criteria $criteria, Context $context): JsonResponse
     {

@@ -41,8 +41,11 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     #[Route(
         path: '/store-api/order/state/cancel',
         name: 'store-api.order.state.cancel',
-        methods: ['POST'],
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true]
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_POST]
     )]
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {

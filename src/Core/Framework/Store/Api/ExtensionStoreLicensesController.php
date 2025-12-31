@@ -25,7 +25,11 @@ class ExtensionStoreLicensesController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/license/cancel/{licenseId}', name: 'api.license.cancel', methods: ['DELETE'])]
+    #[Route(
+        path: '/api/license/cancel/{licenseId}',
+        name: 'api.license.cancel',
+        methods: [Request::METHOD_DELETE]
+    )]
     public function cancelSubscription(int $licenseId, Context $context): JsonResponse
     {
         $this->extensionStoreLicensesService->cancelSubscription($licenseId, $context);
@@ -33,7 +37,11 @@ class ExtensionStoreLicensesController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/license/rate/{extensionId}', name: 'api.license.rate', methods: ['POST'])]
+    #[Route(
+        path: '/api/license/rate/{extensionId}',
+        name: 'api.license.rate',
+        methods: [Request::METHOD_POST]
+    )]
     public function rateLicensedExtension(int $extensionId, Request $request, Context $context): JsonResponse
     {
         $this->extensionStoreLicensesService->rateLicensedExtension(

@@ -76,7 +76,7 @@ class CheckoutController extends StorefrontController
         name: 'frontend.checkout.cart.page',
         options: ['seo' => false],
         defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function cartPage(Request $request, SalesChannelContext $context): Response
     {
@@ -107,7 +107,7 @@ class CheckoutController extends StorefrontController
         name: 'frontend.checkout.cart.json',
         options: ['seo' => false],
         defaults: ['XmlHttpRequest' => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function cartJson(Request $request, SalesChannelContext $context): Response
     {
@@ -119,7 +119,7 @@ class CheckoutController extends StorefrontController
         name: 'frontend.checkout.confirm.page',
         options: ['seo' => false],
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function confirmPage(Request $request, SalesChannelContext $context): Response
     {
@@ -164,7 +164,7 @@ class CheckoutController extends StorefrontController
         name: 'frontend.checkout.finish.page',
         options: ['seo' => false],
         defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function finishPage(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
     {
@@ -206,7 +206,12 @@ class CheckoutController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/checkout/order', name: 'frontend.checkout.finish.order', options: ['seo' => false], methods: ['POST'])]
+    #[Route(
+        path: '/checkout/order',
+        name: 'frontend.checkout.finish.order',
+        options: ['seo' => false],
+        methods: [Request::METHOD_POST]
+    )]
     public function order(RequestDataBag $data, SalesChannelContext $context, Request $request): Response
     {
         if (!$context->getCustomer()) {
@@ -247,7 +252,12 @@ class CheckoutController extends StorefrontController
         }
     }
 
-    #[Route(path: '/widgets/checkout/info', name: 'frontend.checkout.info', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
+    #[Route(
+        path: '/widgets/checkout/info',
+        name: 'frontend.checkout.info',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function info(Request $request, SalesChannelContext $context): Response
     {
         $cart = $this->cartService->getCart($context->getToken(), $context);
@@ -265,7 +275,13 @@ class CheckoutController extends StorefrontController
         return $response;
     }
 
-    #[Route(path: '/checkout/offcanvas', name: 'frontend.cart.offcanvas', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
+    #[Route(
+        path: '/checkout/offcanvas',
+        name: 'frontend.cart.offcanvas',
+        options: ['seo' => false],
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);

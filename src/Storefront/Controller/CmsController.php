@@ -55,7 +55,7 @@ class CmsController extends StorefrontController
         path: '/widgets/cms/{id}',
         name: 'frontend.cms.page',
         defaults: ['id' => null, 'XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
-        methods: ['GET', 'POST']
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -81,7 +81,7 @@ class CmsController extends StorefrontController
         path: '/page/cms/{id}',
         name: 'frontend.cms.page.full',
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
-        methods: ['GET', 'POST']
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function pageFull(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -98,7 +98,7 @@ class CmsController extends StorefrontController
         path: '/widgets/cms/navigation/{navigationId}',
         name: 'frontend.cms.navigation.page',
         defaults: ['navigationId' => null, 'XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
-        methods: ['GET', 'POST']
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -128,7 +128,7 @@ class CmsController extends StorefrontController
         path: '/widgets/cms/navigation/{navigationId}/filter',
         name: 'frontend.cms.navigation.filter',
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
-        methods: ['GET', 'POST']
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function filter(string $navigationId, Request $request, SalesChannelContext $context): Response
     {
@@ -162,7 +162,7 @@ class CmsController extends StorefrontController
         path: '/widgets/cms/buybox/{productId}/switch',
         name: 'frontend.cms.buybox.switch',
         defaults: ['productId' => null, 'XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
     {

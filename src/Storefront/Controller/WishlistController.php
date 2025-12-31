@@ -54,7 +54,13 @@ class WishlistController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/wishlist', name: 'frontend.wishlist.page', options: ['seo' => false], defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true], methods: ['GET'])]
+    #[Route(
+        path: '/wishlist',
+        name: 'frontend.wishlist.page',
+        options: ['seo' => false],
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function index(Request $request, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();
@@ -70,7 +76,13 @@ class WishlistController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/wishlist/guest-pagelet', name: 'frontend.wishlist.guestPage.pagelet', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
+    #[Route(
+        path: '/wishlist/guest-pagelet',
+        name: 'frontend.wishlist.guestPage.pagelet',
+        options: ['seo' => false],
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function guestPagelet(Request $request, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();
@@ -93,7 +105,7 @@ class WishlistController extends StorefrontController
         name: 'widgets.wishlist.pagelet',
         options: ['seo' => false],
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['GET', 'POST']
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function ajaxPagination(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -113,7 +125,7 @@ class WishlistController extends StorefrontController
         name: 'frontend.wishlist.product.list',
         options: ['seo' => false],
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function ajaxList(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -134,7 +146,7 @@ class WishlistController extends StorefrontController
         path: '/wishlist/product/delete/{id}',
         name: 'frontend.wishlist.product.delete',
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['POST', 'DELETE']
+        methods: [Request::METHOD_POST, Request::METHOD_DELETE]
     )]
     public function remove(string $id, Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -158,7 +170,7 @@ class WishlistController extends StorefrontController
         name: 'frontend.wishlist.product.add',
         options: ['seo' => false],
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function ajaxAdd(string $productId, SalesChannelContext $context, CustomerEntity $customer): JsonResponse
     {
@@ -179,7 +191,7 @@ class WishlistController extends StorefrontController
         name: 'frontend.wishlist.product.remove',
         options: ['seo' => false],
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function ajaxRemove(string $productId, SalesChannelContext $context, CustomerEntity $customer): JsonResponse
     {
@@ -200,7 +212,7 @@ class WishlistController extends StorefrontController
         name: 'frontend.wishlist.add.after.login',
         options: ['seo' => false],
         defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function addAfterLogin(string $productId, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -222,7 +234,7 @@ class WishlistController extends StorefrontController
         name: 'frontend.wishlist.product.merge',
         options: ['seo' => false],
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function ajaxMerge(RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -243,7 +255,7 @@ class WishlistController extends StorefrontController
         path: '/wishlist/merge/pagelet',
         name: 'frontend.wishlist.product.merge.pagelet',
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['GET', 'POST']
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function ajaxPagelet(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
@@ -57,8 +58,8 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     #[Route(
         path: '/store-api/account/change-email',
         name: 'store-api.account.change-email',
-        methods: ['POST'],
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true]
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
     )]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
@@ -100,7 +101,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
 
         $this->validator->validate($data->all(), $validation);
 
-        $this->tryValidateEqualtoConstraint($data->all(), 'email', $validation);
+        $this->tryValidateEqualToConstraint($data->all(), 'email', $validation);
     }
 
     private function dispatchValidationEvent(DataValidationDefinition $definition, DataBag $data, Context $context): void
@@ -110,9 +111,9 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     }
 
     /**
-     * @param mixed[] $data
+     * @param array<string, mixed> $data
      */
-    private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
+    private function tryValidateEqualToConstraint(array $data, string $field, DataValidationDefinition $validation): void
     {
         $validations = $validation->getProperties();
 

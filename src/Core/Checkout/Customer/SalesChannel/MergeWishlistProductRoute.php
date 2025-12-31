@@ -26,6 +26,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
@@ -55,8 +56,8 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
     #[Route(
         path: '/store-api/customer/wishlist/merge',
         name: 'store-api.customer.wishlist.merge',
-        methods: ['POST'],
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true]
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
     )]
     public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {

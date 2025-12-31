@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -48,8 +49,8 @@ class ChangeLanguageRoute extends AbstractChangeLanguageRoute
     #[Route(
         path: '/store-api/account/change-language',
         name: 'store-api.account.change-language',
-        methods: ['POST'],
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true]
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
     )]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {

@@ -49,7 +49,7 @@ class AccountProfileController extends StorefrontController
         path: '/account',
         name: 'frontend.account.home.page',
         defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -64,7 +64,7 @@ class AccountProfileController extends StorefrontController
         path: '/account/profile',
         name: 'frontend.account.profile.page',
         defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -83,7 +83,7 @@ class AccountProfileController extends StorefrontController
         path: '/account/profile',
         name: 'frontend.account.profile.save',
         defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function saveProfile(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -105,7 +105,7 @@ class AccountProfileController extends StorefrontController
         path: '/account/profile/email',
         name: 'frontend.account.profile.email.save',
         defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function saveEmail(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -133,7 +133,7 @@ class AccountProfileController extends StorefrontController
         path: '/account/profile/password',
         name: 'frontend.account.profile.password.save',
         defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer, Request $request): Response
     {
@@ -162,7 +162,7 @@ class AccountProfileController extends StorefrontController
         path: '/account/profile/delete',
         name: 'frontend.account.profile.delete',
         defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function deleteProfile(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {

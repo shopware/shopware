@@ -39,13 +39,13 @@ class DocumentController extends StorefrontController
         path: '/account/order/document/{documentId}/{deepLinkCode}',
         name: 'frontend.account.order.single.document',
         defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     #[Route(
         path: '/account/order/document/{documentId}/{deepLinkCode}/{fileType}',
         name: 'frontend.account.order.single.document.a11y',
         defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
-        methods: ['GET', 'POST']
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function downloadDocument(Request $request, SalesChannelContext $context, string $documentId): Response
     {

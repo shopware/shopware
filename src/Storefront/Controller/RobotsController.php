@@ -35,7 +35,7 @@ class RobotsController extends StorefrontController
         path: '/robots.txt',
         name: 'frontend.robots.txt',
         defaults: ['_format' => 'txt', PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function robotsTxt(Request $request, Context $context): Response
     {

@@ -37,9 +37,9 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
     #[Route(
         path: '/store-api/account/newsletter-recipient',
         name: 'store-api.newsletter.recipient',
-        methods: ['GET', 'POST'],
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_ENTITY => NewsletterRecipientDefinition::ENTITY_NAME]
-    )    ]
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_ENTITY => NewsletterRecipientDefinition::ENTITY_NAME],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): AccountNewsletterRecipientRouteResponse
     {
         $criteria->addFilter(new EqualsFilter('email', $customer->getEmail()));

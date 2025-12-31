@@ -51,7 +51,7 @@ class NavigationController extends StorefrontController
         name: 'frontend.home.page',
         options: ['seo' => true],
         defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
-        methods: ['GET'],
+        methods: [Request::METHOD_GET],
     )]
     public function home(Request $request, SalesChannelContext $context): Response
     {
@@ -67,7 +67,7 @@ class NavigationController extends StorefrontController
         name: NavigationPageSeoUrlRoute::ROUTE_NAME,
         options: ['seo' => true],
         defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
-        methods: ['GET'],
+        methods: [Request::METHOD_GET],
     )]
     public function index(SalesChannelContext $context, Request $request): Response
     {
@@ -96,7 +96,7 @@ class NavigationController extends StorefrontController
         path: '/widgets/menu/offcanvas',
         name: 'frontend.menu.offcanvas',
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
-        methods: ['GET'],
+        methods: [Request::METHOD_GET],
     )]
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
@@ -118,7 +118,7 @@ class NavigationController extends StorefrontController
         path: '/_esi/global/header',
         name: 'frontend.header',
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true, '_esi' => true],
-        methods: ['GET'],
+        methods: [Request::METHOD_GET],
     )]
     public function header(Request $request, SalesChannelContext $context): Response
     {
@@ -136,7 +136,7 @@ class NavigationController extends StorefrontController
         path: '/_esi/global/footer',
         name: 'frontend.footer',
         defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true, '_esi' => true],
-        methods: ['GET'],
+        methods: [Request::METHOD_GET],
     )]
     public function footer(Request $request, SalesChannelContext $context): Response
     {

@@ -25,7 +25,12 @@ class MediaVideoCoverController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/video-cover', name: 'api.action.media.set_video_cover', methods: ['POST'], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media.editor']])]
+    #[Route(
+        path: '/api/_action/media/{mediaId}/video-cover',
+        name: 'api.action.media.set_video_cover',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media.editor']],
+        methods: [Request::METHOD_POST]
+    )]
     public function assignVideoCover(string $mediaId, Request $request, Context $context): JsonResponse
     {
         try {

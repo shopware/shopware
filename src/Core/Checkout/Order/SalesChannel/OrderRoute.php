@@ -60,8 +60,8 @@ class OrderRoute extends AbstractOrderRoute
     #[Route(
         path: '/store-api/order',
         name: 'store-api.order',
-        methods: ['GET', 'POST'],
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => OrderDefinition::ENTITY_NAME]
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => OrderDefinition::ENTITY_NAME],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
     {

@@ -31,7 +31,7 @@ class LandingPageController extends StorefrontController
         path: '/landingPage/{landingPageId}',
         name: 'frontend.landing.page',
         defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
-        methods: ['GET']
+        methods: [Request::METHOD_GET]
     )]
     public function index(SalesChannelContext $context, Request $request): Response
     {

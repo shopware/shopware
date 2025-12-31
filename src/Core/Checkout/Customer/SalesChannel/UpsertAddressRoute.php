@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -63,13 +64,13 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         path: '/store-api/account/address',
         name: 'store-api.account.address.create',
         defaults: ['addressId' => null, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     #[Route(
         path: '/store-api/account/address/{addressId}',
         name: 'store-api.account.address.update',
         defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
-        methods: ['PATCH']
+        methods: [Request::METHOD_PATCH]
     )]
     public function upsert(
         ?string $addressId,

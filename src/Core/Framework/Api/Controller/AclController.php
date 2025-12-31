@@ -12,6 +12,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -32,8 +33,8 @@ class AclController extends AbstractController
     #[Route(
         path: '/api/_action/acl/privileges',
         name: 'api.acl.privileges.get',
-        methods: ['GET'],
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_acl_privileges_get'], PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
+        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_acl_privileges_get'], PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: [Request::METHOD_GET]
     )]
     public function getPrivileges(): JsonResponse
     {
@@ -47,8 +48,8 @@ class AclController extends AbstractController
     #[Route(
         path: '/api/_action/acl/additional_privileges',
         name: 'api.acl.privileges.additional.get',
-        methods: ['GET'],
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_acl_privileges_additional_get']]
+        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_acl_privileges_additional_get']],
+        methods: [Request::METHOD_GET]
     )]
     public function getAdditionalPrivileges(Context $context): JsonResponse
     {

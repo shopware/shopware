@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -47,11 +48,15 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
     #[Route(
         path: '/store-api/account/convert-guest',
         name: 'store-api.account.convert-guest',
-        methods: ['POST'],
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true]
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
+        methods: [Request::METHOD_POST]
     )]
-    public function convertGuest(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer, ?DataValidationDefinition $additionalValidationDefinitions = null): SuccessResponse
-    {
+    public function convertGuest(
+        RequestDataBag $requestDataBag,
+        SalesChannelContext $context,
+        CustomerEntity $customer,
+        ?DataValidationDefinition $additionalValidationDefinitions = null
+    ): SuccessResponse {
         if (!$customer->getGuest()) {
             throw CustomerException::registeredCustomerCannotBeConverted($customer->getId());
         }

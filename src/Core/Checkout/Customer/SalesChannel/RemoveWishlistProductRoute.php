@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
@@ -48,8 +49,8 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
     #[Route(
         path: '/store-api/customer/wishlist/delete/{productId}',
         name: 'store-api.customer.wishlist.delete',
-        methods: ['DELETE'],
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true]
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_DELETE]
     )]
     public function delete(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {

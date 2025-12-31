@@ -267,7 +267,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         if (\is_array($routeParams)) {
             foreach ($routeParams as $key => $value) {
                 // we don't want any default route parameter, e.g. _httpCache or _store
-                if (\str_starts_with($key, '_')) {
+                if (\in_array($key, PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS, true)) {
                     continue;
                 }
 

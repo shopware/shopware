@@ -271,11 +271,11 @@ class ProductDefinition extends EntityDefinition
 
         if (Feature::isActive('v6.8.0.0')) {
             $fields->add(
-                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Required()),
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Required())->setDescription('The type of the product, e.g., physical or digital.'),
             );
         } else {
             $fields->add(
-                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable()),
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable())->setDescription('The type of the product, e.g., physical or digital.'),
             );
 
             $fields->add(

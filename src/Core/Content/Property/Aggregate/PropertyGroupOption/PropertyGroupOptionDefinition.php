@@ -68,12 +68,12 @@ class PropertyGroupOptionDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            (new FkField('property_group_id', 'groupId', PropertyGroupDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of property group option.'),
+            (new FkField('property_group_id', 'groupId', PropertyGroupDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of property group.'),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('position'))->addFlags(new ApiAware()),
-            (new StringField('color_hex_code', 'colorHexCode'))->addFlags(new ApiAware()),
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+            (new StringField('color_hex_code', 'colorHexCode'))->addFlags(new ApiAware())->setDescription('Property group options can be displayed in the form of color. For example: #98e3f5ff.'),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of media.'),
             (new BoolField('combinable', 'combinable'))->addFlags(new ApiAware(), new Runtime()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware()),

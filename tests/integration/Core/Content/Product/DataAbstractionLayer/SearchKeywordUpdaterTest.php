@@ -134,8 +134,60 @@ class SearchKeywordUpdaterTest extends TestCase
         static::getContainer()->get(SearchKeywordUpdater::class)
             ->update($ids->getList(['p1', 'p2']), Context::createDefaultContext());
 
-        $this->assertKeywords($ids->get('p1'), Defaults::LANGUAGE_SYSTEM, []);
-        $this->assertKeywords($ids->get('p2'), Defaults::LANGUAGE_SYSTEM, []);
+        // Products should still get keywords from the default searchable fields (name, productNumber)
+        // even when custom fields are configured but have no values
+        $this->assertKeywords($ids->get('p1'), Defaults::LANGUAGE_SYSTEM, ['p1']);
+        $this->assertKeywords($ids->get('p2'), Defaults::LANGUAGE_SYSTEM, ['p2']);
+    }
+
+    /**
+     * Tests that associations without a direct FK field (like ManyToMany) don't cause errors.
+     * Categories is a ManyToMany association without a categoriesId FK field on product.
+     * This test verifies that the buildCriteria method correctly handles associations
+     * that don't have a corresponding FK field by not attempting to filter on non-existent fields.
+     */
+    public function testAssociationWithoutFkFieldDoesNotThrowError(): void
+    {
+        $ids = new IdsCollection();
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        // Create product with category
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->name('Test product')
+                ->categories(['testcategory'])
+                ->build(),
+        ];
+
+        static::getContainer()->get('product.repository')->create($products, $context);
+
+        // Enable categories.name as a searchable field (ManyToMany without FK field)
+        $rowsAffected = $this->connection->executeStatement(
+            'UPDATE product_search_config_field SET searchable = 1, tokenize = 1, ranking = 100
+             WHERE field = :field',
+            [
+                'field' => 'categories.name',
+            ]
+        );
+
+        static::assertGreaterThan(0, $rowsAffected, 'categories.name field should exist and be updated');
+
+        static::getContainer()->get(SearchKeywordUpdater::class)->reset();
+
+        // This should not throw an error even though 'categoriesId' FK field doesn't exist
+        static::getContainer()->get(SearchKeywordUpdater::class)
+            ->update([$ids->get('p1')], Context::createDefaultContext());
+
+        // Basic keywords from product name and number should still be generated
+        $this->assertKeywords($ids->get('p1'), Defaults::LANGUAGE_SYSTEM, [
+            'p1',
+            'product',
+            'test',
+            'test product',
+        ]);
     }
 
     public function testItSkipsKeywordGenerationForNotUsedLanguages(): void

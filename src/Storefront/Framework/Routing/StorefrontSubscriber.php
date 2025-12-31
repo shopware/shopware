@@ -17,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -173,9 +174,22 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function maintenanceResolver(RequestEvent $event): void
     {
-        if ($this->maintenanceModeResolver->shouldRedirect($event->getRequest())) {
+        $request = $event->getRequest();
+
+        if ($this->maintenanceModeResolver->shouldRedirect($request)) {
+            $parameters = [];
+            $route = $request->attributes->get('_route');
+            if ($route !== null) {
+                $parameters['redirectTo'] = $route;
+                $requestParameters = $this->getRequestParameters($request);
+
+                if ($requestParameters !== []) {
+                    $parameters['redirectParameters'] = json_encode($requestParameters, \JSON_THROW_ON_ERROR);
+                }
+            }
+
             $event->setResponse(
-                new RedirectResponse($this->router->generate('frontend.maintenance.page'), Response::HTTP_TEMPORARY_REDIRECT)
+                new RedirectResponse($this->router->generate('frontend.maintenance.page', $parameters), Response::HTTP_TEMPORARY_REDIRECT)
             );
         }
     }
@@ -243,5 +257,24 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         return false;
+    }
+
+    private function getRequestParameters(Request $request): array
+    {
+        $requestParameters = $request->query->all();
+        $routeParams = $request->attributes->get('_route_params');
+
+        if (\is_array($routeParams)) {
+            foreach ($routeParams as $key => $value) {
+                // we don't want any default route parameter, e.g. _httpCache or _store
+                if (\str_starts_with($key, '_')) {
+                    continue;
+                }
+
+                $requestParameters[$key] = $value;
+            }
+        }
+
+        return $requestParameters;
     }
 }

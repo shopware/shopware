@@ -91,7 +91,11 @@ class SalesChannelProxyController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_proxy/store-api/{salesChannelId}/{_path}', name: 'api.proxy.store-api', requirements: ['_path' => '.*'])]
+    #[Route(
+        path: '/api/_proxy/store-api/{salesChannelId}/{_path}',
+        name: 'api.proxy.store-api',
+        requirements: ['_path' => '.*']
+    )]
     public function proxy(string $_path, string $salesChannelId, Request $request, Context $context): Response
     {
         $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
@@ -101,7 +105,10 @@ class SalesChannelProxyController extends AbstractController
         return $this->wrapInSalesChannelApiRoute($salesChannelApiRequest, fn (): Response => $this->kernel->handle($salesChannelApiRequest, HttpKernelInterface::SUB_REQUEST));
     }
 
-    #[Route(path: '/api/_proxy-order/{salesChannelId}', name: 'api.proxy-order.create')]
+    #[Route(
+        path: '/api/_proxy-order/{salesChannelId}',
+        name: 'api.proxy-order.create'
+    )]
     public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context, RequestDataBag $data): Response
     {
         $this->fetchSalesChannel($salesChannelId, $context);
@@ -118,8 +125,8 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/switch-customer',
         name: 'api.proxy.switch-customer',
-        defaults: ['_acl' => ['api_proxy_switch-customer']],
-        methods: ['PATCH']
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_proxy_switch-customer']],
+        methods: [Request::METHOD_PATCH]
     )]
     public function assignCustomer(Request $request, Context $context): Response
     {
@@ -154,8 +161,8 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/generate-imitate-customer-token',
         name: 'api.proxy.generate-imitate-customer-token',
-        defaults: ['_acl' => ['api_proxy_imitate-customer']],
-        methods: ['POST']
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_proxy_imitate-customer']],
+        methods: [Request::METHOD_POST]
     )]
     public function generateImitateCustomerToken(RequestDataBag $data, Context $context): JsonResponse
     {
@@ -190,7 +197,11 @@ class SalesChannelProxyController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_proxy/modify-shipping-costs', name: 'api.proxy.modify-shipping-costs', methods: ['PATCH'])]
+    #[Route(
+        path: '/api/_proxy/modify-shipping-costs',
+        name: 'api.proxy.modify-shipping-costs',
+        methods: [Request::METHOD_PATCH]
+    )]
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -210,7 +221,11 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse(['data' => $cart]);
     }
 
-    #[Route(path: '/api/_proxy/disable-automatic-promotions', name: 'api.proxy.disable-automatic-promotions', methods: ['PATCH'])]
+    #[Route(
+        path: '/api/_proxy/disable-automatic-promotions',
+        name: 'api.proxy.disable-automatic-promotions',
+        methods: [Request::METHOD_PATCH]
+    )]
     public function disableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -226,7 +241,11 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse();
     }
 
-    #[Route(path: '/api/_proxy/enable-automatic-promotions', name: 'api.proxy.enable-automatic-promotions', methods: ['PATCH'])]
+    #[Route(
+        path: '/api/_proxy/enable-automatic-promotions',
+        name: 'api.proxy.enable-automatic-promotions',
+        methods: [Request::METHOD_PATCH]
+    )]
     public function enableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -257,8 +276,13 @@ class SalesChannelProxyController extends AbstractController
         }
     }
 
-    private function setUpSalesChannelApiRequest(string $path, string $salesChannelId, Request $request, SalesChannelEntity $salesChannel, Context $context): Request
-    {
+    private function setUpSalesChannelApiRequest(
+        string $path,
+        string $salesChannelId,
+        Request $request,
+        SalesChannelEntity $salesChannel,
+        Context $context
+    ): Request {
         $contextToken = $this->getContextToken($request);
 
         $server = array_merge($request->server->all(), ['REQUEST_URI' => '/store-api/' . $path]);
@@ -355,8 +379,11 @@ class SalesChannelProxyController extends AbstractController
         }
     }
 
-    private function fetchSalesChannelContext(string $salesChannelId, Request $request, Context $originalContext): SalesChannelContext
-    {
+    private function fetchSalesChannelContext(
+        string $salesChannelId,
+        Request $request,
+        Context $originalContext
+    ): SalesChannelContext {
         $contextToken = $this->getContextToken($request);
 
         return $this->contextService->get(

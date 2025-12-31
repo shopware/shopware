@@ -19,6 +19,7 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Framework\Routing\StorefrontSubscriber;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -89,6 +90,7 @@ class StorefrontSubscriberTest extends TestCase
             $router,
             $maintenanceModeResolver,
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->maintenanceResolver($event);
 
         $response = $event->getResponse();
@@ -120,6 +122,7 @@ class StorefrontSubscriberTest extends TestCase
             $router,
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->customerNotLoggedInHandler($event);
 
         static::assertInstanceOf(RedirectResponse::class, $event->getResponse());
@@ -139,6 +142,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->customerNotLoggedInHandler($event);
 
         static::assertFalse($event->hasResponse());
@@ -168,6 +172,7 @@ class StorefrontSubscriberTest extends TestCase
             $router,
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->customerNotLoggedInHandler($event);
 
         static::assertInstanceOf(RedirectResponse::class, $event->getResponse());
@@ -193,6 +198,7 @@ class StorefrontSubscriberTest extends TestCase
             $router,
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->customerNotLoggedInHandler($event);
     }
 
@@ -221,6 +227,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->preventPageLoadingFromXmlHttpRequest($event);
     }
 
@@ -272,6 +279,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->startSession();
 
         static::assertTrue($request->getSession()->has('sessionId'));
@@ -298,6 +306,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->startSession();
 
         $subRequestContextToken = $subRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
@@ -313,7 +322,8 @@ class StorefrontSubscriberTest extends TestCase
             $requestStack,
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
-            new StaticSystemConfigService()
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertNull($requestStack->getCurrentRequest());
@@ -327,7 +337,8 @@ class StorefrontSubscriberTest extends TestCase
             new RequestStack([$request]),
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
-            new StaticSystemConfigService()
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -342,7 +353,8 @@ class StorefrontSubscriberTest extends TestCase
             $requestStack,
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
-            new StaticSystemConfigService()
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -358,7 +370,8 @@ class StorefrontSubscriberTest extends TestCase
             $requestStack,
             $this->createMock(RouterInterface::class),
             $this->createMock(MaintenanceModeResolver::class),
-            new StaticSystemConfigService()
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));

@@ -15,6 +15,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Event\MaintenanceRedirectEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -41,6 +43,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         private readonly RouterInterface $router,
         private readonly MaintenanceModeResolver $maintenanceModeResolver,
         private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -188,8 +191,11 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 }
             }
 
+            $redirectEvent = new MaintenanceRedirectEvent('frontend.maintenance.page', $parameters, Response::HTTP_TEMPORARY_REDIRECT);
+            $this->eventDispatcher->dispatch($redirectEvent);
+
             $event->setResponse(
-                new RedirectResponse($this->router->generate('frontend.maintenance.page', $parameters), Response::HTTP_TEMPORARY_REDIRECT)
+                new RedirectResponse($this->router->generate($redirectEvent->getRoute(), $redirectEvent->getParameters()), $redirectEvent->getStatus())
             );
         }
     }

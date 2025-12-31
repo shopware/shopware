@@ -220,6 +220,14 @@
         margin: 0;
     }
 
+    &__rule {
+        transition: all 100ms ease-in-out;
+
+        &:hover {
+            background: var(--color-elevation-surface-sunken);
+        }
+    }
+
     &__rule-empty {
         display: flex;
         align-items: center;
@@ -265,7 +273,7 @@
         margin-top: var(--scale-size-6);
         margin-bottom: var(--scale-size-2);
         font-size: var(--font-size-xs);
-        line-height: var(--line-height-xs);
+        line-height: var(--font-line-height-xs);
         color: var(--color-text-primary-default);
     }
 

@@ -35,7 +35,7 @@
             margin-top: var(--scale-size-10);
             font-size: var(--font-size-xs);
             color: var(--color-text-primary-default);
-            line-height: var(--line-height-xs);
+            line-height: var(--font-line-height-xs);
             font-weight: var(--font-weight-regular);
         }
     }
@@ -142,7 +142,7 @@
     &__action-description {
         margin-top: var(--scale-size-6);
         font-size: var(--font-size-xs);
-        line-height: var(--line-height-xs);
+        line-height: var(--font-line-height-xs);
         color: var(--color-text-primary-default);
 
         .entity {

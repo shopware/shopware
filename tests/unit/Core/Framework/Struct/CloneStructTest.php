@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\CloneTrait;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\CloneStruct;
 
 /**
  * @internal
@@ -14,15 +15,15 @@ class CloneStructTest extends TestCase
 {
     public function testClone(): void
     {
-        $nestedStruct = new Fixture\CloneStruct();
-        $nestedStruct->backedEnum = CloneStructBackedEnum::Case;
-        $nestedStruct->unitEnum = CloneStructUnitEnum::Case;
+        $nestedStruct = new CloneStruct();
+        $nestedStruct->backedEnum = Fixture\CloneStructBackedEnum::Case;
+        $nestedStruct->unitEnum = Fixture\CloneStructUnitEnum::Case;
 
-        $original = new Fixture\CloneStruct();
+        $original = new CloneStruct();
         $original->arrayOfStructs = [$nestedStruct];
-        $original->backedEnum = CloneStructBackedEnum::Case;
+        $original->backedEnum = Fixture\CloneStructBackedEnum::Case;
         $original->nestedStruct = $nestedStruct;
-        $original->unitEnum = CloneStructUnitEnum::Case;
+        $original->unitEnum = Fixture\CloneStructUnitEnum::Case;
 
         $clone = clone $original;
 
@@ -32,20 +33,4 @@ class CloneStructTest extends TestCase
         static::assertNotSame($original->arrayOfStructs[0], $clone->arrayOfStructs[0]);
         static::assertNotSame($original->nestedStruct, $clone->nestedStruct);
     }
-}
-
-/**
- * @internal
- */
-enum CloneStructBackedEnum: int
-{
-    case Case = 1;
-}
-
-/**
- * @internal
- */
-enum CloneStructUnitEnum
-{
-    case Case;
 }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\StateStruct;
 
 /**
  * @internal
@@ -14,7 +15,7 @@ class StateAwareTraitTest extends TestCase
 {
     public function testTrait(): void
     {
-        $struct = new Fixture\StateStruct();
+        $struct = new StateStruct();
 
         $struct->addState('foo');
 
@@ -45,7 +46,7 @@ class StateAwareTraitTest extends TestCase
         static::assertFalse($struct->hasState('foo', 'baz'));
 
         $value = $struct->state(
-            function (Fixture\StateStruct $state) {
+            function (StateStruct $state) {
                 return $state->hasState('baz');
             },
             'baz'
@@ -58,7 +59,7 @@ class StateAwareTraitTest extends TestCase
         static::assertFalse($struct->hasState('baz'), 'baz should not be set outside');
 
         $value = $struct->state(
-            function (Fixture\StateStruct $state) {
+            function (StateStruct $state) {
                 return $state->hasState('baz') && $state->hasState('foo');
             },
             'baz',
@@ -70,9 +71,9 @@ class StateAwareTraitTest extends TestCase
         static::assertSame(['bar'], $struct->getStates(), 'States do not match');
 
         $value = $struct->state(
-            function (Fixture\StateStruct $state) {
+            function (StateStruct $state) {
                 return $state->state(
-                    function (Fixture\StateStruct $state) {
+                    function (StateStruct $state) {
                         return $state->hasState('baz') && $state->hasState('foo');
                     },
                     'baz'

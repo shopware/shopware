@@ -42,7 +42,7 @@
                 <template #column-createFlow="{ item }">
                     <mt-link
                         class="sw-flow-list-my-flows__content__create-flow-link"
-                        :to="{ name: 'sw.flow.create', params: { flowTemplateId: item.id }}"
+                        :to="$router.resolve({ name: 'sw.flow.create', params: { flowTemplateId: item.id }}).href"
                         :disabled="!acl.can('flow.creator')"
                         type="internal"
                     >

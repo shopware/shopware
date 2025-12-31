@@ -179,7 +179,7 @@
         <mt-link
             v-if="mailTemplateId"
             class="sw-flow-mail-send-modal__mail-template-detail-link"
-            :to="{ name: 'sw.mail.template.detail', params: { id: mailTemplateId } }"
+            :to="$router.resolve({ name: 'sw.mail.template.detail', params: { id: mailTemplateId } }).href"
             variant="primary"
             type="internal"
         >

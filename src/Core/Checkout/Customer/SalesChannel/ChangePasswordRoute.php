@@ -30,7 +30,12 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID], PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true])]
+#[Route(
+    defaults: [
+        PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true,
+    ]
+)]
 #[Package('checkout')]
 class ChangePasswordRoute extends AbstractChangePasswordRoute
 {

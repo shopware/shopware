@@ -104,7 +104,10 @@ class WishlistController extends StorefrontController
         path: '/widgets/wishlist',
         name: 'widgets.wishlist.pagelet',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
         methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function ajaxPagination(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
@@ -124,7 +127,10 @@ class WishlistController extends StorefrontController
         path: '/wishlist/list',
         name: 'frontend.wishlist.product.list',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function ajaxList(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
@@ -145,7 +151,10 @@ class WishlistController extends StorefrontController
     #[Route(
         path: '/wishlist/product/delete/{id}',
         name: 'frontend.wishlist.product.delete',
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
         methods: [Request::METHOD_POST, Request::METHOD_DELETE]
     )]
     public function remove(string $id, Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
@@ -169,7 +178,10 @@ class WishlistController extends StorefrontController
         path: '/wishlist/add/{productId}',
         name: 'frontend.wishlist.product.add',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function ajaxAdd(string $productId, SalesChannelContext $context, CustomerEntity $customer): JsonResponse
@@ -190,7 +202,10 @@ class WishlistController extends StorefrontController
         path: '/wishlist/remove/{productId}',
         name: 'frontend.wishlist.product.remove',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function ajaxRemove(string $productId, SalesChannelContext $context, CustomerEntity $customer): JsonResponse
@@ -233,7 +248,10 @@ class WishlistController extends StorefrontController
         path: '/wishlist/merge',
         name: 'frontend.wishlist.product.merge',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function ajaxMerge(RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
@@ -254,7 +272,10 @@ class WishlistController extends StorefrontController
     #[Route(
         path: '/wishlist/merge/pagelet',
         name: 'frontend.wishlist.product.merge.pagelet',
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
         methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function ajaxPagelet(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response

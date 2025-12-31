@@ -72,7 +72,10 @@ class NewsletterController extends StorefrontController
     #[Route(
         path: '/widgets/account/newsletter',
         name: 'frontend.account.newsletter',
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): Response

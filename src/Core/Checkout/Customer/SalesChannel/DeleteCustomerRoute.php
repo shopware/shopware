@@ -35,7 +35,10 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
     #[Route(
         path: '/store-api/account/customer',
         name: 'store-api.account.customer.delete',
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
         methods: [Request::METHOD_DELETE]
     )]
     public function delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse

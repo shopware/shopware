@@ -38,7 +38,10 @@ class DocumentController extends StorefrontController
     #[Route(
         path: '/account/order/document/{documentId}/{deepLinkCode}',
         name: 'frontend.account.order.single.document',
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
         methods: [Request::METHOD_GET]
     )]
     #[Route(

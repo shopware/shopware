@@ -25,7 +25,10 @@ readonly class PermissionController
     #[Route(
         path: '/api/services/permissions/grant/{revision}',
         name: 'api.services.permissions.grant',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['system.system_config', 'system.plugin_maintain']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.system_config', 'system.plugin_maintain'],
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function grantPermissions(string $revision, Context $context): JsonResponse
@@ -38,7 +41,10 @@ readonly class PermissionController
     #[Route(
         path: '/api/services/permissions/revoke',
         name: 'api.services.permissions.revoke',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['system.system_config', 'system.plugin_maintain']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.system_config', 'system.plugin_maintain'],
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function revokePermissions(Context $context): JsonResponse

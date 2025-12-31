@@ -115,7 +115,10 @@ class SearchController extends StorefrontController
     #[Route(
         path: '/widgets/search/filter',
         name: 'widgets.search.filter',
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
         methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function filter(Request $request, SalesChannelContext $context): Response

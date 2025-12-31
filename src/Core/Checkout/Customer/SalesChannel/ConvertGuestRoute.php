@@ -23,7 +23,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID], PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true])]
+#[Route(
+    defaults: [
+        PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true,
+    ]
+)]
 #[Package('checkout')]
 class ConvertGuestRoute extends AbstractConvertGuestRoute
 {
@@ -48,7 +53,10 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
     #[Route(
         path: '/store-api/account/convert-guest',
         name: 'store-api.account.convert-guest',
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function convertGuest(

@@ -68,7 +68,10 @@ class ServiceController
     #[Route(
         path: '/api/service/activate/{serviceName}',
         name: 'api.service.activate',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function activate(string $serviceName, Context $context): JsonResponse
@@ -93,7 +96,10 @@ class ServiceController
     #[Route(
         path: '/api/service/deactivate/{serviceName}',
         name: 'api.service.deactivate',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function deactivate(string $serviceName, Context $context): JsonResponse
@@ -118,7 +124,10 @@ class ServiceController
     #[Route(
         path: '/api/service/uninstall/{serviceName}',
         name: 'api.service.uninstall',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function uninstall(string $serviceName, Context $context): JsonResponse
@@ -140,7 +149,10 @@ class ServiceController
     #[Route(
         path: '/api/service/list',
         name: 'api.service.list',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function list(Context $context): JsonResponse
@@ -151,7 +163,10 @@ class ServiceController
     #[Route(
         path: '/api/services/disable',
         name: 'api.services.disable',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function disableServices(Context $context): Response
@@ -164,7 +179,10 @@ class ServiceController
     #[Route(
         path: '/api/services/enable',
         name: 'api.services.enable',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function enableServices(): Response
@@ -177,7 +195,10 @@ class ServiceController
     #[Route(
         path: '/api/services/categorized-permissions/{serviceName}',
         name: 'api.services.categorized_permissions',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function categorizedPermissions(string $serviceName, Context $context): Response

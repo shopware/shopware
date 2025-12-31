@@ -38,7 +38,10 @@ class MaintenanceController extends StorefrontController
     #[Route(
         path: '/maintenance',
         name: 'frontend.maintenance.page',
-        defaults: [PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function renderMaintenancePage(Request $request, SalesChannelContext $context): ?Response
@@ -88,7 +91,10 @@ class MaintenanceController extends StorefrontController
     #[Route(
         path: '/maintenance/singlepage/{id}',
         name: 'frontend.maintenance.singlepage',
-        defaults: [PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function renderSinglePage(string $id, Request $request, SalesChannelContext $salesChannelContext): Response

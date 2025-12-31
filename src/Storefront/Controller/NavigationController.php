@@ -95,7 +95,10 @@ class NavigationController extends StorefrontController
     #[Route(
         path: '/widgets/menu/offcanvas',
         name: 'frontend.menu.offcanvas',
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
         methods: [Request::METHOD_GET],
     )]
     public function offcanvas(Request $request, SalesChannelContext $context): Response
@@ -117,7 +120,11 @@ class NavigationController extends StorefrontController
     #[Route(
         path: '/_esi/global/header',
         name: 'frontend.header',
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true, '_esi' => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+            '_esi' => true,
+        ],
         methods: [Request::METHOD_GET],
     )]
     public function header(Request $request, SalesChannelContext $context): Response
@@ -135,7 +142,11 @@ class NavigationController extends StorefrontController
     #[Route(
         path: '/_esi/global/footer',
         name: 'frontend.footer',
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true, '_esi' => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+            '_esi' => true,
+        ],
         methods: [Request::METHOD_GET],
     )]
     public function footer(Request $request, SalesChannelContext $context): Response

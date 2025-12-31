@@ -33,7 +33,11 @@ class AclController extends AbstractController
     #[Route(
         path: '/api/_action/acl/privileges',
         name: 'api.acl.privileges.get',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_acl_privileges_get'], PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_acl_privileges_get'],
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function getPrivileges(): JsonResponse
@@ -48,7 +52,10 @@ class AclController extends AbstractController
     #[Route(
         path: '/api/_action/acl/additional_privileges',
         name: 'api.acl.privileges.additional.get',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['api_acl_privileges_additional_get']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_acl_privileges_additional_get'],
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function getAdditionalPrivileges(Context $context): JsonResponse

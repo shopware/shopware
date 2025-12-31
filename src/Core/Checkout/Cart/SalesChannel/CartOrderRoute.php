@@ -68,7 +68,10 @@ class CartOrderRoute extends AbstractCartOrderRoute
     #[Route(
         path: '/store-api/checkout/order',
         name: 'store-api.checkout.cart.order',
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse

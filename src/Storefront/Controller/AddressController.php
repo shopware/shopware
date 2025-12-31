@@ -71,7 +71,10 @@ class AddressController extends StorefrontController
         path: '/account/address',
         name: 'frontend.account.address.page',
         options: ['seo' => false],
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function accountAddressOverview(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
@@ -87,7 +90,10 @@ class AddressController extends StorefrontController
         path: '/account/address/create',
         name: 'frontend.account.address.create.page',
         options: ['seo' => false],
-        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function accountCreateAddress(
@@ -258,7 +264,10 @@ class AddressController extends StorefrontController
         path: '/account/address/delete/{addressId}',
         name: 'frontend.account.address.delete',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function deleteAddress(

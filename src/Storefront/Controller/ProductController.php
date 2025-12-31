@@ -67,7 +67,10 @@ class ProductController extends StorefrontController
     #[Route(
         path: '/detail/{productId}/switch',
         name: 'frontend.detail.switch',
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function switch(string $productId, Request $request, SalesChannelContext $salesChannelContext): JsonResponse
@@ -135,7 +138,10 @@ class ProductController extends StorefrontController
     #[Route(
         path: '/product/{productId}/rating',
         name: 'frontend.detail.review.save',
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response

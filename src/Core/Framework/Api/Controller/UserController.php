@@ -78,7 +78,10 @@ class UserController extends AbstractController
     #[Route(
         path: '/api/_info/me',
         name: 'api.change.me',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['user_change_me']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['user_change_me'],
+        ],
         methods: [Request::METHOD_PATCH]
     )]
     public function updateMe(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
@@ -128,7 +131,10 @@ class UserController extends AbstractController
     #[Route(
         path: '/api/user/{userId}',
         name: 'api.user.delete',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['user:delete']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['user:delete'],
+        ],
         methods: [Request::METHOD_DELETE]
     )]
     public function deleteUser(string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
@@ -154,7 +160,10 @@ class UserController extends AbstractController
     #[Route(
         path: '/api/user/{userId}/access-keys/{id}',
         name: 'api.user_access_keys.delete',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['user_access_key:delete']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['user_access_key:delete'],
+        ],
         methods: [Request::METHOD_DELETE]
     )]
     public function deleteUserAccessKey(string $id, Request $request, Context $context, ResponseFactoryInterface $factory): Response
@@ -171,7 +180,10 @@ class UserController extends AbstractController
     #[Route(
         path: '/api/user',
         name: 'api.user.create',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['user:create']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['user:create'],
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function upsertUser(?string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
@@ -202,7 +214,10 @@ class UserController extends AbstractController
     #[Route(
         path: '/api/user/{userId}',
         name: 'api.user.update',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['user:update']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['user:update'],
+        ],
         methods: [Request::METHOD_PATCH]
     )]
     public function updateUser(?string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
@@ -213,7 +228,10 @@ class UserController extends AbstractController
     #[Route(
         path: '/api/acl-role',
         name: 'api.acl_role.create',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['acl_role:create']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['acl_role:create'],
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function upsertRole(?string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
@@ -237,7 +255,10 @@ class UserController extends AbstractController
     #[Route(
         path: '/api/acl-role/{roleId}',
         name: 'api.acl_role.update',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['acl_role:update']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['acl_role:update'],
+        ],
         methods: [Request::METHOD_PATCH]
     )]
     public function updateRole(?string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
@@ -248,7 +269,10 @@ class UserController extends AbstractController
     #[Route(
         path: '/api/user/{userId}/acl-roles/{roleId}',
         name: 'api.user_role.delete',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['acl_user_role:delete']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['acl_user_role:delete'],
+        ],
         methods: [Request::METHOD_DELETE]
     )]
     public function deleteUserRole(string $userId, string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
@@ -265,7 +289,10 @@ class UserController extends AbstractController
     #[Route(
         path: '/api/acl-role/{roleId}',
         name: 'api.acl_role.delete',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ACL => ['acl_role:delete']],
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['acl_role:delete'],
+        ],
         methods: [Request::METHOD_DELETE]
     )]
     public function deleteRole(string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response

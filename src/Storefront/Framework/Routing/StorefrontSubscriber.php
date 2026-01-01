@@ -265,6 +265,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
         return false;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function getRequestParameters(Request $request): array
     {
         $requestParameters = $request->query->all();

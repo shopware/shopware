@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed - use MailFlowDataCriteriaEvent instead
+ */
 #[Package('after-sales')]
 class BeforeLoadStorableFlowDataEvent extends Event implements ShopwareEvent, GenericEvent
 {

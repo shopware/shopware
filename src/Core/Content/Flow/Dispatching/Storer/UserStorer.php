@@ -4,11 +4,13 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Shared\MailFlow\UserRecoveryCriteriaBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\UserAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
@@ -25,7 +27,8 @@ class UserStorer extends FlowStorer
      */
     public function __construct(
         private readonly EntityRepository $userRecoveryRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly UserRecoveryCriteriaBuilder $userRecoveryCriteriaBuilder,
     ) {
     }
 
@@ -59,22 +62,22 @@ class UserStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
+        $criteria = $this->userRecoveryCriteriaBuilder->getCriteria($id, $storableFlow->getContext());
 
         return $this->loadUserRecovery($criteria, $storableFlow->getContext(), $id);
     }
 
     private function loadUserRecovery(Criteria $criteria, Context $context, string $id): ?UserRecoveryEntity
     {
-        $criteria->addAssociation('user');
+        if (!Feature::isActive('v6.8.0.0')) {
+            $event = new BeforeLoadStorableFlowDataEvent(
+                UserRecoveryDefinition::ENTITY_NAME,
+                $criteria,
+                $context,
+            );
 
-        $event = new BeforeLoadStorableFlowDataEvent(
-            UserRecoveryDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
-
-        $this->dispatcher->dispatch($event, $event->getName());
+            $this->dispatcher->dispatch($event, $event->getName());
+        }
 
         $user = $this->userRecoveryRepository->search($criteria, $context)->getEntities()->get($id);
 

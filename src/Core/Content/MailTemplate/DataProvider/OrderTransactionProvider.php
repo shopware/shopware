@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\MailTemplate\DataProvider;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,29 +16,29 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('after-sales')]
-class CustomerGroupProvider implements DataProvider
+class OrderTransactionProvider implements DataProvider
 {
     /**
-     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
+     * @param EntityRepository<OrderTransactionCollection> $orderTransactionRepository
      */
     public function __construct(
-        private readonly EntityRepository $customerGroupRepository,
+        private readonly EntityRepository $orderTransactionRepository,
         private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
-    public function getData(string $entityId, Context $context): ?CustomerGroupEntity
+    public function getData(string $entityId, Context $context): ?OrderTransactionEntity
     {
         $criteria = new Criteria([$entityId]);
 
         $event = new MailFlowDataCriteriaEvent(
-            CustomerGroupDefinition::ENTITY_NAME,
+            OrderTransactionDefinition::ENTITY_NAME,
             $criteria,
             $context,
         );
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        return $this->customerGroupRepository->search($criteria, $context)->getEntities()->get($entityId);
+        return $this->orderTransactionRepository->search($criteria, $context)->getEntities()->get($entityId);
     }
 }

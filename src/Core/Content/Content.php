@@ -36,6 +36,7 @@ class Content extends Bundle
         $loader->load('product_export.xml');
         $loader->load('property.xml');
         $loader->load('cms.xml');
+        $loader->load('mail.xml');
         $loader->load('mail_template.xml');
         $loader->load('delivery_time.xml');
         $loader->load('import_export.xml');
@@ -44,6 +45,7 @@ class Content extends Bundle
         $loader->load('landing_page.xml');
         $loader->load('flow.xml');
         $loader->load('measurement_system.xml');
+        $loader->load('shared.xml');
 
         $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }

@@ -3,14 +3,11 @@
 namespace Shopware\Core\Content\MailTemplate\DataProvider;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Content\Mail\Event\BeforeLoadMailDataProviderEvent;
 use Shopware\Core\Content\Shared\MailFlow\OrderCriteriaBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -24,21 +21,12 @@ class OrderProvider implements DataProvider
     public function __construct(
         private readonly EntityRepository $orderRepository,
         private readonly OrderCriteriaBuilder $orderCriteriaBuilder,
-        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
     public function getData(string $entityId, Context $context): ?OrderEntity
     {
-        $criteria = $this->orderCriteriaBuilder->getCriteria($entityId);
-
-        $event = new BeforeLoadMailDataProviderEvent(
-            OrderDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
-
-        $this->dispatcher->dispatch($event, $event->getName());
+        $criteria = $this->orderCriteriaBuilder->getCriteria($entityId, $context);
 
         return $this->orderRepository->search($criteria, $context)->getEntities()->get($entityId);
     }

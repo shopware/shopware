@@ -8,10 +8,12 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryE
 use Shopware\Core\Content\Flow\Dispatching\Aware\CustomerRecoveryAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Shared\MailFlow\CustomerRecoveryCriteriaBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -25,7 +27,8 @@ class CustomerRecoveryStorer extends FlowStorer
      */
     public function __construct(
         private readonly EntityRepository $customerRecoveryRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CustomerRecoveryCriteriaBuilder $criteriaBuilder,
     ) {
     }
 
@@ -64,22 +67,22 @@ class CustomerRecoveryStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
+        $criteria = $this->criteriaBuilder->getCriteria($id, $storableFlow->getContext());
 
         return $this->loadCustomerRecovery($criteria, $storableFlow->getContext(), $id);
     }
 
     private function loadCustomerRecovery(Criteria $criteria, Context $context, string $id): ?CustomerRecoveryEntity
     {
-        $criteria->addAssociation('customer.salutation');
+        if (!Feature::isActive('v6.8.0.0')) {
+            $event = new BeforeLoadStorableFlowDataEvent(
+                CustomerRecoveryDefinition::ENTITY_NAME,
+                $criteria,
+                $context,
+            );
 
-        $event = new BeforeLoadStorableFlowDataEvent(
-            CustomerRecoveryDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
-
-        $this->dispatcher->dispatch($event, $event->getName());
+            $this->dispatcher->dispatch($event, $event->getName());
+        }
 
         $customerRecovery = $this->customerRecoveryRepository->search($criteria, $context)->getEntities()->get($id);
 

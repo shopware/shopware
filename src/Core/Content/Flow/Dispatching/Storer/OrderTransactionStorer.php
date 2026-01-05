@@ -8,10 +8,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -71,11 +73,19 @@ class OrderTransactionStorer extends FlowStorer
 
     private function loadOrderTransaction(Criteria $criteria, Context $context, string $id): ?OrderTransactionEntity
     {
-        $event = new BeforeLoadStorableFlowDataEvent(
-            OrderTransactionDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
+        if (!Feature::isActive('v6.8.0.0')) {
+            $event = new BeforeLoadStorableFlowDataEvent(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $criteria,
+                $context,
+            );
+        } else {
+            $event = new MailFlowDataCriteriaEvent(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $criteria,
+                $context,
+            );
+        }
 
         $this->dispatcher->dispatch($event, $event->getName());
 

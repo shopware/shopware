@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -33,11 +34,16 @@ class MailActionController extends AbstractController
     ) {
     }
 
+    /**
+     * This route is used to send a mail with the provided mail data in the request.
+     * It differs from the "getDataAndSend" route in that it does not gather any data for the mail template
+     * on its own, but expects all necessary data to be provided in the request.
+     */
     #[Route(
         path: '/api/_action/mail-template/send',
         name: 'api.action.mail_template.send',
-        defaults: ['_acl' => ['api_send_email']],
-        methods: ['POST']
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_send_email']],
+        methods: [Request::METHOD_POST]
     )]
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
@@ -64,7 +70,11 @@ class MailActionController extends AbstractController
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }
 
-    #[Route(path: '/api/_action/mail-template/validate', name: 'api.action.mail_template.validate', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/mail-template/validate',
+        name: 'api.action.mail_template.validate',
+        methods: [Request::METHOD_POST]
+    )]
     public function validate(RequestDataBag $post, Context $context): JsonResponse
     {
         $this->templateRenderer->initialize();
@@ -74,7 +84,11 @@ class MailActionController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/mail-template/build', name: 'api.action.mail_template.build', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/mail-template/build',
+        name: 'api.action.mail_template.build',
+        methods: [Request::METHOD_POST]
+    )]
     public function build(RequestDataBag $post, Context $context): JsonResponse
     {
         $data = $post->all();
@@ -92,7 +106,11 @@ class MailActionController extends AbstractController
         return new JsonResponse($renderedTemplate);
     }
 
-    #[Route(path: '/api/_action/mail-template/preview', name: 'api.action.mail_template.preview', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/mail-template/preview',
+        name: 'api.action.mail_template.preview',
+        methods: [Request::METHOD_POST]
+    )]
     public function preview(RequestDataBag $post, Context $context): JsonResponse
     {
         $templateId = $post->get('mailTemplateId');
@@ -103,13 +121,18 @@ class MailActionController extends AbstractController
         return new JsonResponse($renderedTemplate);
     }
 
+    /**
+     * This route is used to gather the required data for a mail template and send it.
+     * It differs from the "send" route in that it gathers the necessary data for the mail template
+     * based on the provided mail template ID and entity IDs.
+     */
     #[Route(
-        path: '/api/_action/mail-template/send2',
-        name: 'api.action.mail_template.send2',
-        defaults: ['_acl' => ['api_send_email']],
-        methods: ['POST']
+        path: '/api/_action/mail-template/get-data-and-send',
+        name: 'api.action.mail_template.get_data_and_send',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_send_email']],
+        methods: [Request::METHOD_POST]
     )]
-    public function send2(RequestDataBag $post, Context $context): JsonResponse
+    public function getDataAndSend(RequestDataBag $post, Context $context): JsonResponse
     {
         $templateId = $post->get('mailTemplateId');
         $entities = $post->get('entities', [])->all();

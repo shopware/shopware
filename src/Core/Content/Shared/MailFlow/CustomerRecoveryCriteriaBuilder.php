@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Shared\MailFlow;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition;
 use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,7 +14,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('after-sales')]
-class CustomerCriteriaBuilder
+class CustomerRecoveryCriteriaBuilder
 {
     public function __construct(private readonly EventDispatcherInterface $dispatcher)
     {
@@ -24,18 +24,10 @@ class CustomerCriteriaBuilder
     {
         $criteria = new Criteria([$entityId]);
 
-        $criteria->addAssociations([
-            'salutation',
-            'defaultBillingAddress.country',
-            'defaultBillingAddress.countryState',
-            'defaultBillingAddress.salutation',
-            'defaultShippingAddress.country',
-            'defaultShippingAddress.countryState',
-            'defaultShippingAddress.salutation',
-        ]);
+        $criteria->addAssociation('customer.salutation');
 
         $event = new MailFlowDataCriteriaEvent(
-            CustomerDefinition::ENTITY_NAME,
+            CustomerRecoveryDefinition::ENTITY_NAME,
             $criteria,
             $context,
         );

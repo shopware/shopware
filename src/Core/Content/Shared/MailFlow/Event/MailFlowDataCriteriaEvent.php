@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Mail\Event;
+namespace Shopware\Core\Content\Shared\MailFlow\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('after-sales')]
-class BeforeLoadMailDataProviderEvent extends Event implements ShopwareEvent, GenericEvent
+class MailFlowDataCriteriaEvent extends Event implements ShopwareEvent, GenericEvent
 {
     public function __construct(
         private readonly string $entityName,
@@ -21,7 +21,7 @@ class BeforeLoadMailDataProviderEvent extends Event implements ShopwareEvent, Ge
 
     public function getName(): string
     {
-        return 'mail.data.' . $this->entityName . '.criteria.event';
+        return 'mail-flow.data.' . $this->entityName . '.criteria.event';
     }
 
     public function getCriteria(): Criteria

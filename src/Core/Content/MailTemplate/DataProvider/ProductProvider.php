@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\MailTemplate\DataProvider;
 
-use Shopware\Core\Content\Mail\Event\BeforeLoadMailDataProviderEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,7 +33,7 @@ class ProductProvider implements DataProvider
 
         $context->setConsiderInheritance(true);
 
-        $event = new BeforeLoadMailDataProviderEvent(
+        $event = new MailFlowDataCriteriaEvent(
             ProductDefinition::ENTITY_NAME,
             $criteria,
             $context,

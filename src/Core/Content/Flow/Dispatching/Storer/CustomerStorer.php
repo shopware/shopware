@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -72,20 +73,22 @@ class CustomerStorer extends FlowStorer
             return null;
         }
 
-        $criteria = $this->customerCriteriaBuilder->getCriteria($id);
+        $criteria = $this->customerCriteriaBuilder->getCriteria($id, $storableFlow->getContext());
 
         return $this->loadCustomer($criteria, $storableFlow->getContext(), $id);
     }
 
     private function loadCustomer(Criteria $criteria, Context $context, string $id): ?CustomerEntity
     {
-        $event = new BeforeLoadStorableFlowDataEvent(
-            CustomerDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
+        if (!Feature::isActive('v6.8.0.0')) {
+            $event = new BeforeLoadStorableFlowDataEvent(
+                CustomerDefinition::ENTITY_NAME,
+                $criteria,
+                $context,
+            );
 
-        $this->dispatcher->dispatch($event, $event->getName());
+            $this->dispatcher->dispatch($event, $event->getName());
+        }
 
         $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($id);
 

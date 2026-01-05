@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -63,20 +64,22 @@ class OrderStorer extends FlowStorer
             return null;
         }
 
-        $criteria = $this->orderCriteriaBuilder->getCriteria($id);
+        $criteria = $this->orderCriteriaBuilder->getCriteria($id, $storableFlow->getContext());
 
         return $this->loadOrder($criteria, $storableFlow->getContext(), $id);
     }
 
     private function loadOrder(Criteria $criteria, Context $context, string $orderId): ?OrderEntity
     {
-        $event = new BeforeLoadStorableFlowDataEvent(
-            OrderDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
+        if (!Feature::isActive('v6.8.0.0')) {
+            $event = new BeforeLoadStorableFlowDataEvent(
+                OrderDefinition::ENTITY_NAME,
+                $criteria,
+                $context,
+            );
 
-        $this->dispatcher->dispatch($event, $event->getName());
+            $this->dispatcher->dispatch($event, $event->getName());
+        }
 
         $order = $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
 

@@ -3,9 +3,13 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Content\Shared\MailFlow;
 
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -13,7 +17,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class OrderCriteriaBuilder
 {
-    public function getCriteria(string $entityId): Criteria
+    public function __construct(private readonly EventDispatcherInterface $dispatcher)
+    {
+    }
+
+    public function getCriteria(string $entityId, Context $context): Criteria
     {
         $criteria = new Criteria([$entityId]);
 
@@ -39,6 +47,14 @@ class OrderCriteriaBuilder
         ]);
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+
+        $event = new MailFlowDataCriteriaEvent(
+            OrderDefinition::ENTITY_NAME,
+            $criteria,
+            $context,
+        );
+
+        $this->dispatcher->dispatch($event, $event->getName());
 
         return $criteria;
     }

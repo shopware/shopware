@@ -6,8 +6,21 @@
 
     <services>
 
-        <service id="Shopware\Core\Content\Shared\MailFlow\OrderCriteriaBuilder"/>
-        <service id="Shopware\Core\Content\Shared\MailFlow\CustomerCriteriaBuilder"/>
+        <service id="Shopware\Core\Content\Shared\MailFlow\OrderCriteriaBuilder">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\CustomerCriteriaBuilder">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\CustomerRecoveryCriteriaBuilder">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\UserRecoveryCriteriaBuilder">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
 
     </services>
 </container>

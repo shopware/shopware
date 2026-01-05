@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\MailTemplate\DataProvider;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,29 +16,29 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('after-sales')]
-class CustomerGroupProvider implements DataProvider
+class NewsletterRecipientProvider implements DataProvider
 {
     /**
-     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
+     * @param EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository
      */
     public function __construct(
-        private readonly EntityRepository $customerGroupRepository,
+        private readonly EntityRepository $newsletterRecipientRepository,
         private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
-    public function getData(string $entityId, Context $context): ?CustomerGroupEntity
+    public function getData(string $entityId, Context $context): ?NewsletterRecipientEntity
     {
         $criteria = new Criteria([$entityId]);
 
         $event = new MailFlowDataCriteriaEvent(
-            CustomerGroupDefinition::ENTITY_NAME,
+            NewsletterRecipientDefinition::ENTITY_NAME,
             $criteria,
             $context,
         );
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        return $this->customerGroupRepository->search($criteria, $context)->getEntities()->get($entityId);
+        return $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->get($entityId);
     }
 }

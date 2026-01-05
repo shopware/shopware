@@ -46,8 +46,8 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($function)) {
-            /** @var callable-string $function */
             $function = implode('::', $function);
+            \assert(\is_callable($function));
         }
 
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {

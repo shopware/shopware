@@ -135,6 +135,10 @@ function createClient() {
     dispatcher.defaultsV0 = axiosV0.defaults;
     dispatcher.defaultsV1 = axiosV1.defaults;
 
+    // Expose underlying axios instances for testing/mocking purposes
+    dispatcher.axiosV0 = axiosV0;
+    dispatcher.axiosV1 = axiosV1;
+
     return dispatcher;
 }
 

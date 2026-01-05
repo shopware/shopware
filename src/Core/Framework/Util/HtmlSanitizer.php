@@ -42,6 +42,11 @@ class HtmlSanitizer implements ResetInterface
             return $text;
         }
 
+        /** Fix double encoding
+         * @see \Shopware\Tests\Unit\Core\Framework\Util\HtmlSanitizerTest::testSanitizeHtmlEntities()
+         */
+        $text = htmlspecialchars_decode($text, \ENT_QUOTES | \ENT_HTML5);
+
         $options ??= [];
 
         $hash = Hasher::hash([

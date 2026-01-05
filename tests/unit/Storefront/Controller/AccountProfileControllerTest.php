@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -20,6 +21,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @internal
  */
 #[CoversClass(AccountProfileController::class)]
+#[Package('checkout')]
 class AccountProfileControllerTest extends TestCase
 {
     public function testSavePasswordWithMissingPasswordParam(): void

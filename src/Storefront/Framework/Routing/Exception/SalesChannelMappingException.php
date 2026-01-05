@@ -13,7 +13,7 @@ class SalesChannelMappingException extends StorefrontFrameworkException
     {
         parent::__construct(
             Response::HTTP_NOT_FOUND,
-            'FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING',
+            StorefrontFrameworkException::SALES_CHANNEL_MAPPING_EXCEPTION,
             'Unable to find a matching sales channel for the request: "{{url}}". Please make sure the domain mapping is correct.',
             ['url' => $url]
         );

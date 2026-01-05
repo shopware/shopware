@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\Event\OrderCriteriaEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
@@ -56,7 +57,12 @@ class OrderRoute extends AbstractOrderRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/order', name: 'store-api.order', methods: ['GET', 'POST'], defaults: ['_entity' => 'order'])]
+    #[Route(
+        path: '/store-api/order',
+        name: 'store-api.order',
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => OrderDefinition::ENTITY_NAME],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
     {
         ReplicaConnection::ensurePrimary();

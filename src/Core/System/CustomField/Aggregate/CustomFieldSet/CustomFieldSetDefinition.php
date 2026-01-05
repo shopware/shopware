@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
@@ -57,13 +58,13 @@ class CustomFieldSetDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            new JsonField('config', 'config', [], []),
-            new BoolField('active', 'active'),
-            new BoolField('global', 'global'),
-            new IntField('position', 'position'),
-            new FkField('app_id', 'appId', AppDefinition::class),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of a custom field set.'),
+            (new StringField('name', 'name'))->addFlags(new Required(), new Immutable())->setDescription('Unique name of a custom field set.'),
+            (new JsonField('config', 'config', [], []))->setDescription('Specifies detailed information about the component.'),
+            (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the custom field set is enabled for use.'),
+            (new BoolField('global', 'global'))->setDescription('When set to `true`, the custom field set can be used across all sales channels.'),
+            (new IntField('position', 'position'))->setDescription('The order of the tabs of your defined custom field set to be displayed.'),
+            (new FkField('app_id', 'appId', AppDefinition::class))->setDescription('Unique identity of an app.'),
 
             (new OneToManyAssociationField('customFields', CustomFieldDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('relations', CustomFieldSetRelationDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),

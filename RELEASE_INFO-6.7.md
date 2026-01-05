@@ -2,12 +2,23 @@
 
 ## Features
 
+### Support of media paths with up to 2046 characters
+Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the
+database field already supported up to 2046 characters. This limitation has now been lifted and media paths can be up to
+2046 characters long.
+
 ### HTTP caching rework
 
 - Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
   and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
   together with other HTTP caching improvements.
 - Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
+
+### Configurable Custom Field Searchability
+
+Custom fields are now **not searchable by default**. To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields. This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
+
+**Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
 
 ### Send email on customer password change
 A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.
@@ -44,12 +55,13 @@ HTTP caching support was added for the following Store API endpoints:
 - `/store-api/product/{productId}/reviews`
 - `/store-api/search`
 - `/store-api/search-suggest`
+- `/store-api/landing-page/{landingPageId}`
 
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Store API: compressed criteria parameter support
-Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows 
-sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported. 
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows
+sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported.
 Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
 Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
@@ -106,6 +118,16 @@ Note: `assignRecursive` uses reflection and creates nested struct instances, so 
 We don't synchronously fetch and generate the SEO-Urls for all child categories anymore.
 Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
 This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
+
+### Introduce Immutable DAL flag
+
+A new `Immutable` flag is available for Data Abstraction Layer fields. Fields marked as immutable can be set during entity creation but cannot be updated later. This prevents accidental renames of technical identifiers that other subsystems rely on. Core entities now using the flag include:
+
+* `custom_field.name`
+* `custom_field.type`
+* `custom_field_set.name`
+
+Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
 
 ## Administration
 

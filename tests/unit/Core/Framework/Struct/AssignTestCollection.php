@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @internal
  *
- * @codeCoverageIgnore
- *
  * @extends Collection<AssignTestStruct>
  */
 class AssignTestCollection extends Collection

@@ -10,10 +10,15 @@ export default {
 
     inject: ['shopwareExtensionService'],
 
+    mixins: ['sw-extension-error'],
+
     data() {
         return {
             filterByActiveState: false,
             sortingOption: 'updated-at',
+            extensionToReview: null,
+            showExtensionReviewModal: false,
+            privilegeModalActionLabel: null,
         };
     },
 
@@ -61,6 +66,16 @@ export default {
 
                 return label.toLowerCase().includes(searchTerm) || name.toLowerCase().includes(searchTerm);
             });
+        },
+
+        extensionListWithRequestedPrivileges() {
+            return this.extensionList.filter((extension) => {
+                return Object.keys(extension.requestedPermissions).length;
+            });
+        },
+
+        hasPrivilegeRequests() {
+            return this.extensionListWithRequestedPrivileges.length > 0;
         },
 
         isAppRoute() {
@@ -256,6 +271,48 @@ export default {
             return extensions.filter((extension) => {
                 return extension.active;
             });
+        },
+
+        reviewPrivilegeRequests() {
+            this.privilegeModalActionLabel = this.$t(
+                'sw-extension-store.component.sw-extension-card-base.labelAcceptRequestedPrivileges',
+            );
+
+            if (this.extensionListWithRequestedPrivileges.length) {
+                this.extensionToReview = this.extensionListWithRequestedPrivileges[0];
+                this.showExtensionReviewModal = true;
+            } else {
+                this.shopwareExtensionService.updateExtensionData();
+            }
+        },
+
+        closePrivilegeReviewModal() {
+            this.privilegeModalActionLabel = null;
+            this.extensionToReview = null;
+            this.showExtensionReviewModal = false;
+        },
+
+        async acceptAndCheckNext() {
+            const extension = this.extensionToReview;
+            this.closePrivilegeReviewModal();
+
+            await this.acceptRequestedPrivileges(extension);
+
+            this.reviewPrivilegeRequests();
+        },
+
+        async acceptRequestedPrivileges(extension) {
+            try {
+                await this.shopwareExtensionService.acceptRequestedPrivilegesForExtension(
+                    extension.name,
+                    extension.type,
+                    extension.requestedPermissions,
+                );
+
+                extension.requestedPermissions = {};
+            } catch (e) {
+                this.showExtensionErrors(e);
+            }
         },
     },
 };

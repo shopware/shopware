@@ -1,6 +1,7 @@
 import type { RouteLocationNamedRaw, RouteLocation } from 'vue-router';
 import type { AppModulesService, AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 import type StoreApiService from 'src/core/service/api/store.api.service';
+import type AppPrivilegesService from 'src/core/service/api/app-privileges.service';
 import type { ShopwareDiscountCampaignService } from 'src/app/service/discount-campaign.service';
 import type {
     ExtensionStoreActionService,
@@ -22,6 +23,9 @@ interface LabeledLocation extends RouteLocation {
     label: string | null;
 }
 
+type PermissionEntry = { entity: string; operation: string };
+type PermissionsMap = Record<string, PermissionEntry[]>;
+
 /**
  * @sw-package checkout
  * @private
@@ -36,6 +40,7 @@ export default class ShopwareExtensionService {
         private readonly extensionStoreActionService: ExtensionStoreActionService,
         private readonly discountCampaignService: ShopwareDiscountCampaignService,
         private readonly storeApiService: StoreApiService,
+        private readonly appPrivilegesService: AppPrivilegesService,
     ) {
         this.EXTENSION_VARIANT_TYPES = Object.freeze({
             RENT: 'rent',
@@ -269,5 +274,23 @@ export default class ShopwareExtensionService {
         return valueTypes.map((type) => {
             return variants[type.index];
         });
+    }
+
+    public async acceptRequestedPrivilegesForExtension(
+        extensionName: string,
+        type: ExtensionType,
+        permissions: PermissionsMap,
+    ): Promise<void> {
+        if (type !== this.EXTENSION_TYPES.APP) {
+            return;
+        }
+
+        await this.appPrivilegesService.acceptPrivileges(extensionName, this.flattenPermissions(permissions));
+    }
+
+    private flattenPermissions(permissions: PermissionsMap): string[] {
+        return Object.values(permissions)
+            .flat()
+            .map(({ entity, operation }) => `${entity}:${operation}`);
     }
 }

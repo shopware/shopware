@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Update;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\Event\AppsUpdatedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,7 +29,8 @@ class AppUpdater extends AbstractAppUpdater
         private readonly AbstractExtensionDataProvider $extensionDataProvider,
         private readonly EntityRepository $appRepo,
         private readonly ExtensionDownloader $downloader,
-        private readonly AbstractStoreAppLifecycleService $appLifecycle
+        private readonly AbstractStoreAppLifecycleService $appLifecycle,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -37,6 +40,7 @@ class AppUpdater extends AbstractAppUpdater
         $extensions = $extensions->filterByType(ExtensionStruct::EXTENSION_TYPE_APP);
 
         $outdatedApps = [];
+        $updatedApps = [];
 
         foreach ($extensions as $extension) {
             $id = $extension->getLocalId();
@@ -62,9 +66,15 @@ class AppUpdater extends AbstractAppUpdater
 
             try {
                 $this->appLifecycle->updateExtension($app->getName(), false, $context);
+                $updatedApps[] = $app->getLocalId();
             } catch (ExtensionUpdateRequiresConsentAffirmationException) {
                 // Ignore updates that require consent
             }
+        }
+
+        /** @var list<string> $updatedApps */
+        if (!empty($updatedApps)) {
+            $this->eventDispatcher->dispatch(new AppsUpdatedEvent($updatedApps, $context));
         }
     }
 

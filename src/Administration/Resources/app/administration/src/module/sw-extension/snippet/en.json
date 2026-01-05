@@ -23,7 +23,8 @@
           }
         },
         "version": "Version",
-        "update": "Update"
+        "update": "Update",
+        "privilege-review": "New permissions"
       },
       "account": {
         "headline": "Shopware Account",
@@ -86,6 +87,13 @@
         "title": "Shopware Account session expired",
         "message": "Please log in to access your licensed extensions.",
         "actionLabel": "Login"
+      }
+    },
+    "notifications": {
+      "reviewPrivilegeRequests": {
+        "title": "New permissions requested",
+        "message": "One or more extensions requires new permissions to be updated. Please review the new permissions to continue.",
+        "action": "Review permissions"
       }
     },
     "mainMenu": {
@@ -255,6 +263,8 @@
         "openExtensionLabel": "Open",
         "installExtensionLabel": "Install",
         "labelAcceptAndInstall": "Accept and install",
+        "reviewNewPrivilegesLabel": "Review",
+        "labelAcceptRequestedPrivileges": "Accept",
         "allowDisableTooltip": "This app uses its own data structures, that affect your system. Therefore, the app cannot be deactivated.",
         "contextMenu": {
           "getHelpLabel": "Get help",

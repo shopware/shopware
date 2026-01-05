@@ -311,6 +311,13 @@ Profiles are now identified and displayed only by their technical name.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
 
+## Removed unused `ImportExport` exceptions
+
+The unused exceptions
+* `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
+* `\Shopware\Core\Content\ImportExport\Exception\MappingException`
+were removed.
+
 ## Removed SystemConfig exceptions
 
 The exceptions

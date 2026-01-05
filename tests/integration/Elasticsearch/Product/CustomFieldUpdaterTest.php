@@ -95,10 +95,12 @@ class CustomFieldUpdaterTest extends TestCase
                     [
                         'name' => 'test_newly_created_field',
                         'type' => CustomFieldTypes::INT,
+                        'includeInSearch' => true,
                     ],
                     [
                         'name' => 'test_newly_created_field_text',
                         'type' => CustomFieldTypes::TEXT,
+                        'includeInSearch' => true,
                     ],
                 ],
             ],
@@ -138,10 +140,12 @@ class CustomFieldUpdaterTest extends TestCase
                     [
                         'name' => 'test_later_created_field',
                         'type' => CustomFieldTypes::INT,
+                        'includeInSearch' => true,
                     ],
                     [
                         'name' => 'test_later_created_field_text',
                         'type' => CustomFieldTypes::TEXT,
+                        'includeInSearch' => true,
                     ],
                 ],
             ],

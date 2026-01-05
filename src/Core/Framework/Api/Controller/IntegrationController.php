@@ -31,9 +31,18 @@ class IntegrationController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/integration', name: 'api.integration.create', defaults: ['_acl' => ['integration:create']], methods: ['POST'])]
-    public function upsertIntegration(?string $integrationId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
-    {
+    #[Route(
+        path: '/api/integration',
+        name: 'api.integration.create',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['integration:create']],
+        methods: [Request::METHOD_POST]
+    )]
+    public function upsertIntegration(
+        ?string $integrationId,
+        Request $request,
+        Context $context,
+        ResponseFactoryInterface $factory
+    ): Response {
         $source = $context->getSource();
 
         $data = $request->request->all();
@@ -60,9 +69,18 @@ class IntegrationController extends AbstractController
         return $factory->createRedirectResponse($this->integrationRepository->getDefinition(), $entityId, $request, $context);
     }
 
-    #[Route(path: '/api/integration/{integrationId}', name: 'api.integration.update', defaults: ['_acl' => ['integration:update']], methods: ['PATCH'])]
-    public function updateIntegration(?string $integrationId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
-    {
+    #[Route(
+        path: '/api/integration/{integrationId}',
+        name: 'api.integration.update',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['integration:update']],
+        methods: [Request::METHOD_PATCH]
+    )]
+    public function updateIntegration(
+        ?string $integrationId,
+        Request $request,
+        Context $context,
+        ResponseFactoryInterface $factory
+    ): Response {
         return $this->upsertIntegration($integrationId, $request, $context, $factory);
     }
 }

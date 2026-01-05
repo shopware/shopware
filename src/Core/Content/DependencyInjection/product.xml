@@ -156,6 +156,12 @@
 
         <service id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
 
+        <service id="Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%elasticsearch.enabled%</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">
             <argument type="service" id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
@@ -280,6 +286,12 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor">
             <argument type="tagged_iterator" tag="shopware.listing.processor" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompressedCriteriaListingProcessor">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder" />
+            <!-- priority needs to be higher than of all other processors to make custom filters passed in compressed criteria to work -->
+            <tag name="shopware.listing.processor" priority="1000"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler" />

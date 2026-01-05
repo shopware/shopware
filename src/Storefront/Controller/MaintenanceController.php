@@ -47,7 +47,7 @@ class MaintenanceController extends StorefrontController
     public function renderMaintenancePage(Request $request, SalesChannelContext $context): ?Response
     {
         if ($this->maintenanceModeResolver->shouldRedirectToShop($request)) {
-            if ($request->get('redirectTo')) {
+            if ($request->query->getString('redirectTo') !== '') {
                 return $this->createActionResponse($request);
             }
 

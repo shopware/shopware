@@ -95,7 +95,7 @@
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
         "shopware/conflicts": "0.5.1",
-        "squirrelphp/twig-php-syntax": "^1.8.0",
+        "squirrelphp/twig-php-syntax": "^1.11.0",
         "symfony/asset": "~7.3.0",
         "symfony/cache": "~7.3.0",
         "symfony/cache-contracts": "~3.6.0",

@@ -46,6 +46,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($function)) {
+            /** @var callable-string $function */
             $function = implode('::', $function);
         }
 

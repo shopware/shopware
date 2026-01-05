@@ -1,8 +1,9 @@
-@import '~scss/variables';
+@import "~scss/variables";
 
 .sw-inherit-wrapper {
     display: flex;
     flex-direction: column;
+
     // justify-content: space-between;
     justify-content: flex-start;
 
@@ -34,7 +35,7 @@
     }
 
     &.is--required .sw-inherit-wrapper__toggle-wrapper label::after {
-        content: '*';
+        content: "*";
         color: $color-shopware-brand-500;
     }
 

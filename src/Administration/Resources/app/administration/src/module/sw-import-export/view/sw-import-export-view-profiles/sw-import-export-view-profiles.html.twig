@@ -9,12 +9,12 @@
         {% block sw_import_export_view_profile_profiles_toolbar %}
         <div class="sw-import-export-view-profiles__toolbar">
             {% block sw_import_export_view_profile_profiles_toolbar_search_field %}
-                <mt-search
-                    v-model="searchTerm"
-                    class="sw-import-export-view-profiles__search"
-                    size="small"
-                    @change="onSearch"
-                />
+            <mt-search
+                v-model="searchTerm"
+                class="sw-import-export-view-profiles__search"
+                size="small"
+                @change="onSearch"
+            />
             {% endblock %}
 
             {% block sw_import_export_view_profile_profiles_toolbar_add_new_profile %}

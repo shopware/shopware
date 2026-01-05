@@ -6,10 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Api\SystemConfigController;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 use Symfony\Component\HttpFoundation\Request;
@@ -102,8 +102,7 @@ class SystemConfigControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        static::expectException(RoutingException::class);
-        static::expectExceptionMessage('Parameter "domain" is missing.');
+        $this->expectExceptionObject(SystemConfigException::missingRequestParameter('domain'));
         $controller->getConfiguration($request, $context);
     }
 
@@ -118,8 +117,7 @@ class SystemConfigControllerTest extends TestCase
         $request = new Request();
         $request->query->set('domain', '');
 
-        static::expectException(RoutingException::class);
-        static::expectExceptionMessage('Parameter "domain" is missing.');
+        $this->expectExceptionObject(SystemConfigException::missingRequestParameter('domain'));
         $controller->getConfigurationValues($request);
     }
 
@@ -244,15 +242,15 @@ class SystemConfigControllerTest extends TestCase
     #[DataProvider('inheritRequestDataProvider')]
     public function testInheritFlag(Request $request, bool $expectedFlag): void
     {
-        $systemConfigService = static::createMock(SystemConfigService::class);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->once())
             ->method('getDomain')
             ->with('dummy domain', 'dummy sales channel', $expectedFlag);
 
         $systemConfigController = new SystemConfigController(
-            static::createMock(ConfigurationService::class),
+            $this->createMock(ConfigurationService::class),
             $systemConfigService,
-            static::createMock(SystemConfigValidator::class)
+            $this->createMock(SystemConfigValidator::class)
         );
 
         $systemConfigController->getConfigurationValues($request);

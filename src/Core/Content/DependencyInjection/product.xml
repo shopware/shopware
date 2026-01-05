@@ -156,6 +156,12 @@
 
         <service id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
 
+        <service id="Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%elasticsearch.enabled%</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">
             <argument type="service" id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>

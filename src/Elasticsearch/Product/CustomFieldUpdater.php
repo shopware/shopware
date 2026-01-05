@@ -56,6 +56,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
 
         if ($customFieldWrittenEvent !== null) {
             $this->customFieldsCreated($customFieldWrittenEvent);
+            $this->customFieldsUpdated($containerEvent, $customFieldWrittenEvent);
         }
     }
 
@@ -100,6 +101,14 @@ class CustomFieldUpdater implements EventSubscriberInterface
         }
 
         $indices = $this->indexDetector->getAllUsedIndices();
+        if (\count($indices) === 0) {
+            return;
+        }
+
+        $languageIds = $this->customFieldSetGateway->fetchLanguageIds();
+        if (\count($languageIds) === 0) {
+            return;
+        }
 
         foreach ($indices as $indexName) {
             $body = [
@@ -110,7 +119,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 ],
             ];
 
-            foreach ($this->customFieldSetGateway->fetchLanguageIds() as $languageId) {
+            foreach ($languageIds as $languageId) {
                 $body['properties']['customFields']['properties'][$languageId] = [
                     'type' => 'object',
                     'dynamic' => true,
@@ -201,10 +210,18 @@ class CustomFieldUpdater implements EventSubscriberInterface
         $fieldSetIds = $this->customFieldSetGateway->fetchFieldSetIds(array_keys($results));
         $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings(array_values($fieldSetIds));
 
-        // we only want to index custom fields relating to products
+        // we only want to index product-related and searchable custom fields
         $results = array_filter(
             $results,
-            static fn (EntityWriteResult $writeResult, string $id) => \in_array('product', $fieldSetEntityMappings[$fieldSetIds[$id]], true),
+            static function (EntityWriteResult $writeResult, string $id) use ($fieldSetEntityMappings, $fieldSetIds): bool {
+                if (!\in_array('product', $fieldSetEntityMappings[$fieldSetIds[$id]] ?? [], true)) {
+                    return false;
+                }
+
+                $payload = $writeResult->getPayload();
+
+                return \array_key_exists('includeInSearch', $payload) && (bool) $payload['includeInSearch'];
+            },
             \ARRAY_FILTER_USE_BOTH
         );
 
@@ -216,5 +233,71 @@ class CustomFieldUpdater implements EventSubscriberInterface
         );
 
         $this->createFieldsInIndices($newCreatedFields);
+    }
+
+    private function customFieldsUpdated(
+        EntityWrittenContainerEvent $containerEvent,
+        EntityWrittenEvent $customFieldWrittenEvent
+    ): void {
+        $customFieldIds = $containerEvent->getPrimaryKeysWithPropertyChange(
+            CustomFieldDefinition::ENTITY_NAME,
+            ['includeInSearch']
+        );
+
+        if (empty($customFieldIds)) {
+            return;
+        }
+
+        $updatedFieldIds = [];
+        foreach ($customFieldWrittenEvent->getWriteResults() as $writeResult) {
+            $key = (string) $writeResult->getPrimaryKey();
+
+            if (!\in_array($key, $customFieldIds, true)) {
+                continue;
+            }
+
+            $existence = $writeResult->getExistence();
+            // Skip new fields (handled by customFieldsCreated)
+            if (!$existence || !$existence->exists()) {
+                continue;
+            }
+
+            $payload = $writeResult->getPayload();
+            if (!\array_key_exists('includeInSearch', $payload) || !(bool) $payload['includeInSearch']) {
+                continue;
+            }
+
+            $updatedFieldIds[$key] = true;
+        }
+
+        if (\count($updatedFieldIds) === 0) {
+            return;
+        }
+
+        $fieldSetIds = $this->customFieldSetGateway->fetchFieldSetIds(array_keys($updatedFieldIds));
+
+        if (\count($fieldSetIds) === 0) {
+            return;
+        }
+
+        $setIds = array_unique(array_values($fieldSetIds));
+        $customFieldsBySet = $this->customFieldSetGateway->fetchCustomFieldsForSets($setIds);
+        $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings($setIds);
+
+        $fieldsToAdd = [];
+        foreach ($customFieldsBySet as $setCustomFields) {
+            foreach ($setCustomFields as $customField) {
+                $customFieldId = $customField['id'];
+
+                if (isset($updatedFieldIds[$customFieldId])) {
+                    $setId = $fieldSetIds[$customFieldId];
+                    if (\in_array('product', $fieldSetEntityMappings[$setId] ?? [], true)) {
+                        $fieldsToAdd[$customField['name']] = self::getTypeFromCustomFieldType($customField['type']);
+                    }
+                }
+            }
+        }
+
+        $this->createFieldsInIndices($fieldsToAdd);
     }
 }

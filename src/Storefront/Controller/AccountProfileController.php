@@ -45,7 +45,15 @@ class AccountProfileController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account', name: 'frontend.account.home.page', defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/account',
+        name: 'frontend.account.home.page',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->overviewPageLoader->load($request, $context, $customer);
@@ -55,7 +63,15 @@ class AccountProfileController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/account/profile', name: 'frontend.account.profile.page', defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/account/profile',
+        name: 'frontend.account.profile.page',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->profilePageLoader->load($request, $context);
@@ -69,7 +85,12 @@ class AccountProfileController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/profile', name: 'frontend.account.profile.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/account/profile',
+        name: 'frontend.account.profile.save',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function saveProfile(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
@@ -86,7 +107,12 @@ class AccountProfileController extends StorefrontController
         return $this->redirectToRoute('frontend.account.profile.page');
     }
 
-    #[Route(path: '/account/profile/email', name: 'frontend.account.profile.email.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/account/profile/email',
+        name: 'frontend.account.profile.email.save',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function saveEmail(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
@@ -109,7 +135,12 @@ class AccountProfileController extends StorefrontController
         return $this->redirectToRoute('frontend.account.profile.page');
     }
 
-    #[Route(path: '/account/profile/password', name: 'frontend.account.profile.password.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/account/profile/password',
+        name: 'frontend.account.profile.password.save',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer, Request $request): Response
     {
         try {
@@ -133,7 +164,12 @@ class AccountProfileController extends StorefrontController
         return $this->redirectToRoute('frontend.account.profile.page');
     }
 
-    #[Route(path: '/account/profile/delete', name: 'frontend.account.profile.delete', defaults: ['_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/account/profile/delete',
+        name: 'frontend.account.profile.delete',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function deleteProfile(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {

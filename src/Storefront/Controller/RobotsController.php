@@ -31,7 +31,15 @@ class RobotsController extends StorefrontController
     {
     }
 
-    #[Route(path: '/robots.txt', name: 'frontend.robots.txt', defaults: ['_format' => 'txt', '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/robots.txt',
+        name: 'frontend.robots.txt',
+        defaults: [
+            '_format' => 'txt',
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function robotsTxt(Request $request, Context $context): Response
     {
         $page = $this->robotsPageLoader->load($request, $context);

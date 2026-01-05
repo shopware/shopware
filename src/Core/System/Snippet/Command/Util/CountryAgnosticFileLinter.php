@@ -40,6 +40,7 @@ class CountryAgnosticFileLinter
         private readonly Filesystem $filesystem,
         private readonly EntityRepository $pluginRepository,
         private readonly EntityRepository $appRepository,
+        private readonly Finder $finder,
     ) {
     }
 
@@ -133,7 +134,7 @@ class CountryAgnosticFileLinter
 
     private function getFinder(LintedTranslationFileOptions $options): Finder
     {
-        $finder = (new Finder())
+        $this->finder
             ->files()
             ->ignoreUnreadableDirs()
             ->ignoreDotFiles(true)
@@ -152,18 +153,18 @@ class CountryAgnosticFileLinter
             ->sortByName(true);
 
         if ($options->dir) {
-            $finder->in($options->dir);
+            $this->finder->in($options->dir);
         } elseif (empty($options->extensionPaths)) {
-            $finder->in('src');
+            $this->finder->in('src');
 
             if ($options->isAll) {
-                $finder->in('custom');
+                $this->finder->in('custom');
             }
         } else {
-            $finder->in($this->getExtensionPaths($options));
+            $this->finder->in($this->getExtensionPaths($options));
         }
 
-        return $finder;
+        return $this->finder;
     }
 
     /**

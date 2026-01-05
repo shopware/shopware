@@ -237,7 +237,7 @@ class TreeUpdater
         return $definition->getFields()
             ->filterInstance(TreePathField::class)
             ->reduce(function (array $fields, Field $field) {
-                /** @var TreePathField $field */
+                \assert($field instanceof TreePathField);
                 if (!\in_array($field->getPathField(), $fields, true)) {
                     $fields[] = $field->getPathField();
                 }

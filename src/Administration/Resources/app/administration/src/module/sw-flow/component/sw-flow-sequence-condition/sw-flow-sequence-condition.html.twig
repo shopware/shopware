@@ -172,7 +172,13 @@
             {% block sw_flow_sequence_condition_content %}
             <div class="sw-flow-sequence-condition__content">
                 {% block sw_flow_sequence_condition_rule %}
-                <div class="sw-flow-sequence-condition__rule">
+                <div
+                    class="sw-flow-sequence-condition__rule"
+                    role="button"
+                    tabindex="0"
+                    @click="onEditRule"
+                    @keydown.enter="onEditRule"
+                >
                     {% block sw_flow_sequence_condition_rule_empty %}
                     <div
                         v-if="!sequence.rule"
@@ -208,6 +214,7 @@
                             <sw-context-button
                                 class="sw-flow-sequence-condition__rule-context-button"
                                 :disabled="disabled || undefined"
+                                @click.stop
                             >
                                 {% block sw_flow_sequence_condition_rule_context_button_edit %}
                                 <sw-context-menu-item

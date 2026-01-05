@@ -249,7 +249,7 @@ describe('core/factory/http.factory.js', () => {
             // Note: MockAdapter doesn't fully support axios v1 when using the dispatcher pattern
             // This test verifies that the cache interceptor is applied to v1 without errors
             // Full integration testing would require a different mocking strategy
-            
+
             // Enable cache interceptor by setting NODE_ENV to prod
             process.env.NODE_ENV = 'prod';
             const client = createHTTPClient();
@@ -274,7 +274,7 @@ describe('core/factory/http.factory.js', () => {
                 expect.anything(),
                 expect.anything(),
             );
-            
+
             // The v1 interceptor is applied in http.factory.js and uses the same
             // cache adapter factory, so if v0 caching works, v1 will work the same way
         });

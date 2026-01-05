@@ -491,6 +491,28 @@ if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
 }
 ```
 
+**Version-Specific Interceptors and Defaults:**
+
+During the transition period, the HTTP client provides direct access to both axios versions' interceptors and defaults:
+
+```javascript
+// Access interceptors for specific version
+httpClient.interceptorsV0 // Always axios 0.30.2 interceptors
+httpClient.interceptorsV1 // Always axios 1.x interceptors
+httpClient.interceptors   // Current default version (v1 in 6.8+)
+
+// Access defaults for specific version
+httpClient.defaultsV0 // Always axios 0.30.2 defaults
+httpClient.defaultsV1 // Always axios 1.x defaults
+httpClient.defaults   // Current default version (v1 in 6.8+)
+
+// Example: Add interceptor to both versions during transition
+httpClient.interceptorsV0.request.use(myRequestHandler);
+httpClient.interceptorsV1.request.use(myRequestHandler);
+```
+
+This allows plugins to configure both axios versions simultaneously during the migration period.
+
 ### Migration guide
 
 Most code will work without changes. However, if you use request cancellation or depend on specific axios behavior:

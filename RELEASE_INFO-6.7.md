@@ -1,4 +1,22 @@
-# 6.7.6.0 (upcoming)
+# 6.7.7.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+## Administration
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
+# 6.7.6.0
 
 ## Features
 
@@ -188,8 +206,6 @@ shopware:
 - `shopware.http_cache.stale_if_error` parameter.
 
 Deprecated parameters will have no effect when `CACHE_REWORK` feature flag is enabled, and will be removed in 6.8.0.0.
-
-## Critical fixes
 
 # 6.7.5.0
 

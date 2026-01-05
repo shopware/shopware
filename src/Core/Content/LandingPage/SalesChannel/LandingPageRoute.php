@@ -48,7 +48,12 @@ class LandingPageRoute extends AbstractLandingPageRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/landing-page/{landingPageId}', name: 'store-api.landing-page.detail', methods: ['POST'])]
+    #[Route(
+        path: '/store-api/landing-page/{landingPageId}',
+        name: 'store-api.landing-page.detail',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName($landingPageId));

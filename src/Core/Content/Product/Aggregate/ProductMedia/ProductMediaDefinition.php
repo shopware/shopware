@@ -59,18 +59,18 @@ class ProductMediaDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the Product Media.'),
             (new VersionField())->addFlags(new ApiAware()),
 
-            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the product.'),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
 
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new IntField('position', 'position'))->addFlags(new ApiAware()),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the media.'),
+            (new IntField('position', 'position'))->addFlags(new ApiAware())->setDescription('The order of the images to be displayed for a product.'),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id'))->addFlags(new ReverseInherited('media')),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('coverProducts', ProductDefinition::class, 'product_media_id'))->addFlags(new SetNullOnDelete(false)),
-            (new CustomFields())->addFlags(new ApiAware()),
+            (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
         ]);
     }
 }

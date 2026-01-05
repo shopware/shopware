@@ -185,7 +185,7 @@ class SecurityExtensionGadget
 {
     public static function do(): void
     {
-        throw new \Error('This should not be called');
+        // no op, do not throw as we need to check that an exception is thrown by the security extension, not here
     }
 }
 

@@ -39,12 +39,7 @@ export const { CancelToken, isCancel, Cancel } = Axios;
  * @returns {AxiosInstance}
  */
 function createClient() {
-    // Determine which axios version to use:
-    // 1. If useAxiosV1 is explicitly set (true/false), use that
-    // 2. Otherwise, check V6_8_0_0 feature flag (defaults to v1 when active)
-    // 3. Fall back to v0 for backward compatibility
-    const shouldUseV1 = config.useAxiosV1 ?? Shopware?.Feature?.isActive('V6_8_0_0') ?? false;
-
+    const isV68 = Shopware?.Feature?.isActive('V6_8_0_0');
     const baseConfig = {
         baseURL: Shopware.Context.api.apiPath,
         // Add request/response size limits to mitigate DoS vulnerability
@@ -98,6 +93,11 @@ function createClient() {
      * @returns {Promise} - Promise that resolves with the response
      */
     const dispatcher = (config) => {
+        // Determine which axios version to use:
+        // 1. If useAxiosV1 is explicitly set (true/false), use that
+        // 2. Otherwise, check V6_8_0_0 feature flag (defaults to v1 when active)
+        // 3. Fall back to v0 for backward compatibility
+        const shouldUseV1 = config?.useAxiosV1 ?? isV68 ?? false;
         const targetAdapter = shouldUseV1 ? adapterV1 : adapterV0;
 
         return targetAdapter.runRequest(config);
@@ -122,12 +122,12 @@ function createClient() {
     dispatcher.CancelToken = CancelToken;
 
     // Add interceptors property to maintain compatibility
-    dispatcher.interceptors = shouldUseV1 ? axiosV1.interceptors : axiosV0.interceptors;
+    dispatcher.interceptors = isV68 ? axiosV1.interceptors : axiosV0.interceptors;
     dispatcher.interceptorsV0 = axiosV0.interceptors;
     dispatcher.interceptorsV1 = axiosV1.interceptors;
 
     // Add defaults property to maintain compatibility
-    dispatcher.defaults = shouldUseV1 ? axiosV1.defaults : axiosV0.defaults;
+    dispatcher.defaults = isV68 ? axiosV1.defaults : axiosV0.defaults;
     dispatcher.defaultsV0 = axiosV0.defaults;
     dispatcher.defaultsV1 = axiosV1.defaults;
 

@@ -112,6 +112,10 @@ function createClient() {
     dispatcher.post = (url, data, config = {}) => dispatcher({ ...config, method: 'post', url, data });
     dispatcher.put = (url, data, config = {}) => dispatcher({ ...config, method: 'put', url, data });
     dispatcher.patch = (url, data, config = {}) => dispatcher({ ...config, method: 'patch', url, data });
+    dispatcher.getUri = (config = {}) => {
+        const shouldUseV1 = config?.useAxiosV1 ?? isV68 ?? false;
+        return shouldUseV1 ? axiosV1.getUri(config) : axiosV0.getUri(config);
+    };
 
     // Add isCancel method that checks both adapters
     dispatcher.isCancel = (value) => {

@@ -286,6 +286,7 @@ export default {
 
             this.profile.mapping = clonedMappings;
             this.loadMappings();
+            this.$emit('update-mapping', clonedMappings);
         },
 
         /**

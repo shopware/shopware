@@ -124,7 +124,10 @@
             {% endblock %}
 
             {% block sw_import_export_activity_listing_actions_open_profile %}
-            <sw-context-menu-item @click="onOpenProfile(item.profileId)">
+            <sw-context-menu-item
+                class="sw-import-export-activity__open-profile-action"
+                @click="onOpenProfile(item.profileId)"
+            >
                 {{ $t('sw-import-export.activity.contextMenu.showProfile') }}
             </sw-context-menu-item>
             {% endblock %}

@@ -77,4 +77,43 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         expect(wrapper.vm).toBeTruthy();
         expect(wrapper.vm.isInherited).toBe(true);
     });
+
+    it("should show the label if it's an inherited field", async () => {
+        const label = 'Test label';
+        const helpText = 'This is some help text';
+
+        const wrapper = await createWrapper({
+            propsData: {
+                value: [],
+                inheritedValue: 1,
+                hasParent: true,
+                label,
+                helpText,
+            },
+            global: createWrapperGlobalValue,
+        });
+
+        const toggleWrapper = wrapper.find('.sw-inherit-wrapper__toggle-wrapper');
+        expect(toggleWrapper.exists()).toBe(true);
+        expect(toggleWrapper.text()).toBe(label);
+    });
+
+    it("should not show any label if it's no inherited field", async () => {
+        const label = 'Test label';
+        const helpText = 'This is some help text';
+
+        const wrapper = await createWrapper({
+            propsData: {
+                value: false,
+                inheritedValue: null,
+                hasParent: false,
+                label,
+                helpText,
+            },
+            global: createWrapperGlobalValue,
+        });
+
+        const toggleWrapper = wrapper.find('.sw-inherit-wrapper__toggle-wrapper');
+        expect(toggleWrapper.exists()).toBe(false);
+    });
 });

@@ -388,6 +388,12 @@ jobs:
           name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}
           path: new-shopware/tests/acceptance/test-results/
           retention-days: 3
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4
+        if: always()
+        with:
+          name: php-logs-update-ats-${{ matrix.update.type }}-${{ matrix.update.version }}
+          path: /home/runner/.symfony5/log
+          retention-days: 1
 
   blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"

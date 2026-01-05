@@ -98,7 +98,7 @@
             <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\UserRecoveryCriteriaBuilder"/>
 
-            <tag name="shopware.mail.data_provider" key="order_transaction"/>
+            <tag name="shopware.mail.data_provider" key="user_recovery"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider">

@@ -135,7 +135,7 @@ Additionally, the following configuration was deprecated:
 The `product.states` field is deprecated and will be removed in the next major release.
 A new field `product.type` was introduced to clearly indicate whether a product is `digital` or `physical`, or other types registered by third-party developers.
 
-As part of this change, the following deprecations were made: 
+As part of this change, the following deprecations were made:
 - The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
 - `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
 - The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
@@ -170,7 +170,7 @@ This prevents cases where SEO-Urls were generated multiple times for the same ca
 
 ## Administration
 
-As part of this change, the following deprecations were made: 
+As part of this change, the following deprecations were made:
 - The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
 - `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
 - The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
@@ -429,7 +429,6 @@ The following deprecations apply to `sw-mail-template-list` and `sw-mail-header-
 The following deprecations apply to `sw-mail-template-index`:
 * The `listing` mixin will be removed in v6.8.0.0
 * `term` data property will be removed in v6.8.0.0
-* `useTabs` computed will be removed in v6.8.0.0
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
 
 ## Storefront

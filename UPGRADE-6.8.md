@@ -558,7 +558,6 @@ Changes in `sw-mail-template-list` and `sw-mail-header-footer-list`:
 Changes in `sw-mail-template-index`:
 * `listing` mixin was removed
 * `term` data property was removed
-* `useTabs` computed was removed
 * `onChangeLanguage` method now only calls `tabContent` ref
 
 </details>

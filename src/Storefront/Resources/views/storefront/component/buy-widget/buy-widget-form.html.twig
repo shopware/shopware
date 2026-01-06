@@ -8,8 +8,9 @@
         class="buy-widget"
         data-add-to-cart="true">
 
-        {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
-        {% set showQuantitySelect = not product.states is defined or DOWNLOAD_STATE not in product.states or (DOWNLOAD_STATE in product.states and product.maxPurchase !== 1) %}
+        {% set DIGITAL_CONST = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
+        {% set showQuantitySelect = not product.type is defined or product.type != DIGITAL_CONST or (product.type == DIGITAL_CONST and product.maxPurchase !== 1) %}
+
         {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
 
         {% block buy_widget_buy_container %}

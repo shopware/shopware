@@ -9,6 +9,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -23,7 +24,12 @@ final readonly class AppController
     {
     }
 
-    #[Route(path: '/app-system/{name}/generate-token', name: 'frontend.app-system.generate-token', defaults: ['_noStore' => true], methods: ['POST'])]
+    #[Route(
+        path: '/app-system/{name}/generate-token',
+        name: 'frontend.app-system.generate-token',
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function generateToken(string $name, SalesChannelContext $context): Response
     {
         try {

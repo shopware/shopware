@@ -1,5 +1,9 @@
 {
   "sw-product": {
+    "type": {
+      "physical": "Physical",
+      "digital": "Digital"
+    },
     "visibility": {
       "textHeadline": "Product display modes per Sales Channel",
       "placeholderVisibility": "Select Sales Channels...",
@@ -562,7 +566,12 @@
         "options": {
           "physical": "Physical",
           "digital": "Digital"
-        }
+        },
+        "deprecationWarning": "The product states filter is deprecated and will be removed in v6.8. Please use the product type filter instead."
+      },
+      "productTypeFilter": {
+        "label": "Product type",
+        "placeholder": "Select product type..."
       },
       "messageEmptyTitle": "Nothing found",
       "messageEmptySubline": "Edit your filters to see results."

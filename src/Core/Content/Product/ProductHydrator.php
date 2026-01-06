@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -76,13 +77,16 @@ class ProductHydrator extends EntityHydrator
         if (isset($row[$root . '.available'])) {
             $entity->available = (bool) $row[$root . '.available'];
         }
+        if (isset($row[$root . '.type'])) {
+            $entity->type = $row[$root . '.type'];
+        }
         if (isset($row[$root . '.isCloseout'])) {
             $entity->isCloseout = (bool) $row[$root . '.isCloseout'];
         }
         if (isset($row[$root . '.displayGroup'])) {
             $entity->displayGroup = $row[$root . '.displayGroup'];
         }
-        if (isset($row[$root . '.states'])) {
+        if (!Feature::isActive('v6.8.0.0') && isset($row[$root . '.states'])) {
             $entity->states = $definition->decode('states', self::value($row, $root, 'states'));
         }
         if (isset($row[$root . '.variantListingConfig'])) {

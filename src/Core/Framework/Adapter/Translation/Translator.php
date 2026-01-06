@@ -14,6 +14,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Locale\LocaleException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
@@ -318,7 +319,7 @@ class Translator extends AbstractTranslator
             return $this->isCustomized[$snippetSetId];
         }
 
-        $newCatalogue = $this->buildMergedCatalogue($catalogue, $snippetSetId, $fallbackLocale);
+        $newCatalogue = $this->buildMergedCatalogue($catalogue, $snippetSetId);
 
         return $this->isCustomized[$snippetSetId] = $newCatalogue;
     }
@@ -345,6 +346,13 @@ class Translator extends AbstractTranslator
 
     private function getFallbackLocale(?string $locale): string
     {
+        // Try to use configured language inheritance from SalesChannelContext
+        $fallbackFromInheritance = $this->getFallbackLocaleFromLanguageInheritance();
+        if ($fallbackFromInheritance !== null) {
+            return $fallbackFromInheritance;
+        }
+
+        // Fallback to locale prefix extraction (original behavior)
         if ($locale) {
             return explode('-', $locale)[0];
         }
@@ -354,6 +362,39 @@ class Translator extends AbstractTranslator
         } catch (ConnectionException|LocaleException) {
             // this allows us to use the translator even if there's no db connection or locale yet
             return 'en';
+        }
+    }
+
+    /**
+     * Gets the fallback locale from the configured language inheritance chain.
+     *
+     * When a language is configured with a parent language (e.g., Spanish inherits from English),
+     * this method returns the parent language's locale as the fallback, instead of just using
+     * the locale prefix (e.g., "es" from "es-ES").
+     *
+     * This ensures that snippet translations respect the language inheritance configured
+     * in the admin under Settings > Languages.
+     */
+    private function getFallbackLocaleFromLanguageInheritance(): ?string
+    {
+        $request = $this->requestStack->getMainRequest();
+        $salesChannelContext = $request?->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        if (!$salesChannelContext instanceof SalesChannelContext) {
+            return null;
+        }
+
+        $languageIdChain = $salesChannelContext->getLanguageIdChain();
+
+        // If there's no parent language in the chain, return null to use default behavior
+        if (\count($languageIdChain) < 2) {
+            return null;
+        }
+
+        try {
+            return $this->languageLocaleProvider->getLocaleForLanguageId($languageIdChain[1]);
+        } catch (LocaleException) {
+            return null;
         }
     }
 
@@ -372,14 +413,17 @@ class Translator extends AbstractTranslator
         $this->salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
     }
 
-    private function buildMergedCatalogue(MessageCatalogueInterface $catalogue, string $snippetSetId, ?string $fallbackLocale): MessageCatalogueInterface
+    private function buildMergedCatalogue(MessageCatalogueInterface $catalogue, string $snippetSetId): MessageCatalogueInterface
     {
         $newCatalogue = clone $catalogue;
 
-        // Recursively loading fallback snippets
+        // Recursively loading snippets for each catalogue in the fallback chain.
+        // Each catalogue loads its own locale's snippets (e.g., es-ES loads Spanish, en-GB loads English).
+        // The language inheritance fallback is handled by the catalogue chain itself,
+        // which is set up in getCatalogue() based on the configured parent language.
         $currentCatalogue = $newCatalogue;
         do {
-            $loadedSnippets = $this->loadSnippets($currentCatalogue, $snippetSetId, $fallbackLocale);
+            $loadedSnippets = $this->loadSnippets($currentCatalogue, $snippetSetId, null);
 
             if (!empty($loadedSnippets)) {
                 $currentCatalogue->add($loadedSnippets);

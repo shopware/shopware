@@ -78,9 +78,6 @@ export default {
             }
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - `searchTerm` variable will be replaced with `this.term`.
-         */
         getList() {
             this.isLoading = true;
 

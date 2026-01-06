@@ -694,12 +694,7 @@ Component.register('sw-theme-manager-detail', {
 
             Object.assign(config, config.custom);
 
-            if (
-                [
-                    'sw-single-select',
-                    'sw-multi-select',
-                ].includes(config.custom?.componentName)
-            ) {
+            if (['sw-single-select', 'sw-multi-select'].includes(config.custom?.componentName)) {
                 config.custom.options.forEach((option) => {
                     /** @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead */
                     option.label = this.getSnippet(option.labelSnippetKey, option.label);
@@ -736,16 +731,8 @@ Component.register('sw-theme-manager-detail', {
         },
 
         isFieldHandlingLabelAndHelpText(field) {
-            return (
-                [
-                    'switch',
-                    'checkbox',
-                ].includes(field.type) ||
-                [
-                    'sw-switch-field',
-                    'sw-checkbox-field',
-                ].includes(field.custom?.componentName)
-            );
+            return ['switch', 'checkbox'].includes(field.type) ||
+                    ['sw-switch-field', 'sw-checkbox-field'].includes(field.custom?.componentName);
         },
 
         /**

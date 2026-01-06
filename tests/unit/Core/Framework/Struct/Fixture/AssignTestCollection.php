@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Struct;
+namespace Shopware\Tests\Unit\Core\Framework\Struct\Fixture;
 
 use Shopware\Core\Framework\Struct\Collection;
 

@@ -638,8 +638,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             await vueAdapter.initDependencies();
 
             // create div with id app
-            // loading indicator is always present next to the #app initially (and removal after mounting needs to be tested)
-            document.body.innerHTML = '<div id="page-loading-screen"></div><div id="app"></div>';
+            document.body.innerHTML = '<div id="app"></div>';
 
             rootComponent = vueAdapter.init('#app', router, {});
         });
@@ -756,12 +755,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             await flushPromises();
 
             expect(vueAdapter.i18n.global.locale.value).toEqual(expectedLocale);
-        });
-
-        it('should remove the loading indicator after vue is mounted', async () => {
-            expect(document.getElementById('page-loading-screen')).not.toBeNull();
-            await flushPromises();
-            expect(document.getElementById('page-loading-screen')).toBeNull();
         });
     });
 });

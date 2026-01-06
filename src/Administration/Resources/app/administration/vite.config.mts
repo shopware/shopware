@@ -37,7 +37,7 @@ if (fs.existsSync(flagsPath)) {
     featureFlags = JSON.parse(fs.readFileSync(flagsPath, 'utf-8'));
 }
 
-const pageLoadingScreenPath = path.join(process.env.PROJECT_ROOT, 'src/Administration/Resources/shared/page-loading-screen');
+const pageLoadingScreenPath = path.join(__dirname, '..', '..', 'shared', 'page-loading-screen');
 const pageLoadingScreen = {
     script: fs.readFileSync(path.join(pageLoadingScreenPath, 'page-loading-screen.js')),
     style: fs.readFileSync(path.join(pageLoadingScreenPath, 'page-loading-screen.css')),

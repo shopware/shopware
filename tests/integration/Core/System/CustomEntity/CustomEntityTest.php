@@ -469,6 +469,8 @@ class CustomEntityTest extends TestCase
             )
             ->build();
 
+        unset($product['type']);
+        
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 

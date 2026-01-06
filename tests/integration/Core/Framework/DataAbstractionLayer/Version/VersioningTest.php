@@ -1942,6 +1942,8 @@ class VersioningTest extends TestCase
         $update = (new ProductBuilder($ids, 'p1'))
             ->manufacturer('manufacturer');
 
+        unset($update['type']);
+
         $this->productRepository->update([$update->build()], $version);
 
         $error = null;

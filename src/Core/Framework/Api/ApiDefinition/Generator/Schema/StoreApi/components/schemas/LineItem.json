@@ -194,6 +194,7 @@
                         "type": "boolean"
                     },
                     "states": {
+                        "deprecated": true,
                         "type": "array",
                         "items": {
                             "type": "string",

@@ -42,7 +42,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         private readonly Connection $connection,
         private readonly DefinitionInstanceRegistry $registry,
         private readonly InheritanceUpdater $updater,
-        private readonly StatesUpdater $statesUpdater
+        private readonly ?StatesUpdater $statesUpdater = null
     ) {
     }
 
@@ -191,6 +191,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             $variants[] = [
                 'id' => $id,
                 'productNumber' => 'SW_' . $id,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
                 'active' => true,
                 'stock' => $this->faker->numberBetween(1, 50),
@@ -227,6 +228,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         return [
             'downloads' => $downloads,
+            'type' => ProductDefinition::TYPE_DIGITAL,
             'maxPurchase' => 1,
             'deliveryTimeId' => $instantDeliveryId,
         ];
@@ -250,7 +252,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         }
 
         $this->updater->update(ProductDefinition::ENTITY_NAME, $all, $context);
-        $this->statesUpdater->update($all, $context);
+        $this->statesUpdater?->update($all, $context);
 
         $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
     }
@@ -283,6 +285,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         return [
             'id' => Uuid::randomHex(),
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'productNumber' => 'SW_' . Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
             'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / $taxRate, 'linked' => true]],

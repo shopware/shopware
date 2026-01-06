@@ -30,13 +30,6 @@ export default {
 
     computed: {
         /**
-         * @deprecated tag:v6.8.0 - Will be removed.
-         */
-        useTabs() {
-            return Feature.isActive('V6_8_0_0');
-        },
-
-        /**
          * Returns the search type based on active tab/route.
          */
         searchType() {
@@ -55,13 +48,10 @@ export default {
     },
 
     methods: {
-        /**
-         * @deprecated tag:v6.8.0 - The if/else block will be replaced with just the if-branch logic.
-         */
         onChangeLanguage(languageId) {
             Shopware.Store.get('context').setApiLanguageId(languageId);
 
-            if (this.useTabs) {
+            if (Feature.isActive('V6_8_0_0')) {
                 this.$refs.tabContent?.getList();
             } else {
                 this.$refs.mailHeaderFooterList?.getList();

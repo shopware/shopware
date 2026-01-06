@@ -81,8 +81,7 @@
     {% block sw_mail_template_list_content %}
     <template #content>
         <sw-card-view>
-            {# @deprecated tag:v6.8.0 - The template wrapper will be removed. #}
-            <template v-if="useTabs">
+            <template v-if="feature.isActive('v6.8.0.0')">
                 {% block sw_mail_template_list_tabs %}
                 <sw-tabs
                     class="sw-mail-template-list__tabs"
@@ -120,7 +119,7 @@
 
             {# @deprecated tag:v6.8.0 - This block will be removed. #}
             {% block sw_mail_template_list_content_card %}
-            <template v-if="!useTabs">
+            <template v-if="!feature.isActive('v6.8.0.0')">
                 <sw-mail-template-list
                     ref="mailTemplateList"
                     :search-term="term"

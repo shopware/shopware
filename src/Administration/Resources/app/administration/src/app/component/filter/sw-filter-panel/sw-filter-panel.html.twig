@@ -7,6 +7,13 @@
         :key="filter.name"
         class="sw-filter-panel__item"
     >
+        <mt-banner
+            v-if="filter.name === 'product-states-filter' && !feature.isActive('v6.8.0.0')"
+            variant="attention"
+        >
+            {{ $t('sw-product.filters.productStatesFilter.deprecationWarning') }}
+        </mt-banner>
+
         <div v-if="false"></div>
 
         {% block sw_filter_panel_extension_point %}{% endblock %}

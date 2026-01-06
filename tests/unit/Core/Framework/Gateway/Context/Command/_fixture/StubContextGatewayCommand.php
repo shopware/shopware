@@ -2,16 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Gateway\Context\Command\_fixture;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[CoversNothing]
 #[Package('framework')]
-class TestContextGatewayCommand extends AbstractContextGatewayCommand
+class StubContextGatewayCommand extends AbstractContextGatewayCommand
 {
     public const COMMAND_KEY = 'test';
 

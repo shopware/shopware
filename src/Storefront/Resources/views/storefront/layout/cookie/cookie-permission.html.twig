@@ -26,20 +26,20 @@
                     {% block layout_cookie_permission_inner_button %}
                         <div class="col-12 col-md-auto d-flex justify-content-center flex-wrap cookie-permission-actions pe-2">
                             {% block layout_cookie_permission_inner_button_deny %}
-                                <span class="cookie-permission-button js-cookie-permission-button">
+                                <span class="cookie-permission-button js-cookie-permission-button {{ acceptAllCookies ? 'order-1' : 'order-0' }}">
                                     <button
                                         type="submit"
-                                        class="btn btn-primary">
+                                        class="btn btn-outline-primary">
                                         {{ 'cookie.deny'|trans|sw_sanitize }}
                                     </button>
                                 </span>
                             {% endblock %}
 
                             {% block layout_cookie_permission_inner_button_configuration %}
-                                <span class="js-cookie-configuration-button">
+                                <span class="js-cookie-configuration-button {{ acceptAllCookies ? 'order-0' : 'order-1' }}">
                                     <button
                                         type="submit"
-                                        class="btn btn-primary">
+                                        class="btn {{ acceptAllCookies ? 'btn-link' : 'btn-primary' }}">
                                         {{ 'cookie.configure'|trans|sw_sanitize }}
                                     </button>
                                 </span>
@@ -47,7 +47,7 @@
 
                             {% if acceptAllCookies %}
                                 {% block layout_cookie_permission_inner_button_accept_all %}
-                                    <span class="js-cookie-accept-all-button">
+                                    <span class="js-cookie-accept-all-button order-2">
                                         <button
                                             type="submit"
                                             class="btn btn-primary">

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\TestCollection;
 
 /**
  * @internal
@@ -268,7 +269,7 @@ class CollectionTest extends TestCase
         $data = [
             'some-string',
             new \stdClass(),
-            ['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()], // Entity class has no setId method
+            ['versionId' => Uuid::randomHex()],
             ['_uniqueIdentifier' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
         ];
 
@@ -278,15 +279,4 @@ class CollectionTest extends TestCase
         static::assertInstanceOf(Entity::class, $collection->first());
         static::assertNotNull($collection->first()->getVersionId());
     }
-}
-
-/**
- * @internal
- *
- * @template TElement
- *
- * @extends Collection<TElement>
- */
-class TestCollection extends Collection
-{
 }

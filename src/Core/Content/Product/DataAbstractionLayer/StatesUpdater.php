@@ -6,13 +6,18 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductStatesBeforeChangeEvent;
 use Shopware\Core\Content\Product\Events\ProductStatesChangedEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
+ */
 #[Package('framework')]
 class StatesUpdater
 {
@@ -26,10 +31,17 @@ class StatesUpdater
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
+     *
      * @param string[] $ids
      */
     public function update(array $ids, Context $context): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'update', 'v6.8.0.0')
+        );
+
         $sql = 'SELECT LOWER(HEX(`product`.`id`)) as id,
                 IF(`product_download`.`id` IS NOT NULL, 1, 0) as hasDownloads,
                 `product`.`states`
@@ -37,11 +49,13 @@ class StatesUpdater
                 LEFT JOIN `product_download` ON `product`.`id` = `product_download`.`product_id`
                 AND `product`.`version_id` = `product_download`.`product_version_id`
                 WHERE `product`.`id` IN (:ids)
+                AND `type` != :currentType
                 AND `product`.`version_id` = :versionId
                 GROUP BY `product`.`id`';
 
         $params = [
             'ids' => Uuid::fromHexToBytesList($ids),
+            'currentType' => ProductDefinition::TYPE_DIGITAL,
             'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
         ];
 
@@ -69,7 +83,7 @@ class StatesUpdater
 
         $query = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE `product` SET `states` = :states WHERE `id` = :id AND `version_id` = :version')
+            $this->connection->prepare('UPDATE `product` SET `states` = :states, `type` = :type WHERE `id` = :id AND `version_id` = :version')
         );
 
         $event = new ProductStatesBeforeChangeEvent($updates, $context);
@@ -78,6 +92,7 @@ class StatesUpdater
         foreach ($event->getUpdatedStates() as $updatedStates) {
             $query->execute([
                 'states' => json_encode($updatedStates->getNewStates(), \JSON_THROW_ON_ERROR),
+                'type' => \in_array(State::IS_DOWNLOAD, $updatedStates->getNewStates(), true) ? ProductDefinition::TYPE_DIGITAL : ProductDefinition::TYPE_PHYSICAL,
                 'id' => Uuid::fromHexToBytes($updatedStates->getId()),
                 'version' => Uuid::fromHexToBytes($context->getVersionId()),
             ]);

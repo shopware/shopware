@@ -824,6 +824,7 @@
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
         "lineItemProductStates": "Item with product state",
+        "lineItemProductType": "Item with product type",
         "numberOfReviews": "Number of approved reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
@@ -909,6 +910,14 @@
           "options": {
             "is-download": "Digital",
             "is-physical": "Physical"
+          }
+        }
+      },
+      "cartLineItemProductType": {
+        "productType": {
+          "options": {
+            "digital": "Digital",
+            "physical": "Physical"
           }
         }
       },

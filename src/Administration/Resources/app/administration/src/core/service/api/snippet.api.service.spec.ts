@@ -6,11 +6,13 @@ import SnippetApiService from 'src/core/service/api/snippet.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import LocaleFactory from 'src/core/factory/locale.factory';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
+import type { AxiosInstance } from 'axios';
 
 function createSnippetApiService() {
     const context = Shopware.Context?.api || {};
-    const client = createHTTPClient(context);
+    const client = createHTTPClient(context) as AxiosInstance;
     const clientMock = new MockAdapter(client);
     const loginService = createLoginService(client, context);
     const snippetApiService = new SnippetApiService(client, loginService);
@@ -105,6 +107,44 @@ describe('core/service/api/snippet.api.service.ts', () => {
             });
         });
 
+        it('should call setLocaleMessage when registering new locale with Shopware.Snippet instantiated', async () => {
+            const { snippetApiService, clientMock } = createSnippetApiService();
+
+            const setLocaleMessageMock = jest.fn();
+            Object.defineProperty(Shopware, 'Snippet', {
+                value: {
+                    setLocaleMessage: setLocaleMessageMock,
+                },
+                writable: true,
+                configurable: true,
+            });
+
+            // Verify de-DE locale does not exist before getSnippets
+            const registryBefore = LocaleFactory.getLocaleRegistry();
+            expect(registryBefore.has('de-DE')).toBe(false);
+
+            clientMock.onGet('/_admin/snippets?locale=de-DE').reply(200, {
+                'de-DE': {
+                    test: {
+                        key: 'Test Wert',
+                    },
+                },
+            });
+
+            await snippetApiService.getSnippets(LocaleFactory, 'de-DE');
+
+            // Should be called 2 times: service calls it twice
+            expect(setLocaleMessageMock).toHaveBeenCalledTimes(2);
+
+            // Verify empty message is called before full messages (reactivity pattern)
+            expect(setLocaleMessageMock).toHaveBeenNthCalledWith(1, 'de-DE', {});
+            expect(setLocaleMessageMock).toHaveBeenNthCalledWith(2, 'de-DE', {
+                test: {
+                    key: 'Test Wert',
+                },
+            });
+        });
+
         it('should not call setLocaleMessage when Shopware.Snippet is not instantiated', async () => {
             const { snippetApiService, clientMock } = createSnippetApiService();
 
@@ -149,13 +189,12 @@ describe('core/service/api/snippet.api.service.ts', () => {
 
             await snippetApiService.getSnippets(LocaleFactory, 'en-GB');
 
-            // Should be called 4 times: extend() calls it twice, then service calls it twice
-            // First pair from extend, second pair from service
-            expect(setLocaleMessageMock).toHaveBeenCalledTimes(4);
+            // Should be called 2 times: extend() calls it twice
+            expect(setLocaleMessageMock).toHaveBeenCalledTimes(2);
 
             // Verify empty message is called before full messages (reactivity pattern)
-            expect(setLocaleMessageMock).toHaveBeenCalledWith('en-GB', {});
-            expect(setLocaleMessageMock).toHaveBeenCalledWith('en-GB', {
+            expect(setLocaleMessageMock).toHaveBeenNthCalledWith(1, 'en-GB', {});
+            expect(setLocaleMessageMock).toHaveBeenNthCalledWith(2, 'en-GB', {
                 existing: 'value',
                 loaded: {
                     snippet: 'Loaded snippet',
@@ -171,7 +210,7 @@ describe('core/service/api/snippet.api.service.ts', () => {
             });
 
             const callOrder: Array<{ locale: string; messages: object }> = [];
-            const setLocaleMessageMock = jest.fn((locale, messages) => {
+            const setLocaleMessageMock = jest.fn((locale: string, messages: object) => {
                 callOrder.push({ locale, messages });
             });
 
@@ -196,20 +235,12 @@ describe('core/service/api/snippet.api.service.ts', () => {
 
             await snippetApiService.getSnippets(LocaleFactory, 'en-GB');
 
-            // Verify the order of calls - should have 4 calls (2 from extend, 2 from service)
-            expect(callOrder).toHaveLength(4);
+            // Verify the order of calls - should have 2 calls
+            expect(callOrder).toHaveLength(2);
 
             // Verify that empty messages are set before full messages (reactivity pattern)
-            // Both extend() and the service call setLocaleMessage with empty first, then full
             expect(callOrder[0].messages).toEqual({});
             expect(callOrder[1].messages).toEqual({
-                base: 'value',
-                api: {
-                    snippet: 'API snippet',
-                },
-            });
-            expect(callOrder[2].messages).toEqual({});
-            expect(callOrder[3].messages).toEqual({
                 base: 'value',
                 api: {
                     snippet: 'API snippet',
@@ -250,8 +281,8 @@ describe('core/service/api/snippet.api.service.ts', () => {
 
             await snippetApiService.getSnippets(LocaleFactory, 'en-GB');
 
-            // Should be called 8 times total (4 calls per locale - 2 from extend, 2 from service)
-            expect(setLocaleMessageMock).toHaveBeenCalledTimes(8);
+            // Should be called 4 times total (2 calls per locale)
+            expect(setLocaleMessageMock).toHaveBeenCalledTimes(4);
 
             // Verify both locales are updated with empty first, then full messages
             expect(setLocaleMessageMock).toHaveBeenCalledWith('en-GB', {});

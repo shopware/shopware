@@ -57,9 +57,9 @@ class SnippetApiService extends ApiService {
                         // Adding snippets to the locale factory
                         localeFactory[fnName](localeKey, snippets);
 
-                        // Adding snippets to current i18n instance
-                        // when already instantiated
-                        if (Shopware.Snippet?.setLocaleMessage) {
+                        // Only update i18n instance when using register
+                        // (extend already handles this internally)
+                        if (fnName === 'register' && Shopware.Snippet?.setLocaleMessage) {
                             // Get the merged new messages from the locale registry
                             const allMessagesForLocale = registry.get(localeKey) || {};
 

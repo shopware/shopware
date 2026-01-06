@@ -22,11 +22,11 @@ class Migration1767611523UpdateUnitPriceOrderDeliveryPosition extends MigrationS
     {
         $type = $connection->createSchemaManager()->introspectTable('order_delivery_position')->getColumn('unit_price')->getType();
 
-        if ($type->getBindingType()->name === ParameterType::INTEGER->name) {
+        if ($type->getBindingType() === ParameterType::INTEGER) {
             $connection->executeStatement('
-            ALTER TABLE `order_delivery_position`
-            MODIFY `unit_price` DOUBLE
-            GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(`price`, \'$.unitPrice\'))) VIRTUAL
+                ALTER TABLE `order_delivery_position`
+                MODIFY `unit_price` DOUBLE
+                GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(`price`, \'$.unitPrice\'))) VIRTUAL
         ');
         }
     }

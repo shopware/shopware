@@ -22,7 +22,7 @@ class Migration1767604966UpdateTotalPriceOrderDeliveryPosition extends Migration
     {
         $type = $connection->createSchemaManager()->introspectTable('order_delivery_position')->getColumn('total_price')->getType();
 
-        if ($type->getBindingType()->name === ParameterType::INTEGER->name) {
+        if ($type->getBindingType() === ParameterType::INTEGER) {
             $connection->executeStatement('
                 ALTER TABLE `order_delivery_position`
                 MODIFY `total_price` DOUBLE

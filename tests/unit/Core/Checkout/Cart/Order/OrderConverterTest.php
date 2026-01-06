@@ -47,6 +47,7 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -78,6 +79,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Order\Stubs\CartOrderConversionStub;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -192,7 +194,7 @@ class OrderConverterTest extends TestCase
             unset($result['addresses'][$i]['id']);
         }
 
-        $expected = $this->getExpectedConvertToOrder();
+        $expected = CartOrderConversionStub::getExpectedConvertToOrder();
         $expected['deliveries'] = [];
 
         $expectedJson = \json_encode($expected, \JSON_THROW_ON_ERROR);
@@ -271,7 +273,7 @@ class OrderConverterTest extends TestCase
             );
         }
 
-        $expected = $this->getExpectedConvertToOrder();
+        $expected = CartOrderConversionStub::getExpectedConvertToOrder();
         unset($expected['addresses']);
         $expected['shippingCosts']['unitPrice'] = 1;
         $expected['shippingCosts']['totalPrice'] = 1;
@@ -332,7 +334,7 @@ class OrderConverterTest extends TestCase
             );
         }
 
-        $expected = $this->getExpectedConvertToOrder();
+        $expected = CartOrderConversionStub::getExpectedConvertToOrder();
         unset($expected['addresses']);
         $expected['shippingCosts']['unitPrice'] = 1;
         $expected['shippingCosts']['totalPrice'] = 1;
@@ -400,9 +402,7 @@ class OrderConverterTest extends TestCase
             }
         }
 
-        $expected = $this->getExpectedConvertToCart();
-
-        static::assertEquals($expected, $result);
+        static::assertEquals(CartOrderConversionStub::getExpectedConvertToCart(), $result);
     }
 
     #[DataProvider('convertToCartManipulatedOrderData')]
@@ -436,7 +436,7 @@ class OrderConverterTest extends TestCase
             }
         }
 
-        $expected = $this->getExpectedConvertToCart();
+        $expected = CartOrderConversionStub::getExpectedConvertToCart();
         $expected['deliveries'] = [];
 
         static::assertEquals($expected, $result);
@@ -489,7 +489,7 @@ class OrderConverterTest extends TestCase
             }
         }
 
-        static::assertSame($this->getExpectedConvertToCart(), $result);
+        static::assertSame(CartOrderConversionStub::getExpectedConvertToCart(), $result);
     }
 
     /**
@@ -544,12 +544,19 @@ class OrderConverterTest extends TestCase
         $lineItemA = (new LineItem('line-item-label-1', 'line-item-label-1', Uuid::randomHex()))
             ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
             ->setLabel('line-item-label-1')
-            ->setStates([State::IS_DOWNLOAD]);
+            ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
         $lineItemA->addExtension(OrderConverter::ORIGINAL_DOWNLOADS, $collection);
         $lineItemB = (new LineItem('line-item-label-2', 'line-item-label-2', Uuid::randomHex()))
             ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
             ->setLabel('line-item-label-2')
-            ->setStates([State::IS_DOWNLOAD]);
+            ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItemA->setStates([State::IS_DOWNLOAD]);
+            $lineItemB->setStates([State::IS_DOWNLOAD]);
+        }
+
         $cart->add($lineItemA);
         $cart->add($lineItemB);
 
@@ -701,10 +708,12 @@ class OrderConverterTest extends TestCase
         $cart->add(
             (new LineItem('line-item-id-1', LineItem::PRODUCT_LINE_ITEM_TYPE))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL)
                 ->setLabel('line-item-label-1')
         )->add(
             (new LineItem('line-item-id-2', LineItem::PRODUCT_LINE_ITEM_TYPE))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL)
                 ->setLabel('line-item-label-2')
         );
 
@@ -723,6 +732,7 @@ class OrderConverterTest extends TestCase
         $orderLineItem->setGood(true);
         $orderLineItem->setRemovable(false);
         $orderLineItem->setStackable(true);
+        $orderLineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
 
         if ($toManipulate === 'order-add-line-item-download') {
             $orderLineItemDownload = new OrderLineItemDownloadEntity();
@@ -732,6 +742,7 @@ class OrderConverterTest extends TestCase
             $orderLineItemDownloadCollection = new OrderLineItemDownloadCollection();
             $orderLineItemDownloadCollection->add($orderLineItemDownload);
             $orderLineItem->setDownloads($orderLineItemDownloadCollection);
+            $orderLineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
         }
 
         $orderLineItemCollection = new OrderLineItemCollection();
@@ -1039,388 +1050,5 @@ class OrderConverterTest extends TestCase
         $deliveryCollection->add($delivery);
 
         return $deliveryCollection;
-    }
-
-    // Expectations
-    /**
-     * @return array<string, mixed>
-     */
-    private function getExpectedConvertToCart(): array
-    {
-        return [
-            'extensions' => [
-                'originalOrderNumber' => [
-                    'extensions' => [],
-                    'id' => '10000',
-                ],
-            ],
-            'price' => [
-                'netPrice' => 19.5,
-                'totalPrice' => 19.5,
-                'calculatedTaxes' => [],
-                'taxRules' => [],
-                'positionPrice' => 19.5,
-                'taxStatus' => 'tax-free',
-                'rawTotal' => 19.5,
-                'extensions' => [],
-            ],
-            'lineItems' => [
-                [
-                    'payload' => [],
-                    'id' => 'order-line-item-identifier',
-                    'referencedId' => null,
-                    'label' => 'order-line-item-label',
-                    'quantity' => 1,
-                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                    'priceDefinition' => null,
-                    'price' => null,
-                    'good' => true,
-                    'description' => null,
-                    'cover' => null,
-                    'deliveryInformation' => null,
-                    'children' => [],
-                    'requirement' => null,
-                    'removable' => false,
-                    'stackable' => true,
-                    'quantityInformation' => null,
-                    'modified' => false,
-                    'dataTimestamp' => null,
-                    'dataContextHash' => null,
-                    'extensions' => [],
-                    'states' => [],
-                    'modifiedByApp' => false,
-                    'shippingCostAware' => true,
-                ],
-            ],
-            'errors' => [],
-            'deliveries' => [
-                [
-                    'positions' => [
-                        [
-                            'lineItem' => [
-                                'payload' => [],
-                                'id' => 'order-line-item-identifier',
-                                'referencedId' => null,
-                                'label' => 'order-line-item-label',
-                                'quantity' => 1,
-                                'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                                'priceDefinition' => null,
-                                'price' => null,
-                                'good' => true,
-                                'description' => null,
-                                'cover' => null,
-                                'deliveryInformation' => null,
-                                'children' => [],
-                                'requirement' => null,
-                                'removable' => false,
-                                'stackable' => true,
-                                'quantityInformation' => null,
-                                'modified' => false,
-                                'dataTimestamp' => null,
-                                'dataContextHash' => null,
-                                'extensions' => [
-                                    'originalId' => [
-                                        'id' => 'order-line-item-id',
-                                        'extensions' => [],
-                                    ],
-                                ],
-                                'states' => [],
-                                'modifiedByApp' => false,
-                                'shippingCostAware' => true,
-                            ],
-                            'quantity' => 1,
-                            'price' => [
-                                'unitPrice' => 1,
-                                'quantity' => 1,
-                                'totalPrice' => 1,
-                                'calculatedTaxes' => [],
-                                'taxRules' => [],
-                                'referencePrice' => null,
-                                'listPrice' => null,
-                                'regulationPrice' => null,
-                                'extensions' => [],
-                            ],
-                            'identifier' => 'order-line-item-identifier',
-                            'extensions' => [
-                                'originalId' => [
-                                    'id' => 'order-delivery-position-id-1',
-                                    'extensions' => [],
-                                ],
-                            ],
-                        ],
-                    ],
-                    'location' => [
-                        'country' => [
-                            'name' => 'country-name',
-                            'iso' => null,
-                            'position' => 0,
-                            'active' => true,
-                            'shippingAvailable' => true,
-                            'iso3' => null,
-                            'displayStateInRegistration' => true,
-                            'forceStateInRegistration' => true,
-                            'checkVatIdPattern' => false,
-                            'vatIdPattern' => null,
-                            'vatIdRequired' => null,
-                            'states' => null,
-                            'translations' => null,
-                            'orderAddresses' => null,
-                            'customerAddresses' => null,
-                            'salesChannelDefaultAssignments' => null,
-                            'salesChannels' => null,
-                            'taxRules' => null,
-                            'currencyCountryRoundings' => null,
-                            '_uniqueIdentifier' => 'country-id',
-                            'versionId' => null,
-                            'translated' => [],
-                            'createdAt' => null,
-                            'updatedAt' => null,
-                            'extensions' => [],
-                            'id' => 'country-id',
-                            'customFields' => null,
-                            'advancedPostalCodePattern' => null,
-                            'defaultPostalCodePattern' => null,
-                        ],
-                        'state' => [
-                            'countryId' => 'country-id',
-                            'shortCode' => 'CSN',
-                            'name' => 'country-state-name',
-                            'position' => 0,
-                            'active' => true,
-                            'country' => null,
-                            'translations' => null,
-                            'customerAddresses' => null,
-                            'orderAddresses' => null,
-                            '_uniqueIdentifier' => 'country-state-id',
-                            'versionId' => null,
-                            'translated' => [],
-                            'createdAt' => null,
-                            'updatedAt' => null,
-                            'extensions' => [],
-                            'id' => 'country-state-id',
-                            'customFields' => null,
-                        ],
-                        'address' => null,
-                        'extensions' => [],
-                    ],
-                    'shippingMethod' => [
-                        'name' => null,
-                        'description' => null,
-                        'trackingUrl' => null,
-                        'deliveryTime' => null,
-                        'translations' => null,
-                        'orderDeliveries' => null,
-                        'salesChannelDefaultAssignments' => null,
-                        'salesChannels' => null,
-                        'availabilityRule' => null,
-                        'availabilityRuleId' => null,
-                        'prices' => [],
-                        'mediaId' => null,
-                        'taxId' => null,
-                        'media' => null,
-                        'tags' => null,
-                        'tax' => null,
-                        'versionId' => null,
-                        'translated' => [],
-                        'createdAt' => null,
-                        'updatedAt' => null,
-                        'extensions' => [],
-                        'customFields' => null,
-                        'appShippingMethod' => null,
-                        'active' => null,
-                        'position' => null,
-                    ],
-                    'shippingCosts' => [
-                        'unitPrice' => 1,
-                        'quantity' => 1,
-                        'totalPrice' => 1,
-                        'calculatedTaxes' => [],
-                        'taxRules' => [],
-                        'referencePrice' => null,
-                        'listPrice' => null,
-                        'regulationPrice' => null,
-                        'extensions' => [],
-                    ],
-                    'extensions' => [
-                        'originalId' => [
-                            'id' => 'order-delivery-id',
-                            'extensions' => [],
-                        ],
-                        'originalAddressId' => [
-                            'id' => 'order-address-id',
-                            'extensions' => [],
-                        ],
-                        'originalAddressVersionId' => [
-                            'id' => 'order-address-version-id',
-                            'extensions' => [],
-                        ],
-                    ],
-                ],
-            ],
-            'transactions' => [],
-            'modified' => false,
-            'customerComment' => null,
-            'affiliateCode' => null,
-            'campaignCode' => null,
-            'source' => null,
-            'hash' => null,
-            'states' => [],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function getExpectedConvertToOrder(): array
-    {
-        return [
-            'price' => [
-                'netPrice' => 0,
-                'totalPrice' => 0,
-                'calculatedTaxes' => [],
-                'taxRules' => [],
-                'positionPrice' => 0,
-                'taxStatus' => 'gross',
-                'rawTotal' => 0,
-                'extensions' => [],
-            ],
-            'shippingCosts' => [
-                'unitPrice' => 0,
-                'quantity' => 1,
-                'totalPrice' => 0,
-                'calculatedTaxes' => [],
-                'taxRules' => [],
-                'referencePrice' => null,
-                'listPrice' => null,
-                'regulationPrice' => null,
-                'extensions' => [],
-            ],
-            'currencyId' => Defaults::CURRENCY,
-            'currencyFactor' => 1,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'lineItems' => [
-                [
-                    'identifier' => 'line-item-id-1',
-                    'quantity' => 1,
-                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                    'label' => 'line-item-label-1',
-                    'good' => true,
-                    'removable' => false,
-                    'stackable' => false,
-                    'states' => [],
-                    'position' => 1,
-                    'price' => [
-                        'unitPrice' => 1,
-                        'quantity' => 1,
-                        'totalPrice' => 1,
-                        'calculatedTaxes' => [],
-                        'taxRules' => [],
-                        'referencePrice' => null,
-                        'listPrice' => null,
-                        'regulationPrice' => null,
-                        'extensions' => [],
-                    ],
-                    'payload' => [],
-                ],
-                [
-                    'identifier' => 'line-item-id-2',
-                    'quantity' => 1,
-                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                    'label' => 'line-item-label-2',
-                    'good' => true,
-                    'removable' => false,
-                    'stackable' => false,
-                    'states' => [],
-                    'position' => 2,
-                    'price' => [
-                        'unitPrice' => 1,
-                        'quantity' => 1,
-                        'totalPrice' => 1,
-                        'calculatedTaxes' => [],
-                        'taxRules' => [],
-                        'referencePrice' => null,
-                        'listPrice' => null,
-                        'regulationPrice' => null,
-                        'extensions' => [],
-                    ],
-                    'payload' => [],
-                ],
-            ],
-            'deliveries' => [[
-                'positions' => [],
-                'shippingCosts' => [
-                    'calculatedTaxes' => [],
-                    'extensions' => [],
-                    'listPrice' => null,
-                    'quantity' => 1,
-                    'referencePrice' => null,
-                    'regulationPrice' => null,
-                    'taxRules' => [],
-                    'totalPrice' => 1,
-                    'unitPrice' => 1,
-                ],
-                'shippingMethodId' => 'shipping-method-id',
-                'shippingOrderAddress' => [
-                    'city' => 'billing-address-city',
-                    'countryId' => 'billing-address-country-id',
-                    'firstName' => 'billing-address-first-name',
-                    'lastName' => 'billing-address-last-name',
-                    'salutationId' => 'billing-address-salutation-id',
-                    'street' => 'billing-address-street',
-                    'zipcode' => 'billing-address-zipcode',
-                ],
-                'stateId' => '',
-            ]],
-            'customerComment' => null,
-            'affiliateCode' => null,
-            'campaignCode' => null,
-            'source' => null,
-            'itemRounding' => [
-                'decimals' => 2,
-                'extensions' => [],
-                'interval' => 0.01,
-                'roundForNet' => true,
-            ],
-            'totalRounding' => [
-                'decimals' => 2,
-                'extensions' => [],
-                'interval' => 0.01,
-                'roundForNet' => true,
-            ],
-            'orderCustomer' => [
-                'company' => null,
-                'customFields' => null,
-                'customer' => [
-                    'id' => 'customer-id',
-                    'lastPaymentMethodId' => 'payment-method-id',
-                ],
-                'customerNumber' => 'customer-number',
-                'email' => 'customer-email',
-                'firstName' => 'customer-first-name',
-                'lastName' => 'customer-last-name',
-                'remoteAddress' => null,
-                'salutationId' => 'customer-salutation-id',
-                'title' => null,
-                'vatIds' => null,
-            ],
-            'transactions' => [],
-            'orderNumber' => '10000',
-            'ruleIds' => [
-                'order-rule-id-1',
-                'order-rule-id-2',
-            ],
-            'taxCalculationType' => SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            'addresses' => [
-                [
-                    'city' => 'billing-address-city',
-                    'countryId' => 'billing-address-country-id',
-                    'firstName' => 'billing-address-first-name',
-                    'lastName' => 'billing-address-last-name',
-                    'salutationId' => 'billing-address-salutation-id',
-                    'street' => 'billing-address-street',
-                    'zipcode' => 'billing-address-zipcode',
-                ],
-            ],
-        ];
     }
 }

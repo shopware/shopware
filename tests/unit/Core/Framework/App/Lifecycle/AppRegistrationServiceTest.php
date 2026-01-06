@@ -189,6 +189,50 @@ class AppRegistrationServiceTest extends TestCase
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
+    public function testThrowsAppRegistrationExceptionWithStatusCodeAndResponseBody(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+        );
+
+        $registrationRequest = $handshake->assembleRequest();
+
+        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+
+        $handshakeFactory = $this->createMock(HandshakeFactory::class);
+        $handshakeFactory->expects($this->once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        $responseBody = json_encode(['some' => 'data', 'without' => 'error field'], \JSON_THROW_ON_ERROR);
+
+        $httpClient = $this->createHttpClient([
+            new RequestException(
+                '',
+                $registrationRequest,
+                new Response(
+                    SymfonyResponse::HTTP_INTERNAL_SERVER_ERROR,
+                    body: $responseBody
+                )
+            ),
+        ]);
+
+        $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
+
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: Got status code 500, with response: ' . $responseBody);
+
+        $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
     public function testThrowsAppRegistrationExceptionIfAppServerProvidesNoProof(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');

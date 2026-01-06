@@ -49,7 +49,12 @@ class ProductController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/detail/{productId}', name: 'frontend.detail.page', defaults: ['_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/detail/{productId}',
+        name: 'frontend.detail.page',
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->productPageLoader->load($request, $context);
@@ -59,7 +64,15 @@ class ProductController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/content/product-detail.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/detail/{productId}/switch', name: 'frontend.detail.switch', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/detail/{productId}/switch',
+        name: 'frontend.detail.switch',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function switch(string $productId, Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $switchedGroup = $request->query->has('switched') ? (string) $request->query->get('switched') : null;
@@ -107,7 +120,12 @@ class ProductController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/quickview/{productId}', name: 'widgets.quickview.minimal', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
+    #[Route(
+        path: '/quickview/{productId}',
+        name: 'widgets.quickview.minimal',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function quickviewMinimal(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->minimalQuickViewPageLoader->load($request, $context);
@@ -117,7 +135,15 @@ class ProductController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/product/{productId}/rating', name: 'frontend.detail.review.save', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/product/{productId}/rating',
+        name: 'frontend.detail.review.save',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -160,7 +186,12 @@ class ProductController extends StorefrontController
         return $this->forwardToRoute('frontend.product.reviews', $forwardParams, ['productId' => $productId]);
     }
 
-    #[Route(path: '/product/{productId}/reviews', name: 'frontend.product.reviews', defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/product/{productId}/reviews',
+        name: 'frontend.product.reviews',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function loadReviews(string $productId, Request $request, SalesChannelContext $context): Response
     {
         if (!Feature::isActive('v6.8.0.0')) {

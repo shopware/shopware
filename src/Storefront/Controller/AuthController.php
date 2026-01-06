@@ -61,7 +61,12 @@ class AuthController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account/login', name: 'frontend.account.login.page', defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/account/login',
+        name: 'frontend.account.login.page',
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         // Add '_httpCache' => true, to defaults in Route and remove _noStore
@@ -97,7 +102,12 @@ class AuthController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/guest/login', name: 'frontend.account.guest.login.page', defaults: ['_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/account/guest/login',
+        name: 'frontend.account.guest.login.page',
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function guestLoginPage(Request $request, SalesChannelContext $context): Response
     {
         /** @var string|null $redirect */
@@ -137,7 +147,11 @@ class AuthController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/logout', name: 'frontend.account.logout.page', methods: ['GET'])]
+    #[Route(
+        path: '/account/logout',
+        name: 'frontend.account.logout.page',
+        methods: [Request::METHOD_GET]
+    )]
     public function logout(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
     {
         if ($context->getCustomer() === null) {
@@ -156,7 +170,12 @@ class AuthController extends StorefrontController
         return $this->redirectToRoute('frontend.account.login.page', $parameters);
     }
 
-    #[Route(path: '/account/login', name: 'frontend.account.login', defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
+    #[Route(
+        path: '/account/login',
+        name: 'frontend.account.login',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function login(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();
@@ -197,7 +216,11 @@ class AuthController extends StorefrontController
         );
     }
 
-    #[Route(path: '/account/recover', name: 'frontend.account.recover.page', methods: ['GET'])]
+    #[Route(
+        path: '/account/recover',
+        name: 'frontend.account.recover.page',
+        methods: [Request::METHOD_GET]
+    )]
     public function recoverAccountForm(Request $request, SalesChannelContext $context): Response
     {
         // Add '_httpCache' => true, to defaults in Route
@@ -213,7 +236,11 @@ class AuthController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/recover', name: 'frontend.account.recover.request', methods: ['POST'])]
+    #[Route(
+        path: '/account/recover',
+        name: 'frontend.account.recover.request',
+        methods: [Request::METHOD_POST]
+    )]
     public function generateAccountRecovery(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         try {
@@ -246,7 +273,11 @@ class AuthController extends StorefrontController
         return $this->redirectToRoute('frontend.account.recover.page');
     }
 
-    #[Route(path: '/account/recover/password', name: 'frontend.account.recover.password.page', methods: ['GET'])]
+    #[Route(
+        path: '/account/recover/password',
+        name: 'frontend.account.recover.password.page',
+        methods: [Request::METHOD_GET]
+    )]
     public function resetPasswordForm(Request $request, SalesChannelContext $context): Response
     {
         /** @var ?string $hash */
@@ -280,7 +311,11 @@ class AuthController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/recover/password', name: 'frontend.account.recover.password.reset', methods: ['POST'])]
+    #[Route(
+        path: '/account/recover/password',
+        name: 'frontend.account.recover.password.reset',
+        methods: [Request::METHOD_POST]
+    )]
     public function resetPassword(RequestDataBag $data, SalesChannelContext $context): Response
     {
         $passwordData = $data->get('password');
@@ -317,7 +352,11 @@ class AuthController extends StorefrontController
         return $this->redirectToRoute('frontend.account.profile.page');
     }
 
-    #[Route(path: '/account/login/imitate-customer', name: 'frontend.account.login.imitate-customer', methods: ['POST'])]
+    #[Route(
+        path: '/account/login/imitate-customer',
+        name: 'frontend.account.login.imitate-customer',
+        methods: [Request::METHOD_POST]
+    )]
     public function imitateCustomerLogin(RequestDataBag $data, SalesChannelContext $context): Response
     {
         try {

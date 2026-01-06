@@ -824,6 +824,7 @@
         "lineItemActualStockRule": "Position mit Lagerbestand",
         "lineItemStockRule": "Position mit verfügbarem Bestand",
         "lineItemProductStates": "Position mit Produktzustand",
+        "lineItemProductType": "Position mit Produkttyp",
         "numberOfReviews": "Anzahl freigegebener Bewertungen",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",
@@ -909,6 +910,14 @@
           "options": {
             "is-download": "Digital",
             "is-physical": "Physisch"
+          }
+        }
+      },
+      "cartLineItemProductType": {
+        "productType": {
+          "options": {
+            "digital": "Digital",
+            "physical": "Physisch"
           }
         }
       },

@@ -311,6 +311,13 @@ Profiles are now identified and displayed only by their technical name.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
 
+## Removed unused `ImportExport` exceptions
+
+The unused exceptions
+* `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
+* `\Shopware\Core\Content\ImportExport\Exception\MappingException`
+were removed.
+
 ## Removed SystemConfig exceptions
 
 The exceptions
@@ -879,5 +886,11 @@ Concretely this means the following configuration options are removed:
 - `shopware.cache.invalidation.country_state_route`
 - `shopware.cache.invalidation.salutation_route`
 - `shopware.cache.invalidation.sitemap_route`
+
+## Removal of product's `states` field in favor of `type` field
+
+The `states` field of the `product` entity has been removed. Instead, you must use the `type` field to indicate the product type.
+The `states` field of the `line_item` and `order_line_item` entity has also been removed. Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
+Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
 
 </details>

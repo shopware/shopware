@@ -8,6 +8,7 @@ use League\Flysystem\Filesystem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
@@ -204,8 +205,15 @@ class TranslationLoader
 
     private function createSnippetSet(Language $language, Context $context): void
     {
+        $snippetSetName = "BASE {$language->locale}";
+
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('iso', $language->locale));
+        $criteria->addFilter(
+            new AndFilter([
+                new EqualsFilter('iso', $language->locale),
+                new EqualsFilter('name', $snippetSetName),
+            ])
+        );
 
         $snippetId = $this->snippetSetRepository->searchIds($criteria, $context)->firstId();
 
@@ -215,7 +223,7 @@ class TranslationLoader
 
         $snippetSets = [
             [
-                'name' => 'BASE ' . $language->locale,
+                'name' => $snippetSetName,
                 'iso' => $language->locale,
                 'baseFile' => 'messages.' . $language->locale,
             ],

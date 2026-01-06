@@ -201,6 +201,7 @@
 
         <service id="Shopware\Core\Content\Product\Api\ProductActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantCombinationLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductTypeRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -411,8 +412,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater"/>
             <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater" on-invalid="null"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -426,9 +427,15 @@
             <tag name="shopware.entity_indexer"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\ProductTypeRegistry" public="true">
+            <argument>%shopware.product.allowed_types%</argument>
+        </service>
+
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+
+            <deprecated package="shopware/core" version="6.8.0">tag:v6.8.0 - The %service_id% service will be removed, as product states are deprecated.</deprecated>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater">

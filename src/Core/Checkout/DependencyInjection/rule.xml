@@ -324,6 +324,11 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule">
+            <argument type="service" id="Shopware\Core\Content\Product\ProductTypeRegistry" />
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule">
             <tag name="shopware.rule.definition"/>
         </service>

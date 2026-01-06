@@ -46,7 +46,7 @@
                                 autocomplete="bday-day"
                                 name="{% if prefix %}{{ prefix }}[birthdayDay]{% else %}birthdayDay{% endif %}"
                                 aria-describedby="{{ idPrefix ~ prefix }}-personalBirthday-feedback"
-                                aria-label={{ 'account.personalBirthdayLabel'|trans|sw_sanitize }}
+                                aria-label="{{ 'account.personalBirthdayLabel'|trans|sw_sanitize }}"
                                 {% if validationRules is not empty %}data-validation="{{ validationRules }}"{% endif %}
                                 {% if 'required' in validationRules %}aria-required="true"{% endif %}>
                             {% block component_form_select_birthday_day_select_options %}
@@ -88,7 +88,7 @@
                                 autocomplete="bday-month"
                                 name="{% if prefix %}{{ prefix }}[birthdayMonth]{% else %}birthdayMonth{% endif %}"
                                 aria-describedby="{{ idPrefix ~ prefix }}-personalBirthdayMonth-feedback"
-                                aria-label={{ 'account.personalBirthdaySelectMonth'|trans|sw_sanitize }}
+                                aria-label="{{ 'account.personalBirthdaySelectMonth'|trans|sw_sanitize }}"
                                 {% if validationRules is not empty %}data-validation="{{ validationRules }}"{% endif %}
                                 {% if 'required' in validationRules %}aria-required="true"{% endif %}>
                             {% block component_form_select_birthday_month_select_options %}
@@ -134,7 +134,7 @@
                                 name="{% if prefix %}{{ prefix }}[birthdayYear]{% else %}birthdayYear{% endif %}"
                                 aria-describedby="{{ idPrefix ~ prefix }}-personalBirthdayYear-feedback"
                                 autocomplete="bday-year"
-                                aria-label={{ 'account.personalBirthdaySelectYear'|trans|sw_sanitize }}
+                                aria-label="{{ 'account.personalBirthdaySelectYear'|trans|sw_sanitize }}"
                                 {% if validationRules is not empty %}data-validation="{{ validationRules }}"{% endif %}
                                 {% if 'required' in validationRules %}aria-required="true"{% endif %}>
                             {% block component_form_select_birthday_year_select_options %}

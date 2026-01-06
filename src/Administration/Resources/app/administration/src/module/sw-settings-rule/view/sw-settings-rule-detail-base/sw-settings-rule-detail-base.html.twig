@@ -125,6 +125,15 @@
             </mt-banner>
         </div>
 
+        <div
+            v-if="showProductStateConditionWarning"
+            class="sw-settings-rule-detail-base__product-type-warning"
+        >
+            <mt-banner variant="attention">
+                {{ $t('sw-settings-rule.detail.productStatesConditionWarning') }}
+            </mt-banner>
+        </div>
+
         <sw-condition-tree
             :initial-conditions="conditions"
             :condition-repository="conditionRepository"

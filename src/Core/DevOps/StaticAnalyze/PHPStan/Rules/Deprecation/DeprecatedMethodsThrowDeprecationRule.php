@@ -70,6 +70,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-constraint-annotation',
         // Container factory for deprecated service
         'reason:factory-for-deprecation',
+        // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
+        'reason:remove-rule',
     ];
 
     public function getNodeType(): string

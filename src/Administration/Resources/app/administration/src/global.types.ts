@@ -29,6 +29,7 @@ import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type ShopIdChangeService from 'src/core/service/api/shop-id-change.service';
+import type ProductTypeApiService from 'src/app/service/product-type.api.service';
 import type { ComponentInternalInstance, PropType as VuePropType } from 'vue';
 import type { I18n } from 'vue-i18n';
 import type {
@@ -223,7 +224,6 @@ declare global {
         _sw_extension_component_collection: DevtoolComponent[];
         _swLoginOverrides?: Array<() => void>;
         startApplication: () => void;
-        _pageLoadTime_: number;
     }
 
     const _features_: {
@@ -298,6 +298,7 @@ declare global {
         ssoSettingsService: SsoSettingsService;
         ssoInvitationService: SsoInvitationService;
         shopIdChangeService: ShopIdChangeService;
+        productTypeService: ProductTypeApiService;
     }
 
     interface MixinContainer {

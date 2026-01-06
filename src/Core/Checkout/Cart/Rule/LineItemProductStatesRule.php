@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -12,6 +13,11 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraint;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
+ *
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@after-sales')]
 class LineItemProductStatesRule extends Rule
 {
@@ -21,6 +27,9 @@ class LineItemProductStatesRule extends Rule
 
     protected string $operator;
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
+     */
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
@@ -42,6 +51,8 @@ class LineItemProductStatesRule extends Rule
 
     /**
      * @return array<string, array<int, Constraint>>
+     *
+     * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
      */
     public function getConstraints(): array
     {
@@ -54,6 +65,9 @@ class LineItemProductStatesRule extends Rule
         ];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
+     */
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
@@ -66,6 +80,12 @@ class LineItemProductStatesRule extends Rule
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        return RuleComparison::stringArray($this->productState, array_values($lineItem->getStates()), $this->operator);
+        $states = [];
+
+        Feature::callSilentIfInactive('v6.8.0.0', function () use (&$states, $lineItem): void {
+            $states = $lineItem->getStates();
+        });
+
+        return RuleComparison::stringArray($this->productState, array_values($states), $this->operator);
     }
 }

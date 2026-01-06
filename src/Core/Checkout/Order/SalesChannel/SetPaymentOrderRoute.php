@@ -182,12 +182,11 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         foreach ($transactions as $transaction) {
             if ($transaction->getPaymentMethodId() === $paymentMethodId && $lastTransaction->getId() === $transaction->getId()) {
-                $initialState = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
-
                 if ($this->hasChangedAmount($order->getPrice(), $transaction->getAmount())) {
                     return false;
                 }
 
+                $initialState = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
                 if ($transaction->getStateId() === $initialState) {
                     return true;
                 }

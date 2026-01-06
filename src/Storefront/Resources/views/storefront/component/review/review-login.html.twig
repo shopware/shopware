@@ -17,9 +17,13 @@
 {% endblock %}
 
 {% block component_account_login_form_redirect %}
+    {% if redirectTo is not defined %}
+        {% set redirectTo = activeRoute %}
+    {% endif %}
+
     <input type="hidden"
            name="redirectTo"
-           value="{{ activeRoute }}">
+           value="{{ redirectTo }}">
 
     <input type="hidden"
            name="redirectParameters"

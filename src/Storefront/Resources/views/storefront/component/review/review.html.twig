@@ -20,6 +20,10 @@
 		{% set totalReviewsInCurrentLanguage = reviews.totalReviewsInCurrentLanguage ?: productReviewCount %}
 		{% set numberOfReviewsNotInCurrentLanguage = productReviewCount - totalReviewsInCurrentLanguage %}
 
+        {% if redirectTo is not defined %}
+            {% set redirectTo = activeRoute %}
+        {% endif %}
+
 		<div class="product-detail-review tab-pane-container">
 			{% block component_review_tab_pane %}
                 <div class="row product-detail-review-content js-review-container">
@@ -89,6 +93,8 @@
                                                                     data-form-ajax-submit="true"
                                                                     data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 
+                                                                    <input type="hidden" name="redirectTo" value="{{ redirectTo }}">
+
                                                                     {% if app.request.get('sort') %}
                                                                     <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
                                                                 {% endif %}
@@ -128,6 +134,8 @@
                                                                         method="post"
                                                                         data-form-ajax-submit="true"
                                                                         data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
+
+                                                                        <input type="hidden" name="redirectTo" value="{{ redirectTo }}">
 
                                                                         {% if app.request.get('language') %}
                                                                         <input type="hidden" name="language" value="{{ app.request.get('language') }}">
@@ -201,6 +209,8 @@
                                                               data-form-ajax-pagination="true">
 
                                                             <input type="hidden" name="p" value="1">
+
+                                                            <input type="hidden" name="redirectTo" value="{{ redirectTo }}">
 
                                                             {% if app.request.get('language') %}
                                                                 <input type="hidden" name="language" value="{{ app.request.get('language') }}">

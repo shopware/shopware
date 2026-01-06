@@ -76,7 +76,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
     /**
      * @deprecated tag:v6.8.0 - This test will be removed.
      */
-    describe('without V6_8_0_0 feature flag', () => {
+    describe('without v6.8.0.0 feature flag', () => {
         it('should render both lists directly', async () => {
             const wrapper = await createWrapper();
 
@@ -89,9 +89,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
     /**
      * @deprecated tag:v6.8.0 - This test will be removed.
      */
-    describe('with V6_8_0_0 feature flag', () => {
+    describe('with v6.8.0.0 feature flag', () => {
         beforeEach(() => {
-            global.activeFeatureFlags = ['V6_8_0_0'];
+            global.activeFeatureFlags = ['v6.8.0.0'];
         });
 
         afterEach(() => {

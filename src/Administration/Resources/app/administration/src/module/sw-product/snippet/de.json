@@ -1,5 +1,9 @@
 {
   "sw-product": {
+    "type": {
+      "physical": "Physisch",
+      "digital": "Digital"
+    },
     "visibility": {
       "textHeadline": "Sichtbarkeit je Verkaufskanal festlegen",
       "placeholderVisibility": "Verkaufskanäle zuweisen ...",
@@ -562,7 +566,8 @@
         "options": {
           "physical": "Physisch",
           "digital": "Digital"
-        }
+        },
+        "deprecationWarning": "Der Filter für Produktzustände ist veraltet und wird mit v6.8 entfernt. Bitte verwende stattdessen den Produkttyp-Filter."
       },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."

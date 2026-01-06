@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Struct;
+namespace Shopware\Tests\Unit\Core\Framework\Struct\Fixture;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @internal
  */
+#[\AllowDynamicProperties]
 class AssignTestStruct extends Struct
 {
     use EntityIdTrait;

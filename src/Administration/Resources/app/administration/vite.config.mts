@@ -135,7 +135,6 @@ export default defineConfig(({ command }) => {
                             data: {
                                 featureFlags: JSON.stringify(featureFlags),
                                 serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
-                                pageLoadingScreen,
                             },
                         },
                     }),

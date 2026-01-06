@@ -9,15 +9,12 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
-use Shopware\Core\Checkout\Cart\Order\IdStruct;
-use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -30,7 +27,6 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -148,7 +144,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     {
         Profiler::trace('cart::product::process', function () use ($data, $original, $toCalculate, $context): void {
             $items = $original->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
-            $deliveryItems = $this->getDeliveryItems($original);
 
             foreach ($items as $item) {
                 $definition = $item->getPriceDefinition();
@@ -158,14 +153,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 }
                 $definition->setQuantity($item->getQuantity());
 
-                $price = $this->calculator->calculate($definition, $context);
-                $item->setPrice($price);
+                $item->setPrice($this->calculator->calculate($definition, $context));
                 $item->setShippingCostAware(!$item->hasState(State::IS_DOWNLOAD));
-
-                if (\array_key_exists($item->getId(), $deliveryItems)) {
-                    // clone, to prevent unexpected behavior when changing the price
-                    $deliveryItems[$item->getId()]->setPrice(clone $price);
-                }
             }
 
             $this->featureBuilder->add($items, $data, $context);
@@ -607,34 +596,5 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }, $context->getTaxRules()->getElements());
 
         return Hasher::hash([$contextHash, $activeTaxRules]);
-    }
-
-    /**
-     * @return array<string, LineItem>
-     */
-    private function getDeliveryItems(Cart $original): array
-    {
-        $deliveries = $original->getDeliveries()->filter(function (Delivery $delivery) {
-            return $delivery->getShippingCosts()->getTotalPrice() >= 0;
-        });
-
-        $firstDelivery = $original->getDeliveries()->getPrimaryDelivery(
-            $original->getExtensionOfType(OrderConverter::ORIGINAL_PRIMARY_ORDER_DELIVERY, IdStruct::class)?->getId()
-        );
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $firstDelivery = $deliveries->first();
-        }
-
-        if ($firstDelivery === null) {
-            return [];
-        }
-
-        $items = [];
-        foreach ($firstDelivery->getPositions() as $position) {
-            $items[$position->getIdentifier()] = $position->getLineItem();
-        }
-
-        return $items;
     }
 }

@@ -136,6 +136,41 @@ When no `Accept` header is set or with `*/*`, `PDF` will be returned. (PR #12944
 ### PHP 8.5 support
 
 Shopware is now fully compatible with PHP 8.5.
+### Rework of DAL query generation for nested filters groups
+The DAL criteria builder has been adjusted to generate `EXISTS` subqueries instead of `LEFT JOIN`s for nested filter groups.
+
+Previously, each level of nested filters resulted in an additional `LEFT JOIN`, even when the join was only required to check for the existence of a related entity subject to some filter.
+In complex criteria trees with multiple filters on the same entity, this led to an exponential explosion of joins and significant performance degradation (e.g., the same table being joined multiple times only to evaluate existence conditions).
+
+The new approach rewrites such join groups into optimizer-friendly `EXISTS` conditions (see https://dev.mysql.com/doc/refman/8.0/en/semijoins.html. Note that these optimizations are not always applied, for example, when an `OR` condition is present, but we still avoid exponential join explosions).
+Conceptually, `LEFT JOIN`s that were only used for "does this relation exist" checks are now expressed as correlated subqueries.
+A nested filter on the tags of an order would previously generate a `LEFT JOIN` of a subquery:
+```sql
+SELECT /* ... */
+FROM `order`
+LEFT JOIN (
+    SELECT `order.tags.mapping`.`order_id` AS `id`, `order.tags.mapping`.`order_version_id`
+    FROM `order_tag` `order.tags.mapping`
+    LEFT JOIN `tag` `order.tags` ON `order.tags.mapping`.`tag_id` = `order.tags`.`id`
+    WHERE `order.tags`.`id` IN (0x0192688530A97384A2E01F0FF2B25141)
+) `order.tags_1`
+WHERE /* ... */ AND `order.tags_1`.`id` IS NOT NULL
+```
+but now, an `EXISTS` check on the same subquery is generated instead:
+```sql
+SELECT /* ... */
+FROM `order`
+WHERE /* ... */
+EXISTS (
+    SELECT 1
+    FROM `order_tag` `order.tags.mapping`
+    LEFT JOIN `tag` `order.tags` ON `order.tags.mapping`.`tag_id` = `order.tags`.`id`
+    WHERE `order`.`id` = `order.tags.mapping`.`order_id`
+        AND `order.tags`.`id` IN (0x0192688530A97384A2E01F0FF2B25141)
+)
+```
+
+This preserves the semantics defined in [adr/2020-11-19-dal-join-filter.md](adr/2020-11-19-dal-join-filter.md) while avoiding exponential join explosions when multiple different nested filters on the same entity are present.
 
 ### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
 

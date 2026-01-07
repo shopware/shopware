@@ -570,7 +570,7 @@
         "deprecationWarning": "Der Filter für Produktzustände ist veraltet und wird mit v6.8 entfernt. Bitte verwende stattdessen den Produkttyp-Filter."
       },
       "productTypeFilter": {
-        "label": "Produkt-Typ",
+        "label": "Produkttyp",
         "placeholder": "Produkt-Typ auswählen ..."
       },
       "messageEmptyTitle": "Nichts gefunden",

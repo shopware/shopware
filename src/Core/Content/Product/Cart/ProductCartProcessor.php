@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -27,6 +28,7 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -154,7 +156,15 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($item->getQuantity());
 
                 $item->setPrice($this->calculator->calculate($definition, $context));
-                $item->setShippingCostAware(!$item->hasState(State::IS_DOWNLOAD));
+                $isDownloadLineItem = $item->isProductType(ProductDefinition::TYPE_DIGITAL);
+
+                if (!Feature::isActive('v6.8.0.0')) {
+                    Feature::callSilentIfInactive('v6.8.0.0', function () use ($item, &$isDownloadLineItem): void {
+                        $isDownloadLineItem = $isDownloadLineItem || $item->hasState(State::IS_DOWNLOAD);
+                    });
+                }
+
+                $item->setShippingCostAware(!$isDownloadLineItem);
             }
 
             $this->featureBuilder->add($items, $data, $context);
@@ -325,9 +335,18 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $weight = $product->getWeight();
 
-        $lineItem->setStates($product->getStates());
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, $product->getType());
 
-        if ($lineItem->hasState(State::IS_PHYSICAL)) {
+        $isPhysicalLineItem = $lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', function () use ($lineItem, $product, &$isPhysicalLineItem): void {
+                $lineItem->setStates($product->getStates());
+                $isPhysicalLineItem = $isPhysicalLineItem || $lineItem->hasState(State::IS_PHYSICAL);
+            });
+        }
+
+        if ($isPhysicalLineItem) {
             $lineItem->setDeliveryInformation(
                 new DeliveryInformation(
                     $product->getStock(),

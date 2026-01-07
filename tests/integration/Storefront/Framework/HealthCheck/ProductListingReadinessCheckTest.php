@@ -160,13 +160,16 @@ class ProductListingReadinessCheckTest extends TestCase
     {
         $products = [];
         for ($i = 0; $i < 5; ++$i) {
-            $products[] = (new ProductBuilder($this->ids, 'product-' . $i))
+            $product = (new ProductBuilder($this->ids, 'product-' . $i))
                 ->name('Test-' . $i)
                 ->price(10)
                 ->manufacturer('manufacturer')
                 ->tax('tax')
                 ->visibility($salesChannelId)
                 ->build();
+
+            unset($product['type']);
+            $products[] = $product;
         }
 
         return $products;

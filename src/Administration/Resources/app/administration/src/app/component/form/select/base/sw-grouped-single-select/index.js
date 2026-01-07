@@ -54,8 +54,9 @@ export default {
     methods: {
         getGroupClasses(item) {
             const classes = ['sw-grouped-single-select__group-separator'];
+
             if (item.group === 'misc') {
-                classes.push('sw_grouped-single-select_group-misc-separator');
+                classes.push('sw-grouped-single-select__group-misc-separator');
             }
 
             return classes;

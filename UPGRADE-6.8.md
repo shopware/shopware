@@ -550,8 +550,22 @@ In favor of WebP the following images have been removed:
 -   `administration/src/module/sw-login/page/index/assets/sw-login-background.png`
 -   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
 
-Update image references to their `.webp` equivalents.  
+Update image references to their `.webp` equivalents.
 For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`
+
+## Mail template component changes
+
+The mail template index page now uses separate tabs for templates and headers/footers.
+
+Changes in `sw-mail-template-list` and `sw-mail-header-footer-list`:
+* `searchTerm` prop and watcher were removed
+* `getList()` method: `searchTerm` variable was replaced with `this.term`
+* `@page-change` handler now uses `onPageChange` directly
+
+Changes in `sw-mail-template-index`:
+* `listing` mixin was removed
+* `term` data property was removed
+* `onChangeLanguage` method now only calls `tabContent` ref
 
 </details>
 

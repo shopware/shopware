@@ -339,17 +339,11 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/order',
+                '/store-api/order?checkPromotion=true',
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode(
-                    array_merge(
-                        $this->requestCriteriaBuilder->toArray($criteria),
-                        ['checkPromotion' => true]
-                    ),
-                    \JSON_THROW_ON_ERROR
-                ) ?: ''
+                json_encode($this->requestCriteriaBuilder->toArray($criteria), \JSON_THROW_ON_ERROR) ?: ''
             );
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);

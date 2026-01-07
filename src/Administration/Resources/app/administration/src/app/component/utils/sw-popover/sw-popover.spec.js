@@ -162,5 +162,4 @@ describe('src/app/component/base/sw-popover', () => {
         const deprecatedPopover = wrapper.findComponent({ name: 'sw-popover-deprecated' });
         expect(deprecatedPopover.attributes('resize-width')).toBe('true');
     });
-
 });

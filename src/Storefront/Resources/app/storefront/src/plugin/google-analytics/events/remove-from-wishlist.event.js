@@ -85,12 +85,10 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
         let categories = ProductPageHelper.getCategories();
 
         // Fallback to line item data (cart/checkout/finish pages)
-        if (!productData.name) {
-            const lineItemData = LineItemHelper.getProductData(productId);
-            if (lineItemData) {
-                productData = lineItemData;
-                categories = lineItemData.categories || {};
-            }
+        const lineItemData = LineItemHelper.getProductData(productId);
+        if (!productData.name && lineItemData) {
+            productData = lineItemData;
+            categories = lineItemData.categories || {};
         }
 
         gtag('event', 'remove_from_wishlist', {

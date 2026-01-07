@@ -158,8 +158,7 @@ export default class AddToCartPlugin extends Plugin {
             existingAlert.remove();
         }
 
-        const alert = template.cloneNode(true);
-        alert.classList.remove('d-none', 'js-add-to-cart-alert-template');
+        const alert = template.content.firstElementChild.cloneNode(true);
         alert.classList.add('show', 'add-to-cart-alert');
 
         this._form.insertAdjacentElement('afterend', alert);

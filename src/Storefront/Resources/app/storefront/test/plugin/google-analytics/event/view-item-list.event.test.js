@@ -5,7 +5,7 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         window.gtag = jest.fn();
         window.currencyIsoCode = 'EUR';
         window.PluginManager = {
-            getPlugin: jest.fn(),
+            getPluginInstances: jest.fn(() => []),
         };
     });
 
@@ -75,9 +75,7 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
             $emitter: mockEmitter,
         };
 
-        window.PluginManager.getPlugin.mockReturnValue({
-            get: jest.fn().mockReturnValue([mockPluginInstance]),
-        });
+        window.PluginManager.getPluginInstances.mockReturnValue([mockPluginInstance]);
 
         const event = new ViewItemListEvent();
         event.execute();

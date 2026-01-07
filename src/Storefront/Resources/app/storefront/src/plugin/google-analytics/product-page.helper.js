@@ -73,7 +73,7 @@ export default class ProductPageHelper {
      * @returns {string|undefined}
      */
     static getBrand() {
-        return document.querySelector('div[itemprop="brand"] meta[itemprop="name"]')?.content;
+        return document.querySelector('[itemprop="brand"] [itemprop="name"]')?.content;
     }
 
     /**
@@ -97,7 +97,7 @@ export default class ProductPageHelper {
      * @returns {Object}
      */
     static getCategories() {
-        const breadcrumbNodes = document.querySelectorAll('nav[aria-label="breadcrumb"] .breadcrumb-title');
+        const breadcrumbNodes = document.querySelectorAll('[aria-label="breadcrumb"] .breadcrumb-title');
         const categories = {};
 
         breadcrumbNodes.forEach((node, index) => {

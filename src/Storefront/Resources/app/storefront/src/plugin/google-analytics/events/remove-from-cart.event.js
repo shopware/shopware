@@ -47,6 +47,7 @@ export default class RemoveFromCart extends AnalyticsEvent
             return;
         }
 
+        // GA4 supports up to 5 category levels
         const categories = {};
         for (let i = 1; i <= 5; i++) {
             const categoryValue = hiddenLineItem.getAttribute(`data-category-${i}`);

@@ -27,9 +27,9 @@ describe('AddToCartPlugin tests', () => {
                     <button>Add to shopping cart</button>
                 </form>
             </div>
-            <div class="js-add-to-cart-alert-template d-none">
-                <span>Product added to cart</span>
-            </div>
+            <template class="js-add-to-cart-alert-template">
+                <div class="alert"><span>Product added to cart</span></div>
+            </template>
         `;
 
         window.PluginManager.getPluginInstances = jest.fn((pluginName) => {

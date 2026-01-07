@@ -31,6 +31,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         }
 
         const formData = event.detail;
+        const formElement = event.target;
         let productId = null;
 
         formData.forEach((value, key) => {
@@ -44,14 +45,17 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
             return;
         }
 
+        // Get product data - uses detail page meta tags or falls back to product card data
+        const productData = ProductPageHelper.getProductData(productId, formElement);
+
         gtag('event', 'add_to_cart', {
-            'currency': ProductPageHelper.getCurrency(),
-            'value': ProductPageHelper.getValue(),
+            'currency': productData.currency || ProductPageHelper.getCurrency(),
+            'value': productData.value,
             'items': [{
                 'id': productId,
-                'name': formData.get('product-name'),
+                'name': formData.get('product-name') || productData.name,
                 'quantity': formData.get(`lineItems[${productId}][quantity]`),
-                'brand': formData.get('brand-name'),
+                'brand': formData.get('brand-name') || productData.brand,
                 ...ProductPageHelper.getCategories(),
             }],
         });

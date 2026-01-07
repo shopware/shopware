@@ -13,8 +13,6 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1643878976AddCaptureRefundStateMachines extends MigrationStep

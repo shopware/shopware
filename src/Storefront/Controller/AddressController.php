@@ -67,7 +67,16 @@ class AddressController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account/address', name: 'frontend.account.address.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/account/address',
+        name: 'frontend.account.address.page',
+        options: ['seo' => false],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function accountAddressOverview(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->addressListingPageLoader->load($request, $context, $customer);
@@ -77,9 +86,22 @@ class AddressController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/account/address/create', name: 'frontend.account.address.create.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
-    public function accountCreateAddress(Request $request, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
-    {
+    #[Route(
+        path: '/account/address/create',
+        name: 'frontend.account.address.create.page',
+        options: ['seo' => false],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
+    public function accountCreateAddress(
+        Request $request,
+        RequestDataBag $data,
+        SalesChannelContext $context,
+        CustomerEntity $customer
+    ): Response {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);
 
         $this->hook(new AddressDetailPageLoadedHook($page, $context));
@@ -90,7 +112,17 @@ class AddressController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/address/{addressId}', name: 'frontend.account.address.edit.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/account/address/{addressId}',
+        name: 'frontend.account.address.edit.page',
+        options: ['seo' => false],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function accountEditAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);
@@ -103,9 +135,18 @@ class AddressController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/address/default-{type}/{addressId}', name: 'frontend.account.address.set-default-address', defaults: ['_loginRequired' => true], methods: ['POST'])]
-    public function switchDefaultAddress(string $type, string $addressId, SalesChannelContext $context, CustomerEntity $customer): RedirectResponse
-    {
+    #[Route(
+        path: '/account/address/default-{type}/{addressId}',
+        name: 'frontend.account.address.set-default-address',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
+    public function switchDefaultAddress(
+        string $type,
+        string $addressId,
+        SalesChannelContext $context,
+        CustomerEntity $customer
+    ): RedirectResponse {
         if (!Uuid::isValid($addressId)) {
             throw UuidException::invalidUuid($addressId);
         }
@@ -127,9 +168,22 @@ class AddressController extends StorefrontController
         return $this->redirectToRoute('frontend.account.address.page');
     }
 
-    #[Route(path: '/account/address/switch', name: 'frontend.account.address.switch-default', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true,  '_loginRequiredAllowGuest' => true], methods: ['POST'])]
-    public function checkoutSwitchDefaultAddress(Request $request, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
-    {
+    #[Route(
+        path: '/account/address/switch',
+        name: 'frontend.account.address.switch-default',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
+    public function checkoutSwitchDefaultAddress(
+        Request $request,
+        RequestDataBag $data,
+        SalesChannelContext $context,
+        CustomerEntity $customer
+    ): Response {
         match ($data->get('type')) {
             self::ADDRESS_TYPE_SHIPPING => $this->accountService->setDefaultShippingAddress($data->get('id'), $context, $customer),
             self::ADDRESS_TYPE_BILLING => $this->accountService->setDefaultBillingAddress($data->get('id'), $context, $customer),
@@ -150,10 +204,29 @@ class AddressController extends StorefrontController
         return $this->createActionResponse($request);
     }
 
-    #[Route(path: '/account/address/create', name: 'frontend.account.address.create', options: ['seo' => false], defaults: ['_loginRequired' => true], methods: ['POST'])]
-    #[Route(path: '/account/address/{addressId}', name: 'frontend.account.address.edit.save', options: ['seo' => false], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
-    public function saveAddress(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer, Request $request): Response
-    {
+    #[Route(
+        path: '/account/address/create',
+        name: 'frontend.account.address.create',
+        options: ['seo' => false],
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
+    #[Route(
+        path: '/account/address/{addressId}',
+        name: 'frontend.account.address.edit.save',
+        options: ['seo' => false],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
+    public function saveAddress(
+        RequestDataBag $data,
+        SalesChannelContext $context,
+        CustomerEntity $customer,
+        Request $request
+    ): Response {
         /** @var RequestDataBag $address */
         $address = $data->get('address');
 
@@ -187,9 +260,22 @@ class AddressController extends StorefrontController
         );
     }
 
-    #[Route(path: '/account/address/delete/{addressId}', name: 'frontend.account.address.delete', options: ['seo' => false], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
-    public function deleteAddress(string $addressId, Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
-    {
+    #[Route(
+        path: '/account/address/delete/{addressId}',
+        name: 'frontend.account.address.delete',
+        options: ['seo' => false],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
+    public function deleteAddress(
+        string $addressId,
+        Request $request,
+        SalesChannelContext $context,
+        CustomerEntity $customer
+    ): Response {
         if (!$addressId) {
             throw RoutingException::missingRequestParameter('addressId');
         }
@@ -204,7 +290,17 @@ class AddressController extends StorefrontController
         return $this->redirectToRoute('frontend.account.address.page');
     }
 
-    #[Route(path: '/widgets/account/address-manager/switch', name: 'frontend.account.addressmanager.switch', options: ['seo' => true], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
+    #[Route(
+        path: '/widgets/account/address-manager/switch',
+        name: 'frontend.account.addressmanager.switch',
+        options: ['seo' => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function addressManagerSwitch(Request $request, SalesChannelContext $context): Response
     {
         if (!$request->request->get(SalesChannelContextService::SHIPPING_ADDRESS_ID)) {
@@ -224,7 +320,17 @@ class AddressController extends StorefrontController
         return $this->createActionResponse($request);
     }
 
-    #[Route(path: '/widgets/account/address-manager', name: 'frontend.account.addressmanager.get', options: ['seo' => true], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['GET'])]
+    #[Route(
+        path: '/widgets/account/address-manager',
+        name: 'frontend.account.addressmanager.get',
+        options: ['seo' => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function addressManager(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $viewData = new AddressEditorModalStruct();
@@ -247,9 +353,26 @@ class AddressController extends StorefrontController
         return $response;
     }
 
-    #[Route(path: '/widgets/account/address-manager/{addressId?}', name: 'frontend.account.addressmanager', options: ['seo' => true], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
-    public function addressManagerUpsert(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer, ?string $addressId = null, #[MapQueryParameter] ?string $type = null): Response
-    {
+    #[Route(
+        path: '/widgets/account/address-manager/{addressId?}',
+        name: 'frontend.account.addressmanager',
+        options: ['seo' => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
+    public function addressManagerUpsert(
+        Request $request,
+        RequestDataBag $dataBag,
+        SalesChannelContext $context,
+        CustomerEntity $customer,
+        ?string $addressId = null,
+        #[MapQueryParameter]
+        ?string $type = null
+    ): Response {
         $viewData = new AddressEditorModalStruct();
 
         match ($type) {

@@ -27,14 +27,11 @@ const createWrapper = async () => {
                         template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
-                        <slot></slot>
+                        <slot name="content"></slot>
                     </div>`,
                     },
                     'sw-card-view': {
-                        template: '<div><slot></slot></div>',
-                    },
-                    'sw-container': {
-                        template: '<div><slot></slot></div>',
+                        template: '<div class="sw-card-view"><slot></slot></div>',
                     },
                     'sw-context-button': {
                         template: `
@@ -48,6 +45,9 @@ const createWrapper = async () => {
                     'sw-language-switch': true,
                     'sw-mail-template-list': true,
                     'sw-mail-header-footer-list': true,
+                    'sw-tabs': true,
+                    'sw-tabs-item': true,
+                    'router-view': true,
                 },
             },
         },
@@ -71,5 +71,40 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
         const createButton = wrapper.findByText('button', 'global.default.add');
 
         expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - This test will be removed.
+     */
+    describe('without v6.8.0.0 feature flag', () => {
+        it('should render both lists directly', async () => {
+            const wrapper = await createWrapper();
+
+            expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        });
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - This test will be removed.
+     */
+    describe('with v6.8.0.0 feature flag', () => {
+        beforeEach(() => {
+            global.activeFeatureFlags = ['v6.8.0.0'];
+        });
+
+        afterEach(() => {
+            global.activeFeatureFlags = [];
+        });
+
+        it('should render tabs with router-view instead of lists', async () => {
+            const wrapper = await createWrapper();
+
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'router-view' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(false);
+            expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(false);
+        });
     });
 });

@@ -65,7 +65,7 @@ class OrderCollection extends EntityCollection
     public function getBillingAddress(): OrderAddressCollection
     {
         return new OrderAddressCollection(
-            $this->fmap(fn (OrderEntity $order) => $order->getAddresses())
+            $this->flatMap(fn (OrderEntity $order) => $order->getAddresses())
         );
     }
 

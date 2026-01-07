@@ -100,13 +100,7 @@ export default class AddToCartPlugin extends Plugin {
      * @private
      */
     _shouldOpenOffcanvas() {
-        const flag = window.disableOffcanvasAfterAddToCart;
-
-        if (flag === undefined) {
-            return true;
-        }
-
-        return flag !== '1';
+        return window.disableOffcanvasAfterAddToCart !== '1';
     }
 
     /**

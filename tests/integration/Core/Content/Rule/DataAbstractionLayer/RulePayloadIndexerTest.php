@@ -462,14 +462,12 @@ class RulePayloadIndexerTest extends TestCase
             ['id' => Uuid::fromHexToBytes($ruleId)]
         );
 
-        $ruleBeforeUpdate = $this->connection->fetchAssociative(
+        $updatedAtBefore = $this->connection->fetchOne(
             'SELECT updated_at FROM rule WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($ruleId)]
         );
 
-        static::assertIsArray($ruleBeforeUpdate);
-        $updatedAtBefore = $ruleBeforeUpdate['updated_at'];
-        static::assertNotNull($updatedAtBefore, 'Rule updated_at should be set after creation');
+        static::assertIsString($updatedAtBefore, 'Rule updated_at should be set after creation');
 
         $conditionRepository = static::getContainer()->get('rule_condition.repository');
         $conditionRepository->update([
@@ -482,13 +480,10 @@ class RulePayloadIndexerTest extends TestCase
             ],
         ], $this->context);
 
-        $ruleAfterUpdate = $this->connection->fetchAssociative(
+        $updatedAtAfter = $this->connection->fetchOne(
             'SELECT updated_at FROM rule WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($ruleId)]
         );
-
-        static::assertIsArray($ruleAfterUpdate);
-        $updatedAtAfter = $ruleAfterUpdate['updated_at'];
 
         static::assertNotSame(
             $updatedAtBefore,

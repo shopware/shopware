@@ -21,6 +21,7 @@
         />
     </sw-wizard-page>
     {% endblock %}
+
     {% block sw_import_export_new_profile_wizard_page_csv %}
     <sw-wizard-page
         :position="csvUploadPagePosition"
@@ -33,6 +34,7 @@
         />
     </sw-wizard-page>
     {% endblock %}
+
     {% block sw_import_export_new_profile_wizard_page_mapping %}
     <sw-wizard-page
         :position="2"
@@ -96,7 +98,6 @@
         class="sw-import-export-new-profile-wizard__violation-modal"
         @modal-close="resetViolations"
     >
-
         {% block sw_import_export_new_profile_wizard_violation_modal_message %}
         <p>{{ $tc('sw-import-export.profile.violationMessage') }}</p>
         {% endblock %}

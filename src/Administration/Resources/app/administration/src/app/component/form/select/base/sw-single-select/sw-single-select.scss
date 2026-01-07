@@ -1,9 +1,7 @@
-@import "~scss/variables";
-
 .sw-single-select.sw-select {
     .sw-single-select__selection-input {
-        padding: 12px 0;
-        min-height: 22px + 2 * 12px;
+        padding: var(--scale-size-12) 0;
+        min-height: var(--scale-size-48);
         width: 0;
         display: inline-block;
 
@@ -14,41 +12,40 @@
         }
 
         &:disabled {
-            background-color: $color-white;
-            border-color: $color-white;
+            background-color: var(--color-background-tertiary-default);
         }
     }
 
     .sw-single-select__selection-text {
-        padding: 12px 8px;
-        min-height: 22px + 2 * 12px;
+        padding: var(--scale-size-12) var(--scale-size-8);
+        min-height: var(--scale-size-48);
 
         &.is--placeholder {
-            color: lighten($color-darkgray-200, 25%);
+            color: var(--color-text-secondary-default);
         }
     }
 
     &.sw-field--medium {
         .sw-select__selection {
-            padding: 0 6px;
+            padding: 0 var(--scale-size-6);
         }
 
         .sw-single-select__selection-input,
         .sw-single-select__selection-text {
             padding: 8px;
-            min-height: 22px + 2 * 8px;
+            min-height: var(--scale-size-40);
         }
     }
 
     &.sw-field--small {
         .sw-select__selection {
-            padding: 0 6px;
+            padding: 0 var(--scale-size-6);
         }
 
         .sw-single-select__selection-input,
         .sw-single-select__selection-text {
-            padding: 4px 8px;
-            min-height: 22px + 2 * 4px;
+            padding: var(--scale-size-4) var(--scale-size-8);
+            min-height: var(--scale-size-32);
         }
     }
 }

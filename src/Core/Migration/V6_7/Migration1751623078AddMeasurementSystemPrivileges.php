@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class Migration1751623078AddMeasurementSystemPrivileges extends MigrationStep

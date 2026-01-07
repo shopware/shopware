@@ -3,7 +3,6 @@
  */
 import string from 'src/core/service/utils/string.utils';
 import template from './sw-import-export-new-profile-wizard-general-page.html.twig';
-import './sw-import-export-new-profile-wizard-general-page.scss';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

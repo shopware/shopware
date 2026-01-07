@@ -198,9 +198,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         $referenceDefinition = $field->getReferenceDefinition();
 
         $manyToMany = $field->getToManyReferenceDefinition()->getFields()
-            ->filterInstance(ManyToManyAssociationField::class)
-            ->filter(static fn (ManyToManyAssociationField $field) => $field->getReferenceDefinition() === $referenceDefinition)
-            ->first();
+            ->firstWhere(static fn (Field $field) => $field instanceof ManyToManyAssociationField && $field->getReferenceDefinition() === $referenceDefinition);
 
         if (!$manyToMany instanceof ManyToManyAssociationField) {
             return null;
@@ -214,9 +212,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         $referenceDefinition = $field->getReferenceDefinition();
 
         $manyToOne = $field->getReferenceDefinition()->getFields()
-            ->filterInstance(ManyToOneAssociationField::class)
-            ->filter(static fn (ManyToOneAssociationField $field) => $field->getReferenceDefinition() === $referenceDefinition)
-            ->first();
+            ->firstWhere(static fn (Field $field) => $field instanceof ManyToOneAssociationField && $field->getReferenceDefinition() === $referenceDefinition);
 
         if (!$manyToOne instanceof ManyToOneAssociationField) {
             return null;

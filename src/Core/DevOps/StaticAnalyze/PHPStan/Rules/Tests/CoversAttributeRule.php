@@ -37,7 +37,13 @@ class CoversAttributeRule implements Rule
             return [];
         }
 
-        if (TestRuleHelper::isUnitTestClass($node->getClassReflection())) {
+        $classReflection = $node->getClassReflection();
+        // Abstract classes do not need to have covers attribute
+        if ($classReflection->isAbstract()) {
+            return [];
+        }
+
+        if (TestRuleHelper::isUnitTestClass($classReflection)) {
             return [
                 RuleErrorBuilder::message('Unit test classes must have CoversClass, CoversFunction or CoversNothing attribute')
                     ->identifier('shopware.testCovers')

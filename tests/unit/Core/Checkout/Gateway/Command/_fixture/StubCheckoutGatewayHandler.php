@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayResponse;
 use Shopware\Core\Checkout\Gateway\Command\AbstractCheckoutGatewayCommand;
 use Shopware\Core\Checkout\Gateway\Command\Handler\AbstractCheckoutGatewayCommandHandler;
@@ -15,21 +14,20 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversNothing]
 #[Package('checkout')]
-class TestCheckoutGatewayHandler extends AbstractCheckoutGatewayCommandHandler
+class StubCheckoutGatewayHandler extends AbstractCheckoutGatewayCommandHandler
 {
     public static function supportedCommands(): array
     {
-        return [TestCheckoutGatewayCommand::class, TestCheckoutGatewayFooCommand::class];
+        return [StubCheckoutGatewayCommand::class, StubCheckoutGatewayFooCommand::class];
     }
 
     /**
-     * @param TestCheckoutGatewayCommand|TestCheckoutGatewayFooCommand $command
+     * @param StubCheckoutGatewayCommand|StubCheckoutGatewayFooCommand $command
      */
     public function handle(AbstractCheckoutGatewayCommand $command, CheckoutGatewayResponse $response, SalesChannelContext $context): void
     {
-        if ($command instanceof TestCheckoutGatewayFooCommand) {
+        if ($command instanceof StubCheckoutGatewayFooCommand) {
             return;
         }
 

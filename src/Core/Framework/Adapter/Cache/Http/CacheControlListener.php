@@ -83,7 +83,7 @@ readonly class CacheControlListener
 
         // Check route scope attribute
         if (\in_array(
-            'administration',
+            AdministrationRouteScope::ID,
             (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
             true
         )) {

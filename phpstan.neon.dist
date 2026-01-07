@@ -43,9 +43,6 @@ parameters:
         - src/**/node_modules/*
         - tests/**/node_modules/*
 
-        # twig override
-        - src/Core/Framework/Adapter/Twig/functions.php
-
         # class behind feature flags
         - src/Core/Checkout/Cart/Exception/InvalidCartException.php
 
@@ -192,12 +189,6 @@ parameters:
 
         # Breaking changes which are not worth it
         - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
-
-        - # Google Cloud Storage filesystem closes the stream even though it should not
-            message: '#Call to function is_resource\(\) with resource will always evaluate to true#'
-            paths:
-                - src/Core/Framework/Plugin/Util/AssetService.php
-                - src/Core/Content/Media/File/FileSaver.php
 
         - # Can not be fixed currently. See https://github.com/phpstan/phpstan/discussions/9159
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field::getFlag\(\) should return \(TFlag of Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\)\|null but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\|null#'

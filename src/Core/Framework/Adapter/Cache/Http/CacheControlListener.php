@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -25,6 +26,10 @@ readonly class CacheControlListener
     public function __invoke(BeforeSendResponseEvent $event): void
     {
         if ($this->reverseProxyEnabled) {
+            return;
+        }
+
+        if ($this->isAdministrationRequest($event)) {
             return;
         }
 
@@ -64,5 +69,34 @@ readonly class CacheControlListener
             (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
             true
         );
+    }
+
+    private function isAdministrationRequest(BeforeSendResponseEvent $event): bool
+    {
+        $response = $event->getResponse();
+        
+        // Check if the response has been marked as an administration response
+        if ($response->headers->get('X-Shopware-Cache-Id') === 'administration') {
+            return true;
+        }
+
+        $request = $event->getRequest();
+
+        // Check route scope attribute
+        if (\in_array(
+            AdministrationRouteScope::ID,
+            (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
+            true
+        )) {
+            return true;
+        }
+
+        // Fallback: Check if the route name starts with 'administration.'
+        $routeName = $request->attributes->get('_route', '');
+        if (\str_starts_with($routeName, 'administration.')) {
+            return true;
+        }
+
+        return false;
     }
 }

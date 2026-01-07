@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
@@ -134,6 +135,68 @@ class CacheControlListenerTest extends TestCase
         $subscriber = new CacheControlListener(false);
         $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
 
+        static::assertSame('no-cache, private', $response->headers->get('cache-control'));
+    }
+
+    public function testAdministrationHeadersNotModifiedWithRouteScope(): void
+    {
+        $response = new Response();
+        $response->headers->set('cache-control', 'max-age=3600, public, stale-while-revalidate=86400');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [AdministrationRouteScope::ID]);
+
+        $subscriber = new CacheControlListener(false);
+
+        $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
+
+        static::assertSame('max-age=3600, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
+    }
+
+    public function testAdministrationHeadersNotModifiedWithRouteName(): void
+    {
+        $response = new Response();
+        $response->headers->set('cache-control', 'max-age=3600, public, stale-while-revalidate=86400');
+
+        $request = new Request();
+        $request->attributes->set('_route', 'administration.index');
+
+        $subscriber = new CacheControlListener(false);
+
+        $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
+
+        static::assertSame('max-age=3600, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
+    }
+
+    public function testAdministrationHeadersNotModifiedWithCacheIdMarker(): void
+    {
+        $response = new Response();
+        $response->headers->set('cache-control', 'max-age=3600, public, stale-while-revalidate=86400');
+        $response->headers->set('X-Shopware-Cache-Id', 'administration');
+
+        $request = new Request();
+
+        $subscriber = new CacheControlListener(false);
+
+        $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
+
+        static::assertSame('max-age=3600, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
+        static::assertSame('administration', $response->headers->get('X-Shopware-Cache-Id'));
+    }
+
+    public function testNonAdministrationHeadersAreModified(): void
+    {
+        $response = new Response();
+        $response->headers->set('cache-control', 'max-age=3600, public, stale-while-revalidate=86400');
+
+        $request = new Request();
+        // No administration markers set
+
+        $subscriber = new CacheControlListener(false);
+
+        $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
+
+        // Should be modified to no-cache, private for non-administration routes
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 }

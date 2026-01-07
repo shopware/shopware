@@ -116,7 +116,7 @@ class AdministrationController extends AbstractController
         $refreshTokenInterval = new \DateInterval($this->refreshTokenTtl);
         $refreshTokenTtl = $refreshTokenInterval->s + $refreshTokenInterval->i * 60 + $refreshTokenInterval->h * 3600 + $refreshTokenInterval->d * 86400;
 
-        return $this->render($template, [
+        $response = $this->render($template, [
             'features' => Feature::getAll(),
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
@@ -132,6 +132,15 @@ class AdministrationController extends AbstractController
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
             'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
         ]);
+
+        $response->setPublic();
+        $response->setMaxAge(3600);
+        $response->setSharedMaxAge(3600);
+        $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
+        $response->headers->addCacheControlDirective('must-revalidate');
+        $response->headers->set('X-Shopware-Cache-Id', 'administration');
+
+        return $response;
     }
 
     #[Route(
@@ -220,7 +229,12 @@ class AdministrationController extends AbstractController
             'Content-Security-Policy' => 'script-src * \'unsafe-eval\' \'unsafe-inline\'',
             PlatformRequest::HEADER_FRAME_OPTIONS => 'sameorigin',
         ]);
+        $response->setPublic();
+        $response->setMaxAge(3600);
         $response->setSharedMaxAge(3600);
+        $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
+        $response->headers->addCacheControlDirective('must-revalidate');
+        $response->headers->set('X-Shopware-Cache-Id', 'administration');
 
         return $response;
     }

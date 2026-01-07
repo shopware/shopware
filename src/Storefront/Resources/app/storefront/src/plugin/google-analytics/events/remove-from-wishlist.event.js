@@ -14,15 +14,14 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
     }
 
     _registerWishlistStorageEvents() {
-        const pluginRegistry = window.PluginManager;
-        const plugin = pluginRegistry.getPlugin('WishlistStorage', false);
-
-        if (!plugin) {
-            return;
+        let instances;
+        try {
+            instances = window.PluginManager.getPluginInstances('WishlistStorage');
+        } catch {
+            return; // Optional plugin
         }
 
-        const instances = typeof plugin.get === 'function' ? plugin.get('instances') : null;
-        if (!instances || instances.length === 0) {
+        if (!instances?.length) {
             return;
         }
 

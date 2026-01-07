@@ -36,7 +36,7 @@ export default class EventAwareAnalyticsEvent extends AnalyticsEvent
             const instances = window.PluginManager.getPluginInstances(pluginName);
             return instances?.length > 0 ? instances : null;
         } catch {
-            return null;
+            return null; // Optional plugin
         }
     }
 

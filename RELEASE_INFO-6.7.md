@@ -65,7 +65,10 @@ The following deprecations apply to `sw-mail-template-index`:
 
 The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. The button layout has been improved with a clearer visual hierarchy, placing the primary action on the right side. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
 
-### HTTP caching policies now respect no-store attribute
+### HTTP caching policies update
+
+* HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
+* Cache-control header set by policies is sent to the client for all responses, even when no reverse proxy is enabled.
 
 HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
 

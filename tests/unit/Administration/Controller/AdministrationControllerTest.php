@@ -199,14 +199,14 @@ class AdministrationControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertTrue($response->headers->has('cache-control'));
-        
+
         $cacheControl = $response->headers->get('cache-control');
         static::assertNotNull($cacheControl);
         static::assertStringContainsString('max-age=3600', $cacheControl);
         static::assertStringContainsString('public', $cacheControl);
         static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
         static::assertStringContainsString('must-revalidate', $cacheControl);
-        
+
         static::assertSame('administration', $response->headers->get('X-Shopware-Cache-Id'));
     }
 
@@ -383,14 +383,14 @@ class AdministrationControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertTrue($response->headers->has('cache-control'));
-        
+
         $cacheControl = $response->headers->get('cache-control');
         static::assertNotNull($cacheControl);
         static::assertStringContainsString('max-age=3600', $cacheControl);
         static::assertStringContainsString('public', $cacheControl);
         static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
         static::assertStringContainsString('must-revalidate', $cacheControl);
-        
+
         static::assertSame('administration', $response->headers->get('X-Shopware-Cache-Id'));
     }
 

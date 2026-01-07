@@ -74,7 +74,7 @@ readonly class CacheControlListener
     private function isAdministrationRequest(BeforeSendResponseEvent $event): bool
     {
         $response = $event->getResponse();
-        
+
         // Check if the response has been marked as an administration response
         if ($response->headers->get('X-Shopware-Cache-Id') === 'administration') {
             return true;
@@ -92,8 +92,8 @@ readonly class CacheControlListener
         }
 
         // Fallback: Check if the route name starts with 'administration.'
-        $routeName = $request->attributes->get('_route', '');
-        if (\str_starts_with($routeName, 'administration.')) {
+        $routeName = $request->attributes->get('_route');
+        if (\is_string($routeName) && \str_starts_with($routeName, 'administration.')) {
             return true;
         }
 

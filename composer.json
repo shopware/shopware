@@ -269,7 +269,7 @@
         "init:db": " ",
         "init:js": " ",
         "init:testdb": "Initializes the test database",
-        "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'ecs' and 'lint:snippets'",
+        "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'ecs' and 'translation:lint'",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
         "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
@@ -400,9 +400,9 @@
             "@stylelint",
             "@eslint",
             "@ecs",
-            "@lint:snippets"
+            "@php bin/shopware translation:validate"
         ],
-        "lint:snippets": "@translation:validate",
+        "lint:snippets": "@php bin/shopware translation:validate",
         "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig .",
         "ludtwig:storefront:fix": "@ludtwig:storefront --fix",
         "make:coverage": [

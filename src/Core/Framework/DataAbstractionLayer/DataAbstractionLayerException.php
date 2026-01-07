@@ -1101,10 +1101,6 @@ class DataAbstractionLayerException extends HttpException
      */
     public static function unexpectedAssociationFieldClass(string $associationClass): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException(\sprintf('Unknown association class provided %s', $associationClass));
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_UNEXPECTED_ASSOCIATION_FIELD_CLASS,
@@ -1118,10 +1114,6 @@ class DataAbstractionLayerException extends HttpException
      */
     public static function expectedAssociationFieldInFirstLevelOfJoinGroup(?string $fieldClass): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException('Expect association field in first level of join group');
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_EXPECTED_ASSOCIATION_FIELD_IN_FIRST_LEVEL_OF_JOIN_GROUP,

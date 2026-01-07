@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -15,8 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  */
 #[Package('framework')]
-#[CoversNothing]
-class MailTemplateMigrationTestCase extends TestCase
+abstract class MailTemplateMigrationTestCase extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
@@ -34,7 +32,7 @@ class MailTemplateMigrationTestCase extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public static function assertMailTemplateTranslations(Translations $expected, Translations $current): void
+    public function assertMailTemplateTranslations(Translations $expected, Translations $current): void
     {
         $fileSystem = new Filesystem();
         if ($fileSystem->exists((string) $expected->getEnPlain())) {

@@ -78,14 +78,14 @@ class OrderDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of order.'),
             (new VersionField())->addFlags(new ApiAware()),
 
             new AutoIncrementField(),
 
-            (new NumberRangeField('order_number', 'orderNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false)),
+            (new NumberRangeField('order_number', 'orderNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false))->setDescription('Unique number associated with every order.'),
 
-            (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->addFlags(new ApiAware(), new Required(), new NoConstraint()),
+            (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->addFlags(new ApiAware(), new Required(), new NoConstraint())->setDescription('Unique identity of the billing address.'),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->addFlags(new ApiAware(), new Required()),
 
             (new FkField('primary_order_delivery_id', 'primaryOrderDeliveryId', OrderDeliveryDefinition::class))->addFlags(new ApiAware(), new NoConstraint()),
@@ -93,34 +93,34 @@ class OrderDefinition extends EntityDefinition
             (new FkField('primary_order_transaction_id', 'primaryOrderTransactionId', OrderTransactionDefinition::class))->addFlags(new ApiAware(), new NoConstraint()),
             (new ReferenceVersionField(OrderTransactionDefinition::class, 'primary_order_transaction_version_id'))->addFlags(new ApiAware(), new Required()),
 
-            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the currency.'),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the language.'),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the sales channel.'),
 
-            (new DateTimeField('order_date_time', 'orderDateTime'))->addFlags(new ApiAware(), new Required()),
-            (new DateField('order_date', 'orderDate'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new CartPriceField('price', 'price'))->addFlags(new ApiAware()),
-            (new FloatField('amount_total', 'amountTotal'))->addFlags(new ApiAware(), new WriteProtected(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new FloatField('amount_net', 'amountNet'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new FloatField('position_price', 'positionPrice'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new StringField('tax_status', 'taxStatus'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new CalculatedPriceField('shipping_costs', 'shippingCosts'))->addFlags(new ApiAware()),
-            (new FloatField('shipping_total', 'shippingTotal'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new FloatField('currency_factor', 'currencyFactor'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new ApiAware()),
-            (new StringField('affiliate_code', 'affiliateCode'))->addFlags(new ApiAware()),
-            (new StringField('campaign_code', 'campaignCode'))->addFlags(new ApiAware()),
-            (new LongTextField('customer_comment', 'customerComment'))->addFlags(new ApiAware(), new AllowEmptyString()),
+            (new DateTimeField('order_date_time', 'orderDateTime'))->addFlags(new ApiAware(), new Required())->setDescription('Timestamp when the order was placed.'),
+            (new DateField('order_date', 'orderDate'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Date when the order was placed.'),
+            (new CartPriceField('price', 'price'))->addFlags(new ApiAware())->setDescription('TaxStatus takes `Free`, `Net` or `Gross` as values.'),
+            (new FloatField('amount_total', 'amountTotal'))->addFlags(new ApiAware(), new WriteProtected(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Gross price of the order.'),
+            (new FloatField('amount_net', 'amountNet'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Net price of the order.'),
+            (new FloatField('position_price', 'positionPrice'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Price of each line item in the cart multiplied by its quantity excluding charges like shipping cost, rules, taxes etc.'),
+            (new StringField('tax_status', 'taxStatus'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('TaxStatus takes `Free`, `Net` or `Gross` as values.'),
+            (new CalculatedPriceField('shipping_costs', 'shippingCosts'))->addFlags(new ApiAware())->setDescription('Contains cheapest price from last 30 days as per EU law.'),
+            (new FloatField('shipping_total', 'shippingTotal'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Total shipping cost of the ordered product.'),
+            (new FloatField('currency_factor', 'currencyFactor'))->addFlags(new ApiAware(), new Required())->setDescription('Rate at which currency is exchanged.'),
+            (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new ApiAware())->setDescription('It is a generated special code linked to email. It is used to access orders placed by guest customers.'),
+            (new StringField('affiliate_code', 'affiliateCode'))->addFlags(new ApiAware())->setDescription('An affiliate code is an identification option with which website operators can mark outgoing links.'),
+            (new StringField('campaign_code', 'campaignCode'))->addFlags(new ApiAware())->setDescription('A campaign code is the globally unique identifier for a campaign.'),
+            (new LongTextField('customer_comment', 'customerComment'))->addFlags(new ApiAware(), new AllowEmptyString())->setDescription('Comments given by comments.'),
             (new LongTextField('internal_comment', 'internalComment'))->addFlags(new AllowEmptyString()),
-            (new StringField('source', 'source'))->addFlags(new ApiAware()),
+            (new StringField('source', 'source'))->addFlags(new ApiAware())->setDescription('Source of orders either via normal order placement or subscriptions.'),
             (new StringField('tax_calculation_type', 'taxCalculationType'))->addFlags(new ApiAware()),
 
-            (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required()),
+            (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required())->setDescription('Unique identity of state.'),
             (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id'))->addFlags(new ApiAware())->setDescription('Current order state (e.g., open, in_progress, completed, cancelled)'),
-            new ListField('rule_ids', 'ruleIds', StringField::class),
-            (new CustomFields())->addFlags(new ApiAware()),
-            (new CreatedByField())->addFlags(new ApiAware()),
-            (new UpdatedByField())->addFlags(new ApiAware()),
+            (new ListField('rule_ids', 'ruleIds', StringField::class))->setDescription('Unique identity of rule.'),
+            (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
+            (new CreatedByField())->addFlags(new ApiAware())->setDescription('Unique identity of createdBy.'),
+            (new UpdatedByField())->addFlags(new ApiAware())->setDescription('Unique identity of updatedBy.'),
 
             (new OneToOneAssociationField('primaryOrderDelivery', 'primary_order_delivery_id', 'id', OrderDeliveryDefinition::class, false))->addFlags(new ApiAware())->setDescription('Primary delivery information for the order'),
             (new OneToOneAssociationField('primaryOrderTransaction', 'primary_order_transaction_id', 'id', OrderTransactionDefinition::class, false))->addFlags(new ApiAware())->setDescription('Primary payment transaction for the order'),
@@ -137,8 +137,8 @@ class OrderDefinition extends EntityDefinition
             (new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, 'order_id', 'tag_id'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING))->setDescription('Tags assigned to the order for organization and filtering'),
             new ManyToOneAssociationField('createdBy', 'created_by_id', UserDefinition::class, 'id', false),
             new ManyToOneAssociationField('updatedBy', 'updated_by_id', UserDefinition::class, 'id', false),
-            (new CashRoundingConfigField('item_rounding', 'itemRounding'))->addFlags(new Required()),
-            (new CashRoundingConfigField('total_rounding', 'totalRounding'))->addFlags(new Required()),
+            (new CashRoundingConfigField('item_rounding', 'itemRounding'))->addFlags(new Required())->setDescription('The cash rounding applied on net prices.'),
+            (new CashRoundingConfigField('total_rounding', 'totalRounding'))->addFlags(new Required())->setDescription('The cash rounding applied on net prices.'),
         ]);
     }
 }

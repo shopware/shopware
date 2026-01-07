@@ -15,7 +15,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
@@ -67,7 +69,11 @@ class CustomCartProcessorTest extends TestCase
         $original = $this->getCart();
         $item1 = new LineItem('custom-3', 'custom', 'custom-1', 1);
         $item1->setPriceDefinition(new QuantityPriceDefinition(5.0, new TaxRuleCollection(), 1));
-        $item1->setStates([State::IS_DOWNLOAD]);
+        $item1->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $item1->setStates([State::IS_DOWNLOAD]);
+        }
         $original->add($item1);
 
         $toCalculate = new Cart('toCalculate');

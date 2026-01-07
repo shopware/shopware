@@ -433,6 +433,70 @@ class RulePayloadIndexerTest extends TestCase
         );
     }
 
+    public function testRuleUpdatedAtIsUpdatedWhenConditionChanges(): void
+    {
+        $ruleId = Uuid::randomHex();
+        $conditionId = Uuid::randomHex();
+        $currencyId = Uuid::randomHex();
+
+        $data = [
+            'id' => $ruleId,
+            'name' => 'test rule',
+            'priority' => 1,
+            'conditions' => [
+                [
+                    'id' => $conditionId,
+                    'type' => (new CurrencyRule())->getName(),
+                    'value' => [
+                        'currencyIds' => [$currencyId],
+                        'operator' => CurrencyRule::OPERATOR_EQ,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->ruleRepository->create([$data], $this->context);
+
+        $this->connection->executeStatement(
+            'UPDATE `rule` SET updated_at = DATE_SUB(NOW(), INTERVAL 1 HOUR) WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($ruleId)]
+        );
+
+        $ruleBeforeUpdate = $this->connection->fetchAssociative(
+            'SELECT updated_at FROM rule WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($ruleId)]
+        );
+
+        static::assertIsArray($ruleBeforeUpdate);
+        $updatedAtBefore = $ruleBeforeUpdate['updated_at'];
+        static::assertNotNull($updatedAtBefore, 'Rule updated_at should be set after creation');
+
+        $conditionRepository = static::getContainer()->get('rule_condition.repository');
+        $conditionRepository->update([
+            [
+                'id' => $conditionId,
+                'value' => [
+                    'currencyIds' => [$currencyId, Uuid::randomHex()],
+                    'operator' => CurrencyRule::OPERATOR_EQ,
+                ],
+            ],
+        ], $this->context);
+
+        $ruleAfterUpdate = $this->connection->fetchAssociative(
+            'SELECT updated_at FROM rule WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($ruleId)]
+        );
+
+        static::assertIsArray($ruleAfterUpdate);
+        $updatedAtAfter = $ruleAfterUpdate['updated_at'];
+
+        static::assertNotSame(
+            $updatedAtBefore,
+            $updatedAtAfter,
+            'Rule updated_at should change when a condition is updated'
+        );
+    }
+
     #[DataProvider('dataProviderForTestPostEventNullsPayload')]
     public function testPostEventNullsPayload(PluginLifecycleEvent $event): void
     {

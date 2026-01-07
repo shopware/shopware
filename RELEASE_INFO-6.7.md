@@ -219,6 +219,10 @@ In the settings module, there is now a search bar in the top right. It can be us
 
 The domain part of email addresses may now contain internationalized domain names (IDN). The Storefront validation will properly check these domains. The form validation in PHP may still deny IDN emails addresses, but the default Shopware forms already allow them.
 
+### Improved cookie consent dialog UI and accessibility
+
+The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. The button layout has been improved with a clearer visual hierarchy, placing the primary action on the right side. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
+
 ## App System
 
 ### App Script caching control

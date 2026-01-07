@@ -571,7 +571,7 @@
       },
       "productTypeFilter": {
         "label": "Produkttyp",
-        "placeholder": "Produkt-Typ auswählen ..."
+        "placeholder": "Produkttyp auswählen ..."
       },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."

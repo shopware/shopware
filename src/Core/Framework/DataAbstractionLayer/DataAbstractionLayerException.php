@@ -1099,7 +1099,7 @@ class DataAbstractionLayerException extends HttpException
     /**
      * @param class-string $associationClass
      */
-    public static function unexpectedAssociationFieldClass(string $associationClass): self|\RuntimeException
+    public static function unexpectedAssociationFieldClass(string $associationClass): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -1112,7 +1112,7 @@ class DataAbstractionLayerException extends HttpException
     /**
      * @param class-string|null $fieldClass
      */
-    public static function expectedAssociationFieldInFirstLevelOfJoinGroup(?string $fieldClass): self|\RuntimeException
+    public static function expectedAssociationFieldInFirstLevelOfJoinGroup(?string $fieldClass): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,

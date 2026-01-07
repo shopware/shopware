@@ -47,19 +47,7 @@ export default class RemoveFromCart extends AnalyticsEvent
             return;
         }
 
-        // GA4 supports up to 5 category levels
-        const categories = {};
-        for (let i = 1; i <= 5; i++) {
-            const categoryValue = hiddenLineItem.getAttribute(`data-category-${i}`);
-
-            if (categoryValue) {
-                const key = i === 1 ? 'item_category' : `item_category${i}`;
-                categories[key] = categoryValue;
-            } else {
-                break;
-            }
-        }
-
+        const categories = LineItemHelper.getCategoriesFromElement(hiddenLineItem);
         const price = hiddenLineItem.getAttribute('data-price');
         const quantity = hiddenLineItem.getAttribute('data-quantity');
         const value = (parseFloat(price) || 0) * (parseInt(quantity, 10) || 1);

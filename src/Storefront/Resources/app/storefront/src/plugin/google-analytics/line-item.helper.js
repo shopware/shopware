@@ -1,6 +1,29 @@
 export default class LineItemHelper
 {
     /**
+     * Extract GA4 category data from an element's data-category-* attributes.
+     * GA4 supports up to 5 category levels (item_category, item_category2, ..., item_category5).
+     * @param {HTMLElement} element
+     * @returns {Object}
+     */
+    static getCategoriesFromElement(element) {
+        const categories = {};
+
+        for (let i = 1; i <= 5; i++) {
+            const categoryValue = element.getAttribute(`data-category-${i}`);
+
+            if (categoryValue) {
+                const key = i === 1 ? 'item_category' : `item_category${i}`;
+                categories[key] = categoryValue;
+            } else {
+                break;
+            }
+        }
+
+        return categories;
+    }
+
+    /**
      * @returns { Object[] }
      */
     static getLineItems() {
@@ -17,22 +40,9 @@ export default class LineItemHelper
                 brand: itemEl.getAttribute('data-brand'),
             };
 
-            const categories = {};
-            for (let i = 1; i <= 5; i++) {
-                const categoryValue = itemEl.getAttribute(`data-category-${i}`);
-
-                if (categoryValue) {
-                    // GA4 uses item_category, item_category2, item_category3, etc.
-                    const key = i === 1 ? 'item_category' : `item_category${i}`;
-                    categories[key] = categoryValue;
-                } else {
-                    break;
-                }
-            }
-
             lineItems.push({
                 ...itemData,
-                ...categories,
+                ...LineItemHelper.getCategoriesFromElement(itemEl),
             });
         });
 

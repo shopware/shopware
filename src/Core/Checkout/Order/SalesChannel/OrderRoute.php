@@ -135,7 +135,7 @@ class OrderRoute extends AbstractOrderRoute
         }
 
         $response = new OrderRouteResponse($orderResult);
-        if ($request->get('checkPromotion') === true) {
+        if ($request->query->getBoolean('checkPromotion') === true) {
             foreach ($orders as $order) {
                 $promotions = $this->getActivePromotions($order, $context);
                 $changeable = true;

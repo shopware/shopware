@@ -1,59 +1,39 @@
-/* stylelint-disable max-nesting-depth */
-@import "~scss/variables";
-@import "~scss/mixins";
-
 .sw-flow-app-action-modal {
-    &__header {
-        justify-content: flex-start;
-    }
-
     &__app-badge {
-        padding: 4px 6px;
-        background: $color-gray-100;
-        border-radius: 4px;
-        margin-left: 8px;
-        font-size: $font-size-xs;
+        background-color: var(--color-background-secondary-default);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-round);
+        height: var(--scale-size-24);
+        padding: var(--scale-size-4) var(--scale-size-10);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
+        margin-left: var(--scale-size-4);
     }
 
     .sw-field--checkbox__content .sw-field .sw-field__label label {
         flex-grow: inherit;
-        margin-right: 10px;
+        margin-right: var(--scale-size-10);
     }
 
     &__headcontent {
-        margin-bottom: 28px;
+        margin-bottom: var(--scale-size-24);
     }
 
     &__headline {
-        font-family: $font-family-default;
-        font-size: $font-size-s;
-        font-style: normal;
-        font-weight: 600;
-        line-height: 24px;
-        display: flex;
-        align-items: center;
-        letter-spacing: 0.08px;
-        margin-bottom: 8px;
-        color: $color-darkgray-200;
-        flex: none;
-        order: 0;
-        flex-grow: 0;
+        font-size: var(--font-size-s);
+        color: var(--color-text-primary-default);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-semibold);
+        margin-bottom: var(--scale-size-4);
     }
 
     &__paragraph {
-        font-family: $font-family-default;
-        font-style: normal;
-        font-weight: 400;
-        font-size: $font-size-s;
-        line-height: 24px;
-        display: flex;
-        align-items: center;
-        letter-spacing: 0.08px;
-        margin-bottom: 8px;
-        color: $color-darkgray-200;
-        flex: none;
-        order: 1;
-        align-self: stretch;
-        flex-grow: 0;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-primary-default);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-regular);
+        margin-bottom: var(--scale-size-8);
     }
 }

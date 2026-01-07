@@ -53,7 +53,7 @@ class ExtensionStoreActionsController extends AbstractController
         /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
         if (!$file) {
-            throw RoutingException::missingRequestParameter('file'); // @phpstan-ignore shopware.domainException
+            throw RoutingException::missingRequestParameter('file');
         }
 
         if ($file->getMimeType() !== 'application/zip') {
@@ -63,7 +63,7 @@ class ExtensionStoreActionsController extends AbstractController
                 // Do nothing because the tmp file is already deleted by os
             }
 
-            throw new PluginNotAZipFileException((string) $file->getMimeType()); // @phpstan-ignore shopware.domainException
+            throw new PluginNotAZipFileException((string) $file->getMimeType());
         }
 
         try {

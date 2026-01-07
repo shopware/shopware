@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
-use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -84,7 +83,7 @@ readonly class CacheControlListener
 
         // Check route scope attribute
         if (\in_array(
-            AdministrationRouteScope::ID,
+            'administration',
             (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
             true
         )) {

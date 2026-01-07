@@ -28,9 +28,8 @@ class FactoryTest extends TestCase
 
     public function testCreateComposerWithVersion(): void
     {
-        $_SERVER['COMPOSER_ROOT_VERSION'] = '6.4.9999999.9999999-dev';
+        $_SERVER['COMPOSER_ROOT_VERSION'] = '6.4.9999999-dev';
         $composer = Factory::createComposer(__DIR__ . '/../_fixtures/core');
-        static::assertInstanceOf(Composer::class, $composer);
 
         static::assertSame('shopware/platform', $composer->getPackage()->getName());
         static::assertSame('6.4.9999999.9999999-dev', $composer->getPackage()->getVersion());

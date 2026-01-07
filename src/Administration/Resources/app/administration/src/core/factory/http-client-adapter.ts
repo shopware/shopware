@@ -5,17 +5,31 @@
  */
 
 import Axios from 'axios';
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import type {
+    AxiosInstance as AxiosInstanceV0,
+    AxiosRequestConfig as AxiosRequestConfigV0,
+    AxiosResponse as AxiosResponseV0,
+} from 'axios';
+import type {
+    AxiosRequestConfig as AxiosRequestConfigV1,
+    AxiosInstance as AxiosInstanceV1,
+    AxiosResponse as AxiosResponseV1,
+} from 'axios-v1';
 
+type ResponseForConfig<TRequestConfig, TData = unknown> = TRequestConfig extends AxiosRequestConfigV1
+    ? AxiosResponseV1<TData>
+    : TRequestConfig extends AxiosRequestConfigV0
+      ? AxiosResponseV0<TData>
+      : AxiosResponseV0<TData> | AxiosResponseV1<TData>;
 /**
  * Adapter interface for handling axios version-specific differences
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export interface HttpClientAdapter {
+export interface HttpClientAdapter<TRequestConfig = AxiosRequestConfigV0 | AxiosRequestConfigV1> {
     /**
      * Execute a request using the underlying axios client
      */
-    runRequest: <T = unknown>(config: AxiosRequestConfig) => Promise<AxiosResponse<T>>;
+    runRequest: <T = unknown>(config: TRequestConfig) => Promise<ResponseForConfig<TRequestConfig, T>>;
 
     /**
      * Check if an error is a cancellation error
@@ -31,9 +45,9 @@ export interface HttpClientAdapter {
  * @returns HttpClientAdapter for axios v1
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function createAxiosV1Adapter(client: AxiosInstance): HttpClientAdapter {
+export function createAxiosV1Adapter(client: AxiosInstanceV1): HttpClientAdapter<AxiosRequestConfigV1> {
     return {
-        runRequest: <T = unknown>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+        runRequest: <T = unknown>(config: AxiosRequestConfigV1): Promise<AxiosResponseV1<T>> => {
             return client.request<T>(config);
         },
         isCancel: (value: unknown): boolean => {
@@ -55,9 +69,9 @@ export function createAxiosV1Adapter(client: AxiosInstance): HttpClientAdapter {
  * @returns HttpClientAdapter for axios v0
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function createAxiosV0Adapter(client: AxiosInstance): HttpClientAdapter {
+export function createAxiosV0Adapter(client: AxiosInstanceV0): HttpClientAdapter<AxiosRequestConfigV0> {
     return {
-        runRequest: <T = unknown>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+        runRequest: <T = unknown>(config: AxiosRequestConfigV0): Promise<AxiosResponseV0<T>> => {
             return client.request<T>(config);
         },
         isCancel: (value: unknown): boolean => {

@@ -158,7 +158,6 @@ describe('core/worker/admin-worker.worker.js', () => {
         await jest.advanceTimersByTime(0);
         await jest.runAllTimers();
         await flushMicrotasks();
-        await flushMicrotasks();
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
     });

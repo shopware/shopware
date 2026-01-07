@@ -4,7 +4,6 @@
  * @module core/factory/http
  */
 import Axios from 'axios';
-// eslint-disable-next-line import/no-unresolved
 import AxiosV1 from 'axios-v1';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';

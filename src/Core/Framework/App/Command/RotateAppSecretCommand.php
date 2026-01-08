@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -52,7 +53,7 @@ class RotateAppSecretCommand extends Command
         $name = $input->getArgument('name');
 
         if ($name !== null && !\is_string($name)) {
-            throw new \InvalidArgumentException('Argument $name must be a string');
+            throw AppException::invalidArgument('Argument "name" must be a string.');
         }
 
         $appNames = $this->getAppNamesToRotate($name);

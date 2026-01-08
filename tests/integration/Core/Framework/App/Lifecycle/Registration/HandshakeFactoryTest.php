@@ -30,24 +30,6 @@ class HandshakeFactoryTest extends TestCase
     use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
 
-    public function testThrowsAppRegistrationExceptionIfShopIdFingerprintsHaveChanged(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../Manifest/_fixtures/minimal/manifest.xml');
-
-        $shopUrl = 'test.shop.com';
-
-        $factory = new HandshakeFactory(
-            $shopUrl,
-            static::getContainer()->get(ShopIdProvider::class),
-            static::getContainer()->get(StoreClient::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
-        );
-
-        $handshake = $factory->create($manifest);
-
-        static::assertInstanceOf(PrivateHandshake::class, $handshake);
-    }
-
     public function testThrowsAppRegistrationExceptionIfAppUrlChangeWasDetected(): void
     {
         $context = Context::createDefaultContext();

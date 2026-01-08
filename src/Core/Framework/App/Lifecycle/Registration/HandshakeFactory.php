@@ -16,13 +16,13 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
  * @final
  */
 #[Package('framework')]
-readonly class HandshakeFactory
+class HandshakeFactory
 {
     public function __construct(
-        private string $shopUrl,
-        private ShopIdProvider $shopIdProvider,
-        private StoreClient $storeClient,
-        private string $shopwareVersion,
+        private readonly string $shopUrl,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly StoreClient $storeClient,
+        private readonly string $shopwareVersion,
     ) {
     }
 

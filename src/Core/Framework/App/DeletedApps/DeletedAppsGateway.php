@@ -11,10 +11,10 @@ use Shopware\Core\Framework\Log\Package;
  * @CodeCoverageIgnore only integration tested
  */
 #[Package('framework')]
-readonly class DeletedAppsGateway
+class DeletedAppsGateway
 {
     public function __construct(
-        private Connection $connection,
+        private readonly Connection $connection,
     ) {
     }
 

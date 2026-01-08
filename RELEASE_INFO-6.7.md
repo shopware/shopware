@@ -43,6 +43,33 @@ As part of this change, the following deprecations were made:
 If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
 
+### DomainExceptions don't create \RuntimeException anymore
+
+All factory methods for domain exceptions now return specific exception classes instead of creating a generic `\RuntimeException`.
+Changing the type of the thrown exception from `\RuntimeException` to a specific domain exception is not considered a breaking change, since all Domain Exceptions extend from `\RuntimeException`.
+
+This means code like this will stay valid:
+```php
+try {
+    $this->someService->willThrowDomainException();
+} catch (\RuntimeException $e) {
+    // handle exception
+}
+```
+
+Additionally all changed factory methods were marked as deprecated, because the `\RuntimeException` return type will be removed in the next major release.
+This affects the following exception factory methods:
+* `DataAbstractionLayerException::cannotBuildAccessor(...)`
+* `DataAbstractionLayerException::onlyStorageAwareFieldsAsTranslated(...)`
+* `DataAbstractionLayerException::onlyStorageAwareFieldsInReadCondition(...)`
+* `DataAbstractionLayerException::primaryKeyNotStorageAware(...)`
+* `DataAbstractionLayerException::missingTranslatedStorageAwareProperty(...)`
+* `DataAbstractionLayerException::noTranslationDefinition(...)`
+* `DataAbstractionLayerException::missingVersionField(...)`
+* `DataAbstractionLayerException::unexpectedFieldType(...)`
+* `WebhookException::invalidDataMapping(...)`
+* `WebhookException::unknownEventDataType(...)`
+
 ## Administration
 
 ### Deprecations in mail template components

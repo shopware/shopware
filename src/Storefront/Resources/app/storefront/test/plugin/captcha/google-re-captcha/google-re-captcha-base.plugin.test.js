@@ -236,16 +236,12 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
                 options: { useAjax: true },
             };
 
-            // Mock an iterable collection that works like the original implementation expects
-            // The code does `for (const plugin of this.formPluginInstances)` expecting plugin instances
-            const instancesForAjaxTest = [
-                mockAjaxPlugin,
-                mockNonAjaxPlugin,
-                mockPluginWithoutMethod,
-            ];
-            // Add Map-like methods for _isCmsForm() to work
-            instancesForAjaxTest.has = jest.fn(() => false);
-            instancesForAjaxTest.get = jest.fn();
+            // formPluginInstances is a Map, the code uses `.values()` to iterate over plugin instances
+            const instancesForAjaxTest = new Map([
+                ['ajaxPlugin', mockAjaxPlugin],
+                ['nonAjaxPlugin', mockNonAjaxPlugin],
+                ['pluginWithoutMethod', mockPluginWithoutMethod],
+            ]);
 
             specificPluginManagerMock = {
                 getPluginInstancesFromElement: jest.fn(() => instancesForAjaxTest),
@@ -316,11 +312,10 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         });
 
         test('_submitInvisibleForm handles CMS form when FormCmsHandler exists but get returns null', () => {
-            const cmsInstancesMap = [];
-            // Add Map-like methods - has returns true but get returns null
-            cmsInstancesMap.has = jest.fn(key => key === 'FormCmsHandler');
-            cmsInstancesMap.get = jest.fn(key => key === 'FormCmsHandler' ? null : undefined);
-            cmsInstancesMap.set = jest.fn();
+            // Create a Map and mock has/get to simulate edge case where has() returns true but get() returns null
+            const cmsInstancesMap = new Map();
+            jest.spyOn(cmsInstancesMap, 'has').mockImplementation(key => key === 'FormCmsHandler');
+            jest.spyOn(cmsInstancesMap, 'get').mockImplementation(key => key === 'FormCmsHandler' ? null : undefined);
 
             window.PluginManager.getPluginInstancesFromElement = jest.fn(() => cmsInstancesMap);
 
@@ -416,9 +411,9 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             script.setAttribute('data-src', 'invalid-url');
             document.body.appendChild(script);
 
-        new GoogleReCaptchaBasePlugin(mockElement, {
-            grecaptchaInputSelector: '.grecaptcha-input',
-        });
+            new GoogleReCaptchaBasePlugin(mockElement, {
+                grecaptchaInputSelector: '.grecaptcha-input',
+            });
 
             // Should not have set the src attribute due to invalid URL
             expect(script.hasAttribute('src')).toBe(false);

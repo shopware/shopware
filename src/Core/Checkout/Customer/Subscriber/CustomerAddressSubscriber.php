@@ -33,13 +33,10 @@ class CustomerAddressSubscriber implements EventSubscriberInterface
         }
 
         foreach ($event->getEntities() as $customerAddress) {
-            if ($customerAddress->getId() === $event->getSalesChannelContext()->getCustomer()->getDefaultBillingAddressId()) {
-                $customerAddress->assign(['isDefaultBillingAddress' => true]);
-            }
-
-            if ($customerAddress->getId() === $event->getSalesChannelContext()->getCustomer()->getDefaultShippingAddressId()) {
-                $customerAddress->assign(['isDefaultShippingAddress' => true]);
-            }
+            $customerAddress->assign([
+                'isDefaultBillingAddress' => $customerAddress->getId() === $event->getSalesChannelContext()->getCustomer()->getDefaultBillingAddressId(),
+                'isDefaultShippingAddress' => $customerAddress->getId() === $event->getSalesChannelContext()->getCustomer()->getDefaultShippingAddressId(),
+            ]);
         }
     }
 }

@@ -49,6 +49,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class AdministrationController extends AbstractController
 {
+    public const CACHE_ID_HEADER = 'X-Shopware-Cache-Id';
+    public const CACHE_ID_ADMINISTRATION = 'administration';
+
     private const UNAUTHENTICATED_SNIPPET_NAMESPACES = [
         'sw-login',
         'global',
@@ -234,7 +237,7 @@ class AdministrationController extends AbstractController
         $response->setSharedMaxAge(3600);
         $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
         $response->headers->addCacheControlDirective('must-revalidate');
-        $response->headers->set('X-Shopware-Cache-Id', 'administration');
+        $response->headers->set(self::CACHE_ID_HEADER, self::CACHE_ID_ADMINISTRATION);
 
         return $response;
     }

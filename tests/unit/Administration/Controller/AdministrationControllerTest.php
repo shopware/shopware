@@ -207,7 +207,7 @@ class AdministrationControllerTest extends TestCase
         static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
         static::assertStringContainsString('must-revalidate', $cacheControl);
 
-        static::assertSame('administration', $response->headers->get('X-Shopware-Cache-Id'));
+        static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
     }
 
     public function testCheckCustomerEmailValidWithoutException(): void
@@ -391,7 +391,7 @@ class AdministrationControllerTest extends TestCase
         static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
         static::assertStringContainsString('must-revalidate', $cacheControl);
 
-        static::assertSame('administration', $response->headers->get('X-Shopware-Cache-Id'));
+        static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
     }
 
     public function testResetExcludedSearchTermThrowsRoutingException(): void

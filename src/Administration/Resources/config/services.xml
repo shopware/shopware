@@ -207,8 +207,8 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Administration\Framework\Subscriber\AdministrationCacheControlSubscriber">
-            <tag name="kernel.event_subscriber"/>
+        <service id="Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheControlListener">
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent"/>
         </service>
     </services>
 </container>

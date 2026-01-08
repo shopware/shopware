@@ -1,27 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Framework\Subscriber;
+namespace Shopware\Administration\Framework\Adapter\Cache\Http;
 
+use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
-readonly class AdministrationCacheControlSubscriber implements EventSubscriberInterface
+readonly class AdministrationCacheControlListener
 {
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            BeforeCacheControlEvent::class => 'onBeforeCacheControl',
-        ];
-    }
-
-    public function onBeforeCacheControl(BeforeCacheControlEvent $event): void
+    public function __invoke(BeforeCacheControlEvent $event): void
     {
         if (!$this->isAdministrationRequest($event)) {
             return;
@@ -32,14 +25,14 @@ readonly class AdministrationCacheControlSubscriber implements EventSubscriberIn
 
     private function isAdministrationRequest(BeforeCacheControlEvent $event): bool
     {
-        $response = $event->getResponse();
+        $response = $event->response;
 
         // Check if the response has been marked as an administration response
-        if ($response->headers->get('X-Shopware-Cache-Id') === 'administration') {
+        if ($response->headers->get(AdministrationController::CACHE_ID_HEADER) === AdministrationController::CACHE_ID_ADMINISTRATION) {
             return true;
         }
 
-        $request = $event->getRequest();
+        $request = $event->request;
 
         // Check route scope attribute
         if (\in_array(

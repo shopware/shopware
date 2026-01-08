@@ -17,19 +17,9 @@ class BeforeCacheControlEvent extends Event
     private bool $skipCacheControl = false;
 
     public function __construct(
-        private readonly Request $request,
-        private readonly Response $response
+        public readonly Request $request,
+        public readonly Response $response
     ) {
-    }
-
-    public function getRequest(): Request
-    {
-        return $this->request;
-    }
-
-    public function getResponse(): Response
-    {
-        return $this->response;
     }
 
     /**

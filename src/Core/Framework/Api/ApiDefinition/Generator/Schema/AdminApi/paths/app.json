@@ -39,21 +39,5 @@
         ]
       }
     }
-  },
-  "components": {
-    "securitySchemes": {
-      "oAuth": {
-        "type": "oauth2",
-        "description": "Authentication using OAuth 2.0",
-        "flows": {
-          "password": {
-            "tokenUrl": "/api/oauth/token",
-            "scopes": {
-              "admin": "Admin scope for administrative operations"
-            }
-          }
-        }
-      }
-    }
   }
 }

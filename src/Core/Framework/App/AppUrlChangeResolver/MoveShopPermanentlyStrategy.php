@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;

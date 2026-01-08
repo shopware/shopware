@@ -8,13 +8,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener;
+use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
+use Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheControlListener;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -33,7 +36,8 @@ class CacheControlListenerTest extends TestCase
             $response->headers->set('cache-control', $beforeHeader);
         }
 
-        $subscriber = new CacheControlListener($reverseProxyEnabled);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $subscriber = new CacheControlListener($reverseProxyEnabled, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
 
@@ -53,7 +57,8 @@ class CacheControlListenerTest extends TestCase
             $response->headers->set('cache-control', $beforeHeader);
         }
 
-        $subscriber = new CacheControlListener($reverseProxyEnabled);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $subscriber = new CacheControlListener($reverseProxyEnabled, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
 
@@ -117,7 +122,8 @@ class CacheControlListenerTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
 
-        $subscriber = new CacheControlListener(false);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $subscriber = new CacheControlListener(false, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
 
@@ -133,7 +139,8 @@ class CacheControlListenerTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
 
-        $subscriber = new CacheControlListener(false);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $subscriber = new CacheControlListener(false, $eventDispatcher);
         $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
 
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
@@ -147,7 +154,15 @@ class CacheControlListenerTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [AdministrationRouteScope::ID]);
 
-        $subscriber = new CacheControlListener(false);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnCallback(function ($event) {
+            if ($event instanceof BeforeCacheControlEvent) {
+                $administrationListener = new AdministrationCacheControlListener();
+                $administrationListener->__invoke($event);
+            }
+            return $event;
+        });
+        $subscriber = new CacheControlListener(false, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
 
@@ -162,7 +177,15 @@ class CacheControlListenerTest extends TestCase
         $request = new Request();
         $request->attributes->set('_route', 'administration.index');
 
-        $subscriber = new CacheControlListener(false);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnCallback(function ($event) {
+            if ($event instanceof BeforeCacheControlEvent) {
+                $administrationListener = new AdministrationCacheControlListener();
+                $administrationListener->__invoke($event);
+            }
+            return $event;
+        });
+        $subscriber = new CacheControlListener(false, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
 
@@ -177,7 +200,15 @@ class CacheControlListenerTest extends TestCase
 
         $request = new Request();
 
-        $subscriber = new CacheControlListener(false);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnCallback(function ($event) {
+            if ($event instanceof BeforeCacheControlEvent) {
+                $administrationListener = new AdministrationCacheControlListener();
+                $administrationListener->__invoke($event);
+            }
+            return $event;
+        });
+        $subscriber = new CacheControlListener(false, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
 
@@ -193,7 +224,8 @@ class CacheControlListenerTest extends TestCase
         $request = new Request();
         // No administration markers set
 
-        $subscriber = new CacheControlListener(false);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $subscriber = new CacheControlListener(false, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
 

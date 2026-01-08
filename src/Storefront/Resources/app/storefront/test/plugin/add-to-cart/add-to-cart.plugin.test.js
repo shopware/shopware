@@ -43,7 +43,7 @@ describe('AddToCartPlugin tests', () => {
         });
 
         // Default: offcanvas is enabled
-        window.disableOffcanvasAfterAddToCart = '0';
+        window.openOffcanvasAfterAddToCart = '1';
 
         pluginInstance = new AddToCartPlugin(document.querySelector('form'));
         pluginInstance.$emitter.publish = jest.fn();
@@ -57,7 +57,7 @@ describe('AddToCartPlugin tests', () => {
 
     afterEach(() => {
         pluginInstance = undefined;
-        delete window.disableOffcanvasAfterAddToCart;
+        delete window.openOffcanvasAfterAddToCart;
         jest.restoreAllMocks();
     });
 
@@ -66,7 +66,7 @@ describe('AddToCartPlugin tests', () => {
     });
 
     test('should fire events and open offcanvas when submitting form with offcanvas enabled', () => {
-        window.disableOffcanvasAfterAddToCart = '0';
+        window.openOffcanvasAfterAddToCart = '1';
 
         const button = document.querySelector('button');
         button.click();
@@ -76,7 +76,7 @@ describe('AddToCartPlugin tests', () => {
     });
 
     test('should add to cart without offcanvas when offcanvas is disabled', async () => {
-        window.disableOffcanvasAfterAddToCart = '1';
+        window.openOffcanvasAfterAddToCart = '0';
 
         const button = document.querySelector('button');
         button.click();
@@ -94,7 +94,7 @@ describe('AddToCartPlugin tests', () => {
     });
 
     test('should show success alert when adding to cart without offcanvas', async () => {
-        window.disableOffcanvasAfterAddToCart = '1';
+        window.openOffcanvasAfterAddToCart = '0';
 
         const button = document.querySelector('button');
         button.click();
@@ -108,7 +108,7 @@ describe('AddToCartPlugin tests', () => {
     });
 
     test('should remove existing alert before showing new one', async () => {
-        window.disableOffcanvasAfterAddToCart = '1';
+        window.openOffcanvasAfterAddToCart = '0';
 
         const button = document.querySelector('button');
 
@@ -126,7 +126,7 @@ describe('AddToCartPlugin tests', () => {
 
     test('should auto-dismiss alert after delay', async () => {
         jest.useFakeTimers();
-        window.disableOffcanvasAfterAddToCart = '1';
+        window.openOffcanvasAfterAddToCart = '0';
 
         const button = document.querySelector('button');
         button.click();
@@ -145,12 +145,12 @@ describe('AddToCartPlugin tests', () => {
     });
 
     test('should return true for _shouldOpenOffcanvas when flag is undefined', () => {
-        delete window.disableOffcanvasAfterAddToCart;
+        delete window.openOffcanvasAfterAddToCart;
         expect(pluginInstance._shouldOpenOffcanvas()).toBe(true);
     });
 
     test('should fall back to offcanvas when fetch fails', async () => {
-        window.disableOffcanvasAfterAddToCart = '1';
+        window.openOffcanvasAfterAddToCart = '0';
         global.fetch = jest.fn(() => Promise.resolve({ ok: false }));
 
         const openOffCanvasSpy = jest.spyOn(pluginInstance, '_openOffCanvasCarts');
@@ -166,7 +166,7 @@ describe('AddToCartPlugin tests', () => {
     });
 
     test('should fall back to offcanvas when fetch throws network error', async () => {
-        window.disableOffcanvasAfterAddToCart = '1';
+        window.openOffcanvasAfterAddToCart = '0';
         global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
 
         const openOffCanvasSpy = jest.spyOn(pluginInstance, '_openOffCanvasCarts');
@@ -182,7 +182,7 @@ describe('AddToCartPlugin tests', () => {
     });
 
     test('should handle missing CartWidget instances gracefully', async () => {
-        window.disableOffcanvasAfterAddToCart = '1';
+        window.openOffcanvasAfterAddToCart = '0';
         window.PluginManager.getPluginInstances = jest.fn((pluginName) => {
             if (pluginName === 'OffCanvasCart') {
                 return [mockOffCanvasInstance];
@@ -225,7 +225,7 @@ describe('AddToCartPlugin tests', () => {
     });
 
     test('should not show alert if template is missing', async () => {
-        window.disableOffcanvasAfterAddToCart = '1';
+        window.openOffcanvasAfterAddToCart = '0';
 
         // Remove the alert template
         document.querySelector('.js-add-to-cart-alert-template').remove();

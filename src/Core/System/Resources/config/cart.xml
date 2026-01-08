@@ -18,11 +18,12 @@
         </input-field>
 
         <input-field type="bool">
-            <name>disableOffcanvasAfterAddToCart</name>
-            <label>Disable automatic offcanvas cart after adding a product</label>
-            <label lang="de-DE">Automatischen Offcanvas-Warenkorb nach dem Hinzufügen eines Produkts deaktivieren</label>
-            <helpText>When enabled, the offcanvas cart will NOT automatically open after adding a product. Instead, only a success message will be displayed. Enable this if customers tend to add many products to their shopping cart.</helpText>
-            <helpText lang="de-DE">Wenn aktiviert, wird der Offcanvas-Warenkorb NICHT automatisch geöffnet, nachdem ein Produkt hinzugefügt wurde. Stattdessen wird nur eine Erfolgsmeldung angezeigt. Aktivieren Sie dies wenn Kunden tendenziell viele Produkte dem Warenkorb hinzufügen.</helpText>
+            <name>openOffcanvasAfterAddToCart</name>
+            <defaultValue>true</defaultValue>
+            <label>Open offcanvas cart after adding a product</label>
+            <label lang="de-DE">Offcanvas-Warenkorb nach dem Hinzufügen eines Produkts öffnen</label>
+            <helpText>When enabled, the offcanvas cart will automatically open after adding a product. When disabled, only a success message will be displayed. Disable this if customers tend to add many products to their shopping cart.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, wird der Offcanvas-Warenkorb automatisch geöffnet, nachdem ein Produkt hinzugefügt wurde. Wenn deaktiviert, wird nur eine Erfolgsmeldung angezeigt. Deaktivieren Sie dies, wenn Kunden tendenziell viele Produkte dem Warenkorb hinzufügen.</helpText>
         </input-field>
 
         <input-field type="bool">

@@ -73,7 +73,12 @@ class ApiController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/clone/{entity}/{id}', name: 'api.clone', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'])]
+    #[Route(
+        path: '/api/_action/clone/{entity}/{id}',
+        name: 'api.clone',
+        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
+        methods: [Request::METHOD_POST]
+    )]
     public function clone(Context $context, string $entity, string $id, Request $request): JsonResponse
     {
         $behavior = new CloneBehavior(
@@ -106,7 +111,12 @@ class ApiController extends AbstractController
         return new JsonResponse(['id' => $newId]);
     }
 
-    #[Route(path: '/api/_action/version/{entity}/{id}', name: 'api.createVersion', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'])]
+    #[Route(
+        path: '/api/_action/version/{entity}/{id}',
+        name: 'api.createVersion',
+        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
+        methods: [Request::METHOD_POST]
+    )]
     public function createVersion(Request $request, Context $context, string $entity, string $id): Response
     {
         $entity = $this->urlToSnakeCase($entity);
@@ -138,7 +148,12 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/version/merge/{entity}/{versionId}', name: 'api.mergeVersion', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'versionId' => '[0-9a-f]{32}'])]
+    #[Route(
+        path: '/api/_action/version/merge/{entity}/{versionId}',
+        name: 'api.mergeVersion',
+        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'versionId' => '[0-9a-f]{32}'],
+        methods: [Request::METHOD_POST]
+    )]
     public function mergeVersion(Context $context, string $entity, string $versionId): JsonResponse
     {
         $entity = $this->urlToSnakeCase($entity);
@@ -158,7 +173,12 @@ class ApiController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/version/{versionId}/{entity}/{entityId}', name: 'api.deleteVersion', methods: ['POST'], requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'])]
+    #[Route(
+        path: '/api/_action/version/{versionId}/{entity}/{entityId}',
+        name: 'api.deleteVersion',
+        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
+        methods: [Request::METHOD_POST]
+    )]
     public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
     {
         if (!Uuid::isValid($versionId)) {
@@ -504,7 +524,12 @@ class ApiController extends AbstractController
             $foreignKey = $definition->getFields()->getByStorageName(
                 $association->getReferenceField()
             );
-            \assert($foreignKey !== null);
+            if (!$foreignKey) {
+                throw ApiException::canNotResolveForeignKeysException([[
+                    'pointer' => '0',
+                    'entity' => $association->getReferenceEntity() . '.' . $association->getReferenceField(),
+                ]]);
+            }
 
             $criteria->addFilter(
                 new EqualsFilter(
@@ -522,7 +547,11 @@ class ApiController extends AbstractController
 
             // get inverse association to filter to parent value
             $reverses = $definition->getFields()->filter(
-                fn (Field $field) => $field instanceof AssociationField && $parentDefinition === $field->getReferenceDefinition()
+                function (Field $field) use ($parentDefinition, $association) {
+                    return $field instanceof OneToManyAssociationField
+                        && $parentDefinition === $field->getReferenceDefinition()
+                        && $association->getStorageName() === $field->getReferenceField();
+                }
             );
             $reverse = $reverses->first();
             if (!$reverse) {
@@ -531,7 +560,7 @@ class ApiController extends AbstractController
 
             $criteria->addFilter(
                 new EqualsFilter(
-                    // filter inverse association to parent value:  manufacturer.products.id = SW1
+                    // filter inverse association to parent value: manufacturer.products.id = SW1
                     \sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
@@ -545,7 +574,11 @@ class ApiController extends AbstractController
 
             // get inverse association to filter to parent value
             $reverses = $definition->getFields()->filter(
-                fn (Field $field) => $field instanceof OneToOneAssociationField && $parentDefinition === $field->getReferenceDefinition()
+                function (Field $field) use ($parentDefinition, $association) {
+                    return $field instanceof OneToOneAssociationField
+                        && $parentDefinition === $field->getReferenceDefinition()
+                        && $association->getStorageName() === $field->getReferenceField();
+                }
             );
             $reverse = $reverses->first();
             if (!$reverse) {
@@ -885,9 +918,7 @@ class ApiController extends AbstractController
             }
 
             if (!($field instanceof AssociationField)) {
-                $message = \sprintf('Field "%s" is not a valid association field.', $part['entity']);
-
-                throw ApiException::pathIsNoAssociationField($message);
+                throw ApiException::pathIsNoAssociationField($part['entity']);
             }
 
             if ($field instanceof ManyToManyAssociationField) {

@@ -66,15 +66,17 @@ class ApiControllerDetailTest extends TestCase
         static::assertSame($insertData['name'], $catData['attributes']['translated']['name']);
     }
 
-    public function testReadAssociationViaParent(): void
+    public function testGetDefaultShippingAddressViaCustomer(): void
     {
         $ids = $this->createCustomer();
 
         $this->getBrowser()->jsonRequest('GET', '/api/customer/' . $ids->get('customer') . '/default-shipping-address');
         $response = $this->getBrowser()->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
 
-        $response = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('data', $response);
         static::assertCount(1, $response['data']);
         static::assertSame($ids->get('address2'), $response['data'][0]['id']);

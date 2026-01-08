@@ -15,6 +15,14 @@ Custom fields are now **not searchable by default**. To make a custom field sear
 
 ## API
 
+### Improved tagged based cache invalidation
+
+Next routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
+* `/store-api/breadcrumb/{id}`
+* `/store-api/media`
+* `/store-api/product/{productId}/find-variant`
+* `/store-api/product/{productId}/cross-selling`
+
 ## Core
 
 ### Introduce Immutable DAL flag
@@ -80,7 +88,7 @@ The cookie consent dialog now uses toggle switches instead of checkboxes for a m
 - Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
   and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
   together with other HTTP caching improvements.
-- Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers. Additionally, several routes now support cache tagging, enabling automatic invalidation when relevant entities are written.
+- Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
 
 ### Send email on customer password change
 A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.

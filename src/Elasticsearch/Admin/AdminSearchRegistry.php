@@ -157,7 +157,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         foreach ($this->indexer as $indexer) {
             $ids = $indexer->getUpdatedIds($event);
             $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
-            $ids = array_diff($ids, $deletedIds);
+            $ids = array_values(array_diff($ids, $deletedIds));
 
             if (empty($ids) && empty($deletedIds)) {
                 continue;
@@ -449,9 +449,16 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 'id' => ['type' => 'keyword'],
                 'textBoosted' => [
                     'type' => 'text',
-                    'analyzer' => 'sw_ngram_analyzer',
+                    'fields' => [
+                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                    ],
                 ],
-                'text' => ['type' => 'text'],
+                'text' => [
+                    'type' => 'text',
+                    'fields' => [
+                        'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                    ],
+                ],
                 'entityName' => ['type' => 'keyword'],
                 'parameters' => ['type' => 'keyword'],
             ],

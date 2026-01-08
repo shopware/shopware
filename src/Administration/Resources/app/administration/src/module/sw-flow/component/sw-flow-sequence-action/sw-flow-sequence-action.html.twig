@@ -48,10 +48,6 @@
                     v-if="sequenceData.length === 1 && !sequence.actionName"
                     class="sw-flow-sequence-action__actions-empty"
                 >
-                    <mt-icon
-                        size="12px"
-                        name="regular-minus-xs"
-                    />
                     <span class="sw-flow-sequence-action__no-action">
                         {{ $tc('sw-flow.detail.sequence.noActions') }}
                     </span>
@@ -96,7 +92,7 @@
                                                 class="mt-icon-action"
                                             />
 
-                                            {{ $tc('sw-flow.actions.unknownLabel') }}
+                                            <span>{{ $tc('sw-flow.actions.unknownLabel') }}</span>
                                         </div>
 
                                         <p>
@@ -109,9 +105,12 @@
                             <div v-else>
                                 {% block sw_flow_sequence_action_actions_item_header %}
                                 <div class="sw-flow-sequence-action__action-header">
-                                    <div class="sw-flow-sequence-action__action-icon">
+                                    <div
+                                        v-if="item.icon || item.iconRaw"
+                                        class="sw-flow-sequence-action__action-icon"
+                                    >
                                         <mt-icon
-                                            v-if="!item.iconRaw"
+                                            v-if="item.icon"
                                             :name="`${item.icon}`"
                                             size="12px"
                                             class="mt-icon-action"
@@ -192,7 +191,6 @@
 
                             {% block sw_flow_sequence_action_item_custom %}
                             {% endblock %}
-
                         </li>
                         {% endblock %}
                     </transition-group>
@@ -272,11 +270,11 @@
     >
         <div class="sw-flow-sequence-action__true-line"></div>
         <div class="sw-flow-sequence-action__oval"></div>
-        <mt-icon
-            name="regular-chevron-right-s"
-            size="16px"
-        />
 
+        <mt-icon
+            name="regular-chevron-right-xs"
+            size="12px"
+        />
     </div>
 
     {% block sw_flow_sequence_action_modal %}

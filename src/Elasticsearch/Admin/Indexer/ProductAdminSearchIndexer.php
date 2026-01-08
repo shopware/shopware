@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
@@ -56,12 +57,14 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'manufacturerNumber',
         ]);
 
-        $translations = $event->getPrimaryKeysWithPropertyChange(ProductTranslationDefinition::ENTITY_NAME, [
+        /** @var EntityWrittenContainerEvent<array<string, string>> $multiplePrimaryKeyWrittenEvent Mapping and translation definitions have multiple primary keys */
+        $multiplePrimaryKeyWrittenEvent = $event;
+        $translations = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTranslationDefinition::ENTITY_NAME, [
             'name',
             'customSearchKeywords',
         ]);
 
-        $tags = $event->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
+        $tags = $multiplePrimaryKeyWrittenEvent->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 
@@ -71,7 +74,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return array_unique($productIds);
+        return array_values(array_unique($productIds));
     }
 
     public function getName(): string
@@ -101,6 +104,11 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $splitTerms = explode(' ', $term);
         $lastPart = end($splitTerms);
 
+        $ngramQuery = new MatchQuery('textBoosted.ngram', $term, [
+            'boost' => 10,
+        ]);
+        $criteria->addQuery($ngramQuery, BoolQuery::SHOULD);
+
         // If the end of the search term is not a symbol, apply the prefix search query
         if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {
             $term .= '*';
@@ -109,8 +117,8 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $query = new SimpleQueryStringQuery($term, [
             'fields' => ['textBoosted'],
             'boost' => 10,
+            'lenient' => true,
         ]);
-
         $criteria->addQuery($query, BoolQuery::SHOULD);
 
         return $criteria;

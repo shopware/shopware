@@ -126,6 +126,13 @@ export default {
             return criteria;
         },
 
+        salesChannelCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name'));
+
+            return criteria;
+        },
+
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
@@ -154,6 +161,7 @@ export default {
                     property: 'salesChannel',
                     label: this.$tc('sw-order.filters.salesChannelFilter.label'),
                     placeholder: this.$tc('sw-order.filters.salesChannelFilter.placeholder'),
+                    criteria: this.salesChannelCriteria,
                 },
                 'order-value-filter': {
                     property: 'amountTotal',

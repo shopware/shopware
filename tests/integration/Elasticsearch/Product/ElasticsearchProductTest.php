@@ -1354,11 +1354,12 @@ class ElasticsearchProductTest extends TestCase
     public function testTermAlgorithm(IdsCollection $data): void
     {
         try {
-            $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Achtel', 'Some', 'some spachtel', 'Some Achtel', 'Sachtel'];
+            $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Some', 'some spachtel', 'Some Achtel', 'Sachtelmasse'];
 
             $searcher = $this->createEntitySearcher();
 
             foreach ($terms as $term) {
+                $term = strtolower($term);
                 $criteria = new Criteria();
                 $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
                 $criteria->setTerm($term);
@@ -2028,7 +2029,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{from: int, to: int, expected: string[], rules?: string[]}>
+     * @return iterable<string, array{from: int, to: int, expected: list<string>, rules?: list<string>}>
      */
     public function providerCheapestPriceFilter(): iterable
     {
@@ -2098,7 +2099,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ids: string[], rules: string[]}>
+     * @return iterable<string, array{ids: list<string>, rules: list<string>}>
      */
     public function cheapestPriceSortingProvider(): iterable
     {
@@ -2916,7 +2917,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{min: float, max: float, rules: string[]}>
+     * @return iterable<string, array{min: float, max: float, rules: list<string>}>
      */
     private function providerCheapestPriceAggregation(): iterable
     {

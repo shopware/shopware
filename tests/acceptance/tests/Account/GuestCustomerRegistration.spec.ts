@@ -2,10 +2,10 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test('Guest customer must be able to register in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
-    StorefrontCheckoutCart,
     StorefrontProductDetail,
     StorefrontHome,
     StorefrontAccountLogin,
+    StorefrontCheckoutRegister,
     AddProductToCart,
     TestDataService,
     Register,
@@ -15,12 +15,13 @@ test('Guest customer must be able to register in the Storefront.', { tag: ['@Reg
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
     await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await StorefrontCheckoutCart.goToCheckoutButton.click();
+    await ShopCustomer.presses(StorefrontProductDetail.offCanvasCartGoToCheckoutButton);
+    await StorefrontCheckoutRegister.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
 
     await ShopCustomer.attemptsTo(Register({ isGuest: true }));
     await ShopCustomer.goesTo(StorefrontHome.url());
-    await StorefrontHome.accountMenuButton.click();
-    await StorefrontHome.closeGuestSessionButton.click();
+    await ShopCustomer.presses(StorefrontHome.accountMenuButton);
+    await ShopCustomer.presses(StorefrontHome.closeGuestSessionButton);
     await ShopCustomer.expects(StorefrontAccountLogin.successAlert).toBeVisible();
 
 });
@@ -28,9 +29,9 @@ test('Guest customer must be able to register in the Storefront.', { tag: ['@Reg
 test('Guest commercial customer must be able to register in the Storefront.', { tag: ['@Registration', '@Storefront'] }, async ({
     ShopCustomer,
     StorefrontHome,
-    StorefrontCheckoutCart,
     StorefrontProductDetail,
     StorefrontAccountLogin,
+    StorefrontCheckoutRegister,
     AddProductToCart,
     TestDataService,
     Register,
@@ -41,11 +42,14 @@ test('Guest commercial customer must be able to register in the Storefront.', { 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
     await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await StorefrontCheckoutCart.goToCheckoutButton.click();
+    await ShopCustomer.presses(StorefrontProductDetail.offCanvasCartGoToCheckoutButton);
+    await StorefrontCheckoutRegister.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
+
+    await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect);
     await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
     await ShopCustomer.attemptsTo(Register({ isCommercial: true, isGuest: true }));
     await ShopCustomer.goesTo(StorefrontHome.url());
-    await StorefrontHome.accountMenuButton.click();
-    await StorefrontHome.closeGuestSessionButton.click();
+    await ShopCustomer.presses(StorefrontHome.accountMenuButton);
+    await ShopCustomer.presses(StorefrontHome.closeGuestSessionButton);
     await ShopCustomer.expects(StorefrontAccountLogin.successAlert).toBeVisible();
 });

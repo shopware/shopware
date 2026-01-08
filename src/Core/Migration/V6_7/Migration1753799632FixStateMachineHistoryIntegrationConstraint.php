@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class Migration1753799632FixStateMachineHistoryIntegrationConstraint extends MigrationStep

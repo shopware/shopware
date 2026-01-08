@@ -131,11 +131,12 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setAvailable(true);
         $productEntity->setUniqueIdentifier('BestVariant');
 
+        $product1Id = $this->idsCollection->create('product1');
         $idsSearchResult = new IdSearchResult(
             1,
             [
-                [
-                    'primaryKey' => $this->idsCollection->get('product1'),
+                $product1Id => [
+                    'primaryKey' => $product1Id,
                     'data' => [],
                 ],
             ],
@@ -152,7 +153,7 @@ class ProductDetailRouteTest extends TestCase
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
             );
 
-        $result = $this->route->load($this->idsCollection->get('product1'), new Request(), $this->context, new Criteria());
+        $result = $this->route->load($product1Id, new Request(), $this->context, new Criteria());
 
         static::assertSame('4', $result->getProduct()->getCmsPageId());
         static::assertSame('BestVariant', $result->getProduct()->getUniqueIdentifier());
@@ -167,11 +168,12 @@ class ProductDetailRouteTest extends TestCase
         $productTerm->setUniqueIdentifier('term');
         $productTerm->setName('term');
 
+        $product1Id = $this->idsCollection->create('product1');
         $idsSearchResult = new IdSearchResult(
             1,
             [
-                [
-                    'primaryKey' => $this->idsCollection->get('product1'),
+                $product1Id => [
+                    'primaryKey' => $product1Id,
                     'data' => [],
                 ],
             ],
@@ -190,7 +192,7 @@ class ProductDetailRouteTest extends TestCase
         $request = new Request();
         $request->query->set('search', 'term');
 
-        $result = $this->route->load($this->idsCollection->get('product1'), $request, $this->context, new Criteria());
+        $result = $this->route->load($product1Id, $request, $this->context, new Criteria());
 
         static::assertSame('term', $result->getProduct()->getCmsPageId());
         static::assertSame('term', $result->getProduct()->getUniqueIdentifier());

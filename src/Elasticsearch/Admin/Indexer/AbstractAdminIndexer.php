@@ -20,9 +20,9 @@ abstract class AbstractAdminIndexer
     abstract public function getEntity(): string;
 
     /**
-     * @param array<string, array<string, array<string, string>>> $mapping
+     * @param array<string, array<string, array<string, array<string, array<string, string>>|string>|string>> $mapping
      *
-     * @return array<string, array<string, array<string, string>>>
+     * @return array<string, array<string, array<string, array<string, array<string, string>>|string>|string>>
      */
     public function mapping(array $mapping): array
     {
@@ -32,7 +32,7 @@ abstract class AbstractAdminIndexer
     abstract public function getIterator(): IterableQuery;
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {

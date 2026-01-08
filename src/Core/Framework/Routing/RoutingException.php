@@ -6,6 +6,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('framework')]
 class RoutingException extends HttpException
@@ -14,6 +15,9 @@ class RoutingException extends HttpException
     public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
     public const APP_INTEGRATION_NOT_FOUND = 'FRAMEWORK__APP_INTEGRATION_NOT_FOUND';
     public const LANGUAGE_NOT_FOUND = 'FRAMEWORK__LANGUAGE_NOT_FOUND';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
+     */
     public const SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__ROUTING_SALES_CHANNEL_MAINTENANCE';
 
     public const CUSTOMER_NOT_LOGGED_IN_CODE = 'FRAMEWORK__ROUTING_CUSTOMER_NOT_LOGGED_IN';
@@ -110,5 +114,10 @@ class RoutingException extends HttpException
             self::MISSING_PRIVILEGE,
             $errorMessage ?: ''
         );
+    }
+
+    public static function unexpectedType(mixed $actualType, string $expectedType): UnexpectedTypeException
+    {
+        return new UnexpectedTypeException($actualType, $expectedType);
     }
 }

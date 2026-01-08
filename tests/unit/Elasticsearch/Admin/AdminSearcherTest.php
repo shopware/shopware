@@ -38,7 +38,7 @@ class AdminSearcherTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(IteratorFactory::class),
             $this->createMock(EntityRepository::class),
-            100,
+            100
         );
         $this->registry->method('getIndexers')->willReturn(['product' => $indexer]);
         $this->registry->method('getIndexer')->willReturn($indexer);
@@ -52,80 +52,12 @@ class AdminSearcherTest extends TestCase
         $this->client
             ->expects($this->once())
             ->method('msearch')
-            ->with([
-                'body' => [
-                    [
-                        'index' => 'sw-admin-product-listing',
-                    ],
-                    [
-                        'query' => [
-                            'bool' => [
-                                'should' => [
-                                    [
-                                        'simple_query_string' => [
-                                            'query' => 'elasticsearch*',
-                                            'fields' => ['text'],
-                                        ],
-                                    ],
-                                    [
-                                        'simple_query_string' => [
-                                            'query' => 'elasticsearch*',
-                                            'fields' => ['textBoosted'],
-                                            'boost' => 10,
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                        'size' => 5,
-                        'timeout' => '5s',
-                    ],
-                ],
-            ])->willReturn([
-                'took' => 42,
-                'responses' => [
-                    [
-                        'took' => 42,
-                        'timed_out' => false,
-                        '_shards' => [
-                            'total' => 1,
-                            'successful' => 1,
-                            'skipped' => 0,
-                            'failed' => 0,
-                        ],
-                        'hits' => [
-                            'total' => [
-                                'value' => 1,
-                                'relation' => 'eq',
-                            ],
-                            'max_score' => 4.9525366,
-                            'hits' => [
-                                [
-                                    '_index' => 'sw-admin-product-listing',
-                                    '_type' => '_doc',
-                                    '_id' => 'c1a28776116d4431a2208eb2960ec340',
-                                    '_score' => 4.9525366,
-                                    '_source' => [
-                                        'entityName' => 'product',
-                                        'parameters' => [],
-                                        'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
-                                        'id' => 'c1a28776116d4431a2208eb2960ec340',
-                                    ],
-                                ],
-                            ],
-                        ],
-                        'status' => 200,
-                    ],
-                ],
-            ]);
+            ->with($this->getQueryBody('elasticsearch*'))
+            ->willReturn($this->getMockResponse('c1a28776116d4431a2208eb2960ec340 elasticsearch'));
 
         $data = $this->searcher->search('elasticsearch', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($data['product']);
-
-        static::assertSame(1, $data['product']['total']);
-        static::assertSame('product-listing', $data['product']['indexer']);
-        static::assertSame('sw-admin-product-listing', $data['product']['index']);
+        $this->assertSearchResult($data, 1, 'product-listing', 'sw-admin-product-listing');
     }
 
     public function testSearchWithLimit(): void
@@ -133,83 +65,15 @@ class AdminSearcherTest extends TestCase
         $this->client
             ->expects($this->once())
             ->method('msearch')
-            ->with([
-                'body' => [
-                    [
-                        'index' => 'sw-admin-product-listing',
-                    ],
-                    [
-                        'query' => [
-                            'bool' => [
-                                'should' => [
-                                    [
-                                        'simple_query_string' => [
-                                            'query' => 'elast*',
-                                            'fields' => ['text'],
-                                        ],
-                                    ],
-                                    [
-                                        'simple_query_string' => [
-                                            'query' => 'elast*',
-                                            'fields' => ['textBoosted'],
-                                            'boost' => 10,
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                        'size' => 5,
-                        'timeout' => '1s',
-                    ],
-                ],
-            ])->willReturn([
-                'took' => 42,
-                'responses' => [
-                    [
-                        'took' => 42,
-                        'timed_out' => false,
-                        '_shards' => [
-                            'total' => 1,
-                            'successful' => 1,
-                            'skipped' => 0,
-                            'failed' => 0,
-                        ],
-                        'hits' => [
-                            'total' => [
-                                'value' => 1,
-                                'relation' => 'eq',
-                            ],
-                            'max_score' => 4.9525366,
-                            'hits' => [
-                                [
-                                    '_index' => 'sw-admin-product-listing',
-                                    '_type' => '_doc',
-                                    '_id' => 'c1a28776116d4431a2208eb2960ec340',
-                                    '_score' => 4.9525366,
-                                    '_source' => [
-                                        'entityName' => 'product',
-                                        'parameters' => [],
-                                        'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
-                                        'id' => 'c1a28776116d4431a2208eb2960ec340',
-                                    ],
-                                ],
-                            ],
-                        ],
-                        'status' => 200,
-                    ],
-                ],
-            ]);
+            ->with($this->getQueryBody('elast*', '1s'))
+            ->willReturn($this->getMockResponse('c1a28776116d4431a2208eb2960ec340 elasticsearch'));
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $searcher = new AdminSearcher($this->client, $this->registry, $searchHelper, '1s', 5);
 
         $data = $searcher->search('elasticsearch', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($data['product']);
-
-        static::assertSame(1, $data['product']['total']);
-        static::assertSame('product-listing', $data['product']['indexer']);
-        static::assertSame('sw-admin-product-listing', $data['product']['index']);
+        $this->assertSearchResult($data, 1, 'product-listing', 'sw-admin-product-listing');
     }
 
     public function testSearchWithUndefinedIndexer(): void
@@ -222,5 +86,157 @@ class AdminSearcherTest extends TestCase
         $data = $searcher->search('elasticsearch', ['test'], Context::createDefaultContext());
 
         static::assertEmpty($data);
+    }
+
+    public function testSearchWithNumericTerm(): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->with($this->getQueryBody('3800*'))
+            ->willReturn($this->getMockResponse('product x3800'));
+
+        $data = $this->searcher->search('3800', ['product'], Context::createDefaultContext());
+
+        $this->assertSearchResult($data, 1, 'product-listing', 'sw-admin-product-listing');
+    }
+
+    public function testSearchWithMixedTermContainingNumeric(): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->with($this->getQueryBody('product 3800*'))
+            ->willReturn($this->getMockResponse('product 3800'));
+
+        $data = $this->searcher->search('product 3800', ['product'], Context::createDefaultContext());
+
+        static::assertNotEmpty($data['product']);
+        static::assertSame(1, $data['product']['total']);
+    }
+
+    public function testSearchWithPureNumeric(): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->with($this->getQueryBody('123*'))
+            ->willReturn($this->getMockResponse('product 123'));
+
+        $data = $this->searcher->search('123', ['product'], Context::createDefaultContext());
+
+        static::assertNotEmpty($data['product']);
+        static::assertSame(1, $data['product']['total']);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getQueryBody(string $query, string $timeout = '5s'): array
+    {
+        $originalTerm = rtrim($query, '*');
+
+        return [
+            'body' => [
+                [
+                    'index' => 'sw-admin-product-listing',
+                ],
+                [
+                    'query' => [
+                        'bool' => [
+                            'should' => [
+                                [
+                                    'match' => [
+                                        'text.ngram' => [
+                                            'query' => $originalTerm,
+                                        ],
+                                    ],
+                                ],
+                                [
+                                    'simple_query_string' => [
+                                        'query' => $query,
+                                        'fields' => ['text'],
+                                        'lenient' => true,
+                                    ],
+                                ],
+                                [
+                                    'match' => [
+                                        'textBoosted.ngram' => [
+                                            'query' => $originalTerm,
+                                            'boost' => 10,
+                                        ],
+                                    ],
+                                ],
+                                [
+                                    'simple_query_string' => [
+                                        'query' => $query,
+                                        'fields' => ['textBoosted'],
+                                        'boost' => 10,
+                                        'lenient' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'size' => 5,
+                    'timeout' => $timeout,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function assertSearchResult(array $data, int $total, string $indexer, string $index): void
+    {
+        static::assertNotEmpty($data['product']);
+        static::assertSame($total, $data['product']['total']);
+        static::assertSame($indexer, $data['product']['indexer']);
+        static::assertSame($index, $data['product']['index']);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getMockResponse(string $text): array
+    {
+        return [
+            'took' => 42,
+            'responses' => [
+                [
+                    'took' => 42,
+                    'timed_out' => false,
+                    '_shards' => [
+                        'total' => 1,
+                        'successful' => 1,
+                        'skipped' => 0,
+                        'failed' => 0,
+                    ],
+                    'hits' => [
+                        'total' => [
+                            'value' => 1,
+                            'relation' => 'eq',
+                        ],
+                        'max_score' => 4.9525366,
+                        'hits' => [
+                            [
+                                '_index' => 'sw-admin-product-listing',
+                                '_type' => '_doc',
+                                '_id' => 'c1a28776116d4431a2208eb2960ec340',
+                                '_score' => 4.9525366,
+                                '_source' => [
+                                    'entityName' => 'product',
+                                    'parameters' => [],
+                                    'text' => $text,
+                                    'id' => 'c1a28776116d4431a2208eb2960ec340',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'status' => 200,
+                ],
+            ],
+        ];
     }
 }

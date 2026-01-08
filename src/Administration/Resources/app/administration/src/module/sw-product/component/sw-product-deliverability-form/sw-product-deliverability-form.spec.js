@@ -37,7 +37,11 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                 },
             },
         };
-        store.creationStates = 'is-physical';
+
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            store.creationStates = 'is-physical';
+        }
+        store.creationType = 'physical';
 
         return mount(
             await wrapTestComponent('sw-product-deliverability-form', {

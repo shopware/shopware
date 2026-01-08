@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Helper\PermissionCategorization;
 
 /**
- * @codeCoverageIgnore
- *
  * @template-extends StoreCollection<PermissionStruct>
  *
  * @phpstan-type PermissionArray array{entity: string, operation: AclRoleDefinition::PRIVILEGE_READ|AclRoleDefinition::PRIVILEGE_CREATE|AclRoleDefinition::PRIVILEGE_UPDATE|AclRoleDefinition::PRIVILEGE_DELETE}
@@ -52,6 +50,9 @@ class PermissionCollection extends StoreCollection
         return $permissionCollections;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return string
+     */
     protected function getExpectedClass(): ?string
     {
         return PermissionStruct::class;

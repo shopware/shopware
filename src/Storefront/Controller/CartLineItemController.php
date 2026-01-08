@@ -32,7 +32,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
-#[Package('framework')]
+#[Package('checkout')]
 class CartLineItemController extends StorefrontController
 {
     /**
@@ -68,6 +68,14 @@ class CartLineItemController extends StorefrontController
 
             return $this->createActionResponse($request);
         });
+    }
+
+    #[Route(path: '/checkout/cart/delete', name: 'frontend.checkout.cart.delete', defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
+    public function deleteCart(Request $request, SalesChannelContext $context): Response
+    {
+        $this->cartService->deleteCart($context);
+
+        return $this->createActionResponse($request);
     }
 
     /**
@@ -119,7 +127,7 @@ class CartLineItemController extends StorefrontController
     {
         return Profiler::trace('cart::add-promotion', function () use ($cart, $request, $context) {
             try {
-                $code = (string) $request->request->get('code');
+                $code = mb_trim((string) $request->request->get('code'));
 
                 if ($code === '') {
                     throw RoutingException::missingRequestParameter('code');
@@ -345,13 +353,7 @@ class CartLineItemController extends StorefrontController
     private function getLineItemArray(RequestDataBag $lineItemData, ?array $defaultValues): array
     {
         if ($lineItemData->has('payload')) {
-            $payload = $lineItemData->get('payload');
-
-            if (mb_strlen($payload, '8bit') > (1024 * 256)) {
-                throw RoutingException::invalidRequestParameter('payload');
-            }
-
-            $lineItemData->set('payload', json_decode($payload, true, 512, \JSON_THROW_ON_ERROR));
+            $lineItemData->set('payload', $this->normalizePayload($lineItemData->get('payload')));
         }
 
         $lineItemArray = $lineItemData->all();
@@ -380,6 +382,23 @@ class CartLineItemController extends StorefrontController
         }
 
         return $lineItemArray;
+    }
+
+    /**
+     * @throws RoutingException
+     * @throws \JsonException
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizePayload(mixed $payload): array
+    {
+        return match (true) {
+            $payload instanceof RequestDataBag => $payload->all(),
+            \is_array($payload) => $payload,
+            \is_string($payload) && mb_strlen($payload, '8bit') > 256 * 1024 => throw RoutingException::invalidRequestParameter('payload'),
+            \is_string($payload) => json_decode($payload, true, 512, \JSON_THROW_ON_ERROR),
+            default => throw RoutingException::invalidRequestParameter('payload'),
+        };
     }
 
     /**

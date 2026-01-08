@@ -6,8 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\TestCollection;
 
 /**
  * @internal
@@ -87,6 +91,7 @@ class CollectionTest extends TestCase
 
     public function testFmap(): void
     {
+        /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
         $collection->fmap(function (): void {
             static::fail('fmap should not be called for empty collection');
@@ -100,17 +105,18 @@ class CollectionTest extends TestCase
 
     public function testSort(): void
     {
+        /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
 
         $collection->sort(function (): void {
-            static::fail('fmap should not be called for empty collection');
+            static::fail('sort should not be called for empty collection');
         });
 
         $collection->add('b');
         $collection->add('c');
         $collection->add('a');
 
-        $collection->sort(fn ($a, $b) => strcmp((string) $a, (string) $b));
+        $collection->sort(fn ($a, $b) => strcmp($a, $b));
 
         static::assertSame([2 => 'a', 0 => 'b', 1 => 'c'], $collection->getElements());
     }
@@ -132,6 +138,7 @@ class CollectionTest extends TestCase
 
     public function testFilter(): void
     {
+        /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
         $collection->filter(function (): void {
             static::fail('filter should not be called for empty collection');
@@ -235,13 +242,41 @@ class CollectionTest extends TestCase
         $collection->add('a3');
         static::assertSame('a1', $collection->firstWhere(fn ($element) => str_starts_with($element, 'a')));
     }
-}
 
-/**
- * @internal
- *
- * @extends Collection<string|ProductEntity|CategoryEntity>
- */
-class TestCollection extends Collection
-{
+    public function testFromAssociative(): void
+    {
+        $data = [
+            null,
+            0,
+            'some-string',
+            new \stdClass(),
+            ['some' => 'value'],
+        ];
+
+        $collection = (new TestCollection())->assignRecursive($data);
+
+        static::assertCount(5, $collection);
+
+        static::assertSame($data[0], $collection->get(0));
+        static::assertSame($data[1], $collection->get(1));
+        static::assertSame($data[2], $collection->get(2));
+        static::assertSame($data[3], $collection->get(3));
+        static::assertSame($data[4], $collection->get(4));
+    }
+
+    public function testFromAssociativeWithExpectedClass(): void
+    {
+        $data = [
+            'some-string',
+            new \stdClass(),
+            ['versionId' => Uuid::randomHex()],
+            ['_uniqueIdentifier' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
+        ];
+
+        $collection = (new EntityCollection())->assignRecursive($data);
+
+        static::assertCount(1, $collection);
+        static::assertInstanceOf(Entity::class, $collection->first());
+        static::assertNotNull($collection->first()->getVersionId());
+    }
 }

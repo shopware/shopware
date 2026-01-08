@@ -22,6 +22,7 @@ import ValidationService from 'src/core/service/validation.service';
 import TimezoneService from 'src/core/service/timezone.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
+import ProductTypeApiService from 'src/app/service/product-type.api.service';
 import StateStyleService from 'src/app/service/state-style.service';
 import CustomFieldService from 'src/app/service/custom-field.service';
 import ExtensionHelperService from 'src/app/service/extension-helper.service';
@@ -57,8 +58,6 @@ import 'src/app/decorator';
 /** Import Meteor Component Library styles */
 // eslint-disable-next-line import/no-unresolved
 import '@shopware-ag/meteor-component-library/styles.css';
-// eslint-disable-next-line import/no-unresolved
-import '@shopware-ag/meteor-component-library/font.css';
 
 import ChangesetGenerator from '../core/data/changeset-generator.data';
 import ErrorResolver from '../core/data/error-resolver.data';
@@ -155,6 +154,11 @@ Application.addServiceProvider('feature', () => {
     })
     .addServiceProvider('productStreamConditionService', () => {
         return new ProductStreamConditionService();
+    })
+    .addServiceProvider('productTypeService', () => {
+        const initContainer = Shopware.Application.getContainer('init');
+
+        return new ProductTypeApiService(initContainer.httpClient, Shopware.Service('loginService'));
     })
     .addServiceProvider('customFieldDataProviderService', () => {
         return new CustomFieldService();

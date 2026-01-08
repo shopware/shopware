@@ -1,5 +1,5 @@
-import orderBy from 'lodash/orderBy';
-import sortBy from 'lodash/sortBy';
+import orderBy from 'lodash-es/orderBy';
+import sortBy from 'lodash-es/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 

@@ -360,7 +360,7 @@ class MultiJoinFilterLimitationTest extends TestCase
             ])
         );
         $criteria->addGroupField(new FieldGrouping('product.properties.name'));
-        
+
         static::expectException(\Throwable::class);
         static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());

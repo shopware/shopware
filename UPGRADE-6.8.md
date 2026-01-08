@@ -668,6 +668,27 @@ Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to
 The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
 Use `name` and `description` instead.
 
+## Changed format for `cookie-config-hash` cookie
+
+The `cookie-config-hash` browser cookie now stores a JSON object mapping language IDs to hashes, enabling per-language cookie consent tracking. This change was introduced in 6.7.x with backward compatibility for the legacy plain string format.
+
+**Note:** This is not considered a breaking change as the `cookie-config-hash` cookie format was internal and not part of the public API. Most plugins and themes that interact with cookie consent use the `cookie-preference` cookie (which remains unchanged as plain string `'1'`) or listen to the `COOKIE_CONFIGURATION_UPDATE` event.
+
+If your plugin or theme directly reads the `cookie-config-hash` cookie, update your code to handle the JSON format:
+
+```javascript
+const stored = CookieStorage.getItem('cookie-config-hash');
+let hashForLanguage = null;
+try {
+    const hashes = JSON.parse(stored);
+    hashForLanguage = hashes[currentLanguageId];
+} catch (e) {
+    hashForLanguage = null;
+}
+```
+
+The `CookieRouteResponse` from `/store-api/cookie-groups` now includes a `languageId` field that identifies the current language context.
+
 ## Removed theme.json translations
 
 We removed properties `label` and `helpText` properties of `theme.json`, which were deprecated in 6.7, to use the snippet system of the administration instead.

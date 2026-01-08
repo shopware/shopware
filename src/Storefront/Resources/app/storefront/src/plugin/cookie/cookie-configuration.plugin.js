@@ -293,15 +293,16 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Check if cookie configuration hash has changed and reset cookies if needed
+     * Check if cookie configuration hash has changed for the current language and reset cookies if needed.
+     * Hashes are stored per language to allow users to accept cookies once per language.
      * @private
      */
     async _checkCookieConfigurationHash() {
         const { cookiePreference, cookieConfigHash } = this.options;
         const hasPreference = CookieStorage.getItem(cookiePreference);
-        const storedHash = CookieStorage.getItem(cookieConfigHash);
+        const storedHashData = CookieStorage.getItem(cookieConfigHash);
 
-        if (!hasPreference && !storedHash) {
+        if (!hasPreference && !storedHashData) {
             return;
         }
 
@@ -311,12 +312,83 @@ export default class CookieConfiguration extends Plugin {
         }
 
         const currentHash = data.hash;
+        const languageId = data.languageId;
+        const storedHashForLanguage = this._getStoredHashForLanguage(storedHashData, languageId);
 
-        if (storedHash && storedHash !== currentHash) {
+        // Show banner for re-consent if:
+        // 1. Hash changed for this language, OR
+        // 2. User has consented before but not for this specific language yet
+        const hashChanged = storedHashForLanguage && storedHashForLanguage !== currentHash;
+        const noConsentForThisLanguage = hasPreference && !storedHashForLanguage;
+
+        if (hashChanged || noConsentForThisLanguage) {
             await this._resetCookieConfiguration(data);
+            return;
         }
 
-        CookieStorage.setItem(cookieConfigHash, currentHash, this._getDefaultCookieExpiration());
+        // Hash matches for this language - refresh to extend expiration
+        if (storedHashForLanguage) {
+            this._storeHashForLanguage(languageId, currentHash);
+        }
+    }
+
+    /**
+     * Get the stored hash for a specific language from the stored hash data.
+     * Handles both legacy plain string format (deprecated) and new JSON object format.
+     *
+     * @param {string|null} storedHashData - The raw stored hash data from the cookie
+     * @param {string} languageId - The language ID to get the hash for
+     * @returns {string|null} The hash for the specified language, or null if not found
+     * @private
+     */
+    _getStoredHashForLanguage(storedHashData, languageId) {
+        if (!storedHashData) {
+            return null;
+        }
+
+        // Try to parse as JSON (new format: {languageId: hash, ...})
+        try {
+            const hashes = JSON.parse(storedHashData);
+            if (typeof hashes === 'object' && hashes !== null) {
+                return hashes[languageId] || null;
+            }
+        } catch (_e) {
+            // Not valid JSON - this is the legacy plain string format (deprecated)
+            // Return null to trigger re-consent for this language
+        }
+
+        return null;
+    }
+
+    /**
+     * Store the hash for a specific language.
+     * Merges the new hash into the existing stored hashes object.
+     *
+     * @param {string} languageId - The language ID to store the hash for
+     * @param {string} hash - The hash to store
+     * @private
+     */
+    _storeHashForLanguage(languageId, hash) {
+        const { cookieConfigHash } = this.options;
+        const storedHashData = CookieStorage.getItem(cookieConfigHash);
+        let hashes = {};
+
+        // Try to parse existing hashes
+        if (storedHashData) {
+            try {
+                const parsed = JSON.parse(storedHashData);
+                if (typeof parsed === 'object' && parsed !== null) {
+                    hashes = parsed;
+                }
+            } catch (_e) {
+                // Legacy plain string format - will be replaced with new format
+            }
+        }
+
+        // Update the hash for this language
+        hashes[languageId] = hash;
+
+        CookieStorage.setItem(cookieConfigHash, JSON.stringify(hashes), this._getDefaultCookieExpiration());
     }
 
     /**
@@ -355,7 +427,6 @@ export default class CookieConfiguration extends Plugin {
         return ['session-', 'timezone'];
     }
 
-
     async _handlePermission(event) {
         event.preventDefault();
 
@@ -365,7 +436,7 @@ export default class CookieConfiguration extends Plugin {
         }
 
         const cookieGroups = data.elements;
-        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required');
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required', [], data.languageId);
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
 
@@ -385,7 +456,7 @@ export default class CookieConfiguration extends Plugin {
      * @returns {{activeCookieNames: Array, inactiveCookieNames: Array}}
      * @private
      */
-    _applyCookieConfiguration(cookieGroups, mode = 'all', selectedCookies = []) {
+    _applyCookieConfiguration(cookieGroups, mode = 'all', selectedCookies = [], languageId = null) {
         const phpManagedCookies = this._getTechnicallyRequiredCookieNames();
         const allCookiesFromApi = this._extractAllCookiesFromGroups(cookieGroups);
         const cookiesToSet = [];
@@ -414,17 +485,23 @@ export default class CookieConfiguration extends Plugin {
         for (let i = 0; i < cookiesToSet.length; i++) {
             const cookieData = cookiesToSet[i];
             const isPhpManaged = phpManagedCookies.some(phpCookie => cookieData.cookie === phpCookie);
+            const isCookieConfigHash = cookieData.cookie === this.options.cookieConfigHash;
 
             if (!isPhpManaged) {
                 activeCookieNames.push(cookieData.cookie);
             }
 
             if (cookieData.value && !isPhpManaged) {
-                CookieStorage.setItem(
-                    cookieData.cookie,
-                    cookieData.value,
-                    cookieData.expiration || this._getDefaultCookieExpiration()
-                );
+                // Handle cookie-config-hash specially: store per language
+                if (isCookieConfigHash && languageId) {
+                    this._storeHashForLanguage(languageId, cookieData.value);
+                } else if (!isCookieConfigHash) {
+                    CookieStorage.setItem(
+                        cookieData.cookie,
+                        cookieData.value,
+                        cookieData.expiration || this._getDefaultCookieExpiration()
+                    );
+                }
             }
         }
 
@@ -836,7 +913,8 @@ export default class CookieConfiguration extends Plugin {
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(
             cookieGroups,
             'selected',
-            selectedCookiesFromDOM
+            selectedCookiesFromDOM,
+            data.languageId
         );
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
@@ -858,7 +936,7 @@ export default class CookieConfiguration extends Plugin {
         }
 
         const cookieGroups = data.elements;
-        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all');
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
@@ -878,7 +956,7 @@ export default class CookieConfiguration extends Plugin {
         }
 
         const cookieGroups = data.elements;
-        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all');
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
@@ -897,7 +975,7 @@ export default class CookieConfiguration extends Plugin {
         }
 
         const cookieGroups = data.elements;
-        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all');
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));

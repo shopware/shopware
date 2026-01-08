@@ -1,12 +1,10 @@
 .btn {
-    --#{$prefix}btn-disabled-color: #{$btn-link-disabled-color};
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .btn-buy {
     @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
-
     --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow};
 
     &.disabled,

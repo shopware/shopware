@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -191,8 +191,8 @@ class CacheResponseSubscriberTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE->value, $active);
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST->value, \json_encode($whitelist, \JSON_THROW_ON_ERROR));
+        $request->attributes->set(SalesChannelRequestAttribute::SALES_CHANNEL_MAINTENANCE->value, $active);
+        $request->attributes->set(SalesChannelRequestAttribute::SALES_CHANNEL_MAINTENANCE_IP_ALLOW_LIST->value, \json_encode($whitelist, \JSON_THROW_ON_ERROR));
         $request->server->set('REMOTE_ADDR', self::IP);
 
         static::assertSame(self::IP, $request->getClientIp());
@@ -341,8 +341,8 @@ class CacheResponseSubscriberTest extends TestCase
         $salesChannelRequest->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'logged-in');
 
         $maintenanceRequest = clone $salesChannelRequest;
-        $maintenanceRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE->value, true);
-        $maintenanceRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST->value, \json_encode([self::IP, \JSON_THROW_ON_ERROR]));
+        $maintenanceRequest->attributes->set(SalesChannelRequestAttribute::SALES_CHANNEL_MAINTENANCE->value, true);
+        $maintenanceRequest->attributes->set(SalesChannelRequestAttribute::SALES_CHANNEL_MAINTENANCE_IP_ALLOW_LIST->value, \json_encode([self::IP, \JSON_THROW_ON_ERROR]));
         $maintenanceRequest->server->set('REMOTE_ADDR', self::IP);
 
         yield 'no sales channel context' => [new Request()];

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
@@ -197,7 +197,7 @@ class TemplateDataSubscriberTest extends TestCase
     public function testAddIconSetConfigWithNoThemeButThemeName(): void
     {
         $request = new Request();
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, 'Storefront');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_NAME->value, 'Storefront');
 
         $event = new StorefrontRenderEvent(
             'test',
@@ -217,7 +217,7 @@ class TemplateDataSubscriberTest extends TestCase
     public function testAddIconSetConfigWithValidTheme(): void
     {
         $request = new Request();
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, 'Storefront');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_NAME->value, 'Storefront');
 
         $event = new StorefrontRenderEvent(
             'test',

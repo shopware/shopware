@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
@@ -58,7 +58,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     public function testThemesIfThemeNameIsSet(): void
     {
         $request = Request::createFromGlobals();
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, 'TestTheme');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_NAME->value, 'TestTheme');
 
         $this->builder->requestEvent(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 
@@ -105,7 +105,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     public function testRequestEventWithExceptionEvent(): void
     {
         $request = Request::createFromGlobals();
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, 'TestTheme');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_NAME->value, 'TestTheme');
 
         $this->builder->requestEvent(new ExceptionEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, new \RuntimeException()));
 
@@ -118,8 +118,8 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     public function testThemesIfBaseNameIsSet(): void
     {
         $request = Request::createFromGlobals();
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, null);
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_BASE_NAME->value, 'TestTheme');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_NAME->value, null);
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_BASE_NAME->value, 'TestTheme');
 
         $this->builder->requestEvent(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 
@@ -132,8 +132,8 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     public function testReset(): void
     {
         $request = Request::createFromGlobals();
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, null);
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_BASE_NAME->value, 'TestTheme');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_NAME->value, null);
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_BASE_NAME->value, 'TestTheme');
 
         $this->builder->requestEvent(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 
@@ -156,7 +156,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $bundles = ['a' => 1, 'b' => 2];
 
         $request = Request::createFromGlobals();
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, 'TestTheme');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_NAME->value, 'TestTheme');
 
         $this->builder->requestEvent(new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
 

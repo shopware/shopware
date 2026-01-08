@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingExceptio
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
@@ -106,7 +106,7 @@ class StorefrontSubscriberTest extends TestCase
 
         $event = new ExceptionEvent(
             $this->createMock(HttpKernelInterface::class),
-            new Request(attributes: [SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true]),
+            new Request(attributes: [SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value => true]),
             HttpKernelInterface::MAIN_REQUEST,
             new CustomerNotLoggedInRoutingException(
                 Response::HTTP_FORBIDDEN,
@@ -154,7 +154,7 @@ class StorefrontSubscriberTest extends TestCase
 
         $event = new ExceptionEvent(
             $this->createMock(HttpKernelInterface::class),
-            new Request(attributes: [SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true]),
+            new Request(attributes: [SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value => true]),
             HttpKernelInterface::MAIN_REQUEST,
             new CustomerNotLoggedInException(
                 Response::HTTP_FORBIDDEN,
@@ -183,7 +183,7 @@ class StorefrontSubscriberTest extends TestCase
 
         $event = new ExceptionEvent(
             $this->createMock(HttpKernelInterface::class),
-            new Request(attributes: [SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true]),
+            new Request(attributes: [SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value => true]),
             HttpKernelInterface::MAIN_REQUEST,
             new RoutingException(Response::HTTP_FORBIDDEN, 'foo', 'You have to be logged in to access this page')
         );
@@ -257,7 +257,7 @@ class StorefrontSubscriberTest extends TestCase
     {
         $request = new Request(
             attributes: [
-                SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true,
+                SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value => true,
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => Generator::generateSalesChannelContext(),
             ],
             server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
@@ -281,7 +281,7 @@ class StorefrontSubscriberTest extends TestCase
     {
         $mainRequest = new Request(
             attributes: [
-                SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true,
+                SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value => true,
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => 'test-sales-channel-id',
             ]
         );
@@ -335,7 +335,7 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testUpdateSessionWithoutSession(): void
     {
-        $request = new Request(attributes: [SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true]);
+        $request = new Request(attributes: [SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value => true]);
         $requestStack = new RequestStack([$request]);
 
         (new StorefrontSubscriber(
@@ -350,7 +350,7 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testUpdateSession(): void
     {
-        $request = new Request(attributes: [SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true]);
+        $request = new Request(attributes: [SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value => true]);
         $request->setSession(new Session(new MockArraySessionStorage()));
         $requestStack = new RequestStack([$request]);
 

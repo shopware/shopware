@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Theme\ThemeRuntimeConfig;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
@@ -54,8 +54,8 @@ class ThemeScriptsTest extends TestCase
     public function testNotExistingTheme(): void
     {
         $request = new Request();
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, 'invalid');
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value, 'invalid');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_NAME->value, 'invalid');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_ID->value, 'invalid');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'sales-channel-id');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
         $this->requestStack->push($request);
@@ -69,8 +69,8 @@ class ThemeScriptsTest extends TestCase
     {
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'Storefront');
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value, 'Storefront');
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, 'Storefront');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_ID->value, 'Storefront');
+        $request->attributes->set(SalesChannelRequestAttribute::THEME_NAME->value, 'Storefront');
 
         $salesChannelContext = Generator::generateSalesChannelContext();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);

@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -76,7 +76,7 @@ class CustomerValueResolverTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value, $currencyId);
+        $request->attributes->set(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
         $request->attributes->set('_route', 'test-route');
 

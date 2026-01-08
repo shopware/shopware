@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Storefront\Framework\Routing\CanonicalLinkListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,7 +34,7 @@ class CanonicalLinkListenerTest extends TestCase
         $listener = new CanonicalLinkListener();
 
         $request = new Request();
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value, 'foo');
+        $request->attributes->set(SalesChannelRequestAttribute::CANONICAL_LINK->value, 'foo');
         $listener(new BeforeSendResponseEvent($request, $response));
 
         static::assertCount(3, $response->headers->all());

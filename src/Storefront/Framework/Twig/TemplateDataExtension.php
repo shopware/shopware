@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractToke
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -44,7 +44,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         [$controllerName, $controllerAction] = $this->getControllerInfo($request);
 
-        $themeId = $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value);
+        $themeId = $request->attributes->get(SalesChannelRequestAttribute::THEME_ID->value);
 
         $activeNavigationId = (string) $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
         $navigationPathIdList = $this->getNavigationPath($activeNavigationId, $context);

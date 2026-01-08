@@ -6,7 +6,7 @@ use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -83,15 +83,15 @@ class RequestTransformer implements RequestTransformerInterface
             self::STOREFRONT_URL,
             self::SALES_CHANNEL_RESOLVED_URI,
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID,
-            SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value,
-            SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value,
-            SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value,
-            SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value,
-            SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_ID->value,
-            SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value,
-            SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value,
-            SalesChannelRequestEnum::ATTRIBUTE_THEME_BASE_NAME->value,
-            SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value,
+            SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value,
+            SalesChannelRequestAttribute::DOMAIN_LOCALE->value,
+            SalesChannelRequestAttribute::DOMAIN_SNIPPET_SET_ID->value,
+            SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value,
+            SalesChannelRequestAttribute::DOMAIN_ID->value,
+            SalesChannelRequestAttribute::THEME_ID->value,
+            SalesChannelRequestAttribute::THEME_NAME->value,
+            SalesChannelRequestAttribute::THEME_BASE_NAME->value,
+            SalesChannelRequestAttribute::CANONICAL_LINK->value,
         ];
     }
 
@@ -170,22 +170,22 @@ class RequestTransformer implements RequestTransformerInterface
         $transformedRequest->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
 
         $transformedRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
-        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value, true);
-        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value, $salesChannel['locale']);
-        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value, $salesChannel['snippetSetId']);
-        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value, $salesChannel['currencyId']);
-        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_ID->value, $salesChannel['id']);
-        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value, $salesChannel['themeId']);
-        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value, $salesChannel['themeName']);
-        $transformedRequest->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_THEME_BASE_NAME->value, $salesChannel['parentThemeName']);
+        $transformedRequest->attributes->set(SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value, true);
+        $transformedRequest->attributes->set(SalesChannelRequestAttribute::DOMAIN_LOCALE->value, $salesChannel['locale']);
+        $transformedRequest->attributes->set(SalesChannelRequestAttribute::DOMAIN_SNIPPET_SET_ID->value, $salesChannel['snippetSetId']);
+        $transformedRequest->attributes->set(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value, $salesChannel['currencyId']);
+        $transformedRequest->attributes->set(SalesChannelRequestAttribute::DOMAIN_ID->value, $salesChannel['id']);
+        $transformedRequest->attributes->set(SalesChannelRequestAttribute::THEME_ID->value, $salesChannel['themeId']);
+        $transformedRequest->attributes->set(SalesChannelRequestAttribute::THEME_NAME->value, $salesChannel['themeName']);
+        $transformedRequest->attributes->set(SalesChannelRequestAttribute::THEME_BASE_NAME->value, $salesChannel['parentThemeName']);
 
         $transformedRequest->attributes->set(
-            SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE->value,
+            SalesChannelRequestAttribute::SALES_CHANNEL_MAINTENANCE->value,
             (bool) $salesChannel['maintenance']
         );
 
         $transformedRequest->attributes->set(
-            SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST->value,
+            SalesChannelRequestAttribute::SALES_CHANNEL_MAINTENANCE_IP_ALLOW_LIST->value,
             $salesChannel['maintenanceIpWhitelist']
         );
 
@@ -201,7 +201,7 @@ class RequestTransformer implements RequestTransformerInterface
             }
 
             $transformedRequest->attributes->set(
-                SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value,
+                SalesChannelRequestAttribute::CANONICAL_LINK->value,
                 $this->getSchemeAndHttpHost($request) . $baseUrlPath . $resolved['canonicalPathInfo']
             );
         }

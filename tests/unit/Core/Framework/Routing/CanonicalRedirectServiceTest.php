@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\Extension\CanonicalRedirectExtension;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -44,7 +44,7 @@ class CanonicalRedirectServiceTest extends TestCase
                 $actual
             );
             static::assertSame(
-                $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value),
+                $request->attributes->get(SalesChannelRequestAttribute::CANONICAL_LINK->value),
                 $actual->getTargetUrl()
             );
             static::assertSame(
@@ -58,7 +58,7 @@ class CanonicalRedirectServiceTest extends TestCase
 
     public function testGetRedirectWithQueryParameters(): void
     {
-        $request = self::getRequest([SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value => '/lorem/ipsum/dolor-sit/amet']);
+        $request = self::getRequest([SalesChannelRequestAttribute::CANONICAL_LINK->value => '/lorem/ipsum/dolor-sit/amet']);
         $request->server->set('QUERY_STRING', 'foo=bar');
 
         $canonicalRedirectService = new CanonicalRedirectService(
@@ -74,7 +74,7 @@ class CanonicalRedirectServiceTest extends TestCase
 
     public function testExtensionIsDispatched(): void
     {
-        $request = self::getRequest([SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value => '/lorem/ipsum/dolor-sit/amet']);
+        $request = self::getRequest([SalesChannelRequestAttribute::CANONICAL_LINK->value => '/lorem/ipsum/dolor-sit/amet']);
 
         $dispatcher = new EventDispatcher();
 
@@ -113,15 +113,15 @@ class CanonicalRedirectServiceTest extends TestCase
                 'response' => new Response(),
             ],
             [
-                'request' => self::getRequest([SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value => '']),
+                'request' => self::getRequest([SalesChannelRequestAttribute::CANONICAL_LINK->value => '']),
                 'response' => new Response(),
             ],
             [
-                'request' => self::getRequest([SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value => true]),
+                'request' => self::getRequest([SalesChannelRequestAttribute::CANONICAL_LINK->value => true]),
                 'response' => new Response(),
             ],
             [
-                'request' => self::getRequest([SalesChannelRequestEnum::ATTRIBUTE_CANONICAL_LINK->value => '/lorem/ipsum/dolor-sit/amet']),
+                'request' => self::getRequest([SalesChannelRequestAttribute::CANONICAL_LINK->value => '/lorem/ipsum/dolor-sit/amet']),
                 'response' => (new Response())->setStatusCode(Response::HTTP_MOVED_PERMANENTLY),
             ],
         ];

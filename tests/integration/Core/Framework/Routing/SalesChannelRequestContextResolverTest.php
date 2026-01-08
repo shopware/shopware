@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -66,7 +66,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $this->ids->get('sales-channel'));
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value, $currencyId);
+        $request->attributes->set(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
@@ -101,7 +101,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $this->ids->get('sales-channel'));
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value, $currencyId);
+        $request->attributes->set(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->ids->get('token'));
 
@@ -199,7 +199,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value, $currencyId);
+        $request->attributes->set(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
 
         if ($doLogin) {
@@ -234,7 +234,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $this->ids->get('sales-channel'));
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value, $currencyId);
+        $request->attributes->set(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createDefaultContext());
 
@@ -264,7 +264,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value, $currencyId);
+        $request->attributes->set(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->loginCustomer(false));
 
@@ -293,7 +293,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
-        $request->attributes->set(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value, $currencyId);
+        $request->attributes->set(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
 
         $request->setSession(new Session(new MockArraySessionStorage()));

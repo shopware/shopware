@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -30,7 +30,7 @@ class GenericPageLoader implements GenericPageLoaderInterface
             $page->setMetaInformation((new MetaInformation())->assign([
                 'revisit' => '15 days',
                 'robots' => $this->systemConfigService->getString('core.basicInformation.metaRobots', $context->getSalesChannel()->getId()) ?: 'index,follow',
-                'xmlLang' => $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_LOCALE->value) ?? '',
+                'xmlLang' => $request->attributes->get(SalesChannelRequestAttribute::DOMAIN_LOCALE->value) ?? '',
                 'metaTitle' => $this->systemConfigService->getString('core.basicInformation.shopName', $context->getSalesChannelId()),
             ]));
 

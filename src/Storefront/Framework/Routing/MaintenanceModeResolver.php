@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver as CoreMaintenanceModeResolver;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -66,7 +66,7 @@ class MaintenanceModeResolver
     {
         $main = $this->requestStack->getMainRequest();
 
-        return (bool) $main?->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value);
+        return (bool) $main?->attributes->get(SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value);
     }
 
     private function isXmlHttpRequest(Request $request): bool
@@ -84,13 +84,13 @@ class MaintenanceModeResolver
     {
         $main = $this->requestStack->getMainRequest();
 
-        return (bool) $main?->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE->value);
+        return (bool) $main?->attributes->get(SalesChannelRequestAttribute::SALES_CHANNEL_MAINTENANCE->value);
     }
 
     private function isClientAllowed(Request $request): bool
     {
         $main = $this->requestStack->getMainRequest();
-        $whitelist = $main?->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST->value) ?? '';
+        $whitelist = $main?->attributes->get(SalesChannelRequestAttribute::SALES_CHANNEL_MAINTENANCE_IP_ALLOW_LIST->value) ?? '';
 
         /** @var list<string> $allowedIps */
         $allowedIps = Json::decodeToList((string) $whitelist);

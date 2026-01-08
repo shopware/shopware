@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
 use Shopware\Core\Framework\Routing\SalesChannelContextRouteScopeDependant;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Symfony\Component\HttpFoundation\Request;
 
 #[Package('framework')]
@@ -15,8 +15,8 @@ class StorefrontRouteScope extends AbstractRouteScope implements SalesChannelCon
 
     public function isAllowed(Request $request): bool
     {
-        return $request->attributes->has(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value)
-            && $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value) === true
+        return $request->attributes->has(SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value)
+            && $request->attributes->get(SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value) === true
         ;
     }
 

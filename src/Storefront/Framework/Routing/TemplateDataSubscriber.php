@@ -9,7 +9,7 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -74,10 +74,10 @@ class TemplateDataSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
 
         // get name if theme is not inherited
-        $theme = $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_THEME_NAME->value);
+        $theme = $request->attributes->get(SalesChannelRequestAttribute::THEME_NAME->value);
         if (!$theme) {
             // get theme name from base theme because for inherited themes the name is always null
-            $theme = $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_THEME_BASE_NAME->value);
+            $theme = $request->attributes->get(SalesChannelRequestAttribute::THEME_BASE_NAME->value);
         }
 
         if (!$theme) {

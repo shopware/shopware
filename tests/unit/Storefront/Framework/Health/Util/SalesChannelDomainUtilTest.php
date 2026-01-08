@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,7 +39,7 @@ class SalesChannelDomainUtilTest extends TestCase
     public function testRunAsSalesChannelRequest(): void
     {
         $this->requestStack->push(new Request([], [], [
-            SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value => true,
+            SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value => true,
         ]));
 
         $util = $this->getUtil();
@@ -57,7 +57,7 @@ class SalesChannelDomainUtilTest extends TestCase
 
         $request = $this->requestStack->getMainRequest();
         static::assertInstanceOf(Request::class, $request);
-        static::assertTrue($request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value, false));
+        static::assertTrue($request->attributes->get(SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value, false));
     }
 
     public function testRunAsSalesChannelRequestWithoutMainRequest(): void

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Api\EventListener;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -32,7 +32,7 @@ class ResponseExceptionListener implements EventSubscriberInterface
 
     public function onKernelException(ExceptionEvent $event): void
     {
-        if ($event->getRequest()->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST->value)) {
+        if ($event->getRequest()->attributes->get(SalesChannelRequestAttribute::IS_SALES_CHANNEL_REQUEST->value)) {
             return;
         }
 

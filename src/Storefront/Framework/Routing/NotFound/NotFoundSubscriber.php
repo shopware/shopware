@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -84,7 +84,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $event->stopPropagation();
 
         $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, '');
-        $domainId = $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_ID->value, '');
+        $domainId = $request->attributes->get(SalesChannelRequestAttribute::DOMAIN_ID->value, '');
         $languageId = $request->attributes->get(PlatformRequest::HEADER_LANGUAGE_ID, '');
 
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
@@ -183,8 +183,8 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
                 $salesChannelId,
                 Uuid::randomHex(),
                 $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-                $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value),
-                $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_ID->value)
+                $request->attributes->get(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value),
+                $request->attributes->get(SalesChannelRequestAttribute::DOMAIN_ID->value)
             )
         );
 

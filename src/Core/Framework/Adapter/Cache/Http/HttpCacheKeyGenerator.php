@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -142,10 +142,10 @@ class HttpCacheKeyGenerator
             }
         }
 
-        if ($request->attributes->has(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value)) {
+        if ($request->attributes->has(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value)) {
             $event->add(
-                SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value,
-                $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_CURRENCY_ID->value)
+                SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value,
+                $request->attributes->get(SalesChannelRequestAttribute::DOMAIN_CURRENCY_ID->value)
             );
         }
     }

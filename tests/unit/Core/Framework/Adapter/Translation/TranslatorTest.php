@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\Test\TestDefaults;
@@ -306,7 +306,7 @@ class TranslatorTest extends TestCase
             [],
             [],
             array_filter([
-                SalesChannelRequestEnum::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID->value => $snippetSetId,
+                SalesChannelRequestAttribute::DOMAIN_SNIPPET_SET_ID->value => $snippetSetId,
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
             ]),
         );

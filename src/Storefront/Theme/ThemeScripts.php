@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequestEnum;
+use Shopware\Core\SalesChannelRequestAttribute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -34,7 +34,7 @@ readonly class ThemeScripts
             return [];
         }
 
-        $themeId = $request->attributes->get(SalesChannelRequestEnum::ATTRIBUTE_THEME_ID->value);
+        $themeId = $request->attributes->get(SalesChannelRequestAttribute::THEME_ID->value);
 
         if ($themeId === null) {
             return [];

@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -14,8 +16,10 @@ use Shopware\Core\PlatformRequest;
 #[Package('framework')]
 readonly class CacheControlListener
 {
-    public function __construct(private bool $reverseProxyEnabled)
-    {
+    public function __construct(
+        private bool $reverseProxyEnabled,
+        private EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**
@@ -28,7 +32,14 @@ readonly class CacheControlListener
             return;
         }
 
-        if ($this->isAdministrationRequest($event)) {
+        $request = $event->getRequest();
+        $response = $event->getResponse();
+
+        // Dispatch event to allow listeners to skip cache control modification
+        $cacheControlEvent = new BeforeCacheControlEvent($request, $response);
+        $this->eventDispatcher->dispatch($cacheControlEvent);
+
+        if ($cacheControlEvent->shouldSkipCacheControl()) {
             return;
         }
 
@@ -38,8 +49,6 @@ readonly class CacheControlListener
         ) {
             return;
         }
-
-        $response = $event->getResponse();
 
         $noStore = $response->headers->getCacheControlDirective('no-store');
 
@@ -68,34 +77,5 @@ readonly class CacheControlListener
             (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
             true
         );
-    }
-
-    private function isAdministrationRequest(BeforeSendResponseEvent $event): bool
-    {
-        $response = $event->getResponse();
-
-        // Check if the response has been marked as an administration response
-        if ($response->headers->get('X-Shopware-Cache-Id') === 'administration') {
-            return true;
-        }
-
-        $request = $event->getRequest();
-
-        // Check route scope attribute
-        if (\in_array(
-            AdministrationRouteScope::ID,
-            (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
-            true
-        )) {
-            return true;
-        }
-
-        // Fallback: Check if the route name starts with 'administration.'
-        $routeName = $request->attributes->get('_route');
-        if (\is_string($routeName) && \str_starts_with($routeName, 'administration.')) {
-            return true;
-        }
-
-        return false;
     }
 }

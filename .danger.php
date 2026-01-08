@@ -327,6 +327,10 @@ return (new Config())
                 continue;
             }
 
+            if (\str_contains($content, 'enum ' . $class)) {
+                continue;
+            }
+
             if (\str_contains($content, 'trait ' . $class)) {
                 continue;
             }

@@ -105,6 +105,6 @@ class NoRuntimeExceptionInDomainExceptionsRule implements Rule
         $methodCallable = $classReflection->getName()::$methodName(...);
 
         /** @phpstan-ignore function.strict (the compare of callables only works with strict = false) */
-        return \in_array($methodCallable, $knownViolations, true);
+        return \in_array($methodCallable, $knownViolations, false);
     }
 }

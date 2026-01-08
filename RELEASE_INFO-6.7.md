@@ -70,8 +70,6 @@ The cookie consent dialog now uses toggle switches instead of checkboxes for a m
 * HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
 * Cache-control header set by policies is sent to the client for all responses, even when no reverse proxy is enabled.
 
-HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
-
 ## App System
 
 ## Hosting & Configuration

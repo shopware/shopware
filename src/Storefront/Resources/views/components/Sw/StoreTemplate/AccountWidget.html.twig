@@ -18,14 +18,14 @@
         data-bs-toggle="dropdown"
         aria-expanded="false"
     >
-        Account
+{#        {{ 'account.myAccount'|trans|sw_sanitize }}#}
     </twig:Sw:StoreTemplate:HeaderWidget>
 
-    <ul class="dropdown-menu">
+    <ul class="sw-account-widget__dropdown dropdown-menu">
         {% for menuItem in accountMenuItems %}
-            <li>
+            <li class="sw-account-widget__dropdown-item">
                 <a
-                    class="dropdown-item"
+                    class="sw-account-widget__dropdown-link dropdown-item"
                     href="{{ menuItem.path|striptags }}"
                 >
                     {{ menuItem.label|sw_sanitize }}

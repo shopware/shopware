@@ -1,0 +1,26 @@
+.sw-flyout {
+    left: 0;
+    right: 0;
+    min-height: 120px;
+    border-bottom: 1px solid var(--bs-gray-300);
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease-in-out;
+    transform: translateY(15px);
+    z-index: 1000;
+}
+
+.sw-flyout__show-all {
+    .sw-icon {
+        color: currentColor;
+    }
+}
+
+.sw-flyout__category-column {
+    border-color: var(--bs-gray-400);
+
+    &:nth-child(3n) {
+        border-color: transparent;
+    }
+}

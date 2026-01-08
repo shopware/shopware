@@ -1,17 +1,47 @@
 .sw-navbar {
-
+    border-bottom: 1px solid var(--bs-gray-300);
+    margin-bottom: 2rem;
+    position: relative;
 }
 
 .sw-navbar__nav {
     --bs-nav-link-color: var(--bs-body-color);
     --bs-nav-link-hover-color: var(--bs-primary);
+    --bs-nav-underline-link-active-color: var(--bs-primary);
     row-gap: 0;
+
+    // Menu scroller
+    max-width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    margin-bottom: -1px;
 }
 
 .sw-navbar__nav-item {
+    &:hover,
+    &:focus,
+    &:active,
+    &:focus-within {
+        .sw-flyout {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+    }
 
+    .sw-icon {
+        width: 0.6rem;
+        height: 0.6rem;
+        margin-left: 0.2rem;
+        color: var(--bs-gray-600);
+    }
 }
 
 .sw-navbar__nav-link {
-
+    &.nav-link.active {
+        font-weight: normal;
+    }
 }

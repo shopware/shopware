@@ -6,7 +6,7 @@
 %}
 
 {% set attributeDefaults = {
-    class: 'sw-navbar border-bottom',
+    class: 'sw-navbar',
     'data-component': 'Sw:StoreTemplate:Navbar',
 } %}
 
@@ -27,26 +27,41 @@
             {% endif %}
 
             {% for treeItem in navigationTree %}
-                {% set category = treeItem.category %}
-                {% set id = category.id %}
-                {% set name = category.translated.name %}
                 {% set hasChildren = treeItem.children|length > 0 %}
                 {% set itemSkipped = category.type == 'folder' and not hasChildren %}
 
                 {% if not itemSkipped %}
-                    <li class="sw-navbar__nav-item nav-item">
+                    <li class="sw-navbar__nav-item nav-item" tabindex="0">
                         <a
                             class="sw-navbar__nav-link nav-link"
-                            href="{{ category.seoUrl ?: '#' }}"
-                            data-category-id="{{ id }}"
+                            href="{{ treeItem.category.seoUrl ?: '#' }}"
+                            data-category-id="{{ category.id }}"
+                            {% if hasChildren %}tabindex="-1"{% endif %}
                         >
-                            {{ name }}
+                            {{ treeItem.category.translated.name }}
+                            {% if hasChildren %}
+                                <twig:Sw:Icon name="arrow-head-down" size="xs" />
+                            {% endif %}
                         </a>
 
-                        {# Children... #}
+                        {% if hasChildren %}
+                            <twig:Sw:StoreTemplate:Flyout
+                                :category="treeItem.category"
+                                :navigationTree="treeItem.children"
+                            />
+                        {% endif %}
                     </li>
                 {% endif %}
             {% endfor %}
         </ul>
+
+        <div class="sw-navbar__scroller" aria-hidden="true">
+            <div class="sw-navbar__scroll-button" tabindex="-1">
+
+            </div>
+            <div class="sw-navbar__scroll-button" tabindex="-1">
+
+            </div>
+        </div>
     </div>
 </nav>

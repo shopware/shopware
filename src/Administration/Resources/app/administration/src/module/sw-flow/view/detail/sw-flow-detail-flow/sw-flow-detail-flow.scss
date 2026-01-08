@@ -1,76 +1,72 @@
-@import "~scss/variables";
-@import "~scss/mixins";
-
 .sw-flow-detail-flow {
     &__content {
         display: flex;
         flex-direction: column;
         margin: auto;
-        max-width: $content-width;
+        max-width: 60rem;
         transition: max-width 0.3s ease-in-out;
     }
 
     &__warning-unknow-trigger {
-        p {
-            &:nth-child(2) {
-                margin-top: 20px;
-            }
+        &-list {
+            margin-top: var(--scale-size-20);
         }
     }
 
     &__trigger-card {
         display: grid;
         grid-template-columns: auto 1fr;
-        grid-gap: 48px;
+        grid-gap: var(--scale-size-48);
         align-items: start;
     }
 
     &__trigger-select {
-        min-width: 324px;
-        background: $color-white;
-        border-radius: 8px;
-        border: 1px solid $color-gray-300;
-        box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 20%);
-        padding: 24px;
+        min-width: 20.5rem;
+        background: var(--color-elevation-surface-raised);
+        border-radius: var(--border-radius-card);
+        border: 1px solid var(--color-border-secondary-default);
+        padding: var(--scale-size-24);
         transition: all 100ms ease-in-out;
-
-        &:hover {
-            box-shadow: 0 6px 10px 0 rgba(120, 138, 155, 20%);
-        }
+        box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
     }
 
     &__trigger-explain {
-        padding: 24px;
-        border: 2px dashed $color-gray-300;
-        border-radius: 8px;
-        color: $color-darkgray-200;
-        width: 420px;
+        width: 26.25rem;
+        border: 2px dashed var(--color-border-primary-default);
+        border-radius: var(--border-radius-card);
+        padding: var(--scale-size-24);
+        color: var(--color-text-primary-default);
 
         h4 {
-            margin-bottom: 12px;
+            font-size: var(--font-size-s);
+            line-height: var(--font-line-height-s);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--scale-size-4);
         }
 
         p {
-            font-size: $font-size-xs;
-            line-height: 22px;
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+            font-weight: var(--font-weight-regular);
         }
     }
 
     &__oval {
-        @include circle(12px);
-
-        position: absolute;
-        top: -6px;
-        left: -5px;
-        background: $color-white;
-        border: 1px solid $color-gray-400;
         z-index: 2;
+        position: absolute;
+        top: -8px;
+        left: -5px;
+        width: var(--scale-size-12);
+        height: var(--scale-size-12);
+        background: var(--color-elevation-surface-raised);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-round);
     }
 
     &__sequence-diagram {
         position: relative;
-        margin-left: 29px;
-        padding: 0 0 44px;
+        margin-left: var(--scale-size-30);
+        padding: 0 0 var(--scale-size-40);
     }
 
     &__position {
@@ -78,82 +74,66 @@
         display: flex;
 
         &:not(:last-child) .sw-flow-detail-flow__sequences {
-            padding-bottom: 63px;
-            border-bottom: 2px solid $color-gray-400;
             width: 100%;
+            padding-bottom: var(--scale-size-64);
+            border-bottom: 1px solid var(--color-border-secondary-default);
         }
 
         & .sw-flow-detail-flow__sequences {
-            padding-top: 63px;
+            padding-top: var(--scale-size-64);
         }
 
         & .sw-flow-detail-flow__position-connection {
-            @include size(24px);
-
             position: absolute;
             left: 0;
-            top: 118px;
-            border-bottom: 2px dashed $color-gray-400;
-            border-left: 2px dashed $color-gray-400;
+            top: 64px;
+            width: var(--scale-size-32);
+            height: 54px;
+            border-bottom: 2px dashed var(--color-border-primary-default);
+            border-left: 2px dashed var(--color-border-primary-default);
             border-bottom-left-radius: 40px;
         }
 
         &:last-child .sw-flow-detail-flow__position-plus {
-            @include circle(24px);
-            @include flex-centering;
-
-            cursor: pointer;
+            z-index: 2;
+            border-radius: var(--border-radius-round);
             position: absolute;
-            color: $color-darkgray-200;
             top: 155px;
             left: -11px;
-            background: $color-white;
-            border-radius: 16px;
-            border: 1px solid $color-gray-500;
-            z-index: 2;
-
-            .mt-icon {
-                @include size(12px);
-            }
-
-            &:hover:not([disabled]) {
-                background: $color-gray-100;
-            }
-
-            &:disabled {
-                background: $color-gray-100;
-            }
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .icon--regular-chevron-right-s {
+        .icon--regular-chevron-right-xs {
             position: absolute;
-            bottom: -8px;
-            right: -6px;
-            color: $color-gray-500;
+            bottom: -7px;
+            right: -10px;
+            color: var(--color-border-primary-default);
         }
 
-        &:not(:last-child) .icon--regular-plus-xs {
+        &:not(:last-child) .sw-flow-detail-flow__position-plus {
             display: none;
         }
 
         &::before {
-            display: block;
             content: "";
-            border-left: 2px dashed $color-gray-400;
+            display: block;
+            border-left: 2px dashed var(--color-border-primary-default);
             z-index: 1;
         }
 
         &:last-child::before {
-            display: block;
             content: "";
+            display: block;
             height: 165px;
-            border-left: 2px dashed $color-gray-400;
+            border-left: 2px dashed var(--color-border-primary-default);
             z-index: 1;
         }
     }
 
     &__sequences {
-        margin-left: 32px;
+        margin-left: var(--scale-size-40);
     }
 
     .sw-block-field__block {
@@ -165,7 +145,6 @@
     pointer-events: none;
 }
 
-// style for transition group.
 .list-enter-active,
 .list-leave-active {
     transition: all 0.5s ease-in-out;
@@ -174,5 +153,5 @@
 .list-enter,
 .list-leave-to {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateX(var(--scale-size-30));
 }

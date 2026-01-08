@@ -112,7 +112,7 @@ class AccountEditOrderPageLoader
     {
         $criteria = $this->createCriteria($request, $context);
         $apiRequest = $request->duplicate();
-        $apiRequest->query->set('checkPromotion', 'true');
+        $apiRequest->query->set('checkPromotion', true);
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);

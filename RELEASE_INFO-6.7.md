@@ -65,6 +65,29 @@ The following deprecations apply to `sw-mail-template-index`:
 
 The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. The button layout has been improved with a clearer visual hierarchy, placing the primary action on the right side. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
 
+### Google Analytics 4 Integration Update
+
+The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities.
+
+- The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure.
+- Furthermore, new events for `add_to_wishlist`, `remove_from_wishlist`, `view_cart`, `add_shipping_info`, and `add_payment_info` have been implemented to provide a more comprehensive view of user interactions.
+- The checkout funnel now tracks shipping and payment method selections, including when users change their selections.
+- The `view_item_list` and `add_to_cart` events now fire when users navigate through product listings via pagination or apply filters, not just on initial page load.
+
+#### New Configuration: Track Offcanvas Cart
+
+A new configuration option `Track offcanvas cart` has been added to the Sales Channel Analytics settings. When enabled, the `view_cart` GA4 event will fire whenever the offcanvas cart is opened or its content is updated (e.g., quantity changes, product removals, promotions).
+
+#### New Configuration: Open Offcanvas Cart After Add to Cart
+
+A new configuration option `Open offcanvas cart after adding a product` has been added to the Cart settings (Settings → Shop → Cart). This setting is enabled by default. When disabled:
+
+1. The offcanvas cart will **not open automatically** after adding items to the cart
+2. A success message will be shown instead
+3. The cart widget in the header will still update to show the new item count
+
+**Recommended for accurate funnel tracking:** Disable "Open offcanvas cart after adding a product" and enable "Track offcanvas cart". This ensures `view_cart` events only fire when users intentionally click the cart button, providing accurate funnel metrics.
+
 ## App System
 
 ## Hosting & Configuration

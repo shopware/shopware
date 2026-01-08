@@ -167,6 +167,8 @@
                     'frontend.account.login.page': '{{ path('frontend.account.login.page') }}',
                     };
                 window.salesChannelId = '{{ context.salesChannelId }}';
+                window.currencyIsoCode = '{{ context.currency.isoCode }}';
+                window.openOffcanvasAfterAddToCart = '{{ config('core.cart.openOffcanvasAfterAddToCart') ? '1' : '0' }}';
             </script>
         {% endblock %}
 

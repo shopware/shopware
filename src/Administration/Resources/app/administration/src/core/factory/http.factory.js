@@ -234,9 +234,11 @@ function handleErrorStates({ status, errors, error = null, data }) {
             Shopware.Store.get('notification').createNotification({
                 variant: 'error',
                 title: Shopware.Snippet.tc('global.default.error'),
-                message: `${Shopware.Snippet.tc('global.notification.messageDeleteFailed', 3, {
-                    entityName: Shopware.Snippet.tc(`global.entities.${entityName}`),
-                })}${blockingEntities}`,
+                message: `${Shopware.Snippet.tc(
+                    'global.notification.messageDeleteFailed',
+                    { entityName: Shopware.Snippet.tc(`global.entities.${entityName}`) },
+                    0,
+                )}${blockingEntities}`,
             });
         }
     }

@@ -580,6 +580,14 @@ The Terms of Service (TOS) was relocated to the bottom of the order confirmation
 
 Hardcoded CSS language flags in `src/Storefront/Resources/app/storefront/src/scss/component/_flags.scss` were removed.
 
+## Removal of `CheckoutProgressEvent` for Google Analytics
+
+The `CheckoutProgressEvent` class in `src/Storefront/Resources/app/storefront/src/plugin/google-analytics/events/checkout-progress.event.js` was removed.
+
+If your plugin or theme relies on the `checkout_progress` event for Google Analytics tracking, it will no longer fire after upgrading to 6.8.0.0.
+
+Migrate to the GA4-compliant events `view_cart`, `add_shipping_info`, and `add_payment_info` instead.
+
 ## Deprecated DomAccess Helper
 
 We deprecated DomAccess Helper, because it does not add much value compared to native browser APIs and to reduce Shopware specific code complexity. You simply replace its usage with the corresponding native methods. Here are some RegEx to help you:

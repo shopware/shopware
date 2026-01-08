@@ -76,8 +76,6 @@ class CacheInvalidator
             return $tags;
         }
 
-        $this->logger->info(\sprintf('Purged %d tags', \count($tags)));
-
         $this->purge($tags);
 
         return $tags;
@@ -106,11 +104,40 @@ class CacheInvalidator
             $this->httpCacheStore->setMultiple($list);
         }
 
+        $this->logger->info(
+            \sprintf('Purged %d tags.', \count($keys)),
+            [
+                'tags' => $keys,
+                'caller' => $this->findCaller(),
+            ]
+        );
         $this->dispatcher->dispatch(new InvalidateCacheEvent($keys));
     }
 
     private function shouldForceInvalidate(): bool
     {
         return $this->requestStack->getMainRequest()?->headers->get(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE) === '1';
+    }
+
+    /**
+     * @return array<string, int|string>|null
+     */
+    private function findCaller(): ?array
+    {
+        foreach (debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 10) as $frame) {
+            if (($frame['class'] ?? null) === self::class) {
+                continue; // skip CacheInvalidator methods
+            }
+
+            if (isset($frame['file'], $frame['class'])) {
+                return [
+                    'class' => $frame['class'],
+                    'function' => $frame['function'],
+                ];
+            }
+        }
+
+        /** Defensive fallback, not reachable in normal execution. */
+        return null; // @codeCoverageIgnore
     }
 }

@@ -5,13 +5,19 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -22,17 +28,29 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     private IdsCollection $ids;
 
-    private CacheInvalidator&MockObject $cacheInvalidatorMock;
-
     private CacheInvalidationSubscriber $cacheInvalidationSubscriber;
+
+    private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
 
-        $this->cacheInvalidatorMock = $this->createMock(CacheInvalidator::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+
+        $cacheInvalidator = new CacheInvalidator(
+            [$this->createMock(TagAwareAdapterInterface::class)],
+            $this->createMock(RedisInvalidatorStorage::class),
+            new EventDispatcher(),
+            $this->logger,
+            new RequestStack([new Request()]),
+            $this->createMock(TagAwareAdapterInterface::class),
+            false,
+            false
+        );
+
         $this->cacheInvalidationSubscriber = new CacheInvalidationSubscriber(
-            $this->cacheInvalidatorMock,
+            $cacheInvalidator,
             static::getContainer()->get(Connection::class),
             true
         );
@@ -50,9 +68,18 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects($this->once())
-            ->method('invalidate')
-            ->with(static::countOf(1));
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Purged 1 tags.',
+                static::callback(function (array $context): bool {
+                    static::assertCount(1, $context['tags']);
+                    static::assertSame('Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber', $context['caller']['class']);
+                    static::assertSame('invalidatePropertyFilters', $context['caller']['function']);
+
+                    return true;
+                })
+            );
 
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
@@ -69,9 +96,18 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects($this->once())
-            ->method('invalidate')
-            ->with(static::countOf(1));
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Purged 1 tags.',
+                static::callback(function (array $context): bool {
+                    static::assertCount(1, $context['tags']);
+                    static::assertSame('Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber', $context['caller']['class']);
+                    static::assertSame('invalidatePropertyFilters', $context['caller']['function']);
+
+                    return true; // callback must return true to signal "matches"
+                })
+            );
 
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
@@ -93,10 +129,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects($this->once())
-            ->method('invalidate')
-            ->with(static::countOf(0));
-
+        $this->logger->expects($this->never())->method('info');
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
 
@@ -112,9 +145,18 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects($this->once())
-            ->method('invalidate')
-            ->with(static::countOf(1));
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Purged 1 tags.',
+                static::callback(function (array $context): bool {
+                    static::assertCount(1, $context['tags']);
+                    static::assertSame('Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber', $context['caller']['class']);
+                    static::assertSame('invalidatePropertyFilters', $context['caller']['function']);
+
+                    return true; // callback must return true to signal "matches"
+                })
+            );
 
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
@@ -131,10 +173,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects($this->once())
-            ->method('invalidate')
-            ->with(static::countOf(0));
-
+        $this->logger->expects($this->never())->method('info');
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
 
@@ -150,9 +189,18 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects($this->once())
-            ->method('invalidate')
-            ->with(static::countOf(1));
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Purged 1 tags.',
+                static::callback(function (array $context): bool {
+                    static::assertCount(1, $context['tags']);
+                    static::assertSame('Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber', $context['caller']['class']);
+                    static::assertSame('invalidatePropertyFilters', $context['caller']['function']);
+
+                    return true;
+                })
+            );
 
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
@@ -169,10 +217,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects($this->once())
-            ->method('invalidate')
-            ->with(static::countOf(0));
-
+        $this->logger->expects($this->never())->method('info');
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
 
@@ -186,10 +231,7 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $event = static::getContainer()->get('product.repository')->create([$builder->build()], Context::createDefaultContext());
 
-        $this->cacheInvalidatorMock->expects($this->once())
-            ->method('invalidate')
-            ->with(static::countOf(0));
-
+        $this->logger->expects($this->never())->method('info');
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
 
@@ -218,7 +260,7 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $builder = new ProductBuilder($this->ids, 'product1');
         $builder->price(10)
-            ->property('property-assigned', '');
+            ->property('property-assigned', 'group1');
 
         static::getContainer()->get('product.repository')->create([$builder->build()], Context::createDefaultContext());
     }

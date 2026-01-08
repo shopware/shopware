@@ -65,11 +65,25 @@ class CacheInvalidatorTest extends TestCase
             ->expects($this->never())
             ->method('store');
 
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Purged 1 tags.',
+                [
+                    'tags' => ['foo'],
+                    'caller' => [
+                        'class' => self::class,
+                        'function' => __FUNCTION__,
+                    ],
+                ]
+            );
+
         $invalidator = new CacheInvalidator(
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
-            new NullLogger(),
+            $logger,
             new RequestStack([new Request()]),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
@@ -92,11 +106,25 @@ class CacheInvalidatorTest extends TestCase
             ->expects($this->never())
             ->method('store');
 
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Purged 1 tags.',
+                [
+                    'tags' => ['foo'],
+                    'caller' => [
+                        'class' => self::class,
+                        'function' => __FUNCTION__,
+                    ],
+                ]
+            );
+
         $invalidator = new CacheInvalidator(
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
-            new NullLogger(),
+            $logger,
             new RequestStack([new Request()]),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
@@ -122,11 +150,25 @@ class CacheInvalidatorTest extends TestCase
         $request = new Request();
         $request->headers->set(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE, '1');
 
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Purged 1 tags.',
+                [
+                    'tags' => ['foo'],
+                    'caller' => [
+                        'class' => self::class,
+                        'function' => __FUNCTION__,
+                    ],
+                ]
+            );
+
         $invalidator = new CacheInvalidator(
             [$tagAwareAdapter],
             $redisInvalidatorStorage,
             new EventDispatcher(),
-            new NullLogger(),
+            $logger,
             new RequestStack([$request]),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
@@ -205,13 +247,27 @@ class CacheInvalidatorTest extends TestCase
             ->method('loadAndDelete')
             ->willReturn(['foo']);
 
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Purged 1 tags.',
+                [
+                    'tags' => ['foo'],
+                    'caller' => [
+                        'class' => self::class,
+                        'function' => __FUNCTION__,
+                    ],
+                ]
+            );
+
         $invalidator = new CacheInvalidator(
             [
                 $tagAwareAdapter,
             ],
             $redisInvalidatorStorage,
             new EventDispatcher(),
-            new NullLogger(),
+            $logger,
             new RequestStack([new Request()]),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
@@ -228,12 +284,26 @@ class CacheInvalidatorTest extends TestCase
             ->expects($this->never())
             ->method('store');
 
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Purged 1 tags.',
+                [
+                    'tags' => ['foo'],
+                    'caller' => [
+                        'class' => self::class,
+                        'function' => __FUNCTION__,
+                    ],
+                ]
+            );
+
         $adapter = new ArrayAdapter();
         $invalidator = new CacheInvalidator(
             [],
             $redisInvalidatorStorage,
             new EventDispatcher(),
-            new NullLogger(),
+            $logger,
             new RequestStack([new Request()]),
             new TagAwareAdapter($adapter, $adapter),
             true,

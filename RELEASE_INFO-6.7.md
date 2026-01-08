@@ -78,6 +78,10 @@ This affects the following exception factory methods:
 * `WebhookException::invalidDataMapping(...)`
 * `WebhookException::unknownEventDataType(...)`
 
+### Logging for invalidated cache tags
+
+Added info-level logging for invalidated cache tags to improve cache transparency and debugging.
+
 ## Administration
 
 ### Deprecations in mail template components

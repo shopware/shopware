@@ -202,10 +202,9 @@ class AdministrationControllerTest extends TestCase
 
         $cacheControl = $response->headers->get('cache-control');
         static::assertNotNull($cacheControl);
-        static::assertStringContainsString('max-age=3600', $cacheControl);
+        static::assertStringContainsString('max-age=0', $cacheControl);
         static::assertStringContainsString('public', $cacheControl);
         static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
-        static::assertStringContainsString('must-revalidate', $cacheControl);
 
         static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
     }
@@ -386,10 +385,9 @@ class AdministrationControllerTest extends TestCase
 
         $cacheControl = $response->headers->get('cache-control');
         static::assertNotNull($cacheControl);
-        static::assertStringContainsString('max-age=3600', $cacheControl);
+        static::assertStringContainsString('max-age=0', $cacheControl);
         static::assertStringContainsString('public', $cacheControl);
         static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
-        static::assertStringContainsString('must-revalidate', $cacheControl);
 
         static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
     }

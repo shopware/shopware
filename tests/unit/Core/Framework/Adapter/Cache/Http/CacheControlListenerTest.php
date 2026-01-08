@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
+use Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheControlListener;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener;
 use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
@@ -13,7 +14,6 @@ use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
-use Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheControlListener;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -149,7 +149,7 @@ class CacheControlListenerTest extends TestCase
     public function testAdministrationHeadersNotModifiedWithRouteScope(): void
     {
         $response = new Response();
-        $response->headers->set('cache-control', 'max-age=3600, public, stale-while-revalidate=86400');
+        $response->headers->set('cache-control', 'max-age=0, public, stale-while-revalidate=86400');
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [AdministrationRouteScope::ID]);
@@ -160,19 +160,20 @@ class CacheControlListenerTest extends TestCase
                 $administrationListener = new AdministrationCacheControlListener();
                 $administrationListener->__invoke($event);
             }
+
             return $event;
         });
         $subscriber = new CacheControlListener(false, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
 
-        static::assertSame('max-age=3600, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
+        static::assertSame('max-age=0, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
     }
 
     public function testAdministrationHeadersNotModifiedWithRouteName(): void
     {
         $response = new Response();
-        $response->headers->set('cache-control', 'max-age=3600, public, stale-while-revalidate=86400');
+        $response->headers->set('cache-control', 'max-age=0, public, stale-while-revalidate=86400');
 
         $request = new Request();
         $request->attributes->set('_route', 'administration.index');
@@ -183,19 +184,20 @@ class CacheControlListenerTest extends TestCase
                 $administrationListener = new AdministrationCacheControlListener();
                 $administrationListener->__invoke($event);
             }
+
             return $event;
         });
         $subscriber = new CacheControlListener(false, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
 
-        static::assertSame('max-age=3600, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
+        static::assertSame('max-age=0, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
     }
 
     public function testAdministrationHeadersNotModifiedWithCacheIdMarker(): void
     {
         $response = new Response();
-        $response->headers->set('cache-control', 'max-age=3600, public, stale-while-revalidate=86400');
+        $response->headers->set('cache-control', 'max-age=0, public, stale-while-revalidate=86400');
         $response->headers->set(AdministrationController::CACHE_ID_HEADER, AdministrationController::CACHE_ID_ADMINISTRATION);
 
         $request = new Request();
@@ -206,20 +208,21 @@ class CacheControlListenerTest extends TestCase
                 $administrationListener = new AdministrationCacheControlListener();
                 $administrationListener->__invoke($event);
             }
+
             return $event;
         });
         $subscriber = new CacheControlListener(false, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
 
-        static::assertSame('max-age=3600, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
+        static::assertSame('max-age=0, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
         static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
     }
 
     public function testNonAdministrationHeadersAreModified(): void
     {
         $response = new Response();
-        $response->headers->set('cache-control', 'max-age=3600, public, stale-while-revalidate=86400');
+        $response->headers->set('cache-control', 'max-age=0, public, stale-while-revalidate=86400');
 
         $request = new Request();
         // No administration markers set

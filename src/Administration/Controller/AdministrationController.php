@@ -137,11 +137,10 @@ class AdministrationController extends AbstractController
         ]);
 
         $response->setPublic();
-        $response->setMaxAge(3600);
-        $response->setSharedMaxAge(3600);
+        $response->setMaxAge(0);
+        $response->setSharedMaxAge(0);
         $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
-        $response->headers->addCacheControlDirective('must-revalidate');
-        $response->headers->set('X-Shopware-Cache-Id', 'administration');
+        $response->headers->set(self::CACHE_ID_HEADER, self::CACHE_ID_ADMINISTRATION);
 
         return $response;
     }
@@ -233,10 +232,9 @@ class AdministrationController extends AbstractController
             PlatformRequest::HEADER_FRAME_OPTIONS => 'sameorigin',
         ]);
         $response->setPublic();
-        $response->setMaxAge(3600);
-        $response->setSharedMaxAge(3600);
+        $response->setMaxAge(0);
+        $response->setSharedMaxAge(0);
         $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
-        $response->headers->addCacheControlDirective('must-revalidate');
         $response->headers->set(self::CACHE_ID_HEADER, self::CACHE_ID_ADMINISTRATION);
 
         return $response;

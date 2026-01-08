@@ -23,6 +23,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -84,6 +86,7 @@ class JoinFilterTest extends TestCase
                 ->price(15, 10)
                 ->manufacturer('manufacturer-2')
                 ->property('red', 'color')
+                ->property('S', 'size')
                 ->category('category-1')
                 ->category('category-3')
                 ->prices('rule-1', 150)
@@ -91,6 +94,7 @@ class JoinFilterTest extends TestCase
 
             (new ProductBuilder($ids, 'product-3', 3, 'tax'))
                 ->price(15, 10)
+                ->category('category-4')
                 ->build(),
         ];
 
@@ -366,10 +370,11 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertSame(1, $result->getTotal());
+        static::assertSame(2, $result->getTotal());
         static::assertFalse($result->has($ids->get('category-1')));
         static::assertFalse($result->has($ids->get('category-2')));
         static::assertTrue($result->has($ids->get('category-3')));
+        static::assertTrue($result->has($ids->get('category-4')));
     }
 
     #[Depends('testIndexing')]
@@ -426,6 +431,148 @@ class JoinFilterTest extends TestCase
     }
 
     #[Depends('testIndexing')]
+    public function testOneToManyWithSort(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria->addFilter(
+            new AndFilter([
+                new EqualsFilter('product.prices.ruleId', $ids->get('rule-1')),
+                new RangeFilter('product.prices.price', [RangeFilter::GTE => 100]),
+            ])
+        );
+        $criteria->addSorting(new FieldSorting('product.prices.price'));
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+        static::assertSame($ids->get('product-1'), $result->getIds()[0]);
+        static::assertSame($ids->get('product-2'), $result->getIds()[1]);
+    }
+
+    #[Depends('testIndexing')]
+    public function testOneToManyWithSortDesc(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria->addFilter(
+            new AndFilter([
+                new EqualsFilter('product.prices.ruleId', $ids->get('rule-1')),
+                new RangeFilter('product.prices.price', [RangeFilter::GTE => 100]),
+            ])
+        );
+        $criteria->addSorting(new FieldSorting('product.prices.price', FieldSorting::DESCENDING));
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+        static::assertSame($ids->get('product-2'), $result->getIds()[0]);
+        static::assertSame($ids->get('product-1'), $result->getIds()[1]); // Rule 2 price is higher, but ignored because of filter
+    }
+
+    #[Depends('testIndexing')]
+    public function testOneToManyWithSortWithMultipleJoinGroups(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('product.prices.ruleId', $ids->get('rule-2')),
+                    new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('product.prices.ruleId', $ids->get('rule-1')),
+                    new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
+                ]),
+            ])
+        );
+        $criteria->addSorting(new FieldSorting('product.prices.price'));
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+        // note that this is the same order then below, because apparently it uses both rule-1 price and rule-2 price
+        // for sorting, therefore product-1 comes first in both cases, as it has same higher and lower price
+        // however note that by the join group the lower rule-1 price should be filtered out
+        static::assertSame($ids->get('product-1'), $result->getIds()[0]);
+        static::assertSame($ids->get('product-2'), $result->getIds()[1]);
+    }
+
+    #[Depends('testIndexing')]
+    public function testOneToManyWithSortWithMultipleJoinGroupsDesc(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('product.prices.ruleId', $ids->get('rule-1')),
+                    new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('product.prices.ruleId', $ids->get('rule-2')),
+                    new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
+                ]),
+            ])
+        );
+        $criteria->addSorting(new FieldSorting('product.prices.price', FieldSorting::DESCENDING));
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+        // note that this is the same order then above, because apparently it uses both rule-1 price and rule-2 price
+        // for sorting, therefore product-1 comes first in both cases, as it has same higher and lower price
+        // however note that by the join group the lower rule-1 price should be filtered out
+        static::assertSame($ids->get('product-1'), $result->getIds()[0]);
+        static::assertSame($ids->get('product-2'), $result->getIds()[1]);
+    }
+
+    #[Depends('testIndexing')]
+    public function testOneToManyWithGrouping(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria->addFilter(
+            new AndFilter([
+                new EqualsFilter('product.prices.ruleId', $ids->get('rule-1')),
+                new RangeFilter('product.prices.price', [RangeFilter::GTE => 100]),
+            ])
+        );
+        $criteria->addGroupField(new FieldGrouping('product.prices.ruleId'));
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(1, $result->getTotal());
+        static::assertSame($ids->get('product-1'), $result->getIds()[0]);
+    }
+
+    #[Depends('testIndexing')]
+    public function testOneToManyWithMultipleJoinGroupsAndGroupingIsNotSupported(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('product.prices.ruleId', $ids->get('rule-1')),
+                    new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('product.prices.ruleId', $ids->get('rule-2')),
+                    new RangeFilter('product.prices.price', [RangeFilter::GTE => 150]),
+                ]),
+            ])
+        );
+        $criteria->addGroupField(new FieldGrouping('product.prices.ruleId'));
+
+        // we get an internal DBAL field mapping exception here,
+        // which is not optimal but at least indicates that this is not supported
+        static::expectException(\Throwable::class);
+        static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+    }
+
+    #[Depends('testIndexing')]
     public function testOneToManyWithMultipleFilters(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -466,6 +613,87 @@ class JoinFilterTest extends TestCase
     }
 
     #[Depends('testIndexing')]
+    public function testManyToOneWithSort(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('category-'));
+
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('category.products.manufacturer.id', $ids->get('manufacturer-1')),
+                    new EqualsFilter('category.products.manufacturer.name', 'manufacturer-1'),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('category.products.manufacturer.id', $ids->get('manufacturer-2')),
+                    new EqualsFilter('category.products.manufacturer.name', 'manufacturer-2'),
+                ]),
+            ])
+        );
+        $criteria->addSorting(new FieldSorting('category.products.manufacturer.name'));
+
+        $result = static::getContainer()->get('category.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(3, $result->getTotal());
+        static::assertSame($ids->get('category-1'), $result->getIds()[0]);
+        static::assertSame($ids->get('category-2'), $result->getIds()[1]);
+        static::assertSame($ids->get('category-3'), $result->getIds()[2]);
+    }
+
+    #[Depends('testIndexing')]
+    public function testManyToOneWithSortDesc(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('category-'));
+
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('category.products.manufacturer.id', $ids->get('manufacturer-1')),
+                    new EqualsFilter('category.products.manufacturer.name', 'manufacturer-1'),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('category.products.manufacturer.id', $ids->get('manufacturer-2')),
+                    new EqualsFilter('category.products.manufacturer.name', 'manufacturer-2'),
+                ]),
+            ])
+        );
+        $criteria->addSorting(new FieldSorting('category.products.manufacturer.name', FieldSorting::DESCENDING));
+
+        $result = static::getContainer()->get('category.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(3, $result->getTotal());
+        static::assertSame($ids->get('category-1'), $result->getIds()[0]); // manufacturer-2 matches as well
+        static::assertSame($ids->get('category-3'), $result->getIds()[1]); // manufacturer-2
+        static::assertSame($ids->get('category-2'), $result->getIds()[2]); // manufacturer-1
+    }
+
+    #[Depends('testIndexing')]
+    public function testManyToOneWithMultipleJoinGroupsAndGroupingIsNotSupported(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('category-'));
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('category.products.manufacturer.id', $ids->get('manufacturer-1')),
+                    new EqualsFilter('category.products.manufacturer.name', 'manufacturer-1'),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('category.products.manufacturer.id', $ids->get('manufacturer-2')),
+                    new EqualsFilter('category.products.manufacturer.name', 'manufacturer-2'),
+                ]),
+            ])
+        );
+        $criteria->addGroupField(new FieldGrouping('category.products.manufacturer.name'));
+
+        // we get an internal DBAL field mapping exception here,
+        // which is not optimal but at least indicates that this is not supported
+        static::expectException(\Throwable::class);
+        static::getContainer()->get('category.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+    }
+
+    #[Depends('testIndexing')]
     public function testManyToMany(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -482,6 +710,108 @@ class JoinFilterTest extends TestCase
         static::assertSame(1, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
         static::assertTrue($result->has($ids->get('product-1')));
+    }
+
+    #[Depends('testIndexing')]
+    public function testManyToManyWithMultiJoinGroup(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('product.properties.id', $ids->get('yellow')),
+                    new EqualsFilter('product.properties.name', 'yellow'),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('product.properties.id', $ids->get('S')),
+                    new EqualsFilter('product.properties.name', 'S'),
+                ]),
+            ])
+        );
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has($ids->get('product-2')));
+    }
+
+    #[Depends('testIndexing')]
+    public function testManyToManyWithSort(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('product.properties.id', $ids->get('yellow')),
+                    new EqualsFilter('product.properties.name', 'yellow'),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('product.properties.id', $ids->get('S')),
+                    new EqualsFilter('product.properties.name', 'S'),
+                ]),
+            ])
+        );
+        $criteria->addSorting(new FieldSorting('product.properties.name'));
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+        static::assertSame($ids->get('product-1'), $result->getIds()[0]);
+        static::assertSame($ids->get('product-2'), $result->getIds()[1]);
+    }
+
+    #[Depends('testIndexing')]
+    public function testManyToManyWithSortDesc(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('product.properties.id', $ids->get('yellow')),
+                    new EqualsFilter('product.properties.name', 'yellow'),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('product.properties.id', $ids->get('S')),
+                    new EqualsFilter('product.properties.name', 'S'),
+                ]),
+            ])
+        );
+        $criteria->addSorting(new FieldSorting('product.properties.name', FieldSorting::DESCENDING));
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+        static::assertSame($ids->get('product-1'), $result->getIds()[0]);
+        static::assertSame($ids->get('product-2'), $result->getIds()[1]);
+    }
+
+    #[Depends('testIndexing')]
+    public function testManyToManyWithGroup(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('product.properties.id', $ids->get('yellow')),
+                    new EqualsFilter('product.properties.name', 'yellow'),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('product.properties.id', $ids->get('S')),
+                    new EqualsFilter('product.properties.name', 'S'),
+                ]),
+            ])
+        );
+        $criteria->addGroupField(new FieldGrouping('product.properties.name'));
+
+        // we get an internal DBAL field mapping exception here,
+        // which is not optimal but at least indicates that this is not supported
+        static::expectException(\Throwable::class);
+        static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
     }
 
     #[Depends('testIndexing')]

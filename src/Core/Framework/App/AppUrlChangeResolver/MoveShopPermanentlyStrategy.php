@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -56,13 +57,12 @@ class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
     public function resolve(Context $context): void
     {
         try {
-            $this->shopIdProvider->reset();
             $this->shopIdProvider->getShopId();
 
             // no resolution needed
             return;
-        } catch (ShopIdChangeSuggestedException $e) {
-            $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);
+        } catch (AppUrlChangeDetectedException $e) {
+            $this->shopIdProvider->regenerateAndSetShopId($e->getShopId()->id);
         }
 
         $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {

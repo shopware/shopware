@@ -1,6 +1,6 @@
+import { QuickView } from '@shopware-ag/dive/quickview';
 import template from './sw-model-viewer.html.twig';
 import './sw-model-viewer.scss';
-import { QuickView } from '@shopware-ag/dive/quickview';
 
 const { EventBus } = Shopware.Utils;
 

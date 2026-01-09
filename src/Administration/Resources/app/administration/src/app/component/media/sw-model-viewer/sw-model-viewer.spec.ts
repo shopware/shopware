@@ -1,7 +1,8 @@
 /**
  * @sw-package discovery
  */
-import { mount, VueWrapper } from '@vue/test-utils';
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
 
 // Mock EventBus BEFORE component imports it
@@ -110,7 +111,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             // Note: canvas and modelEntity are set during mount, so we check before mount completes
             // or we check that they were initially null in data()
             const wrapper = await createWrapper();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // After mount, canvas and modelEntity are set, isLoading becomes false after QuickView
             // So we verify the component mounted successfully
@@ -143,7 +144,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
         it('should find canvas element and initialize QuickView in mounted hook', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Canvas should be found
             expect(vm.canvas).toBeInstanceOf(HTMLCanvasElement);
@@ -162,7 +163,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises(); // Let initial mount complete
             jest.clearAllMocks(); // Clear the initial QuickView call
 
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Mock querySelector to return null to simulate missing canvas
             // This tests the component's handling when canvas element is not found
@@ -180,7 +181,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await vm.mountedComponent();
             await flushPromises();
 
-            expect(vm.canvas).toBe(null);
+            expect(vm.canvas).toBeNull();
             expect(vm.isLoading).toBe(false);
             expect(mockQuickView).not.toHaveBeenCalled();
 
@@ -235,7 +236,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
         it('should set isLoading to false after QuickView completes', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             expect(vm.isLoading).toBe(false);
         });
@@ -245,7 +246,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises(); // Let initial mount complete
             jest.clearAllMocks(); // Clear the initial QuickView call
 
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Set canvas to null
             vm.canvas = null;
@@ -263,7 +264,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises(); // Let initial mount complete
             jest.clearAllMocks(); // Clear the initial QuickView call
 
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Reset state
             vm.canvas = wrapper.find('.sw-model-viewer-canvas').element as HTMLCanvasElement;
@@ -281,7 +282,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises(); // Let initial mount complete
             jest.clearAllMocks(); // Clear the initial QuickView call
 
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Reset state - create entity without url
             vm.canvas = wrapper.find('.sw-model-viewer-canvas').element as HTMLCanvasElement;
@@ -301,7 +302,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises(); // Let initial mount complete
             jest.clearAllMocks(); // Clear the initial QuickView call
 
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Reset state
             vm.canvas = wrapper.find('.sw-model-viewer-canvas').element as HTMLCanvasElement;
@@ -326,7 +327,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await new Promise(resolve => setTimeout(resolve, 10)); // Small delay for error handling
             await flushPromises();
 
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // QuickView should have been called
             expect(mockQuickView).toHaveBeenCalled();
@@ -343,7 +344,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
         it('should set isLoading to true at start of initializeQuickView', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Reset loading state
             vm.isLoading = false;
@@ -378,7 +379,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
                 source: newMedia,
             } as any);
             await flushPromises();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             expect(vm.modelEntity).toEqual(newMedia);
             expect(mockQuickView).toHaveBeenCalledWith(
@@ -516,7 +517,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
                     source: mediaEntity,
                 },
             });
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             const mediaId = vm.getCurrentMediaId();
 
@@ -532,7 +533,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
                     source: mediaEntity1, // Mount with valid object
                 },
             });
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Test getCurrentMediaId logic with array by calling it with mocked source
             // Since we can't mutate props, we test the logic directly
@@ -549,7 +550,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
 
         it('should return null when source is null', async () => {
             const wrapper = await createWrapper();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Test getCurrentMediaId logic with null source
             // Since we can't mutate props, we test the logic directly
@@ -560,7 +561,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
 
             const mediaId = testGetCurrentMediaId(null);
 
-            expect(mediaId).toBe(null);
+            expect(mediaId).toBeNull();
         });
 
         it('should return null when source has no id property', async () => {
@@ -577,11 +578,11 @@ describe('src/app/component/media/sw-model-viewer', () => {
                     source: mediaEntity,
                 },
             });
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             const mediaId = vm.getCurrentMediaId();
 
-            expect(mediaId).toBe(null);
+            expect(mediaId).toBeNull();
         });
 
         it('should return null when source array element has no id', async () => {
@@ -599,7 +600,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
                     source: createMediaEntity(), // Mount with valid entity
                 },
             });
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Test getCurrentMediaId logic with array without id
             // Since we can't mutate props, we test the logic directly
@@ -611,7 +612,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
 
             const mediaId = testGetCurrentMediaId();
 
-            expect(mediaId).toBe(null);
+            expect(mediaId).toBeNull();
         });
     });
 
@@ -626,7 +627,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
 
         it('should show loader when isLoading is true', async () => {
             const wrapper = await createWrapper();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Set loading to true manually to test loader visibility
             vm.isLoading = true;
@@ -639,7 +640,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
         it('should hide loader when isLoading is false', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // After initialization, loading should be false
             expect(vm.isLoading).toBe(false);
@@ -668,7 +669,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             });
 
             await flushPromises();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Verify final state
             expect(vm.canvas).toBeInstanceOf(HTMLCanvasElement);
@@ -718,7 +719,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises(); // Let initial mount complete
             jest.clearAllMocks(); // Clear the initial QuickView call
 
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Store original $el and querySelector
             const originalEl = vm.$el;
@@ -742,7 +743,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await vm.mountedComponent();
             await flushPromises();
 
-            expect(vm.canvas).toBe(null);
+            expect(vm.canvas).toBeNull();
             expect(vm.isLoading).toBe(false);
             expect(mockQuickView).not.toHaveBeenCalled();
 
@@ -771,7 +772,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             });
 
             await flushPromises();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             expect(vm.isLoading).toBe(false);
             // QuickView should not be called because url is missing
@@ -789,7 +790,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             });
 
             await flushPromises();
-            const vm = wrapper.vm as any as ComponentInstance;
+            const vm = wrapper.vm as ComponentInstance;
 
             // Empty string is falsy, so QuickView should not be called
             expect(vm.isLoading).toBe(false);

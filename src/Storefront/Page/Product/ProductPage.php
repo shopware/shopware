@@ -23,8 +23,6 @@ class ProductPage extends Page
 
     protected PropertyGroupOptionCollection $selectedOptions;
 
-    protected ?string $redirectTo = null;
-
     public function getProduct(): SalesChannelProductEntity
     {
         return $this->product;
@@ -78,15 +76,5 @@ class ProductPage extends Page
     public function getEntityName(): string
     {
         return ProductDefinition::ENTITY_NAME;
-    }
-
-    public function getRedirectTo(): ?string
-    {
-        return $this->redirectTo;
-    }
-
-    public function setRedirectTo(string $redirectTo): void
-    {
-        $this->redirectTo = $redirectTo;
     }
 }

@@ -20,10 +20,6 @@
 		{% set totalReviewsInCurrentLanguage = reviews.totalReviewsInCurrentLanguage ?: productReviewCount %}
 		{% set numberOfReviewsNotInCurrentLanguage = productReviewCount - totalReviewsInCurrentLanguage %}
 
-        {% if redirectTo is not defined %}
-            {% set redirectTo = activeRoute %}
-        {% endif %}
-
 		<div class="product-detail-review tab-pane-container">
 			{% block component_review_tab_pane %}
                 <div class="row product-detail-review-content js-review-container">

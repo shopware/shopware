@@ -56,9 +56,6 @@
                               data-form-ajax-submit="true"
                               data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 
-                            {% if redirectTo is not defined %}
-                                {% set redirectTo = activeRoute %}
-                            {% endif %}
                             <input type="hidden" name="redirectTo" value="{{ redirectTo }}">
 
                             {% if app.request.get('language') %}

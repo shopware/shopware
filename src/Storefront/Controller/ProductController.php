@@ -58,11 +58,16 @@ class ProductController extends StorefrontController
     public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->productPageLoader->load($request, $context);
-        $page->setRedirectTo('frontend.detail.page');
 
         $this->hook(new ProductPageLoadedHook($page, $context));
 
-        return $this->renderStorefront('@Storefront/storefront/page/content/product-detail.html.twig', ['page' => $page]);
+        return $this->renderStorefront(
+            '@Storefront/storefront/page/content/product-detail.html.twig',
+            [
+                'page' => $page,
+                'redirectTo' => 'frontend.detail.page',
+            ]
+        );
     }
 
     #[Route(
@@ -207,16 +212,13 @@ class ProductController extends StorefrontController
 
         $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));
 
-        $templateData = [
-            'reviews' => $reviews,
-            'ratingSuccess' => $request->get('success'),
-        ];
-
-        $redirectTarget = $request->get('redirectTo');
-        if ($redirectTarget) {
-            $templateData['redirectTo'] = $redirectTarget;
-        }
-
-        return $this->renderStorefront('storefront/component/review/review.html.twig', $templateData);
+        return $this->renderStorefront(
+            'storefront/component/review/review.html.twig',
+            [
+                'reviews' => $reviews,
+                'ratingSuccess' => $request->get('success'),
+                'redirectTo' => $request->get('redirectTo', $request->get('_route')),
+            ]
+        );
     }
 }

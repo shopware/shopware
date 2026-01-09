@@ -18,7 +18,7 @@ class CookieRouteResponse extends StoreApiResponse
     public function __construct(
         CookieGroupCollection $cookieGroups,
         string $hash,
-        string $languageId,
+        string $languageId = '',
     ) {
         parent::__construct(new ArrayStruct([
             'elements' => $cookieGroups,

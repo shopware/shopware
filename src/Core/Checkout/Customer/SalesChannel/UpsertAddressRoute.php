@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
@@ -42,10 +43,12 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      * @internal
      *
      * @param EntityRepository<CustomerAddressCollection> $addressRepository
+     * @param SalesChannelRepository<CustomerAddressCollection> $salesChannelAddressRepository
      * @param EntityRepository<SalutationCollection> $salutationRepository
      */
     public function __construct(
         private readonly EntityRepository $addressRepository,
+        private readonly SalesChannelRepository $salesChannelAddressRepository,
         private readonly DataValidator $validator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
@@ -137,7 +140,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         $this->addressRepository->upsert([$addressData], $context->getContext());
 
-        $address = $this->addressRepository->search(new Criteria([$addressId]), $context->getContext())->getEntities()->first();
+        $address = $this->salesChannelAddressRepository->search(new Criteria([$addressId]), $context)->getEntities()->first();
         \assert($address !== null);
 
         return new UpsertAddressRouteResponse($address);

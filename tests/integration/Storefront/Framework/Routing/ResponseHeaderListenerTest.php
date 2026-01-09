@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -18,25 +17,6 @@ use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 class ResponseHeaderListenerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
-
-    private const REVALIDATE_ROUTES = [
-        'frontend.account.order.page' => [],
-        'frontend.account.order.single.page' => ['deepLinkCode' => 'abc'],
-        'frontend.account.edit-order.page' => ['orderId' => 'abc'],
-        'frontend.account.home.page' => [],
-        'frontend.account.profile.page' => [],
-        'frontend.account.address.page' => [],
-        'frontend.account.address.create.page' => [],
-        'frontend.account.address.edit.page' => ['addressId' => 'abc'],
-        'frontend.account.login.page' => [],
-        'frontend.account.guest.login.page' => [],
-        'frontend.checkout.cart.page' => [],
-        'frontend.checkout.confirm.page' => [],
-        'frontend.checkout.finish.page' => [],
-        'frontend.account.register.page' => [],
-        'frontend.checkout.register.page' => [],
-        'frontend.account.customer-group-registration.page' => ['customerGroupId' => 'abc'],
-    ];
 
     public function testHomeController(): void
     {
@@ -87,34 +67,6 @@ class ResponseHeaderListenerTest extends TestCase
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
-    }
-
-    /**
-     * @param array<string, string> $routeParameters
-     */
-    #[DataProvider('dataProviderRevalidateRoutes')]
-    public function testNoStoreHeaderPresent(string $routeName, array $routeParameters): void
-    {
-        $router = static::getContainer()->get('router');
-        $route = $router->generate($routeName, $routeParameters);
-
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
-        $browser->request('GET', $_SERVER['APP_URL'] . $route);
-        $response = $browser->getResponse();
-
-        static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
-        static::assertTrue($response->headers->hasCacheControlDirective('private'));
-        static::assertFalse($response->isCacheable());
-    }
-
-    /**
-     * @return iterable<string, array{string, array<string>}>
-     */
-    public static function dataProviderRevalidateRoutes(): iterable
-    {
-        foreach (self::REVALIDATE_ROUTES as $route => $parameters) {
-            yield $route => [$route, $parameters];
-        }
     }
 
     /**

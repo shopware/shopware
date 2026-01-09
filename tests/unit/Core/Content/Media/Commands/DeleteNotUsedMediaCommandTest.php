@@ -92,6 +92,24 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         static::assertStringContainsString('Aborting due to user input.', $commandTester->getDisplay());
     }
 
+    public function testExecuteInNonInteractiveModeProceedsAutomatically(): void
+    {
+        $service = $this->createMock(UnusedMediaPurger::class);
+
+        $service->expects($this->once())
+            ->method('deleteNotUsedMedia')
+            ->willReturn(5);
+
+        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([], ['interactive' => false]);
+
+        $commandTester->assertCommandIsSuccessful();
+        static::assertStringNotContainsString('Are you sure that you want to delete unused media files?', $commandTester->getDisplay());
+        static::assertStringContainsString('Successfully deleted 5 media files.', $commandTester->getDisplay());
+    }
+
     public function testExecuteWithFolderEntityRestriction(): void
     {
         $service = $this->createMock(UnusedMediaPurger::class);
@@ -198,6 +216,33 @@ class DeleteNotUsedMediaCommandTest extends TestCase
             $this->buildTableRegex(20, true),
             $commandTester->getDisplay()
         );
+    }
+
+    public function testDryRunInNonInteractiveModeShowsAllPagesAutomatically(): void
+    {
+        $service = $this->createMock(UnusedMediaPurger::class);
+
+        $generator = $this->generatorOfMedia([20, 20]);
+
+        $service->expects($this->once())
+            ->method('getNotUsedMedia')
+            ->willReturnCallback($generator);
+
+        $service->expects($this->never())
+            ->method('deleteNotUsedMedia');
+
+        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--dry-run' => true], ['interactive' => false]);
+
+        $commandTester->assertCommandIsSuccessful();
+
+        static::assertMatchesRegularExpression(
+            $this->buildTableRegex(40),
+            $commandTester->getDisplay()
+        );
+        static::assertStringContainsString('No more files to show.', $commandTester->getDisplay());
     }
 
     public function testErrorIsReportedIfIncompatibleOptionsPassed(): void

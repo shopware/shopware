@@ -12,9 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
-use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Store\Services\ExtensionLoader;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
+use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -46,7 +46,7 @@ class ExtensionLoaderTest extends TestCase
             ->method('error')
             ->with(
                 'Failed to load plugin extension data',
-                $this->callback(function (array $context): bool {
+                static::callback(function (array $context): bool {
                     return $context['plugin'] === 'BrokenPlugin'
                         && str_contains($context['exception'], 'Invalid XML');
                 })

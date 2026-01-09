@@ -94,6 +94,10 @@ A new configuration option `Open offcanvas cart after adding a product` has been
 
 ## Critical Fixes
 
+### Broken `config.xml` no longer crashes extension list
+
+Previously, a syntax error or invalid XML in a plugin's `config.xml` file would cause the entire extension list in the Administration to render as empty with a 500 error. Now the extension list renders correctly, the affected plugin shows without a "Configure" link, and errors are logged to help developers identify the issue. Navigating directly to the broken plugin's configuration page still shows a meaningful error notification.
+
 # 6.7.6.0
 
 ## Features

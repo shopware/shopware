@@ -176,7 +176,7 @@ class CategoryBreadcrumbBuilder
     {
         $referer = $request->headers->get('referer');
 
-        if (empty($referer)) {
+        if ($referer === null || $referer === '') {
             return null;
         }
 

@@ -22,7 +22,6 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\CartLineItemController;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 /**

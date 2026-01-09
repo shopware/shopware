@@ -51,8 +51,8 @@ class ProductLineItemFactory implements LineItemFactoryInterface
             $lineItem->setReferencedId($data['referencedId']);
         }
 
-        if (isset($data['payload'])) {
-            $lineItem->setPayload($data['payload'] ?? []);
+        if (isset($data['payload']) && \is_array($data['payload'])) {
+            $lineItem->setPayload(array_merge($lineItem->getPayload(), $data['payload']));
         }
 
         if (isset($data['quantity'])) {

@@ -5281,6 +5281,7 @@
  "sw_sales_channel_detail_analytics_fields_active",
  "sw_sales_channel_detail_analytics_fields_anonymize_ip",
  "sw_sales_channel_detail_analytics_fields_container",
+ "sw_sales_channel_detail_analytics_fields_track_offcanvas_cart",
  "sw_sales_channel_detail_analytics_fields_track_orders",
  "sw_sales_channel_detail_analytics_fields_tracking_id",
  "sw_sales_channel_detail_analytics_headline",

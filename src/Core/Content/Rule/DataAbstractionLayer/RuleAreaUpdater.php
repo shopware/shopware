@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -300,17 +301,14 @@ class RuleAreaUpdater implements EventSubscriberInterface
     private function getAssociationEntities(): array
     {
         return $this->getAssociationFields()
-            ->filter(fn (AssociationField $associationField): bool => $associationField instanceof OneToManyAssociationField || $associationField instanceof ManyToManyAssociationField)
-            ->map(
-                static function (AssociationField $field): string {
-                    return $field->getReferenceDefinition()->getEntityName();
-                }
-            );
+            ->fmap(static function (Field $associationField): ?string {
+                return $associationField instanceof OneToManyAssociationField || $associationField instanceof ManyToManyAssociationField ? $associationField->getReferenceDefinition()->getEntityName() : null;
+            });
     }
 
     private function getAssociationDefinitionByEntity(CompiledFieldCollection $collection, string $entityName): ?EntityDefinition
     {
-        $field = $collection->filter(function (AssociationField $associationField) use ($entityName): bool {
+        $field = $collection->firstWhere(function (Field $associationField) use ($entityName): bool {
             if ($associationField instanceof ManyToManyAssociationField) {
                 return $associationField->getMappingDefinition()->getEntityName() === $entityName;
             }
@@ -320,7 +318,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             }
 
             return $associationField->getReferenceDefinition()->getEntityName() === $entityName;
-        })->first();
+        });
 
         if ($field instanceof ManyToManyAssociationField) {
             return $field->getMappingDefinition();

@@ -5,8 +5,11 @@ namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -27,6 +30,7 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
      */
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -51,6 +55,10 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
             if (!\is_string($optionId)) {
                 throw ProductException::invalidOptionsParameter();
             }
+        }
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $this->cacheTagCollector->addTag(EntityCacheKeyGenerator::buildProductTag($productId));
         }
 
         $variantId = $this->searchForOptions($productId, $context, $options);

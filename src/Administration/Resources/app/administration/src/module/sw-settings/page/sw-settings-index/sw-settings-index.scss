@@ -23,6 +23,7 @@
             flex-direction: column;
 
             &-title {
+                color: var(--color-text-primary-default);
                 font-size: var(--font-size-xl);
                 font-weight: var(--font-weight-bold);
                 line-height: var(--font-line-height-xl);
@@ -64,6 +65,7 @@
             padding-bottom: var(--scale-size-48);
 
             &-title {
+                color: var(--color-text-primary-default);
                 font-size: var(--font-size-s);
                 font-weight: var(--font-weight-bold);
                 line-height: var(--font-line-height-s);

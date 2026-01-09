@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -23,6 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,10 +31,14 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
+ *
+ * @see MultiJoinFilterLimitationTest for edge cases and limitations of multi join filters
  */
 class JoinFilterTest extends TestCase
 {
     use KernelTestBehaviour;
+
+    private static IdsCollection $ids;
 
     #[BeforeClass]
     public static function startTransactionBefore(): void
@@ -43,6 +48,11 @@ class JoinFilterTest extends TestCase
             ->get(Connection::class);
 
         $connection->beginTransaction();
+
+        self::$ids = new IdsCollection();
+
+        // performance optimization: only insert the test data once per test class and not before each test
+        self::insertTestData();
     }
 
     #[AfterClass]
@@ -55,79 +65,7 @@ class JoinFilterTest extends TestCase
         $connection->rollBack();
     }
 
-    /**
-     * @return IdsCollection
-     */
-    public function testIndexing()
-    {
-        $ids = new IdsCollection();
-
-        $products = [
-            (new ProductBuilder($ids, 'product-1', 10, 'tax'))
-                ->price(15, 10)
-                ->manufacturer('manufacturer-1')
-                ->property('red', 'color')
-                ->property('yellow', 'color')
-                ->property('XL', 'size')
-                ->property('L', 'size')
-                ->category('category-1')
-                ->category('category-2')
-                ->prices('rule-1', 100)
-                ->prices('rule-2', 150)
-                ->build(),
-
-            (new ProductBuilder($ids, 'product-1-variant', 10, 'tax'))
-                ->parent('product-1')
-                ->build(),
-
-            (new ProductBuilder($ids, 'product-2', 3, 'tax'))
-                ->price(15, 10)
-                ->manufacturer('manufacturer-2')
-                ->property('red', 'color')
-                ->category('category-1')
-                ->category('category-3')
-                ->prices('rule-1', 150)
-                ->build(),
-
-            (new ProductBuilder($ids, 'product-3', 3, 'tax'))
-                ->price(15, 10)
-                ->build(),
-        ];
-
-        static::getContainer()->get('product.repository')
-            ->create($products, Context::createDefaultContext());
-
-        $userId = static::getContainer()->get(Connection::class)
-            ->fetchOne('SELECT LOWER(HEX(id)) FROM `user`');
-
-        $ids->set('user-id', $userId);
-
-        $media = [
-            ['id' => $ids->create('with-avatar')],
-            ['id' => $ids->create('without-avatar')],
-        ];
-
-        static::getContainer()->get('media.repository')
-            ->create($media, Context::createDefaultContext());
-
-        $avatar = [
-            'id' => $userId,
-            'avatarId' => $ids->get('with-avatar'),
-        ];
-
-        static::getContainer()->get('user.repository')
-            ->update([$avatar], Context::createDefaultContext());
-
-        $result = static::getContainer()->get('product.repository')
-            ->searchIds(new Criteria($ids->prefixed('product-')), Context::createDefaultContext());
-
-        static::assertSame(\count($products), $result->getTotal());
-
-        return $ids;
-    }
-
-    #[Depends('testIndexing')]
-    public function testOneToOne(IdsCollection $ids): void
+    public function testOneToOne(): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -138,8 +76,8 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertCount(1, $media->getIds());
-        static::assertContains($ids->get('with-avatar'), $media->getIds());
-        static::assertNotContains($ids->get('without-avatar'), $media->getIds());
+        static::assertContains(self::$ids->get('with-avatar'), $media->getIds());
+        static::assertNotContains(self::$ids->get('without-avatar'), $media->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('avatarUsers.id', null));
@@ -148,8 +86,8 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertTrue(\count($media->getIds()) > 0);
-        static::assertContains($ids->get('without-avatar'), $media->getIds());
-        static::assertNotContains($ids->get('with-avatar'), $media->getIds());
+        static::assertContains(self::$ids->get('without-avatar'), $media->getIds());
+        static::assertNotContains(self::$ids->get('with-avatar'), $media->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -163,8 +101,8 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertTrue(\count($media->getIds()) > 0);
-        static::assertContains($ids->get('with-avatar'), $media->getIds());
-        static::assertContains($ids->get('without-avatar'), $media->getIds());
+        static::assertContains(self::$ids->get('with-avatar'), $media->getIds());
+        static::assertContains(self::$ids->get('without-avatar'), $media->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -175,16 +113,15 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertTrue(\count($media->getIds()) > 0);
-        static::assertContains($ids->get('with-avatar'), $media->getIds());
-        static::assertContains($ids->get('without-avatar'), $media->getIds());
+        static::assertContains(self::$ids->get('with-avatar'), $media->getIds());
+        static::assertContains(self::$ids->get('without-avatar'), $media->getIds());
     }
 
-    #[Depends('testIndexing')]
-    public function testAggregationWithFilter(IdsCollection $ids): void
+    public function testAggregationWithFilter(): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new EqualsAnyFilter('properties.id', $ids->getList(['red']))
+            new EqualsAnyFilter('properties.id', self::$ids->getList(['red']))
         );
 
         $criteria->addAggregation(
@@ -200,19 +137,18 @@ class JoinFilterTest extends TestCase
 
         static::assertInstanceOf(TermsResult::class, $aggregation);
 
-        static::assertContains($ids->get('red'), $aggregation->getKeys());
-        static::assertContains($ids->get('yellow'), $aggregation->getKeys());
-        static::assertContains($ids->get('XL'), $aggregation->getKeys());
-        static::assertContains($ids->get('L'), $aggregation->getKeys());
+        static::assertContains(self::$ids->get('red'), $aggregation->getKeys());
+        static::assertContains(self::$ids->get('yellow'), $aggregation->getKeys());
+        static::assertContains(self::$ids->get('XL'), $aggregation->getKeys());
+        static::assertContains(self::$ids->get('L'), $aggregation->getKeys());
     }
 
-    #[Depends('testIndexing')]
-    public function testAggregationWithNegatedFilter(IdsCollection $ids): void
+    public function testAggregationWithNegatedFilter(): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(
             new NandFilter([
-                new EqualsAnyFilter('properties.id', $ids->getList(['XL'])),
+                new EqualsAnyFilter('properties.id', self::$ids->getList(['XL'])),
             ])
         );
 
@@ -229,37 +165,35 @@ class JoinFilterTest extends TestCase
 
         static::assertInstanceOf(TermsResult::class, $aggregation);
 
-        static::assertContains($ids->get('red'), $aggregation->getKeys());
-        static::assertNotContains($ids->get('yellow'), $aggregation->getKeys());
-        static::assertNotContains($ids->get('XL'), $aggregation->getKeys());
-        static::assertNotContains($ids->get('L'), $aggregation->getKeys());
+        static::assertContains(self::$ids->get('red'), $aggregation->getKeys());
+        static::assertNotContains(self::$ids->get('yellow'), $aggregation->getKeys());
+        static::assertNotContains(self::$ids->get('XL'), $aggregation->getKeys());
+        static::assertNotContains(self::$ids->get('L'), $aggregation->getKeys());
     }
 
-    #[Depends('testIndexing')]
-    public function testNestedManyToMany(IdsCollection $ids): void
+    public function testNestedManyToMany(): void
     {
-        $criteria = new Criteria($ids->prefixed('category-'));
+        $criteria = new Criteria(self::$ids->prefixed('category-'));
 
         $criteria->addFilter(
-            new EqualsAnyFilter('category.products.properties.id', [$ids->get('red'), $ids->get('yellow')])
+            new EqualsAnyFilter('category.products.properties.id', [self::$ids->get('red'), self::$ids->get('yellow')])
         );
         $criteria->addFilter(
-            new EqualsAnyFilter('category.products.properties.id', [$ids->get('XL'), $ids->get('L')])
+            new EqualsAnyFilter('category.products.properties.id', [self::$ids->get('XL'), self::$ids->get('L')])
         );
 
         $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('category-1')));
-        static::assertTrue($result->has($ids->get('category-2')));
-        static::assertFalse($result->has($ids->get('category-3')));
+        static::assertTrue($result->has(self::$ids->get('category-1')));
+        static::assertTrue($result->has(self::$ids->get('category-2')));
+        static::assertFalse($result->has(self::$ids->get('category-3')));
     }
 
-    #[Depends('testIndexing')]
-    public function testTranslatedFields(IdsCollection $ids): void
+    public function testTranslatedFields(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new EqualsFilter('product.properties.name', 'red')
         );
@@ -271,14 +205,13 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertFalse($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
     }
 
-    #[Depends('testIndexing')]
-    public function testContainsFilter(IdsCollection $ids): void
+    public function testContainsFilter(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new ContainsFilter('product.properties.name', 're')
         );
@@ -290,14 +223,13 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertFalse($result->has($ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
     }
 
-    #[Depends('testIndexing')]
-    public function testPrefixFilter(IdsCollection $ids): void
+    public function testPrefixFilter(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         // "re" refers to the property "red" of "product-1" and "product-2"
         $criteria->addFilter(
             new PrefixFilter('product.properties.name', 're')
@@ -311,14 +243,13 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertFalse($result->has($ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
     }
 
-    #[Depends('testIndexing')]
-    public function testSuffixFilter(IdsCollection $ids): void
+    public function testSuffixFilter(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         // "ed" refers to the property "red" of "product-1" and "product-2"
         $criteria->addFilter(
             new SuffixFilter('product.properties.name', 'ed')
@@ -332,14 +263,13 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertFalse($result->has($ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
     }
 
-    #[Depends('testIndexing')]
-    public function testRangeFilter(IdsCollection $ids): void
+    public function testRangeFilter(): void
     {
-        $criteria = new Criteria($ids->prefixed('category-'));
+        $criteria = new Criteria(self::$ids->prefixed('category-'));
 
         $criteria->addFilter(
             new RangeFilter('category.products.stock', [RangeFilter::GTE => 5])
@@ -349,15 +279,14 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('category-1')));
-        static::assertTrue($result->has($ids->get('category-2')));
-        static::assertFalse($result->has($ids->get('category-3')));
+        static::assertTrue($result->has(self::$ids->get('category-1')));
+        static::assertTrue($result->has(self::$ids->get('category-2')));
+        static::assertFalse($result->has(self::$ids->get('category-3')));
     }
 
-    #[Depends('testIndexing')]
-    public function testNegatedRangeFilter(IdsCollection $ids): void
+    public function testNegatedRangeFilter(): void
     {
-        $criteria = new Criteria($ids->prefixed('category-'));
+        $criteria = new Criteria(self::$ids->prefixed('category-'));
 
         $criteria->addFilter(
             new NandFilter([new RangeFilter('category.products.stock', [RangeFilter::GTE => 5])])
@@ -366,20 +295,20 @@ class JoinFilterTest extends TestCase
         $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertSame(1, $result->getTotal());
-        static::assertFalse($result->has($ids->get('category-1')));
-        static::assertFalse($result->has($ids->get('category-2')));
-        static::assertTrue($result->has($ids->get('category-3')));
+        static::assertSame(2, $result->getTotal());
+        static::assertFalse($result->has(self::$ids->get('category-1')));
+        static::assertFalse($result->has(self::$ids->get('category-2')));
+        static::assertTrue($result->has(self::$ids->get('category-3')));
+        static::assertTrue($result->has(self::$ids->get('category-4')));
     }
 
-    #[Depends('testIndexing')]
-    public function testOrFilter(IdsCollection $ids): void
+    public function testOrFilter(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new OrFilter([
-                new EqualsFilter('product.properties.id', $ids->get('red')),
-                new EqualsFilter('product.properties.id', $ids->get('yellow')),
+                new EqualsFilter('product.properties.id', self::$ids->get('red')),
+                new EqualsFilter('product.properties.id', self::$ids->get('yellow')),
             ])
         );
 
@@ -387,17 +316,16 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
     }
 
-    #[Depends('testIndexing')]
-    public function testOneToMany(IdsCollection $ids): void
+    public function testOneToMany(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new AndFilter([
-                new EqualsFilter('product.prices.ruleId', $ids->get('rule-1')),
+                new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-1')),
                 new RangeFilter('product.prices.price', [RangeFilter::GTE => 100]),
             ])
         );
@@ -406,13 +334,13 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
 
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new AndFilter([
-                new EqualsFilter('product.prices.ruleId', $ids->get('rule-1')),
+                new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-1')),
                 new RangeFilter('product.prices.price', [RangeFilter::LTE => 100]),
             ])
         );
@@ -421,36 +349,90 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertFalse($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
     }
 
-    #[Depends('testIndexing')]
-    public function testOneToManyWithMultipleFilters(IdsCollection $ids): void
+    public function testOneToManyWithSort(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
-            new EqualsFilter('product.prices.ruleId', $ids->get('rule-1'))
+            new AndFilter([
+                new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-1')),
+                new RangeFilter('product.prices.price', [RangeFilter::GTE => 100]),
+            ])
+        );
+        $criteria->addSorting(new FieldSorting('product.prices.price'));
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+        static::assertSame(self::$ids->get('product-1'), $result->getIds()[0]);
+        static::assertSame(self::$ids->get('product-2'), $result->getIds()[1]);
+    }
+
+    public function testOneToManyWithSortDesc(): void
+    {
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
+        $criteria->addFilter(
+            new AndFilter([
+                new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-1')),
+                new RangeFilter('product.prices.price', [RangeFilter::GTE => 100]),
+            ])
+        );
+        $criteria->addSorting(new FieldSorting('product.prices.price', FieldSorting::DESCENDING));
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+        static::assertSame(self::$ids->get('product-2'), $result->getIds()[0]);
+        static::assertSame(self::$ids->get('product-1'), $result->getIds()[1]); // Rule 2 price is higher, but ignored because of filter
+    }
+
+    public function testOneToManyWithGrouping(): void
+    {
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
+        $criteria->addFilter(
+            new AndFilter([
+                new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-1')),
+                new RangeFilter('product.prices.price', [RangeFilter::GTE => 100]),
+            ])
+        );
+        $criteria->addGroupField(new FieldGrouping('product.prices.ruleId'));
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(1, $result->getTotal());
+        static::assertSame(self::$ids->get('product-1'), $result->getIds()[0]);
+    }
+
+    public function testOneToManyWithMultipleFilters(): void
+    {
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
+        $criteria->addFilter(
+            new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-1'))
         );
         $criteria->addFilter(
-            new EqualsFilter('product.prices.ruleId', $ids->get('rule-2'))
+            new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-2'))
         );
 
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertFalse($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
     }
 
-    #[Depends('testIndexing')]
-    public function testManyToOne(IdsCollection $ids): void
+    public function testManyToOne(): void
     {
-        $criteria = new Criteria($ids->prefixed('category-'));
+        $criteria = new Criteria(self::$ids->prefixed('category-'));
 
         $criteria->addFilter(
-            new EqualsFilter('category.products.manufacturer.id', $ids->get('manufacturer-1'))
+            new EqualsFilter('category.products.manufacturer.id', self::$ids->get('manufacturer-1'))
         );
         $criteria->addFilter(
             new EqualsFilter('category.products.manufacturer.name', 'manufacturer-1')
@@ -460,37 +442,59 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('category-1')));
-        static::assertTrue($result->has($ids->get('category-2')));
-        static::assertFalse($result->has($ids->get('category-3')));
+        static::assertTrue($result->has(self::$ids->get('category-1')));
+        static::assertTrue($result->has(self::$ids->get('category-2')));
+        static::assertFalse($result->has(self::$ids->get('category-3')));
     }
 
-    #[Depends('testIndexing')]
-    public function testManyToMany(IdsCollection $ids): void
+    public function testManyToMany(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
-            new EqualsFilter('product.properties.id', $ids->get('red'))
+            new EqualsFilter('product.properties.id', self::$ids->get('red'))
         );
         $criteria->addFilter(
-            new EqualsFilter('product.properties.id', $ids->get('yellow'))
+            new EqualsFilter('product.properties.id', self::$ids->get('yellow'))
         );
 
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertFalse($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
     }
 
-    #[Depends('testIndexing')]
-    public function testManyToManyWithOneFilter(IdsCollection $ids): void
+    public function testManyToManyWithMultiJoinGroup(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
+        $criteria->addFilter(
+            new OrFilter([
+                new AndFilter([
+                    new EqualsFilter('product.properties.id', self::$ids->get('yellow')),
+                    new EqualsFilter('product.properties.name', 'yellow'),
+                ]),
+                new AndFilter([
+                    new EqualsFilter('product.properties.id', self::$ids->get('S')),
+                    new EqualsFilter('product.properties.name', 'S'),
+                ]),
+            ])
+        );
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+        static::assertTrue($result->has(self::$ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-2')));
+    }
+
+    public function testManyToManyWithOneFilter(): void
+    {
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new AndFilter([
-                new EqualsFilter('product.properties.id', $ids->get('yellow')),
+                new EqualsFilter('product.properties.id', self::$ids->get('yellow')),
                 new EqualsFilter('product.properties.name', 'yellow'),
             ])
         );
@@ -499,14 +503,13 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertFalse($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
     }
 
-    #[Depends('testIndexing')]
-    public function testOneToManyTranslated(IdsCollection $ids): void
+    public function testOneToManyTranslated(): void
     {
-        $criteria = new Criteria($ids->prefixed('manufacturer-'));
+        $criteria = new Criteria(self::$ids->prefixed('manufacturer-'));
 
         $criteria->addFilter(
             new EqualsFilter('product_manufacturer.products.name', 'product-1')
@@ -519,10 +522,10 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertTrue($result->has($ids->get('manufacturer-1')));
-        static::assertFalse($result->has($ids->get('manufacturer-2')));
+        static::assertTrue($result->has(self::$ids->get('manufacturer-1')));
+        static::assertFalse($result->has(self::$ids->get('manufacturer-2')));
 
-        $criteria = new Criteria($ids->prefixed('manufacturer-'));
+        $criteria = new Criteria(self::$ids->prefixed('manufacturer-'));
 
         $criteria->addFilter(
             new ContainsFilter('product_manufacturer.products.name', 'product')
@@ -535,14 +538,13 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('manufacturer-1')));
-        static::assertTrue($result->has($ids->get('manufacturer-2')));
+        static::assertTrue($result->has(self::$ids->get('manufacturer-1')));
+        static::assertTrue($result->has(self::$ids->get('manufacturer-2')));
     }
 
-    #[Depends('testIndexing')]
-    public function testManyToOneTranslated(IdsCollection $ids): void
+    public function testManyToOneTranslated(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new NorFilter([
                 new EqualsFilter('product.manufacturer.id', null),
@@ -554,29 +556,28 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
 
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new ContainsFilter('product.manufacturer.name', 'manufacturer')
         );
         $criteria->addFilter(
-            new EqualsAnyFilter('product.manufacturer.id', $ids->getList(['manufacturer-1', 'manufacturer-2']))
+            new EqualsAnyFilter('product.manufacturer.id', self::$ids->getList(['manufacturer-1', 'manufacturer-2']))
         );
 
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
     }
 
-    #[Depends('testIndexing')]
-    public function testManyToManyTranslated(IdsCollection $ids): void
+    public function testManyToManyTranslated(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new EqualsFilter('product.properties.name', 'red')
         );
@@ -588,17 +589,16 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertFalse($result->has($ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
     }
 
-    #[Depends('testIndexing')]
-    public function testOneToManyInherited(IdsCollection $ids): void
+    public function testOneToManyInherited(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new AndFilter([
-                new EqualsFilter('product.prices.ruleId', $ids->get('rule-1')),
+                new EqualsFilter('product.prices.ruleId', self::$ids->get('rule-1')),
                 new RangeFilter('product.prices.price', [RangeFilter::GTE => 100]),
             ])
         );
@@ -607,18 +607,17 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, $context));
 
         static::assertSame(3, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertTrue($result->has($ids->get('product-1-variant')));
+        static::assertTrue($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-1-variant')));
     }
 
-    #[Depends('testIndexing')]
-    public function testManyToOneInherited(IdsCollection $ids): void
+    public function testManyToOneInherited(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new NandFilter([
-                new EqualsFilter('product.manufacturer.id', $ids->get('manufacturer-2')),
+                new EqualsFilter('product.manufacturer.id', self::$ids->get('manufacturer-2')),
             ])
         );
 
@@ -626,36 +625,34 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, $context));
 
         static::assertSame(3, $result->getTotal());
-        static::assertFalse($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertTrue($result->has($ids->get('product-1-variant')));
-        static::assertTrue($result->has($ids->get('product-3')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-1-variant')));
+        static::assertTrue($result->has(self::$ids->get('product-3')));
     }
 
-    #[Depends('testIndexing')]
-    public function testManyToManyInherited(IdsCollection $ids): void
+    public function testManyToManyInherited(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
-            new EqualsFilter('product.properties.id', $ids->get('red'))
+            new EqualsFilter('product.properties.id', self::$ids->get('red'))
         );
         $criteria->addFilter(
-            new EqualsFilter('product.properties.id', $ids->get('yellow'))
+            new EqualsFilter('product.properties.id', self::$ids->get('yellow'))
         );
 
         $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => static::getContainer()->get('product.repository')
             ->searchIds($criteria, $context));
 
         static::assertSame(2, $result->getTotal());
-        static::assertFalse($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertTrue($result->has($ids->get('product-1-variant')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-1-variant')));
     }
 
-    #[Depends('testIndexing')]
-    public function testHasOneToMany(IdsCollection $ids): void
+    public function testHasOneToMany(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new NandFilter([
                 new EqualsFilter('product.prices.id', null),
@@ -666,14 +663,13 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
     }
 
-    #[Depends('testIndexing')]
-    public function testHasManyToOne(IdsCollection $ids): void
+    public function testHasManyToOne(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new NandFilter([
                 new EqualsFilter('product.manufacturer.id', null),
@@ -684,14 +680,13 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
     }
 
-    #[Depends('testIndexing')]
-    public function testHasManyToMany(IdsCollection $ids): void
+    public function testHasManyToMany(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new NandFilter([
                 new EqualsFilter('product.manufacturer.id', null),
@@ -702,15 +697,14 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-2')));
-        static::assertTrue($result->has($ids->get('product-1')));
-        static::assertFalse($result->has($ids->get('product-3')));
+        static::assertTrue($result->has(self::$ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-3')));
     }
 
-    #[Depends('testIndexing')]
-    public function testHasNotOneToMany(IdsCollection $ids): void
+    public function testHasNotOneToMany(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new EqualsFilter('product.prices.id', null)
         );
@@ -719,16 +713,15 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-3')));
-        static::assertTrue($result->has($ids->get('product-1-variant')));
-        static::assertFalse($result->has($ids->get('product-1')));
-        static::assertFalse($result->has($ids->get('product-2')));
+        static::assertTrue($result->has(self::$ids->get('product-3')));
+        static::assertTrue($result->has(self::$ids->get('product-1-variant')));
+        static::assertFalse($result->has(self::$ids->get('product-1')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
     }
 
-    #[Depends('testIndexing')]
-    public function testHasNotManyToOne(IdsCollection $ids): void
+    public function testHasNotManyToOne(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new EqualsFilter('product.manufacturer.id', null)
         );
@@ -737,16 +730,15 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($ids->get('product-3')));
-        static::assertTrue($result->has($ids->get('product-1-variant')));
-        static::assertFalse($result->has($ids->get('product-2')));
-        static::assertFalse($result->has($ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-3')));
+        static::assertTrue($result->has(self::$ids->get('product-1-variant')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
+        static::assertFalse($result->has(self::$ids->get('product-1')));
     }
 
-    #[Depends('testIndexing')]
-    public function testHasNotManyToMany(IdsCollection $ids): void
+    public function testHasNotManyToMany(): void
     {
-        $criteria = new Criteria($ids->prefixed('product-'));
+        $criteria = new Criteria(self::$ids->prefixed('product-'));
         $criteria->addFilter(
             new EqualsFilter('product.properties.id', null)
         );
@@ -755,10 +747,10 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertSame(2, $result->getTotal());
-        static::assertFalse($result->has($ids->get('product-2')));
-        static::assertFalse($result->has($ids->get('product-1')));
-        static::assertTrue($result->has($ids->get('product-3')));
-        static::assertTrue($result->has($ids->get('product-1-variant')));
+        static::assertFalse($result->has(self::$ids->get('product-2')));
+        static::assertFalse($result->has(self::$ids->get('product-1')));
+        static::assertTrue($result->has(self::$ids->get('product-3')));
+        static::assertTrue($result->has(self::$ids->get('product-1-variant')));
     }
 
     public function testEqualsNullWithUnmappedField(): void
@@ -769,5 +761,71 @@ class JoinFilterTest extends TestCase
         static::expectException(UnmappedFieldException::class);
         static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
+    }
+
+    private static function insertTestData(): void
+    {
+        $products = [
+            (new ProductBuilder(self::$ids, 'product-1', 10, 'tax'))
+                ->price(15, 10)
+                ->manufacturer('manufacturer-1')
+                ->property('red', 'color')
+                ->property('yellow', 'color')
+                ->property('XL', 'size')
+                ->property('L', 'size')
+                ->category('category-1')
+                ->category('category-2')
+                ->prices('rule-1', 100)
+                ->prices('rule-2', 150)
+                ->build(),
+
+            (new ProductBuilder(self::$ids, 'product-1-variant', 10, 'tax'))
+                ->parent('product-1')
+                ->build(),
+
+            (new ProductBuilder(self::$ids, 'product-2', 3, 'tax'))
+                ->price(15, 10)
+                ->manufacturer('manufacturer-2')
+                ->property('red', 'color')
+                ->property('S', 'size')
+                ->category('category-1')
+                ->category('category-3')
+                ->prices('rule-1', 150)
+                ->build(),
+
+            (new ProductBuilder(self::$ids, 'product-3', 3, 'tax'))
+                ->price(15, 10)
+                ->category('category-4')
+                ->build(),
+        ];
+
+        static::getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+
+        $userId = static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM `user`');
+
+        self::$ids->set('user-id', $userId);
+
+        $media = [
+            ['id' => self::$ids->create('with-avatar')],
+            ['id' => self::$ids->create('without-avatar')],
+        ];
+
+        static::getContainer()->get('media.repository')
+            ->create($media, Context::createDefaultContext());
+
+        $avatar = [
+            'id' => $userId,
+            'avatarId' => self::$ids->get('with-avatar'),
+        ];
+
+        static::getContainer()->get('user.repository')
+            ->update([$avatar], Context::createDefaultContext());
+
+        $result = static::getContainer()->get('product.repository')
+            ->searchIds(new Criteria(self::$ids->prefixed('product-')), Context::createDefaultContext());
+
+        static::assertSame(\count($products), $result->getTotal());
     }
 }

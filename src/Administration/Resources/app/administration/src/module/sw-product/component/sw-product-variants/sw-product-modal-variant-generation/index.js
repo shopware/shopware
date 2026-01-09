@@ -126,7 +126,7 @@ export default {
 
         isGenerateButtonDisabled() {
             return this.variantGenerationQueue.createQueue.some((item) => {
-                return item.downloads.length === 0 && item.productStates?.includes('is-download');
+                return item.downloads.length === 0 && item.type === 'digital';
             });
         },
     },
@@ -207,7 +207,10 @@ export default {
                         });
 
                         item.downloads = [];
-                        item.productStates = [];
+                        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                            item.productStates = [];
+                        }
+                        item.type = 'physical';
                         item.id = item.productNumber;
                         this.idToIndex[item.id] = index;
                     });
@@ -315,7 +318,7 @@ export default {
             this.variantGenerationQueue.createQueue.forEach((item) => {
                 delete item.id;
 
-                if (item.productStates.includes('is-download')) {
+                if (item.type === 'digital') {
                     item.maxPurchase = 1;
                     item.minPurchase = 1;
                     item.isCloseout = false;
@@ -388,9 +391,13 @@ export default {
                 this.usageOfFiles = {};
                 variants.forEach((item) => {
                     item.downloads = [];
-                    item.productStates = [];
+                    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                        item.productStates = [];
+                    }
+                    item.type = 'physical';
                 });
                 this.getList();
+
                 return;
             }
 
@@ -398,7 +405,10 @@ export default {
                 item.downloads = [...this.downloadFilesForAllVariants];
                 this.updateUsageForAllVariantFiles(item.id);
 
-                item.productStates = ['is-download'];
+                if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                    item.productStates = ['is-download'];
+                }
+                item.type = 'digital';
             });
 
             this.getList();
@@ -417,14 +427,21 @@ export default {
                 });
 
                 item.downloads = [];
-                item.productStates = [];
+                if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                    item.productStates = [];
+                }
+                item.type = 'physical';
+
                 return;
             }
 
             item.downloads = [...this.downloadFilesForAllVariants];
             this.updateUsageForAllVariantFiles(item.id);
 
-            item.productStates = ['is-download'];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                item.productStates = ['is-download'];
+            }
+            item.type = 'digital';
         },
 
         isUploadDisabled(item) {
@@ -459,7 +476,7 @@ export default {
                 }
 
                 variants.forEach((currentItem) => {
-                    if (currentItem.productStates.includes('is-download')) {
+                    if (currentItem.type === 'digital') {
                         if (this.isExistingMedia(currentItem.downloads, event.targetId)) {
                             return;
                         }

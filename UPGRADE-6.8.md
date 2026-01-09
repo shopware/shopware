@@ -311,6 +311,13 @@ Profiles are now identified and displayed only by their technical name.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
 
+## Removed unused `ImportExport` exceptions
+
+The unused exceptions
+* `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
+* `\Shopware\Core\Content\ImportExport\Exception\MappingException`
+were removed.
+
 ## Removed SystemConfig exceptions
 
 The exceptions
@@ -543,8 +550,22 @@ In favor of WebP the following images have been removed:
 -   `administration/src/module/sw-login/page/index/assets/sw-login-background.png`
 -   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
 
-Update image references to their `.webp` equivalents.  
+Update image references to their `.webp` equivalents.
 For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`
+
+## Mail template component changes
+
+The mail template index page now uses separate tabs for templates and headers/footers.
+
+Changes in `sw-mail-template-list` and `sw-mail-header-footer-list`:
+* `searchTerm` prop and watcher were removed
+* `getList()` method: `searchTerm` variable was replaced with `this.term`
+* `@page-change` handler now uses `onPageChange` directly
+
+Changes in `sw-mail-template-index`:
+* `listing` mixin was removed
+* `term` data property was removed
+* `onChangeLanguage` method now only calls `tabContent` ref
 
 </details>
 
@@ -558,6 +579,14 @@ The Terms of Service (TOS) was relocated to the bottom of the order confirmation
 ## Removal of hardcoded language flags
 
 Hardcoded CSS language flags in `src/Storefront/Resources/app/storefront/src/scss/component/_flags.scss` were removed.
+
+## Removal of `CheckoutProgressEvent` for Google Analytics
+
+The `CheckoutProgressEvent` class in `src/Storefront/Resources/app/storefront/src/plugin/google-analytics/events/checkout-progress.event.js` was removed.
+
+If your plugin or theme relies on the `checkout_progress` event for Google Analytics tracking, it will no longer fire after upgrading to 6.8.0.0.
+
+Migrate to the GA4-compliant events `view_cart`, `add_shipping_info`, and `add_payment_info` instead.
 
 ## Deprecated DomAccess Helper
 
@@ -879,5 +908,11 @@ Concretely this means the following configuration options are removed:
 - `shopware.cache.invalidation.country_state_route`
 - `shopware.cache.invalidation.salutation_route`
 - `shopware.cache.invalidation.sitemap_route`
+
+## Removal of product's `states` field in favor of `type` field
+
+The `states` field of the `product` entity has been removed. Instead, you must use the `type` field to indicate the product type.
+The `states` field of the `line_item` and `order_line_item` entity has also been removed. Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
+Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
 
 </details>

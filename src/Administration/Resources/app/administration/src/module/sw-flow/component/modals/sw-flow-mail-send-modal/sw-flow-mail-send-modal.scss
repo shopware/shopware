@@ -1,43 +1,30 @@
-@import "~scss/variables";
-
 .sw-flow-mail-send-modal {
+    .sw-flow-mail-send-modal__mail-template-select {
+        margin-bottom: var(--scale-size-4);
+    }
+
+    .sw-flow-mail-send-modal__mail-template-type-name {
+        color: var(--color-text-secondary-default);
+    }
+
     .sw-flow-mail-send-modal__mail-template-detail {
-        margin-top: -25px;
-        margin-bottom: 20px;
+        margin-bottom: var(--scale-size-16);
         display: flex;
 
-        a {
-            color: $color-shopware-brand-500;
-            font-size: $font-size-xs;
-            text-decoration: none;
+        &-link {
             margin-left: auto;
             display: flex;
             align-items: center;
-            gap: 5px;
         }
     }
 
     &__recipient-grid {
-        border: 1px solid $color-gray-300;
-        margin-bottom: 32px;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+        margin-bottom: var(--scale-size-32);
 
         &.has--error {
-            border-color: $color-crimson-500;
-        }
-
-        &.sw-data-grid .sw-data-grid__body .sw-data-grid__row.is--inline-edit .sw-data-grid__cell-content {
-            padding: 30px 20px;
-        }
-
-        &.sw-data-grid .sw-data-grid__wrapper {
-            overflow: hidden;
-        }
-    }
-
-    &__use-different-reply-to {
-        &.sw-field--switch {
-            display: inline-block;
-            margin-top: 0;
+            border-color: var(--color-border-critical-default);
         }
     }
 }

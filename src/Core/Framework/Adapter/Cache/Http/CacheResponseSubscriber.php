@@ -82,11 +82,16 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $this->cacheHeadersService->applyCacheHeaders($context, $response);
 
+        $area = $this->isStoreApi($request) ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT;
+
         if (!$this->httpCacheEnabled) {
+            // no-store attribute still has to be processed even in early return case
+            if ($request->attributes->has(PlatformRequest::ATTRIBUTE_NO_STORE)) {
+                $this->applyPolicy($request, $response, $area, false, null);
+            }
+
             return;
         }
-
-        $area = $this->isStoreApi($request) ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT;
 
         if (!$this->maintenanceResolver->shouldBeCached($request)) {
             $this->noCache($request, $response, $area);
@@ -243,8 +248,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     private function applyPolicy(Request $request, Response $response, string $area, bool $cacheable, ?CacheAttribute $cacheAttribute): void
     {
         $route = (string) $request->attributes->get('_route', '');
+        $enforceNoStore = $request->attributes->has(PlatformRequest::ATTRIBUTE_NO_STORE);
 
-        $policy = $this->policyProvider->getPolicy($route, $area, $cacheable, $cacheAttribute);
+        $policy = $this->policyProvider->getPolicy($route, $area, $cacheable, $cacheAttribute, $enforceNoStore);
 
         // reset existing cache-control to avoid mixing policies
         $response->headers->remove('cache-control');

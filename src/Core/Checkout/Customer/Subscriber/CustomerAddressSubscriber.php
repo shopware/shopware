@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('checkout')]
 class CustomerAddressSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
@@ -33,9 +33,12 @@ class CustomerAddressSubscriber implements EventSubscriberInterface
         }
 
         foreach ($event->getEntities() as $customerAddress) {
+            $defaultBillingAddressId = $event->getSalesChannelContext()->getCustomer()->getDefaultBillingAddressId();
+            $defaultShippingAddressId = $event->getSalesChannelContext()->getCustomer()->getDefaultShippingAddressId();
+
             $customerAddress->assign([
-                'isDefaultBillingAddress' => $customerAddress->getId() === $event->getSalesChannelContext()->getCustomer()->getDefaultBillingAddressId(),
-                'isDefaultShippingAddress' => $customerAddress->getId() === $event->getSalesChannelContext()->getCustomer()->getDefaultShippingAddressId(),
+                'isDefaultBillingAddress' => $customerAddress->getId() === $defaultBillingAddressId,
+                'isDefaultShippingAddress' => $customerAddress->getId() === $defaultShippingAddressId,
             ]);
         }
     }

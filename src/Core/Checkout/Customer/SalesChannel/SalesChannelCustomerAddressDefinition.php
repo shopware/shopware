@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('inventory')]
+#[Package('checkout')]
 class SalesChannelCustomerAddressDefinition extends CustomerAddressDefinition implements SalesChannelDefinitionInterface
 {
     public function getEntityClass(): string

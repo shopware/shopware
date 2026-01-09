@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('checkout')]
 class SalesChannelCustomerAddressCollection extends CustomerAddressCollection
 {
     protected function getExpectedClass(): string

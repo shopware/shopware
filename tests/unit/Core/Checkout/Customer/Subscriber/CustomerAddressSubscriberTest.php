@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerAddressSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\Test\Generator;
@@ -19,6 +20,7 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[CoversClass(CustomerAddressSubscriber::class)]
+#[Package('checkout')]
 class CustomerAddressSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

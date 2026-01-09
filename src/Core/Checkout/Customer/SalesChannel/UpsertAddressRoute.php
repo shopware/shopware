@@ -40,11 +40,11 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     use CustomerAddressValidationTrait;
 
     /**
+     * @internal
+     *
      * @param EntityRepository<CustomerAddressCollection> $addressRepository
      * @param SalesChannelRepository<CustomerAddressCollection> $salesChannelAddressRepository
      * @param EntityRepository<SalutationCollection> $salutationRepository
-     *
-     *@internal
      */
     public function __construct(
         private readonly EntityRepository $addressRepository,

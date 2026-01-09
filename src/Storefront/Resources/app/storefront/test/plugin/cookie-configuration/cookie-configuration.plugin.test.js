@@ -598,7 +598,7 @@ describe('CookieConfiguration plugin tests', () => {
                             { cookie: 'session-', value: 'abc123', expiration: 30 }, // PHP-managed, should not be set
                             { cookie: 'csrf-token', value: 'xyz789', expiration: 30 }, // Should be set
                             { cookie: 'cookie-preference', value: '1', expiration: 30 }, // Will be removed to trigger re-consent
-                            { cookie: 'cookie-config-hash', value: newHash, expiration: 30 } // Should NOT be set until user re-consents
+                            { cookie: 'cookie-config-hash', value: newHash, expiration: 30 } // Should be set to prevent re-consent loop
                         ]
                     },
                     {
@@ -644,8 +644,8 @@ describe('CookieConfiguration plugin tests', () => {
             expect(setItemSpy).toHaveBeenCalledWith('csrf-token', 'xyz789', 30); // Required but not PHP-managed
             expect(setItemSpy).not.toHaveBeenCalledWith('session-', 'abc123', 30); // PHP-managed, should not be set
 
-            // Verify cookie-config-hash is NOT stored when reset - user must re-consent first
-            expect(setItemSpy).not.toHaveBeenCalledWith('cookie-config-hash', expect.anything(), expect.anything());
+            // Verify cookie-config-hash IS stored for the language to prevent re-consent loop
+            expect(setItemSpy).toHaveBeenCalledWith('cookie-config-hash', JSON.stringify({ [languageId]: newHash }), 30);
 
             // Verify _checkAndShowCookieBarIfNeeded was called to show the banner
             expect(checkAndShowCookieBarSpy).toHaveBeenCalled();
@@ -718,29 +718,6 @@ describe('CookieConfiguration plugin tests', () => {
             );
 
             consoleErrorSpy.mockRestore();
-        });
-
-        test('_getAllCookieNamesFromGroups extracts cookie names correctly', () => {
-            const cookieGroups = [
-                {
-                    entries: [
-                        { cookie: 'analytics' },
-                        { cookie: 'tracking' }
-                    ]
-                },
-                {
-                    cookie: 'standalone-cookie'
-                },
-                {
-                    entries: null // No entries
-                },
-                {
-                    // No cookie or entries
-                }
-            ];
-
-            const result = plugin._getAllCookieNamesFromGroups(cookieGroups);
-            expect(result).toEqual(['analytics', 'tracking', 'standalone-cookie']);
         });
 
         test('_getTechnicallyRequiredCookieNames returns PHP-managed cookie list', () => {

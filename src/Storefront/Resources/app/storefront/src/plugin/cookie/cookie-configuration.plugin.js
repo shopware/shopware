@@ -398,7 +398,7 @@ export default class CookieConfiguration extends Plugin {
      */
     async _resetCookieConfiguration(data) {
         const cookieGroups = data.elements || [];
-        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required');
+        const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required', [], data.languageId);
 
         CookieStorage.removeItem(this.options.cookiePreference);
 
@@ -406,16 +406,6 @@ export default class CookieConfiguration extends Plugin {
         this._handleUpdateListener(updatedActiveCookieNames, inactiveCookieNames);
 
         this._checkAndShowCookieBarIfNeeded();
-    }
-
-    /**
-     * Extract all cookie names from cookie groups
-     * @private
-     */
-    _getAllCookieNamesFromGroups(cookieGroups) {
-        return cookieGroups
-            .flatMap(group => group.entries ? group.entries.map(entry => entry.cookie) : (group.cookie ? [group.cookie] : []))
-            .filter(cookieName => cookieName);
     }
 
     /**

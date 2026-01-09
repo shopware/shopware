@@ -357,6 +357,7 @@ return (new Config())
                 'Test',
                 'Definition',
                 'Event',
+                'Exception',
             ];
 
             $ignored = false;

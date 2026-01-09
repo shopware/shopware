@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,12 +28,18 @@ class MediaRouteTest extends TestCase
     /** @var EntityRepository<MediaCollection>&MockObject */
     private EntityRepository&MockObject $mediaRepository;
 
+    private CacheTagCollector&MockObject $cacheTagCollector;
+
     private MediaRoute $mediaRoute;
 
     protected function setUp(): void
     {
         $this->mediaRepository = $this->createMock(EntityRepository::class);
-        $this->mediaRoute = new MediaRoute($this->mediaRepository);
+        $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $this->mediaRoute = new MediaRoute(
+            $this->mediaRepository,
+            $this->cacheTagCollector,
+        );
     }
 
     public function testLoadReturnsMediaRouteResponse(): void
@@ -68,6 +75,11 @@ class MediaRouteTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->willReturn($mediaEntitySearchResult);
+
+        $this->cacheTagCollector
+            ->expects($this->once())
+            ->method('addTag')
+            ->with('media-testMediaId1', 'media-testMediaId2');
 
         $response = $this->mediaRoute->load($request, $salesChannelContext);
         $mediaCollection = $response->getMediaCollection();

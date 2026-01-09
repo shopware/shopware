@@ -153,4 +153,56 @@ describe('core/factory/http.factory.js', () => {
 
         await httpClient.get('/test');
     });
+
+    it('should pass snippet params for delete restricted notifications', async () => {
+        const notificationStore = Shopware.Store.get('notification');
+        const notificationSpy = jest.spyOn(notificationStore, 'createNotification').mockImplementation(() => {});
+        const snippetSpy = jest.fn((key) => key);
+        const originalView = Shopware.Application.view;
+
+        Shopware.Application.view = {
+            ...originalView,
+            i18n: {
+                ...(originalView?.i18n ?? {}),
+                global: {
+                    ...(originalView?.i18n?.global ?? {}),
+                    t: snippetSpy,
+                },
+            },
+        };
+
+        mock.onDelete('/restricted-delete').reply(409, {
+            errors: [
+                {
+                    code: 'FRAMEWORK__DELETE_RESTRICTED',
+                    meta: {
+                        parameters: {
+                            entity: 'product',
+                            usages: [
+                                {
+                                    count: [
+                                        2,
+                                        2,
+                                    ],
+                                    entityName: 'category',
+                                },
+                            ],
+                        },
+                    },
+                },
+            ],
+        });
+
+        await httpClient.delete('/restricted-delete').catch(() => {});
+
+        expect(notificationSpy).toHaveBeenCalledTimes(1);
+        expect(snippetSpy).toHaveBeenCalledWith(
+            'global.notification.messageDeleteFailed',
+            { entityName: 'global.entities.product' },
+            0,
+        );
+
+        Shopware.Application.view = originalView;
+        notificationSpy.mockRestore();
+    });
 });

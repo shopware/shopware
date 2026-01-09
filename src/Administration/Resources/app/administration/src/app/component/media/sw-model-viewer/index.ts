@@ -14,6 +14,7 @@ const { EventBus } = Shopware.Utils;
  *      :source="mediaEntity"
  * </sw-model-viewer>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
@@ -21,7 +22,7 @@ export default Shopware.Component.wrapComponentConfig({
         source: {
             type: Object,
             required: true,
-            validator(value: any) {
+            validator(value: EntitySchema.Entity<'media'>) {
                 return value?.getEntityName() === 'media';
             },
         },
@@ -30,7 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             canvas: null,
-            isLoading: true,
+            isLoading: false,
             modelEntity: null,
         } as {
             canvas: HTMLCanvasElement | null;
@@ -40,11 +41,9 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
-        async source() {
+        source() {
             this.modelEntity = this.source as EntitySchema.Entity<'media'>;
-            await this.initializeQuickView().catch((error) => {
-                console.error(error);
-            });
+            this.initializeQuickView();
         },
     },
 
@@ -62,52 +61,47 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent(): void {
+            // eslint-disable-next-line @typescript-eslint/unbound-method
             EventBus.on('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
         },
 
         beforeUnmountedComponent(): void {
+            // eslint-disable-next-line @typescript-eslint/unbound-method
             EventBus.off('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
         },
 
-        async mountedComponent(): Promise<void> {
-            this.canvas = this.$el?.querySelector?.('.sw-model-viewer-canvas') || null;
+        mountedComponent(): void {
+            /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,
+                @typescript-eslint/no-unsafe-member-access,
+                @typescript-eslint/no-unsafe-call
+            */
+            this.canvas = this.$el?.querySelector?.('.sw-model-viewer-canvas');
 
             this.modelEntity = this.source as EntitySchema.Entity<'media'>;
-            await this.initializeQuickView().catch((error) => {
-                console.error(error);
-            });
+            this.initializeQuickView();
         },
 
-        async initializeQuickView(): Promise<void> {
-            this.isLoading = true;
-
-            if(!this.canvas || !this.modelEntity || !this.modelEntity.url) {
-                this.isLoading = false;
+        initializeQuickView(): void {
+            if(!this.canvas || !this.modelEntity?.url) {
                 return;
             };
 
-            await QuickView(this.modelEntity.url, {
+            this.isLoading = true;
+
+            QuickView(this.modelEntity.url, {
                 canvas: this.canvas,
-            });
-
-            this.isLoading = false;
-        },
-
-        async onMediaLibraryItemUpdated(mediaId: string): Promise<void> {
-            const currentMediaId = this.getCurrentMediaId();
-
-            if (!currentMediaId || currentMediaId !== mediaId) {
-                return;
-            }
-
-            await this.initializeQuickView().catch((error) => {
+            }).catch((error) => {
                 console.error(error);
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 
-        getCurrentMediaId() : string | null {
-            const entity = Array.isArray(this.source) ? this.source[0] : this.source;
-            return entity?.id ?? null;
+        onMediaLibraryItemUpdated(mediaId: string): void {
+            if (!this.modelEntity?.id) return;
+            if (this.modelEntity?.id !== mediaId) return;
+
+            this.initializeQuickView();
         },
     },
 });

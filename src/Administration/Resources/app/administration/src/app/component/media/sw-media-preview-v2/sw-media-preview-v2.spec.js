@@ -5,6 +5,17 @@ import { mount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
 
 describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
+    let originalMediaLoad;
+
+    beforeAll(() => {
+        originalMediaLoad = HTMLMediaElement.prototype.load;
+        HTMLMediaElement.prototype.load = jest.fn();
+    });
+
+    afterAll(() => {
+        HTMLMediaElement.prototype.load = originalMediaLoad;
+    });
+
     const createWrapper = async (componentConfig = {}) => {
         const config = {
             props: {
@@ -353,5 +364,33 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
 
         expect(getMock).toHaveBeenCalledWith('cover-id', Shopware.Context.api);
         expect(wrapper.vm.videoCoverMedia).toEqual(coverMedia);
+    });
+
+    it('reloads the media element when the preview url changes for video', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    mimeType: 'video/mp4',
+                    url: 'video-url-1',
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const reloadSpy = jest.spyOn(wrapper.vm, 'reloadMediaElement');
+        reloadSpy.mockClear();
+
+        await wrapper.setData({
+            trueSource: {
+                mimeType: 'video/mp4',
+                url: 'video-url-2',
+            },
+        });
+
+        await flushPromises();
+
+        expect(reloadSpy).toHaveBeenCalled();
+        expect(HTMLMediaElement.prototype.load).toHaveBeenCalled();
     });
 });

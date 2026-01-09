@@ -11,6 +11,7 @@ const UploadStatus = {
 
 type FileInfo = {
     size: number;
+    uploaded: number;
     name: string;
     targetId: string;
     status: (typeof UploadStatus)[keyof typeof UploadStatus];
@@ -25,9 +26,11 @@ type ApiError = {
 
 type UploadError = {
     code?: string;
-    response: {
-        data: {
-            errors: ApiError[];
+    message?: string;
+    response?: {
+        status?: number;
+        data?: {
+            errors?: ApiError[];
         };
     };
 };
@@ -47,6 +50,8 @@ type MediaUploadAction = (typeof UploadEvents)[keyof typeof UploadEvents];
 
 type MediaUploadPayload = {
     data?: unknown;
+    loaded?: number;
+    total?: number;
     targetId?: string;
     fileName?: string;
     error?: UploadError;
@@ -66,7 +71,8 @@ const ResponseErrorCodes = {
 } as const;
 
 const ClientErrorCodes = {
-    REQUEST_CANCELED: 'ECONNABORTED',
+    REQUEST_TIMEOUT: 'ECONNABORTED',
+    REQUEST_CANCELED: 'ERR_CANCELED',
 } as const;
 
 const IgnoredErrors = [
@@ -77,8 +83,17 @@ const ErrorMessages = {
     [ResponseErrorCodes.ILLEGAL_FILE_NAME]: 'global.sw-media-upload.notification.illegalFilename.message',
     [ResponseErrorCodes.ILLEGAL_URL]: 'global.sw-media-upload.notification.illegalFileUrl.message',
     [ResponseErrorCodes.ILLEGAL_FILE_TYPE]: 'global.sw-media-upload.notification.fileTypeNotSupported.message',
+    [ClientErrorCodes.REQUEST_TIMEOUT]: 'global.sw-media-upload.notification.transportError.message',
     [ClientErrorCodes.REQUEST_CANCELED]: 'global.sw-media-upload.notification.requestCanceled.message',
 } as const;
+
+const StatusMessages = {
+    PAYLOAD_TOO_LARGE: 'global.sw-media-upload.notification.payloadTooLarge.message',
+    TRANSPORT_ERROR: 'global.sw-media-upload.notification.transportError.message',
+} as const;
+
+const TimeoutStatuses = [408, 504, 524];
+const GatewayErrorStatuses = [502, 503];
 
 /**
  * This component listens to media upload events and shows a snackbar displaying the upload progress.
@@ -119,7 +134,10 @@ export default Shopware.Component.wrapComponentConfig({
                 total += fileInfo.size;
                 if (fileInfo.status === UploadStatus.FINISHED || fileInfo.status === UploadStatus.FAILED) {
                     uploaded += fileInfo.size;
+                    return;
                 }
+
+                uploaded += Math.min(fileInfo.uploaded, fileInfo.size);
             });
 
             if (total === 0) {
@@ -128,19 +146,30 @@ export default Shopware.Component.wrapComponentConfig({
 
             return Math.round((uploaded / total) * 100);
         },
+        processedUploadCount() {
+            return Array.from(this.uploads.values()).filter((fileInfo) => {
+                return fileInfo.status === UploadStatus.FINISHED || fileInfo.status === UploadStatus.FAILED;
+            }).length;
+        },
         uploadComplete() {
-            return (
-                this.uploadProgress >= 100 ||
-                this.uploadCount ===
-                    Array.from(this.uploads.values()).filter((info) => info.status === UploadStatus.FAILED).length
-            );
+            return this.uploadCount > 0 && this.processedUploadCount === this.uploadCount;
+        },
+        snackbarMessage(): string {
+            const { uploadCount, uploadProgress, processedUploadCount } = this;
+
+            return this.$t('global.sw-media-upload.snackbar.message', {
+                count: uploadCount,
+                progress: uploadProgress,
+                processed: processedUploadCount,
+                total: uploadCount,
+            });
         },
         snackbarConfig(): Snackbar {
             const { uploadCount, uploadProgress } = this;
 
             const config: Snackbar = {
                 id: 'media-upload-status',
-                message: this.$t('global.sw-media-upload.snackbar.message', { count: uploadCount }),
+                message: this.snackbarMessage,
                 variant: 'progress',
                 progressPercentage: uploadProgress,
                 duration: 0,
@@ -188,6 +217,9 @@ export default Shopware.Component.wrapComponentConfig({
                 case UploadEvents.UPLOAD_FINISHED:
                     this.onUploadFinished(event);
                     break;
+                case UploadEvents.UPLOAD_PROGRESS:
+                    this.onUploadProgress(event);
+                    break;
                 case UploadEvents.UPLOAD_FAILED:
                     this.onUploadFailed(event);
                     break;
@@ -209,6 +241,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this.uploads.set(uploadId, {
                     size: src.size,
+                    uploaded: 0,
                     name: src.name,
                     targetId,
                     status: UploadStatus.ACTIVE,
@@ -224,6 +257,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             found.fileInfo.status = UploadStatus.FINISHED;
+            found.fileInfo.uploaded = found.fileInfo.size;
             this.uploads.set(found.uploadId, found.fileInfo);
         },
         onUploadFailed(event: MediaUploadEvent) {
@@ -246,6 +280,19 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.uploads.set(found.uploadId, found.fileInfo);
             this.showErrorNotification(payload as UploadFailedPayload);
+        },
+        onUploadProgress(event: MediaUploadEvent) {
+            const targetId = event.payload.targetId ?? '';
+            const found = this.findByTargetId(targetId);
+
+            if (!found) {
+                return;
+            }
+
+            const loaded = event.payload.loaded ?? 0;
+            const total = event.payload.total ?? found.fileInfo.size;
+            found.fileInfo.uploaded = Math.min(loaded, total, found.fileInfo.size);
+            this.uploads.set(found.uploadId, found.fileInfo);
         },
         onUploadCancel(event: MediaUploadEvent) {
             const data = event.payload.data as { targetId?: string } | undefined;
@@ -291,11 +338,40 @@ export default Shopware.Component.wrapComponentConfig({
                 });
             }
 
+            if (messageSnippets.length === 0) {
+                const transportSnippet = this.getTransportErrorSnippet(payload?.error);
+
+                if (transportSnippet) {
+                    messageSnippets.push(transportSnippet);
+                }
+            }
+
             messageSnippets.forEach((snippet) => {
                 this.createNotificationError({
                     message: this.$t(snippet, { fileName: payload.fileName }),
                 });
             });
+        },
+        getTransportErrorSnippet(error?: UploadError): string | null {
+            const status = error?.response?.status;
+
+            if (status === 413) {
+                return StatusMessages.PAYLOAD_TOO_LARGE;
+            }
+
+            if (TimeoutStatuses.includes(status ?? -1)) {
+                return StatusMessages.TRANSPORT_ERROR;
+            }
+
+            if (GatewayErrorStatuses.includes(status ?? -1)) {
+                return StatusMessages.TRANSPORT_ERROR;
+            }
+
+            if (!error?.response && error?.message === 'Network Error') {
+                return StatusMessages.TRANSPORT_ERROR;
+            }
+
+            return null;
         },
     },
 });

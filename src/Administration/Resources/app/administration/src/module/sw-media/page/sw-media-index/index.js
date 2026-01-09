@@ -113,12 +113,16 @@ export default {
             this.uploads = this.uploads.filter((upload) => {
                 return upload.id !== targetId;
             });
+
+            this.reloadList();
         },
 
         onUploadFailed({ targetId }) {
             this.uploads = this.uploads.filter((upload) => {
                 return targetId !== upload.id;
             });
+
+            this.reloadList();
         },
 
         onChangeLanguage() {

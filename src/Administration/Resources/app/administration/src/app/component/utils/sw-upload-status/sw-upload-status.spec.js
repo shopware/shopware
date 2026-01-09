@@ -76,6 +76,18 @@ function createUploadFinishedEvent(targetId, uploadTag = 'test-tag') {
     };
 }
 
+function createUploadProgressEvent(targetId, loaded, total, uploadTag = 'test-tag') {
+    return {
+        action: UploadEvents.UPLOAD_PROGRESS,
+        payload: {
+            targetId,
+            loaded,
+            total,
+        },
+        uploadTag,
+    };
+}
+
 function createUploadFailedEvent(targetId, fileName, error, uploadTag = 'test-tag') {
     return {
         action: UploadEvents.UPLOAD_FAILED,
@@ -120,7 +132,11 @@ async function createWrapper() {
             mocks: {
                 $t: (key, params = {}) => {
                     if (key === 'global.sw-media-upload.snackbar.message') {
-                        return `Uploading ${params.count} file(s)`;
+                        if (params.count === 1) {
+                            return 'Uploading file';
+                        }
+
+                        return `Uploading files (${params.processed}/${params.total})`;
                     }
                     if (key === 'global.sw-media-upload.snackbar.errorMessage') {
                         return `${params.count} upload(s) failed`;
@@ -136,6 +152,12 @@ async function createWrapper() {
                     }
                     if (key === 'global.sw-media-upload.notification.requestCanceled.message') {
                         return `Request canceled: ${params.fileName}`;
+                    }
+                    if (key === 'global.sw-media-upload.notification.payloadTooLarge.message') {
+                        return `Payload too large: ${params.fileName}`;
+                    }
+                    if (key === 'global.sw-media-upload.notification.transportError.message') {
+                        return `Transport error: ${params.fileName}`;
                     }
                     return key;
                 },
@@ -268,6 +290,59 @@ describe('src/app/component/utils/sw-upload-status', () => {
         expect(wrapper.vm.uploadProgress).toBe(100);
     });
 
+    it('should update upload progress when UPLOAD_PROGRESS event is triggered', async () => {
+        const file1 = createFile('test1.jpg', 'a'.repeat(100));
+        const file2 = createFile('test2.jpg', 'b'.repeat(100));
+
+        const tasks = [
+            createUploadTask('target-1', file1),
+            createUploadTask('target-2', file2),
+        ];
+        wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
+
+        expect(wrapper.vm.uploadProgress).toBe(0);
+
+        wrapper.vm.onUploadEvent(createUploadProgressEvent('target-1', 50, 100));
+        expect(wrapper.vm.uploadProgress).toBe(25);
+
+        wrapper.vm.onUploadEvent(createUploadProgressEvent('target-1', 100, 100));
+        expect(wrapper.vm.uploadProgress).toBe(50);
+    });
+
+    it('should not complete upload when progress reaches 100 but response is pending', async () => {
+        const file = createFile('test.jpg', 'content');
+        const tasks = [createUploadTask('target-123', file)];
+
+        wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
+        wrapper.vm.onUploadEvent(createUploadProgressEvent('target-123', file.size, file.size));
+
+        expect(wrapper.vm.uploadProgress).toBe(100);
+        expect(wrapper.vm.uploadComplete).toBe(false);
+    });
+
+    it('should use singular snackbar message for a single upload', async () => {
+        const file = createFile();
+        const tasks = [createUploadTask('target-123', file)];
+
+        wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
+
+        expect(wrapper.vm.snackbarMessage).toBe('Uploading file');
+    });
+
+    it('should include processed count in snackbar message for multiple uploads', async () => {
+        const file1 = createFile('test1.jpg', 'content');
+        const file2 = createFile('test2.jpg', 'content2');
+
+        const tasks = [
+            createUploadTask('target-123', file1),
+            createUploadTask('target-456', file2),
+        ];
+        wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
+        wrapper.vm.onUploadEvent(createUploadFinishedEvent('target-123'));
+
+        expect(wrapper.vm.snackbarMessage).toBe('Uploading files (1/2)');
+    });
+
     it('should detect upload complete when all uploads finished', async () => {
         const file = createFile();
         const tasks = [createUploadTask('target-123', file)];
@@ -332,7 +407,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
     it('should show error notification for client-side request canceled error', async () => {
         wrapper.vm.createNotificationError = jest.fn();
 
-        const error = createClientError('ECONNABORTED');
+        const error = createClientError('ERR_CANCELED');
         wrapper.vm.showErrorNotification({
             fileName: 'test.jpg',
             error,
@@ -340,6 +415,59 @@ describe('src/app/component/utils/sw-upload-status', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'Request canceled: test.jpg',
+        });
+    });
+
+    it('should show error notification for client-side timeout error', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const error = createClientError('ECONNABORTED');
+        wrapper.vm.showErrorNotification({
+            fileName: 'test.jpg',
+            error,
+        });
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Transport error: test.jpg',
+        });
+    });
+
+    it('should show error notification for timeout status', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const error = {
+            response: {
+                status: 504,
+                data: {
+                    errors: [],
+                },
+            },
+        };
+
+        wrapper.vm.showErrorNotification({
+            fileName: 'test.jpg',
+            error,
+        });
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Transport error: test.jpg',
+        });
+    });
+
+    it('should show error notification for network errors without response', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const error = {
+            message: 'Network Error',
+        };
+
+        wrapper.vm.showErrorNotification({
+            fileName: 'test.jpg',
+            error,
+        });
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Transport error: test.jpg',
         });
     });
 

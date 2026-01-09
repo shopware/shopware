@@ -57,6 +57,7 @@
             >
             <video
                 v-else
+                ref="mediaElement"
                 :controls="showControls"
                 :autoplay="autoplay"
                 :poster="hasVideoCover ? videoCoverPoster : null"
@@ -97,6 +98,7 @@
             >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
             <audio
+                ref="mediaElement"
                 :controls="showControls"
                 :autoplay="autoplay"
                 controlsList="nodownload"

@@ -221,6 +221,14 @@
             {% endblock %}
         {% endif %}
 
+        {% if config('core.listing.buildBreadcrumbByRefererCategory') %}
+            {% block layout_head_javascript_dynamic_breadcrumb_state %}
+                <script>
+                    window.dynamicBreadcrumbEnabled = true;
+                </script>
+            {% endblock %}
+        {% endif %}
+
         {# jQuery is removed from the default Storefront since tag:v6.5.0 - This block should be used to add jQuery as a `<script>` if needed. #}
         {% block layout_head_javascript_jquery %}
         {% endblock %}

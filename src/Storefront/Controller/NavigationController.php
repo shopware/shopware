@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
-use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
@@ -48,8 +47,7 @@ class NavigationController extends StorefrontController
         private readonly BreadcrumbPageletLoaderInterface $breadcrumbLoader,
         private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
-        private readonly SystemConfigService $systemConfigService,
-        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -179,7 +177,7 @@ class NavigationController extends StorefrontController
         $type = $request->get('type', 'product');
 
         if ($type === 'product' && $this->systemConfigService->getBool('core.listing.buildBreadcrumbByRefererCategory', $context->getSalesChannelId())) {
-            $refererCategoryId = $this->breadcrumbBuilder->getCategoryIdByReferer($request, $context);
+            $refererCategoryId = $request->cookies->get('sw-referer-category-id');
 
             if ($refererCategoryId !== null) {
                 $request->query->set('referrerCategoryId', $refererCategoryId);

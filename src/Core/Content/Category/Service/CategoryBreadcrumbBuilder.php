@@ -172,47 +172,6 @@ class CategoryBreadcrumbBuilder
         return $categoryBreadcrumb;
     }
 
-    public function getCategoryIdByReferer(Request $request, SalesChannelContext $context): ?string
-    {
-        $referer = $request->headers->get('referer');
-
-        if ($referer === null || $referer === '') {
-            return null;
-        }
-
-        $pathInfo = Request::create($referer)->getPathInfo();
-
-        return $this->getCategoryIdByPathInfo($pathInfo, $context);
-    }
-
-    private function getCategoryIdByPathInfo(string $pathInfo, SalesChannelContext $context, bool $resolve = true): ?string
-    {
-        try {
-            $match = $this->router->match($pathInfo);
-        } catch (ResourceNotFoundException) {
-            if ($resolve === false) {
-                return null;
-            }
-
-            $salesChannel = $context->getSalesChannel();
-            $resolved = $this->seoResolver->resolve($salesChannel->getLanguageId(), $salesChannel->getId(), $pathInfo);
-
-            if ($resolved['pathInfo'] === $pathInfo) {
-                return null;
-            }
-
-            return $this->getCategoryIdByPathInfo($resolved['pathInfo'], $context, false);
-        } catch (MethodNotAllowedException $e) {
-            return null;
-        }
-
-        if ($match['_route'] !== 'frontend.navigation.page') {
-            return null;
-        }
-
-        return $match['navigationId'];
-    }
-
     private function loadProduct(string $productId, SalesChannelContext $salesChannelContext): SalesChannelProductEntity
     {
         $criteria = new Criteria();

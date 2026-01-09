@@ -192,7 +192,6 @@
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

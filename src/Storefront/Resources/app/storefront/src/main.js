@@ -142,6 +142,10 @@ if (window.wishlistEnabled) {
     PluginManager.register('WishlistWidget', () => import('src/plugin/header/wishlist-widget.plugin'), '[data-wishlist-widget]');
 }
 
+if (window.dynamicBreadcrumbEnabled) {
+    PluginManager.register('DynamicBreadcrumb', () => import('src/plugin/listing/dynamic-breadcrumb.plugin'), '[data-dynamic-breadcrumb]');
+}
+
 if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', () => import('src/plugin/google-analytics/google-analytics.plugin'));
 }

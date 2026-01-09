@@ -67,6 +67,8 @@ The cookie consent dialog now uses toggle switches instead of checkboxes for a m
 
 ### HTTP caching policies update
 
+The following changes are relevant when HTTP caching policies feature is enabled (`CACHE_REWORK` or `v6.8.0.0` feature flag):
+
 * HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
 * `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
 

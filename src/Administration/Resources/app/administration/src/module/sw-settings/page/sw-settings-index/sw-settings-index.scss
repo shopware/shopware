@@ -13,31 +13,20 @@
 
     .sw-settings__card--hero {
         container-type: inline-size;
-        color: var(--color-text-primary-default);
-        background: transparent;
-        border: none !important;
-
-        h1,
-        h2 {
-            font-weight: var(--font-weight-bold);
-        }
-
-        h2 {
-            font-size: var(--font-size-s);
-            line-height: var(--font-line-height-s);
-            margin-bottom: var(--scale-size-12);
-        }
-
-        h1 {
-            font-size: var(--font-size-xl);
-            line-height: var(--font-line-height-xl);
-        }
+        max-width: 60rem;
+        margin: var(--scale-size-24) auto var(--scale-size-40);
 
         .sw-settings__content-header {
             text-align: left;
             margin-bottom: var(--scale-size-48);
             display: flex;
             flex-direction: column;
+
+            &-title {
+                font-size: var(--font-size-xl);
+                font-weight: var(--font-weight-bold);
+                line-height: var(--font-line-height-xl);
+            }
 
             @container (min-width: 31.25rem) {
                 flex-direction: row;
@@ -73,6 +62,13 @@
             flex-direction: column;
             gap: var(--scale-size-2);
             padding-bottom: var(--scale-size-48);
+
+            &-title {
+                font-size: var(--font-size-s);
+                font-weight: var(--font-weight-bold);
+                line-height: var(--font-line-height-s);
+                margin-bottom: var(--scale-size-12);
+            }
 
             @container (max-width: 31.25rem) {
                 padding-bottom: var(--scale-size-32);

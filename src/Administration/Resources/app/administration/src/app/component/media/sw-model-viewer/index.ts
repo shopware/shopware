@@ -42,7 +42,9 @@ export default Shopware.Component.wrapComponentConfig({
     watch: {
         async source() {
             this.modelEntity = this.source as EntitySchema.Entity<'media'>;
-            await this.initializeQuickView();
+            await this.initializeQuickView().catch((error) => {
+                console.error(error);
+            });
         },
     },
 
@@ -71,7 +73,9 @@ export default Shopware.Component.wrapComponentConfig({
             this.canvas = this.$el?.querySelector?.('.sw-model-viewer-canvas') || null;
 
             this.modelEntity = this.source as EntitySchema.Entity<'media'>;
-            await this.initializeQuickView();
+            await this.initializeQuickView().catch((error) => {
+                console.error(error);
+            });
         },
 
         async initializeQuickView(): Promise<void> {
@@ -96,7 +100,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            await this.initializeQuickView();
+            await this.initializeQuickView().catch((error) => {
+                console.error(error);
+            });
         },
 
         getCurrentMediaId() : string | null {

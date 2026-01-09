@@ -15,7 +15,6 @@ test('Guest customer must be able to register in the Storefront.', { tag: ['@Reg
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
     await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await StorefrontProductDetail.offCanvasCartGoToCheckoutButton.scrollIntoViewIfNeeded();
     await ShopCustomer.presses(StorefrontProductDetail.offCanvasCartGoToCheckoutButton);
     await StorefrontCheckoutRegister.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
 
@@ -43,7 +42,6 @@ test('Guest commercial customer must be able to register in the Storefront.', { 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
     await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(`${product.translated.name} | ${product.productNumber}`);
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await StorefrontProductDetail.offCanvasCartGoToCheckoutButton.scrollIntoViewIfNeeded();
     await ShopCustomer.presses(StorefrontProductDetail.offCanvasCartGoToCheckoutButton);
     await StorefrontCheckoutRegister.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
 

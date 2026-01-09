@@ -82,19 +82,21 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         initializeQuickView(): void {
-            if(!this.canvas || !this.modelEntity?.url) {
+            if (!this.canvas || !this.modelEntity?.url) {
                 return;
-            };
+            }
 
             this.isLoading = true;
 
             QuickView(this.modelEntity.url, {
                 canvas: this.canvas,
-            }).catch((error) => {
-                console.error(error);
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            })
+                .catch((error) => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onMediaLibraryItemUpdated(mediaId: string): void {

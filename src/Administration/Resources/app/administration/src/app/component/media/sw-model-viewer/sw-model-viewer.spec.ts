@@ -43,9 +43,6 @@ async function createWrapper(componentConfig: any = {}) {
 describe('src/app/component/media/sw-model-viewer', () => {
     // Media entity factory
 
-
-
-
     beforeEach(() => {
         jest.clearAllMocks();
         mockQuickView.mockResolvedValue({});
@@ -116,13 +113,10 @@ describe('src/app/component/media/sw-model-viewer', () => {
             });
             await flushPromises();
 
-            expect(mockQuickView).toHaveBeenCalledWith(
-                'https://example.com/test-model.glb',
-                {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    canvas: expect.any(HTMLCanvasElement),
-                },
-            );
+            expect(mockQuickView).toHaveBeenCalledWith('https://example.com/test-model.glb', {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                canvas: expect.any(HTMLCanvasElement),
+            });
         });
 
         it('should set isLoading to false after QuickView completes', async () => {
@@ -131,7 +125,6 @@ describe('src/app/component/media/sw-model-viewer', () => {
 
             expect(wrapper.vm.isLoading).toBe(false);
         });
-
 
         it('should return early if canvas is null', async () => {
             const wrapper = await createWrapper();
@@ -330,13 +323,10 @@ describe('src/app/component/media/sw-model-viewer', () => {
             expect(wrapper.vm.canvas).toBeTruthy();
             expect(wrapper.vm.modelEntity).toEqual(mediaEntity);
             expect(wrapper.vm.isLoading).toBe(false);
-            expect(mockQuickView).toHaveBeenCalledWith(
-                'https://example.com/integration-model.glb',
-                {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    canvas: expect.any(HTMLCanvasElement),
-                },
-            );
+            expect(mockQuickView).toHaveBeenCalledWith('https://example.com/integration-model.glb', {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                canvas: expect.any(HTMLCanvasElement),
+            });
         });
 
         it('should handle media update flow correctly', async () => {
@@ -362,4 +352,3 @@ describe('src/app/component/media/sw-model-viewer', () => {
         });
     });
 });
-

@@ -3,7 +3,6 @@
     class="sw-settings-index"
     :show-smart-bar="false"
 >
-
     {% block sw_settings_content %}
     <template #content>
         <sw-card-view class="sw-settings-index__card-view">
@@ -15,9 +14,8 @@
             >
                 {% block sw_settings_content_card_view_header %}
                 <div class="sw-settings__content-header">
-                    <h1>
-                        {{ $tc('sw-settings.index.title') }}
-                    </h1>
+                    <h1>{{ $tc('sw-settings.index.title') }}</h1>
+
                     <mt-search
                         v-model="searchQuery"
                         :placeholder="$t('sw-settings.index.search.placeholder')"
@@ -34,8 +32,7 @@
                     closable
                     @close="onCloseSettingRenameBanner"
                 >
-                    <p v-html="$t('sw-settings.index.textSettingRenameBanner')">
-                    </p>
+                    <p v-html="$t('sw-settings.index.textSettingRenameBanner')"></p>
                 </mt-banner>
 
                 {% block sw_settings_content_card_content_grid %}
@@ -69,12 +66,14 @@
                                     :is="settingsItem.iconComponent"
                                     v-if="settingsItem.iconComponent"
                                 />
+
                                 <mt-icon
                                     v-else
                                     :name="settingsItem.icon"
                                     size="16px"
                                 />
                             </template>
+
                             <template #label>
                                 <sw-highlight-text
                                     :text="getLabel(settingsItem)"
@@ -84,6 +83,7 @@
                         </sw-settings-item>
                     </div>
                 </div>
+
                 <div class="sw-settings-index__empty-state">
                     <mt-empty-state
                         v-if="Object.keys(settingsGroups).length === 0"

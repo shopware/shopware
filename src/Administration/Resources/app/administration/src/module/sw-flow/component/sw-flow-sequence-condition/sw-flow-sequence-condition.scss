@@ -222,6 +222,7 @@
 
     &__rule {
         transition: all 100ms ease-in-out;
+        cursor: pointer;
 
         &:hover {
             background: var(--color-elevation-surface-sunken);

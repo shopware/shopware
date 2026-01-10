@@ -57,6 +57,10 @@
         }
     }
 
+    &__base-info-section {
+        border-radius: var(--border-radius-card);
+    }
+
     .sw-review-base-info {
         font-size: var(--font-size-xs);
         line-height: var(--line-height-xs);

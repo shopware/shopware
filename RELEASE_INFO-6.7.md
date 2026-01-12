@@ -136,6 +136,10 @@ A new configuration option `Open offcanvas cart after adding a product` has been
 
 ## Critical Fixes
 
+### Fixed duplicate entries in theme_runtime_config table
+
+Reinstalling an app theme no longer creates duplicate `theme_runtime_config` entries. A unique constraint was added and existing duplicates are cleaned up by migration.
+
 # 6.7.6.0
 
 ## Features

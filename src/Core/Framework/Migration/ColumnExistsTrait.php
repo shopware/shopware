@@ -3,11 +3,22 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Util\DbTableHelper;
 
 trait ColumnExistsTrait
 {
+    /**
+     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see \Doctrine\DBAL\Schema\Exception\TableDoesNotExist} instead of {@see \Doctrine\DBAL\Exception\TableNotFoundException}
+     *
+     * @param non-empty-string $table
+     */
     protected function columnExists(Connection $connection, string $table, string $column): bool
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return DbTableHelper::columnExists($connection, $table, $column);
+        }
+
         $exists = $connection->fetchOne(
             'SHOW COLUMNS FROM `' . $table . '` WHERE `Field` LIKE :column',
             ['column' => $column]

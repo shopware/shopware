@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_5;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\DbTableHelper;
 
 /**
  * @internal
@@ -19,7 +20,7 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'user_access_key', 'write_access')) {
+        if (!DbTableHelper::columnExists($connection, 'user_access_key', 'write_access')) {
             return;
         }
 

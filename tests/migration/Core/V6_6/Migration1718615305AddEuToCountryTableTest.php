@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\DbTableHelper;
 use Shopware\Core\Migration\V6_6\Migration1718615305AddEuToCountryTable;
 
 /**
@@ -34,19 +37,12 @@ class Migration1718615305AddEuToCountryTableTest extends TestCase
     {
         $this->rollback();
         $this->executeMigration();
-        $columns = $this->connection->fetchAllAssociative('SHOW COLUMNS FROM `country`');
-        $columnNames = array_column($columns, 'Field');
+        $this->executeMigration();
 
-        $isEuColumnKey = array_search('is_eu', $columnNames, true);
-
-        if ($isEuColumnKey === false) {
-            static::fail('Column "is_eu" not found in "country" table');
-        }
-
-        static::assertSame('is_eu', $columns[$isEuColumnKey]['Field']);
-        static::assertSame('tinyint(1)', $columns[$isEuColumnKey]['Type']);
-        static::assertSame('NO', $columns[$isEuColumnKey]['Null']);
-        static::assertSame('0', $columns[$isEuColumnKey]['Default']);
+        $isEuColumn = DbTableHelper::getColumnOfTable($this->connection, 'country', 'is_eu');
+        static::assertSame(Type::lookupName(Type::getType(Types::BOOLEAN)), $isEuColumn->type);
+        static::assertTrue($isEuColumn->isNotNull);
+        static::assertSame('0', $isEuColumn->defaultValue);
     }
 
     public function testEuCountriesAreMarkedAsEu(): void

@@ -8,7 +8,9 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\DbTableHelper;
 
 #[Package('framework')]
 abstract class MigrationStep
@@ -81,8 +83,18 @@ abstract class MigrationStep
         IndexerQueuer::registerIndexer($connection, $name, $indexerToRun);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see DbTableHelper::indexExists} instead
+     *
+     * @param non-empty-string $table
+     */
     protected function indexExists(Connection $connection, string $table, string $index): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use DbTableHelper::indexExists instead')
+        );
+
         $exists = $connection->fetchOne(
             'SHOW INDEXES FROM `' . $table . '` WHERE `key_name` LIKE :index',
             ['index' => $index]

@@ -61,25 +61,31 @@ After maintenance ends, users are now redirected back to the page they were on b
 Previously, users were always redirected to the shop homepage.
 
 ### Support of media paths with up to 2046 characters
-Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the
-database field already supported up to 2046 characters. This limitation has now been lifted and media paths can be up to
-2046 characters long.
+
+Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the database field already supported up to 2046 characters.
+This limitation has now been lifted, and media paths can be up to 2046 characters long.
 
 ### Configurable Custom Field Searchability
 
-Custom fields are now **not searchable by default**. To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields. This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
+Custom fields are now **not searchable by default**.
+To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields.
+This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
 
 **Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
 
 ### Media Model Viewer
 
 From now on you are able to inspect your 3D models directly in the Media module in the Administration. Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right. This new component is called `sw-model-viewer`.
+### Database table helper class
+
+A new helper class `\Shopware\Core\Framework\Util\DbTableHelper` was introduced,
+which could be used to check the table for existence, columns, indexes, and foreign keys.
 
 ## API
 
-### Improved tagged based cache invalidation
+### Improved tagged-based cache invalidation
 
-Next routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
+The following routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
 * `/store-api/breadcrumb/{id}`
 * `/store-api/media`
 * `/store-api/product/{productId}/find-variant`
@@ -106,7 +112,10 @@ Previously, the generated query would `LEFT JOIN` `order_line_item` multiple tim
 
 ### Introduce Immutable DAL flag
 
-A new `Immutable` flag is available for Data Abstraction Layer fields. Fields marked as immutable can be set during entity creation but cannot be updated later. This prevents accidental renames of technical identifiers that other subsystems rely on. Core entities now using the flag include:
+A new `Immutable` flag is available for Data Abstraction Layer fields.
+Fields marked as immutable can be set during entity creation but cannot be updated later.
+This prevents accidental renames of technical identifiers that other subsystems rely on.
+Core entities now using the flag include:
 
 * `custom_field.name`
 * `custom_field.type`
@@ -539,7 +548,7 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 
 ### Automatic indexer execution for plugin migrations
 
-The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+The `IndexerQueuer` now runs automatically during plugin install, update, and uninstall events.
 This ensures that registered indexers are executed when plugin migrations have run.
 
 ### Improved Store API OpenAPI documentation with field descriptions

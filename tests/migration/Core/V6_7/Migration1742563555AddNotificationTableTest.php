@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\DbTableHelper;
 use Shopware\Core\Migration\V6_7\Migration1742563555AddNotificationTable;
 
 /**
@@ -28,19 +30,16 @@ class Migration1742563555AddNotificationTableTest extends TestCase
 
     public function testMigration(): void
     {
-        $sm = $this->connection->createSchemaManager();
-
-        static::assertFalse($sm->tablesExist(['notification']));
+        static::assertFalse(DbTableHelper::tableExists($this->connection, 'notification'));
 
         $migration = new Migration1742563555AddNotificationTable();
 
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue($sm->tablesExist(['notification']));
+        static::assertTrue(DbTableHelper::tableExists($this->connection, 'notification'));
 
-        $cols = $sm->listTableColumns('notification');
-        static::assertCount(9, $cols);
-        static::assertInstanceOf(TextType::class, $cols['message']->getType());
+        $messageColumn = DbTableHelper::getColumnOfTable($this->connection, 'notification', 'message');
+        static::assertSame(Type::lookupName(Type::getType(Types::TEXT)), $messageColumn->type);
     }
 }

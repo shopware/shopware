@@ -5,6 +5,7 @@ namespace Shopware\Core\Maintenance\System\Service;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -38,11 +39,12 @@ class DatabaseConnectionFactory
         $mysqlRequiredVersion = '8.0.22';
         $mariaDBRequiredVersion = '10.11';
 
-        $version = $connection->fetchOne('SELECT VERSION()');
-        if (!\is_string($version)) {
-            throw MaintenanceException::dbVersionSelectFailed();
+        try {
+            $version = mb_strtolower($connection->getServerVersion());
+        } catch (Exception $e) {
+            throw MaintenanceException::dbVersionSelectFailed($e);
         }
-        if (\mb_stripos($version, 'mariadb') !== false) {
+        if (\str_contains($version, 'mariadb')) {
             if (version_compare($version, $mariaDBRequiredVersion, '<')) {
                 throw MaintenanceException::dbVersionMismatch('MariaDB', $version, $mysqlRequiredVersion, $mariaDBRequiredVersion);
             }

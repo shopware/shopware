@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Util\DbTableHelper;
+
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('framework')]
+final readonly class Column
+{
+    public function __construct(
+        public string $type,
+        public ?int $length,
+        public bool $isNotNull,
+        public mixed $defaultValue,
+    ) {
+    }
+}

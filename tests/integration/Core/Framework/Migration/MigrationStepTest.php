@@ -4,9 +4,12 @@ namespace Shopware\Tests\Integration\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\DbTableHelper;
 
 /**
  * @internal
@@ -116,7 +119,7 @@ SQL
 
         $step->doDropTableIfExists($connection, 'test_table');
 
-        static::assertFalse($connection->fetchOne('SHOW TABLES like \'test_table\''));
+        static::assertFalse(DbTableHelper::tableExists($connection, 'test_table'));
     }
 
     public function testAddColumn(): void
@@ -142,8 +145,12 @@ SQL
 
         $step->doDropTableIfExists($connection, 'test_table');
 
-        $this->expectException(TableNotFoundException::class);
-        $this->expectExceptionMessageMatches('/SQLSTATE\[42S02\]\: Base table or view not found\: 1146 Table .*foo\' doesn\'t exist/');
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(TableNotFoundException::class);
+            $this->expectExceptionMessageMatches('/SQLSTATE\[42S02\]\: Base table or view not found\: 1146 Table .*foo\' doesn\'t exist/');
+        } else {
+            $this->expectExceptionObject(TableDoesNotExist::new('foo'));
+        }
         static::assertTrue($step->doAddColumn($connection, 'foo', 'test_column', 'VARCHAR(255)'));
     }
 
@@ -192,6 +199,9 @@ class ExampleStep extends MigrationStep
         return $this->dropColumnIfExists($connection, $table, $column);
     }
 
+    /**
+     * @param non-empty-string $table
+     */
     public function doAddColumn(Connection $connection, string $table, string $column, string $type): bool
     {
         return $this->addColumn($connection, $table, $column, $type);

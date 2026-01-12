@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\DbTableHelper;
 use Shopware\Core\Migration\V6_6\Migration1716285861AddAppSourceType;
 
 /**
@@ -30,21 +31,12 @@ class Migration1716285861AddAppSourceTypeTest extends TestCase
 
     public function testMigration(): void
     {
-        static::assertFalse($this->columnExists());
+        static::assertFalse(DbTableHelper::columnExists($this->connection, 'app', 'source_type'));
 
         $migration = new Migration1716285861AddAppSourceType();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue($this->columnExists());
-    }
-
-    private function columnExists(): bool
-    {
-        $field = $this->connection->fetchOne(
-            'SHOW COLUMNS FROM `app` WHERE `Field` = "source_type";',
-        );
-
-        return $field === 'source_type';
+        static::assertTrue(DbTableHelper::columnExists($this->connection, 'app', 'source_type'));
     }
 }

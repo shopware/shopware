@@ -98,11 +98,9 @@ The following deprecations apply to `sw-mail-template-index`:
 
 ### Cookie consent now language-aware
 
-The cookie consent banner now tracks cookie configuration per language. Previously, switching languages would cause the cookie banner to reappear because the configuration hash changed due to translated cookie descriptions. Now, users who switch languages will be prompted to accept cookies for each language separately, and switching back to a previously accepted language will not show the banner again.
+The cookie consent banner now tracks cookie configuration per language. Previously, switching languages would cause the cookie banner to reappear because the configuration hash changed due to translated cookie descriptions. Now, switching back to a previously accepted language will not show the banner again.
 
-**API Change:** The Store API endpoint `/store-api/cookie-groups` now includes a `languageId` field in the response, indicating the current language context.
-
-**Internal Change:** The `cookie-config-hash` browser cookie now stores a JSON object mapping language IDs to their respective configuration hashes. This is an internal implementation detail - most plugins should use the `cookie-preference` cookie or listen to the `COOKIE_CONFIGURATION_UPDATE` event instead.
+The Store API endpoint `/store-api/cookie-groups` now includes a `languageId` field in the response.
 
 ### Improved cookie consent dialog UI and accessibility
 

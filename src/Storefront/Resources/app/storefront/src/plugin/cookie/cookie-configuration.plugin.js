@@ -328,13 +328,37 @@ export default class CookieConfiguration extends Plugin {
 
         // Hash matches for this language - refresh to extend expiration
         if (storedHashForLanguage) {
-            this._storeHashForLanguage(languageId, currentHash);
+            this._storeHashForLanguage(languageId, currentHash, storedHashData);
         }
     }
 
     /**
+     * Parse stored hash data from cookie.
+     * Handles both legacy plain string format and new JSON object format.
+     *
+     * @param {string|null} storedHashData - The raw stored hash data from the cookie
+     * @returns {Object} The parsed hashes object, or empty object if parsing fails
+     * @private
+     */
+    _parseStoredHashes(storedHashData) {
+        if (!storedHashData) {
+            return {};
+        }
+
+        try {
+            const parsed = JSON.parse(storedHashData);
+            if (typeof parsed === 'object' && parsed !== null) {
+                return parsed;
+            }
+        } catch (_e) {
+            // Legacy format or invalid JSON
+        }
+
+        return {};
+    }
+
+    /**
      * Get the stored hash for a specific language from the stored hash data.
-     * Handles both legacy plain string format (deprecated) and new JSON object format.
      *
      * @param {string|null} storedHashData - The raw stored hash data from the cookie
      * @param {string} languageId - The language ID to get the hash for
@@ -342,22 +366,8 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _getStoredHashForLanguage(storedHashData, languageId) {
-        if (!storedHashData) {
-            return null;
-        }
-
-        // Try to parse as JSON (new format: {languageId: hash, ...})
-        try {
-            const hashes = JSON.parse(storedHashData);
-            if (typeof hashes === 'object' && hashes !== null) {
-                return hashes[languageId] || null;
-            }
-        } catch (_e) {
-            // Not valid JSON - this is the legacy plain string format (deprecated)
-            // Return null to trigger re-consent for this language
-        }
-
-        return null;
+        const hashes = this._parseStoredHashes(storedHashData);
+        return hashes[languageId] || null;
     }
 
     /**
@@ -366,26 +376,14 @@ export default class CookieConfiguration extends Plugin {
      *
      * @param {string} languageId - The language ID to store the hash for
      * @param {string} hash - The hash to store
+     * @param {string|null} [storedHashData=null] - Optional existing hash data to avoid reloading from cookie
      * @private
      */
-    _storeHashForLanguage(languageId, hash) {
+    _storeHashForLanguage(languageId, hash, storedHashData = null) {
         const { cookieConfigHash } = this.options;
-        const storedHashData = CookieStorage.getItem(cookieConfigHash);
-        let hashes = {};
+        const existingData = storedHashData ?? CookieStorage.getItem(cookieConfigHash);
+        const hashes = this._parseStoredHashes(existingData);
 
-        // Try to parse existing hashes
-        if (storedHashData) {
-            try {
-                const parsed = JSON.parse(storedHashData);
-                if (typeof parsed === 'object' && parsed !== null) {
-                    hashes = parsed;
-                }
-            } catch (_e) {
-                // Legacy plain string format - will be replaced with new format
-            }
-        }
-
-        // Update the hash for this language
         hashes[languageId] = hash;
 
         CookieStorage.setItem(cookieConfigHash, JSON.stringify(hashes), this._getDefaultCookieExpiration());

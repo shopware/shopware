@@ -6,6 +6,9 @@ namespace Shopware\Core\Framework\Util\DbTableHelper;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 final readonly class ForeignKey
 {

@@ -26,18 +26,14 @@ class Migration1718615305AddEuToCountryTable extends MigrationStep
         }
 
         $connection->executeStatement(
-            <<<SQL
-            ALTER TABLE `country`
-            ADD COLUMN `is_eu` BOOLEAN NOT NULL DEFAULT 0;
-            SQL,
+            'ALTER TABLE `country`
+             ADD COLUMN `is_eu` BOOLEAN NOT NULL DEFAULT 0;',
         );
 
         $connection->executeStatement(
-            <<<SQL
-            UPDATE `country`
-            SET `is_eu` = 1
-            WHERE `iso` IN (:euCountryIsoCodes);
-            SQL,
+            'UPDATE `country`
+             SET `is_eu` = 1
+             WHERE `iso` IN (:euCountryIsoCodes);',
             [
                 'euCountryIsoCodes' => [
                     'AT', // Austria
@@ -69,9 +65,7 @@ class Migration1718615305AddEuToCountryTable extends MigrationStep
                     'SK', // Slovakia
                 ],
             ],
-            [
-                'euCountryIsoCodes' => ArrayParameterType::STRING,
-            ],
+            ['euCountryIsoCodes' => ArrayParameterType::STRING],
         );
     }
 }

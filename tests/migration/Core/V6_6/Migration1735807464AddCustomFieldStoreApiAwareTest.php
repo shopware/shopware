@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +34,7 @@ class Migration1735807464AddCustomFieldStoreApiAwareTest extends TestCase
         $this->executeMigration();
 
         $storeApiAwareColumn = DbTableHelper::getColumnOfTable($this->connection, 'custom_field', 'store_api_aware');
-        static::assertSame(Type::lookupName(Type::getType(Types::BOOLEAN)), $storeApiAwareColumn->type);
+        static::assertSame(Types::BOOLEAN, $storeApiAwareColumn->type);
         static::assertTrue($storeApiAwareColumn->isNotNull);
         static::assertSame('1', $storeApiAwareColumn->defaultValue);
     }

@@ -31,7 +31,7 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
 
     public function testMigration(): void
     {
-        $this->undoMigration($this->connection);
+        $this->undoMigration();
         // Test multiple execution
         $this->migrate();
         $this->migrate();
@@ -47,14 +47,14 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
         (new Migration1738661307AddMediaIndices())->update($this->connection);
     }
 
-    private function undoMigration(Connection $connection): void
+    private function undoMigration(): void
     {
-        if (DbTableHelper::columnExists($connection, 'media', 'file_hash')) {
+        if (DbTableHelper::columnExists($this->connection, 'media', 'file_hash')) {
             $this->connection->executeStatement('ALTER TABLE `media` DROP COLUMN `file_hash`;');
         }
 
         foreach (['idx.media.file_extension', 'idx.media.file_name', 'idx.media.file_hash'] as $indexName) {
-            if (DbTableHelper::indexExists($connection, 'media', $indexName)) {
+            if (DbTableHelper::indexExists($this->connection, 'media', $indexName)) {
                 $this->connection->executeStatement("ALTER TABLE `media` DROP INDEX `$indexName`;");
             }
         }

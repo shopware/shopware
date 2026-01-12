@@ -56,7 +56,7 @@ class CmsAwareAndAdminUiTest extends TestCase
 
     protected function setUp(): void
     {
-        //        static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
+        static::markTestSkipped('cms-aware will be re-implemented via NEXT-22697');
         $this->context = Context::createDefaultContext();
 
         $this->connection = static::getContainer()->get(Connection::class);

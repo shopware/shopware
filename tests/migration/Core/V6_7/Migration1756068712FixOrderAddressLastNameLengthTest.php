@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -41,20 +40,20 @@ class Migration1756068712FixOrderAddressLastNameLengthTest extends TestCase
         ');
 
         $lastNameColumn = DbTableHelper::getColumnOfTable($this->connection, 'order_address', 'last_name');
-        static::assertSame(Type::lookupName(Type::getType(Types::STRING)), $lastNameColumn->type);
+        static::assertSame(Types::STRING, $lastNameColumn->type);
         static::assertSame(60, $lastNameColumn->length);
 
         $migration->update($this->connection);
 
         $lastNameColumn = DbTableHelper::getColumnOfTable($this->connection, 'order_address', 'last_name');
-        static::assertSame(Type::lookupName(Type::getType(Types::STRING)), $lastNameColumn->type);
+        static::assertSame(Types::STRING, $lastNameColumn->type);
         static::assertSame(255, $lastNameColumn->length);
         static::assertTrue($lastNameColumn->isNotNull);
 
         $migration->update($this->connection);
 
         $lastNameColumn = DbTableHelper::getColumnOfTable($this->connection, 'order_address', 'last_name');
-        static::assertSame(Type::lookupName(Type::getType(Types::STRING)), $lastNameColumn->type);
+        static::assertSame(Types::STRING, $lastNameColumn->type);
         static::assertSame(255, $lastNameColumn->length);
         static::assertTrue($lastNameColumn->isNotNull);
     }

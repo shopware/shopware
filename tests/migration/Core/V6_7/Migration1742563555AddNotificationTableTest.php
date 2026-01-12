@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -39,7 +38,8 @@ class Migration1742563555AddNotificationTableTest extends TestCase
 
         static::assertTrue(DbTableHelper::tableExists($this->connection, 'notification'));
 
+        static::assertCount(9, DbTableHelper::getTable($this->connection, 'notification')->columnNames);
         $messageColumn = DbTableHelper::getColumnOfTable($this->connection, 'notification', 'message');
-        static::assertSame(Type::lookupName(Type::getType(Types::TEXT)), $messageColumn->type);
+        static::assertSame(Types::TEXT, $messageColumn->type);
     }
 }

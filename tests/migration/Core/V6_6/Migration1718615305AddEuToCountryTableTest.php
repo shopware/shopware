@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -40,7 +39,7 @@ class Migration1718615305AddEuToCountryTableTest extends TestCase
         $this->executeMigration();
 
         $isEuColumn = DbTableHelper::getColumnOfTable($this->connection, 'country', 'is_eu');
-        static::assertSame(Type::lookupName(Type::getType(Types::BOOLEAN)), $isEuColumn->type);
+        static::assertSame(Types::BOOLEAN, $isEuColumn->type);
         static::assertTrue($isEuColumn->isNotNull);
         static::assertSame('0', $isEuColumn->defaultValue);
     }

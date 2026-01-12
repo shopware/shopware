@@ -84,16 +84,15 @@ abstract class MigrationStep
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use {@see DbTableHelper::indexExists} instead
+     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see \Doctrine\DBAL\Schema\Exception\TableDoesNotExist} instead of {@see TableNotFoundException}
      *
      * @param non-empty-string $table
      */
     protected function indexExists(Connection $connection, string $table, string $index): bool
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use DbTableHelper::indexExists instead')
-        );
+        if (Feature::isActive('v6.8.0.0')) {
+            return DbTableHelper::indexExists($connection, $table, $index);
+        }
 
         $exists = $connection->fetchOne(
             'SHOW INDEXES FROM `' . $table . '` WHERE `key_name` LIKE :index',

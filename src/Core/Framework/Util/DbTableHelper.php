@@ -42,7 +42,7 @@ class DbTableHelper
         $dbalTable = self::getSchemaManager($connection)->introspectTable($tableName);
 
         return new Table(
-            array_map(static function (DbalColumn $column): string {
+            columnNames: array_map(static function (DbalColumn $column): string {
                 return $column->getObjectName()->getIdentifier()->getValue();
             }, $dbalTable->getColumns())
         );

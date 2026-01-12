@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -37,7 +36,7 @@ class Migration1746176773AddIntegrationIdStateHistoryTest extends TestCase
         static::assertSame('id', $foreignKey->referencedColumnNames[0]);
 
         $integrationIdColumn = DbTableHelper::getColumnOfTable($connection, 'state_machine_history', 'integration_id');
-        static::assertSame(Type::lookupName(Type::getType(Types::BINARY)), $integrationIdColumn->type);
+        static::assertSame(Types::BINARY, $integrationIdColumn->type);
         static::assertSame(16, $integrationIdColumn->length);
         static::assertFalse($integrationIdColumn->isNotNull);
     }

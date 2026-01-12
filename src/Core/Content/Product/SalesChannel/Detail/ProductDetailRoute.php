@@ -186,7 +186,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
         $variantListingConfig = json_decode((string) $productData['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
 
-        if (isset($variantListingConfig['displayParent']) && (bool) $variantListingConfig['displayParent'] === true) {
+        if (isset($variantListingConfig['displayParent']) && (bool) $variantListingConfig['displayParent'] === true && !isset($variantListingConfig['mainVariantId'])) {
             return null;
         }
 

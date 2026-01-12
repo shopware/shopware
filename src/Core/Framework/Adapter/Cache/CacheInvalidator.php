@@ -124,7 +124,7 @@ class CacheInvalidator
      */
     private function findCaller(): ?array
     {
-        foreach (debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 10) as $frame) {
+        foreach (debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 5) as $frame) {
             if (($frame['class'] ?? null) === self::class) {
                 continue; // skip CacheInvalidator methods
             }

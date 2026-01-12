@@ -32,7 +32,7 @@ class TriggerReferenceGeneratorCommand extends Command
 
         $io->comment('Generating Markdown reference for business/flow triggers.');
 
-        $events = $this->collector->collect(Context::createDefaultContext());
+        $events = $this->collector->collect(Context::createCLIContext());
         /** @var array<string, string> $descriptions */
         $descriptions = is_file(self::EVENT_DESCRIPTIONS) ? require self::EVENT_DESCRIPTIONS : [];
 

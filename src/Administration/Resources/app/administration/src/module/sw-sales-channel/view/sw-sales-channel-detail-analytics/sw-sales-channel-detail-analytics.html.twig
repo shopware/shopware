@@ -64,6 +64,17 @@
                 :disabled="!acl.can('sales_channel.editor')"
             />
             {% endblock %}
+
+            {% block sw_sales_channel_detail_analytics_fields_track_offcanvas_cart %}
+
+            <mt-switch
+                v-model="salesChannel.analytics.trackOffcanvasCart"
+                :label="$tc('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.label')"
+                :help-text="$tc('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.helpText')"
+                name="trackOffcanvasCart"
+                :disabled="!acl.can('sales_channel.editor')"
+            />
+            {% endblock %}
         </sw-container>
         {% endblock %}
     </template>

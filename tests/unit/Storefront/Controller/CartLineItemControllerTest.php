@@ -119,6 +119,44 @@ class CartLineItemControllerTest extends TestCase
         $this->controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
     }
 
+    public function testAddLineItemsCallsLineItemWithNestedArrayPayload(): void
+    {
+        $productId = Uuid::randomHex();
+        $lineItemData = [
+            'id' => $productId,
+            'referencedId' => $productId,
+            'type' => 'product',
+            'stackable' => 1,
+            'removable' => 1,
+            'quantity' => 1,
+            'payload' => ['some' => 'value', 'nested' => ['key' => 'data']],
+        ];
+
+        $expectedLineItemData = [
+            'id' => $productId,
+            'referencedId' => $productId,
+            'type' => 'product',
+            'stackable' => 1,
+            'removable' => 1,
+            'quantity' => 1,
+            'payload' => ['some' => 'value', 'nested' => ['key' => 'data']],
+        ];
+
+        $request = new Request([], ['lineItems' => [$productId => $lineItemData]]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+        $expectedLineItem = new LineItem($productId, 'product');
+
+        $this->lineItemRegistryMock->expects($this->once())
+            ->method('create')
+            ->with($expectedLineItemData, $this->createMock(SalesChannelContext::class))
+            ->willReturn($expectedLineItem);
+
+        $this->translatorCallback();
+
+        $this->controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
+    }
+
     public function testAddLineItemsCallsLineItemSetDefaultValues(): void
     {
         $productId = Uuid::randomHex();

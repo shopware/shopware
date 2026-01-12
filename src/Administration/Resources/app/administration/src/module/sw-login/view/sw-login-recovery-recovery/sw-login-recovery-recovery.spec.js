@@ -51,4 +51,28 @@ describe('src/module/sw-login/view/sw-login-recovery-recovery', () => {
         wrapper.vm.$router.push.mockRestore();
         wrapper.vm.userRecoveryService.updateUserPassword.mockRestore();
     });
+
+    it('should call updateUserPassword when submit button is clicked', async () => {
+        const testHash = 'test-hash-123';
+        const testPassword = 'testPassword123';
+
+        wrapper = await createWrapper();
+        await wrapper.setProps({ hash: testHash });
+
+        const updateUserPasswordSpy = jest.fn(() => Promise.resolve());
+        wrapper.vm.userRecoveryService.updateUserPassword = updateUserPasswordSpy;
+
+        const passwordInputs = wrapper.findAll('input[type="password"]');
+        const newPasswordInput = passwordInputs[0];
+        const confirmPasswordInput = passwordInputs[1];
+
+        await newPasswordInput.setValue(testPassword);
+        await confirmPasswordInput.setValue(testPassword);
+
+        const form = wrapper.find('form');
+        await form.trigger('submit');
+
+        expect(updateUserPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(updateUserPasswordSpy).toHaveBeenCalledWith(testHash, testPassword, testPassword);
+    });
 });

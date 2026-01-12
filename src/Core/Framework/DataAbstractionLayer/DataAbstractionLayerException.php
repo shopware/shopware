@@ -939,14 +939,10 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
      */
     public static function unexpectedFieldType(string $field, string $expectedField): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException(\sprintf('Expected field "%s" to be instance of %s', $field, $expectedField));
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_UNEXPECTED_FIELD_TYPE,
@@ -969,12 +965,11 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
+     */
     public static function missingVersionField(string $definitionClass): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException('Missing `VersionField` in `' . $definitionClass . '`');
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_MISSING_VERSION_FIELD,
@@ -1001,12 +996,11 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
+     */
     public static function noTranslationDefinition(string $entityName): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException(\sprintf('Entity %s has no translation definition', $entityName));
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_NO_TRANSLATION_DEFINITION,
@@ -1015,12 +1009,11 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
+     */
     public static function missingTranslatedStorageAwareProperty(string $propertyName, string $translationEntityName): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException(\sprintf('Missing translated storage aware property %s in %s', $propertyName, $translationEntityName));
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_MISSING_TRANSLATED_STORAGE_AWARE_PROPERTY,
@@ -1029,12 +1022,11 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
+     */
     public static function primaryKeyNotStorageAware(): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException('Primary key fields has to be an instance of StorageAware');
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_PRIMARY_KEY_NOT_STORAGE_AWARE,
@@ -1042,12 +1034,11 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
+     */
     public static function onlyStorageAwareFieldsInReadCondition(): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException('Only storage aware fields are supported in read condition');
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_ONLY_STORAGE_AWARE_FIELDS_IN_READ_CONDITION,
@@ -1055,12 +1046,11 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
+     */
     public static function onlyStorageAwareFieldsAsTranslated(): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException('Only storage aware fields are supported as translated field');
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_ONLY_STORAGE_AWARE_FIELDS_AS_TRANSLATED,
@@ -1082,12 +1072,11 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
+     */
     public static function cannotBuildAccessor(string $propertyName, string $root): self|\RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException(\sprintf('Can not build accessor for field "%s" on root "%s"', $propertyName, $root));
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DBAL_CANNOT_BUILD_ACCESSOR,

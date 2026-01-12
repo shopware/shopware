@@ -266,6 +266,10 @@
           },
           "anonymizeIp": {
             "label": "IP-Anonymisierung"
+          },
+          "trackOffcanvasCart": {
+            "label": "Offcanvas-Warenkorb tracken",
+            "helpText": "Wenn aktiviert, wird ein 'view_cart'-Event auch beim Öffnen des Offcanvas-Warenkorbs ausgelöst, nicht nur auf der Warenkorb-Seite. Nützlich für detaillierte Funnel-Analyse, kann aber die Warenkorb-Ansichten erhöhen."
           }
         }
       },

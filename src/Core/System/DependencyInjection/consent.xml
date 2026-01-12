@@ -12,6 +12,14 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\System\Consent\ConsentScope\System">
+            <tag name="shopware.consent.scope"/>
+        </service>
+
+        <service id="Shopware\Core\System\Consent\ConsentScope\AdminUser">
+            <tag name="shopware.consent.scope"/>
+        </service>
+
         <service id="Shopware\Core\System\Consent\Definition\BackendData">
             <tag name="shopware.consent.definition"/>
         </service>
@@ -21,6 +29,7 @@
         </service>
 
         <service id="Shopware\Core\System\Consent\Service\ConsentService">
+            <argument type="tagged_iterator" tag="shopware.consent.scope"/>
             <argument type="tagged_iterator" tag="shopware.consent.definition"/>
             <argument type="service" id="Shopware\Core\System\Consent\ConsentRepository"/>
             <argument type="service" id="event_dispatcher"/>

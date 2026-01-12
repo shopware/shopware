@@ -5,14 +5,15 @@ namespace Shopware\Tests\Unit\Core\System\Consent\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Consent\ConsentContext;
 use Shopware\Core\System\Consent\ConsentDefinition;
 use Shopware\Core\System\Consent\ConsentException;
 use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
+use Shopware\Core\System\Consent\ConsentScope\AdminUser;
 use Shopware\Core\System\Consent\ConsentStatus;
-use Shopware\Core\System\Consent\DTO\ConsentStateLogRecord;
 use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
@@ -37,20 +38,21 @@ class ConsentServiceTest extends TestCase
     public function testList(): void
     {
         $service = $this->createService(null, [
-            'consent-1' => ConsentScope::GLOBAL,
-            'consent-2' => ConsentScope::ADMIN_USER,
+            'consent-1' => ConsentScope\System::NAME,
+            'consent-2' => AdminUser::NAME,
         ]);
 
-        $record1 = new ConsentStateRecord('consent-1', null, ConsentStatus::ACCEPTED, 'user-123');
+        $record1 = new ConsentStateRecord('consent-1', 'system', ConsentStatus::ACCEPTED, 'user-123');
         $record2 = new ConsentStateRecord('consent-2', 'user-123', ConsentStatus::REQUESTED, 'user-123');
+        $record3 = new ConsentStateRecord('consent-2', 'user-456', ConsentStatus::ACCEPTED, 'user-456');
 
         $this->consentRepository
             ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([$record1, $record2]);
+            ->willReturn([$record1, $record2, $record3]);
 
-        $context = (new ConsentContext())
-            ->add(ConsentScope::ADMIN_USER, 'user-123');
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
 
         $result = $service->list($context);
 
@@ -64,7 +66,7 @@ class ConsentServiceTest extends TestCase
     public function testListCachesConsents(): void
     {
         $service = $this->createService(null, [
-            'consent-1' => ConsentScope::GLOBAL,
+            'consent-1' => ConsentScope\System::NAME,
         ]);
 
         $this->consentRepository
@@ -72,8 +74,8 @@ class ConsentServiceTest extends TestCase
             ->method('fetchAllConsentStates')
             ->willReturn([]);
 
-        $context = (new ConsentContext())
-            ->add(ConsentScope::ADMIN_USER, 'user-123');
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
 
         $service->list($context);
         $service->list($context);
@@ -81,33 +83,37 @@ class ConsentServiceTest extends TestCase
 
     public function testGetConsentStatusThrowsExceptionWhenNoIdentifierGivenForAdminScope(): void
     {
+        self::expectExceptionObject(ConsentException::cannotResolveScope(AdminUser::NAME));
+
         $service = $this->createService(null, [
-            'consent-1' => ConsentScope::ADMIN_USER,
+            'consent-1' => AdminUser::NAME,
         ]);
 
-        self::expectExceptionObject(ConsentException::identifierRequired());
+        $context = Context::createDefaultContext();
 
-        $service->getConsentState('consent-1', null);
+        $service->getConsentState('consent-1', $context);
     }
 
     public function testGetConsentStatus(): void
     {
         $service = $this->createService(null, [
-            'consent-1' => ConsentScope::GLOBAL,
+            'consent-1' => ConsentScope\System::NAME,
         ]);
 
-        $record = new ConsentStateRecord('consent-1', null, ConsentStatus::ACCEPTED, 'user-123');
+        $record = new ConsentStateRecord('consent-1', ConsentScope\System::NAME, ConsentStatus::ACCEPTED, 'user-123');
 
         $this->consentRepository
             ->expects($this->once())
             ->method('fetchAllConsentStates')
             ->willReturn([$record]);
 
-        $result = $service->getConsentState('consent-1', null);
+        $context = Context::createDefaultContext();
+
+        $result = $service->getConsentState('consent-1', $context);
 
         static::assertSame('consent-1', $result->name);
-        static::assertSame(ConsentScope::GLOBAL, $result->scope);
-        static::assertNull($result->identifier);
+        static::assertSame(ConsentScope\System::NAME, $result->scopeName);
+        static::assertSame(ConsentScope\System::NAME, $result->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $result->status);
         static::assertSame('user-123', $result->actorId);
     }
@@ -115,7 +121,7 @@ class ConsentServiceTest extends TestCase
     public function testGetConsentStatusReturnsRequestedStateByDefault(): void
     {
         $service = $this->createService(null, [
-            'consent-1' => ConsentScope::GLOBAL,
+            'consent-1' => ConsentScope\System::NAME,
         ]);
 
         $this->consentRepository
@@ -123,11 +129,13 @@ class ConsentServiceTest extends TestCase
             ->method('fetchAllConsentStates')
             ->willReturn([]);
 
-        $result = $service->getConsentState('consent-1', null);
+        $context = Context::createDefaultContext();
+
+        $result = $service->getConsentState('consent-1', $context);
 
         static::assertSame('consent-1', $result->name);
         static::assertSame(ConsentStatus::REQUESTED, $result->status);
-        static::assertNull($result->identifier);
+        static::assertSame(ConsentScope\System::NAME, $result->identifier);
         static::assertNull($result->actorId);
     }
 
@@ -138,25 +146,28 @@ class ConsentServiceTest extends TestCase
         $this->expectException(ConsentException::class);
         $this->expectExceptionMessage('Consent with name "non-existent" not found.');
 
-        $service->getConsentState('non-existent', 'user-123');
+        $service->getConsentState('non-existent', Context::createDefaultContext());
     }
 
     public function testAcceptConsentIsNoopWhenConsentAlreadyAccepted(): void
     {
         $service = $this->createService(null, [
-            'consent-1' => ConsentScope::GLOBAL,
+            'consent-1' => ConsentScope\System::NAME,
         ]);
 
         $this->consentRepository
             ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([new ConsentStateRecord('consent-1', null, ConsentStatus::ACCEPTED, 'user-123')]);
+            ->willReturn([new ConsentStateRecord('consent-1', 'system', ConsentStatus::ACCEPTED, 'user-123')]);
 
         $this->consentRepository
             ->expects($this->never())
             ->method('updateConsentState');
 
-        $service->acceptConsent('consent-1', 'user-123');
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
+
+        $service->acceptConsent('consent-1', $context);
     }
 
     public function testAcceptConsent(): void
@@ -166,7 +177,7 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $service = $this->createService($eventDispatcher, [
-            'consent-1' => ConsentScope::GLOBAL,
+            'consent-1' => ConsentScope\System::NAME,
         ]);
 
         $this->consentRepository
@@ -179,12 +190,15 @@ class ConsentServiceTest extends TestCase
             ->method('updateConsentState')
             ->with(
                 static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
-                null,
+                'system',
                 ConsentStatus::ACCEPTED,
                 'user-123'
             );
 
-        $service->acceptConsent('consent-1', 'user-123');
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
+
+        $service->acceptConsent('consent-1', $context);
     }
 
     public function testAcceptConsentThrowsExceptionWhenConsentNotFound(): void
@@ -194,25 +208,31 @@ class ConsentServiceTest extends TestCase
         $this->expectException(ConsentException::class);
         $this->expectExceptionMessage('Consent with name "non-existent" not found.');
 
-        $service->acceptConsent('non-existent', 'user-123');
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
+
+        $service->acceptConsent('non-existent', $context);
     }
 
     public function testRevokeConsentIsNoopWhenConsentAlreadyRevoked(): void
     {
         $service = $this->createService(null, [
-            'consent-1' => ConsentScope::GLOBAL,
+            'consent-1' => ConsentScope\System::NAME,
         ]);
 
         $this->consentRepository
             ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([new ConsentStateRecord('consent-1', null, ConsentStatus::REVOKED, 'user-123')]);
+            ->willReturn([new ConsentStateRecord('consent-1', 'system', ConsentStatus::REVOKED, 'user-123')]);
 
         $this->consentRepository
             ->expects($this->never())
             ->method('updateConsentState');
 
-        $service->revokeConsent('consent-1', 'user-123');
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
+
+        $service->revokeConsent('consent-1', $context);
     }
 
     public function testRevokeConsent(): void
@@ -222,7 +242,7 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $service = $this->createService($eventDispatcher, [
-            'consent-1' => ConsentScope::GLOBAL,
+            'consent-1' => ConsentScope\System::NAME,
         ]);
 
         $this->consentRepository
@@ -235,12 +255,15 @@ class ConsentServiceTest extends TestCase
             ->method('updateConsentState')
             ->with(
                 static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
-                null,
+                'system',
                 ConsentStatus::REVOKED,
                 'user-456'
             );
 
-        $service->revokeConsent('consent-1', 'user-456');
+        $source = new AdminApiSource('user-456');
+        $context = Context::createDefaultContext($source);
+
+        $service->revokeConsent('consent-1', $context);
     }
 
     public function testRevokeConsentThrowsExceptionWhenConsentNotFound(): void
@@ -250,108 +273,14 @@ class ConsentServiceTest extends TestCase
         $this->expectException(ConsentException::class);
         $this->expectExceptionMessage('Consent with name "non-existent" not found.');
 
-        $service->revokeConsent('non-existent', 'user-123');
-    }
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
 
-    public function testGetHistoryThrowsExceptionWhenNoIdentifierGivenForAdminScope(): void
-    {
-        $service = $this->createService(null, [
-            'consent-1' => ConsentScope::ADMIN_USER,
-        ]);
-
-        self::expectExceptionObject(ConsentException::identifierRequired());
-
-        $service->getHistory('consent-1', null);
-    }
-
-    public function testGetHistory(): void
-    {
-        $service = $this->createService(null, [
-            'consent-1' => ConsentScope::GLOBAL,
-        ]);
-
-        $history = [
-            new ConsentStateLogRecord(
-                ConsentStatus::ACCEPTED,
-                null,
-                'user-123',
-                new \DateTimeImmutable('2024-01-15 10:00:00')
-            ),
-            new ConsentStateLogRecord(
-                ConsentStatus::REQUESTED,
-                null,
-                'user-123',
-                new \DateTimeImmutable('2024-01-10 10:00:00')
-            ),
-        ];
-
-        $this->consentRepository
-            ->expects($this->once())
-            ->method('getHistory')
-            ->with('consent-1', null)
-            ->willReturn($history);
-
-        $result = $service->getHistory('consent-1');
-
-        static::assertCount(2, $result);
-        static::assertSame(ConsentStatus::ACCEPTED, $result[0]->status);
-        static::assertSame('user-123', $result[0]->actorId);
-        static::assertNull($result[0]->identifier);
-        static::assertSame(ConsentStatus::REQUESTED, $result[1]->status);
-        static::assertSame('user-123', $result[1]->actorId);
-        static::assertNull($result[1]->identifier);
-    }
-
-    public function testGetHistoryWithAdminUserScope(): void
-    {
-        $service = $this->createService(null, [
-            'consent-2' => ConsentScope::ADMIN_USER,
-        ]);
-
-        $history = [
-            new ConsentStateLogRecord(
-                ConsentStatus::REVOKED,
-                'user-123',
-                'user-123',
-                new \DateTimeImmutable('2024-01-20 15:30:00')
-            ),
-            new ConsentStateLogRecord(
-                ConsentStatus::ACCEPTED,
-                'user-123',
-                'user-123',
-                new \DateTimeImmutable('2024-01-15 10:00:00')
-            ),
-        ];
-
-        $this->consentRepository
-            ->expects($this->once())
-            ->method('getHistory')
-            ->with('consent-2', 'user-123')
-            ->willReturn($history);
-
-        $result = $service->getHistory('consent-2', 'user-123');
-
-        static::assertCount(2, $result);
-        static::assertSame(ConsentStatus::REVOKED, $result[0]->status);
-        static::assertSame('user-123', $result[0]->actorId);
-        static::assertSame('user-123', $result[0]->identifier);
-        static::assertSame(ConsentStatus::ACCEPTED, $result[1]->status);
-        static::assertSame('user-123', $result[1]->actorId);
-        static::assertSame('user-123', $result[1]->identifier);
-    }
-
-    public function testGetHistoryThrowsExceptionWhenConsentNotFound(): void
-    {
-        $service = $this->createService(null, []);
-
-        $this->expectException(ConsentException::class);
-        $this->expectExceptionMessage('Consent with name "non-existent" not found.');
-
-        $service->getHistory('non-existent', 'user-123');
+        $service->revokeConsent('non-existent', $context);
     }
 
     /**
-     * @param array<string, ConsentScope> $consents
+     * @param array<string, string> $consents
      */
     private function createService(?EventDispatcher $eventDispatcher = null, array $consents = []): ConsentService
     {
@@ -360,7 +289,7 @@ class ConsentServiceTest extends TestCase
             $definitions[] = new class($name, $scope) implements ConsentDefinition {
                 public function __construct(
                     private readonly string $name,
-                    private readonly ConsentScope $scope
+                    private readonly string $scope
                 ) {
                 }
 
@@ -369,18 +298,23 @@ class ConsentServiceTest extends TestCase
                     return $this->name;
                 }
 
-                public function getScope(): ConsentScope
-                {
-                    return $this->scope;
-                }
-
                 public function getSince(): \DateTimeImmutable
                 {
                     return new \DateTimeImmutable();
                 }
+
+                public function getScopeName(): string
+                {
+                    return $this->scope;
+                }
             };
         }
 
-        return new ConsentService($definitions, $this->consentRepository, $eventDispatcher ?? new EventDispatcher());
+        $scopes = [
+            new ConsentScope\System(),
+            new AdminUser(),
+        ];
+
+        return new ConsentService($scopes, $definitions, $this->consentRepository, $eventDispatcher ?? new EventDispatcher());
     }
 }

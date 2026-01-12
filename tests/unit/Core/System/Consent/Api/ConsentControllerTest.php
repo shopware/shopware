@@ -5,12 +5,10 @@ namespace Shopware\Tests\Unit\Core\System\Consent\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\Api\ConsentController;
-use Shopware\Core\System\Consent\ConsentContext;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\DTO\ConsentState;
@@ -42,16 +40,14 @@ class ConsentControllerTest extends TestCase
         $context = new Context($source);
 
         $consents = [
-            new ConsentState('consent-1', ConsentScope::ADMIN_USER, $userId, ConsentStatus::ACCEPTED, $userId),
-            new ConsentState('consent-2', ConsentScope::GLOBAL, null, ConsentStatus::REQUESTED, null),
+            new ConsentState('consent-1', ConsentScope\AdminUser::NAME, $userId, ConsentStatus::ACCEPTED, $userId),
+            new ConsentState('consent-2', ConsentScope\System::NAME, 'system', ConsentStatus::REQUESTED, null),
         ];
 
         $this->consentService
             ->expects($this->once())
             ->method('list')
-            ->with(static::callback(static function (ConsentContext $context) use ($userId): bool {
-                return $context->getIdentifierForScope(ConsentScope::ADMIN_USER) === $userId;
-            }))
+            ->with($context)
             ->willReturn($consents);
 
         $response = $this->controller->fetchConsents($context);
@@ -77,28 +73,9 @@ class ConsentControllerTest extends TestCase
         static::assertArrayHasKey('identifier', $content[1]);
         static::assertArrayHasKey('status', $content[1]);
         static::assertSame('consent-2', $content[1]['name']);
-        static::assertNull($content[1]['identifier']);
+        static::assertSame('system', $content[1]['identifier']);
         static::assertSame('requested', $content[1]['status']);
         static::assertNull($content[1]['actorId']);
-    }
-
-    public function testFetchConsentsThrowsExceptionWhenSourceIsNotAdminApiSource(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $this->expectException(ApiException::class);
-
-        $this->controller->fetchConsents($context);
-    }
-
-    public function testFetchConsentsThrowsExceptionWhenUserIdIsNull(): void
-    {
-        $source = new AdminApiSource(null);
-        $context = new Context($source);
-
-        $this->expectException(ApiException::class);
-
-        $this->controller->fetchConsents($context);
     }
 
     public function testAcceptConsent(): void
@@ -110,32 +87,13 @@ class ConsentControllerTest extends TestCase
         $this->consentService
             ->expects($this->once())
             ->method('acceptConsent')
-            ->with('test-consent', $userId);
+            ->with('test-consent', $context);
 
         $response = $this->controller->acceptConsent($context, 'test-consent');
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertSame('{}', $response->getContent());
-    }
-
-    public function testAcceptConsentThrowsExceptionWhenSourceIsNotAdminApiSource(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $this->expectException(ApiException::class);
-
-        $this->controller->acceptConsent($context, 'test-consent');
-    }
-
-    public function testAcceptConsentThrowsExceptionWhenUserIdIsNull(): void
-    {
-        $source = new AdminApiSource(null);
-        $context = new Context($source);
-
-        $this->expectException(ApiException::class);
-
-        $this->controller->acceptConsent($context, 'test-consent');
     }
 
     public function testRevokeConsent(): void
@@ -147,31 +105,12 @@ class ConsentControllerTest extends TestCase
         $this->consentService
             ->expects($this->once())
             ->method('revokeConsent')
-            ->with('test-consent', $userId);
+            ->with('test-consent', $context);
 
         $response = $this->controller->revokeConsent($context, 'test-consent');
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertSame('{}', $response->getContent());
-    }
-
-    public function testRevokeConsentThrowsExceptionWhenSourceIsNotAdminApiSource(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $this->expectException(ApiException::class);
-
-        $this->controller->revokeConsent($context, 'test-consent');
-    }
-
-    public function testRevokeConsentThrowsExceptionWhenUserIdIsNull(): void
-    {
-        $source = new AdminApiSource(null);
-        $context = new Context($source);
-
-        $this->expectException(ApiException::class);
-
-        $this->controller->revokeConsent($context, 'test-consent');
     }
 }

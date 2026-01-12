@@ -66,17 +66,18 @@ class ConsentException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_SCOPE,
-            'No scope resolver found for scope "{{ scope }}".',
+            'No scope found with name "{{ scope }}".',
             ['scope' => $scope]
         );
     }
 
-    public static function identifierRequired(): self
+    public static function cannotResolveScope(string $scope): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::IDENTIFIER_REQUIRED,
-            'Consents with non global scope require an identifier.'
+            self::INVALID_SCOPE,
+            'Scope with name "{{ scope }}" cannot be resolved with current context.',
+            ['scope' => $scope]
         );
     }
 }

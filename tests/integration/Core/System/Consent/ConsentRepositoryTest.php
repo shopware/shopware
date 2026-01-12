@@ -46,19 +46,19 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame('tracking', $states[0]->name);
     }
 
-    public function testUpdateGlobalConsentState(): void
+    public function testUpdateSystemConsentState(): void
     {
         $backendData = new BackendData();
 
         $userId = Uuid::randomHex();
-        $this->repository->updateConsentState($backendData, null, ConsentStatus::ACCEPTED, $userId);
+        $this->repository->updateConsentState($backendData, 'system', ConsentStatus::ACCEPTED, $userId);
 
         $states = $this->repository->fetchAllConsentStates();
 
         static::assertCount(1, $states);
 
         static::assertSame($userId, $states[0]->actorId);
-        static::assertNull($states[0]->identifier);
+        static::assertSame('system', $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
         static::assertSame('backend_data', $states[0]->name);
     }
@@ -89,32 +89,13 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame(ConsentStatus::REVOKED, $states[0]->status);
     }
 
-    public function testUpdateConsentStateCreatesHistory(): void
-    {
-        $tracking = new Tracking();
-
-        $userId = Uuid::randomHex();
-        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId);
-        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::REVOKED, $userId);
-
-        $history = $this->repository->getHistory('tracking', $userId);
-
-        static::assertCount(2, $history);
-        static::assertSame(ConsentStatus::REVOKED, $history[0]->status);
-        static::assertSame($userId, $history[0]->actorId);
-        static::assertSame($userId, $history[0]->identifier);
-        static::assertSame(ConsentStatus::ACCEPTED, $history[1]->status);
-        static::assertSame($userId, $history[1]->actorId);
-        static::assertSame($userId, $history[1]->identifier);
-    }
-
     public function testFetchAllConsentStates(): void
     {
         $tracking = new Tracking();
         $backendData = new BackendData();
 
         $user1 = Uuid::randomHex();
-        $this->repository->updateConsentState($backendData, null, ConsentStatus::ACCEPTED, $user1);
+        $this->repository->updateConsentState($backendData, 'system', ConsentStatus::ACCEPTED, $user1);
 
         $user2 = Uuid::randomHex();
         $this->repository->updateConsentState($tracking, $user2, ConsentStatus::REVOKED, $user2);
@@ -125,7 +106,7 @@ class ConsentRepositoryTest extends TestCase
         static::assertContainsOnlyInstancesOf(ConsentStateRecord::class, $result);
 
         static::assertSame('backend_data', $result[0]->name);
-        static::assertNull($result[0]->identifier);
+        static::assertSame('system', $result[0]->identifier);
         static::assertSame($user1, $result[0]->actorId);
         static::assertSame(ConsentStatus::ACCEPTED, $result[0]->status);
 
@@ -133,12 +114,5 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame($user2, $result[1]->identifier);
         static::assertSame($user2, $result[1]->actorId);
         static::assertSame(ConsentStatus::REVOKED, $result[1]->status);
-    }
-
-    public function testGetHistoryReturnsEmptyArrayWhenNoHistory(): void
-    {
-        $history = $this->repository->getHistory('tracking', null);
-
-        static::assertSame([], $history);
     }
 }

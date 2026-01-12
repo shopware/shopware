@@ -19,12 +19,12 @@ class ConsentAcceptedEventTest extends TestCase
     {
         $event = new ConsentAcceptedEvent(
             'my-consent',
-            ConsentScope::ADMIN_USER,
+            ConsentScope\AdminUser::NAME,
             'user-123'
         );
 
         static::assertSame('my-consent', $event->consentName);
-        static::assertSame(ConsentScope::ADMIN_USER, $event->consentScope);
+        static::assertSame(ConsentScope\AdminUser::NAME, $event->consentScope);
         static::assertSame('user-123', $event->identifier);
     }
 }

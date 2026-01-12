@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Consent;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -10,8 +11,19 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('data-services')]
-enum ConsentScope: string
+interface ConsentScope
 {
-    case GLOBAL = 'global';
-    case ADMIN_USER = 'admin_user';
+    public function getName(): string;
+
+    /**
+     * @throws ConsentException when scope cannot be resolved from the given context
+     */
+    public function getScopeIdentifier(Context $context): string;
+
+    /**
+     * Should return the identifier of the user/admin who performed the action
+     *
+     * @throws ConsentException when scope cannot be resolved from the given context
+     */
+    public function getActorIdentifier(Context $context): ?string;
 }

@@ -12,7 +12,7 @@ interface ConsentDefinition
 {
     public function getName(): string;
 
-    public function getScope(): ConsentScope;
+    public function getScopeName(): string;
 
     public function getSince(): \DateTimeImmutable;
 }

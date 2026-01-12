@@ -23,26 +23,13 @@ class Migration1765287397AddConsentTable extends MigrationStep
             CREATE TABLE IF NOT EXISTS `consent_state` (
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(100) NOT NULL,
-                `identifier` BINARY(16) NULL,
+                `identifier` VARCHAR(100) NULL,
                 `state` VARCHAR(20) NOT NULL,
-                `actor_id` BINARY(16) NOT NULL,
+                `actor_id` VARCHAR(100) NOT NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `uniq.consent_state` (`name`, `identifier`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ');
-
-        $connection->executeStatement('
-            CREATE TABLE IF NOT EXISTS `consent_log` (
-                `id` BINARY(16) NOT NULL,
-                `name` VARCHAR(100) NOT NULL,
-                `identifier` BINARY(16) NULL,
-                `state` VARCHAR(20) NOT NULL,
-                `actor_id` BINARY(16) NOT NULL,
-                `created_at` DATETIME(3) NOT NULL,
-                PRIMARY KEY (`id`),
-                KEY `idx.consent_log.history` (`name`, `identifier`, `created_at`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

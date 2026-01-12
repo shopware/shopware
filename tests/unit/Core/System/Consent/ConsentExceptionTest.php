@@ -65,16 +65,7 @@ class ConsentExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(ConsentException::INVALID_SCOPE, $e->getErrorCode());
-        static::assertSame('No scope resolver found for scope "invalid-scope".', $e->getMessage());
+        static::assertSame('No scope found with name "invalid-scope".', $e->getMessage());
         static::assertSame(['scope' => 'invalid-scope'], $e->getParameters());
-    }
-
-    public function testIdentifierRequired(): void
-    {
-        $e = ConsentException::identifierRequired();
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertSame(ConsentException::IDENTIFIER_REQUIRED, $e->getErrorCode());
-        static::assertSame('Consents with non global scope require an identifier.', $e->getMessage());
     }
 }

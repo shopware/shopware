@@ -7,6 +7,8 @@ use Shopware\Core\System\Consent\ConsentDefinition;
 use Shopware\Core\System\Consent\ConsentScope;
 
 /**
+ * @internal
+ *
  * @codeCoverageIgnore
  */
 #[Package('data-services')]
@@ -17,9 +19,9 @@ class BackendData implements ConsentDefinition
         return 'backend_data';
     }
 
-    public function getScope(): ConsentScope
+    public function getScopeName(): string
     {
-        return ConsentScope::GLOBAL;
+        return ConsentScope\System::NAME;
     }
 
     public function getSince(): \DateTimeImmutable

@@ -7,6 +7,8 @@ use Shopware\Core\System\Consent\ConsentDefinition;
 use Shopware\Core\System\Consent\ConsentScope;
 
 /**
+ * @internal
+ *
  * @codeCoverageIgnore
  */
 #[Package('data-services')]
@@ -17,9 +19,9 @@ class Tracking implements ConsentDefinition
         return 'tracking';
     }
 
-    public function getScope(): ConsentScope
+    public function getScopeName(): string
     {
-        return ConsentScope::ADMIN_USER;
+        return ConsentScope\AdminUser::NAME;
     }
 
     public function getSince(): \DateTimeImmutable

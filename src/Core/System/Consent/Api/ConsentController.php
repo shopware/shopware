@@ -2,14 +2,10 @@
 
 namespace Shopware\Core\System\Consent\Api;
 
-use Shopware\Core\Framework\Api\ApiException;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\Consent\ConsentContext;
-use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\Service\ConsentService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,18 +26,13 @@ class ConsentController
     #[Route(path: '/api/consents', name: 'api.consents.fetch', defaults: ['auth_required' => true], methods: ['GET'])]
     public function fetchConsents(Context $context): Response
     {
-        $context = (new ConsentContext())
-            ->add(ConsentScope::ADMIN_USER, $this->getUserId($context));
-
         return new JsonResponse($this->consentService->list($context));
     }
 
     #[Route(path: '/api/consents/{consent}/accept', name: 'api.consents.accept', defaults: ['auth_required' => true], methods: ['POST'])]
     public function acceptConsent(Context $context, string $consent): Response
     {
-        $currentUserId = $this->getUserId($context);
-
-        $this->consentService->acceptConsent($consent, $currentUserId);
+        $this->consentService->acceptConsent($consent, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -49,25 +40,8 @@ class ConsentController
     #[Route(path: '/api/consents/{consent}/revoke', name: 'api.consents.revoke', defaults: ['auth_required' => true], methods: ['POST'])]
     public function revokeConsent(Context $context, string $consent): Response
     {
-        $currentUserId = $this->getUserId($context);
-
-        $this->consentService->revokeConsent($consent, $currentUserId);
+        $this->consentService->revokeConsent($consent, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    private function getUserId(Context $context): string
-    {
-        $source = $context->getSource();
-        if (!$source instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($source::class); /** @phpstan-ignore shopware.domainException */
-        }
-
-        $userId = $source->getUserId();
-        if (!$userId) {
-            throw ApiException::userNotLoggedIn(); /** @phpstan-ignore shopware.domainException */
-        }
-
-        return $userId;
     }
 }

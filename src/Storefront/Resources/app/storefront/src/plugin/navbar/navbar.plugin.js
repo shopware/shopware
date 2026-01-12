@@ -1,5 +1,5 @@
-import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
+import Plugin from 'src/plugin-system/plugin.class';
 
 export default class NavbarPlugin extends Plugin {
     static options = {

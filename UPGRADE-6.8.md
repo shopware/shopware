@@ -661,11 +661,11 @@ The following will be removed in Shopware 6.8.0:
 
 The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates. In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
 
-## Deprecation of `pathIdList` option in NavbarPlugin
+## Removal of `pathIdList` option in NavbarPlugin
 
-The `pathIdList` option in `src/Storefront/Resources/app/storefront/src/plugin/navbar/navbar.plugin.js` is deprecated and will be removed in a future major version.
+The `pathIdList` option in `NavbarPlugin` and the corresponding template variable in `navbar.html.twig` were removed.
 
-If your plugin or theme passes `pathIdList` via the navbar plugin options or relies on the `data-navbar-options` attribute in `navbar.html.twig`, use the new `window.activeNavigationPathIdList` global variable instead. This change was necessary to fix an ESI caching issue where incorrect navigation items were marked as active.
+Use the `window.activeNavigationPathIdList` global variable instead, which is set in `meta.html.twig`.
 
 ## Refactor of providing cookies
 

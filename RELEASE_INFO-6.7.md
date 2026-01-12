@@ -96,9 +96,7 @@ The following deprecations apply to `sw-mail-template-index`:
 
 ## Storefront
 
-### Fixed navigation active state with ESI caching
-
-The main navigation now correctly highlights the active category and its parent categories when using HTTP caching with ESI. Previously, incorrect categories could be marked as active due to the navigation path being cached as part of the ESI header response.
+### New `window.activeNavigationPathIdList` variable
 
 A new global JavaScript variable `window.activeNavigationPathIdList` is now available, containing the IDs of parent categories for the current page. This can be used by plugins or themes to implement custom navigation highlighting.
 

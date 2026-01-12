@@ -50,7 +50,7 @@ class Migration1757057005MailTemplateTest extends MailTemplateMigrationTestCase
         $this->updateMail($mailTranslations, $this->connection);
         $currentTranslations = $this->getMailTemplateTranslations($mailTranslations->getType());
 
-        static::assertMailTemplateTranslations($expectedTranslations, $currentTranslations->translations);
+        $this->assertMailTemplateTranslations($expectedTranslations, $currentTranslations->translations);
 
         // Start with the test
         $migration = new Migration1757057005MailTemplate();
@@ -66,6 +66,6 @@ class Migration1757057005MailTemplateTest extends MailTemplateMigrationTestCase
 
         $currentTranslations = $this->getMailTemplateTranslations($mailTranslations->getType());
 
-        static::assertMailTemplateTranslations($expectedTranslations, $currentTranslations->translations);
+        $this->assertMailTemplateTranslations($expectedTranslations, $currentTranslations->translations);
     }
 }

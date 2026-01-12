@@ -35,10 +35,11 @@ readonly class CachePolicyProvider
      * @param string $route Route name
      * @param string $area Area (storefront, store_api)
      * @param bool $cacheable Whether the response is cacheable
+     * @param bool $enforceNoStore Whether no-store should be enforced
      *
      * @return CachePolicy The resolved policy or default no-cache policy
      */
-    public function getPolicy(string $route, string $area, bool $cacheable, ?CacheAttribute $cacheAttribute = null): CachePolicy
+    public function getPolicy(string $route, string $area, bool $cacheable, ?CacheAttribute $cacheAttribute = null, bool $enforceNoStore = false): CachePolicy
     {
         $policyModifier = $cacheAttribute?->policyModifier;
 
@@ -69,7 +70,12 @@ readonly class CachePolicyProvider
 
         $policy = $this->policies[$policyName] ?? null;
         if ($policy === null) {
-            return CachePolicy::noCache();
+            return CachePolicy::noStore();
+        }
+
+        // When enforcing no-store, always return no-cache policy (merging makes no sense as other cache-control directives should be ignored in this case)
+        if ($enforceNoStore && $isDefaultPolicy) {
+            return CachePolicy::noStore();
         }
 
         // Override with CacheAttribute values if using default policy and cacheable

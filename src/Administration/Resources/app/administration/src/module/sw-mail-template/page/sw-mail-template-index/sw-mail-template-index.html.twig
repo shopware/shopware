@@ -3,7 +3,7 @@
     {% block sw_mail_templates_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
-            initial-search-type="mail_template"
+            :initial-search-type="searchType"
             :initial-search="term"
             @search="onSearch"
         />
@@ -81,16 +81,55 @@
     {% block sw_mail_template_list_content %}
     <template #content>
         <sw-card-view>
-            {% block sw_mail_template_list_content_card %}
-            <sw-mail-template-list
-                ref="mailTemplateList"
-                :search-term="term"
-            />
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_mail_template_list_tabs %}
+                <sw-tabs
+                    class="sw-mail-template-list__tabs"
+                    position-identifier="sw-mail-template-index"
+                >
+                    {% block sw_mail_template_list_tabs_templates %}
+                    <sw-tabs-item
+                        class="sw-mail-template-list__tab-templates"
+                        :route="{ name: 'sw.mail.template.index.templates' }"
+                    >
+                        {{ $tc('sw-mail-template.list.tabMailTemplates') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-            <sw-mail-header-footer-list
-                ref="mailHeaderFooterList"
-                :search-term="term"
-            />
+                    {% block sw_mail_template_list_tabs_header_footer %}
+                    <sw-tabs-item
+                        class="sw-mail-template-list__tab-header-footer"
+                        :route="{ name: 'sw.mail.template.index.header_footer' }"
+                    >
+                        {{ $tc('sw-mail-template.list.tabHeaderFooter') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+                </sw-tabs>
+                {% endblock %}
+
+                {% block sw_mail_template_list_router_view %}
+                <router-view v-slot="{ Component }">
+                    <component
+                        :is="Component"
+                        ref="tabContent"
+                    />
+                </router-view>
+                {% endblock %}
+            </template>
+
+            {# @deprecated tag:v6.8.0 - This block will be removed. #}
+            {% block sw_mail_template_list_content_card %}
+            <template v-if="!feature.isActive('v6.8.0.0')">
+                <sw-mail-template-list
+                    ref="mailTemplateList"
+                    :search-term="term"
+                />
+
+                <sw-mail-header-footer-list
+                    ref="mailHeaderFooterList"
+                    :search-term="term"
+                />
+            </template>
             {% endblock %}
         </sw-card-view>
     </template>

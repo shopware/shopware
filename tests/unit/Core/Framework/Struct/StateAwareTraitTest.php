@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\StateStruct;
 
 /**
  * @internal
@@ -85,12 +86,4 @@ class StateAwareTraitTest extends TestCase
 
         static::assertSame(['bar'], $struct->getStates(), 'States do not match');
     }
-}
-
-/**
- * @internal
- */
-class StateStruct
-{
-    use StateAwareTrait;
 }

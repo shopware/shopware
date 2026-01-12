@@ -15,6 +15,14 @@ Custom fields are now **not searchable by default**. To make a custom field sear
 
 ## API
 
+### Improved tagged based cache invalidation
+
+Next routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
+* `/store-api/breadcrumb/{id}`
+* `/store-api/media`
+* `/store-api/product/{productId}/find-variant`
+* `/store-api/product/{productId}/cross-selling`
+
 ## Core
 
 ### Introduce Immutable DAL flag
@@ -43,6 +51,33 @@ As part of this change, the following deprecations were made:
 If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
 
+### DomainExceptions don't create \RuntimeException anymore
+
+All factory methods for domain exceptions now return specific exception classes instead of creating a generic `\RuntimeException`.
+Changing the type of the thrown exception from `\RuntimeException` to a specific domain exception is not considered a breaking change, since all Domain Exceptions extend from `\RuntimeException`.
+
+This means code like this will stay valid:
+```php
+try {
+    $this->someService->willThrowDomainException();
+} catch (\RuntimeException $e) {
+    // handle exception
+}
+```
+
+Additionally all changed factory methods were marked as deprecated, because the `\RuntimeException` return type will be removed in the next major release.
+This affects the following exception factory methods:
+* `DataAbstractionLayerException::cannotBuildAccessor(...)`
+* `DataAbstractionLayerException::onlyStorageAwareFieldsAsTranslated(...)`
+* `DataAbstractionLayerException::onlyStorageAwareFieldsInReadCondition(...)`
+* `DataAbstractionLayerException::primaryKeyNotStorageAware(...)`
+* `DataAbstractionLayerException::missingTranslatedStorageAwareProperty(...)`
+* `DataAbstractionLayerException::noTranslationDefinition(...)`
+* `DataAbstractionLayerException::missingVersionField(...)`
+* `DataAbstractionLayerException::unexpectedFieldType(...)`
+* `WebhookException::invalidDataMapping(...)`
+* `WebhookException::unknownEventDataType(...)`
+
 ## Administration
 
 ### Deprecations in mail template components
@@ -64,6 +99,13 @@ The following deprecations apply to `sw-mail-template-index`:
 ### Improved cookie consent dialog UI and accessibility
 
 The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. The button layout has been improved with a clearer visual hierarchy, placing the primary action on the right side. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
+
+### HTTP caching policies update
+
+The following changes are relevant when HTTP caching policies feature is enabled (`CACHE_REWORK` or `v6.8.0.0` feature flag):
+
+* HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
+* `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
 
 ### Google Analytics 4 Integration Update
 

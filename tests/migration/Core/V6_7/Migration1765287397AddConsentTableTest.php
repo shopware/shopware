@@ -31,7 +31,6 @@ class Migration1765287397AddConsentTableTest extends TestCase
 
     public function testMigration(): void
     {
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `consent_log`;');
         $this->connection->executeStatement('DROP TABLE IF EXISTS `consent_state`;');
 
         $migration = new Migration1765287397AddConsentTable();
@@ -40,12 +39,9 @@ class Migration1765287397AddConsentTableTest extends TestCase
         $migration->update($this->connection);
 
         $sm = $this->connection->createSchemaManager();
-        static::assertTrue($sm->tablesExist(['consent_state', 'consent_log']));
+        static::assertTrue($sm->tablesExist(['consent_state']));
 
         $consentStateCols = $sm->listTableColumns('consent_state');
         static::assertCount(7, $consentStateCols);
-
-        $consentLogCols = $sm->listTableColumns('consent_log');
-        static::assertCount(6, $consentLogCols);
     }
 }

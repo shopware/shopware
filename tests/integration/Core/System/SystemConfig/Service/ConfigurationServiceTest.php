@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -54,7 +55,7 @@ class ConfigurationServiceTest extends TestCase
         ]);
 
         // getConfiguration should still throw the exception (only checkConfiguration catches it)
-        $this->expectException(\Shopware\Core\Framework\Util\UtilException::class);
+        $this->expectException(UtilException::class);
         $configurationService->getConfiguration('BrokenConfigPlugin.config', Context::createDefaultContext());
     }
 

@@ -136,6 +136,7 @@ class ConfigurationService
         $context = [
             'domain' => $domain,
             'message' => $e->getMessage(),
+            'exception' => $e,
         ];
 
         match (true) {
@@ -154,7 +155,7 @@ class ConfigurationService
             // UtilException (XML parsing errors) and any other unexpected exceptions
             default => $this->logger->error(
                 'Failed to parse configuration for "{domain}": {message}',
-                [...$context, 'exception' => $e]
+                $context
             ),
         };
     }

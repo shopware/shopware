@@ -3,8 +3,11 @@
 namespace Shopware\Core\Content\Breadcrumb\SalesChannel;
 
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -22,6 +25,7 @@ class BreadcrumbRoute extends AbstractBreadcrumbRoute
      */
     public function __construct(
         private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -49,6 +53,17 @@ class BreadcrumbRoute extends AbstractBreadcrumbRoute
                 $request->get('referrerCategoryId', ''),
                 $salesChannelContext
             );
+        }
+
+        $tags = [];
+        foreach ($breadcrumb as $item) {
+            $tags[] = CategoryRoute::buildName($item->categoryId);
+        }
+        if ($type === 'product') {
+            $tags[] = EntityCacheKeyGenerator::buildProductTag($id);
+        }
+        if ($tags !== []) {
+            $this->cacheTagCollector->addTag(...$tags);
         }
 
         return new BreadcrumbRouteResponse($breadcrumb);

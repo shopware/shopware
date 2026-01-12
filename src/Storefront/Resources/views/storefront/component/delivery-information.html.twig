@@ -1,5 +1,7 @@
 {% block component_delivery_information %}
-    {% set downloadFlag = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
+    {% set digitalType = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
+
+    {% set isDigitalProduct = product.type === digitalType %}
 
     {# @var product \Shopware\Core\Content\Product\ProductEntity #}
     {% if page is defined and page.product is defined %}
@@ -34,7 +36,7 @@
                     {{ 'general.deliveryShipping'|trans|sw_sanitize }} {{ product.releaseDate|format_date('long', locale=app.request.locale) }}
                 </p>
             {% endblock %}
-        {% elseif (product.stock >= product.minPurchase or (downloadFlag in product.states and not product.isCloseout)) and product.deliveryTime %}
+        {% elseif (product.stock >= product.minPurchase or (isDigitalProduct and not product.isCloseout)) and product.deliveryTime %}
             {% block component_delivery_information_available %}
                 <link itemprop="availability" href="https://schema.org/InStock">
                 <p class="delivery-information delivery-available">

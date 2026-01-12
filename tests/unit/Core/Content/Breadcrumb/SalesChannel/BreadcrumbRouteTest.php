@@ -9,8 +9,11 @@ use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRoute;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,15 +28,19 @@ class BreadcrumbRouteTest extends TestCase
 
     private MockObject&CategoryBreadcrumbBuilder $breadcrumbBuilder;
 
+    private MockObject&CacheTagCollector $cacheTagCollector;
+
     private SalesChannelContext $context;
 
     protected function setUp(): void
     {
         $this->breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
         $this->context = $this->createMock(SalesChannelContext::class);
 
         $this->breadcrumbRoute = new BreadcrumbRoute(
-            $this->breadcrumbBuilder
+            $this->breadcrumbBuilder,
+            $this->cacheTagCollector,
         );
     }
 
@@ -45,8 +52,13 @@ class BreadcrumbRouteTest extends TestCase
         $categoryEntity->setType('category');
 
         $request = new Request(['id' => '1', 'type' => 'category']);
-        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', '/')]));
+        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', 'categoryId1')]));
         $this->breadcrumbBuilder->method('loadCategory')->willReturn($categoryEntity);
+
+        $this->cacheTagCollector
+            ->expects($this->once())
+            ->method('addTag')
+            ->with(CategoryRoute::buildName('categoryId1'));
 
         $collection = $this->breadcrumbRoute->load($request, $this->context)->getBreadcrumbCollection();
         static::assertCount(1, $collection);
@@ -59,7 +71,7 @@ class BreadcrumbRouteTest extends TestCase
     public function testLoadCategoryBreadcrumbReturnsCorrectBreadcrumbNullCategory(): void
     {
         $request = new Request(['id' => '1', 'type' => 'category']);
-        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', '/')]));
+        $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', 'categoryId1')]));
 
         $response = $this->breadcrumbRoute->load($request, $this->context);
         static::assertNull($response->getBreadcrumbCollection()->first());
@@ -73,8 +85,16 @@ class BreadcrumbRouteTest extends TestCase
 
     public function testLoadProductBreadcrumbReturnsCorrectBreadcrumb(): void
     {
-        $request = new Request(['id' => '1', 'type' => 'product']);
-        $this->breadcrumbBuilder->method('getProductBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Product', 'product')]));
+        $request = new Request(['id' => 'productId1', 'type' => 'product']);
+        $this->breadcrumbBuilder->method('getProductBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Product', 'categoryId1')]));
+
+        $this->cacheTagCollector
+            ->expects($this->once())
+            ->method('addTag')
+            ->with(
+                CategoryRoute::buildName('categoryId1'),
+                EntityCacheKeyGenerator::buildProductTag('productId1')
+            );
 
         $collection = $this->breadcrumbRoute->load($request, $this->context)->getBreadcrumbCollection();
         static::assertCount(1, $collection);

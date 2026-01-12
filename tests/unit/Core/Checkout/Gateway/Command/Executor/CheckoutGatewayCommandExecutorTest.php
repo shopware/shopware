@@ -18,8 +18,8 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
-use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\TestCheckoutGatewayCommand;
-use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\TestCheckoutGatewayHandler;
+use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\StubCheckoutGatewayCommand;
+use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\StubCheckoutGatewayHandler;
 
 /**
  * @internal
@@ -32,7 +32,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
     {
         $logger = new ExceptionLogger('prod', false, $this->createMock(LoggerInterface::class));
 
-        $handler = new TestCheckoutGatewayHandler();
+        $handler = new StubCheckoutGatewayHandler();
         $registry = new CheckoutGatewayCommandRegistry([$handler]);
         $executor = new CheckoutGatewayCommandExecutor($registry, $logger);
 
@@ -42,7 +42,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
             new ErrorCollection()
         );
 
-        $commands = new CheckoutGatewayCommandCollection([new TestCheckoutGatewayCommand(['test-1'])]);
+        $commands = new CheckoutGatewayCommandCollection([new StubCheckoutGatewayCommand(['test-1'])]);
         $response = $executor->execute($commands, $response, Generator::generateSalesChannelContext());
 
         static::assertCount(1, $response->getAvailablePaymentMethods());
@@ -54,7 +54,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
     {
         $logger = new ExceptionLogger('prod', true, $this->createMock(LoggerInterface::class));
 
-        $handler = new TestCheckoutGatewayHandler();
+        $handler = new StubCheckoutGatewayHandler();
         $registry = new CheckoutGatewayCommandRegistry([$handler]);
         $executor = new CheckoutGatewayCommandExecutor($registry, $logger);
 
@@ -72,7 +72,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
         };
 
         $commands = new CheckoutGatewayCommandCollection([
-            new TestCheckoutGatewayCommand(['test-1']),
+            new StubCheckoutGatewayCommand(['test-1']),
             $throwCommand,
         ]);
 
@@ -92,7 +92,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
 
         $logger = new ExceptionLogger('prod', false, $psrLogger);
 
-        $handler = new TestCheckoutGatewayHandler();
+        $handler = new StubCheckoutGatewayHandler();
         $registry = new CheckoutGatewayCommandRegistry([$handler]);
         $executor = new CheckoutGatewayCommandExecutor($registry, $logger);
 
@@ -110,7 +110,7 @@ class CheckoutGatewayCommandExecutorTest extends TestCase
         };
 
         $commands = new CheckoutGatewayCommandCollection([
-            new TestCheckoutGatewayCommand(['test-1']),
+            new StubCheckoutGatewayCommand(['test-1']),
             $throwCommand,
         ]);
 

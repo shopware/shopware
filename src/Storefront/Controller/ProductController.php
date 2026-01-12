@@ -207,7 +207,7 @@ class ProductController extends StorefrontController
                     $request,
                     $context,
                     $productId,
-                    $request->attributes->get('parentId')
+                    RequestParamHelper::get($request, 'parentId')
                 );
             } catch (ReviewNotActiveExeption) {
                 throw StorefrontException::reviewNotActive();
@@ -217,7 +217,7 @@ class ProductController extends StorefrontController
                 $request,
                 $context,
                 $productId,
-                $request->attributes->get('parentId')
+                RequestParamHelper::get($request, 'parentId')
             );
         }
 

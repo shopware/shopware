@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoade
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -202,12 +203,22 @@ class ProductController extends StorefrontController
     {
         if (!Feature::isActive('v6.8.0.0')) {
             try {
-                $reviews = $this->productReviewLoader->load($request, $context, $productId, $request->get('parentId'));
+                $reviews = $this->productReviewLoader->load(
+                    $request,
+                    $context,
+                    $productId,
+                    $request->attributes->get('parentId')
+                );
             } catch (ReviewNotActiveExeption) {
                 throw StorefrontException::reviewNotActive();
             }
         } else {
-            $reviews = $this->productReviewLoader->load($request, $context, $productId, $request->get('parentId'));
+            $reviews = $this->productReviewLoader->load(
+                $request,
+                $context,
+                $productId,
+                $request->attributes->get('parentId')
+            );
         }
 
         $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));
@@ -216,8 +227,12 @@ class ProductController extends StorefrontController
             'storefront/component/review/review.html.twig',
             [
                 'reviews' => $reviews,
-                'ratingSuccess' => $request->get('success'),
-                'redirectTo' => $request->get('redirectTo', $request->get('_route')),
+                'ratingSuccess' => $request->attributes->get('success'),
+                'redirectTo' => RequestParamHelper::get(
+                    $request,
+                    'redirectTo',
+                    $request->attributes->get('_route')
+                ),
             ]
         );
     }

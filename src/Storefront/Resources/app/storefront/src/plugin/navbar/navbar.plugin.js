@@ -26,6 +26,7 @@ export default class NavbarPlugin extends Plugin {
         activeClass: 'active',
 
         /**
+         * @deprecated tag:v6.8.0 - Will be removed. Use window.activeNavigationPathIdList instead.
          * Array of ids representing the path to the currently active category.
          */
         pathIdList: [],
@@ -150,7 +151,9 @@ export default class NavbarPlugin extends Plugin {
             }
         }
 
-        this.options.pathIdList.forEach((id) => {
+        // Use window.activeNavigationPathIdList (from main page, not ESI-cached) with fallback to options for backward compatibility
+        const pathIdList = window.activeNavigationPathIdList || this.options.pathIdList || [];
+        pathIdList.forEach((id) => {
             const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', id);
             const activeNavItem = this.el.querySelector(navItemSelector);
 

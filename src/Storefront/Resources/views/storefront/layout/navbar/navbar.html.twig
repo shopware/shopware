@@ -1,8 +1,7 @@
 {% block layout_navbar %}
     <div class="container">
-        {% set navbarOptions = {
-            pathIdList: shopware.navigation.pathIdList
-        } %}
+        {# @deprecated tag:v6.8.0 - pathIdList was moved to window.activeNavigationPathIdList in meta.html.twig to fix ESI caching issues #}
+        {% set navbarOptions = {} %}
 
         {% block layout_navbar_nav_element %}
             <nav class="navbar navbar-expand-lg main-navigation-menu"

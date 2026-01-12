@@ -96,6 +96,12 @@ The following deprecations apply to `sw-mail-template-index`:
 
 ## Storefront
 
+### Fixed navigation active state with ESI caching
+
+The main navigation now correctly highlights the active category and its parent categories when using HTTP caching with ESI. Previously, incorrect categories could be marked as active due to the navigation path being cached as part of the ESI header response.
+
+A new global JavaScript variable `window.activeNavigationPathIdList` is now available, containing the IDs of parent categories for the current page. This can be used by plugins or themes to implement custom navigation highlighting.
+
 ### Improved cookie consent dialog UI and accessibility
 
 The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. The button layout has been improved with a clearer visual hierarchy, placing the primary action on the right side. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.

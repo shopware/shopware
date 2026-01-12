@@ -40,6 +40,7 @@
             :allow-delete="acl.can('mail_templates.deleter')"
             :show-selection="acl.can('mail_templates.deleter') || undefined"
             :skeleton-item-amount="skeletonItemAmount"
+            @page-change="feature.isActive('V6_8_0_0') ? onPageChange($event) : null"
             @update-records="updateRecords"
         >
             <template #column-salesChannels.name="{ item }">

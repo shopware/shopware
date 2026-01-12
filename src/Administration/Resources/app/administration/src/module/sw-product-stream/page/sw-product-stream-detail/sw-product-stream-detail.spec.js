@@ -112,6 +112,13 @@ async function createWrapper() {
                     getCustomFieldSets: () => Promise.resolve({}),
                 },
                 productStreamConditionService: {},
+                productTypeService: {
+                    fetchProductTypes: () =>
+                        Promise.resolve([
+                            'digital',
+                            'physical',
+                        ]),
+                },
             },
         },
     });
@@ -145,5 +152,47 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
 
         const banner = wrapper.find('.sw-product-stream-detail__product-stream-warning mt-banner-stub');
         expect(banner.exists()).toBe(false);
+    });
+
+    it('should show warning when filters contain product states field', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productStream = {
+            id: 'stream-1',
+            filters: {
+                entity: 'product_stream',
+            },
+        };
+        wrapper.vm.productStreamFiltersTree = [
+            {
+                field: 'states',
+            },
+        ];
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showProductStatesFilterWarning).toBe(true);
+    });
+
+    it('should not show warning when filters do not contain product states', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productStream = {
+            id: 'stream-1',
+            filters: {
+                entity: 'product_stream',
+            },
+        };
+        wrapper.vm.productStreamFilters = [
+            {
+                field: 'stock',
+            },
+        ];
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showProductStatesFilterWarning).toBe(false);
     });
 });

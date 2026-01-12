@@ -185,7 +185,10 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                 },
             },
         };
-        store.creationStates = 'is-physical';
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            store.creationStates = 'is-physical';
+        }
+        store.creationType = 'physical';
     });
 
     it('should not show files card when product states not includes is-download', async () => {

@@ -6,14 +6,16 @@
     {% set childName = child.snippet_name ?? child.name %}
     {# @deprecated tag:v6.8.0 - Use `child.description` instead of `child.snippet_description`. Support for `child.snippet_description` will be removed. #}
     {% set childDescription = child.snippet_description ?? child.description %}
-    <div class="offcanvas-cookie-entry form-check">
+    <div class="offcanvas-cookie-entry form-check form-switch">
         <input
             type="checkbox"
+            role="switch"
             class="form-check-input"
             id="cookie_{{ cookie }}"
             {% if isRequired %}
                 checked="checked"
                 disabled="disabled"
+                aria-disabled="true"
                 data-cookie-required="true"
             {% endif %}
             {% if cookie %}

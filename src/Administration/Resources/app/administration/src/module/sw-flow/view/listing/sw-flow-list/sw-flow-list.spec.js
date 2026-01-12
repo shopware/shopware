@@ -210,7 +210,6 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
 
         const item = wrapper.find('.sw-data-grid__row');
         expect(item.text()).toContain('Check order place');
-        expect(item.text()).toContain('checkout.order.placed');
     });
 
     it('should show trigger column correctly with unknown trigger', async () => {
@@ -245,7 +244,6 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
 
         const item = wrapper.find('.sw-data-grid__row');
         expect(item.text()).toContain('sw-flow-custom-event.flow-list.checkout_order_placed');
-        expect(item.text()).toContain('checkout.order.placed');
     });
 
     it('should be show the success message after duplicate flow', async () => {

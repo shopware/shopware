@@ -41,7 +41,10 @@
     "unit-setup": "npm run generate-component-import-resolver-map",
     "unit-watch": "jest --config jest.config.js --watch",
     "vite": "vite",
-    "vite:build": "vite build"
+    "vite:build": "vite build",
+    "perf": "lhci autorun --config=./lighthouserc.js",
+    "perf:collect": "lhci collect --config=./lighthouserc.js",
+    "perf:assert": "lhci assert --config=./lighthouserc.js"
   },
   "browserslist": [
     "last 2 versions",
@@ -127,6 +130,7 @@
     "@babel/plugin-syntax-import-meta": "7.10.4",
     "@babel/plugin-transform-runtime": "7.25.9",
     "@babel/register": "7.25.9",
+    "@lhci/cli": "0.15.1",
     "@shopware-ag/eslint-config-base": "2.0.0",
     "@shopware-ag/jest-preset-sw6-admin": "6.0.4",
     "@testing-library/jest-dom": "5.17.0",
@@ -193,6 +197,7 @@
     "prettier": "3.6.2",
     "prettier-plugin-multiline-arrays": "3.0.6",
     "prismjs": "1.30.0",
+    "puppeteer": "24.33.0",
     "sass": "1.77.6",
     "semver": "7.6.3",
     "stylelint": "14.16.1",
@@ -220,6 +225,7 @@
     "tmp": "0.2.5",
     "braces": "3.0.3",
     "micromatch": "4.0.8",
-    "test-exclude": "7.0.1"
+    "test-exclude": "7.0.1",
+    "@sentry/node": "10.31.0"
   }
 }

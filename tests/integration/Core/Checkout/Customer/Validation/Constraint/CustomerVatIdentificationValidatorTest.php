@@ -9,11 +9,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -353,6 +355,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         $criteria->addFilter(new EqualsAnyFilter('iso', self::COUNTRY_ISO));
 
+        /** @var EntityRepository<CountryCollection> $repo */
         $repo = static::getContainer()->get('country.repository');
 
         $countries = $repo->search($criteria, $context)->fmap(function (CountryEntity $country) {

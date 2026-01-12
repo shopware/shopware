@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\Strategy\Import;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -15,7 +14,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversNothing]
 abstract class ImportStrategyTestCase extends TestCase
 {
     protected EventDispatcherInterface&MockObject $eventDispatcher;

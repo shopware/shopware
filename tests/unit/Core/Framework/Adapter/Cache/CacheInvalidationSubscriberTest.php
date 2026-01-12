@@ -11,6 +11,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
@@ -90,7 +91,8 @@ class CacheInvalidationSubscriberTest extends TestCase
     public function testInvalidateMediaWithoutVariantsWillInvalidateOnlyProducts(): void
     {
         $productId = '123';
-        $event = new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []);
+        $mediaId = Uuid::randomHex();
+        $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
 
         $subscriber = new CacheInvalidationSubscriber(
             $this->cacheInvalidator,
@@ -105,6 +107,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->with(
                 [
                     EntityCacheKeyGenerator::buildProductTag($productId),
+                    MediaRoute::buildName($mediaId),
                 ],
                 false
             );
@@ -116,7 +119,8 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         $productId = '123';
         $variants = ['456', '789'];
-        $event = new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []);
+        $mediaId = Uuid::randomHex();
+        $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
 
         $subscriber = new CacheInvalidationSubscriber(
             $this->cacheInvalidator,
@@ -136,6 +140,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                     EntityCacheKeyGenerator::buildProductTag($productId),
                     EntityCacheKeyGenerator::buildProductTag($variants[0]),
                     EntityCacheKeyGenerator::buildProductTag($variants[1]),
+                    MediaRoute::buildName($mediaId),
                 ],
                 false
             );

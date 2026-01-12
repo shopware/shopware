@@ -1,10 +1,8 @@
-@import "~scss/variables";
-
 .sw-flow-sequence-action-error {
     position: relative;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 9px;
+    margin-bottom: var(--scale-size-8);
 
     &__context-button {
         position: absolute;

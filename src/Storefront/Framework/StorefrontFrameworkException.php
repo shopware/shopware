@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class StorefrontFrameworkException extends HttpException
 {

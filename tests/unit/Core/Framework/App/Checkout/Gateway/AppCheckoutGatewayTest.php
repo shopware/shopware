@@ -31,8 +31,8 @@ use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
-use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\TestCheckoutGatewayCommand;
-use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\TestCheckoutGatewayHandler;
+use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\StubCheckoutGatewayCommand;
+use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\StubCheckoutGatewayHandler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -120,9 +120,9 @@ class AppCheckoutGatewayTest extends TestCase
             )
             ->willReturn(new AppCheckoutGatewayResponse([['command' => 'test', 'payload' => [['test-method']]]]));
 
-        $registry = new CheckoutGatewayCommandRegistry([new TestCheckoutGatewayHandler()]);
+        $registry = new CheckoutGatewayCommandRegistry([new StubCheckoutGatewayHandler()]);
 
-        $expectedCollection = new CheckoutGatewayCommandCollection([new TestCheckoutGatewayCommand(['test-method'])]);
+        $expectedCollection = new CheckoutGatewayCommandCollection([new StubCheckoutGatewayCommand(['test-method'])]);
 
         $executor = new CheckoutGatewayCommandExecutor($this->getRegistry(), new ExceptionLogger('test', false, new NullLogger()));
 
@@ -152,6 +152,6 @@ class AppCheckoutGatewayTest extends TestCase
 
     private function getRegistry(): CheckoutGatewayCommandRegistry
     {
-        return new CheckoutGatewayCommandRegistry([new TestCheckoutGatewayHandler()]);
+        return new CheckoutGatewayCommandRegistry([new StubCheckoutGatewayHandler()]);
     }
 }

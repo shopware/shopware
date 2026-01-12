@@ -6,16 +6,14 @@
         class="sw-import-export-view-profiles__grid-card"
         position-identifier="sw-import-export-view-profiles"
     >
-
         {% block sw_import_export_view_profile_profiles_toolbar %}
         <div class="sw-import-export-view-profiles__toolbar">
             {% block sw_import_export_view_profile_profiles_toolbar_search_field %}
-            <sw-simple-search-field
-                v-model:value="searchTerm"
+            <mt-search
+                v-model="searchTerm"
                 class="sw-import-export-view-profiles__search"
                 size="small"
-                variant="form"
-                @search-term-change="onSearch"
+                @change="onSearch"
             />
             {% endblock %}
 
@@ -56,12 +54,13 @@
             {% endblock %}
 
             <template #column-technicalName="{ item }">
-                <a
-                    href="#"
-                    @click.prevent="onEditProfile(item.id)"
+                <mt-link
+                    as="a"
+                    variant="primary"
+                    @click="onEditProfile(item.id)"
                 >
                     {{ item.technicalName }}
-                </a>
+                </mt-link>
             </template>
 
             {% block sw_import_export_view_profile_profiles_listing_column_system_default %}
@@ -71,34 +70,34 @@
             {% endblock %}
 
             <template #actions="{ item }">
-                    {% block sw_import_export_view_profile_profiles_listing_edit %}
+                {% block sw_import_export_view_profile_profiles_listing_edit %}
                 <sw-context-menu-item
                     class="sw-import-export-view-profiles__listing-open-action"
                     @click="onEditProfile(item.id)"
                 >
                     {{ $tc('sw-import-export.profile.openLabel') }}
                 </sw-context-menu-item>
-                    {% endblock %}
+                {% endblock %}
 
-                    {% block sw_import_export_view_profile_profiles_listing_duplicate %}
+                {% block sw_import_export_view_profile_profiles_listing_duplicate %}
                 <sw-context-menu-item
                     class="sw-import-export-view-profiles__listing-duplicate-action"
                     @click="onDuplicateProfile(item)"
                 >
                     {{ $tc('sw-import-export.profile.duplicateLabel') }}
                 </sw-context-menu-item>
-                    {% endblock %}
+                {% endblock %}
 
-                    {% block sw_import_export_view_profile_profiles_listing_download_template %}
+                {% block sw_import_export_view_profile_profiles_listing_download_template %}
                 <sw-context-menu-item
                     class="sw-import-export-view-profiles__listing-download-template-action"
                     @click="onDownloadTemplate(item)"
                 >
                     {{ $tc('sw-import-export.profile.downloadTemplateLabel') }}
                 </sw-context-menu-item>
-                    {% endblock %}
+                {% endblock %}
 
-                    {% block sw_import_export_view_profile_profiles_listing_delete %}
+                {% block sw_import_export_view_profile_profiles_listing_delete %}
                 <sw-context-menu-item
                     class="sw-import-export-view-profiles__listing-delete-action"
                     variant="danger"
@@ -107,7 +106,7 @@
                 >
                     {{ $tc('sw-import-export.profile.deleteLabel') }}
                 </sw-context-menu-item>
-                    {% endblock %}
+                {% endblock %}
             </template>
         </sw-entity-listing>
         {% endblock %}

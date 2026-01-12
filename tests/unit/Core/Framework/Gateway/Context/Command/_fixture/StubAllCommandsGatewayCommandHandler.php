@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Gateway\Context\Command\_fixture;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeBillingAddressCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeCurrencyCommand;
@@ -26,9 +25,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Simply puts anything into parameters, which is provided in the command's data.
  * Supports all commands.
  */
-#[CoversNothing]
 #[Package('framework')]
-class TestAllCommandsGatewayCommandHandler extends AbstractContextGatewayCommandHandler
+class StubAllCommandsGatewayCommandHandler extends AbstractContextGatewayCommandHandler
 {
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {

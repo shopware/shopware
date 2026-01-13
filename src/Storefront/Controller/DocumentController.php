@@ -53,10 +53,10 @@ class DocumentController extends StorefrontController
     )]
     public function downloadDocument(Request $request, SalesChannelContext $context, string $documentId): Response
     {
-        $fileType = RequestParamHelper::get($request, 'fileType', PdfRenderer::FILE_EXTENSION);
+        $fileType = $request->attributes->get('fileType') ?? $request->query->getString('fileType', PdfRenderer::FILE_EXTENSION);
 
         try {
-            return $this->documentRoute->download($documentId, $request, $context, RequestParamHelper::get($request, 'deepLinkCode'), $fileType);
+            return $this->documentRoute->download($documentId, $request, $context, $request->attributes->get('deepLinkCode'), $fileType);
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
             if ($context->getCustomer() !== null) {
                 $this->logoutRoute->logout($context, new RequestDataBag([]));

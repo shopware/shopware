@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
-use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -149,7 +148,7 @@ class AccountOrderController extends StorefrontController
                 'frontend.account.guest.login.page',
                 [
                     'redirectTo' => 'frontend.account.order.single.page',
-                    'redirectParameters' => ['deepLinkCode' => RequestParamHelper::get($request, 'deepLinkCode')],
+                    'redirectParameters' => ['deepLinkCode' => $request->attributes->get('deepLinkCode')],
                     'loginError' => ($exception instanceof WrongGuestCredentialsException),
                     'waitTime' => ($exception instanceof CustomerAuthThrottledException) ? $exception->getWaitTime() : '',
                 ]

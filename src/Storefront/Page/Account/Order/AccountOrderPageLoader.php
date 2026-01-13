@@ -44,7 +44,7 @@ class AccountOrderPageLoader
 
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOrderPage
     {
-        if (!$salesChannelContext->getCustomer() && RequestParamHelper::get($request, 'deepLinkCode', false) === false) {
+        if (!$salesChannelContext->getCustomer() && !$request->attributes->has('deepLinkCode')) {
             throw CartException::customerNotLoggedIn();
         }
 
@@ -57,7 +57,7 @@ class AccountOrderPageLoader
 
         $page->setOrders($orders);
 
-        $page->setDeepLinkCode(RequestParamHelper::get($request, 'deepLinkCode'));
+        $page->setDeepLinkCode($request->attributes->get('deepLinkCode'));
 
         $this->eventDispatcher->dispatch(
             new AccountOrderPageLoadedEvent($page, $salesChannelContext, $request)
@@ -149,8 +149,8 @@ class AccountOrderPageLoader
         $criteria
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING));
 
-        if (RequestParamHelper::get($request, 'deepLinkCode')) {
-            $criteria->addFilter(new EqualsFilter('deepLinkCode', RequestParamHelper::get($request, 'deepLinkCode')));
+        if ($request->attributes->has('deepLinkCode')) {
+            $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->attributes->get('deepLinkCode')));
         }
 
         return $criteria;

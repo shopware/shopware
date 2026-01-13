@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -37,11 +38,18 @@ class Migration1768233956AddThemeRuntimeConfigUniqueConstraintTest extends TestC
 
         // Insert duplicate entries with the same technical_name
         $technicalName = 'TestTheme_' . Uuid::randomHex();
-        $oldThemeId = Uuid::randomBytes();
-        $newThemeId = Uuid::randomBytes();
 
         $this->connection->insert('theme_runtime_config', [
-            'theme_id' => $oldThemeId,
+            'theme_id' => Uuid::randomBytes(),
+            'technical_name' => $technicalName,
+            'resolved_config' => '{}',
+            'view_inheritance' => '[]',
+            'script_files' => '[]',
+            'icon_sets' => '{}',
+            'updated_at' => '2025-01-01 00:00:00.000',
+        ]);
+        $this->connection->insert('theme_runtime_config', [
+            'theme_id' => Uuid::randomBytes(),
             'technical_name' => $technicalName,
             'resolved_config' => '{}',
             'view_inheritance' => '[]',
@@ -50,6 +58,7 @@ class Migration1768233956AddThemeRuntimeConfigUniqueConstraintTest extends TestC
             'updated_at' => '2025-01-01 00:00:00.000',
         ]);
 
+        $newThemeId = Uuid::randomBytes();
         $this->connection->insert('theme_runtime_config', [
             'theme_id' => $newThemeId,
             'technical_name' => $technicalName,
@@ -64,10 +73,11 @@ class Migration1768233956AddThemeRuntimeConfigUniqueConstraintTest extends TestC
 
         // Verify duplicates exist before migration
         $countBefore = (int) $this->connection->fetchOne($countQuery, ['name' => $technicalName]);
-        static::assertSame(2, $countBefore);
+        static::assertSame(3, $countBefore);
 
         $migration = new Migration1768233956AddThemeRuntimeConfigUniqueConstraint();
         $migration->update($this->connection);
+        $migration->update($this->connection); // validate idempotency
 
         // Verify duplicates are removed, only newest remains
         $countAfter = (int) $this->connection->fetchOne($countQuery, ['name' => $technicalName]);
@@ -90,30 +100,20 @@ class Migration1768233956AddThemeRuntimeConfigUniqueConstraintTest extends TestC
         $this->connection->delete('theme_runtime_config', ['theme_id' => $newThemeId]);
     }
 
-    public function testMigrationIsIdempotent(): void
-    {
-        $migration = new Migration1768233956AddThemeRuntimeConfigUniqueConstraint();
-        $migration->update($this->connection);
-        $migration->update($this->connection);
-
-        $indexes = $this->connection->createSchemaManager()->listTableIndexes('theme_runtime_config');
-        static::assertArrayHasKey('uidx.technical_name', $indexes);
-        static::assertSame(IndexType::UNIQUE, $indexes['uidx.technical_name']->getType());
-    }
-
     private function rollback(): void
     {
-        $indexes = $this->connection->createSchemaManager()->listTableIndexes('theme_runtime_config');
+        $schemaManager = $this->connection->createSchemaManager();
+        $indexes = $schemaManager->listTableIndexes('theme_runtime_config');
 
         // Drop unique index if exists
         if (isset($indexes['uidx.technical_name'])) {
-            $this->connection->executeStatement('DROP INDEX `uidx.technical_name` ON `theme_runtime_config`');
+            $schemaManager->dropIndex('`uidx.technical_name`', 'theme_runtime_config');
         }
 
         // Re-add non-unique index if not exists
-        $indexes = $this->connection->createSchemaManager()->listTableIndexes('theme_runtime_config');
-        if (!isset($indexes['idx.technical_name'])) {
-            $this->connection->executeStatement('CREATE INDEX `idx.technical_name` ON `theme_runtime_config` (`technical_name`)');
+        if (isset($indexes['idx.technical_name'])) {
+            $index = new Index('idx.technical_name', ['technical_name']);
+            $schemaManager->createIndex($index, 'theme_runtime_config');
         }
     }
 }

@@ -19,18 +19,28 @@ class Migration1768233956AddThemeRuntimeConfigUniqueConstraint extends Migration
 
     public function update(Connection $connection): void
     {
-        $existingIndexes = $connection->createSchemaManager()->listTableIndexes('theme_runtime_config');
-        if (isset($existingIndexes['uidx.technical_name'])) {
+        if ($this->indexExists($connection, 'theme_runtime_config', 'uidx.technical_name')) {
             return;
         }
 
         // Remove duplicate entries, keeping only the one with the newest updated_at
         $connection->executeStatement(<<<'SQL'
-            DELETE t1 FROM `theme_runtime_config` t1
-            INNER JOIN `theme_runtime_config` t2
-            WHERE t1.`technical_name` = t2.`technical_name`
-              AND t1.`technical_name` IS NOT NULL
-              AND t1.`updated_at` < t2.`updated_at`
+            DELETE t
+            FROM theme_runtime_config t
+            JOIN (
+                SELECT theme_id
+                FROM (
+                    SELECT
+                        theme_id,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY technical_name
+                            ORDER BY updated_at DESC, theme_id DESC
+                        ) AS rn
+                    FROM theme_runtime_config
+                    WHERE technical_name IS NOT NULL
+                ) ranked
+                WHERE rn > 1
+            ) duplicates ON duplicates.theme_id = t.theme_id
         SQL);
 
         // Drop existing non-unique index

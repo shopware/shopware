@@ -41,7 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited as InheritedFlag;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -302,7 +302,7 @@ class AttributeEntityCompiler
 
         if ($inherited = $this->getAttribute($property, InheritedAttr::class)) {
             $instance = $inherited->newInstance();
-            $flags[InheritedFlag::class] = ['class' => InheritedFlag::class, 'args' => [$instance->foreignKey]];
+            $flags[Inherited::class] = ['class' => Inherited::class, 'args' => [$instance->foreignKey]];
         }
 
         if ($this->getAttribute($property, AllowEmptyStringAttr::class)) {

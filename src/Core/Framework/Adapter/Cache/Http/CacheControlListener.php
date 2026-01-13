@@ -46,7 +46,7 @@ readonly class CacheControlListener
         }
 
         if (
-            $this->isStoreApiRequest($event)
+            ($this->isStoreApiRequest($event) || $this->isStorefrontRequest($event))
             && (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0'))
         ) {
             return;
@@ -74,5 +74,13 @@ readonly class CacheControlListener
         $routeScope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         return \in_array(StoreApiRouteScope::ID, $routeScope, true);
+    }
+
+    private function isStorefrontRequest(BeforeSendResponseEvent $event): bool
+    {
+        $request = $event->getRequest();
+        $routeScope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+
+        return \in_array('storefront', $routeScope, true);
     }
 }

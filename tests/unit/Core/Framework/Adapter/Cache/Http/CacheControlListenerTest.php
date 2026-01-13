@@ -40,6 +40,7 @@ class CacheControlListenerTest extends TestCase
         }
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnArgument(0);
         $subscriber = new CacheControlListener($reverseProxyEnabled, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
@@ -61,13 +62,13 @@ class CacheControlListenerTest extends TestCase
         }
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnArgument(0);
         $subscriber = new CacheControlListener($reverseProxyEnabled, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
 
         static::assertSame($afterHeader, $response->headers->get('cache-control'));
     }
-
 
     /**
      * @return iterable<string, array<int, bool|string|null>>
@@ -124,6 +125,7 @@ class CacheControlListenerTest extends TestCase
         $response->headers->set('cache-control', 'public, s-maxage=64000');
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnArgument(0);
         $subscriber = new CacheControlListener(false, $eventDispatcher);
 
         // StoreAPI
@@ -149,6 +151,7 @@ class CacheControlListenerTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnArgument(0);
         $subscriber = new CacheControlListener(false, $eventDispatcher);
         $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
 
@@ -222,6 +225,7 @@ class CacheControlListenerTest extends TestCase
         // No administration markers set
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnArgument(0);
         $subscriber = new CacheControlListener(false, $eventDispatcher);
 
         $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
@@ -229,5 +233,4 @@ class CacheControlListenerTest extends TestCase
         // Should be modified to no-cache, private for non-administration routes
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
-
 }

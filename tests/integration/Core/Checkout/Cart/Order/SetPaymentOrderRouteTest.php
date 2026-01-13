@@ -3,8 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Order;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
@@ -15,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
@@ -79,6 +84,107 @@ class SetPaymentOrderRouteTest extends TestCase
         static::assertNotNull($order->getPrimaryOrderTransactionId());
     }
 
+    public function testCorrectTransactionAmount(): void
+    {
+        $customer = $this->createCustomer();
+        static::assertNotNull($customer);
+
+        $orderId = Uuid::randomHex();
+        $context = Generator::generateSalesChannelContext(customer: $customer);
+        $transactionId = Uuid::randomHex();
+        $validPaymentId = $this->getValidPaymentMethodId();
+
+        $override = [
+            'primaryOrderTransactionId' => $transactionId,
+            'transactions' => [
+                [
+                    'id' => $transactionId,
+                    'paymentMethodId' => $validPaymentId,
+                    'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
+                    'amount' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                ],
+            ],
+        ];
+        $this->createOrder($orderId, $customer->getId(), $override);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
+        $request->request->set('paymentMethodId', $validPaymentId);
+        $request->request->set('orderId', $orderId);
+        $request->setSession($this->getSession());
+
+        static::getContainer()->get('request_stack')->push($request);
+
+        $this->setPaymentOrderRoute->setPayment($request, $context);
+
+        $criteria = new Criteria();
+        $criteria->addAssociations(['primaryOrderTransaction', 'transactions']);
+
+        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+
+        static::assertInstanceOf(OrderEntity::class, $order);
+        static::assertNotNull($order->getPrimaryOrderTransactionId());
+        static::assertNotNull($order->getTransactions());
+        static::assertNotNull($order->getPrimaryOrderTransaction());
+
+        static::assertSame($transactionId, $order->getPrimaryOrderTransactionId());
+        static::assertCount(1, $order->getTransactions());
+        static::assertSame(10.0, $order->getPrimaryOrderTransaction()->getAmount()->getTotalPrice());
+        static::assertSame(10.0, $order->getPrimaryOrderTransaction()->getAmount()->getUnitPrice());
+    }
+
+    public function testInconsistentTransactionAmount(): void
+    {
+        $customer = $this->createCustomer();
+        static::assertNotNull($customer);
+
+        $orderId = Uuid::randomHex();
+        $context = Generator::generateSalesChannelContext(customer: $customer);
+        $transactionId = Uuid::randomHex();
+        $validPaymentId = $this->getValidPaymentMethodId();
+
+        // Simulate an outdated transaction. E.g., line item price has changed via admin
+        $override = [
+            'primaryOrderTransactionId' => $transactionId,
+            'transactions' => [
+                [
+                    'id' => $transactionId,
+                    'paymentMethodId' => $validPaymentId,
+                    'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
+                    'amount' => new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                ],
+            ],
+        ];
+        $this->createOrder($orderId, $customer->getId(), $override);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
+        $request->request->set('paymentMethodId', $validPaymentId);
+        $request->request->set('orderId', $orderId);
+        $request->setSession($this->getSession());
+
+        static::getContainer()->get('request_stack')->push($request);
+
+        $this->setPaymentOrderRoute->setPayment($request, $context);
+
+        $criteria = new Criteria();
+        $criteria->addAssociations(['primaryOrderTransaction', 'transactions']);
+
+        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+
+        static::assertInstanceOf(OrderEntity::class, $order);
+        static::assertNotNull($order->getPrimaryOrderTransactionId());
+        static::assertNotNull($order->getTransactions());
+        static::assertNotNull($order->getPrimaryOrderTransaction());
+
+        static::assertNotSame($transactionId, $order->getPrimaryOrderTransactionId());
+        static::assertCount(2, $order->getTransactions());
+        static::assertSame(10.0, $order->getPrimaryOrderTransaction()->getAmount()->getTotalPrice());
+        static::assertSame(10.0, $order->getPrimaryOrderTransaction()->getAmount()->getUnitPrice());
+    }
+
     private function createCustomer(): ?CustomerEntity
     {
         $id1 = Uuid::randomHex();
@@ -111,11 +217,14 @@ class SetPaymentOrderRouteTest extends TestCase
         return $this->customerRepository->search(new Criteria([$id1]), Context::createDefaultContext())->first();
     }
 
-    private function createOrder(string $id, string $customerId): void
+    /**
+     * @param array<string, mixed> $override
+     */
+    private function createOrder(string $id, string $customerId, array $override = []): void
     {
         $orderData = $this->getOrderData($id, Context::createDefaultContext())[0];
         $orderData['orderCustomer']['customer']['id'] = $customerId;
 
-        $this->orderRepository->create([$orderData], Context::createDefaultContext());
+        $this->orderRepository->create([array_merge($orderData, $override)], Context::createDefaultContext());
     }
 }

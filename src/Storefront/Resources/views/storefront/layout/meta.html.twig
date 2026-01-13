@@ -148,7 +148,10 @@
         {% block layout_head_javascript_router %}
             {# Register all routes that will be needed in JavaScript to the window.router object #}
             <script>
+                {# Navigation variables are set here instead of in navbar.html.twig because the navbar #}
+                {# is ESI-cached and shared across pages, while this template is rendered per request. #}
                 window.activeNavigationId = '{{ shopware.navigation.id }}';
+                window.activeNavigationPathIdList = JSON.parse('{{ (shopware.navigation.pathIdList ?? [])|json_encode|escape('js') }}');
                 window.activeRoute = '{{ activeRoute }}';
                 window.activeRouteParameters = '{{ (app.request.attributes.get('_route_params') ?? {})|json_encode|escape('js') }}';
                 window.router = {

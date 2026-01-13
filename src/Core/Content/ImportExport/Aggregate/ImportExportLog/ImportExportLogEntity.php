@@ -43,8 +43,14 @@ class ImportExportLogEntity extends Entity
 
     protected ?string $fileId = null;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $config = [];
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $result = [];
 
     protected ?string $invalidRecordsLogId = null;
@@ -163,21 +169,33 @@ class ImportExportLogEntity extends Entity
         $this->fileId = $fileId;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getResult(): array
     {
         return $this->result;
     }
 
+    /**
+     * @param array<string, mixed> $result
+     */
     public function setResult(array $result): void
     {
         $this->result = $result;

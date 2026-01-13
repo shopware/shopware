@@ -32,10 +32,11 @@ class CachePolicyProviderTest extends TestCase
         bool $cacheable,
         ?CacheAttribute $cacheAttribute,
         CachePolicy $expectedPolicy,
+        bool $enforceNoStore = false,
     ): void {
         $provider = new CachePolicyProvider($policies, $routePolicies, $defaultPolicies);
 
-        $result = $provider->getPolicy($route, $area, $cacheable, $cacheAttribute);
+        $result = $provider->getPolicy($route, $area, $cacheable, $cacheAttribute, $enforceNoStore);
 
         static::assertEquals($expectedPolicy, $result);
     }
@@ -48,8 +49,9 @@ class CachePolicyProviderTest extends TestCase
      *     route: string,
      *     area: string,
      *     cacheable: bool,
-     *     cacheAttribute: CacheAttribute,
-     *     expectedPolicy: CachePolicy
+     *     cacheAttribute: ?CacheAttribute,
+     *     expectedPolicy: CachePolicy,
+     *     enforceNoStore?: bool
      * }>
      */
     public static function providePolicyResolutionCases(): iterable
@@ -196,7 +198,38 @@ class CachePolicyProviderTest extends TestCase
             'area' => 'unknown_area',
             'cacheable' => true,
             'cacheAttribute' => new CacheAttribute(),
-            'expectedPolicy' => CachePolicy::noCache(),
+            'expectedPolicy' => CachePolicy::noStore(),
+        ];
+
+        yield 'enforceNoStore with default policy returns noStore policy' => [
+            'policies' => ['default_policy' => $defaultPolicy],
+            'routePolicies' => [],
+            'defaultPolicies' => [
+                'storefront' => new DefaultPolicies('default_policy', 'default_policy'),
+            ],
+            'route' => 'some.route',
+            'area' => 'storefront',
+            'cacheable' => false,
+            'cacheAttribute' => null,
+            'expectedPolicy' => CachePolicy::noStore(),
+            'enforceNoStore' => true,
+        ];
+
+        yield 'enforceNoStore with route-specific policy returns original policy' => [
+            'policies' => [
+                'default_policy' => $defaultPolicy,
+                'specific_policy' => $specificPolicy,
+            ],
+            'routePolicies' => ['my.route' => 'specific_policy'],
+            'defaultPolicies' => [
+                'storefront' => new DefaultPolicies('default_policy', 'default_policy'),
+            ],
+            'route' => 'my.route',
+            'area' => 'storefront',
+            'cacheable' => false,
+            'cacheAttribute' => null,
+            'expectedPolicy' => $specificPolicy,
+            'enforceNoStore' => true,
         ];
     }
 }

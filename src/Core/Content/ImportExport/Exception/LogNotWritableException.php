@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('fundamentals@after-sales')]
 class LogNotWritableException extends ShopwareHttpException
 {
+    /**
+     * @param list<string> $ids
+     */
     public function __construct(array $ids)
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));

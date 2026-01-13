@@ -5,11 +5,11 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\PlatformRequest;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
 #[Package('framework')]
 readonly class CacheControlListener
@@ -28,10 +28,7 @@ readonly class CacheControlListener
             return;
         }
 
-        if (
-            $this->isStoreApiRequest($event)
-            && (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0'))
-        ) {
+        if (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0')) {
             return;
         }
 
@@ -42,9 +39,7 @@ readonly class CacheControlListener
         // We don't want that the client will cache the website, if no reverse proxy is configured
         $response->headers->remove('cache-control');
 
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
-            $response->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
-        }
+        $response->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
 
         $response->setPrivate();
 
@@ -53,16 +48,5 @@ readonly class CacheControlListener
         } else {
             $response->headers->addCacheControlDirective('no-cache');
         }
-    }
-
-    private function isStoreApiRequest(BeforeSendResponseEvent $event): bool
-    {
-        $request = $event->getRequest();
-
-        return \in_array(
-            StoreApiRouteScope::ID,
-            (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
-            true
-        );
     }
 }

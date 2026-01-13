@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited as InheritedAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
@@ -41,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -67,7 +68,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
- * @phpstan-type FieldArray array{type?: string, name?: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}
+ * @phpstan-type FieldArray array{type?: string, name?: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string|null>|string>|null>, translated: bool, args: list<string|false>}
  */
 #[Package('framework')]
 class AttributeEntityCompiler
@@ -172,7 +173,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array{type: string, name: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}|null
+     * @return array{type: string, name: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string|null>|string>|null>, translated: bool, args: list<string|false>}|null
      */
     private function parseField(string $entity, \ReflectionProperty $property): ?array
     {
@@ -274,7 +275,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array<string, array{class: string, args?: array<bool|string>}>
+     * @return array<string, array{class: string, args?: array<bool|string|null>}>
      */
     private function getFlags(Field $field, \ReflectionProperty $property): array
     {
@@ -299,9 +300,9 @@ class AttributeEntityCompiler
             $flags[Required::class] = ['class' => Required::class];
         }
 
-        if ($inherited = $this->getAttribute($property, Inherited::class)) {
+        if ($inherited = $this->getAttribute($property, InheritedAttr::class)) {
             $instance = $inherited->newInstance();
-            $flags[Inherited::class] = ['class' => Inherited::class, 'args' => ['reversed' => $instance->reversed]];
+            $flags[Inherited::class] = ['class' => Inherited::class, 'args' => [$instance->foreignKey]];
         }
 
         if ($this->getAttribute($property, AllowEmptyStringAttr::class)) {

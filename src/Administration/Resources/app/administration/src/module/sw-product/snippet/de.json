@@ -569,6 +569,10 @@
         },
         "deprecationWarning": "Der Filter für Produktzustände ist veraltet und wird mit v6.8 entfernt. Bitte verwende stattdessen den Produkttyp-Filter."
       },
+      "productTypeFilter": {
+        "label": "Produkttyp",
+        "placeholder": "Produkttyp auswählen ..."
+      },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."
     },

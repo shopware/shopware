@@ -18,11 +18,23 @@ Guidelines to write uniform Twig UX components that follow our best practices an
 * (S)CSS and JavaScript are in the same directory as the component template.
 
 ```
-views/components/Button/
+views/components/Sw/
     Button.html.twig
     Button.js
     Button.scss
 ```
+
+You can also use the index naming for anonymous components, which enables you to use the directory name as the component name. This can be helpful to have all component files in a separated directory, but without adding a duplicated namespace level. Make sure to name your JS and SCSS files accordingly.
+
+```
+views/components/Sw/Button
+    index.html.twig
+    index.js
+    index.scss
+```
+
+Both of the above structures produces the component `Sw:Button`. 
+
 
 ✅ Do:
 ```html
@@ -39,6 +51,8 @@ views/components/Button/
 Besides the anonymous components, which only require a Twig template, you can also define your component via a PHP class which offers the possiblity to add additional businsess logic to your component. You can have a look at the [offical documentation](https://symfony.com/bundles/ux-twig-component/current/index.html) for all the details.
 
 In Shopware we decided that these PHP classes should be placed right where your component template and other files of your component are located. This provides the epxerience of a real comopnent system and you have all component related files in one place. Therefore you can simply add the PHP class to the described directory structure.
+
+**Important Note:** If you use a PHP class for your component, you cannot use the anonymous component naming feature using `index.html.twig` for your component. The PHP class and the component template should have matching names.
 
 ```
 views/components/Button/
@@ -497,6 +511,14 @@ components/Product
     Card.scss
 ```
 
+If you use the index naming of anonymous components, you have to name your SCSS file in the same way.
+
+```
+components/Alert
+    index.html.twig
+    index.scss
+```
+
 ✅ Do:
 ```css
 .sw-product-card {
@@ -547,4 +569,6 @@ components/Product
 
 ## JavaScript
 
-You can add a corresponding JS file for your component. This file is automatically loaded within the template if your component is used on the site. This JS will be integrated as it is, without a bundling process or similar. You can use it for any form of JavaScript to add frontend business logic to your component. It can be plain JS or you can make use of a new component system that we added as an alternative to the current JS plugin system, which can help you create simple encapsulated logic for your component. For more information you can have a look at the README.md file in `app/storefron/src/component-system/`.
+You can add a corresponding JS file for your component. This file is automatically loaded within the template if your component is used on the site. This JS will be integrated as it is, without a bundling process or similar. You can use it for any form of JavaScript to add frontend business logic to your component. It can be plain JS or you can make use of a new component system that we added as an alternative to the current JS plugin system, which can help you create simple encapsulated logic for your component. 
+
+For more information you can have a look at the README.md file in `app/storefron/src/component-system/`.

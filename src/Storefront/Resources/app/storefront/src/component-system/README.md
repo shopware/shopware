@@ -135,6 +135,24 @@ views/
       MyComponent.scss
 ```
 
+If you are using the index naming of anonymous components, the correposnding SCSS and JS files have to use the same pattern. This naming provides the possibility to use the directory name as the component name.
+
+```
+views/
+  components/
+    MyComponentNamespace/
+        MyComponent/
+            index.thml.twig
+            index.js
+            index.scss
+```
+
+Both of the above described structures will still result in a component which can be called with: 
+
+```Twig
+<twig:MyComponentNamespace:MyComponent>
+```
+
 ## Twig Component Integration
 
 To integrate the script with your corresponding Twig component you have to ensure that the desired element within your component template has the necessary data attributes.

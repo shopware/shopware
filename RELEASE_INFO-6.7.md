@@ -13,6 +13,10 @@ Custom fields are now **not searchable by default**. To make a custom field sear
 
 **Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
 
+### Media Model Viewer
+
+From now on you are able to inspect your 3D models directly in the Media module in the Administration. Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right. This new component is called `sw-model-viewer`.
+
 ## API
 
 ### Improved tagged based cache invalidation
@@ -24,6 +28,23 @@ Next routes now support cache tagging, enabling automatic invalidation when rele
 * `/store-api/product/{productId}/cross-selling`
 
 ## Core
+
+### Rework of DAL query generation for nested filters groups
+The DAL criteria builder has been adjusted to generate `EXISTS` subqueries instead of `LEFT JOIN`s for nested filter groups.
+
+Previously, each level of nested filters resulted in an additional `LEFT JOIN`, even when the join was only required to check for the existence of a related entity subject to some filter.
+In complex criteria trees with multiple filters on the same entity, this led to an exponential explosion of joins and significant performance degradation (e.g., the same table being joined multiple times only to evaluate existence conditions).
+
+An example of this is a query such as "find orders that have a line item of type A and one of type B and one of type C".
+According to [aadr/2020-11-19-dal-join-filter.md](adr/2020-11-19-dal-join-filter.md), this would look like:
+```php
+$criteria->addFilter(
+    new EqualsFilter('lineItems.type', 'product'),
+    new EqualsFilter('lineItems.type', 'custom'),
+    new EqualsFilter('lineItems.type', 'other'),
+);
+```
+Previously, the generated query would `LEFT JOIN` `order_line_item` multiple times onto `order`, causing the query to be extremely slow. The new `EXISTS` checks prevent this, making the query much faster.
 
 ### Introduce Immutable DAL flag
 
@@ -99,6 +120,13 @@ The following deprecations apply to `sw-mail-template-index`:
 ### Improved cookie consent dialog UI and accessibility
 
 The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. The button layout has been improved with a clearer visual hierarchy, placing the primary action on the right side. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
+
+### HTTP caching policies update
+
+The following changes are relevant when HTTP caching policies feature is enabled (`CACHE_REWORK` or `v6.8.0.0` feature flag):
+
+* HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
+* `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
 
 ### Google Analytics 4 Integration Update
 

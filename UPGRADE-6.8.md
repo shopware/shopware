@@ -824,6 +824,8 @@ Method `response.cache.invalidationState()` was removed. State-based invalidatio
 
 ## HTTP Cache Changes
 
+### Removed configuration parameters
+
 The following configuration parameters were removed:
 
 - `SHOPWARE_HTTP_DEFAULT_TTL` environment variable
@@ -855,6 +857,14 @@ The following configuration parameters were removed:
 +      storefront:
 +        cacheable: my_cacheable
 ```
+
+### CacheControlListener removal
+
+The `CacheControlListener` has been removed. Previously, when no reverse proxy was configured, this listener replaced all Cache-Control headers with `no-cache` before sending responses to clients.
+
+With this change, Cache-Control headers defined by cache policies are sent directly to browsers. This means:
+- Client-side caching (browser cache) now respects your configured policies.
+- Ensure your cache policies are configured appropriately for client exposure: unlike reverse proxies that use tag-based invalidation, browser caches cannot be invalidated on-demand.
 
 ## Dropped support for OpenSearch 1.x
 

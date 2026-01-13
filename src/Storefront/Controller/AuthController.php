@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -126,12 +127,16 @@ class AuthController extends StorefrontController
             return $this->createActionResponse($request);
         }
 
-        $waitTime = (int) $request->attributes->get('waitTime');
+        // WaitTime can be either set as attribute when it's forwarded to this route
+        // or as query parameter when it's redirected
+        $waitTime = (int) RequestParamHelper::get($request, 'waitTime');
         if ($waitTime) {
             $this->addFlash(self::INFO, $this->trans('account.loginThrottled', ['%seconds%' => $waitTime]));
         }
 
-        if ($request->attributes->get('loginError')) {
+        // loginError can be either set as attribute when it's forwarded to this route
+        // or as query parameter when it's redirected
+        if (RequestParamHelper::get($request, 'loginError')) {
             $this->addFlash(self::DANGER, $this->trans('account.orderGuestLoginWrongCredentials'));
         }
 

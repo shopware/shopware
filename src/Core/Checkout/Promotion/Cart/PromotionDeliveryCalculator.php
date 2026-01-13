@@ -154,26 +154,26 @@ class PromotionDeliveryCalculator
     /**
      * Checks if a discount item is excluded by another promotion of higher priority.
      */
-    private function isExcluded(LineItem $comparisonItem, LineItemCollection $discountLineItems, Cart $calculated, SalesChannelContext $context): bool
+    private function isExcluded(LineItem $checkedItem, LineItemCollection $sortedDiscountItems, Cart $calculated, SalesChannelContext $context): bool
     {
         $exclusions = [];
-        $comparisonPromotionId = $comparisonItem->getPayloadValue('promotionId');
+        $checkedPromotionId = $checkedItem->getPayloadValue('promotionId');
 
-        foreach ($discountLineItems as $discountItem) {
+        foreach ($sortedDiscountItems as $discountItem) {
             // if we dont have a scope
             // then skip it, it might not belong to us
             if (!$discountItem->hasPayloadValue('discountScope')) {
                 continue;
             }
-            if ($discountItem->getPayloadValue('priority') < $comparisonItem->getPayloadValue('priority')) {
-                continue;
+            if ($discountItem->getPayloadValue('priority') < $checkedItem->getPayloadValue('priority')) {
+                break;
             }
 
             if ($discountItem->hasPayloadValue('promotionId')) {
                 $promotionId = $discountItem->getPayloadValue('promotionId');
 
-                if ($promotionId === $comparisonPromotionId) {
-                    continue;
+                if ($promotionId === $checkedPromotionId) {
+                    break;
                 }
 
                 // if promotion is on exclusions stack it is ignored
@@ -188,7 +188,7 @@ class PromotionDeliveryCalculator
                 continue;
             }
             foreach ($discountItem->getPayloadValue('exclusions') as $id) {
-                if ($id === $comparisonPromotionId) {
+                if ($id === $checkedPromotionId) {
                     return true;
                 }
                 $exclusions[$id] = true;

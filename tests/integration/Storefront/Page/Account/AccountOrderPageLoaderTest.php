@@ -86,10 +86,11 @@ class AccountOrderPageLoaderTest extends TestCase
         $page = $this->getPageLoader()->load(
             new Request(
                 [
-                    'deepLinkCode' => $deepLinkCode,
                     'email' => $expectedCustomer->getEmail(),
                     'zipcode' => '12345',
-                ],
+                ], [], [
+                    'deepLinkCode' => $deepLinkCode,
+                ]
             ),
             $this->salesChannel
         );
@@ -112,10 +113,11 @@ class AccountOrderPageLoaderTest extends TestCase
         $page = $this->getPageLoader()->load(
             new Request(
                 [
-                    'deepLinkCode' => $deepLinkCode,
                     'email' => $salesChannel->getCustomer()?->getEmail(),
                     'zipcode' => '12345',
-                ],
+                ], [], [
+                    'deepLinkCode' => $deepLinkCode,
+                ]
             ),
             $salesChannel
         );

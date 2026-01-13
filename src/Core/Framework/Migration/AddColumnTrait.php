@@ -9,7 +9,7 @@ trait AddColumnTrait
     use ColumnExistsTrait;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see \Doctrine\DBAL\Schema\Exception\TableDoesNotExist} instead of {@see \Doctrine\DBAL\Exception\TableNotFoundException}
+     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see \Shopware\Core\Framework\Util\UtilException} instead of {@see \Doctrine\DBAL\Exception\TableNotFoundException}
      *
      * @param non-empty-string $table
      *

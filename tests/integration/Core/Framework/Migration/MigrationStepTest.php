@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\UtilException;
 
 /**
  * @internal
@@ -149,7 +150,7 @@ SQL
             $this->expectException(TableNotFoundException::class);
             $this->expectExceptionMessageMatches('/SQLSTATE\[42S02\]\: Base table or view not found\: 1146 Table .*foo\' doesn\'t exist/');
         } else {
-            $this->expectExceptionObject(TableDoesNotExist::new('foo'));
+            $this->expectExceptionObject(UtilException::dbTableHelperException('columnExists', TableDoesNotExist::new('foo')));
         }
         static::assertTrue($step->doAddColumn($connection, 'foo', 'test_column', 'VARCHAR(255)'));
     }

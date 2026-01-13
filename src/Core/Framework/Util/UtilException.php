@@ -23,6 +23,7 @@ class UtilException extends HttpException
     public const LENGTH_MUST_BE_GREATER_THAN_ZERO = 'UTIL__LENGTH_MUST_BE_GREATER_THAN_ZERO';
     public const MIN_MUST_NOT_BE_GREATER_THAN_MAX = 'UTIL__MIN_MUST_NOT_BE_GREATER_THAN_MAX';
     public const BASE64_DECODING_FAILED = 'UTIL__BASE64_DECODING_FAILED';
+    public const DB_TABLE_HELPER_EXCEPTION = 'UTIL__DB_TABLE_HELPER_EXCEPTION';
 
     public static function invalidJson(\JsonException $e): self
     {
@@ -120,6 +121,17 @@ class UtilException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::BASE64_DECODING_FAILED,
             'Failed to decode base64url data'
+        );
+    }
+
+    public static function dbTableHelperException(string $executedAction, \Throwable $previousException): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DB_TABLE_HELPER_EXCEPTION,
+            'Could not execute "{{ executedAction }}". Reason: {{ message }}',
+            ['executedAction' => $executedAction, 'message' => $previousException->getMessage()],
+            $previousException,
         );
     }
 }

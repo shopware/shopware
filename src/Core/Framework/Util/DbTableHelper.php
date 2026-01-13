@@ -34,18 +34,26 @@ class DbTableHelper
 
     public static function tableExists(Connection $connection, string $tableName): bool
     {
-        return self::getSchemaManager($connection)->tableExists($tableName);
+        try {
+            return self::getSchemaManager($connection)->tableExists($tableName);
+        } catch (\Throwable $e) {
+            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+        }
     }
 
     public static function getTable(Connection $connection, string $tableName): Table
     {
-        $dbalTable = self::getSchemaManager($connection)->introspectTable($tableName);
+        try {
+            $dbalTable = self::getSchemaManager($connection)->introspectTable($tableName);
 
-        return new Table(
-            columnNames: array_map(static function (DbalColumn $column): string {
-                return $column->getObjectName()->getIdentifier()->getValue();
-            }, $dbalTable->getColumns())
-        );
+            return new Table(
+                columnNames: array_map(static function (DbalColumn $column): string {
+                    return $column->getObjectName()->getIdentifier()->getValue();
+                }, $dbalTable->getColumns())
+            );
+        } catch (\Throwable $e) {
+            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+        }
     }
 
     /**
@@ -53,7 +61,11 @@ class DbTableHelper
      */
     public static function columnExists(Connection $connection, string $table, string $columnName): bool
     {
-        return self::getSchemaManager($connection)->introspectTable($table)->hasColumn($columnName);
+        try {
+            return self::getSchemaManager($connection)->introspectTable($table)->hasColumn($columnName);
+        } catch (\Throwable $e) {
+            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+        }
     }
 
     /**
@@ -61,14 +73,18 @@ class DbTableHelper
      */
     public static function getColumnOfTable(Connection $connection, string $table, string $columnName): Column
     {
-        $dbalColumn = self::getSchemaManager($connection)->introspectTable($table)->getColumn($columnName);
+        try {
+            $dbalColumn = self::getSchemaManager($connection)->introspectTable($table)->getColumn($columnName);
 
-        return new Column(
-            type: Type::lookupName($dbalColumn->getType()),
-            length: $dbalColumn->getLength(),
-            isNotNull: $dbalColumn->getNotnull(),
-            defaultValue: $dbalColumn->getDefault(),
-        );
+            return new Column(
+                type: Type::lookupName($dbalColumn->getType()),
+                length: $dbalColumn->getLength(),
+                isNotNull: $dbalColumn->getNotnull(),
+                defaultValue: $dbalColumn->getDefault(),
+            );
+        } catch (\Throwable $e) {
+            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+        }
     }
 
     /**
@@ -76,7 +92,11 @@ class DbTableHelper
      */
     public static function indexExists(Connection $connection, string $table, string $indexName): bool
     {
-        return self::getSchemaManager($connection)->introspectTable($table)->hasIndex($indexName);
+        try {
+            return self::getSchemaManager($connection)->introspectTable($table)->hasIndex($indexName);
+        } catch (\Throwable $e) {
+            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+        }
     }
 
     /**
@@ -85,7 +105,11 @@ class DbTableHelper
      */
     public static function indexSpansColumns(Connection $connection, string $table, string $indexName, array $spansColumns): bool
     {
-        return self::getSchemaManager($connection)->introspectTable($table)->getIndex($indexName)->spansColumns($spansColumns);
+        try {
+            return self::getSchemaManager($connection)->introspectTable($table)->getIndex($indexName)->spansColumns($spansColumns);
+        } catch (\Throwable $e) {
+            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+        }
     }
 
     /**
@@ -93,18 +117,22 @@ class DbTableHelper
      */
     public static function getForeignKeyOfTable(Connection $connection, string $table, string $foreignKeyName): ForeignKey
     {
-        $dbalForeignKey = self::getSchemaManager($connection)->introspectTable($table)->getForeignKey($foreignKeyName);
+        try {
+            $dbalForeignKey = self::getSchemaManager($connection)->introspectTable($table)->getForeignKey($foreignKeyName);
 
-        return new ForeignKey(
-            referencingColumnNames: array_map(static function (UnqualifiedName $columnName): string {
-                return $columnName->getIdentifier()->getValue();
-            }, $dbalForeignKey->getReferencingColumnNames()),
-            referencedTableName: $dbalForeignKey->getReferencedTableName()->getUnqualifiedName()->getValue(),
-            referencedColumnNames: array_map(static function (UnqualifiedName $columnName): string {
-                return $columnName->getIdentifier()->getValue();
-            }, $dbalForeignKey->getReferencedColumnNames()),
-            onDeleteAction: $dbalForeignKey->getOnDeleteAction()->value,
-        );
+            return new ForeignKey(
+                referencingColumnNames: array_map(static function (UnqualifiedName $columnName): string {
+                    return $columnName->getIdentifier()->getValue();
+                }, $dbalForeignKey->getReferencingColumnNames()),
+                referencedTableName: $dbalForeignKey->getReferencedTableName()->getUnqualifiedName()->getValue(),
+                referencedColumnNames: array_map(static function (UnqualifiedName $columnName): string {
+                    return $columnName->getIdentifier()->getValue();
+                }, $dbalForeignKey->getReferencedColumnNames()),
+                onDeleteAction: $dbalForeignKey->getOnDeleteAction()->value,
+            );
+        } catch (\Throwable $e) {
+            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+        }
     }
 
     /**
@@ -116,7 +144,11 @@ class DbTableHelper
             return self::$schemaManager;
         }
 
-        self::$schemaManager = $connection->createSchemaManager();
+        try {
+            self::$schemaManager = $connection->createSchemaManager();
+        } catch (\Throwable $e) {
+            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+        }
 
         return self::$schemaManager;
     }

@@ -76,6 +76,7 @@ This change helps optimize index storage size and improve search performance, es
 ### Media Model Viewer
 
 From now on you are able to inspect your 3D models directly in the Media module in the Administration. Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right. This new component is called `sw-model-viewer`.
+
 ### Database table helper class
 
 A new helper class `\Shopware\Core\Framework\Util\DbTableHelper` was introduced,

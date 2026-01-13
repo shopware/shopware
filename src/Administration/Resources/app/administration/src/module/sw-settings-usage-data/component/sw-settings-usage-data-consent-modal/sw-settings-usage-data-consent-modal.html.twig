@@ -1,9 +1,12 @@
 <mt-modal-root
     :is-open="showConsentModal"
+    :closable="false"
 >
     <mt-modal
         width="s"
         :title="$t('sw-settings-usage-data.consent-modal.title')"
+        :closable="false"
+        hide-header
     >
         <template #default>
             <div class="sw-settings-usage-data-consent-modal__content">

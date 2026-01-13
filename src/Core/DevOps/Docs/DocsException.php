@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\DevOps\Docs;
 
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Shopware\Core\DevOps\Docs\Script\ServiceReferenceGenerator;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -11,8 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class DocsException extends HttpException

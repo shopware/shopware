@@ -136,4 +136,30 @@ describe('src/app/component/base/sw-popover', () => {
         const floatingUi = wrapper.findComponent({ name: 'mt-floating-ui' });
         expect(floatingUi.attributes('match-reference-width')).toBe('true');
     });
+
+    it('should pass the "resizeWidth" prop to sw-popover-deprecated when feature flag is disabled and matchReferenceWidth is set', async () => {
+        global.activeFeatureFlags = [''];
+
+        const wrapper = await createWrapper({
+            attrs: {
+                matchReferenceWidth: true,
+            },
+        });
+
+        const deprecatedPopover = wrapper.findComponent({ name: 'sw-popover-deprecated' });
+        expect(deprecatedPopover.attributes('resize-width')).toBe('true');
+    });
+
+    it('should pass the "resizeWidth" prop to sw-popover-deprecated when feature flag is disabled and deprecated resizeWidth is set', async () => {
+        global.activeFeatureFlags = [''];
+
+        const wrapper = await createWrapper({
+            attrs: {
+                resizeWidth: true,
+            },
+        });
+
+        const deprecatedPopover = wrapper.findComponent({ name: 'sw-popover-deprecated' });
+        expect(deprecatedPopover.attributes('resize-width')).toBe('true');
+    });
 });

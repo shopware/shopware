@@ -127,8 +127,9 @@ class ConstraintBuilder
     }
 
     /**
-     * @param array<string> $values
      * Set prop must be in array
+     *
+     * @param array<string> $values
      */
     public function isInArray(array $values): self
     {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -28,7 +29,7 @@ class UpdatedAtFieldSerializer extends DateTimeFieldSerializer
         if (!$field instanceof UpdatedAtField) {
             throw DataAbstractionLayerException::invalidSerializerField(UpdatedAtField::class, $field);
         }
-        if (!$existence->exists()) {
+        if (!$existence->exists() && !$field->getFlag(Required::class)) {
             return;
         }
 

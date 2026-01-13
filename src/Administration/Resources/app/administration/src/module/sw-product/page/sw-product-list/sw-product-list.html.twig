@@ -54,7 +54,7 @@
                 variant="primary"
                 :disabled="!acl.can('product.creator')"
                 size="default"
-                @click="$router.push({ name: 'sw.product.create', query: { creationStates: ['is-physical'] } })"
+                @click="$router.push({ name: 'sw.product.create', query: { creationType: 'physical' } })"
             >
                 {{ $tc('sw-product.list.buttonAddProduct') }}
             </mt-button>
@@ -85,7 +85,7 @@
                         disabled: acl.can('product.creator'),
                         showOnDisabledElements: true
                     }"
-                    :router-link="{ name: 'sw.product.create', query: { creationStates: ['is-download'] } }"
+                    :router-link="{ name: 'sw.product.create', query: { creationType: 'digital' } }"
                     :disabled="!acl.can('product.creator')"
                 >
                     {{ $tc('sw-product.list.buttonAddDownloadableProduct') }}

@@ -11,7 +11,6 @@
         plain-appearance
         class="sw-import-export-edit-profile-modal-identifiers__grid"
     >
-
         {% block sw_import_export_edit_profile_modal_identifiers_grid_entity_name_column %}
         <template #column-identifierName="{ item }">
             {{ item.propertyNames.join(', ') }}
@@ -29,6 +28,7 @@
                 :show-clearable-button="item.selected !== 'id'"
                 @update:value="onChangeIdentifier($event, item.entityName)"
             />
+
             <sw-import-export-entity-path-select
                 v-else
                 :value="item.selected"

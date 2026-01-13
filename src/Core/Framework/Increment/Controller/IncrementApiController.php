@@ -98,7 +98,7 @@ class IncrementApiController
     #[Route(path: '/api/_action/delete-increment/{pool}', name: 'api.increment.delete', methods: ['DELETE'])]
     public function delete(string $pool, Request $request): Response
     {
-        $keys = $request->query->all()['keys'] ?? [];
+        $keys = RequestParamHelper::get($request, 'keys', []);
 
         if (!\is_array($keys)) {
             throw IncrementException::invalidKeysParameter();

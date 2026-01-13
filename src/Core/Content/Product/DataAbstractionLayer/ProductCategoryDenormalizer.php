@@ -132,6 +132,8 @@ class ProductCategoryDenormalizer
 
         $query->addGroupBy('product.id');
 
+        $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
+
         $query->andWhere('product.categories IN (:ids)');
         $query->andWhere('product.version_id = :version');
 

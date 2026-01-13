@@ -26,7 +26,6 @@ class TriggerReferenceGeneratorCommand extends Command
 
     public function __construct(private readonly BusinessEventCollector $collector)
     {
-        parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

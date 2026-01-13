@@ -177,28 +177,47 @@ class PromotionCalculator
      */
     private function buildExclusionPayload(LineItemCollection $discountLineItems): void
     {
+        // collect all preventCombination promotions and prepare an ID list of all promotions currently considered
+        $preventCombinationPromotionIdMapping = [];
+        $allPromotionIdMapping = [];
+
         foreach ($discountLineItems as $discountItem) {
             if (!$discountItem->hasPayloadValue('promotionId')) {
                 continue;
             }
-            $promotionId = $discountItem->getPayloadValue('promotionId');
+            $currentPromotionId = $discountItem->getPayloadValue('promotionId');
+
+            $allPromotionIdMapping[$currentPromotionId] = true;
+
             if ($discountItem->getPayloadValue('preventCombination')) {
-                $payloadExclusions = [];
-                foreach ($discountLineItems as $exclusionItem) {
-                    if (!$exclusionItem->hasPayloadValue('promotionId')) {
-                        continue;
-                    }
-
-                    $promotionIdToExclude = $exclusionItem->getPayloadValue('promotionId');
-                    if ($promotionIdToExclude === $promotionId) {
-                        continue;
-                    }
-
-                    $payloadExclusions[] = $promotionIdToExclude;
-                }
-
-                $discountItem->setPayloadValue('exclusions', $payloadExclusions);
+                $preventCombinationPromotionIdMapping[$currentPromotionId] = true;
             }
+        }
+
+        if (empty($preventCombinationPromotionIdMapping)) {
+            return;
+        }
+
+        $preventCombinationPromotionIds = \array_keys($preventCombinationPromotionIdMapping);
+        $allPromotionIds = \array_keys($allPromotionIdMapping);
+
+        // add explicit exclusions both to the excluding and excluded items
+        foreach ($discountLineItems as $discountItem) {
+            if (!$discountItem->hasPayloadValue('promotionId')) {
+                continue;
+            }
+            $currentPromotionId = $discountItem->getPayloadValue('promotionId');
+
+            if ($discountItem->getPayloadValue('preventCombination')) {
+                // if preventCombination is set, no explicit exclusions exist yet. Add exclusions for all other promotions.
+                $newExclusions = $allPromotionIds;
+            } else {
+                // if preventCombination is not set, add exclusions for all promotions set to "prevent combination" to the ones already set.
+                $originalExclusions = $discountItem->getPayloadValue('exclusions');
+                $newExclusions = \array_unique(\array_merge($originalExclusions, $preventCombinationPromotionIds));
+            }
+            $filteredExclusions = \array_filter($newExclusions, fn($excludedPromotionId) => $excludedPromotionId !== $currentPromotionId);
+            $discountItem->setPayloadValue('exclusions', $filteredExclusions);
         }
     }
 

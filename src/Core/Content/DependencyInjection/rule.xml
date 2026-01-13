@@ -44,12 +44,14 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 
 
         <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

@@ -1,4 +1,10 @@
-<main class="bd-cheatsheet container-fluid bg-body"> <section id="content"> <h2 class="sticky-xl-top fw-bold pt-3 pt-xl-5 pb-2 pb-xl-3">Contents</h2> <article class="my-3" id="typography"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Typography</h3> <a class="d-flex align-items-center" href="/docs/5.3/content/typography">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+<style>
+.bd-example-snippet {
+  margin-bottom: 1rem;
+}
+</style>
+
+<main class="bd-cheatsheet container-fluid bg-body"> <section id="content"> <h2 class="fw-bold pt-3 pt-xl-5 pb-2 pb-xl-3">Contents</h2> <article class="my-3" id="typography"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Typography</h3> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <p class="display-1">Display 1</p>
         <p class="display-2">Display 2</p>
         <p class="display-3">Display 3</p>
@@ -45,9 +51,9 @@
           <li class="list-inline-item">This is a list item.</li>
           <li class="list-inline-item">And another one.</li>
           <li class="list-inline-item">But they're displayed inline.</li>
-        </ul> </div>  </div> </div> </article> <article class="my-3" id="images"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Images</h3> <a class="d-flex align-items-center" href="/docs/5.3/content/images">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
-        <svg aria-label="Placeholder: Responsive image" class="bd-placeholder-img bd-placeholder-img-lg img-fluid" height="250" preserveAspectRatio="xMidYMid slice" role="img" width="100%" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Responsive image</text></svg> </div>  </div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
-        <svg aria-label="A generic square placeholder image with a white border around it, making it resemble a photograph taken with an old instant camera: 200x200" class="bd-placeholder-img img-thumbnail" height="200" preserveAspectRatio="xMidYMid slice" role="img" width="200" xmlns="http://www.w3.org/2000/svg"><title>A generic square placeholder image with a white border around it, making it resemble a photograph taken with an old instant camera</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">200x200</text></svg> </div>  </div> </div> </article> <article class="my-3" id="tables"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Tables</h3> <a class="d-flex align-items-center" href="/docs/5.3/content/tables">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+        </ul> </div>  </div> </div> </article> 
+        
+        <article class="my-3" id="tables"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Tables</h3> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
           <table class="table table-striped">
             <thead>
             <tr>
@@ -193,11 +199,9 @@
               <td>@social</td>
             </tr>
             </tbody>
-          </table> </div>  </div> </div> </article> <article class="my-3" id="figures"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Figures</h3> <a class="d-flex align-items-center" href="/docs/5.3/content/figures">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
-        <figure class="figure">
-          <svg aria-label="Placeholder: 400x300" class="bd-placeholder-img figure-img img-fluid rounded" height="300" preserveAspectRatio="xMidYMid slice" role="img" width="400" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">400x300</text></svg>
-          <figcaption class="figure-caption">A caption for the above image.</figcaption>
-        </figure> </div>  </div> </div> </article> </section> <section id="forms"> <h2 class="sticky-xl-top fw-bold pt-3 pt-xl-5 pb-2 pb-xl-3">Forms</h2> <article class="my-3" id="overview"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Overview</h3> <a class="d-flex align-items-center" href="/docs/5.3/forms/overview/">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+          </table> </div>  </div> </div> </article>
+          
+           </section> <section id="forms"> <h2 class="fw-bold pt-3 pt-xl-5 pb-2 pb-xl-3">Forms</h2> <article class="my-3" id="overview"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Overview</h3> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <form>
           <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label">Email address</label>
@@ -245,7 +249,7 @@
             <input type="range" class="form-range" min="0" max="5" step="0.5" id="customRange3">
           </div>
           <button type="submit" class="btn btn-primary">Submit</button>
-        </form> </div>  </div> </div> </article> <article class="my-3" id="disabled-forms"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Disabled forms</h3> <a class="d-flex align-items-center" href="/docs/5.3/forms/overview/#disabled-forms">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+        </form> </div>  </div> </div> </article> <article class="my-3" id="disabled-forms"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Disabled forms</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <form>
           <fieldset disabled="" aria-label="Disabled fieldset example">
             <div class="mb-3">
@@ -291,7 +295,7 @@
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
           </fieldset>
-        </form> </div>  </div> </div> </article> <article class="my-3" id="sizing"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Sizing</h3> <a class="d-flex align-items-center" href="/docs/5.3/forms/form-control#sizing">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+        </form> </div>  </div> </div> </article> <article class="my-3" id="sizing"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Sizing</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <div class="mb-3">
           <input class="form-control form-control-lg" type="text" placeholder=".form-control-lg" aria-label=".form-control-lg example">
         </div>
@@ -320,7 +324,7 @@
         <div class="mb-3">
           <input type="file" class="form-control form-control-sm" aria-label="Small file input example">
         </div>
-         </div>  </div> </div> </article> <article class="my-3" id="input-group"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Input group</h3> <a class="d-flex align-items-center" href="/docs/5.3/forms/input-group">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="input-group"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Input group</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <div class="input-group mb-3">
           <span class="input-group-text" id="basic-addon1">@</span>
           <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
@@ -343,7 +347,7 @@
           <span class="input-group-text">With textarea</span>
           <textarea class="form-control" aria-label="With textarea"></textarea>
         </div>
-         </div>  </div> </div> </article> <article class="my-3" id="floating-labels"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Floating labels</h3> <a class="d-flex align-items-center" href="/docs/5.3/forms/floating-labels">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="floating-labels"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Floating labels</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <form>
           <div class="form-floating mb-3">
             <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
@@ -354,7 +358,7 @@
             <label for="floatingPassword">Password</label>
           </div>
         </form>
-         </div>  </div> </div> </article> <article class="my-3" id="validation"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Validation</h3> <a class="d-flex align-items-center" href="/docs/5.3/forms/validation">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="validation"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Validation</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <form class="row g-3">
           <div class="col-md-4">
             <label for="validationServer01" class="form-label">First name</label>
@@ -419,7 +423,7 @@
             <button class="btn btn-primary" type="submit">Submit form</button>
           </div>
         </form>
-         </div>  </div> </div> </article> </section> <section id="components"> <h2 class="sticky-xl-top fw-bold pt-3 pt-xl-5 pb-2 pb-xl-3">Components</h2> <article class="my-3" id="accordion"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Accordion</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/accordion">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> </section> <section id="components"> <h2 class="fw-bold pt-3 pt-xl-5 pb-2 pb-xl-3">Components</h2> <article class="my-3" id="accordion"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Accordion</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <div class="accordion" id="accordionExample">
           <div class="accordion-item">
             <h4 class="accordion-header">
@@ -458,7 +462,7 @@
             </div>
           </div>
         </div>
-         </div>  </div> </div> </article> <article class="my-3" id="alerts"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Alerts</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/alerts">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="alerts"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Alerts</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <div class="alert alert-primary alert-dismissible fade show" role="alert">
           A simple primary alert with <a href="#" class="alert-link">an example link</a>. Give it a click if you like.
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -512,7 +516,7 @@
           <hr>
           <p class="mb-0">Whenever you need to, be sure to use margin utilities to keep things nice and tidy.</p>
         </div>
-         </div>  </div> </div> </article> <article class="my-3" id="badge"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Badge</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/badge">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="badge"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Badge</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <p class="h1">Example heading <span class="badge bg-primary">New</span></p>
         <p class="h2">Example heading <span class="badge bg-secondary">New</span></p>
         <p class="h3">Example heading <span class="badge bg-success">New</span></p>
@@ -544,7 +548,7 @@
         
 
         <span class="badge rounded-pill bg-dark">Dark</span>
-         </div>  </div> </div> </article> <article class="my-3" id="breadcrumb"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Breadcrumb</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/breadcrumb">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="breadcrumb"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Breadcrumb</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="#">Home</a></li>
@@ -552,7 +556,7 @@
             <li class="breadcrumb-item active" aria-current="page">Data</li>
           </ol>
         </nav>
-         </div>  </div> </div> </article> <article class="my-3" id="buttons"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Buttons</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/buttons">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="buttons"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Buttons</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
           <button type="button" class="btn btn-primary">Primary</button>
           
 
@@ -603,7 +607,7 @@
           <button type="button" class="btn btn-primary btn-sm">Small button</button>
           <button type="button" class="btn btn-primary">Standard button</button>
           <button type="button" class="btn btn-primary btn-lg">Large button</button>
-           </div>  </div> </div> </article> <article class="my-3" id="button-group"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Button group</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/button-group">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+           </div>  </div> </div> </article> <article class="my-3" id="button-group"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Button group</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
           <div class="btn-group me-2" role="group" aria-label="First group">
             <button type="button" class="btn btn-secondary">1</button>
@@ -620,7 +624,7 @@
             <button type="button" class="btn btn-secondary">8</button>
           </div>
         </div>
-         </div>  </div> </div> </article> <article class="my-3" id="card"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Card</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/card">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="card"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Card</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
           <div class="row  row-cols-1 row-cols-md-2 g-4">
             <div class="col">
               <div class="card">
@@ -681,46 +685,9 @@
               </div>
             </div>
           </div>
-           </div>  </div> </div> </article> <article class="my-3" id="carousel"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Carousel</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/carousel">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
-        <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-indicators">
-            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-label="Slide 1" aria-current="true"></button>
-            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2" class=""></button>
-            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3" class=""></button>
-          </div>
-          <div class="carousel-inner">
-            <div class="carousel-item active">
-              <svg aria-label="Placeholder: First slide" class="bd-placeholder-img bd-placeholder-img-lg d-block w-100" height="400" preserveAspectRatio="xMidYMid slice" role="img" width="800" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#777"></rect><text x="50%" y="50%" fill="#555" dy=".3em">First slide</text></svg>
-              <div class="carousel-caption d-none d-md-block">
-                <h5>First slide label</h5>
-                <p>Some representative placeholder content for the first slide.</p>
-              </div>
-            </div>
-            <div class="carousel-item">
-              <svg aria-label="Placeholder: Second slide" class="bd-placeholder-img bd-placeholder-img-lg d-block w-100" height="400" preserveAspectRatio="xMidYMid slice" role="img" width="800" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#666"></rect><text x="50%" y="50%" fill="#444" dy=".3em">Second slide</text></svg>
-              <div class="carousel-caption d-none d-md-block">
-                <h5>Second slide label</h5>
-                <p>Some representative placeholder content for the second slide.</p>
-              </div>
-            </div>
-            <div class="carousel-item">
-              <svg aria-label="Placeholder: Third slide" class="bd-placeholder-img bd-placeholder-img-lg d-block w-100" height="400" preserveAspectRatio="xMidYMid slice" role="img" width="800" xmlns="http://www.w3.org/2000/svg"><title>Placeholder</title><rect width="100%" height="100%" fill="#555"></rect><text x="50%" y="50%" fill="#333" dy=".3em">Third slide</text></svg>
-              <div class="carousel-caption d-none d-md-block">
-                <h5>Third slide label</h5>
-                <p>Some representative placeholder content for the third slide.</p>
-              </div>
-            </div>
-          </div>
-          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
-        </div>
-         </div>  </div> </div> </article> <article class="my-3" id="dropdowns"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Dropdowns</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/dropdowns">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+           </div>  </div> </div> </article> 
+        
+        <article class="my-3" id="dropdowns"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Dropdowns</h3> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <div class="btn-group w-100 align-items-center justify-content-between flex-wrap me-0">
           <div class="dropdown">
             <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -886,7 +853,7 @@
               </ul>
             </div>
           </div>
-           </div>  </div> </div> </article> <article class="my-3" id="list-group"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>List group</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/list-group">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+           </div>  </div> </div> </article> <article class="my-3" id="list-group"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>List group</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <ul class="list-group">
           <li class="list-group-item disabled" aria-disabled="true">A disabled item</li>
           <li class="list-group-item">A second item</li>
@@ -930,7 +897,7 @@
           <a href="#" class="list-group-item list-group-item-action list-group-item-dark">A simple dark list group item</a>
           
 </div>
-         </div>  </div> </div> </article> <article class="my-3" id="modal"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Modal</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/modal">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="modal"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Modal</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <div class="d-flex justify-content-between flex-wrap">
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalDefault">
             Launch demo modal
@@ -945,7 +912,86 @@
             Full screen
           </button>
         </div>
-         </div>  </div> </div> </article> <article class="my-3" id="navs"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Navs</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/navs-tabs">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+
+        <!-- Modal: Default -->
+        <div class="modal fade" id="exampleModalDefault" tabindex="-1" aria-labelledby="exampleModalDefaultLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title" id="exampleModalDefaultLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Default modal body content.
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: Static backdrop -->
+        <div class="modal fade" id="staticBackdropLive" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLiveLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title" id="staticBackdropLiveLabel">Static backdrop</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                You can’t close this by clicking outside.
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: Centered + scrollable -->
+        <div class="modal fade" id="exampleModalCenteredScrollable" tabindex="-1" aria-labelledby="exampleModalCenteredScrollableLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title" id="exampleModalCenteredScrollableLabel">Centered scrollable</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>Scrollable content…</p>
+                <p>Scrollable content…</p>
+                <p>Scrollable content…</p>
+                <p>Scrollable content…</p>
+                <p>Scrollable content…</p>
+                <p>Scrollable content…</p>
+                <p>Scrollable content…</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: Fullscreen -->
+        <div class="modal fade" id="exampleModalFullscreen" tabindex="-1" aria-labelledby="exampleModalFullscreenLabel" aria-hidden="true">
+          <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title" id="exampleModalFullscreenLabel">Fullscreen modal</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Fullscreen modal content.
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+         </div>  </div> </div> </article> <article class="my-3" id="navs"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Navs</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <nav class="nav">
           <a class="nav-link active" aria-current="page" href="#">Active</a>
           <a class="nav-link" href="#">Link</a>
@@ -986,7 +1032,7 @@
             <a class="nav-link disabled" aria-disabled="true">Disabled</a>
           </li>
         </ul>
-         </div>  </div> </div> </article> <article class="my-3" id="navbar"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Navbar</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/navbar">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="navbar"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Navbar</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
           <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
               <a class="navbar-brand" href="#">
@@ -1064,7 +1110,7 @@
               </div>
             </div>
           </nav>
-           </div>  </div> </div> </article> <article class="my-3" id="pagination"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Pagination</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/pagination">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+           </div>  </div> </div> </article> <article class="my-3" id="pagination"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Pagination</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <nav aria-label="Pagination example">
           <ul class="pagination pagination-sm">
             <li class="page-item"><a class="page-link" href="#">1</a></li>
@@ -1108,7 +1154,7 @@
             </li>
           </ul>
         </nav>
-         </div>  </div> </div> </article> <article class="my-3" id="popovers"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Popovers</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/popovers">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="popovers"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Popovers</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <button type="button" class="btn btn-lg btn-danger" data-bs-toggle="popover" data-bs-content="And here's some amazing content. It's very engaging. Right?" data-bs-original-title="Popover title">Click to toggle popover</button>
          </div>  </div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <button type="button" class="btn btn-secondary" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus.">
@@ -1123,7 +1169,7 @@
         <button type="button" class="btn btn-secondary" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus.">
           Popover on start
         </button>
-         </div>  </div> </div> </article> <article class="my-3" id="progress"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Progress</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/progress">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="progress"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Progress</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <div class="progress mb-3" role="progressbar" aria-label="Example with label" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
           <div class="progress-bar">0%</div>
         </div>
@@ -1148,7 +1194,7 @@
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"></div>
           </div>
         </div>
-         </div>  </div> </div> </article> <article class="my-3" id="scrollspy"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Scrollspy</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/scrollspy">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="scrollspy"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Scrollspy</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <nav id="navbar-example2" class="navbar bg-body-tertiary px-3">
           <a class="navbar-brand" href="#">Navbar</a>
           <ul class="nav nav-pills">
@@ -1181,7 +1227,7 @@
           <h4 id="scrollspyHeading5">Fifth heading</h4>
           <p>This is some placeholder content for the scrollspy page. Note that as you scroll down the page, the appropriate navigation link is highlighted. It's repeated throughout the component example. We keep adding some more example copy here to emphasize the scrolling and highlighting.</p>
         </div>
-         </div>  </div> </div> </article> <article class="my-3" id="spinners"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Spinners</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/spinners">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
+         </div>  </div> </div> </article> <article class="my-3" id="spinners"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Spinners</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0"> 
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
@@ -1259,7 +1305,7 @@
         <div class="spinner-grow text-dark" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
-         </div>  </div> </div> </article> <article class="my-3" id="toasts"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Toasts</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/toasts">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0 bg-dark p-5 align-items-center"> 
+         </div>  </div> </div> </article> <article class="my-3" id="toasts"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Toasts</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0 bg-dark p-5 align-items-center"> 
         <div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">
           <div class="toast-header">
             <svg aria-hidden="true" class="bd-placeholder-img rounded me-2" height="20" preserveAspectRatio="xMidYMid slice" width="20" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#007aff"></rect></svg>
@@ -1271,7 +1317,7 @@
             Hello, world! This is a toast message.
           </div>
         </div>
-         </div>  </div> </div> </article> <article class="mt-3 mb-5 pb-5" id="tooltips"> <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Tooltips</h3> <a class="d-flex align-items-center" href="/docs/5.3/components/tooltips">Documentation</a> </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0 tooltip-demo"> 
+         </div>  </div> </div> </article> <article class="mt-3 mb-5 pb-5" id="tooltips"> <div class="bd-heading align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2"> <h3>Tooltips</h3>  </div> <div> <div class="bd-example-snippet bd-code-snippet"> <div class="bd-example m-0 border-0 tooltip-demo"> 
         <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">Tooltip on top</button>
         <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Tooltip on end">Tooltip on end</button>
         <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Tooltip on bottom">Tooltip on bottom</button>

@@ -1,0 +1,11 @@
+@include media-breakpoint-up(sm) {
+    .header-search-col {
+        .collapse:not(.show) {
+            display: block;
+        }
+    }
+
+    .header-search {
+        max-width: 400px;
+    }
+}

@@ -1,5 +1,4 @@
-/*
- *
+/**
  * Minimal base styles
  * -------------------
  * This is a reduced set of base styles that are used on pages build with the new component system.
@@ -26,6 +25,12 @@
  * Vendors
  * ------- */
 @import 'vendor/bootstrap';
+
+
+@import 'theme/variables';
+@import 'theme/bootstrap';
+@import 'theme/compatibility';
+
 
  /*
  * Base stuff
@@ -82,6 +87,3 @@
 // @import 'skin/shopware/layout/_navigation-offcanvas';
 // @import 'skin/shopware/layout/_offcanvas-cart';
 // @import 'skin/shopware/layout/_top-bar';
-
-@import 'theme/variables';
-@import 'theme/bootstrap';

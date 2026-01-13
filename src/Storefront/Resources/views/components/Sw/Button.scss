@@ -3,32 +3,19 @@
     text-overflow: ellipsis;
 }
 
-.btn-buy {
-    @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
-    --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow};
-
-    &.disabled,
-    &:disabled {
-        opacity: 1;
-        background: $disabled-btn-bg;
-        border-color: $disabled-btn-border-color;
-        color: $gray-300;
-    }
-}
-
 .btn-link {
-    --#{$prefix}btn-font-weight: #{$font-weight-semibold};
-    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
+    --#{$prefix}btn-font-weight: var(--sw-font-weight-semibold);
+    --#{$prefix}btn-focus-box-shadow: var(--sw-focus-ring-box-shadow);
 }
 
 // Button styling with the appearance of a regular text link
 .btn-link-inline {
-    --#{$prefix}btn-color: #{$btn-link-color};
-    --#{$prefix}btn-hover-color: #{$btn-link-hover-color};
-    --#{$prefix}btn-font-weight: #{$font-weight-normal};
+    --#{$prefix}btn-color: var(--sw-color-primary);
+    --#{$prefix}btn-hover-color: var(--sw-color-primary-light);
+    --#{$prefix}btn-font-weight: var(--sw-font-weight-normal);
     --#{$prefix}btn-font-size: inherit;
-    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
-    --#{$prefix}btn-line-height: #{$line-height-base};
+    --#{$prefix}btn-focus-box-shadow: var(--sw-focus-ring-box-shadow);
+    --#{$prefix}btn-line-height: var(--sw-line-height-base);
     --#{$prefix}btn-padding-y: 0;
     --#{$prefix}btn-padding-x: 0;
     --#{$prefix}btn-border-width: 0;

@@ -14,15 +14,6 @@
 }
 
 .sw-filter-item__btn {
-    --bs-btn-color: var(--bs-body-color);
-    --bs-btn-hover-color: var(--bs-body-color);
-    --bs-btn-border-color: transparent;
-    --bs-btn-hover-border-color: var(--bs-border-color);
-    --bs-btn-active-border-color: var(--bs-border-color);
-    --bs-btn-active-bg: var(--bs-white);
-    --bs-btn-active-color: var(--bs-body-color);
-    --bs-btn-bg: var(--bs-gray-200);
-    --bs-btn-hover-bg: var(--bs-white);
     font-weight: normal;
     position: relative;
     padding-right: 2.2rem;
@@ -35,13 +26,6 @@
         position: absolute;
         right: 0.8rem;
         top: 0.7rem;
-    }
-
-    &.is--more {
-        --bs-btn-border-color: transparent;
-        --bs-btn-hover-border-color: transparent;
-        --bs-btn-color: var(--bs-primary);
-        --bs-hover-color: var(--bs-primary);
     }
 
     .sw-icon--default-arrow-head-up {

@@ -41,7 +41,7 @@ class RequestParamHelper
         }
 
         if ($request->request->has($name)) {
-            return $request->request->get($name, $default);
+            return $request->request->all()[$name];
         }
 
         return $default;

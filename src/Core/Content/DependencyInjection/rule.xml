@@ -59,6 +59,7 @@
             <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

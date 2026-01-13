@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -44,7 +45,8 @@ class RuleAreaUpdater implements EventSubscriberInterface
         private readonly RuleDefinition $definition,
         private readonly RuleConditionRegistry $conditionRegistry,
         private readonly CacheInvalidator $cacheInvalidator,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -123,7 +125,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
 
         $areas = $this->getAreas($ids, $associationFields);
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $update = new RetryableQuery(
             $this->connection,
             $this->connection->prepare('UPDATE `rule` SET `areas` = :areas, `updated_at` = :updatedAt WHERE `id` = :id')

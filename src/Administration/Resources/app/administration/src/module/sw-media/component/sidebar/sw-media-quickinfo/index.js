@@ -63,6 +63,7 @@ export default {
             defaultArPlacement: 'horizontal',
             arPlacementOptions: [],
             showCoverSelectionModal: false,
+            showModelViewerModal: false,
         };
     },
 
@@ -417,6 +418,28 @@ export default {
                 mimeType,
                 fileSize,
             });
+        },
+
+        openModelViewerModal() {
+            this.showModelViewerModal = true;
+        },
+
+        onModelViewerModalMounted() {
+            console.log('Modal mounted');
+
+            const modal = document.querySelector?.('.sw-model-viewer-modal');
+            if (!modal) {
+                console.error('Modal not found');
+                return;
+            }
+
+            const modalCanvas = modal.querySelector('.sw-model-viewer-modal-canvas');
+            if (!modalCanvas) {
+                console.error('Modal canvas not found');
+                return;
+            }
+
+            this.initializeQuickView(modalCanvas);
         },
     },
 };

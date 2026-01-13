@@ -146,14 +146,9 @@ class CacheControlListenerTest extends TestCase
         static::assertSame('no-cache, private', $response->headers->get('cache-control'));
     }
 
-    public function testAdministrationHeadersNotModifiedWithRouteScope(): void
+    #[DataProvider('administrationHeadersCases')]
+    public function testAdministrationHeadersNotModified(Request $request, Response $response, string $expectedCacheControl, ?string $expectedCacheIdHeader = null): void
     {
-        $response = new Response();
-        $response->headers->set('cache-control', 'max-age=0, public, stale-while-revalidate=86400');
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [AdministrationRouteScope::ID]);
-
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->method('dispatch')->willReturnCallback(function ($event) {
             if ($event instanceof BeforeCacheControlEvent) {
@@ -167,56 +162,46 @@ class CacheControlListenerTest extends TestCase
 
         $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
 
-        static::assertSame('max-age=0, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
+        static::assertSame($expectedCacheControl, $response->headers->get('cache-control'));
+        static::assertSame($expectedCacheIdHeader, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
     }
 
-    public function testAdministrationHeadersNotModifiedWithRouteName(): void
+    /**
+     * @return iterable<string, array{request: Request, response: Response, expectedCacheControl: string, expectedCacheIdHeader: string|null}>
+     */
+    public static function administrationHeadersCases(): iterable
     {
-        $response = new Response();
-        $response->headers->set('cache-control', 'max-age=0, public, stale-while-revalidate=86400');
+        yield 'administration route scope' => [
+            'request' => new Request(
+                attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]]
+            ),
+            'response' => new Response('', 200, [
+                'cache-control' => 'max-age=0, public, stale-while-revalidate=86400',
+            ]),
+            'expectedCacheControl' => 'max-age=0, public, stale-while-revalidate=86400',
+            'expectedCacheIdHeader' => null,
+        ];
 
-        $request = new Request();
-        $request->attributes->set('_route', 'administration.index');
+        yield 'administration route name' => [
+            'request' => new Request(
+                attributes: ['_route' => 'administration.index']
+            ),
+            'response' => new Response('', 200, [
+                'cache-control' => 'max-age=0, public, stale-while-revalidate=86400',
+            ]),
+            'expectedCacheControl' => 'max-age=0, public, stale-while-revalidate=86400',
+            'expectedCacheIdHeader' => null,
+        ];
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->method('dispatch')->willReturnCallback(function ($event) {
-            if ($event instanceof BeforeCacheControlEvent) {
-                $administrationListener = new AdministrationCacheControlListener();
-                $administrationListener->__invoke($event);
-            }
-
-            return $event;
-        });
-        $subscriber = new CacheControlListener(false, $eventDispatcher);
-
-        $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
-
-        static::assertSame('max-age=0, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
-    }
-
-    public function testAdministrationHeadersNotModifiedWithCacheIdMarker(): void
-    {
-        $response = new Response();
-        $response->headers->set('cache-control', 'max-age=0, public, stale-while-revalidate=86400');
-        $response->headers->set(AdministrationController::CACHE_ID_HEADER, AdministrationController::CACHE_ID_ADMINISTRATION);
-
-        $request = new Request();
-
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->method('dispatch')->willReturnCallback(function ($event) {
-            if ($event instanceof BeforeCacheControlEvent) {
-                $administrationListener = new AdministrationCacheControlListener();
-                $administrationListener->__invoke($event);
-            }
-
-            return $event;
-        });
-        $subscriber = new CacheControlListener(false, $eventDispatcher);
-
-        $subscriber->__invoke(new BeforeSendResponseEvent($request, $response));
-
-        static::assertSame('max-age=0, public, stale-while-revalidate=86400', $response->headers->get('cache-control'));
-        static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
+        yield 'administration cache ID marker' => [
+            'request' => new Request(),
+            'response' => new Response('', 200, [
+                'cache-control' => 'max-age=0, public, stale-while-revalidate=86400',
+                AdministrationController::CACHE_ID_HEADER => AdministrationController::CACHE_ID_ADMINISTRATION,
+            ]),
+            'expectedCacheControl' => 'max-age=0, public, stale-while-revalidate=86400',
+            'expectedCacheIdHeader' => AdministrationController::CACHE_ID_ADMINISTRATION,
+        ];
     }
 
     public function testNonAdministrationHeadersAreModified(): void

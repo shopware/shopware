@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Administration\Framework\Adapter\Cache\Http;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheControlListener;
@@ -18,169 +19,115 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(AdministrationCacheControlListener::class)]
 class AdministrationCacheControlListenerTest extends TestCase
 {
-    public function testInvokeSkipsCacheControlForAdministrationRequestWithCacheIdHeader(): void
-    {
+    #[DataProvider('shouldSkipCacheControlProvider')]
+    public function testShouldSkipCacheControl(
+        Request $request,
+        Response $response,
+        bool $expectedSkip
+    ): void {
         $listener = new AdministrationCacheControlListener();
-
-        $request = new Request();
-        $response = new Response();
-        $response->headers->set(AdministrationController::CACHE_ID_HEADER, AdministrationController::CACHE_ID_ADMINISTRATION);
 
         $event = new BeforeCacheControlEvent($request, $response);
 
         $listener->__invoke($event);
 
-        static::assertTrue($event->shouldSkipCacheControl());
+        static::assertSame($expectedSkip, $event->shouldSkipCacheControl());
     }
 
-    public function testInvokeSkipsCacheControlForAdministrationRequestWithRouteScope(): void
+    /**
+     * @return iterable<string, array{request: Request, response: Response, expectedSkip: bool}>
+     */
+    public static function shouldSkipCacheControlProvider(): iterable
     {
-        $listener = new AdministrationCacheControlListener();
+        yield 'administration cache ID header' => [
+            'request' => new Request(),
+            'response' => new Response('', 200, [
+                AdministrationController::CACHE_ID_HEADER => AdministrationController::CACHE_ID_ADMINISTRATION,
+            ]),
+            'expectedSkip' => true,
+        ];
 
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [AdministrationRouteScope::ID]);
-        $response = new Response();
+        yield 'administration route scope' => [
+            'request' => new Request(
+                attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]]
+            ),
+            'response' => new Response(),
+            'expectedSkip' => true,
+        ];
 
-        $event = new BeforeCacheControlEvent($request, $response);
+        yield 'administration route name' => [
+            'request' => new Request(
+                attributes: ['_route' => 'administration.index']
+            ),
+            'response' => new Response(),
+            'expectedSkip' => true,
+        ];
 
-        $listener->__invoke($event);
+        yield 'administration route name with prefix' => [
+            'request' => new Request(
+                attributes: ['_route' => 'administration.plugin.index']
+            ),
+            'response' => new Response(),
+            'expectedSkip' => true,
+        ];
 
-        static::assertTrue($event->shouldSkipCacheControl());
-    }
+        yield 'multiple administration markers present' => [
+            'request' => new Request(
+                attributes: [
+                    PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID],
+                    '_route' => 'administration.index',
+                ]
+            ),
+            'response' => new Response('', 200, [
+                AdministrationController::CACHE_ID_HEADER => AdministrationController::CACHE_ID_ADMINISTRATION,
+            ]),
+            'expectedSkip' => true,
+        ];
 
-    public function testInvokeSkipsCacheControlForAdministrationRequestWithRouteName(): void
-    {
-        $listener = new AdministrationCacheControlListener();
+        yield 'no administration markers' => [
+            'request' => new Request(),
+            'response' => new Response(),
+            'expectedSkip' => false,
+        ];
 
-        $request = new Request();
-        $request->attributes->set('_route', 'administration.index');
-        $response = new Response();
+        yield 'non-administration route scope' => [
+            'request' => new Request(
+                attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['some-other-scope']]
+            ),
+            'response' => new Response(),
+            'expectedSkip' => false,
+        ];
 
-        $event = new BeforeCacheControlEvent($request, $response);
+        yield 'non-administration route name' => [
+            'request' => new Request(
+                attributes: ['_route' => 'storefront.page']
+            ),
+            'response' => new Response(),
+            'expectedSkip' => false,
+        ];
 
-        $listener->__invoke($event);
+        yield 'wrong cache ID header value' => [
+            'request' => new Request(),
+            'response' => new Response('', 200, [
+                AdministrationController::CACHE_ID_HEADER => 'different-value',
+            ]),
+            'expectedSkip' => false,
+        ];
 
-        static::assertTrue($event->shouldSkipCacheControl());
-    }
+        yield 'non-string route name' => [
+            'request' => new Request(
+                attributes: ['_route' => 123]
+            ),
+            'response' => new Response(),
+            'expectedSkip' => false,
+        ];
 
-    public function testInvokeSkipsCacheControlForAdministrationRequestWithRouteNamePrefix(): void
-    {
-        $listener = new AdministrationCacheControlListener();
-
-        $request = new Request();
-        $request->attributes->set('_route', 'administration.plugin.index');
-        $response = new Response();
-
-        $event = new BeforeCacheControlEvent($request, $response);
-
-        $listener->__invoke($event);
-
-        static::assertTrue($event->shouldSkipCacheControl());
-    }
-
-    public function testInvokeDoesNotSkipCacheControlForNonAdministrationRequest(): void
-    {
-        $listener = new AdministrationCacheControlListener();
-
-        $request = new Request();
-        $response = new Response();
-
-        $event = new BeforeCacheControlEvent($request, $response);
-
-        $listener->__invoke($event);
-
-        static::assertFalse($event->shouldSkipCacheControl());
-    }
-
-    public function testInvokeDoesNotSkipCacheControlForNonAdministrationRouteScope(): void
-    {
-        $listener = new AdministrationCacheControlListener();
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['some-other-scope']);
-        $response = new Response();
-
-        $event = new BeforeCacheControlEvent($request, $response);
-
-        $listener->__invoke($event);
-
-        static::assertFalse($event->shouldSkipCacheControl());
-    }
-
-    public function testInvokeDoesNotSkipCacheControlForNonAdministrationRouteName(): void
-    {
-        $listener = new AdministrationCacheControlListener();
-
-        $request = new Request();
-        $request->attributes->set('_route', 'storefront.page');
-        $response = new Response();
-
-        $event = new BeforeCacheControlEvent($request, $response);
-
-        $listener->__invoke($event);
-
-        static::assertFalse($event->shouldSkipCacheControl());
-    }
-
-    public function testInvokeWithWrongCacheIdHeaderValue(): void
-    {
-        $listener = new AdministrationCacheControlListener();
-
-        $request = new Request();
-        $response = new Response();
-        $response->headers->set(AdministrationController::CACHE_ID_HEADER, 'different-value');
-
-        $event = new BeforeCacheControlEvent($request, $response);
-
-        $listener->__invoke($event);
-
-        static::assertFalse($event->shouldSkipCacheControl());
-    }
-
-    public function testInvokeWithNonStringRouteName(): void
-    {
-        $listener = new AdministrationCacheControlListener();
-
-        $request = new Request();
-        $request->attributes->set('_route', 123); // Non-string route name
-        $response = new Response();
-
-        $event = new BeforeCacheControlEvent($request, $response);
-
-        $listener->__invoke($event);
-
-        static::assertFalse($event->shouldSkipCacheControl());
-    }
-
-    public function testInvokeWithEmptyRouteScopeArray(): void
-    {
-        $listener = new AdministrationCacheControlListener();
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-        $response = new Response();
-
-        $event = new BeforeCacheControlEvent($request, $response);
-
-        $listener->__invoke($event);
-
-        static::assertFalse($event->shouldSkipCacheControl());
-    }
-
-    public function testInvokeSkipsCacheControlWhenMultipleMarkersPresent(): void
-    {
-        $listener = new AdministrationCacheControlListener();
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [AdministrationRouteScope::ID]);
-        $request->attributes->set('_route', 'administration.index');
-        $response = new Response();
-        $response->headers->set(AdministrationController::CACHE_ID_HEADER, AdministrationController::CACHE_ID_ADMINISTRATION);
-
-        $event = new BeforeCacheControlEvent($request, $response);
-
-        $listener->__invoke($event);
-
-        static::assertTrue($event->shouldSkipCacheControl());
+        yield 'empty route scope array' => [
+            'request' => new Request(
+                attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => []]
+            ),
+            'response' => new Response(),
+            'expectedSkip' => false,
+        ];
     }
 }

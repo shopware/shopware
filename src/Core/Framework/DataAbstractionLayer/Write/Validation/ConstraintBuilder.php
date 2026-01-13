@@ -128,11 +128,11 @@ class ConstraintBuilder
 
     /**
      * @param array<string> $values
-     *                              Set prop must be in array
+     * Set prop must be in array
      */
     public function isInArray(array $values): self
     {
-        $this->addConstraint(new Choice($values));
+        $this->addConstraint(new Choice(choices: $values));
 
         return $this;
     }

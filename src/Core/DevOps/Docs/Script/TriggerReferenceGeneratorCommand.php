@@ -30,7 +30,7 @@ class TriggerReferenceGeneratorCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        $io = new ShopwareStyle($input, $output);
 
         $io->comment('Generating Markdown reference for business/flow triggers.');
 

@@ -62,7 +62,13 @@ class ProductController extends StorefrontController
 
         $this->hook(new ProductPageLoadedHook($page, $context));
 
-        return $this->renderStorefront('@Storefront/storefront/page/content/product-detail.html.twig', ['page' => $page]);
+        return $this->renderStorefront(
+            '@Storefront/storefront/page/content/product-detail.html.twig',
+            [
+                'page' => $page,
+                'redirectTo' => 'frontend.detail.page',
+            ]
+        );
     }
 
     #[Route(
@@ -208,9 +214,17 @@ class ProductController extends StorefrontController
 
         $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));
 
-        return $this->renderStorefront('storefront/component/review/review.html.twig', [
-            'reviews' => $reviews,
-            'ratingSuccess' => RequestParamHelper::get($request, 'success'),
-        ]);
+        return $this->renderStorefront(
+            'storefront/component/review/review.html.twig',
+            [
+                'reviews' => $reviews,
+                'ratingSuccess' => $request->attributes->get('success'),
+                'redirectTo' => RequestParamHelper::get(
+                    $request,
+                    'redirectTo',
+                    $request->attributes->get('_route')
+                ),
+            ]
+        );
     }
 }

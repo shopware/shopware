@@ -125,19 +125,16 @@ class CacheInvalidator
     private function findCaller(): ?array
     {
         foreach (debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 5) as $frame) {
-            if (($frame['class'] ?? null) === self::class) {
+            if (!isset($frame['class']) || $frame['class'] === self::class) {
                 continue; // skip CacheInvalidator methods
             }
 
-            if (isset($frame['file'], $frame['class'])) {
-                return [
-                    'class' => $frame['class'],
-                    'function' => $frame['function'],
-                ];
-            }
+            return [
+                'class' => $frame['class'],
+                'function' => $frame['function'],
+            ];
         }
 
-        /** Defensive fallback, not reachable in normal execution. */
-        return null; // @codeCoverageIgnore
+        return null;
     }
 }

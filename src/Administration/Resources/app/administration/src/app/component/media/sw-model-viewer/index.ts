@@ -31,10 +31,14 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             canvas: null,
+            canvasWrapper: null,
+            resizeObserver: null,
             isLoading: false,
             modelEntity: null,
         } as {
             canvas: HTMLCanvasElement | null;
+            canvasWrapper: HTMLElement | null;
+            resizeObserver: ResizeObserver | null;
             isLoading: boolean;
             modelEntity: EntitySchema.Entity<'media'> | null;
         };
@@ -68,6 +72,11 @@ export default Shopware.Component.wrapComponentConfig({
         beforeUnmountedComponent(): void {
             // eslint-disable-next-line @typescript-eslint/unbound-method
             EventBus.off('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
+
+            if (this.resizeObserver) {
+                this.resizeObserver.disconnect();
+                this.resizeObserver = null;
+            }
         },
 
         mountedComponent(): void {
@@ -76,9 +85,31 @@ export default Shopware.Component.wrapComponentConfig({
                 @typescript-eslint/no-unsafe-call
             */
             this.canvas = this.$el?.querySelector?.('.sw-model-viewer-canvas');
+            /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,
+               @typescript-eslint/no-unsafe-member-access,
+               @typescript-eslint/no-unsafe-call
+           */
+            this.canvasWrapper = this.$el?.querySelector?.('.sw-model-viewer-canvas-wrapper');
+
+            this.initResizeObserver();
 
             this.modelEntity = this.source as EntitySchema.Entity<'media'>;
             this.initializeQuickView();
+        },
+
+        initResizeObserver(): void {
+            if (!this.canvasWrapper) {
+                return;
+            }
+
+            this.resizeObserver = new ResizeObserver((entries) => {
+                entries.forEach((entry) => {
+                    const width = entry.contentRect.width;
+                    (entry.target as HTMLElement).style.height = `${width}px`;
+                });
+            });
+
+            this.resizeObserver.observe(this.canvasWrapper);
         },
 
         initializeQuickView(): void {

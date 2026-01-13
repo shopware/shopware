@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Event\AppScriptConditionEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -60,9 +61,10 @@ class RulePayloadUpdater implements EventSubscriberInterface
         /** @var array<string, list<array<string, string>>> */
         $rules = FetchModeHelper::group($conditions);
 
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $update = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE `rule` SET payload = :payload, invalid = :invalid WHERE id = :id')
+            $this->connection->prepare('UPDATE `rule` SET payload = :payload, invalid = :invalid, updated_at = :updatedAt WHERE id = :id')
         );
 
         $updated = [];
@@ -84,6 +86,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
                     'id' => Uuid::fromHexToBytes($id),
                     'payload' => $serialized,
                     'invalid' => (int) $invalid,
+                    'updatedAt' => $now,
                 ]);
             }
 

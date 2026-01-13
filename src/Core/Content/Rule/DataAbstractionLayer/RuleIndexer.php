@@ -2,21 +2,16 @@
 
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -35,7 +30,6 @@ class RuleIndexer extends EntityIndexer
      * @param EntityRepository<RuleCollection> $repository
      */
     public function __construct(
-        private readonly Connection $connection,
         private readonly IteratorFactory $iteratorFactory,
         private readonly EntityRepository $repository,
         private readonly RulePayloadUpdater $payloadUpdater,
@@ -94,14 +88,6 @@ class RuleIndexer extends EntityIndexer
         if ($message->allow(self::AREA_UPDATER)) {
             $this->areaUpdater->update($ids);
         }
-
-        RetryableQuery::retryable($this->connection, function () use ($ids): void {
-            $this->connection->executeStatement(
-                'UPDATE `rule` SET updated_at = :now WHERE id IN (:ids)',
-                ['ids' => Uuid::fromHexToBytesList($ids), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
-                ['ids' => ArrayParameterType::BINARY]
-            );
-        });
 
         $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }

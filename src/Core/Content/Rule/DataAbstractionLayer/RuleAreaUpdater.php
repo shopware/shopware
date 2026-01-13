@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -122,9 +123,10 @@ class RuleAreaUpdater implements EventSubscriberInterface
 
         $areas = $this->getAreas($ids, $associationFields);
 
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $update = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE `rule` SET `areas` = :areas WHERE `id` = :id')
+            $this->connection->prepare('UPDATE `rule` SET `areas` = :areas, `updated_at` = :updatedAt WHERE `id` = :id')
         );
 
         foreach ($areas as $id => $associations) {
@@ -153,6 +155,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             $update->execute([
                 'areas' => json_encode(array_values($areas), \JSON_THROW_ON_ERROR),
                 'id' => Uuid::fromHexToBytes($id),
+                'updatedAt' => $now,
             ]);
         }
     }

@@ -3,13 +3,14 @@
 namespace Shopware\Core\DevOps\Docs\Script;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -24,8 +25,12 @@ class TriggerReferenceGeneratorCommand extends Command
     private const EVENT_DESCRIPTIONS = __DIR__ . '/../../Resources/templates/trigger-event-description.php';
     private const OUTPUT_PATH = __DIR__ . '/../../Resources/generated/trigger-events-reference.md';
 
-    public function __construct(private readonly BusinessEventCollector $collector)
-    {
+    public function __construct(
+        private readonly BusinessEventCollector $collector,
+        private readonly Filesystem $filesystem,
+    )
+    {        
+        parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -66,7 +71,7 @@ class TriggerReferenceGeneratorCommand extends Command
         }
 
         $content = \implode(\PHP_EOL, $lines) . \PHP_EOL;
-        file_put_contents(self::OUTPUT_PATH, $content);
+        $this->filesystem->dumpFile(self::OUTPUT_PATH, $content);
 
         // Also print to stdout for convenience
         foreach ($lines as $line) {

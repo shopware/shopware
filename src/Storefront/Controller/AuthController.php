@@ -129,14 +129,14 @@ class AuthController extends StorefrontController
 
         // WaitTime can be either set as attribute when it's forwarded to this route
         // or as query parameter when it's redirected
-        $waitTime = (int) RequestParamHelper::get($request, 'waitTime');
+        $waitTime = (int) ($request->attributes->get('waitTime') ?? $request->query->get('waitTime'));
         if ($waitTime) {
             $this->addFlash(self::INFO, $this->trans('account.loginThrottled', ['%seconds%' => $waitTime]));
         }
 
         // loginError can be either set as attribute when it's forwarded to this route
         // or as query parameter when it's redirected
-        if (RequestParamHelper::get($request, 'loginError')) {
+        if ($request->attributes->getBoolean('loginError') || $request->query->getBoolean('loginError')) {
             $this->addFlash(self::DANGER, $this->trans('account.orderGuestLoginWrongCredentials'));
         }
 

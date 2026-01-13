@@ -32,10 +32,6 @@ class RequestParamHelper
      */
     public static function get(Request $request, string $name, mixed $default = null): mixed
     {
-        if ($request->attributes->has($name)) {
-            return $request->attributes->get($name, $default);
-        }
-
         if ($request->query->has($name)) {
             return $request->query->all()[$name];
         }

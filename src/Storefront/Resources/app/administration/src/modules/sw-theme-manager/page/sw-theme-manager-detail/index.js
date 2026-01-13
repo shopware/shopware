@@ -744,7 +744,7 @@ Component.register('sw-theme-manager-detail', {
          */
         getFieldLabel(field, fieldName) {
             if (this.isFieldHandlingLabelAndHelpText(field)) {
-                return undefined;
+                return null;
             }
 
             const label = this.getSnippet(field.labelSnippetKey, field.label) || '';
@@ -764,7 +764,7 @@ Component.register('sw-theme-manager-detail', {
          */
         getHelpText(field) {
             if (this.isFieldHandlingLabelAndHelpText(field)) {
-                return undefined;
+                return null;
             }
 
             const helpText = this.getSnippet(field.helpTextSnippetKey, field.helpText);

@@ -47,12 +47,14 @@ class NotificationController extends AbstractController
     )]
     public function saveNotification(Request $request, Context $context): Response
     {
-        $status = (string) $request->request->get('status');
-        $message = (string) $request->request->get('message');
-        $adminOnly = (bool) $request->request->get('adminOnly', false);
+        $payload = $request->getPayload();
+
+        $status = (string) $payload->get('status');
+        $message = (string) $payload->get('message');
+        $adminOnly = (bool) $payload->get('adminOnly', false);
 
         try {
-            $requiredPrivileges = $request->request->all('requiredPrivileges');
+            $requiredPrivileges = $payload->all('requiredPrivileges');
         } catch (BadRequestException) {
             throw NotificationException::invalidRequestParameter('requiredPrivileges');
         }

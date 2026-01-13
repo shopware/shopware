@@ -52,7 +52,7 @@
             {% block media %}
                 <twig:Slot name="media">
                     {% if product.cover %}
-                        <twig:Sw:Media:Display
+                        <twig:Sw:Media
                             :media="product.cover.media"
                             :height="mediaHeight"
                             :sizes="mediaSizes"

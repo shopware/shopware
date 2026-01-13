@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -111,9 +110,8 @@ class Migration1768233956AddThemeRuntimeConfigUniqueConstraintTest extends TestC
         }
 
         // Re-add non-unique index if not exists
-        if (isset($indexes['idx.technical_name'])) {
-            $index = new Index('idx.technical_name', ['technical_name']);
-            $schemaManager->createIndex($index, 'theme_runtime_config');
+        if (!isset($indexes['idx.technical_name'])) {
+            $this->connection->executeStatement('CREATE INDEX `idx.technical_name` ON `theme_runtime_config` (`technical_name`)');
         }
     }
 }

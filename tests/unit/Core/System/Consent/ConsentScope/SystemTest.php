@@ -30,7 +30,7 @@ class SystemTest extends TestCase
         $context = Context::createDefaultContext();
 
         $scope = new System();
-        static::assertSame('system', $scope->getScopeIdentifier($context));
+        static::assertSame('system', $scope->resolveIdentifier($context));
     }
 
     public function testActorIdentifierThrowsExceptionWhenSourceIsNotAdminApi(): void
@@ -38,7 +38,7 @@ class SystemTest extends TestCase
         self::expectExceptionObject(ConsentException::cannotResolveScope(System::NAME));
 
         $scope = new System();
-        $scope->getActorIdentifier(Context::createDefaultContext());
+        $scope->resolveActorIdentifier(Context::createDefaultContext());
     }
 
     public function testActorIdentifierThrowsExceptionWhenUserIdIsNull(): void
@@ -49,7 +49,7 @@ class SystemTest extends TestCase
         $context = new Context($source);
 
         $scope = new System();
-        $scope->getActorIdentifier($context);
+        $scope->resolveActorIdentifier($context);
     }
 
     public function testActorIdentifier(): void
@@ -58,6 +58,6 @@ class SystemTest extends TestCase
         $context = new Context($source);
 
         $scope = new System();
-        static::assertSame('user-123', $scope->getActorIdentifier($context));
+        static::assertSame('user-123', $scope->resolveActorIdentifier($context));
     }
 }

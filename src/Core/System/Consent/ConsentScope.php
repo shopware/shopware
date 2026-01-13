@@ -18,12 +18,12 @@ interface ConsentScope
     /**
      * @throws ConsentException when scope cannot be resolved from the given context
      */
-    public function getScopeIdentifier(Context $context): string;
+    public function resolveIdentifier(Context $context): string;
 
     /**
      * Should return the identifier of the user/admin who performed the action
      *
      * @throws ConsentException when scope cannot be resolved from the given context
      */
-    public function getActorIdentifier(Context $context): ?string;
+    public function resolveActorIdentifier(Context $context): string;
 }

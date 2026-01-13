@@ -29,7 +29,7 @@ class AdminUserTest extends TestCase
         self::expectExceptionObject(ConsentException::cannotResolveScope(AdminUser::NAME));
 
         $scope = new AdminUser();
-        $scope->getScopeIdentifier(Context::createDefaultContext());
+        $scope->resolveIdentifier(Context::createDefaultContext());
     }
 
     public function testScopeIdentifierThrowsExceptionWhenUserIdIsNull(): void
@@ -40,7 +40,7 @@ class AdminUserTest extends TestCase
         $context = new Context($source);
 
         $scope = new AdminUser();
-        $scope->getScopeIdentifier($context);
+        $scope->resolveIdentifier($context);
     }
 
     public function testScopeIdentifier(): void
@@ -49,7 +49,7 @@ class AdminUserTest extends TestCase
         $context = new Context($source);
 
         $scope = new AdminUser();
-        static::assertSame('user-123', $scope->getScopeIdentifier($context));
+        static::assertSame('user-123', $scope->resolveIdentifier($context));
     }
 
     public function testActorIdentifier(): void
@@ -58,6 +58,6 @@ class AdminUserTest extends TestCase
         $context = new Context($source);
 
         $scope = new AdminUser();
-        static::assertNull($scope->getActorIdentifier($context));
+        static::assertSame('user-123', $scope->resolveActorIdentifier($context));
     }
 }

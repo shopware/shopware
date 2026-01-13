@@ -21,7 +21,7 @@ class AdminUser implements ConsentScope
         return self::NAME;
     }
 
-    public function getScopeIdentifier(Context $context): string
+    public function resolveIdentifier(Context $context): string
     {
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
@@ -36,8 +36,8 @@ class AdminUser implements ConsentScope
         return $userId;
     }
 
-    public function getActorIdentifier(Context $context): ?string
+    public function resolveActorIdentifier(Context $context): string
     {
-        return null;
+        return $this->resolveIdentifier($context);
     }
 }

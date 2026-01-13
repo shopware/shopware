@@ -56,8 +56,6 @@ class ConsentService
             $definitions[$definition->getName()] = $definition;
         }
         $this->consentDefinitions = $definitions;
-
-        $this->validateDefinitions();
     }
 
     /**
@@ -73,7 +71,7 @@ class ConsentService
             return $states[$key] ?? new ConsentState(
                 name: $consent->getName(),
                 scopeName: $consent->getScopeName(),
-                identifier: $this->getScopeIdentifiers($consent, $context)['scopeIdentifier'],
+                identifier: $this->getScope($consent)->resolveIdentifier($context),
                 status: ConsentStatus::REQUESTED,
                 actorId: null,
             );
@@ -82,23 +80,9 @@ class ConsentService
 
     public function getConsentState(string $name, Context $context): ConsentState
     {
-        $consent = $this->getConsentDefinition($name);
+        $this->getConsentDefinition($name);
 
-        $states = $this->fetchStates($context);
-
-        $key = $this->key($consent, $context);
-
-        if (isset($states[$key])) {
-            return $states[$key];
-        }
-
-        return new ConsentState(
-            name: $consent->getName(),
-            scopeName: $consent->getScopeName(),
-            identifier: $this->getScopeIdentifier($consent, $context),
-            status: ConsentStatus::REQUESTED,
-            actorId: null,
-        );
+        return $this->list($context)[$name];
     }
 
     public function acceptConsent(string $name, Context $context): void
@@ -112,13 +96,12 @@ class ConsentService
             return;
         }
 
-        ['scopeIdentifier' => $scopeIdentifier, 'actorIdentifier' => $actorIdentifier] = $this->getScopeIdentifiers($consent, $context);
-
+        $scopeIdentifier = $this->getScope($consent)->resolveIdentifier($context);
         $this->consentRepository->updateConsentState(
             $consent,
             $scopeIdentifier,
             ConsentStatus::ACCEPTED,
-            $actorIdentifier
+            $this->getScope($consent)->resolveActorIdentifier($context)
         );
 
         $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($consent->getName(), $consent->getScopeName(), $scopeIdentifier));
@@ -137,13 +120,12 @@ class ConsentService
             return;
         }
 
-        ['scopeIdentifier' => $scopeIdentifier, 'actorIdentifier' => $actorIdentifier] = $this->getScopeIdentifiers($consent, $context);
-
+        $scopeIdentifier = $this->getScope($consent)->resolveIdentifier($context);
         $this->consentRepository->updateConsentState(
             $consent,
             $scopeIdentifier,
             ConsentStatus::REVOKED,
-            $actorIdentifier
+            $this->getScope($consent)->resolveActorIdentifier($context)
         );
         $this->eventDispatcher->dispatch(new ConsentRevokedEvent($consent->getName(), $consent->getScopeName(), $scopeIdentifier));
 
@@ -185,7 +167,7 @@ class ConsentService
     private function key(ConsentState|ConsentDefinition $consent, Context $context): string
     {
         if ($consent instanceof ConsentDefinition) {
-            $scopeIdentifier = $this->getScopeIdentifier($consent, $context);
+            $scopeIdentifier = $this->getScope($consent)->resolveIdentifier($context);
 
             return $consent->getName() . ':' . $consent->getScopeName() . ':' . $scopeIdentifier;
         }
@@ -199,42 +181,12 @@ class ConsentService
         $this->states = null;
     }
 
-    /**
-     * @todo validate actor scope
-     */
-    private function validateDefinitions(): void
+    private function getScope(ConsentDefinition $consent): ConsentScope
     {
-        foreach ($this->consentDefinitions as $definition) {
-            if (!isset($this->consentScopes[$definition->getScopeName()])) {
-                throw ConsentException::invalidScope($definition->getScopeName());
-            }
-        }
-    }
-
-    /**
-     * @return array{scopeIdentifier: string, actorIdentifier: string}
-     */
-    private function getScopeIdentifiers(ConsentDefinition $consent, Context $context): array
-    {
-        $scope = $this->consentScopes[$consent->getScopeName()];
-
-        $scopeIdentifier = $scope->getScopeIdentifier($context);
-
-        $actorIdentifier = $scope->getActorIdentifier($context);
-        if ($actorIdentifier === null) {
-            $actorIdentifier = $scopeIdentifier;
+        if (!isset($this->consentScopes[$consent->getScopeName()])) {
+            throw ConsentException::invalidScope($consent->getScopeName());
         }
 
-        return [
-            'scopeIdentifier' => $scope->getScopeIdentifier($context),
-            'actorIdentifier' => $actorIdentifier,
-        ];
-    }
-
-    private function getScopeIdentifier(ConsentDefinition $consent, Context $context): string
-    {
-        $scope = $this->consentScopes[$consent->getScopeName()];
-
-        return $scope->getScopeIdentifier($context);
+        return $this->consentScopes[$consent->getScopeName()];
     }
 }

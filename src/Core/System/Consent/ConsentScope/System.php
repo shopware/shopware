@@ -21,7 +21,7 @@ class System implements ConsentScope
         return self::NAME;
     }
 
-    public function getScopeIdentifier(Context $context): string
+    public function resolveIdentifier(Context $context): string
     {
         return self::NAME;
     }
@@ -29,7 +29,7 @@ class System implements ConsentScope
     /**
      * This consent is scoped to the system, but a particular admin user performed the action
      */
-    public function getActorIdentifier(Context $context): string
+    public function resolveActorIdentifier(Context $context): string
     {
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {

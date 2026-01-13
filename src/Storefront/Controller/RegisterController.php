@@ -103,7 +103,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->get('redirectParameters', json_encode([], \JSON_THROW_ON_ERROR)),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? json_encode([], \JSON_THROW_ON_ERROR),
             'errorRoute' => $errorRoute,
             'page' => $page,
             'data' => $data,
@@ -144,7 +144,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->get('redirectParameters', json_encode([], \JSON_THROW_ON_ERROR)),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? json_encode([], \JSON_THROW_ON_ERROR),
             'errorRoute' => $request->attributes->get('_route'),
             'errorParameters' => json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR),
             'page' => $page,
@@ -161,7 +161,7 @@ class RegisterController extends StorefrontController
     )]
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $redirect = $request->get('redirectTo', 'frontend.checkout.confirm.page');
+        $redirect = $request->query->get('redirectTo', 'frontend.checkout.confirm.page');
         \assert(\is_string($redirect));
         $errorRoute = $request->attributes->get('_route');
 
@@ -232,7 +232,7 @@ class RegisterController extends StorefrontController
             $params = $this->decodeParam($request, 'errorParameters');
 
             // this is to show the correct form because we have different use-cases (account/register||checkout/register)
-            return $this->forwardToRoute($request->get('errorRoute'), ['formViolations' => $formViolations], $params);
+            return $this->forwardToRoute((string) $request->request->get('errorRoute'), ['formViolations' => $formViolations], $params);
         }
 
         if ($this->isDoubleOptIn($data, $context)) {

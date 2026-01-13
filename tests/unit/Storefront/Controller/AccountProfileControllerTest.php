@@ -174,12 +174,12 @@ class AccountProfileControllerTest extends TestCase
             function (Request $request) {
                 $response = new Response();
 
-                if ($request->get('redirectTo')) {
-                    $response->headers->set('X-Redirect-Route', $request->get('redirectTo'));
+                if ($request->request->get('redirectTo')) {
+                    $response->headers->set('X-Redirect-Route', (string) $request->request->get('redirectTo'));
                 }
 
-                if ($request->get('forwardTo')) {
-                    $response->headers->set('X-Forward-Route', $request->get('forwardTo'));
+                if ($request->request->get('forwardTo')) {
+                    $response->headers->set('X-Forward-Route', (string) $request->request->get('forwardTo'));
                 }
 
                 return $response;

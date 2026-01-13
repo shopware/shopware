@@ -70,7 +70,7 @@ class NewsletterAccountPageletLoader
         CustomerEntity $customer
     ): NewsletterAccountPagelet {
         $subscribeOptions = [NewsletterSubscribeRoute::OPTION_DIRECT, NewsletterSubscribeRoute::OPTION_SUBSCRIBE];
-        $doSubscribe = \in_array($request->get('option', false), $subscribeOptions, true);
+        $doSubscribe = \in_array($request->request->get('option', false), $subscribeOptions, true);
 
         if (!$doSubscribe) {
             $dataBag->set('option', NewsletterSubscribeRoute::OPTION_UNSUBSCRIBE);

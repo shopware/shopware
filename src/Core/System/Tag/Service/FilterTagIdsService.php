@@ -33,9 +33,9 @@ class FilterTagIdsService
     public function filterIds(Request $request, Criteria $criteria, Context $context): FilteredTagIdsStruct
     {
         $query = $this->getIdsQuery($criteria, $context);
-        $duplicateFilter = $request->get('duplicateFilter', false);
-        $emptyFilter = $request->get('emptyFilter', false);
-        $assignmentFilter = $request->get('assignmentFilter', false);
+        $duplicateFilter = $request->request->get('duplicateFilter', false);
+        $emptyFilter = $request->request->get('emptyFilter', false);
+        $assignmentFilter = $request->request->all()['assignmentFilter'] ?? false;
 
         if ($emptyFilter) {
             $this->addEmptyFilter($query);

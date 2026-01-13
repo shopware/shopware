@@ -44,7 +44,7 @@ final readonly class AdminSearchController
             throw ElasticsearchAdminException::missingTermParameter();
         }
 
-        $limit = $request->get('limit', 10);
+        $limit = $request->request->getInt('limit', 10);
 
         $results = $this->searcher->search($term, $entities, $context, $limit);
 

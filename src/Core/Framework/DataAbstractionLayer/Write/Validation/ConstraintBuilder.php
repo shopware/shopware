@@ -132,7 +132,7 @@ class ConstraintBuilder
      */
     public function isInArray(array $values): self
     {
-        $this->addConstraint(new Choice($values));
+        $this->addConstraint(new Choice(choices: $values));
 
         return $this;
     }

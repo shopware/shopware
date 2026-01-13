@@ -49,7 +49,7 @@ class ConsumeMessagesController extends AbstractController
     #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', methods: ['POST'])]
     public function consumeMessages(Request $request): JsonResponse
     {
-        $receiverName = $request->get('receiver');
+        $receiverName = $request->request->getString('receiver');
 
         if (!$receiverName || !$this->receiverLocator->has($receiverName)) {
             throw MessageQueueException::validReceiverNameNotProvided();

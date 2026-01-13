@@ -42,10 +42,10 @@ readonly class MediaUploadV2Controller
         MediaUploadParameters $mediaUploadParameters,
         Context $context
     ): JsonResponse {
-        $url = $request->get('url');
+        $url = $request->request->get('url');
 
         if (!\is_string($url)) {
-            throw MediaException::invalidUrl($url ?? '');
+            throw MediaException::invalidUrl('');
         }
 
         return new JsonResponse(['id' => $this->mediaUploadService->uploadFromURL($url, $context, $mediaUploadParameters)]);
@@ -58,10 +58,10 @@ readonly class MediaUploadV2Controller
         MediaUploadParameters $mediaUploadParameters,
         Context $context
     ): JsonResponse {
-        $url = $request->get('url');
+        $url = $request->request->get('url');
 
         if (!\is_string($url)) {
-            throw MediaException::invalidUrl($url ?? '');
+            throw MediaException::invalidUrl('');
         }
 
         return new JsonResponse([

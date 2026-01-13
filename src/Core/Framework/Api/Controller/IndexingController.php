@@ -49,7 +49,7 @@ class IndexingController extends AbstractController
 
         $indexer = $this->registry->getIndexer($indexer);
 
-        $offset = ['offset' => $request->get('offset')];
+        $offset = ['offset' => $request->request->getInt('offset')];
         $message = $indexer ? $indexer->iterate($offset) : null;
 
         if ($message === null) {

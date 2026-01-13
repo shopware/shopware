@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
@@ -52,10 +53,10 @@ class DocumentController extends StorefrontController
     )]
     public function downloadDocument(Request $request, SalesChannelContext $context, string $documentId): Response
     {
-        $fileType = $request->get('fileType', PdfRenderer::FILE_EXTENSION);
+        $fileType = RequestParamHelper::get($request, 'fileType', PdfRenderer::FILE_EXTENSION);
 
         try {
-            return $this->documentRoute->download($documentId, $request, $context, $request->get('deepLinkCode'), $fileType);
+            return $this->documentRoute->download($documentId, $request, $context, RequestParamHelper::get($request, 'deepLinkCode'), $fileType);
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
             if ($context->getCustomer() !== null) {
                 $this->logoutRoute->logout($context, new RequestDataBag([]));
@@ -66,7 +67,7 @@ class DocumentController extends StorefrontController
                 [
                     'redirectTo' => 'frontend.account.order.single.document.a11y',
                     'redirectParameters' => [
-                        'deepLinkCode' => $request->get('deepLinkCode'),
+                        'deepLinkCode' => RequestParamHelper::get($request, 'deepLinkCode'),
                         'documentId' => $documentId,
                         'fileType' => $fileType,
                     ],

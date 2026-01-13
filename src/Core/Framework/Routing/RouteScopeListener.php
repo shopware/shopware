@@ -109,7 +109,7 @@ class RouteScopeListener implements EventSubscriberInterface
         $currentRequest = $event->getRequest();
 
         /** @var list<string> $scopes */
-        $scopes = $currentRequest->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+        $scopes = $currentRequest->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if ($scopes !== []) {
             return $scopes;

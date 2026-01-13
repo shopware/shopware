@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFil
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -82,7 +83,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
     private function getNavigationId(Request $request, SalesChannelContext $salesChannelContext): string
     {
-        if ($navigationId = $request->get('navigationId')) {
+        if ($navigationId = RequestParamHelper::get($request, 'navigationId')) {
             return $navigationId;
         }
 
@@ -108,7 +109,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
     private function addDefaultSorting(Request $request, CmsSlotEntity $slot, SalesChannelContext $context): void
     {
-        if ($request->get('order')) {
+        if (RequestParamHelper::get($request, 'order')) {
             return;
         }
 
@@ -124,8 +125,8 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         }
 
         // if we have no specific order given at this point, set the order to the highest priority available sorting
-        if ($request->get('availableSortings')) {
-            $availableSortings = $request->get('availableSortings');
+        if (RequestParamHelper::get($request, 'availableSortings')) {
+            $availableSortings = RequestParamHelper::get($request, 'availableSortings');
             arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
             $sortingId = array_key_first($availableSortings);
             if (!\is_string($sortingId)) {

@@ -35,7 +35,7 @@ class CaptchaController extends StorefrontController
     #[Route(path: '/basic-captcha', name: 'frontend.captcha.basic-captcha.load', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function loadBasicCaptcha(Request $request, SalesChannelContext $context): Response
     {
-        $formId = $request->get('formId');
+        $formId = $request->query->get('formId');
         $page = $this->basicCaptchaPageletLoader->load($request, $context);
         $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $page->getCaptcha()->getCode());
 
@@ -49,13 +49,13 @@ class CaptchaController extends StorefrontController
     public function validate(Request $request): JsonResponse
     {
         $response = [];
-        $formId = $request->get('formId');
+        $formId = $request->request->get('formId');
         if (!$formId) {
             throw RoutingException::missingRequestParameter('formId');
         }
 
         if ($this->basicCaptcha->isValid($request, [])) {
-            $fakeSession = $request->get(BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
+            $fakeSession = $request->request->get(BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
             $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
 
             return new JsonResponse(['session' => $fakeSession]);

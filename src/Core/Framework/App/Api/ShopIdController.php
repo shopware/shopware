@@ -47,7 +47,7 @@ class ShopIdController extends AbstractController
     #[Route(path: 'api/app-system/shop-id/change', name: 'api.app_system.shop_id.change', methods: ['POST'])]
     public function changeShopId(Request $request, Context $context): Response
     {
-        $strategy = $request->get('strategy');
+        $strategy = $request->request->getString('strategy');
 
         if (!$strategy) {
             throw AppException::missingRequestParameter('strategy');

@@ -53,9 +53,9 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
             throw OrderException::orderNotCancellable();
         }
 
-        $orderId = $request->get('orderId', null);
+        $orderId = $request->request->getString('orderId');
 
-        if ($orderId === null) {
+        if ($orderId === '') {
             throw OrderException::invalidRequestParameter('orderId');
         }
 

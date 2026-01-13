@@ -34,7 +34,7 @@ class BasicCaptcha extends AbstractCaptcha
     public function supports(Request $request, array $captchaConfig): bool
     {
         /** @var SalesChannelContext|null $context */
-        $context = $request->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
         $salesChannelId = $context ? $context->getSalesChannelId() : null;
 
         $activeCaptchas = $this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId);
@@ -53,15 +53,15 @@ class BasicCaptcha extends AbstractCaptcha
      */
     public function isValid(Request $request, array $captchaConfig): bool
     {
-        $basicCaptchaValue = $request->get(self::CAPTCHA_REQUEST_PARAMETER);
+        $basicCaptchaValue = $request->request->get(self::CAPTCHA_REQUEST_PARAMETER);
 
         if ($basicCaptchaValue === null) {
             return false;
         }
 
         $session = $this->requestStack->getSession();
-        $captchaSession = $session->get($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
-        $session->remove($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
+        $captchaSession = $session->get($request->request->get('formId') . self::BASIC_CAPTCHA_SESSION);
+        $session->remove($request->request->get('formId') . self::BASIC_CAPTCHA_SESSION);
 
         if ($captchaSession === null) {
             return false;

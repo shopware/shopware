@@ -279,8 +279,8 @@ class ProductReviewLoaderTest extends TestCase
 
     private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        $limit = (int) $request->get('limit', $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId()));
-        $page = (int) $request->get('p', 1);
+        $limit = (int) $request->attributes->get('limit', $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId()));
+        $page = (int) $request->attributes->get('p', 1);
         $offset = max(0, $limit * ($page - 1));
 
         $criteria = new Criteria();
@@ -289,13 +289,13 @@ class ProductReviewLoaderTest extends TestCase
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $sorting = new FieldSorting('createdAt', 'DESC');
-        if ($request->get('sort', 'createdAt') === 'points') {
+        if ($request->attributes->get('sort', 'createdAt') === 'points') {
             $sorting = new FieldSorting('points', 'DESC');
         }
 
         $criteria->addSorting($sorting);
 
-        if ($request->get('language') === 'filter-language') {
+        if ($request->attributes->get('language') === 'filter-language') {
             $criteria->addPostFilter(
                 new EqualsFilter('languageId', $context->getLanguageId())
             );

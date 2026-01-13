@@ -1,6 +1,20 @@
 import { mount } from '@vue/test-utils';
-import { MtModalAction, MtModalClose, MtModal } from '@shopware-ag/meteor-component-library';
+import { MtModal, MtModalClose, MtModalAction, MtModalTrigger, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesRevokePermissionsModal from './index';
+
+const createWrapper = async () => {
+    return mount(SwSettingsServicesRevokePermissionsModal, {
+        global: {
+            stubs: {
+                'mt-modal': MtModal,
+                'mt-modal-close': MtModalClose,
+                'mt-modal-action': MtModalAction,
+                'mt-modal-trigger': MtModalTrigger,
+                'mt-modal-root': MtModalRoot,
+            },
+        },
+    });
+};
 
 describe('src/module/sw-settings-services/component/sw-settings-services-revoke-permissions-modal', () => {
     let originalLocation;
@@ -19,7 +33,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
     });
 
     it('can be opened and closed', async () => {
-        const revokePermissionsModal = await mount(SwSettingsServicesRevokePermissionsModal);
+        const revokePermissionsModal = await createWrapper();
         await flushPromises();
 
         let modal = revokePermissionsModal.getComponent(MtModal);
@@ -49,7 +63,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
             enabled: true,
         }));
 
-        const revokePermissionsModal = await mount(SwSettingsServicesRevokePermissionsModal);
+        const revokePermissionsModal = await createWrapper();
         await flushPromises();
 
         await revokePermissionsModal.get('button').trigger('click');
@@ -69,7 +83,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
             throw new Error('Revoke Permissions failed');
         });
 
-        const revokePermissionsModal = await mount(SwSettingsServicesRevokePermissionsModal);
+        const revokePermissionsModal = await createWrapper();
         await flushPromises();
 
         await revokePermissionsModal.get('button').trigger('click');

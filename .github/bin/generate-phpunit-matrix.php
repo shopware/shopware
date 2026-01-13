@@ -35,7 +35,7 @@ $matrix = [
             ],
             [
                 'test' => ['testsuite' => 'devops'],
-                'php' => '8.4',
+                'php' => '8.5',
                 'db' => 'mariadb:11'
             ]
         ]

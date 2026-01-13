@@ -1,8 +1,200 @@
-# 6.7.6.0 (upcoming)
+# 6.7.7.0 (upcoming)
 
 ## Features
 
+### Support of media paths with up to 2046 characters
+Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the
+database field already supported up to 2046 characters. This limitation has now been lifted and media paths can be up to
+2046 characters long.
+
+### Configurable Custom Field Searchability
+
+Custom fields are now **not searchable by default**. To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields. This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
+
+**Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
+
 ## API
+
+### Improved tagged based cache invalidation
+
+Next routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
+* `/store-api/breadcrumb/{id}`
+* `/store-api/media`
+* `/store-api/product/{productId}/find-variant`
+* `/store-api/product/{productId}/cross-selling`
+
+## Core
+
+### Introduce Immutable DAL flag
+
+A new `Immutable` flag is available for Data Abstraction Layer fields. Fields marked as immutable can be set during entity creation but cannot be updated later. This prevents accidental renames of technical identifiers that other subsystems rely on. Core entities now using the flag include:
+
+* `custom_field.name`
+* `custom_field.type`
+* `custom_field_set.name`
+
+Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
+
+### Deprecation of product states in favor of the new product type
+
+The `product.states` field is deprecated and will be removed in the next major release.
+A new field `product.type` was introduced to clearly indicate whether a product is `digital` or `physical`, or other types registered by third-party developers.
+
+As part of this change, the following deprecations were made:
+- The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
+- `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
+- The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
+- The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
+- A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
+- For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
+
+If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
+If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
+
+### DomainExceptions don't create \RuntimeException anymore
+
+All factory methods for domain exceptions now return specific exception classes instead of creating a generic `\RuntimeException`.
+Changing the type of the thrown exception from `\RuntimeException` to a specific domain exception is not considered a breaking change, since all Domain Exceptions extend from `\RuntimeException`.
+
+This means code like this will stay valid:
+```php
+try {
+    $this->someService->willThrowDomainException();
+} catch (\RuntimeException $e) {
+    // handle exception
+}
+```
+
+Additionally all changed factory methods were marked as deprecated, because the `\RuntimeException` return type will be removed in the next major release.
+This affects the following exception factory methods:
+* `DataAbstractionLayerException::cannotBuildAccessor(...)`
+* `DataAbstractionLayerException::onlyStorageAwareFieldsAsTranslated(...)`
+* `DataAbstractionLayerException::onlyStorageAwareFieldsInReadCondition(...)`
+* `DataAbstractionLayerException::primaryKeyNotStorageAware(...)`
+* `DataAbstractionLayerException::missingTranslatedStorageAwareProperty(...)`
+* `DataAbstractionLayerException::noTranslationDefinition(...)`
+* `DataAbstractionLayerException::missingVersionField(...)`
+* `DataAbstractionLayerException::unexpectedFieldType(...)`
+* `WebhookException::invalidDataMapping(...)`
+* `WebhookException::unknownEventDataType(...)`
+
+## Administration
+
+### Deprecations in mail template components
+
+The mail template index will be split into separate tabs for templates and headers/footers in v6.8.0.0.
+
+The following deprecations apply to `sw-mail-template-list` and `sw-mail-header-footer-list`:
+* `searchTerm` prop and watcher will be removed in v6.8.0.0
+* `getList()` method: `searchTerm` variable will be replaced with `this.term` in v6.8.0.0
+* `@page-change` handler will change to `onPageChange` in v6.8.0.0
+
+The following deprecations apply to `sw-mail-template-index`:
+* The `listing` mixin will be removed in v6.8.0.0
+* `term` data property will be removed in v6.8.0.0
+* `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
+
+## Storefront
+
+### Improved cookie consent dialog UI and accessibility
+
+The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. The button layout has been improved with a clearer visual hierarchy, placing the primary action on the right side. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
+
+### HTTP caching policies update
+
+The following changes are relevant when HTTP caching policies feature is enabled (`CACHE_REWORK` or `v6.8.0.0` feature flag):
+
+* HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
+* `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
+
+### Google Analytics 4 Integration Update
+
+The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities.
+
+- The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure.
+- Furthermore, new events for `add_to_wishlist`, `remove_from_wishlist`, `view_cart`, `add_shipping_info`, and `add_payment_info` have been implemented to provide a more comprehensive view of user interactions.
+- The checkout funnel now tracks shipping and payment method selections, including when users change their selections.
+- The `view_item_list` and `add_to_cart` events now fire when users navigate through product listings via pagination or apply filters, not just on initial page load.
+
+#### New Configuration: Track Offcanvas Cart
+
+A new configuration option `Track offcanvas cart` has been added to the Sales Channel Analytics settings. When enabled, the `view_cart` GA4 event will fire whenever the offcanvas cart is opened or its content is updated (e.g., quantity changes, product removals, promotions).
+
+#### New Configuration: Open Offcanvas Cart After Add to Cart
+
+A new configuration option `Open offcanvas cart after adding a product` has been added to the Cart settings (Settings → Shop → Cart). This setting is enabled by default. When disabled:
+
+1. The offcanvas cart will **not open automatically** after adding items to the cart
+2. A success message will be shown instead
+3. The cart widget in the header will still update to show the new item count
+
+**Recommended for accurate funnel tracking:** Disable "Open offcanvas cart after adding a product" and enable "Track offcanvas cart". This ensures `view_cart` events only fire when users intentionally click the cart button, providing accurate funnel metrics.
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
+# 6.7.6.0
+
+## Features
+
+### HTTP caching rework
+
+- Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
+  and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
+  together with other HTTP caching improvements.
+- Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
+
+### Send email on customer password change
+A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.
+
+## API
+
+### Video cover management `/api/_action/media/{mediaId}/video-cover`
+Added endpoint to assign or remove cover images for video media files. Requires `media.editor` ACL permission.
+Accepts `coverMediaId` (string or null) in request body.
+Cover image reference is stored in `metaData.video.coverMediaId`.
+When a cover image is deleted, all video references are automatically cleaned up via `VideoCoverCleanupSubscriber`.
+
+### StoreAPI HTTP caching support
+HTTP caching support was added for the following Store API endpoints:
+- `/store-api/breadcrumb/{id}`
+- `/store-api/category`
+- `/store-api/category/{navigationId}`
+- `/store-api/navigation/{activeId}/{rootId}`
+- `/store-api/cms/{id}`
+- `/store-api/product`
+- `/store-api/seo-url`
+- `/store-api/country`
+- `/store-api/country-state/{countryId}`
+- `/store-api/currency`
+- `/store-api/language`
+- `/store-api/salutation`
+
+`GET` methods and HTTP caching support were added for the following Store API endpoints:
+- `/store-api/media`
+- `/store-api/product/{productId}/cross-selling`
+- `/store-api/product/{productId}`
+- `/store-api/product/{productId}/find-variant`
+- `/store-api/product-listing/{categoryId}`
+- `/store-api/product/{productId}/reviews`
+- `/store-api/search`
+- `/store-api/search-suggest`
+- `/store-api/landing-page/{landingPageId}`
+
+It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
+
+### Store API: compressed criteria parameter support
+Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows
+sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported.
+Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
+Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
+
+### Document download `/store-api/document/download/`
+The endpoint now selects the document file type based on the `Accept` header.
+When no `Accept` header is set or with `*/*`, `PDF` will be returned. (PR #12944)
 
 ## Core
 
@@ -32,7 +224,41 @@ The following classes and constants were deprecated as they will not be used any
 Additionally, the following configuration was deprecated:
 * `shopware.cache.invalidation.http_cache`
 
+### HTTP Caching Policies
+
+Added support for caching policies to define HTTP cache behavior via configuration.
+
+You can now configure named caching policies that define how the Cache-Control header is formed. These policies can be assigned per area (`storefront`, `store_api`) and per route. The header controls how caches (browser, reverse proxy, CDN, Symfony cache layer) should cache the response.
+
+The feature is enabled using the `CACHE_REWORK` feature flag. For more details see the [caching policies documentation](https://developer.shopware.com/docs/guides/hosting/performance/caches.html#http-caching-policies).
+
+### Add recursive assign method to AssignArrayTrait
+
+A new method `assignRecursive` has been added to `Shopware\Core\Framework\Struct\AssignArrayTrait`. Along with it, the new `Shopware\Core\Framework\Struct\AssignArrayInterface` has been introduced.
+To make full use of `assignRecursive`, every class using `AssignArrayTrait` must also implement the new `AssignArrayInterface`.
+The `assignRecursive` method enables deeply nested, JSON-serialized data structures - for example, a fully serialized `ProductEntity` including associations such as `properties` - to be converted back into a fully populated `ProductEntity` instance, including all nested `Struct` and `Collection` objects.
+
+Note: `assignRecursive` uses reflection and creates nested struct instances, so it is noticeably slower than the classic shallow `assign` and is intended for import/export and (re-)hydration scenarios rather than tight, performance-critical loops.
+
+### Improved translation installation
+
+Installing a translation now will always create a corresponding snippet set. This fixes issues with shop instances that are migrating from translations provided by a plugin to the core, where uninstalling the plugin could lead to a missing snippet set.
+
+### Performance improvements for generating category SEO-Urls
+
+We don't synchronously fetch and generate the SEO-Urls for all child categories anymore.
+Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
+This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
+
 ## Administration
+
+### Loading indicator for whole page
+
+When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
+
+### Search filter for settings module
+
+In the settings module, there is now a search bar in the top right. It can be used to filter settings based on a search term to quickly find what you need.
 
 ## Storefront
 
@@ -42,7 +268,27 @@ The domain part of email addresses may now contain internationalized domain name
 
 ## App System
 
+### App Script caching control
+
+As before, app developers can control caching via in app scripts using syntax `{% do response.cache.<directive> %}`, which map to `ResponseCacheConfiguration` methods.
+Next changes were made to `ResponseCacheConfiguration` methods:
+- added `sharedMaxAge(seconds)` - set shared (reverse proxy/CDN) cache TTL, equivalent to `s-maxage` cache control directive.
+- added `clientMaxAge(seconds)` - set client-side (browser) cache TTL, equivalent to `max-age` cache control directive. Has effect only if `CACHE_REWORK` feature flag is enabled.
+- deprecated `maxAge(seconds)` - use sharedMaxAge() instead.
+
+Admins can override policies per script using `route_policies` with `route#hook` pattern in configuration (see HTTP caching policies description in the Core section).
+
 ## Hosting & Configuration
+
+### Control language analyzer usage in Elasticsearch search queries
+
+A new environment variable `SHOPWARE_ES_USE_LANGUAGE_ANALYZER` has been added to control whether language-specific analyzers (like `sw_english_analyzer`, `sw_german_analyzer`) are used for search queries.
+
+By default (`SHOPWARE_ES_USE_LANGUAGE_ANALYZER=1`), search queries use the same analyzer as the indexed field, which includes language-specific features like stopword filtering and stemming. This provides broader, more fuzzy search results.
+
+When set to `0` (`SHOPWARE_ES_USE_LANGUAGE_ANALYZER=0`), search queries use `sw_whitespace_analyzer` instead, providing less fuzzy search results with fewer matches.
+
+**Note:** This setting only affects search queries, not indexing. Indexed data continues to use language analyzers for proper tokenization.
 
 ### Possibility to disable extensions when setting up staging mode
 
@@ -55,7 +301,14 @@ shopware:
             disable: ["TheExtensionName", "AnotherExtensionName"]
 ```
 
-## Critical fixes
+### Deprecated HTTP cache configuration
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable.
+- `shopware.http.cache.default_ttl` parameter.
+- `shopware.http_cache.stale_while_revalidate` parameter.
+- `shopware.http_cache.stale_if_error` parameter.
+
+Deprecated parameters will have no effect when `CACHE_REWORK` feature flag is enabled, and will be removed in 6.8.0.0.
 
 # 6.7.5.0
 

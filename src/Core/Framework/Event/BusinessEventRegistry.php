@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerPasswordChangedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
@@ -58,6 +59,7 @@ class BusinessEventRegistry
         NewsletterRegisterEvent::class,
         NewsletterUnsubscribeEvent::class,
         ProductExportLoggingEvent::class,
+        CustomerPasswordChangedEvent::class,
         CancellationRequestEvent::class,
     ];
 

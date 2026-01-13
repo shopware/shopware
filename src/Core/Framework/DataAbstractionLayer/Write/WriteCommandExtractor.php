@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -298,6 +299,8 @@ class WriteCommandExtractor
      */
     private function map(array $fields, DataStack $stack, EntityExistence $existence, WriteParameterBag $parameters): array
     {
+        $isCreate = !$existence->exists() || $existence->childChangedToParent();
+
         foreach ($fields as $field) {
             $kvPair = $this->getKeyValuePair($field, $stack, $existence);
             if ($kvPair === null) {
@@ -305,6 +308,11 @@ class WriteCommandExtractor
             }
 
             try {
+                if ($field->is(Immutable::class) && !$isCreate && !$kvPair->isDefault()) {
+                    $this->addImmutableViolation($kvPair, $parameters);
+                    continue;
+                }
+
                 if ($field->is(WriteProtected::class) && !$kvPair->isDefault()) {
                     $this->validateContextHasPermission($field, $kvPair, $parameters);
                 }
@@ -559,6 +567,27 @@ class WriteCommandExtractor
 
         $parameters->getContext()->getExceptions()->add(
             new WriteConstraintViolationException($violationList, $parameters->getPath() . '/' . $data->getKey())
+        );
+    }
+
+    private function addImmutableViolation(KeyValuePair $data, WriteParameterBag $parameters): void
+    {
+        $message = \sprintf('The field "%s" of "%s" is immutable and cannot be updated.', $data->getKey(), $parameters->getDefinition()->getEntityName());
+
+        $violationList = new ConstraintViolationList();
+        $violationList->add(
+            new ConstraintViolation(
+                $message,
+                $message,
+                [],
+                $data->getValue(),
+                $data->getKey(),
+                $data->getValue()
+            )
+        );
+
+        $parameters->getContext()->getExceptions()->add(
+            new WriteConstraintViolationException($violationList, $parameters->getPath() . '/')
         );
     }
 }

@@ -10,7 +10,8 @@
     "license": "MIT",
     "autoload": {
         "files": [
-            "Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
+            "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "Framework/Adapter/Database/Mysql.php"
         ],
         "psr-4": {
             "Shopware\\Core\\": ""
@@ -65,7 +66,7 @@
         "composer-runtime-api": "^2.1",
         "cocur/slugify": "^4.7.0",
         "composer/class-map-generator": "^1.7",
-        "composer/composer": "^2.8.5",
+        "composer/composer": "^2.9.3",
         "composer/semver": "^3.4.0",
         "doctrine/dbal": "~4.3.1",
         "doctrine/inflector": "^2.0",

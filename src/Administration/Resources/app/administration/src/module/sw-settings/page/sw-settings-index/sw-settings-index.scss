@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-settings-index {
     &__card-view {
         background-color: var(--color-elevation-surface-default);
@@ -15,43 +13,45 @@
 
     .sw-settings__card--hero {
         container-type: inline-size;
-        color: var(--color-text-primary-default, #2d2e32);
-        background: transparent;
-        border: none;
-
-        h1,
-        h2 {
-            color: var(--color-text-primary-default, #2d2e32);
-            font-weight: 700;
-        }
-
-        h2 {
-            line-height: 145%;
-            font-size: 16px;
-            margin-bottom: 12px;
-        }
-
-        h1 {
-            line-height: 140%;
-            font-size: 24px;
-        }
+        max-width: 60rem;
+        margin: var(--scale-size-24) auto var(--scale-size-40);
 
         .sw-settings__content-header {
             text-align: left;
-            margin-bottom: 48px;
+            margin-bottom: var(--scale-size-48);
+            display: flex;
+            flex-direction: column;
+
+            &-title {
+                color: var(--color-text-primary-default);
+                font-size: var(--font-size-xl);
+                font-weight: var(--font-weight-bold);
+                line-height: var(--font-line-height-xl);
+            }
+
+            @container (min-width: 31.25rem) {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: start;
+                gap: var(--scale-size-160);
+
+                .mt-text-field {
+                    width: 30rem;
+                }
+            }
         }
 
         .sw-settings__content-grid {
             columns: 3;
             text-align: left;
-            column-gap: 64px;
-            max-width: 960px;
+            column-gap: var(--scale-size-64);
+            max-width: 60rem;
 
-            @container (max-width: 940px) {
+            @container (max-width: 58.75rem) {
                 columns: 2;
             }
 
-            @container (max-width: 500px) {
+            @container (max-width: 31.25rem) {
                 columns: 1;
             }
         }
@@ -61,12 +61,35 @@
             height: fit-content;
             display: flex;
             flex-direction: column;
-            gap: 2px;
-            padding-bottom: 48px;
+            gap: var(--scale-size-2);
+            padding-bottom: var(--scale-size-48);
 
-            @container (max-width: 500px) {
-                padding-bottom: 32px;
+            &-title {
+                color: var(--color-text-primary-default);
+                font-size: var(--font-size-s);
+                font-weight: var(--font-weight-bold);
+                line-height: var(--font-line-height-s);
+                margin-bottom: var(--scale-size-12);
             }
+
+            @container (max-width: 31.25rem) {
+                padding-bottom: var(--scale-size-32);
+            }
+        }
+
+        .sw-settings__search-bar-container {
+            display: flex;
+            justify-content: right;
+
+            .mt-text-field {
+                width: 20rem;
+            }
+        }
+
+        .sw-settings-index__empty-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     }
 }

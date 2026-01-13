@@ -8,12 +8,17 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - This test is deprecated because the CacheControlListener is deprecated.
  */
 #[CoversClass(CacheControlListener::class)]
 class CacheControlListenerTest extends TestCase
@@ -38,22 +43,6 @@ class CacheControlListenerTest extends TestCase
         if (!$reverseProxyEnabled) {
             static::assertFalse($response->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
         }
-    }
-
-    #[DataProvider('headerCases')]
-    public function testResponseHeaders(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
-    {
-        $response = new Response();
-
-        if ($beforeHeader) {
-            $response->headers->set('cache-control', $beforeHeader);
-        }
-
-        $subscriber = new CacheControlListener($reverseProxyEnabled);
-
-        $subscriber->__invoke(new BeforeSendResponseEvent(new Request(), $response));
-
-        static::assertSame($afterHeader, $response->headers->get('cache-control'));
     }
 
     /**
@@ -103,5 +92,25 @@ class CacheControlListenerTest extends TestCase
             'private, no-store',
             'no-store, private', // Symfony sorts the cache-control
         ];
+    }
+
+    public function testHeadersNotModified(): void
+    {
+        $response = new Response();
+        $response->headers->set('cache-control', 'public, s-maxage=64000');
+
+        $subscriber = new CacheControlListener(false);
+
+        // StoreAPI
+        $storeApiRequest = new Request();
+        $storeApiRequest->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+        $subscriber->__invoke(new BeforeSendResponseEvent($storeApiRequest, $response));
+        static::assertSame('public, s-maxage=64000', $response->headers->get('cache-control'));
+
+        // Storefront
+        $storefrontRequest = new Request();
+        $storefrontRequest->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
+        $subscriber->__invoke(new BeforeSendResponseEvent($storefrontRequest, $response));
+        static::assertSame('public, s-maxage=64000', $response->headers->get('cache-control'));
     }
 }

@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
 #[Package('framework')]
 readonly class CacheControlListener
@@ -26,6 +28,10 @@ readonly class CacheControlListener
             return;
         }
 
+        if (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0')) {
+            return;
+        }
+
         $response = $event->getResponse();
 
         $noStore = $response->headers->getCacheControlDirective('no-store');
@@ -33,9 +39,7 @@ readonly class CacheControlListener
         // We don't want that the client will cache the website, if no reverse proxy is configured
         $response->headers->remove('cache-control');
 
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
-            $response->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
-        }
+        $response->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
 
         $response->setPrivate();
 

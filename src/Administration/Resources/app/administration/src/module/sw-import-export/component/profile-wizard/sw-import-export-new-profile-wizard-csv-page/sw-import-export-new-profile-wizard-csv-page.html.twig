@@ -1,15 +1,14 @@
 {% block sw_import_export_new_profile_wizard_csv_page %}
 <div class="sw-import-export-new-profile-wizard-csv-page">
+    {# @deprecated tag:v6.8.0 - Block will be removed. #}
     {% block sw_import_export_new_profile_wizard_csv_page_text %}
-    <p class="sw-import-export-new-profile-wizard-csv-page__text">
-        {{ $tc('sw-import-export.profile.csvUploadText') }}
-    </p>
     {% endblock %}
 
     {% block sw_import_export_new_profile_wizard_csv_page_csv_upload %}
     <sw-file-input
         v-model:value="csvFile"
         :allowed-mime-types="['text/csv']"
+        :label="$tc('sw-import-export.profile.csvUploadText')"
         class="sw-import-export-new-profile-wizard-csv-page__file-upload"
         @update:value="onFileChange"
     >

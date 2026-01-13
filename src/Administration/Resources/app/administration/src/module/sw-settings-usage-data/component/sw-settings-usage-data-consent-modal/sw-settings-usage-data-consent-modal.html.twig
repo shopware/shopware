@@ -1,9 +1,12 @@
 <mt-modal-root
     :is-open="showConsentModal"
+    :closable="false"
 >
     <mt-modal
         width="s"
         :title="$t('sw-settings-usage-data.consent-modal.title')"
+        :closable="false"
+        hide-header
     >
         <template #default>
             <div class="sw-settings-usage-data-consent-modal__content">
@@ -23,7 +26,10 @@
 
                 <sw-settings-usage-data-consent-check-list />
 
-                <sw-settings-usage-data-store-data-consent-card  v-if="showStoreDataConsent" v-model:consent="storeDataConsent" />
+                <sw-settings-usage-data-store-data-consent-card
+                    v-if="showStoreDataConsent"
+                    v-model:consent="storeDataConsent"
+                />
                 <sw-settings-usage-data-user-data-consent-card v-model:consent="userDataConsent" />
 
                 <div class="sw-setting-usage-data-consent-modal__legal">

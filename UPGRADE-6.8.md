@@ -24,6 +24,8 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 </details>
 
 # API
+## Changed returned status code for `/store-api/document/download/` when no documents are found
+The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
 # Core
 
@@ -309,6 +311,13 @@ Profiles are now identified and displayed only by their technical name.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
 
+## Removed unused `ImportExport` exceptions
+
+The unused exceptions
+* `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
+* `\Shopware\Core\Content\ImportExport\Exception\MappingException`
+were removed.
+
 ## Removed SystemConfig exceptions
 
 The exceptions
@@ -383,6 +392,42 @@ $parser = new RobotsDirectiveParser($eventDispatcher);
 $parsed = $parser->parse('Disallow: /admin/', $context);
 new DomainRuleStruct($parsed, '/en');
 ```
+
+## Removed `PlatformRequest::ATTRIBUTE_HTTP_CACHE` states support
+
+The `$states` property in `Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute` is removed.
+
+**Migration**: Remove usage of `$states`, as state-based invalidation is not supported anymore.
+
+Using `#[Route]` attribute:
+
+```diff
+ #[Route(
+     path: '/store-api/my-route',
+     name: 'store-api.my-route',
+     methods: ['GET'],
+     defaults: [
+         PlatformRequest::ATTRIBUTE_HTTP_CACHE => [
+-            'states' => ['cart-filled'],
+         ],
+     ]
+ )]
+```
+
+Using request attributes:
+
+```diff
+ $request->attributes->set(
+     PlatformRequest::ATTRIBUTE_HTTP_CACHE,
+     new CacheAttribute(
+-        states: ['cart-filled', 'logged-in'],
+     )
+ );
+```
+
+## Removed `ResponseCacheConfiguration` methods
+Script\Api\ResponseCacheConfiguration::maxAge()` and
+`\Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration::invalidationState()` were removed with no replacement.
 
 ## Removal of product manufacturer link column
 
@@ -464,15 +509,84 @@ Use the parent blocks instead
 ## File accessibility changed from public to private
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
+## Removed .png and .jpg images
+
+In favor of WebP the following images have been removed:
+
+-   `administration/static/img/sw-login-background.png`
+-   `administration/static/img/plugin-manager--login.png`
+-   `administration/static/img/data-consent-background.png`
+-   `administration/static/img/flowbuilder/ui-sample.png`
+-   `administration/static/img/cms/preview_plant_small.jpg`
+-   `administration/static/img/cms/preview_glasses_large.jpg`
+-   `administration/static/img/cms/preview_page_default.png`
+-   `administration/static/img/cms/preview_page_sidebar.png`
+-   `administration/static/img/cms/preview_glasses_small.jpg`
+-   `administration/static/img/cms/preview_youtube.jpg`
+-   `administration/static/img/cms/preview_plant_large.jpg`
+-   `administration/static/img/cms/preview_custom_entity_detail_default.png`
+-   `administration/static/img/cms/preview_mountain_large.jpg`
+-   `administration/static/img/cms/default_preview_product_detail.jpg`
+-   `administration/static/img/cms/preview_custom_entity_detail_sidebar.png`
+-   `administration/static/img/cms/preview_product_detail_sidebar.png`
+-   `administration/static/img/cms/preview_product_detail_default.png`
+-   `administration/static/img/cms/preview_product_list_default.png`
+-   `administration/static/img/cms/preview_product_list_sidebar.png`
+-   `administration/static/img/cms/preview_mountain_small.jpg`
+-   `administration/static/img/cms/default_preview_product_list.jpg`
+-   `administration/static/img/cms/preview_landingpage_sidebar.png`
+-   `administration/static/img/cms/vimeo-icon.png`
+-   `administration/static/img/cms/preview_landingpage_default.png`
+-   `administration/static/img/cms/youtube-icon.png`
+-   `administration/static/img/cms/preview_camera_small.jpg`
+-   `administration/static/img/cms/preview_custom_entity_list_sidebar.png`
+-   `administration/static/img/cms/preview_camera_large.jpg`
+-   `administration/static/img/cms/preview_vimeo.jpg`
+-   `administration/static/img/cms/preview_custom_entity_list_default.png`
+-   `administration/static/img/theme/default_theme_preview.jpg`
+-   `administration/static/fixtures/sw-login-background.png`
+-   `administration/static/fixtures/sw-test-image.png`
+-   `administration/static/fixtures/sw-login-background-2.png`
+-   `administration/src/module/sw-login/page/index/assets/sw-login-background.png`
+-   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
+
+Update image references to their `.webp` equivalents.
+For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`
+
+## Mail template component changes
+
+The mail template index page now uses separate tabs for templates and headers/footers.
+
+Changes in `sw-mail-template-list` and `sw-mail-header-footer-list`:
+* `searchTerm` prop and watcher were removed
+* `getList()` method: `searchTerm` variable was replaced with `this.term`
+* `@page-change` handler now uses `onPageChange` directly
+
+Changes in `sw-mail-template-index`:
+* `listing` mixin was removed
+* `term` data property was removed
+* `onChangeLanguage` method now only calls `tabContent` ref
+
 </details>
 
 # Storefront
 
 <details>
 
+## TOS checkbox position update
+The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
+
 ## Removal of hardcoded language flags
 
 Hardcoded CSS language flags in `src/Storefront/Resources/app/storefront/src/scss/component/_flags.scss` were removed.
+
+## Removal of `CheckoutProgressEvent` for Google Analytics
+
+The `CheckoutProgressEvent` class in `src/Storefront/Resources/app/storefront/src/plugin/google-analytics/events/checkout-progress.event.js` was removed.
+
+If your plugin or theme relies on the `checkout_progress` event for Google Analytics tracking, it will no longer fire after upgrading to 6.8.0.0.
+
+Migrate to the GA4-compliant events `view_cart`, `add_shipping_info`, and `add_payment_info` instead.
 
 ## Deprecated DomAccess Helper
 
@@ -644,6 +758,15 @@ to:
 {% endblock %}
 ```
 
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}` has been updated. Instead of returning `204`, the route now returns `404` (Not Found) when no generated document exists.
+
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}` has been updated. Instead of returning `204`, the route now returns:
+- `406` (Not Acceptable) for invalid/unsupported `fileType` values
+- `404` (Not Found) when no generated document exists for the requested `fileType`.
+
+
 </details>
 
 # App System
@@ -677,11 +800,71 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
 
 The `CountryStateController` route `/country/country-state-data` now supports only GET methods. This change improves compatibility with HTTP caching and aligns with the best practices for data retrieval routes.
 
+## App scripts methods maxAge() and invalidationState() removed
+
+Method `response.cache.maxAge()` was removed. Use `sharedMaxAge()` to set `s-maxage` instead. The `clientMaxAge()` method is also available for setting `max-age`.
+
+```diff
+-{% do response.cache.maxAge(3600) %}
++{% do response.cache.sharedMaxAge(3600) %}
+```
+
+Method `response.cache.invalidationState()` was removed. State-based invalidation is not supported anymore.
+
+```diff
+-{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
++{# No replacement #}
+```
+
 </details>
 
 # Hosting & Configuration
 
 <details>
+
+## HTTP Cache Changes
+
+### Removed configuration parameters
+
+The following configuration parameters were removed:
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable
+- `shopware.http.cache.default_ttl` parameter
+- `shopware.http_cache.stale_while_revalidate` parameter
+- `shopware.http_cache.stale_if_error` parameter
+
+**Migration**: Use cache policies instead:
+
+```diff
+-shopware:
+-  http:
+-    cache:
+-      default_ttl: 7200
++shopware:
++  http_cache:
++    policies:
++      my_cacheable:
++        headers:
++          cache_control:
++            public: true
++            ## replaces shopware.http.cache.default_ttl parameter (and related env var)
++            s_maxage: 7200
++            # replaces shopware.http_cache.stale_while_revalidate parameter
++            stale_while_revalidate: 120
++            # replaces shopware.http_cache.stale_if_error parameter
++            stale_if_error: 360
++    default_policies:
++      storefront:
++        cacheable: my_cacheable
+```
+
+### CacheControlListener removal
+
+The `CacheControlListener` has been removed. Previously, when no reverse proxy was configured, this listener replaced all Cache-Control headers with `no-cache` before sending responses to clients.
+
+With this change, Cache-Control headers defined by cache policies are sent directly to browsers. This means:
+- Client-side caching (browser cache) now respects your configured policies.
+- Ensure your cache policies are configured appropriately for client exposure: unlike reverse proxies that use tag-based invalidation, browser caches cannot be invalidated on-demand.
 
 ## Dropped support for OpenSearch 1.x
 
@@ -735,5 +918,11 @@ Concretely this means the following configuration options are removed:
 - `shopware.cache.invalidation.country_state_route`
 - `shopware.cache.invalidation.salutation_route`
 - `shopware.cache.invalidation.sitemap_route`
+
+## Removal of product's `states` field in favor of `type` field
+
+The `states` field of the `product` entity has been removed. Instead, you must use the `type` field to indicate the product type.
+The `states` field of the `line_item` and `order_line_item` entity has also been removed. Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
+Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
 
 </details>

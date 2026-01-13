@@ -305,6 +305,8 @@
       "labelContextMenuRename": "Rename",
       "labelContextMenuDetail": "Details",
       "labelContextMenuMove": "Move",
+      "labelContextMenuSetCover": "Set cover image",
+      "labelContextMenuRemoveCover": "Remove cover",
       "notification": {
         "errorBlankItemName": {
           "message": "Media item could not be saved: Please enter a name."
@@ -320,6 +322,18 @@
         },
         "settingsSuccess": {
           "message": "Settings have been saved."
+        },
+        "coverSaveSuccess": {
+          "message": "Cover image has been saved."
+        },
+        "coverRemoveSuccess": {
+          "message": "Cover image has been removed."
+        },
+        "coverSelectionInvalid": {
+          "message": "Please select an image to use as the cover."
+        },
+        "coverSaveError": {
+          "message": "Cover image could not be saved."
         }
       },
       "labelUploading": "Uploading..."
@@ -810,6 +824,7 @@
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
         "lineItemProductStates": "Item with product state",
+        "lineItemProductType": "Item with product type",
         "numberOfReviews": "Number of approved reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
@@ -895,6 +910,14 @@
           "options": {
             "is-download": "Digital",
             "is-physical": "Physical"
+          }
+        }
+      },
+      "cartLineItemProductType": {
+        "productType": {
+          "options": {
+            "digital": "Digital",
+            "physical": "Physical"
           }
         }
       },
@@ -1069,6 +1092,7 @@
       "customer_group_registration_accepted": "Customer group registration request accepted",
       "customer_group_registration_declined": "Customer group registration request declined",
       "customer_recovery_request": "Customer requests new password",
+      "customer_password_changed": "Customer password changed",
       "mail_after_create_message": "Email created",
       "mail_before_send": "Email is being sent",
       "mail_sent": "Email sent",

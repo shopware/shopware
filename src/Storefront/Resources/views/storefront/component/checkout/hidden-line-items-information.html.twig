@@ -13,11 +13,19 @@
             {% endif %}
 
             {% block component_hidden_line_item_information %}
+                {% set categories = lineItem.payload.categoryNames is defined ? lineItem.payload.categoryNames|slice(0, 5) : [] %}
+                {% set categoryAttributes = '' %}
+                {% for name in categories %}
+                    {% set categoryAttributes = categoryAttributes ~ ' data-category-' ~ loop.index ~ '="' ~ name ~ '"' %}
+                {% endfor %}
                 <span class="hidden-line-item"
                       data-id="{{ lineItem.productId ?? lineItem.referencedId ?? lineItem.id }}"
                       data-name="{{ lineItem.label }}"
                       data-quantity="{{ lineItem.quantity }}"
-                      data-price="{{ gaPrice }}">
+                      data-price="{{ gaPrice }}"
+                      data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
+                      {{ categoryAttributes|raw }}
+                >
                 </span>
             {% endblock %}
         {% endfor %}

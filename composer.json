@@ -201,7 +201,7 @@
         "phpstan/phpstan-deprecation-rules": "2.0.3",
         "phpstan/phpstan-phpunit": "2.0.7",
         "phpstan/phpstan-strict-rules": "2.0.7",
-        "phpstan/phpstan-symfony": "2.0.8",
+        "phpstan/phpstan-symfony": "2.0.9",
         "phpunit/phpunit": "^11.5.19",
         "predis/predis": "^2.2",
         "rector/type-perfect": "2.1.1",

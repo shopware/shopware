@@ -426,10 +426,19 @@ abstract class EntityDefinition
      */
     protected function defaultFields(): array
     {
-        return [
-            (new CreatedAtField())->addFlags(new ApiAware()),
-            (new UpdatedAtField())->addFlags(new ApiAware()),
-        ];
+        $hasCreatedAtField = $this->defineFields()->filter(fn (Field $f) => $f instanceof CreatedAtField)->count() > 0;
+        $hasUpdatedAtField = $this->defineFields()->filter(fn (Field $f) => $f instanceof UpdatedAtField)->count() > 0;
+
+        $defaults = [];
+        if (!$hasCreatedAtField) {
+            $defaults[] = (new CreatedAtField())->addFlags(new ApiAware());
+        }
+
+        if (!$hasUpdatedAtField) {
+            $defaults[] =(new UpdatedAtField())->addFlags(new ApiAware());
+        }
+
+        return $defaults;
     }
 
     abstract protected function defineFields(): FieldCollection;

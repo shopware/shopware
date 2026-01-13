@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
@@ -49,13 +50,13 @@ class CaptchaController extends StorefrontController
     public function validate(Request $request): JsonResponse
     {
         $response = [];
-        $formId = $request->request->get('formId');
+        $formId = RequestParamHelper::get($request, 'formId');
         if (!$formId) {
             throw RoutingException::missingRequestParameter('formId');
         }
 
         if ($this->basicCaptcha->isValid($request, [])) {
-            $fakeSession = $request->request->get(BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
+            $fakeSession = RequestParamHelper::get($request, BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
             $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
 
             return new JsonResponse(['session' => $fakeSession]);

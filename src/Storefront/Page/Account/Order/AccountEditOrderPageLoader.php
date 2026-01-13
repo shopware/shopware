@@ -62,7 +62,7 @@ class AccountEditOrderPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountEditOrderPage
     {
-        if (!$salesChannelContext->getCustomer() && ((bool) $request->query->get('deepLinkCode', '')) === false) {
+        if (!$salesChannelContext->getCustomer() && !$request->query->getBoolean('deepLinkCode')) {
             throw CartException::customerNotLoggedIn();
         }
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -49,7 +50,7 @@ class IndexingController extends AbstractController
 
         $indexer = $this->registry->getIndexer($indexer);
 
-        $offset = ['offset' => $request->request->getInt('offset')];
+        $offset = ['offset' => RequestParamHelper::get($request, 'offset')];
         $message = $indexer ? $indexer->iterate($offset) : null;
 
         if ($message === null) {

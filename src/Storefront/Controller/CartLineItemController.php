@@ -152,7 +152,7 @@ class CartLineItemController extends StorefrontController
     {
         return Profiler::trace('cart::change-quantity', function () use ($cart, $id, $request, $context) {
             try {
-                $quantity = $request->request->get('quantity');
+                $quantity = RequestParamHelper::get($request, 'quantity');
 
                 if ($quantity === null) {
                     throw RoutingException::missingRequestParameter('quantity');

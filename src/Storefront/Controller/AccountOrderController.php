@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -108,7 +109,7 @@ class AccountOrderController extends StorefrontController
     public function cancelOrder(Request $request, SalesChannelContext $context): Response
     {
         $cancelOrderRequestData = [
-            'orderId' => $request->request->get('orderId'),
+            'orderId' => RequestParamHelper::get($request, 'orderId'),
             'transition' => 'cancel',
         ];
 
@@ -122,7 +123,7 @@ class AccountOrderController extends StorefrontController
             return $this->redirectToRoute(
                 'frontend.account.order.single.page',
                 [
-                    'deepLinkCode' => $request->request->get('deepLinkCode'),
+                    'deepLinkCode' => RequestParamHelper::get($request, 'deepLinkCode'),
                 ]
             );
         }
@@ -289,7 +290,7 @@ class AccountOrderController extends StorefrontController
         $this->contextSwitchRoute->switchContext(
             new RequestDataBag(
                 [
-                    SalesChannelContextService::PAYMENT_METHOD_ID => $request->request->get('paymentMethodId'),
+                    SalesChannelContextService::PAYMENT_METHOD_ID => RequestParamHelper::get($request, 'paymentMethodId'),
                 ]
             ),
             $context

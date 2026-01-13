@@ -45,7 +45,7 @@ class HoneypotCaptcha extends AbstractCaptcha
     public function isValid(Request $request, array $captchaConfig): bool
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            $this->honeypotValue = (string) $request->request->get(self::CAPTCHA_REQUEST_PARAMETER, '');
+            $this->honeypotValue = $request->request->getString(self::CAPTCHA_REQUEST_PARAMETER);
 
             return \count($this->validator->validate($this)) < 1;
         }

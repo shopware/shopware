@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
@@ -146,7 +147,7 @@ class SalesChannelProxyController extends AbstractController
 
         $this->persistPermissions($request, $salesChannelContext);
 
-        $this->updateCustomerToContext($request->request->getString(self::CUSTOMER_ID), $salesChannelContext);
+        $this->updateCustomerToContext(RequestParamHelper::get($request, self::CUSTOMER_ID), $salesChannelContext);
 
         $content = json_encode([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken(),

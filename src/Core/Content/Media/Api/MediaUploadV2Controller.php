@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\Api;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Upload\MediaUploadParameters;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -42,7 +43,7 @@ readonly class MediaUploadV2Controller
         MediaUploadParameters $mediaUploadParameters,
         Context $context
     ): JsonResponse {
-        $url = $request->request->get('url');
+        $url = RequestParamHelper::get($request, 'url');
 
         if (!\is_string($url)) {
             throw MediaException::invalidUrl('');
@@ -58,7 +59,7 @@ readonly class MediaUploadV2Controller
         MediaUploadParameters $mediaUploadParameters,
         Context $context
     ): JsonResponse {
-        $url = $request->request->get('url');
+        $url = RequestParamHelper::get($request, 'url');
 
         if (!\is_string($url)) {
             throw MediaException::invalidUrl('');

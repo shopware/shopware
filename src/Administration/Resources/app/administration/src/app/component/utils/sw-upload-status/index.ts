@@ -53,6 +53,7 @@ type MediaUploadPayload = {
     loaded?: number;
     total?: number;
     targetId?: string;
+    originalTargetId?: string | null;
     fileName?: string;
     error?: UploadError;
 };
@@ -92,8 +93,15 @@ const StatusMessages = {
     TRANSPORT_ERROR: 'global.sw-media-upload.notification.transportError.message',
 } as const;
 
-const TimeoutStatuses = [408, 504, 524];
-const GatewayErrorStatuses = [502, 503];
+const TimeoutStatuses = [
+    408,
+    504,
+    524,
+];
+const GatewayErrorStatuses = [
+    502,
+    503,
+];
 
 /**
  * This component listens to media upload events and shows a snackbar displaying the upload progress.
@@ -249,7 +257,7 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
         onUploadFinished(event: MediaUploadEvent) {
-            const targetId = event.payload.targetId ?? '';
+            const targetId = event.payload.originalTargetId ?? event.payload.targetId ?? '';
             const found = this.findByTargetId(targetId);
 
             if (!found) {
@@ -306,6 +314,15 @@ export default Shopware.Component.wrapComponentConfig({
             this.uploads.delete(found.uploadId);
         },
         updateSnackbar() {
+            if (this.uploadCount === 0) {
+                if (this.snackbarItem) {
+                    this.snackbar.removeSnackbar(this.snackbarItem.id);
+                }
+
+                this.snackbarItem = null;
+                return;
+            }
+
             if (this.snackbarItem) {
                 Object.assign(this.snackbarItem, this.snackbarConfig);
             } else {

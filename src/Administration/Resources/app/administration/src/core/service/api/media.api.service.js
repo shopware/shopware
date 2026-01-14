@@ -107,10 +107,12 @@ class MediaApiService extends ApiService {
 
     keepFile(uploadTag, uploadData) {
         const task = new UploadTask({ uploadTag, ...uploadData });
+        const originalTargetId = uploadData?.originalTargetId ?? null;
         this.getListenerForTag(uploadTag).forEach((listener) => {
             listener(
                 this._createUploadEvent(UploadEvents.UPLOAD_FINISHED, uploadTag, {
                     targetId: task.targetId,
+                    originalTargetId,
                     successAmount: 0,
                     failureAmount: 0,
                     totalAmount: 0,
@@ -186,14 +188,7 @@ class MediaApiService extends ApiService {
     _startUpload(task, uploadTag) {
         if (task.src instanceof File) {
             return fileReader.readAsArrayBuffer(task.src).then((buffer) => {
-                return this.uploadMediaById(
-                    task.targetId,
-                    task.src.type,
-                    buffer,
-                    task.extension,
-                    task.fileName,
-                    uploadTag,
-                );
+                return this.uploadMediaById(task.targetId, task.src.type, buffer, task.extension, task.fileName, uploadTag);
             });
         }
 
@@ -222,29 +217,31 @@ class MediaApiService extends ApiService {
             fileName,
         };
 
-        return this.httpClient.post(apiRoute, data, {
-            params,
-            headers,
-            onUploadProgress: (progressEvent) => {
-                if (!uploadTag) {
-                    return;
-                }
+        return this.httpClient
+            .post(apiRoute, data, {
+                params,
+                headers,
+                onUploadProgress: (progressEvent) => {
+                    if (!uploadTag) {
+                        return;
+                    }
 
-                const total = progressEvent.total ?? data.byteLength ?? 0;
-                this.getListenerForTag(uploadTag).forEach((listener) => {
-                    listener(
-                        this._createUploadEvent(UploadEvents.UPLOAD_PROGRESS, uploadTag, {
-                            targetId: id,
-                            loaded: progressEvent.loaded,
-                            total,
-                        }),
-                    );
-                });
-            },
-            timeout: 0,
-        }).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+                    const total = progressEvent.total ?? data.byteLength ?? 0;
+                    this.getListenerForTag(uploadTag).forEach((listener) => {
+                        listener(
+                            this._createUploadEvent(UploadEvents.UPLOAD_PROGRESS, uploadTag, {
+                                targetId: id,
+                                loaded: progressEvent.loaded,
+                                total,
+                            }),
+                        );
+                    });
+                },
+                timeout: 0,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     uploadMediaFromUrl(id, url, extension, fileName = id) {
@@ -259,13 +256,15 @@ class MediaApiService extends ApiService {
 
         const body = JSON.stringify({ url });
 
-        return this.httpClient.post(apiRoute, body, {
-            params,
-            headers,
-            timeout: 0,
-        }).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+        return this.httpClient
+            .post(apiRoute, body, {
+                params,
+                headers,
+                timeout: 0,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     renameMedia(id, fileName) {

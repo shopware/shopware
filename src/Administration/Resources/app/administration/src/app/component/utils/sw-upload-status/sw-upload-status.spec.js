@@ -15,6 +15,7 @@ const mockSnackbarItem = {
 
 const mockSnackbar = {
     addSnackbar: jest.fn(() => mockSnackbarItem),
+    removeSnackbar: jest.fn(),
     snackbars: [],
 };
 
@@ -71,6 +72,17 @@ function createUploadFinishedEvent(targetId, uploadTag = 'test-tag') {
         action: UploadEvents.UPLOAD_FINISHED,
         payload: {
             targetId,
+        },
+        uploadTag,
+    };
+}
+
+function createUploadFinishedEventWithOriginal(targetId, originalTargetId, uploadTag = 'test-tag') {
+    return {
+        action: UploadEvents.UPLOAD_FINISHED,
+        payload: {
+            targetId,
+            originalTargetId,
         },
         uploadTag,
     };
@@ -190,6 +202,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
     });
 
     it('should mark upload as finished when UPLOAD_FINISHED event is triggered', async () => {
+        wrapper.vm.updateSnackbar = jest.fn();
         const file1 = createFile('test.jpg', 'content');
         const file2 = createFile('test2.jpg', 'content2');
 
@@ -208,6 +221,21 @@ describe('src/app/component/utils/sw-upload-status', () => {
         expect(fileInfo.status).toBe('finished');
     });
 
+    it('should mark upload as finished when original target id is provided', async () => {
+        wrapper.vm.updateSnackbar = jest.fn();
+        const file = createFile('test.jpg', 'content');
+        const task = [createUploadTask('original-target', file)];
+
+        wrapper.vm.onUploadEvent(createUploadAddedEvent(task));
+        wrapper.vm.onUploadEvent(createUploadFinishedEventWithOriginal('existing-target', 'original-target'));
+
+        await wrapper.vm.$nextTick();
+
+        const uploadId = wrapper.vm.getUploadId(file.name, file.size);
+        const fileInfo = wrapper.vm.uploads.get(uploadId);
+
+        expect(fileInfo.status).toBe('finished');
+    });
     it('should mark upload as failed when UPLOAD_FAILED event is triggered', async () => {
         wrapper.vm.createNotificationError = jest.fn();
         const file1 = createFile('test.jpg', 'content');
@@ -262,6 +290,8 @@ describe('src/app/component/utils/sw-upload-status', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.uploads.size).toBe(0);
+        expect(wrapper.vm.snackbarItem).toBeNull();
+        expect(mockSnackbar.removeSnackbar).toHaveBeenCalledWith('media-upload-status');
     });
 
     it('should calculate upload progress correctly', async () => {
@@ -344,6 +374,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
     });
 
     it('should detect upload complete when all uploads finished', async () => {
+        wrapper.vm.updateSnackbar = jest.fn();
         const file = createFile();
         const tasks = [createUploadTask('target-123', file)];
 
@@ -355,6 +386,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
     });
 
     it('should detect upload complete when all uploads failed', async () => {
+        wrapper.vm.updateSnackbar = jest.fn();
         const file = createFile();
         const tasks = [createUploadTask('target-123', file)];
 
@@ -368,6 +400,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
     });
 
     it('should update snackbar config with success state when all uploads complete', async () => {
+        wrapper.vm.updateSnackbar = jest.fn();
         const file = createFile();
         const tasks = [createUploadTask('target-123', file)];
 
@@ -451,6 +484,28 @@ describe('src/app/component/utils/sw-upload-status', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'Transport error: test.jpg',
+        });
+    });
+
+    it('should show error notification for payload too large', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const error = {
+            response: {
+                status: 413,
+                data: {
+                    errors: [],
+                },
+            },
+        };
+
+        wrapper.vm.showErrorNotification({
+            fileName: 'test.jpg',
+            error,
+        });
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Payload too large: test.jpg',
         });
     });
 

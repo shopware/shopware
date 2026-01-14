@@ -92,4 +92,26 @@ describe('src/module/sw-media/page/sw-media-index', () => {
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });
+
+    it('refreshes the list when an upload finishes', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.reloadList = jest.fn();
+        wrapper.vm.uploads = [{ id: 'upload-id' }];
+
+        wrapper.vm.onUploadFinished({ targetId: 'upload-id' });
+
+        expect(wrapper.vm.reloadList).toHaveBeenCalled();
+        expect(wrapper.vm.uploads).toHaveLength(0);
+    });
+
+    it('refreshes the list when an upload fails', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.reloadList = jest.fn();
+        wrapper.vm.uploads = [{ id: 'upload-id' }];
+
+        wrapper.vm.onUploadFailed({ targetId: 'upload-id' });
+
+        expect(wrapper.vm.reloadList).toHaveBeenCalled();
+        expect(wrapper.vm.uploads).toHaveLength(0);
+    });
 });

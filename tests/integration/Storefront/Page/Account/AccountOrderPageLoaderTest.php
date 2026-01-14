@@ -88,7 +88,9 @@ class AccountOrderPageLoaderTest extends TestCase
                 [
                     'email' => $expectedCustomer->getEmail(),
                     'zipcode' => '12345',
-                ], [], [
+                ],
+                [],
+                [
                     'deepLinkCode' => $deepLinkCode,
                 ]
             ),
@@ -115,7 +117,9 @@ class AccountOrderPageLoaderTest extends TestCase
                 [
                     'email' => $salesChannel->getCustomer()?->getEmail(),
                     'zipcode' => '12345',
-                ], [], [
+                ],
+                [],
+                [
                     'deepLinkCode' => $deepLinkCode,
                 ]
             ),

@@ -36,7 +36,7 @@ class FilterTagIdsService
         $query = $this->getIdsQuery($criteria, $context);
         $duplicateFilter = RequestParamHelper::get($request, 'duplicateFilter', false);
         $emptyFilter = RequestParamHelper::get($request, 'emptyFilter', false);
-        $assignmentFilter = RequestParamHelper::get($request, 'assignmentFilter',false);
+        $assignmentFilter = RequestParamHelper::get($request, 'assignmentFilter', false);
 
         if ($emptyFilter) {
             $this->addEmptyFilter($query);

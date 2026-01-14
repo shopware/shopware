@@ -43,7 +43,6 @@ class Migration1764939915CancellationRequestMerchantMailTemplate extends Migrati
 
         $mailTemplateType_bytesId = $this->createMailTemplateType($connection, $enLanguage_byteId, $deLanguage_byteId);
         $this->createMailTemplate($connection, $mailTemplateType_bytesId, $enLanguage_byteId, $deLanguage_byteId);
-
     }
 
     private function createMailTemplate(

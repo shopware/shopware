@@ -72,5 +72,12 @@ return [
         // Inherited attribute $reversed parameter removed - attribute inheritance never worked before, so no BC break
         preg_quote('REMOVED: Property Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#$reversed was removed'),
         preg_quote('Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#__construct()'),
+
+        // Defined entity property mismatch the entity class property type
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureEntity#$stateMachineState changed from Shopware\Core\System\StateMachine\StateMachineEntity|null to Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureEntity#getStateMachineState() changed from Shopware\Core\System\StateMachine\StateMachineEntity|null to Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureEntity#getStateMachineState() changed from Shopware\Core\System\StateMachine\StateMachineEntity|null to the non-covariant Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity|null', '/'),
+        preg_quote('CHANGED: The parameter $stateMachineState of Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureEntity#setStateMachineState() changed from Shopware\Core\System\StateMachine\StateMachineEntity|null to Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity|null', '/'),
+        preg_quote('CHANGED: The parameter $stateMachineState of Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureEntity#setStateMachineState() changed from Shopware\Core\System\StateMachine\StateMachineEntity|null to a non-contravariant Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity|null', '/'),
     ],
 ];

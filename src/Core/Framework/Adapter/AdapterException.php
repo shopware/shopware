@@ -32,14 +32,6 @@ class AdapterException extends HttpException
     public const REDIS_MISSING_CONNECTION_PARAMETER = 'FRAMEWORK__REDIS_MISSING_CONNECTION_PARAMETER';
     public const INVALID_ASSET_URL = 'FRAMEWORK__INVALID_ASSET_URL';
     final public const INVALID_ARGUMENT = 'FRAMEWORK__INVALID_ARGUMENT_EXCEPTION';
-    final public const STRING_TEMPLATE_RENDERING_FAILED = 'FRAMEWORK__STRING_TEMPLATE_RENDERING_FAILED';
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
-     */
-    final public const CURRENCY_FILTER_ERROR = 'FRAMEWORK__CURRENCY_FILTER_ERROR';
-    final public const SECURITY_FUNCTION_NOT_ALLOWED = 'FRAMEWORK__SECURITY_FUNCTION_NOT_ALLOWED';
-    final public const CACHE_COMPRESSION_ERROR = 'FRAMEWORK__CACHE_COMPRESSION_ERROR';
-    final public const PCRE_FUNCTION_ERROR = 'FRAMEWORK__PCRE_FUNCTION_ERROR';
     final public const CACHE_DIRECTORY_ERROR = 'FRAMEWORK__CACHE_DIRECTORY_ERROR';
 
     /**
@@ -199,53 +191,6 @@ class AdapterException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_ARGUMENT,
             $message
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
-     */
-    public static function currencyFilterError(string $message): self
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
-        );
-
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::CURRENCY_FILTER_ERROR,
-            $message
-        );
-    }
-
-    public static function securityFunctionNotAllowed(string $function): self
-    {
-        return new self(
-            Response::HTTP_FORBIDDEN,
-            self::SECURITY_FUNCTION_NOT_ALLOWED,
-            'Function "{{ function }}" is not allowed',
-            ['function' => $function]
-        );
-    }
-
-    public static function cacheCompressionError(string $message): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::CACHE_COMPRESSION_ERROR,
-            'Error while processing cache compression. {{ message }}',
-            ['message' => $message],
-        );
-    }
-
-    public static function pcreFunctionError(string $function, string $error): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::PCRE_FUNCTION_ERROR,
-            'Error while processing Twig {{ function }} function. Error: {{ error }}',
-            ['function' => $function, 'error' => $error]
         );
     }
 

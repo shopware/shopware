@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Tools\DsnParser;
 use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
@@ -41,8 +40,6 @@ class MySQLFactory
                 \PDO::ATTR_TIMEOUT => 5, // 5s connection timeout
             ],
         ];
-
-        $parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND] = \implode(';', $initCommands);
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
             $parameters['driverOptions'][Mysql::ATTR_SSL_CA] = $sslCa;

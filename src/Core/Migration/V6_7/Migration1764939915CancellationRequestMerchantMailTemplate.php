@@ -49,7 +49,7 @@ class Migration1764939915CancellationRequestMerchantMailTemplate extends Migrati
         Connection $connection,
         string $mailTemplateType_bytesId,
         string $enLanguage_byteId,
-        string $deLanguage_byteId
+        ?string $deLanguage_byteId
     ): void {
         $hasMailTemplate = true;
         $mailStruct = $this->createMailStruct();
@@ -87,7 +87,7 @@ class Migration1764939915CancellationRequestMerchantMailTemplate extends Migrati
             );
         }
 
-        if (!$this->hasMailTemplateTranslation($connection, $mailTemplate_byteId, $deLanguage_byteId)) {
+        if (\is_string($deLanguage_byteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplate_byteId, $deLanguage_byteId)) {
             $connection->insert(
                 'mail_template_translation',
                 [
@@ -117,7 +117,7 @@ class Migration1764939915CancellationRequestMerchantMailTemplate extends Migrati
         return $mailStruct;
     }
 
-    private function createMailTemplateType(Connection $connection, string $enLanguage_byteId, string $deLanguage_byteId): string
+    private function createMailTemplateType(Connection $connection, string $enLanguage_byteId, ?string $deLanguage_byteId): string
     {
         $hasMailTemplateType = true;
         $mailTemplateType_byteId = $this->getMailTemplateTypeId($connection);
@@ -150,7 +150,7 @@ class Migration1764939915CancellationRequestMerchantMailTemplate extends Migrati
             );
         }
 
-        if (!$this->hasTemplateTypeTranslation($connection, $mailTemplateType_byteId, $deLanguage_byteId)) {
+        if (\is_string($deLanguage_byteId) && !$this->hasTemplateTypeTranslation($connection, $mailTemplateType_byteId, $deLanguage_byteId)) {
             $connection->insert(
                 'mail_template_type_translation',
                 [

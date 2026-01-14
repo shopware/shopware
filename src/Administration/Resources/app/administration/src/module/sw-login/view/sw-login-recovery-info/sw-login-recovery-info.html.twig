@@ -9,10 +9,11 @@
             <mt-icon
                 class="sw-login__back-arrow"
                 name="regular-long-arrow-left"
-                size="16px"
+                size="14px"
             />
         </router-link>
-        {{ $tc('sw-login.recovery.info.headline') }}
+
+        <span>{{ $tc('sw-login.recovery.info.headline') }}</span>
     </h2>
     {% endblock %}
 
@@ -21,10 +22,12 @@
         <mt-banner variant="info">
             {{ $tc('sw-login.recovery.info.info') }}
         </mt-banner>
+
         <mt-banner variant="attention">
             {{ $tc('sw-login.recovery.info.warning') }}
         </mt-banner>
     </template>
+
     <template v-else>
         <mt-banner variant="info">
             {{ $tc('global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED', { seconds: rateLimitTime }, 0) }}

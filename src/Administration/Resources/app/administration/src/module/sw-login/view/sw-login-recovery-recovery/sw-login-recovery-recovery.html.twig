@@ -9,10 +9,11 @@
             <mt-icon
                 class="sw-login__back-arrow"
                 name="regular-long-arrow-left"
-                size="16px"
+                size="14px"
             />
         </router-link>
-        {{ $tc('sw-login.recovery.recovery.headline') }}
+
+        <span>{{ $tc('sw-login.recovery.recovery.headline') }}</span>
     </h2>
     {% endblock %}
     <template v-if="hashValid === true">
@@ -56,7 +57,7 @@
     </template>
 
     <template v-else>
-        <sw-loader />
+        <mt-loader />
     </template>
 </div>
 {% endblock %}

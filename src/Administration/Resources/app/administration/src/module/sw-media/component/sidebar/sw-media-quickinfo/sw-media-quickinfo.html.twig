@@ -268,12 +268,20 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_preview_item %}
-                <sw-media-preview-v2
-                    class="sw-media-quickinfo__media-preview"
-                    :source="item.id"
-                    :show-controls="true"
-                    :use-thumbnails="false"
-                />
+                <template v-if="item.mimeType?.split('/')[0] === 'model'">
+                    <sw-model-viewer
+                        :source="item"
+                    />
+                </template>
+
+                <template v-else>
+                    <sw-media-preview-v2
+                        class="sw-media-quickinfo__media-preview"
+                        :source="item.id"
+                        :show-controls="true"
+                        :use-thumbnails="false"
+                    />
+                </template>
                 {% endblock %}
             </div>
         </template>

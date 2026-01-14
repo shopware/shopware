@@ -18,6 +18,7 @@
     },
     "customerGroupRegistration": {
       "alert": "Access to customer group \"{name}\" requested.",
+      "customerInactiveMessage": "Inactive customers cannot be accepted or declined to any customer group.",
       "accept": "Accept",
       "acceptMessage": "Customer group has been changed",
       "decline": "Decline",

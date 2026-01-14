@@ -661,6 +661,12 @@ The following will be removed in Shopware 6.8.0:
 
 The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates. In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
 
+## Removal of `pathIdList` option in NavbarPlugin
+
+The `pathIdList` option in `NavbarPlugin` and the corresponding key in the `navbarOptions` template variable in `navbar.html.twig` were removed.
+
+Use the `window.activeNavigationPathIdList` global variable instead, which is set in `meta.html.twig`.
+
 ## Refactor of providing cookies
 
 The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.

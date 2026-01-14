@@ -1,5 +1,5 @@
-import NavbarPlugin from 'src/plugin/navbar/navbar.plugin';
 import FocusHandler from 'src/helper/focus-handler.helper';
+import NavbarPlugin from 'src/plugin/navbar/navbar.plugin';
 
 describe('NavbarPlugin', () => {
     let navbarPlugin;
@@ -68,19 +68,6 @@ describe('NavbarPlugin', () => {
         expect(typeof addedEvents['mouseleave']).toBe('function');
 
         expect(addedEvents).not.toContain('click');
-    });
-
-    test('_toggleNavbar should handle mouseenter and mouseleave events', () => {
-        const mockEventEnter = {type: 'mouseenter'};
-        const mockEventLeave = {type: 'mouseleave'};
-
-        navbarPlugin._toggleNavbar = jest.fn();
-
-        navbarPlugin._toggleNavbar(mockLink, mockEventEnter);
-        expect(navbarPlugin._toggleNavbar).toHaveBeenCalledWith(mockLink, mockEventEnter);
-
-        navbarPlugin._toggleNavbar(mockLink, mockEventLeave);
-        expect(navbarPlugin._toggleNavbar).toHaveBeenCalledWith(mockLink, mockEventLeave);
     });
 
     test('_navigateToLinkOnClick should open in new window when target blank is set', () => {
@@ -200,18 +187,6 @@ describe('NavbarPlugin', () => {
         expect(navbarPlugin._debounce).toHaveBeenCalled();
     });
 
-    test('_closeAllDropdowns should call hide on dropdowns with show class', () => {
-        const mockDropdown = {hide: jest.fn(), _menu: {classList: {contains: jest.fn().mockReturnValue(true)}}};
-        window.bootstrap = {
-            Dropdown: {
-                getInstance: jest.fn().mockReturnValue(mockDropdown),
-            },
-        };
-        navbarPlugin._topLevelLinks = [mockLink];
-        navbarPlugin._closeAllDropdowns();
-        expect(mockDropdown.hide).toHaveBeenCalled();
-    });
-
     test('current page is applied on load event', () => {
         const mockEvent = new Event('load');
         jest.spyOn(navbarPlugin, '_setCurrentPage'); // Spy on the method
@@ -236,6 +211,57 @@ describe('NavbarPlugin', () => {
 
         expect(mockLink.getAttribute('aria-current')).toBe('page');
         expect(mockLink.classList.contains('active')).toBe(true);
+    });
+
+    test('active class is set for parent categories via window.activeNavigationPathIdList', () => {
+        // Create a subcategory link (current page)
+        const subcategoryLink = document.createElement('a');
+        subcategoryLink.classList.add('nav-item-subcategory-1-link');
+        subcategoryLink.setAttribute('href', 'https://example.com/subcategory');
+        mockElement.appendChild(subcategoryLink);
+
+        // Create a top-level category link (parent in path)
+        const topLevelLink = document.createElement('a');
+        topLevelLink.classList.add('nav-item-category-a-link');
+        topLevelLink.setAttribute('href', 'https://example.com/category-a');
+        mockElement.appendChild(topLevelLink);
+
+        // Set the current page as subcategory
+        window.activeNavigationId = 'subcategory-1';
+        // Set the path to include the parent category
+        window.activeNavigationPathIdList = ['category-a'];
+
+        navbarPlugin._setCurrentPage();
+
+        // Subcategory should have aria-current and active class
+        expect(subcategoryLink.getAttribute('aria-current')).toBe('page');
+        expect(subcategoryLink.classList.contains('active')).toBe(true);
+
+        // Top-level category should have active class (but no aria-current)
+        expect(topLevelLink.getAttribute('aria-current')).toBeNull();
+        expect(topLevelLink.classList.contains('active')).toBe(true);
+    });
+
+    test('active class is set for parent categories via options.pathIdList as fallback', () => {
+        // Create a top-level category link (parent in path)
+        const topLevelLink = document.createElement('a');
+        topLevelLink.classList.add('nav-item-category-b-link');
+        topLevelLink.setAttribute('href', 'https://example.com/category-b');
+        mockElement.appendChild(topLevelLink);
+
+        // Clear window.activeNavigationPathIdList to test fallback
+        delete window.activeNavigationPathIdList;
+        window.activeNavigationId = 'subcategory-2';
+
+        // Create a new plugin instance with pathIdList option
+        const pluginWithOptions = new NavbarPlugin(mockElement, {
+            pathIdList: ['category-b'],
+        }, false);
+        pluginWithOptions._topLevelLinks = [mockLink];
+        pluginWithOptions._setCurrentPage();
+
+        // Top-level category should have active class
+        expect(topLevelLink.classList.contains('active')).toBe(true);
     });
 
     test('_restoreFocusAfterBtnClose should focus related dropdown top level link', () => {

@@ -76,17 +76,33 @@
             {% endblock %}
         </template>
 
-        <div v-if="loginConfig.url">
-            <a
-                class="sw-button sw-button--primary sw-button--small sw-login__sso-button"
+        <div
+            v-if="loginConfig.url"
+            class="sw-login__sso"
+        >
+            <div class="sw-login__sso-divider">
+                <span class="sw-login__sso-divider-text">
+                    {{ $tc('sw-login.index.orContinueWith') }}
+                </span>
+            </div>
+
+            <mt-button
+                class="sw-login__sso-button"
                 :disabled="!loginConfigLoaded"
-                :href="loginConfig.url"
+                :block="true"
+                variant="secondary"
                 @click.prevent="doSsoForwarding"
             >
-                {{ $tc('sw-login.index.buttonSsoLogin') }}
+                <template #iconFront>
+                    <mt-icon
+                        name="regular-shopware"
+                        class="sw-login__sso-button-icon"
+                        size="14px"
+                    />
+                </template>
 
-                <mt-icon name="regular-shopware" />
-            </a>
+                {{ $tc('sw-login.index.buttonSsoLogin') }}
+            </mt-button>
         </div>
     </div>
 

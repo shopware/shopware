@@ -16,10 +16,10 @@
 
     .sw-login__container {
         background: var(--color-elevation-surface-default);
-        width: 70rem;
-        min-height: 37.5rem;
+        width: 71.5rem;
+        min-height: 40rem;
         display: grid;
-        grid-template-columns: auto 30rem;
+        grid-template-columns: auto 31rem;
         transition: all 0.3s ease-in-out;
         transform: scale(1);
         border-radius: var(--border-radius-card);
@@ -36,8 +36,12 @@
     }
 
     .sw-login__content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         min-width: 20rem;
-        padding: var(--scale-size-128) var(--scale-size-48);
+        padding: var(--scale-size-96) var(--scale-size-48);
         position: relative;
         opacity: 1;
         transition:
@@ -63,12 +67,12 @@
     }
 
     .sw-login__form-headline {
-        margin-bottom: var(--scale-size-32);
+        margin-bottom: var(--scale-size-24);
         display: flex;
         align-items: center;
         color: var(--color-text-primary-default);
         font-size: var(--font-size-m);
-        font-weight: var(--font-weight-semi-bold);
+        font-weight: var(--font-weight-semibold);
 
         .mt-icon {
             margin-right: var(--scale-size-10);
@@ -98,7 +102,7 @@
         top: -10px;
         right: -10px;
         z-index: 420;
-        border-radius: var(--border-radius-m);
+        border-radius: var(--border-radius-s);
         background: var(--color-icon-brand-default);
         transition:
             top 0.2s ease-in-out,
@@ -108,13 +112,13 @@
             fill: var(--color-static-white);
         }
 
-        @media screen and (max-width: 600px) {
+        @media screen and (max-width: 37.5rem) {
             top: 0;
             right: 0;
         }
     }
 
-    .sw-login__submit {;
+    .sw-login__submit {
         margin-top: var(--scale-size-32);
         text-align: right;
 
@@ -155,7 +159,8 @@
     }
 
     .sw-login__image-headlines {
-        padding-bottom: 115px;
+        padding-bottom: var(--scale-size-128);
+        padding-left: var(--scale-size-36);
         align-self: flex-end;
         white-space: nowrap;
         transition: opacity 0.2s ease-in-out;
@@ -167,7 +172,6 @@
     }
 
     .sw-login__headline {
-        padding-left: 47px;
         font-size: 58px;
         line-height: 65px;
         color: var(--color-text-primary-inverse);
@@ -181,7 +185,6 @@
     }
 
     .sw-login__sub-headline {
-        padding-left: 50px;
         font-size: 42px;
         line-height: 50px;
         color: var(--color-text-primary-inverse);
@@ -191,6 +194,34 @@
         @media screen and (max-width: 68.75rem) {
             font-size: 30px;
             line-height: 40px;
+        }
+    }
+
+    .sw-login__sso {
+        margin-top: var(--scale-size-24);
+
+        &-divider {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--scale-size-24);
+
+            &::before,
+            &::after {
+                flex: 1;
+                content: "";
+                border-top: 1px solid var(--color-border-primary-default);
+            }
+        }
+
+        &-divider-text {
+            padding: 0 var(--scale-size-16);
+            color: var(--color-text-secondary-default);
+            font-size: var(--font-size-xs);
+            white-space: nowrap;
+        }
+
+        &-button-icon {
+            color: var(--color-icon-brand-default);
         }
     }
 

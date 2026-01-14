@@ -424,18 +424,18 @@ export default {
             this.showModelViewerModal = true;
         },
 
-        onModelViewerModalMounted() {
-            console.log('Modal mounted');
+        closeModelViewerModal() {
+            this.showModelViewerModal = false;
+        },
 
+        onModelViewerModalMounted() {
             const modal = document.querySelector?.('.sw-model-viewer-modal');
             if (!modal) {
-                console.error('Modal not found');
                 return;
             }
 
             const modalCanvas = modal.querySelector('.sw-model-viewer-modal-canvas');
             if (!modalCanvas) {
-                console.error('Modal canvas not found');
                 return;
             }
 

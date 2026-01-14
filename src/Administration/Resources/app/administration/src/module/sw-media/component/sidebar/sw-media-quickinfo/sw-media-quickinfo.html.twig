@@ -289,8 +289,8 @@
                         class="sw-model-viewer-modal"
                         v-if="showModelViewerModal"
                         :title="$tc('Model Viewer')"
-                        variant="large"
-                        @modal-close="showModelViewerModal = false"
+                        variant="x-large"
+                        @modal-close="closeModelViewerModal()"
                         @vue:mounted="onModelViewerModalMounted()"
                     >
                         <div class="sw-model-viewer-modal-wrapper">

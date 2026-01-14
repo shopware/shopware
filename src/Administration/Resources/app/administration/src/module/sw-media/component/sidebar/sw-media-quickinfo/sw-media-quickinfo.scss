@@ -59,10 +59,11 @@ $sw-media-quickinfo-border-radius-preview: $border-radius-default;
 .sw-model-viewer-modal {
     .sw-modal__body {
         padding: 0;
+        overflow-y: hidden;
     }
 
     .sw-model-viewer-modal-wrapper {
         width: 100%;
-        height: 500px;
+        height: 800px;
     }
 }

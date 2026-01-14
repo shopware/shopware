@@ -86,7 +86,14 @@
                                 "$ref": "#/components/schemas/Country"
                             },
                             "address": {
-                                "$ref": "#/components/schemas/CustomerAddress"
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/CustomerAddress"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
                             }
                         }
                     },

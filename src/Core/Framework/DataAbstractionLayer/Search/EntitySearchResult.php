@@ -112,6 +112,13 @@ class EntitySearchResult extends EntityCollection
         unset($vars['context']);
         unset($vars['entities']);
 
+        // tag:v6.8.0 - This field should be removed from the API responses. Uncomment for next major version.
+        // unset($vars['entity']);
+        // tag:v6.8.0 - This field should be removed from the API responses. Uncomment for next major version.
+        // unset($vars['states']);
+        // tag:v6.8.0 - This field should be removed from the API responses. Uncomment for next major version.
+        // unset($vars['apiAlias']);
+
         $this->convertDateTimePropertiesToJsonStringRepresentation($vars);
 
         return $vars;

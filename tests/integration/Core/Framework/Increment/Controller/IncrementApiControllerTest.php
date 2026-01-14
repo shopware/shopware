@@ -37,13 +37,6 @@ class IncrementApiControllerTest extends TestCase
         $this->getGateway($this->getBrowser())->reset($this->userId, 'foo');
     }
 
-    private function getGateway(KernelBrowser $browser): AbstractIncrementer
-    {
-        $gatewayRegistry = $browser->getContainer()->get('shopware.increment.gateway.registry');
-
-        return $gatewayRegistry->get(IncrementGatewayRegistry::USER_ACTIVITY_POOL);
-    }
-
     public function testListEndpoint(): void
     {
         $client = $this->getBrowser();
@@ -302,5 +295,12 @@ class IncrementApiControllerTest extends TestCase
         $entries = $this->getGateway($client)->list($this->userId);
 
         static::assertEmpty($entries);
+    }
+
+    private function getGateway(KernelBrowser $browser): AbstractIncrementer
+    {
+        $gatewayRegistry = $browser->getContainer()->get('shopware.increment.gateway.registry');
+
+        return $gatewayRegistry->get(IncrementGatewayRegistry::USER_ACTIVITY_POOL);
     }
 }

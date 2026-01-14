@@ -89,14 +89,11 @@ export default class ZoomModalPlugin extends Plugin {
 
         // Events for normal elements (images)
         this._triggers.forEach(element => {
-            element.removeEventListener(eventType, this._onClick.bind(this));
-            element.addEventListener(eventType, this._onClick.bind(this));
+            element.removeEventListener('click', this._onClick.bind(this));
+            element.addEventListener('click', this._onClick.bind(this));
 
             element.removeEventListener('keydown', this._onKeyDown.bind(this));
             element.addEventListener('keydown', this._onKeyDown.bind(this));
-
-            element.removeEventListener('touchmove', this._onTouchMove.bind(this));
-            element.addEventListener('touchmove', this._onTouchMove.bind(this));
         });
 
         // Events for canvas elements (product box)
@@ -149,13 +146,6 @@ export default class ZoomModalPlugin extends Plugin {
         this._openModal();
 
         this.$emitter.publish('onEnter');
-    }
-
-    /**
-     * @private
-     */
-    _onTouchMove() {
-        this._clickInterrupted = true;
     }
 
     /**

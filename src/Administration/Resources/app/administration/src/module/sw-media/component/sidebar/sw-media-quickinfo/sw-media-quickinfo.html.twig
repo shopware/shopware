@@ -271,11 +271,11 @@
                 <template v-if="item.mimeType?.split('/')[0] === 'model'">
                     <div class="sw-model-viewer-wrapper">
                         <mt-button
-                            class="sw-model-viewer-button"
                             v-if="!isLoading"
-                            @click="openModelViewerModal()"
+                            class="sw-model-viewer-button"
                             variant="secondary"
                             size="x-small"
+                            @click="openModelViewerModal()"
                         >
                             <mt-icon name="regular-expand-arrows-xs" />
                         </mt-button>
@@ -286,8 +286,8 @@
 
                     {% block sw_model_viewer_modal %}
                     <sw-modal
-                        class="sw-model-viewer-modal"
                         v-if="showModelViewerModal"
+                        class="sw-model-viewer-modal"
                         :title="$tc('Model Viewer')"
                         variant="x-large"
                         @modal-close="closeModelViewerModal()"

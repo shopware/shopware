@@ -46,7 +46,7 @@ readonly class MediaUploadV2Controller
         $url = RequestParamHelper::get($request, 'url');
 
         if (!\is_string($url)) {
-            throw MediaException::invalidUrl('');
+            throw MediaException::invalidUrl(print_r($url, true));
         }
 
         return new JsonResponse(['id' => $this->mediaUploadService->uploadFromURL($url, $context, $mediaUploadParameters)]);
@@ -62,7 +62,7 @@ readonly class MediaUploadV2Controller
         $url = RequestParamHelper::get($request, 'url');
 
         if (!\is_string($url)) {
-            throw MediaException::invalidUrl('');
+            throw MediaException::invalidUrl(print_r($url, true));
         }
 
         return new JsonResponse([

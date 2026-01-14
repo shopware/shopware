@@ -88,7 +88,7 @@ class MediaUploadV2ControllerTest extends TestCase
         $request = new Request([], ['url' => 123]);
         $context = Context::createDefaultContext();
 
-        $this->expectException(MediaException::class);
+        $this->expectExceptionObject(MediaException::invalidUrl('123'));
 
         $this->controller->uploadUrl($request, new MediaUploadParameters(), $context);
     }
@@ -129,7 +129,7 @@ class MediaUploadV2ControllerTest extends TestCase
         $request = new Request([], ['url' => 123]);
         $context = Context::createDefaultContext();
 
-        $this->expectException(MediaException::class);
+        $this->expectExceptionObject(MediaException::invalidUrl('123'));
         $this->controller->externalLink($request, new MediaUploadParameters(), $context);
     }
 }

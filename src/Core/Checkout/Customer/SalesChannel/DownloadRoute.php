@@ -52,8 +52,8 @@ class DownloadRoute extends AbstractDownloadRoute
     public function load(Request $request, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();
-        $downloadId = $request->query->get('downloadId');
-        $orderId = $request->query->get('orderId');
+        $downloadId = $request->attributes->get('downloadId');
+        $orderId = $request->attributes->get('orderId');
 
         if (!$customer) {
             throw CustomerException::customerNotLoggedIn();

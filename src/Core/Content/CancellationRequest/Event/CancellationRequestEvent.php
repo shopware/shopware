@@ -55,6 +55,9 @@ final class CancellationRequestEvent extends Event implements SalesChannelAware,
         return $this->salesChannelId;
     }
 
+    /**
+     * @return array<string, array<int|string, mixed>>
+     */
     public function getValues(): array
     {
         return [

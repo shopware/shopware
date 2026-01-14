@@ -49,7 +49,7 @@ class Migration1764926297CancellationRequestFlowTest extends TestCase
 
     private function dropFlowEntry(): void
     {
-        $this->connection->executeQuery(
+        $this->connection->executeStatement(
             'DELETE FROM `flow` WHERE `event_name` = :name',
             ['name' => CancellationRequestEvent::EVENT_NAME]
         );

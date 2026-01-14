@@ -22,17 +22,17 @@ class Migration1764926297CancellationRequestFlow extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = 'INSERT INTO `flow` (`id`, `name`, `event_name`, `priority`, `invalid`, `active`, `created_at`) VALUES 
-                                   (:id, :name, :event_name, :priority, :invalid, :active, :created_at)';
-
-        $connection->executeStatement($sql, [
-            'id' => Uuid::randomBytes(),
-            'name' => 'Online Cancellation Request sent',
-            'event_name' => CancellationRequestEvent::EVENT_NAME,
-            'priority' => 1,
-            'invalid' => 0,
-            'active' => true,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        $connection->insert(
+            'flow',
+            [
+                'id' => Uuid::randomBytes(),
+                'name' => 'Online Cancellation Request sent',
+                'event_name' => CancellationRequestEvent::EVENT_NAME,
+                'priority' => 1,
+                'invalid' => 0,
+                'active' => true,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
     }
 }

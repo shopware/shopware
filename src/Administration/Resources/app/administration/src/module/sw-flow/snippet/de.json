@@ -304,6 +304,7 @@
       "paymentMethod": "Zahlungsart",
       "contactForm": "Kontaktformular",
       "reviewForm": "Produktbewertung",
+      "cancellationRequest": "Stornierungsanfrage",
       "group": "Gruppe",
       "recovery": "Wiederherstellung",
       "registration": "Registrierung",

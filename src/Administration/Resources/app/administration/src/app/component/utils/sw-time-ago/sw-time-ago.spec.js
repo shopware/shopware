@@ -128,7 +128,7 @@ describe('src/app/component/utils/sw-time-ago', () => {
 
         expect(wrapper.text()).toContain('12:34');
 
-        await wrapper.setProps({date: '2025-06-22T18:35:00.000+00:00'});
+        await wrapper.setProps({ date: '2025-06-22T18:35:00.000+00:00' });
 
         expect(wrapper.text()).toContain('18:35');
     });

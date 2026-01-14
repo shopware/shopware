@@ -56,6 +56,12 @@ A new `Immutable` flag is available for Data Abstraction Layer fields. Fields ma
 
 Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
 
+### Performance Improvement for `ProductCategoryDenormalizer`
+
+The SQL Query inside the `ProductCategoryDenormalizer` has been optimized to run faster, especially on large catalogues.
+Previously MySql needed to perform a full table scan based on the where condition, now the result set is already limited by indexed columns.
+This lead to performance improvements from up to 3s for the query down to less than 1ms on large catalogues (3000%).
+
 ### Deprecation of product states in favor of the new product type
 
 The `product.states` field is deprecated and will be removed in the next major release.

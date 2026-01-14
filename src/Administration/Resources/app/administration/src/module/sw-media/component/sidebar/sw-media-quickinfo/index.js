@@ -427,19 +427,5 @@ export default {
         closeModelViewerModal() {
             this.showModelViewerModal = false;
         },
-
-        onModelViewerModalMounted() {
-            const modal = document.querySelector?.('.sw-model-viewer-modal');
-            if (!modal) {
-                return;
-            }
-
-            const modalCanvas = modal.querySelector('.sw-model-viewer-modal-canvas');
-            if (!modalCanvas) {
-                return;
-            }
-
-            this.initializeQuickView(modalCanvas);
-        },
     },
 };

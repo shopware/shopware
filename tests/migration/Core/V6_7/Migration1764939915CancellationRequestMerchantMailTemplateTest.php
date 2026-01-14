@@ -55,7 +55,7 @@ class Migration1764939915CancellationRequestMerchantMailTemplateTest extends Tes
     {
         return $this->connection->fetchOne(
             'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
-            ['technicalName' => MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST]
+            ['technicalName' => MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT]
         );
     }
 

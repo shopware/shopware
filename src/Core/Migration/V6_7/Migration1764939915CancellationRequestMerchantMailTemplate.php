@@ -108,11 +108,11 @@ class Migration1764939915CancellationRequestMerchantMailTemplate extends Migrati
     {
         $filesystem = new Filesystem();
 
-        $mailStruct = new MailStruct(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST);
-        $mailStruct->setEnHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_request_merchant/en-html.html.twig'));
-        $mailStruct->setEnPlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_request_merchant/en-plain.text.twig'));
-        $mailStruct->setDeHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_request_merchant/de-html.html.twig'));
-        $mailStruct->setDePlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_request_merchant/de-plain.text.twig'));
+        $mailStruct = new MailStruct(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT);
+        $mailStruct->setEnHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_request.merchant/en-html.html.twig'));
+        $mailStruct->setEnPlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_request.merchant/en-plain.text.twig'));
+        $mailStruct->setDeHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_request.merchant/de-html.html.twig'));
+        $mailStruct->setDePlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_request.merchant/de-plain.text.twig'));
 
         return $mailStruct;
     }
@@ -131,7 +131,7 @@ class Migration1764939915CancellationRequestMerchantMailTemplate extends Migrati
                 'mail_template_type',
                 [
                     'id' => $mailTemplateType_byteId,
-                    'technical_name' => MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST,
+                    'technical_name' => MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT,
                     'available_entities' => json_encode([]),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
@@ -190,7 +190,7 @@ SQL;
     {
         $result = $connection->fetchOne(
             'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
-            ['technicalName' => MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST]
+            ['technicalName' => MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT]
         );
 
         if (empty($result)) {

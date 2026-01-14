@@ -55,7 +55,7 @@ class RuleConstraintsTest extends TestCase
         static::assertCount(2, $operators);
         static::assertInstanceOf(NotBlank::class, $operators[0]);
         static::assertInstanceOf(Choice::class, $operators[1]);
-        static::assertEquals(new Choice($this->defaultOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $this->defaultOperators), $operators[1]);
 
         $operators = RuleConstraints::dateOperators();
 
@@ -75,7 +75,7 @@ class RuleConstraintsTest extends TestCase
         static::assertCount(2, $operators);
         static::assertInstanceOf(NotBlank::class, $operators[0]);
         static::assertInstanceOf(Choice::class, $operators[1]);
-        static::assertEquals(new Choice($this->defaultOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $this->defaultOperators), $operators[1]);
 
         $operators = RuleConstraints::datetimeOperators();
 

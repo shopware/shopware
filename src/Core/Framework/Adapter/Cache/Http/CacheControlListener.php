@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -14,8 +18,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 readonly class CacheControlListener
 {
-    public function __construct(private bool $reverseProxyEnabled)
-    {
+    public function __construct(
+        private bool $reverseProxyEnabled,
+        private EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**
@@ -28,11 +34,23 @@ readonly class CacheControlListener
             return;
         }
 
-        if (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0')) {
+        $request = $event->getRequest();
+        $response = $event->getResponse();
+
+        // Dispatch event to allow listeners to skip cache control modification
+        $cacheControlEvent = new BeforeCacheControlEvent($request, $response);
+        $this->eventDispatcher->dispatch($cacheControlEvent);
+
+        if ($cacheControlEvent->shouldSkipCacheControl()) {
             return;
         }
 
-        $response = $event->getResponse();
+        if (
+            ($this->isStoreApiRequest($event) || $this->isStorefrontRequest($event))
+            && (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0'))
+        ) {
+            return;
+        }
 
         $noStore = $response->headers->getCacheControlDirective('no-store');
 
@@ -48,5 +66,21 @@ readonly class CacheControlListener
         } else {
             $response->headers->addCacheControlDirective('no-cache');
         }
+    }
+
+    private function isStoreApiRequest(BeforeSendResponseEvent $event): bool
+    {
+        $request = $event->getRequest();
+        $routeScope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+
+        return \in_array(StoreApiRouteScope::ID, $routeScope, true);
+    }
+
+    private function isStorefrontRequest(BeforeSendResponseEvent $event): bool
+    {
+        $request = $event->getRequest();
+        $routeScope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+
+        return \in_array('storefront', $routeScope, true);
     }
 }

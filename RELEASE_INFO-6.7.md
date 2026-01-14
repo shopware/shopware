@@ -13,6 +13,10 @@ Custom fields are now **not searchable by default**. To make a custom field sear
 
 **Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
 
+### Media Model Viewer
+
+From now on you are able to inspect your 3D models directly in the Media module in the Administration. Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right. This new component is called `sw-model-viewer`.
+
 ## API
 
 ### Improved tagged based cache invalidation
@@ -24,6 +28,23 @@ Next routes now support cache tagging, enabling automatic invalidation when rele
 * `/store-api/product/{productId}/cross-selling`
 
 ## Core
+
+### Rework of DAL query generation for nested filters groups
+The DAL criteria builder has been adjusted to generate `EXISTS` subqueries instead of `LEFT JOIN`s for nested filter groups.
+
+Previously, each level of nested filters resulted in an additional `LEFT JOIN`, even when the join was only required to check for the existence of a related entity subject to some filter.
+In complex criteria trees with multiple filters on the same entity, this led to an exponential explosion of joins and significant performance degradation (e.g., the same table being joined multiple times only to evaluate existence conditions).
+
+An example of this is a query such as "find orders that have a line item of type A and one of type B and one of type C".
+According to [aadr/2020-11-19-dal-join-filter.md](adr/2020-11-19-dal-join-filter.md), this would look like:
+```php
+$criteria->addFilter(
+    new EqualsFilter('lineItems.type', 'product'),
+    new EqualsFilter('lineItems.type', 'custom'),
+    new EqualsFilter('lineItems.type', 'other'),
+);
+```
+Previously, the generated query would `LEFT JOIN` `order_line_item` multiple times onto `order`, causing the query to be extremely slow. The new `EXISTS` checks prevent this, making the query much faster.
 
 ### Introduce Immutable DAL flag
 
@@ -95,6 +116,10 @@ The following deprecations apply to `sw-mail-template-index`:
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
 
 ## Storefront
+
+### New `window.activeNavigationPathIdList` variable
+
+A new global JavaScript variable `window.activeNavigationPathIdList` is now available, containing the IDs of parent categories for the current page. This can be used by plugins or themes to implement custom navigation highlighting.
 
 ### Improved cookie consent dialog UI and accessibility
 

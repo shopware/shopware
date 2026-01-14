@@ -166,3 +166,44 @@ test('As a shop customer, I want to filter reviews, so that I can find the conte
         await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(3);
     });
 });
+
+test('As a shop customer, I want to filter reviews by rating, log in and come back to the product detail page.', {
+    tag: ['@Product', '@Reviews', '@Storefront'],
+}, async ({
+    ShopCustomer,
+    TestDataService,
+    StorefrontProductDetail,
+    LoginViaReviewsTab,
+          }) => {
+
+    const customer = await TestDataService.createCustomer();
+    const product = await TestDataService.createBasicProduct();
+
+    await TestDataService.createProductReview(product.id, { points: 5 });
+    await TestDataService.createProductReview(product.id, { points: 5 });
+    await TestDataService.createProductReview(product.id, { points: 3 });
+    await TestDataService.createProductReview(product.id, { points: 2 });
+    await TestDataService.createProductReview(product.id, { points: 1 });
+
+    await test.step('Navigate to review tab within product detail page.', async () => {
+        await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+        await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
+        await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(5);
+    });
+
+    await test.step('Filter down the reviews of the product by rating', async () => {
+        const reviewFilterRowOptions = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Excellent (2)');
+        await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeEnabled();
+        await ShopCustomer.presses(reviewFilterRowOptions.reviewFilterOptionCheckbox);
+        await ShopCustomer.expects(reviewFilterRowOptions.reviewFilterOptionCheckbox).toBeChecked();
+        await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(2);
+    });
+
+    await test.step('Log in and comes back to the product detail page', async () => {
+        await ShopCustomer.attemptsTo(LoginViaReviewsTab(product, customer));
+        await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
+        await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(5);
+
+        await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1')).toContainText(product.name);
+    });
+});

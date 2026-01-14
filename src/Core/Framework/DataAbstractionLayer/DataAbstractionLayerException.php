@@ -131,6 +131,8 @@ class DataAbstractionLayerException extends HttpException
     public const DBAL_ONLY_STORAGE_AWARE_FIELDS_AS_TRANSLATED = 'FRAMEWORK__DBAL_ONLY_STORAGE_AWARE_FIELDS_AS_TRANSLATED';
     public const DBAL_FIELD_ACCESSOR_BUILDER_NOT_FOUND = 'FRAMEWORK__DBAL_FIELD_ACCESSOR_BUILDER_NOT_FOUND';
     public const DBAL_CANNOT_BUILD_ACCESSOR = 'FRAMEWORK__DBAL_CANNOT_BUILD_ACCESSOR';
+    public const DBAL_UNEXPECTED_ASSOCIATION_FIELD_CLASS = 'FRAMEWORK__DBAL_UNEXPECTED_ASSOCIATION_FIELD_CLASS';
+    public const DBAL_EXPECTED_ASSOCIATION_FIELD_IN_FIRST_LEVEL_OF_JOIN_GROUP = 'FRAMEWORK__DBAL_EXPECTED_ASSOCIATION_FIELD_IN_FIRST_LEVEL_OF_JOIN_GROUP';
     public const ENTITY_INDEXER_NOT_FOUND = 'FRAMEWORK__ENTITY_INDEXER_NOT_FOUND';
     public const INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__DAL_INVALID_SYNC_OPERATION';
 
@@ -1080,6 +1082,32 @@ class DataAbstractionLayerException extends HttpException
             self::DBAL_CANNOT_BUILD_ACCESSOR,
             'Can not build accessor for field "{{ propertyName }}" on root "{{ root }}"',
             ['propertyName' => $propertyName, 'root' => $root]
+        );
+    }
+
+    /**
+     * @param class-string $associationClass
+     */
+    public static function unexpectedAssociationFieldClass(string $associationClass): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_UNEXPECTED_ASSOCIATION_FIELD_CLASS,
+            'Unknown association class provided "{{ associationClass }}"',
+            ['associationClass' => $associationClass]
+        );
+    }
+
+    /**
+     * @param class-string|null $fieldClass
+     */
+    public static function expectedAssociationFieldInFirstLevelOfJoinGroup(?string $fieldClass): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DBAL_EXPECTED_ASSOCIATION_FIELD_IN_FIRST_LEVEL_OF_JOIN_GROUP,
+            'Expected association field in first level of join group, got "{{ fieldClass }}"',
+            ['fieldClass' => $fieldClass]
         );
     }
 

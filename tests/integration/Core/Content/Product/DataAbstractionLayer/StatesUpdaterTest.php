@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -40,6 +42,8 @@ class StatesUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->statesUpdater = static::getContainer()->get(StatesUpdater::class);
         $this->connection = static::getContainer()->get(Connection::class);
@@ -67,6 +71,10 @@ class StatesUpdaterTest extends TestCase
         static::assertSame([State::IS_DOWNLOAD], $product1->getStates());
         static::assertSame([State::IS_PHYSICAL], $product2->getStates());
         static::assertSame([State::IS_PHYSICAL], $product3->getStates());
+
+        static::assertSame(ProductDefinition::TYPE_DIGITAL, $product1->getType());
+        static::assertSame(ProductDefinition::TYPE_PHYSICAL, $product2->getType());
+        static::assertSame(ProductDefinition::TYPE_PHYSICAL, $product3->getType());
     }
 
     public function prepareProducts(IdsCollection $ids): void

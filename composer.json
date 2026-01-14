@@ -86,7 +86,7 @@
         "async-aws/core": "^1.22",
         "cocur/slugify": "^4.7.0",
         "composer/class-map-generator": "^1.7",
-        "composer/composer": "^2.8.5",
+        "composer/composer": "^2.9.3",
         "composer/semver": "^3.4.0",
         "doctrine/dbal": "~4.3.1",
         "doctrine/inflector": "^2.0",

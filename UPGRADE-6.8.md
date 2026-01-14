@@ -880,4 +880,10 @@ Concretely this means the following configuration options are removed:
 - `shopware.cache.invalidation.salutation_route`
 - `shopware.cache.invalidation.sitemap_route`
 
+## Removal of product's `states` field in favor of `type` field
+
+The `states` field of the `product` entity has been removed. Instead, you must use the `type` field to indicate the product type.
+The `states` field of the `line_item` and `order_line_item` entity has also been removed. Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
+Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
+
 </details>

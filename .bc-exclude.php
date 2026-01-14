@@ -68,5 +68,9 @@ return [
 
         // PDF will be the default when no $fileType is given and Accept header is not present or is a wildcard
         preg_quote('CHANGED: Default parameter value for parameter $fileType of Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute#download() changed from \'pdf\' to NULL', '/'),
+
+        // Inherited attribute $reversed parameter removed - attribute inheritance never worked before, so no BC break
+        preg_quote('REMOVED: Property Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#$reversed was removed'),
+        preg_quote('Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#__construct()'),
     ],
 ];

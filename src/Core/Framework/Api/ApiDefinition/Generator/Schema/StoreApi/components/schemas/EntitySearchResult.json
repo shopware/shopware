@@ -49,7 +49,9 @@
                         "type": "array",
                         "deprecated": true,
                         "description": "Deprecated and will be removed from API responses.",
-                        "items": {}
+                        "items": {
+                            "type": "object"
+                        }
                     }
                 }
             }

@@ -441,6 +441,12 @@ class Configuration implements ConfigurationInterface
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
+                        ->booleanNode('log_tags')
+                            ->defaultTrue()
+                        ->end()
+                        ->scalarNode('log_level')
+                            ->defaultValue('info')
+                        ->end()
                         // @deprecated tag:v6.8.0 - remove all route specific invalidation options
                         ->arrayNode('product_listing_route')
                             ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')

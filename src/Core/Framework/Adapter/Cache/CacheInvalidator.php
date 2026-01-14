@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\BacktraceCollector;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\Psr16Cache;
@@ -34,7 +35,10 @@ class CacheInvalidator
         private readonly RequestStack $requestStack,
         TagAwareAdapterInterface $httpCacheStore,
         private readonly bool $softPurge,
-        private readonly bool $useDelayedCache
+        private readonly bool $useDelayedCache,
+        private readonly bool $logInvalidations,
+        private readonly string $logLevel,
+        private readonly BacktraceCollector $backtraceCollector
     ) {
         $this->httpCacheStore = new Psr16Cache($httpCacheStore);
     }
@@ -104,13 +108,17 @@ class CacheInvalidator
             $this->httpCacheStore->setMultiple($list);
         }
 
-        $this->logger->info(
-            \sprintf('Purged %d tags.', \count($keys)),
-            [
-                'tags' => $keys,
-                'caller' => $this->findCaller(),
-            ]
-        );
+        if ($this->logInvalidations) {
+            $this->logger->log(
+                $this->logLevel,
+                \sprintf('Purged %d tags.', \count($keys)),
+                [
+                    'tags' => $keys,
+                    'caller' => $this->findCaller(),
+                ]
+            );
+        }
+
         $this->dispatcher->dispatch(new InvalidateCacheEvent($keys));
     }
 
@@ -124,7 +132,7 @@ class CacheInvalidator
      */
     private function findCaller(): ?array
     {
-        foreach (debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 5) as $frame) {
+        foreach ($this->backtraceCollector->collect() as $frame) {
             if (!isset($frame['class']) || $frame['class'] === self::class) {
                 continue; // skip CacheInvalidator methods
             }

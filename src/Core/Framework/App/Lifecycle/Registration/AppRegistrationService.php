@@ -75,7 +75,7 @@ class AppRegistrationService
                     throw AppException::registrationFailed($app->getName(), $data['error']);
                 }
 
-                throw AppException::registrationFailed($appName, \sprintf('Got status code %d, with response: %s', $response->getStatusCode(), $responseBody));
+                throw AppException::registrationFailed($app->getName(), \sprintf('Got status code %d, with response: %s', $response->getStatusCode(), $responseBody));
             }
 
             throw AppException::registrationFailed($app->getName(), $e->getMessage(), $e);

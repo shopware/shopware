@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -51,30 +52,36 @@ class SearchControllerTest extends TestCase
 
     public function testSearchPageLoadedHookScriptsAreExecuted(): void
     {
-        $response = $this->request('GET', '/search', ['search' => 'test']);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/search?search=test');
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(SearchPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testSuggestPageLoadedHookScriptsAreExecuted(): void
     {
-        $response = $this->request('GET', '/suggest', ['search' => 'test']);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/suggest?search=test');
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(SuggestPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testSearchWidgetLoadedHookScriptsAreExecuted(): void
     {
-        $response = $this->request('GET', '/widgets/search', ['search' => 'test']);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/widgets/search?search=test');
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(SearchWidgetLoadedHook::HOOK_NAME, $traces);
     }

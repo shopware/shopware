@@ -7,6 +7,7 @@ use Composer\InstalledVersions;
 use Doctrine\DBAL\Driver\Middleware;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
@@ -21,6 +22,8 @@ class KernelFactoryTest extends TestCase
 {
     public function testProfilingMiddlewareIsAddedWhenFlagPresent(): void
     {
+        // Reset cached connection to ensure fresh connection with middleware
+        MySQLFactory::resetConnection();
         if (!InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
             static::markTestSkipped('profiler not installed');
         }

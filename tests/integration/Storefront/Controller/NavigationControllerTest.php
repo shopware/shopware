@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -34,31 +35,36 @@ class NavigationControllerTest extends TestCase
 
     public function testNavigationPageLoadedHookScriptsAreExecuted(): void
     {
-        $response = $this->request('GET', '/', []);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/');
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(NavigationPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testNavigationPageLoadedHookScriptsAreExecutedForCategory(): void
     {
-        $response = $this->request('GET', '/my-navigation/', []);
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/my-navigation/');
 
-        static::assertSame(200, $response->getStatusCode(), print_r($response->getContent(), true));
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), print_r($browser->getResponse()->getContent(), true));
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(NavigationPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testMenuOffcanvasPageletLoadedHookScriptsAreExecuted(): void
     {
-        $response = $this->request('GET', '/widgets/menu/offcanvas', []);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/widgets/menu/offcanvas');
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MenuOffcanvasPageletLoadedHook::HOOK_NAME, $traces);
     }

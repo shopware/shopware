@@ -31,6 +31,67 @@ The Store API route `/store-api/document/download` returns now a standard Shopwa
 
 <details>
 
+## Long Runner Support (RoadRunner, FrankenPHP, Swoole)
+
+Shopware now supports long-running PHP servers like RoadRunner, FrankenPHP, and Swoole. This required several breaking changes:
+
+### Deprecated `Kernel::$connection` property
+
+The static `$connection` property in `Shopware\Core\Kernel` is deprecated and will be removed in v6.8.0. Use `Kernel::getConnection()` or `MySQLFactory::getConnection()` instead.
+
+**Before:**
+```php
+$connection = Kernel::$connection;
+```
+
+**After:**
+```php
+$connection = Kernel::getConnection();
+// or
+$connection = MySQLFactory::getConnection();
+```
+
+Note: The property still exists for backwards compatibility but is automatically synchronized with `MySQLFactory::getConnection()`.
+
+### Removed `Kernel::handle()` override
+
+The `handle()` method override has been removed from `Shopware\Core\Kernel`. This enables Symfony's native service reset mechanism between requests, which is required for long-running servers.
+
+### Changed `KernelFactory::create()` signature
+
+The `$connection` parameter has been removed from `KernelFactory::create()`. The connection is now automatically obtained from `MySQLFactory`.
+
+**Before:**
+```php
+KernelFactory::create(
+    environment: $env,
+    debug: $debug,
+    classLoader: $classLoader,
+    pluginLoader: $pluginLoader,
+    connection: $connection
+);
+```
+
+**After:**
+```php
+KernelFactory::create(
+    environment: $env,
+    debug: $debug,
+    classLoader: $classLoader,
+    pluginLoader: $pluginLoader
+);
+```
+
+### New `idle_connection_ttl` DATABASE_URL parameter
+
+For long-running servers, you can configure automatic database connection recycling to prevent "MySQL server has gone away" errors:
+
+```
+DATABASE_URL=mysql://user:pass@host:3306/db?idle_connection_ttl=300
+```
+
+This closes connections that have been idle for the specified number of seconds.
+
 ## Multiple payment finalize calls allowed
 Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.
 If the token has already been consumed, the user is redirected to the finish page without triggering a PaymentException.

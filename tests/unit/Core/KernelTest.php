@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
@@ -86,7 +85,6 @@ class KernelTest extends TestCase
             $this->createMock(StaticKernelPluginLoader::class),
             'cacheId',
             '6.6.6',
-            $this->createMock(Connection::class),
             $this->tmpProjectDir,
         );
     }

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -263,10 +264,12 @@ class RegisterControllerTest extends TestCase
 
     public function testAccountRegisterPageLoadedHookScriptsAreExecuted(): void
     {
-        $response = $this->request('GET', '/account/register', []);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/account/register');
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountRegisterPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -276,10 +279,12 @@ class RegisterControllerTest extends TestCase
         $ids = new IdsCollection();
         $this->createCustomerGroup($ids);
 
-        $response = $this->request('GET', 'customer-group-registration/' . $ids->get('group'), []);
-        static::assertSame(200, $response->getStatusCode(), print_r($response->getContent(), true));
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/customer-group-registration/' . $ids->get('group'));
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), print_r($browser->getResponse()->getContent(), true));
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CustomerGroupRegistrationPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -290,18 +295,19 @@ class RegisterControllerTest extends TestCase
 
         $this->createProduct(Uuid::randomHex(), $productNumber);
 
-        $this->request(
+        $browser = $this->createStorefrontBrowser();
+        $browser->request(
             'POST',
-            '/checkout/product/add-by-number',
+            EnvironmentHelper::getVariable('APP_URL') . '/checkout/product/add-by-number',
             $this->tokenize('frontend.checkout.product.add-by-number', [
                 'number' => $productNumber,
             ])
         );
 
-        $response = $this->request('GET', '/checkout/register', []);
-        static::assertSame(200, $response->getStatusCode());
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/checkout/register');
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CheckoutRegisterPageLoadedHook::HOOK_NAME, $traces);
     }

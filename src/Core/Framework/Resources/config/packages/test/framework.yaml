@@ -5,8 +5,7 @@ parameters:
 framework:
     test: true
     http_cache:
-        enabled: true
-        debug: true
+        enabled: false
     session:
         storage_factory_id: session.storage.factory.mock_file
     profiler:
@@ -25,3 +24,6 @@ framework:
                 adapter: cache.adapter.array
             cache.property_access:
                 adapter: cache.adapter.array
+            # Rate limiter needs persistent storage because ArrayAdapter is reset between requests
+            cache.rate_limiter:
+                adapter: cache.adapter.filesystem

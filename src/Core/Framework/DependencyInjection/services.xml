@@ -68,7 +68,7 @@ frame-ancestors 'none';
     <services>
         <!-- Database / Doctrine -->
         <service id="Doctrine\DBAL\Connection" public="true">
-            <factory class="Shopware\Core\Kernel" method="getConnection"/>
+            <factory class="Shopware\Core\Framework\Adapter\Database\MySQLFactory" method="getConnection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\QueryDataBagResolver">
@@ -357,6 +357,10 @@ frame-ancestors 'none';
                       id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector"/>
 
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\SwTwigFunctionResetter">
             <tag name="kernel.reset" method="reset"/>
         </service>
 

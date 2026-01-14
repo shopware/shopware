@@ -18,6 +18,46 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class MySQLFactory
 {
+    private static ?Connection $connection = null;
+
+    private static int $lastUsedAt = 0;
+
+    private static int $idleConnectionTtl = 0;
+
+    /**
+     * @param array<Middleware> $middlewares
+     */
+    public static function getConnection(array $middlewares = []): Connection
+    {
+        $now = time();
+
+        // Check if existing connection has been idle too long
+        if (self::$connection !== null && self::$idleConnectionTtl > 0 && self::$lastUsedAt > 0) {
+            if (($now - self::$lastUsedAt) >= self::$idleConnectionTtl) {
+                self::$connection->close();
+                self::$connection = null;
+            }
+        }
+
+        // Create new connection if needed
+        if (self::$connection === null) {
+            self::$connection = self::create($middlewares);
+        }
+
+        self::$lastUsedAt = $now;
+
+        return self::$connection;
+    }
+
+    public static function resetConnection(): void
+    {
+        if (self::$connection !== null) {
+            self::$connection->close();
+            self::$connection = null;
+        }
+        self::$lastUsedAt = 0;
+    }
+
     /**
      * @param array<Middleware> $middlewares
      */
@@ -35,6 +75,11 @@ class MySQLFactory
 
         $dsnParser = new DsnParser(['mysql' => 'pdo_mysql']);
         $dsnParameters = $dsnParser->parse($url);
+
+        if (isset($dsnParameters['idle_connection_ttl'])) {
+            self::$idleConnectionTtl = (int) $dsnParameters['idle_connection_ttl'];
+            unset($dsnParameters['idle_connection_ttl']);
+        }
 
         $parameters = array_merge([
             'charset' => 'utf8mb4',

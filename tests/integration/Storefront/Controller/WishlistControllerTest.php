@@ -241,17 +241,19 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testGuestWishlistPageLoadedHookScriptsAreExecuted(): void
     {
-        $response = $this->request('GET', '/wishlist', []);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/wishlist');
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(GuestWishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -268,7 +270,7 @@ class WishlistControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(GuestWishlistPageletLoadedHook::HOOK_NAME, $traces);
     }
@@ -281,7 +283,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -294,7 +296,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistWidgetLoadedHook::HOOK_NAME, $traces);
     }

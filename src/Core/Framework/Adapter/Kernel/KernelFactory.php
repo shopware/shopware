@@ -52,7 +52,7 @@ class KernelFactory
             $middlewares = [new ProfilingMiddleware()];
         }
 
-        $connection ??= MySQLFactory::create($middlewares);
+        $connection ??= MySQLFactory::getConnection($middlewares);
 
         $pluginLoader ??= new DbalKernelPluginLoader($classLoader, null, $connection);
 
@@ -64,7 +64,6 @@ class KernelFactory
             $pluginLoader,
             $cacheId,
             $shopwareVersion,
-            $connection,
             self::getProjectDir()
         );
 

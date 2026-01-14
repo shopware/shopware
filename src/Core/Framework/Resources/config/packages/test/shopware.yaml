@@ -17,10 +17,10 @@ shopware:
 
     increment:
         user_activity:
-            type: 'array'
+            type: 'mysql'
 
         message_queue:
-            type: 'array'
+            type: 'mysql'
 
     admin_worker:
         poll_interval: 1

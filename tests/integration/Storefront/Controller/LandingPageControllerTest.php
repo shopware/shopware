@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -35,11 +36,12 @@ class LandingPageControllerTest extends TestCase
 
     public function testLandingPageLoadedHookScriptsAreExecuted(): void
     {
-        $response = $this->request('GET', '/myUrl', []);
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/myUrl');
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(LandingPageLoadedHook::HOOK_NAME, $traces);
     }

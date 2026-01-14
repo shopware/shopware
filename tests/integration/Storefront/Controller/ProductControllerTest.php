@@ -314,15 +314,12 @@ class ProductControllerTest extends TestCase
     {
         $productId = $this->createProduct();
 
-        $response = $this->request(
-            'GET',
-            '/my-product/' . $productId,
-            []
-        );
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/my-product/' . $productId);
 
-        $this->checkStatusCode($response);
+        $this->checkStatusCode($browser->getResponse());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
@@ -331,15 +328,12 @@ class ProductControllerTest extends TestCase
     {
         $productId = $this->createProduct();
 
-        $response = $this->request(
-            'GET',
-            '/quickview/' . $productId,
-            []
-        );
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/quickview/' . $productId);
 
-        $this->checkStatusCode($response);
+        $this->checkStatusCode($browser->getResponse());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(ProductQuickViewWidgetLoadedHook::HOOK_NAME, $traces);
     }
@@ -348,15 +342,13 @@ class ProductControllerTest extends TestCase
     {
         $productId = $this->createProduct();
 
-        $response = $this->request(
-            'GET',
-            '/product/' . $productId . '/reviews',
-            []
-        );
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/product/' . $productId . '/reviews');
 
+        $response = $browser->getResponse();
         $this->checkStatusCode($response);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(ProductReviewsWidgetLoadedHook::HOOK_NAME, $traces);
 

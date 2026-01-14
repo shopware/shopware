@@ -29,6 +29,18 @@ Next routes now support cache tagging, enabling automatic invalidation when rele
 
 ## Core
 
+### Long Runner Support (RoadRunner, FrankenPHP, Swoole)
+
+Shopware now fully supports long-running PHP servers. The Kernel no longer overrides Symfony's `handle()` method, enabling proper service reset between requests via `ResetInterface`. Additionally, the Twig escape filter cache is now properly cleared between requests to prevent memory leaks.
+
+Database connections can now be configured with an idle timeout via `idle_connection_ttl` parameter in `DATABASE_URL`:
+```
+DATABASE_URL="mysql://user:pass@host:3306/dbname?idle_connection_ttl=60"
+```
+This prevents "MySQL server has gone away" errors by proactively closing connections that have been idle longer than the specified TTL (in seconds). Set to `0` or omit to disable (default).
+
+**For extension developers:** If your services cache request-specific data, implement `Symfony\Contracts\Service\ResetInterface` and register with the `kernel.reset` tag to ensure proper cleanup between requests.
+
 ### Rework of DAL query generation for nested filters groups
 The DAL criteria builder has been adjusted to generate `EXISTS` subqueries instead of `LEFT JOIN`s for nested filter groups.
 

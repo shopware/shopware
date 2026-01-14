@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Controller;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -25,6 +26,15 @@ trait StorefrontControllerTestBehaviour
         $browser->request($method, EnvironmentHelper::getVariable('APP_URL') . '/' . $path, $data, $files, $server, $content, $changeHistory);
 
         return $browser->getResponse();
+    }
+
+    /**
+     * Create a browser for storefront requests.
+     * Use $browser->getContainer() to access services without triggering service reset.
+     */
+    public function createStorefrontBrowser(): TestBrowser
+    {
+        return KernelLifecycleManager::createBrowser($this->getKernel());
     }
 
     public function getSalesChannelId(): string

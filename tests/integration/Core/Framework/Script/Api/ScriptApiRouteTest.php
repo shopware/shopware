@@ -35,7 +35,7 @@ class ScriptApiRouteTest extends TestCase
         $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
-        $traces = $this->getScriptTraces();
+        $traces = $this->getScriptTraces($browser->getContainer());
         static::assertArrayHasKey('api-simple-script', $traces);
         static::assertCount(1, $traces['api-simple-script']);
         static::assertSame('some debug information', $traces['api-simple-script'][0]['output'][0]);
@@ -55,7 +55,7 @@ class ScriptApiRouteTest extends TestCase
         $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
-        $traces = $this->getScriptTraces();
+        $traces = $this->getScriptTraces($browser->getContainer());
         static::assertArrayHasKey('api-simple-script', $traces);
         static::assertCount(1, $traces['api-simple-script']);
         static::assertSame('some debug information', $traces['api-simple-script'][0]['output'][0]);

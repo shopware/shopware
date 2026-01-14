@@ -326,9 +326,10 @@ class AuthControllerTest extends TestCase
 
     public function testAccountLoginPageLoadedHookScriptsAreExecuted(): void
     {
-        $this->request('GET', '/account/login', []);
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/account/login');
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -588,9 +589,10 @@ class AuthControllerTest extends TestCase
 
     public function testAccountGuestLoginPageLoadedHookScriptsAreExecuted(): void
     {
-        $this->request('GET', '/account/guest/login', ['redirectTo' => 'foo']);
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/account/guest/login?redirectTo=foo');
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountGuestLoginPageLoadedHook::HOOK_NAME, $traces);
     }

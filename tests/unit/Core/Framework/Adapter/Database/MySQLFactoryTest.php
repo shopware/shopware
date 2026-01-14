@@ -157,6 +157,166 @@ class MySQLFactoryTest extends TestCase
         static::assertSame('1', $params['replica'][0]['driverOptions'][$replicaCustomOption]);
     }
 
+    public function testResetConnectionClearsState(): void
+    {
+        // Use reflection to check the static state
+        $reflection = new \ReflectionClass(MySQLFactory::class);
+        $connectionProperty = $reflection->getProperty('connection');
+        $lastUsedAtProperty = $reflection->getProperty('lastUsedAt');
+
+        // Set some test state
+        $mockConnection = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $mockConnection->expects($this->once())->method('close');
+        $connectionProperty->setValue(null, $mockConnection);
+        $lastUsedAtProperty->setValue(null, time());
+
+        // Call resetConnection
+        MySQLFactory::resetConnection();
+
+        // Verify state is cleared
+        static::assertNull($connectionProperty->getValue(null));
+        static::assertSame(0, $lastUsedAtProperty->getValue(null));
+    }
+
+    public function testGetConnectionCreatesNewConnectionWhenNoneExists(): void
+    {
+        // Reset any existing state first
+        MySQLFactory::resetConnection();
+
+        // Use reflection to verify no connection exists
+        $reflection = new \ReflectionClass(MySQLFactory::class);
+        $connectionProperty = $reflection->getProperty('connection');
+        $lastUsedAtProperty = $reflection->getProperty('lastUsedAt');
+
+        static::assertNull($connectionProperty->getValue(null));
+        static::assertSame(0, $lastUsedAtProperty->getValue(null));
+
+        // Call getConnection - this will create a real connection
+        $connection = MySQLFactory::getConnection();
+
+        // Verify connection was created and cached
+        static::assertSame($connection, $connectionProperty->getValue(null));
+        static::assertGreaterThan(0, $lastUsedAtProperty->getValue(null));
+
+        // Clean up
+        MySQLFactory::resetConnection();
+    }
+
+    public function testGetConnectionReturnsCachedConnection(): void
+    {
+        // Reset any existing state first
+        MySQLFactory::resetConnection();
+
+        // Get first connection
+        $connection1 = MySQLFactory::getConnection();
+
+        // Get second connection - should be same instance
+        $connection2 = MySQLFactory::getConnection();
+
+        static::assertSame($connection1, $connection2);
+
+        // Clean up
+        MySQLFactory::resetConnection();
+    }
+
+    public function testGetConnectionClosesIdleConnection(): void
+    {
+        // Reset and set TTL to 1 second via DATABASE_URL
+        MySQLFactory::resetConnection();
+        $this->setEnvVars(['DATABASE_URL' => 'mysql://root:shopware@127.0.0.1:3306/shopware?idle_connection_ttl=1']);
+
+        // Use reflection to manipulate state
+        $reflection = new \ReflectionClass(MySQLFactory::class);
+        $connectionProperty = $reflection->getProperty('connection');
+        $lastUsedAtProperty = $reflection->getProperty('lastUsedAt');
+        $ttlProperty = $reflection->getProperty('idleConnectionTtl');
+
+        // First create a connection to parse the TTL from URL
+        MySQLFactory::create();
+        static::assertSame(1, $ttlProperty->getValue(null));
+
+        // Create a mock connection
+        $mockConnection = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $mockConnection->expects($this->once())->method('close');
+        $connectionProperty->setValue(null, $mockConnection);
+
+        // Set lastUsedAt to a time in the past (older than TTL)
+        $lastUsedAtProperty->setValue(null, time() - 10);
+
+        // Call getConnection - should close old connection and create new one
+        $newConnection = MySQLFactory::getConnection();
+
+        // Verify we got a new connection (not the mock)
+        static::assertNotSame($mockConnection, $newConnection);
+
+        // Clean up
+        MySQLFactory::resetConnection();
+        $ttlProperty->setValue(null, 0);
+    }
+
+    public function testGetConnectionDoesNotCloseRecentConnection(): void
+    {
+        // Reset and set TTL to 60 seconds via DATABASE_URL
+        MySQLFactory::resetConnection();
+        $this->setEnvVars(['DATABASE_URL' => 'mysql://root:shopware@127.0.0.1:3306/shopware?idle_connection_ttl=60']);
+
+        // Use reflection
+        $reflection = new \ReflectionClass(MySQLFactory::class);
+        $lastUsedAtProperty = $reflection->getProperty('lastUsedAt');
+        $ttlProperty = $reflection->getProperty('idleConnectionTtl');
+
+        // Get first connection (this also parses TTL from URL)
+        $connection1 = MySQLFactory::getConnection();
+
+        // Verify TTL was parsed
+        static::assertSame(60, $ttlProperty->getValue(null));
+
+        // Check lastUsedAt is set
+        $lastUsedAt = $lastUsedAtProperty->getValue(null);
+        static::assertGreaterThan(0, $lastUsedAt);
+
+        // Get another connection - should be same instance since not idle
+        $connection2 = MySQLFactory::getConnection();
+
+        static::assertSame($connection1, $connection2);
+
+        // Clean up
+        MySQLFactory::resetConnection();
+        $ttlProperty->setValue(null, 0);
+    }
+
+    public function testGetConnectionWithTtlDisabled(): void
+    {
+        // Reset - no idle_connection_ttl in URL means TTL is disabled (default 0)
+        MySQLFactory::resetConnection();
+        $this->setEnvVars(['DATABASE_URL' => 'mysql://root:shopware@127.0.0.1:3306/shopware']);
+
+        // Use reflection
+        $reflection = new \ReflectionClass(MySQLFactory::class);
+        $lastUsedAtProperty = $reflection->getProperty('lastUsedAt');
+        $ttlProperty = $reflection->getProperty('idleConnectionTtl');
+
+        // Reset TTL to 0 (in case previous test set it)
+        $ttlProperty->setValue(null, 0);
+
+        // Create first connection
+        $connection1 = MySQLFactory::getConnection();
+
+        // Verify TTL is 0 (disabled)
+        static::assertSame(0, $ttlProperty->getValue(null));
+
+        // Manually set lastUsedAt to old time
+        $lastUsedAtProperty->setValue(null, time() - 3600); // 1 hour ago
+
+        // Get another connection - should be same instance since TTL is disabled
+        $connection2 = MySQLFactory::getConnection();
+
+        static::assertSame($connection1, $connection2);
+
+        // Clean up
+        MySQLFactory::resetConnection();
+    }
+
     /**
      * @param array<string, mixed> $actualParams
      * @param array<string, mixed> $expectedParams

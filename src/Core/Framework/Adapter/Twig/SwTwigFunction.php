@@ -23,6 +23,14 @@ class SwTwigFunction
     public static mixed $macroResult = null;
 
     /**
+     * Cache for escaped strings to avoid repeated escaping of the same content.
+     * Reset between requests via SwTwigFunctionResetter for long runner compatibility.
+     *
+     * @var array<string, array<string, string>>
+     */
+    private static array $escapeCache = [];
+
+    /**
      * Returns the attribute value for a given array/object.
      *
      * @param mixed $object The object or array from where to get the item
@@ -92,12 +100,11 @@ class SwTwigFunction
         if (\is_int($string)) {
             $string = (string) $string;
         }
-        static $strings = [];
 
         $isString = \is_string($string);
 
-        if ($isString && isset($strings[$string][$strategy])) {
-            return $strings[$string][$strategy];
+        if ($isString && isset(self::$escapeCache[$string][$strategy])) {
+            return self::$escapeCache[$string][$strategy];
         }
 
         $result = $env->getRuntime(EscaperRuntime::class)->escape($string, $strategy, $charset, $autoescape);
@@ -106,8 +113,20 @@ class SwTwigFunction
             return $result;
         }
 
-        $strings[$string][$strategy] = $result;
+        self::$escapeCache[$string][$strategy] = $result;
 
         return $result;
+    }
+
+    /**
+     * Resets the escape filter cache.
+     *
+     * This method is called by SwTwigFunctionResetter between requests
+     * in long runner environments (RoadRunner, FrankenPHP, Swoole) to prevent
+     * memory leaks from unbounded cache growth.
+     */
+    public static function resetEscapeCache(): void
+    {
+        self::$escapeCache = [];
     }
 }

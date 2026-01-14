@@ -23,10 +23,7 @@ use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
@@ -43,6 +40,10 @@ class Kernel extends HttpKernel
      */
     final public const SHOPWARE_FALLBACK_VERSION = '6.7.9999999-dev';
 
+    /**
+     * @deprecated tag:v6.8.0 - Use Kernel::getConnection() or MySQLFactory::getConnection() instead.
+     * This property exists for backwards compatibility and will be removed in v6.8.0.
+     */
     protected static ?Connection $connection = null;
 
     protected string $shopwareVersion;
@@ -62,13 +63,11 @@ class Kernel extends HttpKernel
         protected KernelPluginLoader $pluginLoader,
         private string $cacheId,
         string $version,
-        Connection $connection,
         protected string $projectDir,
     ) {
         date_default_timezone_set('UTC');
 
         parent::__construct($environment, $debug);
-        self::$connection = $connection;
 
         $versionArray = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $versionArray['version'];
@@ -122,13 +121,6 @@ class Kernel extends HttpKernel
         return $this->projectDir;
     }
 
-    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
-    {
-        $this->boot();
-
-        return $this->getHttpKernel()->handle($request, $type, $catch);
-    }
-
     public function boot(): void
     {
         if (!$this->booted) {
@@ -151,13 +143,13 @@ class Kernel extends HttpKernel
 
     public static function getConnection(): Connection
     {
-        if (self::$connection) {
-            return self::$connection;
-        }
+        $connection = MySQLFactory::getConnection();
 
-        self::$connection = MySQLFactory::create();
+        // Keep static property in sync for backwards compatibility
+        // @deprecated tag:v6.8.0 - Remove this line when $connection property is removed
+        self::$connection = $connection;
 
-        return self::$connection;
+        return $connection;
     }
 
     public function getCacheDir(): string
@@ -195,9 +187,10 @@ class Kernel extends HttpKernel
             return;
         }
 
-        // keep connection when rebooting
+        // Reset connection when not rebooting (traditional PHP-FPM)
+        // In long-runner environments, the connection is kept alive
         if (!$this->rebooting) {
-            self::$connection = null;
+            MySQLFactory::resetConnection();
         }
 
         parent::shutdown();
@@ -315,8 +308,6 @@ class Kernel extends HttpKernel
             'v6.8.0.0',
             'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class
         );
-
-        self::$connection = self::getConnection();
     }
 
     protected function dumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void

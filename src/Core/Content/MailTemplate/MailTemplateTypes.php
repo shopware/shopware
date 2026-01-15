@@ -92,4 +92,6 @@ class MailTemplateTypes
     final public const MAILTYPE_REVIEW_FORM = 'review_form';
 
     final public const MAILTYPE_DOCUMENT_A11Y = 'a11y_mail';
+
+    final public const MAILTYPE_CANCELLATION_REQUEST_MERCHANT = 'cancellation_request.merchant';
 }

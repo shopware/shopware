@@ -48,7 +48,7 @@ class Migration1764939915CancellationRequestMailTemplateTest extends TestCase
         $mailTemplateTypeId = $this->getMailTemplateTypeId();
         static::assertIsString($mailTemplateTypeId);
         static::assertTrue(Uuid::isValid(Uuid::fromBytesToHex($mailTemplateTypeId)));
-        static::assertCount(1, $this->getMailTemplateIds($mailTemplateTypeId));
+        static::assertCount(2, $this->getMailTemplateIds($mailTemplateTypeId));
     }
 
     private function getMailTemplateTypeId(): ?string

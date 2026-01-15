@@ -1,0 +1,20 @@
+<div style="font-family:arial; font-size:12px;">
+    <p>
+        Wir haben Ihre Kündigungsanfrage für den Vertrag mit der Nummer {{ contractNumber }} erhalten.<br/>
+        <br/>
+        Weitere Informationen:
+        <br/>
+        Vorname: {{ cancellationFormData.firstName }}
+        <br/>
+        Nachname: {{ cancellationFormData.lastName }}
+        <br/>
+        E-Mail-Adresse: {{ cancellationFormData.email }}
+        <br/>
+        Vertragsnummer (Bestellnummer, Abonnementnummer, ...): {{ contractNumber }}
+        <br/>
+        Kommentar:<br/>
+        {{ cancellationFormData.comment }}<br/>
+        <br/>
+        Das Formular wurde am {{ date }} um {{ time }} Uhr eingereicht.
+    </p>
+</div>

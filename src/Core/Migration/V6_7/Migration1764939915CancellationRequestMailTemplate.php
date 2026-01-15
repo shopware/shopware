@@ -18,6 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
 class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
 {
     public const MERCHANT_DIRECTORY = 'cancellation_request.merchant';
+    public const CUSTOMER_DIRECTORY = 'cancellation_request.customer';
 
     public const MAIL_TEMPLATE_TYPE_TRANSLATIONS = [
         'en_name' => 'Cancellation request',
@@ -29,6 +30,13 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
         'de_subject' => 'Kündigungsantrag erhalten',
         'en_description' => 'Received cancellation request from customer',
         'de_description' => 'Kündigungsantrag von Kunden erhalten',
+    ];
+
+    public const MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER = [
+        'en_subject' => 'Cancellation request sent',
+        'de_subject' => 'Kündigungsantrag gesendet',
+        'en_description' => 'Cancellation request sent',
+        'de_description' => 'Kündigungsantrag gesendet',
     ];
 
     public function getCreationTimestamp(): int
@@ -45,6 +53,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
 
         $mailTemplateType_bytesId = $this->createMailTemplateType($connection, $enLanguage_byteId, $deLanguage_byteId);
         $this->createMailTemplateMerchant($connection, $mailTemplateType_bytesId, $enLanguage_byteId, $deLanguage_byteId);
+        $this->createMailTemplateCustomer($connection, $mailTemplateType_bytesId, $enLanguage_byteId, $deLanguage_byteId);
     }
 
     private function createMailTemplateMerchant(
@@ -98,6 +107,65 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
                     'sender_name' => '{{ salesChannel.name }}',
                     'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['de_subject'],
                     'description' => self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['de_description'],
+                    'content_html' => $mailStruct->getDeHtml(),
+                    'content_plain' => $mailStruct->getDePlain(),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
+        }
+    }
+
+    private function createMailTemplateCustomer(
+        Connection $connection,
+        string $mailTemplateType_bytesId,
+        string $enLanguage_byteId,
+        ?string $deLanguage_byteId
+    ): void {
+        $hasMailTemplate = true;
+        $mailStruct = $this->createMailStruct(self::CUSTOMER_DIRECTORY);
+        $mailTemplate_byteId = $this->getMailTemplateId($connection, self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['en_subject']);
+        if (empty($mailTemplate_byteId)) {
+            $mailTemplate_byteId = Uuid::randomBytes();
+            $hasMailTemplate = false;
+        }
+
+        if (!$hasMailTemplate) {
+            $connection->insert(
+                'mail_template',
+                [
+                    'id' => $mailTemplate_byteId,
+                    'mail_template_type_id' => $mailTemplateType_bytesId,
+                    'system_default' => 1,
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
+        }
+
+        if (!$this->hasMailTemplateTranslation($connection, $mailTemplate_byteId, $enLanguage_byteId)) {
+            $connection->insert(
+                'mail_template_translation',
+                [
+                    'mail_template_id' => $mailTemplate_byteId,
+                    'language_id' => $enLanguage_byteId,
+                    'sender_name' => '{{ salesChannel.name }}',
+                    'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['en_subject'],
+                    'description' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['en_description'],
+                    'content_html' => $mailStruct->getEnHtml(),
+                    'content_plain' => $mailStruct->getEnPlain(),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
+        }
+
+        if (\is_string($deLanguage_byteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplate_byteId, $deLanguage_byteId)) {
+            $connection->insert(
+                'mail_template_translation',
+                [
+                    'mail_template_id' => $mailTemplate_byteId,
+                    'language_id' => $deLanguage_byteId,
+                    'sender_name' => '{{ salesChannel.name }}',
+                    'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['de_subject'],
+                    'description' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['de_description'],
                     'content_html' => $mailStruct->getDeHtml(),
                     'content_plain' => $mailStruct->getDePlain(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

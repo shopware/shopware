@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -9,7 +10,6 @@ use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\PluginException;
-use Shopware\Core\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 #[Package('framework')]
@@ -101,7 +101,7 @@ abstract class Plugin extends Bundle
         }
 
         $class = addcslashes($this->getMigrationNamespace(), '\\_%') . '%';
-        Kernel::getConnection()->executeStatement('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
+        MySQLFactory::getConnection()->executeStatement('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
     }
 
     public function getBasePath(): string

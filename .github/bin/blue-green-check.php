@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
-use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -19,7 +19,7 @@ if (is_file(__DIR__ . '/../../.env')) {
     (new Dotenv())->usePutenv()->bootEnv(__DIR__ . '/../../.env');
 }
 
-$pluginLoader = new DbalKernelPluginLoader($classLoader, null, Kernel::getConnection());
+$pluginLoader = new DbalKernelPluginLoader($classLoader, null, MySQLFactory::getConnection());
 
 $kernel = KernelFactory::create('dev', true, $classLoader, $pluginLoader);
 

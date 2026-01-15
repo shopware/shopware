@@ -201,7 +201,7 @@ class KernelLifecycleManager
     public static function getConnection(): Connection
     {
         if (!static::$connection) {
-            static::$connection = MySQLFactory::create();
+            static::$connection = MySQLFactory::getConnection();
         }
 
         return static::$connection;

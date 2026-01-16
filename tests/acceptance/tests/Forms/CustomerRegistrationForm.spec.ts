@@ -3,7 +3,6 @@ import { getAddressDataFromLocale } from '../../helpers/locale-helpers';
 
 test.describe('Customer Registration Form', () => {
     test.beforeEach(async ({ TestDataService, InstanceMeta }) => {
-        test.skip(InstanceMeta.isSaaS, 'SaaS just support FriendlyCaptcha');
 
         await TestDataService.setSystemConfig({
             'core.basicInformation.activeCaptchasV2': {

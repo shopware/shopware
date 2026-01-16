@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -337,6 +338,85 @@ class CacheInvalidatorTest extends TestCase
         static::assertIsInt($itemValue);
 
         static::assertTrue(time() >= $itemValue, 'Timestamp should be set to current time or later');
+    }
+
+    /**
+     * @param array<string, mixed> $backtrace
+     */
+    #[DataProvider('invalidBacktraceProvider')]
+    public function testInvalidBacktraceHandling(array $backtrace): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('log')
+            ->with(
+                'info',
+                'Purged 1 tags.',
+                [
+                    'tags' => ['foo'],
+                    'caller' => null,
+                ]
+            );
+
+        $backtraceCollector = $this->createMock(BacktraceCollector::class);
+        $backtraceCollector
+            ->expects($this->once())
+            ->method('collect')
+            ->willReturn($backtrace);
+
+        $adapter = new ArrayAdapter();
+        $invalidator = new CacheInvalidator(
+            [],
+            $this->createMock(RedisInvalidatorStorage::class),
+            new EventDispatcher(),
+            $logger,
+            new RequestStack([new Request()]),
+            new TagAwareAdapter($adapter, $adapter),
+            true,
+            true,
+            true,
+            'info',
+            $backtraceCollector
+        );
+
+        $invalidator->invalidate(['foo'], true);
+    }
+
+    /**
+     * @return iterable<
+     *   string,
+     *   array{
+     *     backtrace: array{
+     *       file?: string,
+     *       line?: int,
+     *       function?: string,
+     *       class?: string
+     *     }
+     *   }
+     * >
+     */
+    public static function invalidBacktraceProvider(): iterable
+    {
+        yield 'empty backtrace' => [
+            'backtrace' => [],
+        ];
+
+        yield 'single frame (ignored)' => [
+            'backtrace' => [
+                'file' => '',
+                'line' => 42,
+                'function' => 'invalidate',
+                'class' => 'Shopware\Core\Framework\Adapter\Cache\CacheInvalidator',
+            ],
+        ];
+
+        yield 'frame without class' => [
+            'backtrace' => [
+                'file' => '',
+                'line' => 42,
+                'function' => 'invalidate',
+            ],
+        ];
     }
 
     public function testSoftPurgeIsSkipped(): void

@@ -104,7 +104,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->query->all()['redirectParameters'] ?? json_encode([], \JSON_THROW_ON_ERROR),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? '[]',
             'errorRoute' => $errorRoute,
             'page' => $page,
             'data' => $data,
@@ -145,7 +145,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->query->all()['redirectParameters'] ?? json_encode([], \JSON_THROW_ON_ERROR),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? '[]',
             'errorRoute' => $request->attributes->get('_route'),
             'errorParameters' => json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR),
             'page' => $page,

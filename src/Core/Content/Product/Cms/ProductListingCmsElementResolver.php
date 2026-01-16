@@ -83,17 +83,10 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
     private function getNavigationId(Request $request, SalesChannelContext $salesChannelContext): string
     {
-        if ($navigationId = RequestParamHelper::get($request, 'navigationId')) {
-            return $navigationId;
-        }
-
-        $params = $request->attributes->get('_route_params');
-
-        if ($params && isset($params['navigationId'])) {
-            return $params['navigationId'];
-        }
-
-        return $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
+        return (string) (
+            $request->attributes->get('navigationId')
+            ?? RequestParamHelper::get($request, 'navigationId', $salesChannelContext->getSalesChannel()->getNavigationCategoryId())
+        );
     }
 
     private function isCustomSorting(CmsSlotEntity $slot): bool
@@ -125,8 +118,8 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         }
 
         // if we have no specific order given at this point, set the order to the highest priority available sorting
-        if (RequestParamHelper::get($request, 'availableSortings')) {
-            $availableSortings = RequestParamHelper::get($request, 'availableSortings');
+        $availableSortings = RequestParamHelper::get($request, 'availableSortings');
+        if ($availableSortings) {
             arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
             $sortingId = array_key_first($availableSortings);
             if (!\is_string($sortingId)) {

@@ -46,7 +46,8 @@ class CategoryNavigationCmsElementResolver extends AbstractCmsElementResolver
         $salesChannel = $salesChannelContext->getSalesChannel();
 
         $rootNavigationId = $salesChannel->getNavigationCategoryId();
-        $navigationId = RequestParamHelper::get($resolverContext->getRequest(), 'navigationId', $rootNavigationId);
+        $request = $resolverContext->getRequest();
+        $navigationId = (string) ($request->attributes->get('navigationId') ?? RequestParamHelper::get($request, 'navigationId', $rootNavigationId));
 
         $tree = $this->navigationLoader->load(
             $navigationId,

@@ -1,0 +1,56 @@
+name: Create subissues for Epic issues
+
+on:
+    issues:
+        types: [opened]
+
+permissions:
+    issues: write
+
+jobs:
+    create-subissues:
+        runs-on: ubuntu-latest
+        if: github.event.issue.type.name == 'Epic'
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        steps:
+            - name: Define api call to add subissues
+              run: echo "ADD_SUBISSUE_API=/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/sub_issues" >> $GITHUB_ENV
+
+            - name: Save directory of subissues
+              run: echo "SUBISSUE_DIR=.github/ISSUE_TEMPLATE/Epic" >> $GITHUB_ENV
+
+            - name: Make a list of all markdown files in correct subdirectory
+              run: |
+                  {
+                    echo 'MY_FILELIST<<EOF'
+                    gh api --jq '.[].name' /repos/${{ github.repository }}/contents/$SUBISSUE_DIR | grep '.md'
+                    echo EOF
+                  } >> "$GITHUB_ENV"
+
+            - name: Checkout repo
+              uses: actions/checkout@v3
+
+            - name: Create issue for each markdown file and attach as subissue to newly created epic
+              run: |
+                  for file in $MY_FILELIST; do
+                    # set title to file name and remove file extension 
+                    TITLE=${file%%.*}
+                    # replace hyphens with spaces
+                    TITLE="${TITLE//-/ }"
+
+                    # create issue and get issue number
+                    CHILD=$(gh issue create --title "$TITLE" --body-file "$SUBISSUE_DIR/${file}")
+                    CHILD_NUM=$(gh issue view $CHILD --json number --jq '.number')
+
+                    # get issue database id
+                    # source: https://jessehouwing.net/create-github-issue-hierarchy-using-the-api/
+                    CHILD_ID=$(gh api /repos/${{ github.repository }}/issues/$CHILD_NUM --jq .id)
+
+                    # add child to epic
+                    gh api -X POST $ADD_SUBISSUE_API -F sub_issue_id=$CHILD_ID
+
+                    # set issue type
+                    gh api -X PATCH /repos/${{ github.repository }}/issues/$CHILD_NUM --field type="Task"
+
+                  done

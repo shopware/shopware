@@ -711,6 +711,26 @@
                 },
                 "sitemap_route": {
                     "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "log_tags": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable logging of cache invalidation events."
+                },
+                "log_level": {
+                    "type": "string",
+                    "default": "info",
+                    "enum": [
+                        "emergency",
+                        "alert",
+                        "critical",
+                        "error",
+                        "warning",
+                        "notice",
+                        "info",
+                        "debug"
+                    ],
+                    "description": "PSR-3 log level used for cache invalidation logging."
                 }
             },
             "title": "Cache invalidation"

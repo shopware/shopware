@@ -14,6 +14,8 @@ shopware:
     cache:
         invalidation:
             delay_enabled: false
+            log_tags: false
+            log_level: info
 
     increment:
         user_activity:

@@ -1,6 +1,17 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.11
+*  [#14332 - Performance improvement for category denormalizer](./changelog/release-6-6-10-11/2026-01-14-category-denormalizer-performance-improvement.md)
+*  [#6912 - fix: require with minimum-stability stable (fixes: #6912) (#6914)](https://github.com/shopware/shopware/issues/6912)
+*  [#6960 - ci: skip downstreams in case of no write perms (fixes: #6960) (#6985)](https://github.com/shopware/shopware/issues/6960)
+*  [#9031 - ci: reenable 6.6.0.0 update (fixes #9031)[6.6.x]  (#9248)](https://github.com/shopware/shopware/issues/9031)
+*  [#9851 - feat: implement event on Sitemap Generation, closes #9851 [6.6.x]  (#9968)](https://github.com/shopware/shopware/issues/9851)
+*  [12859 - Fix captcha validation to respect errorRoute parameter](./changelog/release-6-6-10-11/2025-10-23-fix-captcha-error-route-parameter.md)
+*  [13179 - Slash and backslash are now working correctly in search if configured as preserved characters](./changelog/release-6-6-10-11/2025-10-26-special-characters-in-search-not-working-even-when-added-as-preserved-characters-in-config-file.md)
+*  [13707 - Generate EXISTS conditions instead of left joins for nested filter groups in DAL criteria builder](./changelog/release-6-6-10-11/2026-01-14-multi-join-exists.md)
+*  [8577 - Cheapest price of variant product applies across sales channels](./changelog/release-6-6-10-11/2025-10-27-cheapest-price-of-variant-product-applies-across-sales-channels.md)
+
 ## 6.6.10.10
 *  [GHSA-6w82-v552-wjw2](https://github.com/shopware/shopware/security/advisories/GHSA-6w82-v552-wjw2) - fix: input validation of request paramteres in account login page
 

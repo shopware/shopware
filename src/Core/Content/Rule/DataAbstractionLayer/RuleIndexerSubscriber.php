@@ -3,8 +3,10 @@
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Rule\RuleEvents;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
@@ -25,7 +27,8 @@ class RuleIndexerSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly CartRuleLoader $cartRuleLoader
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -44,11 +47,14 @@ class RuleIndexerSubscriber implements EventSubscriberInterface
     public function refreshPlugin(): void
     {
         // Delete the payload and invalid flag of all rules
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $update = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE `rule` SET `payload` = null, `invalid` = 0')
+            $this->connection->prepare('UPDATE `rule` SET `payload` = null, `invalid` = 0, `updated_at` = :updatedAt')
         );
-        $update->execute();
+        $update->execute([
+            'updatedAt' => $now,
+        ]);
     }
 
     public function onRuleWritten(): void

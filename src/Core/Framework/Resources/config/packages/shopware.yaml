@@ -561,7 +561,7 @@ shopware:
             delay_options:
                 storage: mysql
             http_cache: ['logged-in', 'cart-filled']
-            log_tags: true
+            log_tags: false
             log_level: 'info'
 
     twig:

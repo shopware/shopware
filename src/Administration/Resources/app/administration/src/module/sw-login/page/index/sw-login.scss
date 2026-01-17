@@ -29,6 +29,7 @@
 
         @media screen and (max-width: 52rem) {
             min-height: auto;
+            min-width: 20rem;
             width: 100%;
             display: block;
         }
@@ -115,6 +116,10 @@
             top: 0;
             right: 0;
         }
+
+        @media screen and (max-width: 31.25rem) {
+            display: none;
+        }
     }
 
     .sw-login__submit {
@@ -126,8 +131,14 @@
         }
 
         @media screen and (max-width: 31.25rem) {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            gap: var(--scale-size-16);
+
             .mt-button {
                 display: block;
+                width: 100%;
             }
 
             .sw-button__element {

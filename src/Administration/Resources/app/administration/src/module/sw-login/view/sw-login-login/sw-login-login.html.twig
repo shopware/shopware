@@ -3,26 +3,25 @@
     class="sw-login-login"
     @submit.prevent="loginUserWithPassword"
 >
-    {% block sw_login_login_form_headline %}
-    <h2 class="sw-login__content-headline">
-        {{ $tc('sw-login.index.headlineForm') }}
-    </h2>
-    {% endblock %}
-
-    {% block sw_login_login_alert %}
-    <mt-banner
-        v-if="showLoginAlert"
-        variant="info"
-
-        :show-icon="true"
-        :closable="false"
-    >
-        {{ loginAlertMessage }}
-    </mt-banner>
-    {% endblock %}
-
     <div v-if="loginConfigLoaded">
-        <template v-if="loginConfig.useDefault">
+        {% block sw_login_login_form_headline %}
+        <h2 class="sw-login__content-headline">
+            {{ $tc('sw-login.index.headlineForm') }}
+        </h2>
+        {% endblock %}
+
+        {% block sw_login_login_alert %}
+        <mt-banner
+            v-if="showLoginAlert"
+            variant="info"
+            :show-icon="true"
+            :closable="false"
+        >
+            {{ loginAlertMessage }}
+        </mt-banner>
+        {% endblock %}
+
+        <div v-if="loginConfig.useDefault">
             {% block sw_login_login_user_field %}
             <mt-text-field
                 v-model="username"
@@ -74,7 +73,7 @@
                 {% endblock %}
             </div>
             {% endblock %}
-        </template>
+        </div>
 
         <div
             v-if="loginConfig.url"
@@ -89,6 +88,7 @@
             <mt-button
                 class="sw-login__sso-button"
                 :disabled="!loginConfigLoaded"
+                :is-loading="ssoLoading"
                 :block="true"
                 variant="secondary"
                 @click.prevent="doSsoForwarding"

@@ -15,6 +15,7 @@ interface LoginData {
     loginAlertMessage: string;
     loginConfig: null | LoginConfig;
     loginConfigLoaded: boolean;
+    ssoLoading: boolean;
 }
 
 /**
@@ -48,12 +49,13 @@ export default Component.wrapComponentConfig({
             loginAlertMessage: '',
             loginConfig: null,
             loginConfigLoaded: false,
+            ssoLoading: false,
         };
     },
 
     computed: {
         showLoginAlert() {
-            return typeof this.loginAlertMessage === 'string' && this.loginAlertMessage.length >= 1;
+            return this.loginAlertMessage?.length >= 1;
         },
     },
 
@@ -68,11 +70,12 @@ export default Component.wrapComponentConfig({
             }
 
             this.loginConfig = await this.loginService.getLoginTemplateConfig();
-            this.loginConfigLoaded = true;
 
             if (!this.loginConfig.useDefault && this.loginConfig.url) {
                 this.doSsoForwarding();
             }
+
+            this.loginConfigLoaded = true;
         },
 
         doSsoForwarding() {
@@ -80,6 +83,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
+            this.ssoLoading = true;
             window.sessionStorage.setItem('redirectFromLogin', 'true');
             window.location.href = this.loginConfig.url;
         },

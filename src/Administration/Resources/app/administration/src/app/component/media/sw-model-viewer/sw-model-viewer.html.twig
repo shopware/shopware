@@ -1,0 +1,11 @@
+{% block sw_model_viewer %}
+<div class="sw-model-viewer">
+    <div class="sw-model-viewer-canvas-wrapper">
+        <mt-loader
+            v-if="isLoading"
+            class="sw-model-viewer-loader"
+        />
+        <canvas class="sw-model-viewer-canvas"></canvas>
+    </div>
+</div>
+{% endblock %}

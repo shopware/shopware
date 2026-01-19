@@ -39,6 +39,14 @@
         </input-field>
 
         <input-field type="bool">
+            <name>findBestVariant</name>
+            <label>Preview best matching variant for search results</label>
+            <label lang="de-DE">Am besten zutreffende Variante in Suchergebnis anzeigen</label>
+            <helpText>Activate to ignore the "Storefront presentation > Product Listing" configuration of the product for the product search. Preview the best matching product variant as search result instead.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert wird die "Storefront-Darstellung > Produktliste" Einstellung der Produkte für die Produktsuche ignoriert. Stattdessen wird die am besten zutreffende Produktvariante als Suchergebnis angezeigt</helpText>
+        </input-field>
+
+        <input-field type="bool">
             <name>showReview</name>
             <label>Show reviews</label>
             <label lang="de-DE">Bewertungen anzeigen</label>

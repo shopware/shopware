@@ -173,6 +173,12 @@ export default function createLoginService(
                 });
 
                 return response.data.access_token;
+            }).catch((error) => {
+                const currentExpiry = getBearerAuthentication('expiry');
+                if(currentExpiry && !isNaN(currentExpiry)) {
+                    restartAutoTokenRefresh(currentExpiry);
+                }
+                return Promise.reject(error);
             });
     }
 

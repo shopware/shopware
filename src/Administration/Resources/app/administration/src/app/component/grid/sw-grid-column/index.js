@@ -100,7 +100,7 @@ export default {
                 return column.label === this.label;
             });
 
-            if (!hasColumn && this.label) {
+            if (!hasColumn) {
                 parentGridColumns.push({
                     label: this.label,
                     iconLabel: this.iconLabel,

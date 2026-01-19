@@ -492,10 +492,10 @@
           "message": "Das Hochladen wurde abgebrochen."
         },
         "payloadTooLarge": {
-          "message": "Die Datei ist für den Server oder Proxy zu groß. Bitte reduziere die Größe oder passe Server-Limits an."
+          "message": "Die Datei ist zu groß. Bitte reduziere die Dateigröße oder passe Server-Limits an."
         },
         "transportError": {
-          "message": "Upload fehlgeschlagen wegen Verbindungs- oder Server-Timeout. Bitte Verbindung oder Server-Limits pruefen."
+          "message": "Upload fehlgeschlagen aufgrund eines Verbindungsproblems oder eines Server-Timeouts. Bitte Verbindung oder Server-Limits prüfen."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"

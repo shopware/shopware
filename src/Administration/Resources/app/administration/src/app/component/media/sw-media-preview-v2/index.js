@@ -382,7 +382,7 @@ export default {
             this.$nextTick(() => {
                 const element = this.$refs.mediaElement;
 
-                if (element && typeof element.load === 'function') {
+                if (typeof element?.load === 'function') {
                     element.load();
                 }
             });

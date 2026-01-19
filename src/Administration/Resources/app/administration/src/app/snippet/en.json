@@ -492,10 +492,10 @@
           "message": "The upload has been cancelled."
         },
         "payloadTooLarge": {
-          "message": "The file is too large for the server or proxy. Please reduce the size or adjust server limits."
+          "message": "File is too large. Please reduce the file size or adjust server limits."
         },
         "transportError": {
-          "message": "The upload failed due to a connection or server timeout. Please check your connection or server limits."
+          "message": "Upload failed due to a connection or server timeout. Please check your connection or server limits."
         }
       },
       "caption": "Drag files here to upload"

@@ -94,13 +94,13 @@ const StatusMessages = {
 } as const;
 
 const TimeoutStatuses = [
-    408,
-    504,
-    524,
+    408, // Origin request timed out before the server responded
+    504, // Upstream gateway timed out waiting for response
+    524, // Proxy timed out waiting for origin
 ];
 const GatewayErrorStatuses = [
-    502,
-    503,
+    502, // Bad gateway from upstream server
+    503, // Service unavailable on upstream server
 ];
 
 /**
@@ -370,17 +370,17 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
         getTransportErrorSnippet(error?: UploadError): string | null {
-            const status = error?.response?.status;
+            const status = error?.response?.status ?? -1;
 
             if (status === 413) {
                 return StatusMessages.PAYLOAD_TOO_LARGE;
             }
 
-            if (TimeoutStatuses.includes(status ?? -1)) {
+            if (TimeoutStatuses.includes(status)) {
                 return StatusMessages.TRANSPORT_ERROR;
             }
 
-            if (GatewayErrorStatuses.includes(status ?? -1)) {
+            if (GatewayErrorStatuses.includes(status)) {
                 return StatusMessages.TRANSPORT_ERROR;
             }
 

@@ -19,6 +19,24 @@ const mockSnackbar = {
     snackbars: [],
 };
 
+const snippetData = {
+    'global.sw-media-upload.snackbar.message': (params) => {
+        if (params.count === 1) {
+            return 'Uploading file';
+        }
+
+        return `Uploading files (${params.processed}/${params.total})`;
+    },
+    'global.sw-media-upload.snackbar.errorMessage': (params) => `${params.count} upload(s) failed`,
+    'global.sw-media-upload.notification.illegalFilename.message': (params) => `Illegal filename: ${params.fileName}`,
+    'global.sw-media-upload.notification.illegalFileUrl.message': (params) => `Illegal file URL: ${params.fileName}`,
+    'global.sw-media-upload.notification.fileTypeNotSupported.message': (params) =>
+        `File type not supported: ${params.fileName}`,
+    'global.sw-media-upload.notification.requestCanceled.message': (params) => `Request canceled: ${params.fileName}`,
+    'global.sw-media-upload.notification.payloadTooLarge.message': (params) => `Payload too large: ${params.fileName}`,
+    'global.sw-media-upload.notification.transportError.message': (params) => `Transport error: ${params.fileName}`,
+};
+
 jest.mock('@shopware-ag/meteor-component-library', () => ({
     useSnackbar: () => mockSnackbar,
 }));
@@ -127,6 +145,12 @@ function createUploadCanceledEvent(targetId, uploadTag = 'test-tag') {
 async function createWrapper() {
     const component = await import('src/app/component/utils/sw-upload-status');
 
+    const translate = jest.fn((key, params = {}) => {
+        const snippet = snippetData[key];
+
+        return snippet ? snippet(params) : key;
+    });
+
     return mount(component.default, {
         global: {
             provide: {
@@ -142,37 +166,7 @@ async function createWrapper() {
                 },
             ],
             mocks: {
-                $t: (key, params = {}) => {
-                    if (key === 'global.sw-media-upload.snackbar.message') {
-                        if (params.count === 1) {
-                            return 'Uploading file';
-                        }
-
-                        return `Uploading files (${params.processed}/${params.total})`;
-                    }
-                    if (key === 'global.sw-media-upload.snackbar.errorMessage') {
-                        return `${params.count} upload(s) failed`;
-                    }
-                    if (key === 'global.sw-media-upload.notification.illegalFilename.message') {
-                        return `Illegal filename: ${params.fileName}`;
-                    }
-                    if (key === 'global.sw-media-upload.notification.illegalFileUrl.message') {
-                        return `Illegal file URL: ${params.fileName}`;
-                    }
-                    if (key === 'global.sw-media-upload.notification.fileTypeNotSupported.message') {
-                        return `File type not supported: ${params.fileName}`;
-                    }
-                    if (key === 'global.sw-media-upload.notification.requestCanceled.message') {
-                        return `Request canceled: ${params.fileName}`;
-                    }
-                    if (key === 'global.sw-media-upload.notification.payloadTooLarge.message') {
-                        return `Payload too large: ${params.fileName}`;
-                    }
-                    if (key === 'global.sw-media-upload.notification.transportError.message') {
-                        return `Transport error: ${params.fileName}`;
-                    }
-                    return key;
-                },
+                $t: translate,
                 $tc: (key) => key,
             },
             stubs: {},
@@ -194,7 +188,6 @@ describe('src/app/component/utils/sw-upload-status', () => {
         const event = createUploadAddedEvent([createUploadTask('target-123', file)]);
 
         wrapper.vm.onUploadEvent(event);
-        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.uploads.size).toBe(1);
         expect(wrapper.vm.uploadCount).toBe(1);
@@ -213,8 +206,6 @@ describe('src/app/component/utils/sw-upload-status', () => {
         wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
         wrapper.vm.onUploadEvent(createUploadFinishedEvent('target-123'));
 
-        await wrapper.vm.$nextTick();
-
         const uploadId = wrapper.vm.getUploadId(file1.name, file1.size);
         const fileInfo = wrapper.vm.uploads.get(uploadId);
 
@@ -228,8 +219,6 @@ describe('src/app/component/utils/sw-upload-status', () => {
 
         wrapper.vm.onUploadEvent(createUploadAddedEvent(task));
         wrapper.vm.onUploadEvent(createUploadFinishedEventWithOriginal('existing-target', 'original-target'));
-
-        await wrapper.vm.$nextTick();
 
         const uploadId = wrapper.vm.getUploadId(file.name, file.size);
         const fileInfo = wrapper.vm.uploads.get(uploadId);
@@ -250,8 +239,6 @@ describe('src/app/component/utils/sw-upload-status', () => {
         const error = createError('CONTENT__MEDIA_ILLEGAL_FILE_NAME', 'Illegal filename');
         wrapper.vm.onUploadEvent(createUploadFailedEvent('target-123', 'test.jpg', error));
 
-        await wrapper.vm.$nextTick();
-
         const uploadId = wrapper.vm.getUploadId(file1.name, file1.size);
         const fileInfo = wrapper.vm.uploads.get(uploadId);
 
@@ -270,8 +257,6 @@ describe('src/app/component/utils/sw-upload-status', () => {
         const error = createError('CONTENT__MEDIA_DUPLICATED_FILE_NAME', 'Duplicated filename');
         wrapper.vm.onUploadEvent(createUploadFailedEvent('target-123', 'test.jpg', error));
 
-        await wrapper.vm.$nextTick();
-
         const uploadId = wrapper.vm.getUploadId(file.name, file.size);
         const fileInfo = wrapper.vm.uploads.get(uploadId);
 
@@ -286,8 +271,6 @@ describe('src/app/component/utils/sw-upload-status', () => {
         expect(wrapper.vm.uploads.size).toBe(1);
 
         wrapper.vm.onUploadEvent(createUploadCanceledEvent('target-123'));
-
-        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.uploads.size).toBe(0);
         expect(wrapper.vm.snackbarItem).toBeNull();
@@ -356,7 +339,12 @@ describe('src/app/component/utils/sw-upload-status', () => {
 
         wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
 
-        expect(wrapper.vm.snackbarMessage).toBe('Uploading file');
+        expect(wrapper.vm.$t).toHaveBeenCalledWith('global.sw-media-upload.snackbar.message', {
+            count: 1,
+            progress: 0,
+            processed: 0,
+            total: 1,
+        });
     });
 
     it('should include processed count in snackbar message for multiple uploads', async () => {
@@ -370,7 +358,14 @@ describe('src/app/component/utils/sw-upload-status', () => {
         wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
         wrapper.vm.onUploadEvent(createUploadFinishedEvent('target-123'));
 
-        expect(wrapper.vm.snackbarMessage).toBe('Uploading files (1/2)');
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            'global.sw-media-upload.snackbar.message',
+            expect.objectContaining({
+                count: 2,
+                processed: 1,
+                total: 2,
+            }),
+        );
     });
 
     it('should detect upload complete when all uploads finished', async () => {
@@ -582,8 +577,6 @@ describe('src/app/component/utils/sw-upload-status', () => {
 
         wrapper.vm.onUploadEvent(createUploadAddedEvent(tasks));
         wrapper.vm.onUploadEvent(createUploadFinishedEvent('target-123'));
-
-        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.uploads.size).toBe(0);
         expect(wrapper.vm.snackbarItem).toBeNull();

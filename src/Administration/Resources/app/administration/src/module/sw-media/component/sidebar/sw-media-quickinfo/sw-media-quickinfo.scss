@@ -40,4 +40,30 @@ $sw-media-quickinfo-border-radius-preview: $border-radius-default;
             margin-bottom: 14px;
         }
     }
+
+    .sw-model-viewer-wrapper {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+
+        .sw-model-viewer-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 1;
+            aspect-ratio: 1 / 1;
+        }
+    }
+}
+
+.sw-model-viewer-modal {
+    .sw-modal__body {
+        padding: 0;
+        overflow-y: hidden;
+    }
+
+    .sw-model-viewer-modal-wrapper {
+        width: 100%;
+        height: 800px;
+    }
 }

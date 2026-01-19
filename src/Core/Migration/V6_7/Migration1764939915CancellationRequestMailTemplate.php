@@ -39,9 +39,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
     public function update(Connection $connection): void
     {
         $enLanguage_byteId = $this->getLanguageIdByLocale($connection, 'en-GB');
-        \assert(\is_string($enLanguage_byteId));
         $deLanguage_byteId = $this->getLanguageIdByLocale($connection, 'de-DE');
-        \assert(\is_string($deLanguage_byteId));
 
         $mailTemplateType_bytesId = $this->createMailTemplateType($connection, $enLanguage_byteId, $deLanguage_byteId);
         $this->createMailTemplateMerchant($connection, $mailTemplateType_bytesId, $enLanguage_byteId, $deLanguage_byteId);
@@ -50,7 +48,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
     private function createMailTemplateMerchant(
         Connection $connection,
         string $mailTemplateType_bytesId,
-        string $enLanguage_byteId,
+        ?string $enLanguage_byteId,
         ?string $deLanguage_byteId
     ): void {
         $hasMailTemplate = true;
@@ -73,7 +71,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             );
         }
 
-        if (!$this->hasMailTemplateTranslation($connection, $mailTemplate_byteId, $enLanguage_byteId)) {
+        if (\is_string($enLanguage_byteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplate_byteId, $enLanguage_byteId)) {
             $connection->insert(
                 'mail_template_translation',
                 [
@@ -119,7 +117,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
         return $mailStruct;
     }
 
-    private function createMailTemplateType(Connection $connection, string $enLanguage_byteId, ?string $deLanguage_byteId): string
+    private function createMailTemplateType(Connection $connection, ?string $enLanguage_byteId, ?string $deLanguage_byteId): string
     {
         $hasMailTemplateType = true;
         $mailTemplateType_byteId = $this->getMailTemplateTypeId($connection);
@@ -140,7 +138,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             );
         }
 
-        if (!$this->hasTemplateTypeTranslation($connection, $mailTemplateType_byteId, $enLanguage_byteId)) {
+        if (\is_string($enLanguage_byteId) && !$this->hasTemplateTypeTranslation($connection, $mailTemplateType_byteId, $enLanguage_byteId)) {
             $connection->insert(
                 'mail_template_type_translation',
                 [

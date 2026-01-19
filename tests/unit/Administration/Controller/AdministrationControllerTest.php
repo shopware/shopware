@@ -162,6 +162,53 @@ class AdministrationControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
+    public function testIndexSetsCacheHeaders(): void
+    {
+        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
+        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
+
+        $controller = $this->createAdministrationController();
+
+        $container = new Container();
+        $twig = $this->createMock(Environment::class);
+
+        $twig->expects($this->once())->method('render')
+            ->willReturn('<html></html>');
+
+        $container->set('twig', $twig);
+        $controller->setContainer($container);
+
+        $currencyCollection = new CurrencyCollection();
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setIsoCode('EUR');
+        $currencyCollection->add($currency);
+
+        $this->currencyRepository->expects($this->once())->method('search')->willReturn(
+            new EntitySearchResult(
+                'currency',
+                1,
+                $currencyCollection,
+                null,
+                new Criteria(),
+                $this->context
+            )
+        );
+
+        $response = $controller->index(new Request(), $this->context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertTrue($response->headers->has('cache-control'));
+
+        $cacheControl = $response->headers->get('cache-control');
+        static::assertNotNull($cacheControl);
+        static::assertStringContainsString('max-age=0', $cacheControl);
+        static::assertStringContainsString('public', $cacheControl);
+        static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
+
+        static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
+    }
+
     public function testCheckCustomerEmailValidWithoutException(): void
     {
         $controller = $this->createAdministrationController();
@@ -314,6 +361,35 @@ class AdministrationControllerTest extends TestCase
         static::assertIsString($content);
         static::assertStringNotContainsString('__$ASSET_BASE_PATH$__', $content);
         static::assertStringContainsString('http://localhost/bundles/', $content);
+    }
+
+    public function testPluginIndexSetsCacheHeaders(): void
+    {
+        $controller = $this->createAdministrationController();
+
+        $fileContent = '<html><head></head><body></body></html>';
+        $this->fileSystemOperator->expects($this->once())
+            ->method('read')
+            ->with('bundles/test-plugin/meteor-app/index.html')
+            ->willReturn($fileContent);
+
+        $this->fileSystemOperator->expects($this->once())
+            ->method('publicUrl')
+            ->with('/')
+            ->willReturn('http://localhost/bundles/');
+
+        $response = $controller->pluginIndex('test-plugin');
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertTrue($response->headers->has('cache-control'));
+
+        $cacheControl = $response->headers->get('cache-control');
+        static::assertNotNull($cacheControl);
+        static::assertStringContainsString('max-age=0', $cacheControl);
+        static::assertStringContainsString('public', $cacheControl);
+        static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
+
+        static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
     }
 
     public function testResetExcludedSearchTermThrowsRoutingException(): void

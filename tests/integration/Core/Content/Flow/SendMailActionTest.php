@@ -843,7 +843,6 @@ class SendMailActionTest extends TestCase
 
         $sendMailAction->handleFlow($flow);
 
-        static::assertInstanceOf(Email::class, $mailService->mail);
         static::assertCount(2, $mailService->mail->getAttachments());
     }
 

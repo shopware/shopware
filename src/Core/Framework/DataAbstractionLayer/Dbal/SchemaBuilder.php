@@ -12,6 +12,7 @@ use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -343,6 +344,9 @@ class SchemaBuilder
                 $delete = 'CASCADE';
             } elseif ($field->is(RestrictDelete::class)) {
                 $delete = 'RESTRICT';
+            } elseif ($definition instanceof EntityTranslationDefinition) {
+                // When we're a FK in a translation definition, we should be a cascade. So when the main entity is deleted, we're deleted too. same for translation
+                $delete = 'CASCADE';
             } else {
                 $delete = 'SET NULL';
             }
@@ -354,8 +358,7 @@ class SchemaBuilder
                 [
                     'onUpdate' => $update,
                     'onDelete' => $delete,
-                ],
-                \sprintf('fk.%s.%s', $definition->getEntityName(), $field->getStorageName())
+                ]
             );
         }
     }

@@ -94,6 +94,8 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
+        $mailExtension = clone $extension;
+
         if (!$flow->hasData(MailAware::MAIL_STRUCT) || !$flow->hasData(MailAware::SALES_CHANNEL_ID)) {
             throw new MailEventConfigurationException('Not have data from MailAware', $flow::class);
         }
@@ -146,7 +148,7 @@ class SendMailAction extends FlowAction implements DelayableAction
         $data->set('attachmentsConfig', new MailAttachmentsConfig(
             $flow->getContext(),
             $mailTemplate,
-            $extension,
+            $mailExtension,
             $eventConfig,
             $flow->getData(OrderAware::ORDER_ID),
         ));
@@ -169,7 +171,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             ...$flow->data(),
         ];
 
-        $this->send($data, $flow->getContext(), $templateData, $extension, $injectedTranslator);
+        $this->send($data, $flow->getContext(), $templateData, $mailExtension, $injectedTranslator);
     }
 
     /**

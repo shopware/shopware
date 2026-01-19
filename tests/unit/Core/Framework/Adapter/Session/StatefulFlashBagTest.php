@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Adapter\Session\StatefulFlashBag;
 #[CoversClass(StatefulFlashBag::class)]
 class StatefulFlashBagTest extends TestCase
 {
+    /**
+     * @var array<string, list<string>>
+     */
     protected array $array = [];
 
     private StatefulFlashBag $bag;

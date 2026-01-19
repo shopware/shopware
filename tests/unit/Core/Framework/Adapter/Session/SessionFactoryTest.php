@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Session\SessionFactory;
 use Shopware\Core\Framework\Adapter\Session\StatefulFlashBag;
 use Shopware\Core\Framework\Test\TestSessionStorageFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 
 /**
  * @internal
@@ -24,6 +25,7 @@ class SessionFactoryTest extends TestCase
 
         $session = $factory->createSession();
 
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $session);
         static::assertInstanceOf(StatefulFlashBag::class, $session->getFlashBag());
         static::assertSame($factory->getFlashBag(), $session->getFlashBag());
     }

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Exception\InvalidPluginCreationInputException;
 use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
 use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
@@ -45,6 +46,7 @@ class PluginException extends HttpException
      */
     public const KERNEL_PLUGIN_LOADER_ERROR = 'FRAMEWORK__KERNEL_PLUGIN_LOADER_ERROR';
     public const PLUGIN_EXTRACTION_FAILED = 'FRAMEWORK__PLUGIN_EXTRACTION_FAILED';
+    public const PLUGIN_CREATION_INVALID_ENTRY = 'FRAMEWORK__PLUGIN_CREATION_INVALID_ENTRY';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -292,5 +294,10 @@ class PluginException extends HttpException
     public static function pluginExtractionError(string $message): self
     {
         return new PluginExtractionException($message);
+    }
+
+    public static function invalidPluginCreationEntryError(string $reason): InvalidPluginCreationInputException
+    {
+        return new InvalidPluginCreationInputException($reason);
     }
 }

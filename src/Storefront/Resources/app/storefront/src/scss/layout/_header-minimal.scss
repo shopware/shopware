@@ -39,6 +39,10 @@ Contains custom styles for the minimal header which is used on checkout pages.
     display: flex;
     align-items: center;
     margin-bottom: $spacer-xs;
+
+    .header-logo-picture {
+        min-width: unset;
+    }
 }
 
 .header-minimal-home {

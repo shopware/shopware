@@ -123,6 +123,11 @@ The following deprecations apply to `sw-mail-template-index`:
 
 ## Storefront
 
+### Cookie consent now language-aware
+
+The cookie consent banner now tracks cookie configuration per language. Previously, switching languages would cause the cookie banner to reappear because the configuration hash changed due to translated cookie descriptions. Now, switching back to a previously accepted language will not show the banner again.
+
+The Store API endpoint `/store-api/cookie-groups` now includes a `languageId` field in the response.
 ### New `window.activeNavigationPathIdList` variable
 
 A new global JavaScript variable `window.activeNavigationPathIdList` is now available, containing the IDs of parent categories for the current page. This can be used by plugins or themes to implement custom navigation highlighting.

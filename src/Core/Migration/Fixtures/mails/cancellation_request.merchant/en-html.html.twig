@@ -1,7 +1,8 @@
-<div style="font-family:arial; font-size:12px;">
+<div style="font-family: arial; font-size: 12px;">
     <p>
-        New cancellation request for the contract with the number {{ cancellationFormData.contractNumber }}<br/>
-        <br/>
+        New cancellation request for the contract with the number {{ cancellationFormData.contractNumber }}
+    </p>
+    <p>
         Further information:
         <br/>
         First name: {{ cancellationFormData.firstName }}
@@ -13,8 +14,9 @@
         Contract number (order number, subscription number, ...): {{ cancellationFormData.contractNumber }}
         <br/>
         Comment:<br/>
-        {{ cancellationFormData.comment }}<br/>
-        <br/>
+        {{ cancellationFormData.comment }}
+    </p>
+    <p>
         The form was submitted at {{ cancellationFormData.submitTime|format_datetime('medium', 'short', locale='en-GB') }}
     </p>
 </div>

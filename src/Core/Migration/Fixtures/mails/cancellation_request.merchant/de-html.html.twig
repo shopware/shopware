@@ -1,7 +1,8 @@
-<div style="font-family:arial; font-size:12px;">
+<div style="font-family: arial; font-size: 12px;">
     <p>
-        Neuer Kündigungsantrag für den Vertrag mit der Nummer {{ cancellationFormData.contractNumber }}<br/>
-        <br/>
+        Neuer Kündigungsantrag für den Vertrag mit der Nummer {{ cancellationFormData.contractNumber }}
+    </p>
+    <p>
         Weitere Informationen:
         <br/>
         Vorname: {{ cancellationFormData.firstName }}
@@ -13,8 +14,10 @@
         Vertragsnummer (Bestellnummer, Abonnementnummer, ...): {{ cancellationFormData.contractNumber }}
         <br/>
         Kommentar:<br/>
-        {{ cancellationFormData.comment }}<br/>
+        {{ cancellationFormData.comment }}
         <br/>
+    </p>
+    <p>
         Das Formular wurde am {{ cancellationFormData.submitTime|format_datetime('medium', 'short', locale='de-DE') }} eingereicht.
     </p>
 </div>

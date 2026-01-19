@@ -86,7 +86,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
             ->add(
                 'email',
                 new Email(),
-                new EqualTo(['propertyPath' => 'emailConfirmation']),
+                new EqualTo(propertyPath: 'emailConfirmation'),
                 new CustomerEmailUnique($options)
             )
             ->add('password', new CustomerPasswordMatches(['context' => $context]));

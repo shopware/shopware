@@ -4,7 +4,6 @@ namespace Shopware\Core\Maintenance\System\Command;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Tools\DsnParser;
 use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;

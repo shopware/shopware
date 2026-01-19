@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Log\Package;
 if (\PHP_VERSION_ID < 80400 && \extension_loaded('pdo_mysql')) {
     /**
      * @internal
+     *
+     * @phpstan-ignore check.classnamespacepsr4 (needs to be in the global `Pdo` namespace to function correctly)
      */
     #[Package('framework')]
     class Mysql extends \PDO

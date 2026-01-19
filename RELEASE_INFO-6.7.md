@@ -105,6 +105,12 @@ This affects the following exception factory methods:
 * `WebhookException::invalidDataMapping(...)`
 * `WebhookException::unknownEventDataType(...)`
 
+### More fine-grained caching control in `HttpCacheCookieEvent`
+
+A new `doNotStore` property was added to the `HttpCacheCookieEvent` to allow fine-grained control over caching behavior.
+This new property allows preventing the current response from being stored in the cache.
+This behaviour differs from the existing ìsCacheable` property, which will also prevent the following requests from that session being cached.
+
 ## Administration
 
 ### Deprecations in mail template components
@@ -166,6 +172,11 @@ A new configuration option `Open offcanvas cart after adding a product` has been
 ## Hosting & Configuration
 
 ## Critical Fixes
+
+### Flash messages are not cached anymore
+
+As soon as a flash message is displayed, the response won't be stored in the HTTP cache anymore, thus preventing the message from being displayed to other users.
+Additionally, the cache will be passed as soon as there is a flash message that still needs to be displayed. This ensures that flash messages are always displayed on the next request, and not only on the next request to an uncached page.
 
 # 6.7.6.0
 

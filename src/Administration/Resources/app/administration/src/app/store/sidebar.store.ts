@@ -31,6 +31,23 @@ const sidebarsStore = Shopware.Store.register({
     actions: {
         // Extension API message methods
         addSidebar({ locationId, title, icon, resizable, baseUrl }: SidebarItemEntry) {
+            // Check if sidebar with same locationId already exists to prevent duplicates on HMR
+            const existingIndex = this.sidebars.findIndex((item) => item.locationId === locationId);
+
+            if (existingIndex !== -1) {
+                // Update existing sidebar (preserve active state)
+                const wasActive = this.sidebars[existingIndex].active;
+                this.sidebars[existingIndex] = reactive({
+                    title,
+                    icon,
+                    locationId,
+                    baseUrl,
+                    resizable,
+                    active: wasActive,
+                });
+                return;
+            }
+
             const sidebar = reactive({
                 title,
                 icon,

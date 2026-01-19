@@ -25,6 +25,17 @@ const actionButtonsStore = Shopware.Store.register({
          * @param button - The button to add
          */
         add(button: ActionButtonConfig): void {
+            // Check if action button with same name, entity, and view already exists to prevent duplicates on HMR
+            const existingIndex = this.buttons.findIndex(
+                (item) => item.entity === button.entity && item.view === button.view && item.name === button.name,
+            );
+
+            if (existingIndex !== -1) {
+                // Update existing action button
+                this.buttons[existingIndex] = button;
+                return;
+            }
+
             this.buttons.push(button);
         },
     },

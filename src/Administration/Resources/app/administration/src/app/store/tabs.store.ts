@@ -25,6 +25,21 @@ const tabsStore = Shopware.Store.register({
                 this.tabItems[positionId] = [];
             }
 
+            // Check if tab with same componentSectionId already exists to prevent duplicates
+            // This is important for HMR: when extension modules re-execute, they call addTabItem again
+            const existingIndex = this.tabItems[positionId].findIndex(
+                (item) => item.componentSectionId === componentSectionId,
+            );
+
+            if (existingIndex !== -1) {
+                // Update existing tab item (label might have changed)
+                this.tabItems[positionId][existingIndex] = {
+                    label,
+                    componentSectionId,
+                };
+                return;
+            }
+
             this.tabItems[positionId].push({
                 label,
                 componentSectionId,

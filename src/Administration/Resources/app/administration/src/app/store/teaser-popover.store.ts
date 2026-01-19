@@ -54,6 +54,17 @@ const teaserPopoverStore = Shopware.Store.register({
         },
 
         addSalesChannel(popoverComponent: TeaserSalesChannelConfig): void {
+            // Check if sales channel with same title already exists to prevent duplicates on HMR
+            const existingIndex = this.salesChannels.findIndex(
+                (item) => item.salesChannel.title === popoverComponent.salesChannel.title,
+            );
+
+            if (existingIndex !== -1) {
+                // Update existing sales channel
+                this.salesChannels[existingIndex] = popoverComponent;
+                return;
+            }
+
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             this.salesChannels.push(popoverComponent);
         },

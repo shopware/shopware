@@ -18,6 +18,15 @@ const paymentOverviewCardStore = Shopware.Store.register({
 
     actions: {
         add(paymentOverviewCard: PaymentOverviewCard) {
+            // Check if card with same positionId already exists to prevent duplicates on HMR
+            const existingIndex = this.cards.findIndex((item) => item.positionId === paymentOverviewCard.positionId);
+
+            if (existingIndex !== -1) {
+                // Update existing card
+                this.cards[existingIndex] = paymentOverviewCard;
+                return;
+            }
+
             this.cards.push(paymentOverviewCard);
         },
     },

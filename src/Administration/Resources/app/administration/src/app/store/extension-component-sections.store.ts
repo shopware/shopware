@@ -34,6 +34,20 @@ const ExtensionComponentSectionsStore = Shopware.Store.register({
                 this.identifier[positionId] = reactive([]);
             }
 
+            // Check if section with same src already exists to prevent duplicates on HMR
+            const existingIndex = this.identifier[positionId].findIndex((item) => item.src === src);
+
+            if (existingIndex !== -1) {
+                // Update existing section
+                this.identifier[positionId][existingIndex] = {
+                    component,
+                    src,
+                    props,
+                    extensionName,
+                };
+                return;
+            }
+
             this.identifier[positionId].push({
                 component,
                 src,

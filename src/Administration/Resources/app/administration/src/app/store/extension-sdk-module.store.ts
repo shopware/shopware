@@ -71,10 +71,24 @@ const extensionSdkModules = Shopware.Store.register({
         },
 
         addSmartBarButton(button: Omit<smartBarButtonAdd, 'responseType'>) {
+            // Check if smart bar button with same locationId already exists to prevent duplicates on HMR
+            const existingIndex = this.smartBarButtons.findIndex((item) => item.locationId === button.locationId);
+
+            if (existingIndex !== -1) {
+                // Update existing smart bar button
+                this.smartBarButtons[existingIndex] = button;
+                return;
+            }
+
             this.smartBarButtons.push(button);
         },
 
         addHiddenSmartBar(locationId: string) {
+            // Check if locationId already exists to prevent duplicates on HMR
+            if (this.hiddenSmartBars.includes(locationId)) {
+                return;
+            }
+
             this.hiddenSmartBars.push(locationId);
         },
     },

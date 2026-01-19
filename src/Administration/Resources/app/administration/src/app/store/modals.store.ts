@@ -28,6 +28,28 @@ const modalsStore = Shopware.Store.register({
             buttons,
             textContent,
         }: ModalItemEntry) {
+            // Check if modal with same locationId already exists to prevent duplicates on HMR
+            // (only check if locationId is defined, as modals without locationId are stacked)
+            if (locationId) {
+                const existingIndex = this.modals.findIndex((modal) => modal.locationId === locationId);
+
+                if (existingIndex !== -1) {
+                    // Update existing modal
+                    this.modals[existingIndex] = {
+                        title,
+                        closable,
+                        showHeader,
+                        showFooter,
+                        variant,
+                        locationId,
+                        buttons: buttons ?? [],
+                        baseUrl,
+                        textContent,
+                    };
+                    return;
+                }
+            }
+
             this.modals.push({
                 title,
                 closable,

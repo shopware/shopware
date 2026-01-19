@@ -18,6 +18,15 @@ const menuItemStore = Shopware.Store.register({
 
     actions: {
         addMenuItem({ label, parent, position, moduleId }: MenuItemEntry) {
+            // Check if menu item with same moduleId already exists to prevent duplicates on HMR
+            const existingIndex = this.menuItems.findIndex((item) => item.moduleId === moduleId);
+
+            if (existingIndex !== -1) {
+                // Update existing menu item
+                this.menuItems[existingIndex] = { label, parent, position, moduleId };
+                return;
+            }
+
             this.menuItems.push({
                 label,
                 parent,

@@ -12,12 +12,10 @@ class BacktraceCollector
     /**
      * @return list<array{
      *     function: string,
-     *     file?: string,
      *     line?: int,
+     *     file?: string,
      *     class?: class-string,
      *     type?: '->'|'::',
-     *     args?: list<mixed>,
-     *     object?: object
      * }>
      */
     public function collect(int $limit = self::DEFAULT_LIMIT): array

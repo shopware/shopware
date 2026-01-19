@@ -107,7 +107,7 @@ This affects the following exception factory methods:
 
 ### Logging for invalidated cache tags
 
-Added info-level logging for invalidated cache tags to improve cache transparency and debugging.
+Added configurable logging for invalidated cache tags, allowing the log level to be set via configuration and logging to be enabled or disabled as needed for debugging and transparency.
 
 ## Administration
 

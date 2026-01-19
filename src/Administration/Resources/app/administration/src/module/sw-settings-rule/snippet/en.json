@@ -95,6 +95,7 @@
       "placeholderDescription": "Set a description for this rule...",
       "placeholderPriority": "Set a priority for this rule...",
       "placeholderTags": "Enter a tag...",
+      "placeholderType": "Enter a type...",
       "messageSaveSuccess": "The rule \"{name}\" has been saved.",
       "ruleCard": "Condition",
       "messageSaveError": "An error occurred while saving rule",

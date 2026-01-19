@@ -168,6 +168,12 @@ class ThemeRuntimeConfigService
         $this->activeThemeNamesCache = null;
     }
 
+    public function deleteByTechnicalName(string $technicalName): void
+    {
+        $this->storage->deleteByTechnicalName($technicalName);
+        $this->resetCaches();
+    }
+
     /**
      * @return array<string>
      */

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
@@ -27,7 +28,7 @@ class LineItemProductTypeRule extends Rule
     /**
      * @internal
      */
-    public function __construct(private readonly ProductTypeRegistry $productTypeRegistry)
+    public function __construct(private readonly ?ProductTypeRegistry $productTypeRegistry = null)
     {
         parent::__construct();
     }
@@ -58,7 +59,10 @@ class LineItemProductTypeRule extends Rule
     {
         return [
             'operator' => RuleConstraints::stringOperators(false),
-            'productType' => RuleConstraints::choice($this->productTypeRegistry->getTypes()),
+            'productType' => RuleConstraints::choice($this->productTypeRegistry?->getTypes() ?? [
+                ProductDefinition::TYPE_PHYSICAL,
+                ProductDefinition::TYPE_DIGITAL,
+            ]),
         ];
     }
 
@@ -66,7 +70,10 @@ class LineItemProductTypeRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
-            ->selectField('productType', $this->productTypeRegistry->getTypes());
+            ->selectField('productType', $this->productTypeRegistry?->getTypes() ?? [
+                ProductDefinition::TYPE_PHYSICAL,
+                ProductDefinition::TYPE_DIGITAL,
+            ]);
     }
 
     private function lineItemMatches(LineItem $lineItem): bool

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Request;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -26,12 +27,21 @@ class RequestParamHelper
      *
      * else use the proper request properties
      * e.g.
-     * $value = $request->attributes->get('some_key');
+     * $value = $request->attributes->get('productId');
      * $value = $request->query->get('some_key');
      * $value = $request->request->get('some_key');
      */
     public static function get(Request $request, string $name, mixed $default = null): mixed
     {
+        if (!Feature::isActive('v6.8.0.0') && $request->attributes->has($name)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Using `RequestParamHelper::get()` to access parameters in attribute bag is deprecated. Consider using `$request->attributes` directly or store the parameters in `$request->query` or `$request->request` bags.'
+            );
+
+            $request->attributes->get($name, $default);
+        }
+
         if ($request->query->has($name)) {
             return $request->query->all()[$name];
         }

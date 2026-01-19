@@ -5,6 +5,10 @@ branding:
     color: "blue"
     icon: "download"
 
+permissions:
+    contents: read
+    id-token: write
+
 inputs:
     project:
         required: true
@@ -177,6 +181,42 @@ runs:
               path: ${{ inputs.directory }}/test-results/
               retention-days: 3
           continue-on-error: true
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-region: eu-west-1
+            role-session-name: gha-playwright-${{ github.run_id }}
+            role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+
+        - name: Upload Playwright HTML report to S3 (unique per run)
+          if: always()
+          shell: bash
+          run: |
+                set -euo pipefail
+                DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+
+                if [ ! -d "playwright-report" ]; then
+                  echo "No playwright-report/ directory found. Skipping upload."
+                  exit 0
+                fi
+
+                aws s3 sync "playwright-report" "s3://${S3_BUCKET}/${DEST}/" --delete
+                echo "Uploaded to s3://${S3_BUCKET}/${DEST}/"
+
+        - name: Publish CloudFront URL in GitHub Summary
+          if: always()
+          shell: bash
+          env:
+            CLOUDFRONT_DOMAIN: ${{ secrets.CLOUDFRONT_DOMAIN }} # e.g. d111111abcdef8.cloudfront.net (or your custom domain)
+          run: |
+                set -euo pipefail
+                DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+                URL="https://${CLOUDFRONT_DOMAIN}/${DEST}/index.html"
+
+                echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
+                echo "" >> "$GITHUB_STEP_SUMMARY"
+                echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
 
         - name: Check for changes
           id: diff

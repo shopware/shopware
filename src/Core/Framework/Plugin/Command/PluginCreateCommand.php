@@ -133,17 +133,17 @@ class PluginCreateCommand extends Command
         SymfonyStyle $io
     ): string {
         if (!$input->isInteractive()) {
-            throw PluginException::invalidPluginCreationEntryError('This command requires interactive mode or the argument must be provided.');
+            throw PluginException::invalidPluginCreationInputError('This command requires interactive mode or the argument must be provided.');
         }
 
         $question = new Question($questionText);
         $question->setValidator(function (?string $answer) {
             if (empty($answer)) {
-                throw PluginException::invalidPluginCreationEntryError('Answer cannot be empty');
+                throw PluginException::invalidPluginCreationInputError('Answer cannot be empty');
             }
 
             if (!ctype_upper($answer[0])) {
-                throw PluginException::invalidPluginCreationEntryError('The name must start with an uppercase character');
+                throw PluginException::invalidPluginCreationInputError('The name must start with an uppercase character');
             }
 
             return $answer;

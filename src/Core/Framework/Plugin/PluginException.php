@@ -296,7 +296,7 @@ class PluginException extends HttpException
         return new PluginExtractionException($message);
     }
 
-    public static function invalidPluginCreationEntryError(string $reason): InvalidPluginCreationInputException
+    public static function invalidPluginCreationInputError(string $reason): InvalidPluginCreationInputException
     {
         return new InvalidPluginCreationInputException($reason);
     }

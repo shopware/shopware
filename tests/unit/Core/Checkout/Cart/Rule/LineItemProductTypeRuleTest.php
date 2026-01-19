@@ -33,8 +33,9 @@ class LineItemProductTypeRuleTest extends TestCase
     protected function setUp(): void
     {
         $this->rule = new LineItemProductTypeRule(new ProductTypeRegistry([
-            ProductDefinition::TYPE_DIGITAL,
             ProductDefinition::TYPE_PHYSICAL,
+            ProductDefinition::TYPE_DIGITAL,
+            'bundle',
         ]));
     }
 
@@ -50,10 +51,25 @@ class LineItemProductTypeRuleTest extends TestCase
         static::assertArrayHasKey('productType', $constraints);
         static::assertArrayHasKey('operator', $constraints);
         static::assertEquals(RuleConstraints::choice([
-            ProductDefinition::TYPE_DIGITAL,
             ProductDefinition::TYPE_PHYSICAL,
+            ProductDefinition::TYPE_DIGITAL,
+            'bundle',
         ]), $constraints['productType']);
         static::assertEquals(RuleConstraints::stringOperators(false), $constraints['operator']);
+    }
+
+    public function testConfigEmpty(): void
+    {
+        $config = (new LineItemProductTypeRule())->getConfig();
+
+        $expected = (new RuleConfig())
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->selectField('productType', [
+                ProductDefinition::TYPE_PHYSICAL,
+                ProductDefinition::TYPE_DIGITAL,
+            ]);
+
+        static::assertSame($expected->getData(), $config->getData());
     }
 
     public function testConfig(): void
@@ -62,8 +78,9 @@ class LineItemProductTypeRuleTest extends TestCase
         $expected = (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
             ->selectField('productType', [
-                ProductDefinition::TYPE_DIGITAL,
                 ProductDefinition::TYPE_PHYSICAL,
+                ProductDefinition::TYPE_DIGITAL,
+                'bundle',
             ]);
 
         static::assertSame($expected->getData(), $config->getData());

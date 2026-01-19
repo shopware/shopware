@@ -13,6 +13,10 @@ Custom fields are now **not searchable by default**. To make a custom field sear
 
 **Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
 
+### Media Model Viewer
+
+From now on you are able to inspect your 3D models directly in the Media module in the Administration. Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right. This new component is called `sw-model-viewer`.
+
 ## API
 
 ### Improved tagged based cache invalidation
@@ -25,6 +29,23 @@ Next routes now support cache tagging, enabling automatic invalidation when rele
 
 ## Core
 
+### Rework of DAL query generation for nested filters groups
+The DAL criteria builder has been adjusted to generate `EXISTS` subqueries instead of `LEFT JOIN`s for nested filter groups.
+
+Previously, each level of nested filters resulted in an additional `LEFT JOIN`, even when the join was only required to check for the existence of a related entity subject to some filter.
+In complex criteria trees with multiple filters on the same entity, this led to an exponential explosion of joins and significant performance degradation (e.g., the same table being joined multiple times only to evaluate existence conditions).
+
+An example of this is a query such as "find orders that have a line item of type A and one of type B and one of type C".
+According to [aadr/2020-11-19-dal-join-filter.md](adr/2020-11-19-dal-join-filter.md), this would look like:
+```php
+$criteria->addFilter(
+    new EqualsFilter('lineItems.type', 'product'),
+    new EqualsFilter('lineItems.type', 'custom'),
+    new EqualsFilter('lineItems.type', 'other'),
+);
+```
+Previously, the generated query would `LEFT JOIN` `order_line_item` multiple times onto `order`, causing the query to be extremely slow. The new `EXISTS` checks prevent this, making the query much faster.
+
 ### Introduce Immutable DAL flag
 
 A new `Immutable` flag is available for Data Abstraction Layer fields. Fields marked as immutable can be set during entity creation but cannot be updated later. This prevents accidental renames of technical identifiers that other subsystems rely on. Core entities now using the flag include:
@@ -34,6 +55,12 @@ A new `Immutable` flag is available for Data Abstraction Layer fields. Fields ma
 * `custom_field_set.name`
 
 Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
+
+### Performance Improvement for `ProductCategoryDenormalizer`
+
+The SQL Query inside the `ProductCategoryDenormalizer` has been optimized to run faster, especially on large catalogues.
+Previously MySql needed to perform a full table scan based on the where condition, now the result set is already limited by indexed columns.
+This lead to performance improvements from up to 3s for the query down to less than 1ms on large catalogues (3000%).
 
 ### Deprecation of product states in favor of the new product type
 
@@ -101,6 +128,9 @@ The following deprecations apply to `sw-mail-template-index`:
 The cookie consent banner now tracks cookie configuration per language. Previously, switching languages would cause the cookie banner to reappear because the configuration hash changed due to translated cookie descriptions. Now, switching back to a previously accepted language will not show the banner again.
 
 The Store API endpoint `/store-api/cookie-groups` now includes a `languageId` field in the response.
+### New `window.activeNavigationPathIdList` variable
+
+A new global JavaScript variable `window.activeNavigationPathIdList` is now available, containing the IDs of parent categories for the current page. This can be used by plugins or themes to implement custom navigation highlighting.
 
 ### Improved cookie consent dialog UI and accessibility
 
@@ -256,7 +286,43 @@ We don't synchronously fetch and generate the SEO-Urls for all child categories 
 Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
 This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
 
+### Make the find best variant on searching as non default behaviour
+
+Since [6.7.2.0](https://github.com/shopware/shopware/pull/11107), the "find best variant" feature was always the default behaviour on the search. It means that if a product has variants, the best matching variant is returned instead of what merchant has configured in the product's Storefront presentation > Product listings > "Show main product or variant" setting.
+This behaviour is now optional and can be enabled by setting the `core.listing.findBestVariant` config to `true` or setting it via the admin interface under Settings > Products > "Preview best matching variant for search results"
+
 ## Administration
+
+As part of this change, the following deprecations were made:
+- The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
+- `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
+- The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
+- The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
+- A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
+- For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
+
+If you have using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
+If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
+
+## Administration
+When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
+### Axios upgrade with dual-client dispatcher
+
+The Administration now supports axios 1.x alongside the existing axios 0.30.2 to address security vulnerability CVE-2023-45857. A dual-client dispatcher pattern has been implemented that allows both versions to coexist, enabling a gradual migration path for plugins and custom code.
+
+**Current behavior (6.7.x):**
+- Default: axios 0.30.2 (backward compatible)
+- Opt-in: Add `useAxiosV1: true` to request configuration to use axios 1.x
+
+**Future behavior (6.8.0+):**
+- Default: axios 1.x (when `V6_8_0_0` feature flag is active)
+- Opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
+
+**Key differences between versions:**
+- **Cancellation**: axios 0.x uses `CancelToken`, axios 1.x uses `AbortController` (modern standard)
+- **Error codes**: axios 1.x provides more standardized error codes like `ERR_CANCELED`
+
+Plugin developers should test their code with `useAxiosV1: true` to ensure compatibility before the 6.8 release. The migration guide is available at `technical-docs/09-security/axios-migration-guide.md`.
 
 ### Loading indicator for whole page
 

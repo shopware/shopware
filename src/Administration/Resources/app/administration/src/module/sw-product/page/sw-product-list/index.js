@@ -171,7 +171,6 @@ export default {
                     label: this.$tc('sw-product.filters.stockFilter.label'),
                     numberType: 'int',
                     step: 1,
-                    min: 0,
                     fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
                     toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
                 },

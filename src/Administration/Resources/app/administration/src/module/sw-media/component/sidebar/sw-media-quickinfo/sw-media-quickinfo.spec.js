@@ -101,6 +101,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 },
                 'sw-media-quickinfo-metadata-item': true,
                 'sw-media-preview-v2': true,
+                'sw-model-viewer': true,
                 'sw-media-tag': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-field-error': true,
@@ -542,4 +543,34 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             expect(banner.exists()).toBe(shouldShowWarning);
         },
     );
+
+    it('should have showModelViewerModal initially set to false', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.showModelViewerModal).toBe(false);
+    });
+
+    it('should set showModelViewerModal to true when openModelViewerModal is called', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.showModelViewerModal).toBe(false);
+
+        wrapper.vm.openModelViewerModal();
+
+        expect(wrapper.vm.showModelViewerModal).toBe(true);
+    });
+
+    it('should set showModelViewerModal to false when closeModelViewerModal is called', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.showModelViewerModal = true;
+        expect(wrapper.vm.showModelViewerModal).toBe(true);
+
+        wrapper.vm.closeModelViewerModal();
+
+        expect(wrapper.vm.showModelViewerModal).toBe(false);
+    });
 });

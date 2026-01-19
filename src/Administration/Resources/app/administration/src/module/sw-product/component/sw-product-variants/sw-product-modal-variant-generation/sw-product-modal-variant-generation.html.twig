@@ -237,7 +237,7 @@
 
                         <mt-switch
                             label="Digital"
-                            :model-value="item.productStates.includes('is-download')"
+                            :model-value="item.type === 'digital'"
                             @update:model-value="(event) => onChangeVariantValue(event, item)"
                         />
                         <sw-upload-listener
@@ -248,7 +248,7 @@
                         <sw-media-compact-upload-v2
                             v-if="productDownloadFolderId"
                             :upload-tag="item.productNumber"
-                            :disabled="item.productStates.length === 0"
+                            :disabled="item.type !== 'digital'"
                             private-filesystem
                             allow-multi-select
                             add-files-on-multiselect

@@ -1,8 +1,6 @@
-@import "~scss/variables";
-
 .sw-help-text {
-    width: 16px;
-    height: 16px;
+    width: var(--scale-size-16);
+    height: var(--scale-size-16);
     color: var(--color-icon-brand-default);
     border-radius: 50%;
     line-height: 0;
@@ -17,7 +15,7 @@
     }
 
     .mt-icon {
-        width: 16px;
-        height: 16px;
+        width: var(--scale-size-16);
+        height: var(--scale-size-16);
     }
 }

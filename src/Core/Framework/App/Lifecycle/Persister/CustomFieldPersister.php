@@ -47,6 +47,7 @@ class CustomFieldPersister
 
     private function upsertCustomFieldSets(?CustomFields $customFields, string $appId, Context $context): void
     {
+        /** @var array<string, string> $allCustomFields */
         $allCustomFields = $this->connection->fetchAllKeyValue(
             'SELECT id, name FROM custom_field_set WHERE app_id = :appId',
             ['appId' => Uuid::fromHexToBytes($appId)]
@@ -93,20 +94,21 @@ class CustomFieldPersister
                 continue;
             }
 
+            $customFieldSetId = $existingCustomFieldSets[$customFieldSet->getName()];
+
             $existingRelations = Uuid::fromBytesToHexList(
                 $this->connection->fetchAllKeyValue(
                     'SELECT entity_name, id FROM custom_field_set_relation WHERE set_id = :setId',
-                    ['setId' => Uuid::fromHexToBytes($existingCustomFieldSets[$customFieldSet->getName()])]
+                    ['setId' => Uuid::fromHexToBytes($customFieldSetId)]
                 )
             );
             $existingFields = Uuid::fromBytesToHexList(
                 $this->connection->fetchAllKeyValue(
                     'SELECT name, id FROM custom_field WHERE set_id = :setId',
-                    ['setId' => Uuid::fromHexToBytes($existingCustomFieldSets[$customFieldSet->getName()])]
+                    ['setId' => Uuid::fromHexToBytes($customFieldSetId)]
                 )
             );
-            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields);
-            $entityData['id'] = $existingCustomFieldSets[$customFieldSet->getName()];
+            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields, $customFieldSetId);
 
             $obsoleteRelations = array_merge($obsoleteRelations, array_values($existingRelations));
             $obsoleteFields = array_merge($obsoleteFields, array_values($existingFields));

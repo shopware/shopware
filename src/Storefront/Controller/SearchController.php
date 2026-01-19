@@ -39,7 +39,11 @@ class SearchController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/search', name: 'frontend.search.page', methods: ['GET'])]
+    #[Route(
+        path: '/search',
+        name: 'frontend.search.page',
+        methods: [Request::METHOD_GET]
+    )]
     public function search(SalesChannelContext $context, Request $request): Response
     {
         try {
@@ -63,7 +67,12 @@ class SearchController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/suggest', name: 'frontend.search.suggest', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
+    #[Route(
+        path: '/suggest',
+        name: 'frontend.search.suggest',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function suggest(SalesChannelContext $context, Request $request): Response
     {
         if (!$request->request->has('no-aggregations')) {
@@ -80,7 +89,12 @@ class SearchController extends StorefrontController
     /**
      * Route to load the listing filters
      */
-    #[Route(path: '/widgets/search', name: 'widgets.search.pagelet.v2', defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/search',
+        name: 'widgets.search.pagelet.v2',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function ajax(Request $request, SalesChannelContext $context): Response
     {
         $request->request->set('no-aggregations', true);
@@ -98,7 +112,15 @@ class SearchController extends StorefrontController
     /**
      * Route to load the available listing filters
      */
-    #[Route(path: '/widgets/search/filter', name: 'widgets.search.filter', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/search/filter',
+        name: 'widgets.search.filter',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function filter(Request $request, SalesChannelContext $context): Response
     {
         $term = $request->get('search');

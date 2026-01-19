@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends MigrationStep

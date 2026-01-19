@@ -52,14 +52,14 @@ class ActionButtonDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('entity', 'entity'))->addFlags(new Required()),
-            (new StringField('view', 'view'))->addFlags(new Required()),
-            (new StringField('url', 'url'))->addFlags(new Required()),
-            (new StringField('action', 'action'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of app\'s action button.'),
+            (new StringField('entity', 'entity'))->addFlags(new Required())->setDescription('Indicates in which particular entity.'),
+            (new StringField('view', 'view'))->addFlags(new Required())->setDescription('Indicates whether it is detail page view or listing page view.'),
+            (new StringField('url', 'url'))->addFlags(new Required())->setDescription('An url associated with the AppActionButton.'),
+            (new StringField('action', 'action'))->addFlags(new Required())->setDescription('Indicates the action or functionality that the button performs when clicked or interacted with.'),
             new TranslatedField('label'),
             (new TranslationsAssociationField(ActionButtonTranslationDefinition::class, 'app_action_button_id'))->addFlags(new Required()),
-            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required()),
+            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required())->setDescription('Unique identity of app.'),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);
     }

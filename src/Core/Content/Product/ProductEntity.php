@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -74,6 +75,8 @@ class ProductEntity extends Entity implements \Stringable
     protected ?int $availableStock = null;
 
     protected bool $available;
+
+    protected string $type = ProductDefinition::TYPE_PHYSICAL;
 
     protected ?string $deliveryTimeId = null;
 
@@ -248,6 +251,8 @@ class ProductEntity extends Entity implements \Stringable
     protected ?ProductDownloadCollection $downloads = null;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, please use type field instead.
+     *
      * @var array<int, string>
      */
     protected array $states = [];
@@ -1226,17 +1231,41 @@ class ProductEntity extends Entity implements \Stringable
 
     /**
      * @return array<int, string>
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use getType instead.
      */
     public function getStates(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getStates', 'v6.8.0.0', 'getType')
+        );
+
         return $this->states;
     }
 
     /**
      * @param array<int, string> $states
+     *
+     * @deprecated tag:v6.8.0 -- Will be removed. Use setType instead.
      */
     public function setStates(array $states): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getStates', 'v6.8.0.0', 'getType')
+        );
+
         $this->states = $states;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 }

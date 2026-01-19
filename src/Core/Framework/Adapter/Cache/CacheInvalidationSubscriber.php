@@ -19,6 +19,7 @@ use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
@@ -36,6 +37,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
@@ -308,9 +310,13 @@ class CacheInvalidationSubscriber
             $variantIds,
         );
 
-        $this->cacheInvalidator->invalidate(
-            array_map(ProductDetailRoute::buildName(...), $productIds)
-        );
+        $tags = array_map(ProductDetailRoute::buildName(...), $productIds);
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $tags = array_merge($tags, array_map(MediaRoute::buildName(...), $event->getIds()));
+        }
+
+        $this->cacheInvalidator->invalidate($tags);
     }
 
     public function invalidateContext(EntityWrittenContainerEvent $event): void

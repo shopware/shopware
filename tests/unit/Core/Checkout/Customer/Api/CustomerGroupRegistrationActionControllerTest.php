@@ -211,6 +211,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     {
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
+        $customer->setActive(true);
 
         if ($requestedGroup) {
             $customerGroup = new CustomerGroupEntity();

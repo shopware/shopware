@@ -47,10 +47,10 @@ class PromotionIndividualCodeDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('promotion_id', 'promotionId', PromotionDefinition::class, 'id'))->addFlags(new Required()),
-            (new StringField('code', 'code'))->addFlags(new Required()),
-            new JsonField('payload', 'payload'),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of promotion individual code.'),
+            (new FkField('promotion_id', 'promotionId', PromotionDefinition::class, 'id'))->addFlags(new Required())->setDescription('Unique identity of promotion.'),
+            (new StringField('code', 'code'))->addFlags(new Required())->setDescription('Promotion code.'),
+            (new JsonField('payload', 'payload'))->setDescription('Any data related to promotion is passed.'),
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
         ]);
     }

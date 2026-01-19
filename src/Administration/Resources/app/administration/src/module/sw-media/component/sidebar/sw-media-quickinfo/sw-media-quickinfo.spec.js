@@ -101,6 +101,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 },
                 'sw-media-quickinfo-metadata-item': true,
                 'sw-media-preview-v2': true,
+                'sw-model-viewer': true,
                 'sw-media-tag': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-field-error': true,

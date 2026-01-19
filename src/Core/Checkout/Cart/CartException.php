@@ -19,9 +19,6 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class CartException extends HttpException
 {

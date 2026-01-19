@@ -5,6 +5,7 @@
     v-if="useMeteorComponent"
     v-bind="$attrs"
     :is-opened="isOpened"
+    :match-reference-width="computedMatchReferenceWidth"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -16,7 +17,6 @@
         >
         </slot>
     </template>
-    <slot></slot>
 </mt-floating-ui>
 {% endblock %}
 
@@ -26,6 +26,7 @@
 <sw-popover-deprecated
     v-else
     v-bind="$attrs"
+    :resize-width="computedMatchReferenceWidth"
 >
     <slot></slot>
 </sw-popover-deprecated>

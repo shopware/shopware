@@ -791,6 +791,7 @@
     "childCount",
     "customFieldSetSelectionActive",
     "sales",
+    "type",
     "states",
     "options",
     "properties",

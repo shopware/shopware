@@ -115,6 +115,10 @@ test('As a shop customer, I want to submit a review, so that I can share my expe
 
 test.skip('As a shop customer, I want to filter reviews, so that I can find the content of a specific rating', {
     tag: ['@Product', '@Reviews', '@Storefront'],
+    annotation: {
+        type: 'issue',
+        description: 'https://github.com/shopware/shopware/issues/14414',
+  },
 }, async ({
     ShopCustomer,
     TestDataService,

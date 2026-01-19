@@ -341,7 +341,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if ($validateStorefrontUrl) {
             $definition
-                ->add('storefrontUrl', new NotBlank(), new Choice($this->getDomainUrls($context)));
+                ->add('storefrontUrl', new NotBlank(), new Choice(choices: $this->getDomainUrls($context)));
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);

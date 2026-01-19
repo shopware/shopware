@@ -368,7 +368,6 @@ export default {
                         allowEmpty: true,
                         allowOverwrite: true,
                         allowClear: true,
-                        min: 0,
                     },
                 },
                 {

@@ -56,6 +56,8 @@
                               data-form-ajax-submit="true"
                               data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 
+                            <input type="hidden" name="redirectTo" value="{{ redirectTo }}">
+
                             {% if app.request.get('language') %}
                                 <input type="hidden" name="language" value="{{ app.request.get('language') }}">
                             {% endif %}

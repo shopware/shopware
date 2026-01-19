@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited as InheritedFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -54,6 +55,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityCollection;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithInheritance;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\StringEnum;
 
 /**
@@ -70,6 +72,73 @@ class AttributeEntityCompilerTest extends TestCase
         $compiledResult = $compiler->compile(AttributeEntity::class);
 
         static::assertSame($this->getExpectedCompilationResult(), $compiledResult);
+    }
+
+    public function testInheritedAttributeCompilesCorrectly(): void
+    {
+        $compiler = new AttributeEntityCompiler();
+
+        $compiledResult = $compiler->compile(AttributeEntityWithInheritance::class);
+
+        // Find the main entity definition (not mapping tables)
+        $entityDefinition = null;
+        foreach ($compiledResult as $result) {
+            if ($result['type'] === 'entity' && $result['entity_name'] === 'attribute_entity_inheritance') {
+                $entityDefinition = $result;
+                break;
+            }
+        }
+
+        static::assertNotNull($entityDefinition, 'Entity definition not found in compiled result');
+
+        // Find fields with Inherited flag
+        $inheritedStringField = null;
+        $inheritedCurrencyIdField = null;
+        $inheritedCurrencyField = null;
+        $inheritedWithForeignKeyField = null;
+
+        foreach ($entityDefinition['fields'] as $field) {
+            switch ($field['name'] ?? null) {
+                case 'inheritedString':
+                    $inheritedStringField = $field;
+                    break;
+                case 'currencyId':
+                    $inheritedCurrencyIdField = $field;
+                    break;
+                case 'currency':
+                    $inheritedCurrencyField = $field;
+                    break;
+                case 'inheritedWithForeignKey':
+                    $inheritedWithForeignKeyField = $field;
+                    break;
+            }
+        }
+
+        // Verify inherited string field has Inherited flag with correct class
+        static::assertNotNull($inheritedStringField, 'inheritedString field not found');
+        static::assertArrayHasKey(InheritedFlag::class, $inheritedStringField['flags'], 'inheritedString should have Inherited flag');
+        static::assertIsArray($inheritedStringField['flags'][InheritedFlag::class]);
+        static::assertSame(InheritedFlag::class, $inheritedStringField['flags'][InheritedFlag::class]['class']);
+        static::assertSame([null], $inheritedStringField['flags'][InheritedFlag::class]['args']);
+
+        // Verify inherited FK field has Inherited flag
+        static::assertNotNull($inheritedCurrencyIdField, 'currencyId field not found');
+        static::assertArrayHasKey(InheritedFlag::class, $inheritedCurrencyIdField['flags'], 'currencyId should have Inherited flag');
+        static::assertIsArray($inheritedCurrencyIdField['flags'][InheritedFlag::class]);
+        static::assertSame(InheritedFlag::class, $inheritedCurrencyIdField['flags'][InheritedFlag::class]['class']);
+
+        // Verify inherited association field has Inherited flag
+        static::assertNotNull($inheritedCurrencyField, 'currency field not found');
+        static::assertArrayHasKey(InheritedFlag::class, $inheritedCurrencyField['flags'], 'currency should have Inherited flag');
+        static::assertIsArray($inheritedCurrencyField['flags'][InheritedFlag::class]);
+        static::assertSame(InheritedFlag::class, $inheritedCurrencyField['flags'][InheritedFlag::class]['class']);
+
+        // Verify inherited field with custom foreignKey parameter
+        static::assertNotNull($inheritedWithForeignKeyField, 'inheritedWithForeignKey field not found');
+        static::assertArrayHasKey(InheritedFlag::class, $inheritedWithForeignKeyField['flags'], 'inheritedWithForeignKey should have Inherited flag');
+        static::assertIsArray($inheritedWithForeignKeyField['flags'][InheritedFlag::class]);
+        static::assertSame(InheritedFlag::class, $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['class']);
+        static::assertSame(['custom_fk'], $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['args'], 'foreignKey parameter should be passed through');
     }
 
     /**

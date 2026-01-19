@@ -269,9 +269,36 @@
 
                 {% block sw_media_quickinfo_preview_item %}
                 <template v-if="item.mimeType?.split('/')[0] === 'model'">
-                    <sw-model-viewer
-                        :source="item"
-                    />
+                    <div class="sw-model-viewer-wrapper">
+                        <mt-button
+                            v-if="!isLoading"
+                            class="sw-model-viewer-button"
+                            variant="secondary"
+                            size="x-small"
+                            @click="openModelViewerModal()"
+                        >
+                            <mt-icon name="regular-expand-arrows" />
+                        </mt-button>
+                        <sw-model-viewer
+                            :source="item"
+                        />
+                    </div>
+
+                    {% block sw_model_viewer_modal %}
+                    <sw-modal
+                        v-if="showModelViewerModal"
+                        class="sw-model-viewer-modal"
+                        :title="$tc('sw-media.sw-model-viewer.titleModal')"
+                        variant="x-large"
+                        @modal-close="closeModelViewerModal()"
+                    >
+                        <div class="sw-model-viewer-modal-wrapper">
+                            <sw-model-viewer
+                                :source="item"
+                            />
+                        </div>
+                    </sw-modal>
+                    {% endblock %}
                 </template>
 
                 <template v-else>

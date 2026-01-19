@@ -441,6 +441,102 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 
 <details>
 
+## Axios v1 is now the default HTTP client
+
+Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2. This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.
+
+### What changed
+
+**Shopware 6.7.x:**
+- Default: axios 0.30.2
+- Opt-in to v1: `useAxiosV1: true`
+
+**Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
+- Default: axios 1.x
+- Opt-out to v0: `useAxiosV1: false`
+
+### Key differences between axios 0.30.2 and axios 1.x
+
+**Request Cancellation:**
+```javascript
+// Axios 0.30.2 (deprecated CancelToken)
+const { CancelToken } = Axios;
+const source = CancelToken.source();
+
+httpClient.get('/api/endpoint', {
+    cancelToken: source.token,
+});
+source.cancel('Operation cancelled');
+
+// Axios 1.x (modern AbortController)
+const controller = new AbortController();
+
+httpClient.get('/api/endpoint', {
+    signal: controller.signal,
+    useAxiosV1: true,
+});
+controller.abort();
+```
+
+**Error Detection:**
+```javascript
+// Works for both versions
+if (httpClient.isCancel(error)) {
+    // Handle cancellation
+}
+
+// Axios 1.x specific
+if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
+    // Handle cancellation
+}
+```
+
+**Version-Specific Interceptors and Defaults:**
+
+During the transition period, the HTTP client provides direct access to both axios versions' interceptors and defaults:
+
+```javascript
+// Access interceptors for specific version
+httpClient.interceptorsV0 // Always axios 0.30.2 interceptors
+httpClient.interceptorsV1 // Always axios 1.x interceptors
+httpClient.interceptors   // Current default version (v1 in 6.8+)
+
+// Access defaults for specific version
+httpClient.defaultsV0 // Always axios 0.30.2 defaults
+httpClient.defaultsV1 // Always axios 1.x defaults
+httpClient.defaults   // Current default version (v1 in 6.8+)
+
+// Example: Add interceptor to both versions during transition
+httpClient.interceptorsV0.request.use(myRequestHandler);
+httpClient.interceptorsV1.request.use(myRequestHandler);
+```
+
+This allows plugins to configure both axios versions simultaneously during the migration period.
+
+### Migration guide
+
+Most code will work without changes. However, if you use request cancellation or depend on specific axios behavior:
+
+1. **Update cancellation logic** to use `AbortController` instead of `CancelToken`
+2. **Test your plugin** with axios v1 before the 6.8 release
+3. **Review error handling** for version-specific error codes
+
+**If you need axios 0.30.2 temporarily:**
+```javascript
+// Explicitly opt-out to use axios 0.30.2
+httpClient.request({
+    method: 'get',
+    url: '/api/endpoint',
+    useAxiosV1: false, // Force axios 0.30.2
+});
+```
+
+### Future removal
+
+Axios 0.30.2 support will be completely removed in a future major release. The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version. Plan to migrate all code to axios v1 as soon as possible.
+
+For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
+
 ## Removal of "sw-empty-state"
 * The old `sw-empty-state` component will be removed in the next major version. Please use the new `mt-empty-state` component instead.
 

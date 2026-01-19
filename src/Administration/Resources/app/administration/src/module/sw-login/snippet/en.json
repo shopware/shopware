@@ -7,10 +7,10 @@
     "index": {
       "headlineMain": "Hello!",
       "subheadlineMain": "Welcome back.",
-      "headlineForm": "Login to your Shopware store",
+      "headlineForm": "Log in to your Shopware store",
       "labelUsername": "Username",
       "labelPassword": "Password",
-      "labelKeepLoggedIn": "Stay signed in",
+      "labelKeepLoggedIn": "Stay logged in",
       "placeholderUsername": "Enter your username...",
       "placeholderPassword": "Enter your password...",
       "buttonLogin": "Login",

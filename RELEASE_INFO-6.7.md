@@ -5,6 +5,9 @@
 ### Fixed plugin translations
 Fixed a timing issue in `6.7.6.1` where `Locale.extend` could cause unresolved translations in the administration. Vue snippets are now dynamically updated after extending locales.
 
+### Fixed type error in `_httpCache` attribute
+Fixed a type error when `_httpCache` route attribute is defined as string, which might happen when the route is defined via XML config.
+
 # 6.7.6.0
 
 ## Features

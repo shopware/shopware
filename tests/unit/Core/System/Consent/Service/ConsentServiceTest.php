@@ -14,6 +14,7 @@ use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentScope\AdminUser;
 use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
@@ -193,12 +194,18 @@ class ConsentServiceTest extends TestCase
                 'system',
                 ConsentStatus::ACCEPTED,
                 'user-123'
-            );
+            )
+            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123'));
 
         $source = new AdminApiSource('user-123');
         $context = Context::createDefaultContext($source);
 
-        $service->acceptConsent('consent-1', $context);
+        $updatedState = $service->acceptConsent('consent-1', $context);
+
+        static::assertEquals(
+            new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123'),
+            $updatedState
+        );
     }
 
     public function testAcceptConsentThrowsExceptionWhenConsentNotFound(): void
@@ -258,12 +265,18 @@ class ConsentServiceTest extends TestCase
                 'system',
                 ConsentStatus::REVOKED,
                 'user-456'
-            );
+            )
+            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456'));
 
         $source = new AdminApiSource('user-456');
         $context = Context::createDefaultContext($source);
 
-        $service->revokeConsent('consent-1', $context);
+        $updatedState = $service->revokeConsent('consent-1', $context);
+
+        static::assertEquals(
+            new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456'),
+            $updatedState
+        );
     }
 
     public function testRevokeConsentThrowsExceptionWhenConsentNotFound(): void

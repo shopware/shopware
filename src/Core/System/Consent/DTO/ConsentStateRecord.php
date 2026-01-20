@@ -13,7 +13,7 @@ class ConsentStateRecord
 {
     public function __construct(
         public readonly string $name,
-        public readonly ?string $identifier,
+        public readonly string $identifier,
         public readonly ConsentStatus $status,
         public readonly ?string $actorId,
     ) {

@@ -85,51 +85,26 @@ class ConsentService
         return $this->list($context)[$name];
     }
 
-    public function acceptConsent(string $name, Context $context): void
+    public function acceptConsent(string $name, Context $context): ConsentState
     {
-        $consent = $this->getConsentDefinition($name);
+        $updatedState = $this->updateState($name, ConsentStatus::ACCEPTED, $context);
 
-        $key = $this->key($consent, $context);
-
-        $states = $this->fetchStates($context);
-        if (isset($states[$key]) && $states[$key]->status === ConsentStatus::ACCEPTED) {
-            return;
-        }
-
-        $scopeIdentifier = $this->getScope($consent)->resolveIdentifier($context);
-        $this->consentRepository->updateConsentState(
-            $consent,
-            $scopeIdentifier,
-            ConsentStatus::ACCEPTED,
-            $this->getScope($consent)->resolveActorIdentifier($context)
-        );
-
-        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($consent->getName(), $consent->getScopeName(), $scopeIdentifier));
+        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier));
 
         $this->invalidateState();
+
+        return $updatedState;
     }
 
-    public function revokeConsent(string $name, Context $context): void
+    public function revokeConsent(string $name, Context $context): ConsentState
     {
-        $consent = $this->getConsentDefinition($name);
+        $updatedState = $this->updateState($name, ConsentStatus::REVOKED, $context);
 
-        $key = $this->key($consent, $context);
-
-        $states = $this->fetchStates($context);
-        if (isset($states[$key]) && $states[$key]->status === ConsentStatus::REVOKED) {
-            return;
-        }
-
-        $scopeIdentifier = $this->getScope($consent)->resolveIdentifier($context);
-        $this->consentRepository->updateConsentState(
-            $consent,
-            $scopeIdentifier,
-            ConsentStatus::REVOKED,
-            $this->getScope($consent)->resolveActorIdentifier($context)
-        );
-        $this->eventDispatcher->dispatch(new ConsentRevokedEvent($consent->getName(), $consent->getScopeName(), $scopeIdentifier));
+        $this->eventDispatcher->dispatch(new ConsentRevokedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier));
 
         $this->invalidateState();
+
+        return $updatedState;
     }
 
     private function getConsentDefinition(string $name): ConsentDefinition
@@ -188,5 +163,25 @@ class ConsentService
         }
 
         return $this->consentScopes[$consent->getScopeName()];
+    }
+
+    private function updateState(string $name, ConsentStatus $status, Context $context): ConsentState
+    {
+        $consent = $this->getConsentDefinition($name);
+        $key = $this->key($consent, $context);
+
+        $states = $this->fetchStates($context);
+        if (isset($states[$key]) && $states[$key]->status === $status) {
+            return $states[$key];
+        }
+
+        $scope = $this->getScope($consent);
+
+        return $this->consentRepository->updateConsentState(
+            $consent,
+            $scope->resolveIdentifier($context),
+            $status,
+            $scope->resolveActorIdentifier($context)
+        );
     }
 }

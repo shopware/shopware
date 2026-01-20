@@ -32,16 +32,12 @@ class ConsentController
     #[Route(path: '/api/consents/{consent}/accept', name: 'api.consents.accept', defaults: ['auth_required' => true], methods: ['POST'])]
     public function acceptConsent(Context $context, string $consent): Response
     {
-        $this->consentService->acceptConsent($consent, $context);
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        return new JsonResponse($this->consentService->acceptConsent($consent, $context), Response::HTTP_OK);
     }
 
     #[Route(path: '/api/consents/{consent}/revoke', name: 'api.consents.revoke', defaults: ['auth_required' => true], methods: ['POST'])]
     public function revokeConsent(Context $context, string $consent): Response
     {
-        $this->consentService->revokeConsent($consent, $context);
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        return new JsonResponse($this->consentService->revokeConsent($consent, $context), Response::HTTP_OK);
     }
 }

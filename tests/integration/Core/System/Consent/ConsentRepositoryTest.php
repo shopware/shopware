@@ -10,6 +10,7 @@ use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\Definition\Tracking;
+use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 
 /**
@@ -34,7 +35,7 @@ class ConsentRepositoryTest extends TestCase
         $tracking = new Tracking();
 
         $userId = Uuid::randomHex();
-        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId);
+        $updatedState = $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId);
 
         $states = $this->repository->fetchAllConsentStates();
 
@@ -44,6 +45,14 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
         static::assertSame('tracking', $states[0]->name);
+
+        static::assertEquals(new ConsentState(
+            $tracking->getName(),
+            $tracking->getScopeName(),
+            $userId,
+            ConsentStatus::ACCEPTED,
+            $userId
+        ), $updatedState);
     }
 
     public function testUpdateSystemConsentState(): void

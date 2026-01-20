@@ -87,13 +87,24 @@ class ConsentControllerTest extends TestCase
         $this->consentService
             ->expects($this->once())
             ->method('acceptConsent')
-            ->with('test-consent', $context);
+            ->with('test-consent', $context)
+            ->willReturn(new ConsentState('test-consent', ConsentScope\AdminUser::NAME, $userId, ConsentStatus::ACCEPTED, $userId));
 
         $response = $this->controller->acceptConsent($context, 'test-consent');
 
         static::assertInstanceOf(JsonResponse::class, $response);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertSame('{}', $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        static::assertSame([
+            'name' => 'test-consent',
+            'scopeName' => 'admin_user',
+            'identifier' => $userId,
+            'status' => 'accepted',
+            'actorId' => $userId,
+        ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
     }
 
     public function testRevokeConsent(): void
@@ -105,12 +116,23 @@ class ConsentControllerTest extends TestCase
         $this->consentService
             ->expects($this->once())
             ->method('revokeConsent')
-            ->with('test-consent', $context);
+            ->with('test-consent', $context)
+            ->willReturn(new ConsentState('test-consent', ConsentScope\AdminUser::NAME, $userId, ConsentStatus::REVOKED, $userId));
 
         $response = $this->controller->revokeConsent($context, 'test-consent');
 
         static::assertInstanceOf(JsonResponse::class, $response);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertSame('{}', $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        static::assertSame([
+            'name' => 'test-consent',
+            'scopeName' => 'admin_user',
+            'identifier' => $userId,
+            'status' => 'revoked',
+            'actorId' => $userId,
+        ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
     }
 }

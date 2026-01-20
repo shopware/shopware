@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 
 /**
@@ -45,7 +46,7 @@ class ConsentRepository
         string $scopeIdentifier,
         ConsentStatus $state,
         string $actorId
-    ): void {
+    ): ConsentState {
         $existing = $this->connection->fetchOne(
             'SELECT id FROM consent_state WHERE name = :consentName AND identifier <=> :identifier',
             [
@@ -76,5 +77,13 @@ class ConsentRepository
                 'created_at' => $now,
             ]);
         }
+
+        return new ConsentState(
+            $consent->getName(),
+            $consent->getScopeName(),
+            $scopeIdentifier,
+            $state,
+            $actorId
+        );
     }
 }

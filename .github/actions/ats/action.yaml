@@ -5,10 +5,6 @@ branding:
     color: "blue"
     icon: "download"
 
-permissions:
-    contents: read
-    id-token: write
-
 inputs:
     project:
         required: true
@@ -73,6 +69,7 @@ inputs:
         description: "Prefix for the artifact name"
 
 runs:
+
   using: "composite"
   steps:
         - uses: shopware/octo-sts-action@main

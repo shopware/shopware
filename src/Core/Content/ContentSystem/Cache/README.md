@@ -39,5 +39,7 @@ Unsupported entities return null, causing the page to become uncacheable.
 - **product_content_layout changes** - Invalidates related product tags
 - **category_content_layout changes** - Invalidates related category tags
 - **landing_page_content_layout changes** - Invalidates related landing page tags
+- **header_content_layout changes** - Invalidates layout and header route tags
+- **footer_content_layout changes** - Invalidates layout and footer route tags
 
-Assignment table changes look up the associated entity ID and invalidate that entity's cache tag.
+Assignment table changes look up the associated entity ID and invalidate that entity's cache tag. Header/footer assignment changes invalidate both the layout tag and the route-specific tag.

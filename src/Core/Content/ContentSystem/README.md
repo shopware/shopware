@@ -16,6 +16,30 @@ The content is served through the `/store-api/content/{path}` endpoint with the 
 
 For detailed request and response schemas, see the OpenAPI specification files in `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/`. The complete Store API schema is also available at runtime via `/store-api/_info/openapi3.json`.
 
+## Header/Footer Rendering
+
+Headers and Footers use dedicated endpoints with domain-aware resolution. Unlike entity-based rendering, these are singletons per domain/sales channel combination.
+
+### Store API Endpoints
+
+Header content is served through `/store-api/content-header*` endpoints:
+- `/store-api/content-header` - Full format
+- `/store-api/content-header-decomposed` - Decomposed format
+- `/store-api/content-header-skeleton` - Skeleton format
+- `/store-api/content-header-data` - Data format
+
+Footer content is served through `/store-api/content-footer*` endpoints with the same format variants.
+
+### Domain-Aware Resolution
+
+Header/footer layouts use a three-tier resolution with domain specificity:
+
+1. Domain + SalesChannel specific assignment
+2. SalesChannel specific assignment (domain = null)
+3. Global assignment (both = null)
+
+This differs from entity-based resolution which uses only sales channel fallback.
+
 ### Rendering Pipeline
 
 The rendering process follows these steps:
@@ -40,6 +64,8 @@ The content flows through the system as follows:
 
 Entity-specific factories query assignment tables (`product_content_layout`, `category_content_layout`, `landing_page_content_layout`) with sales channel fallback. The system first checks for a sales channel-specific layout, then falls back to a global layout if none is found.
 
+Header/footer factories query `header_content_layout` and `footer_content_layout` tables with domain-aware fallback. The system checks domain + sales channel first, then sales channel only, then global.
+
 ## Key Classes
 
 The system is organized into entity factories and rendering pipeline components.
@@ -53,11 +79,21 @@ These factories translate entity IDs into rendering specifications:
 - **LandingPageContentLayoutContextFactory** - Creates specifications for landing page paths (located in `Adapter/`)
 - **EntityLayoutResolver** - Provides shared layout resolution logic (located in `Adapter/FactoryHelper/`)
 
+### Header/Footer Factories
+
+These factories create specifications for header/footer rendering with domain-aware resolution:
+
+- **HeaderSpecificationFactory** - Creates specifications for header layouts (located in `Adapter/`)
+- **FooterSpecificationFactory** - Creates specifications for footer layouts (located in `Adapter/`)
+- **DomainAwareLayoutResolver** - Resolves layouts with domain → sales channel → global fallback (located in `Adapter/FactoryHelper/`)
+- **NavigationAliasResolver** - Resolves navigation aliases to category IDs (located in `Adapter/FactoryHelper/`)
+
 ### Rendering Pipeline Components
 
 These classes handle the core rendering process:
 
-- **RenderingSpecification** - Contains the complete rendering specification including layout ID, placeholders, request data, and target element
+- **LayoutType** - Enum defining layout types (HEADER, FOOTER, MAIN) used in RenderingSpecification
+- **RenderingSpecification** - Contains the complete rendering specification including layout ID, placeholders, request data, target element, and layout type
 - **PlaceholderValues** - An immutable map of placeholder values used during rendering
 - **LayoutLoader** - Loads `ContentLayoutEntity` instances from the repository (located in `Layout/Loader/`)
 - **ContentElement** - Represents the tree structure with slots, data requirements, and context (located in `Layout/Element/`)

@@ -9,7 +9,15 @@
 - **Serializer Abstract Class**: `AbstractContentDataLoaderConfigSerializer`
 - **Serializer Provider**: `DataLoaderConfigSerializerProvider`
 - **Result Class**: `ContentDataLoaderResult`
-- **Built-in Loaders**: `EntityLoader/EntityLoader`, `EntityCollectionLoader/EntityCollectionLoader`, `ProductListingLoader/ProductListingDataLoader`
+- **Built-in Loaders**:
+  - `EntityLoader/EntityLoader`
+  - `EntityCollectionLoader/EntityCollectionLoader`
+  - `ProductListingLoader/ProductListingDataLoader`
+  - `NavigationLoader/NavigationDataLoader`
+  - `LanguageLoader/LanguageDataLoader`
+  - `CurrencyLoader/CurrencyDataLoader`
+  - `PaymentMethodLoader/PaymentMethodDataLoader`
+  - `ShippingMethodLoader/ShippingMethodDataLoader`
 - **Registry**: `DataLoaderProvider`
 
 ## Key Conventions
@@ -65,7 +73,7 @@ See `EntityLoader/` directory for complete example.
 
 - **Abstract Class**: `AbstractContentDataLoader::load(ContentElement, DataRequirement, SalesChannelContext, Request): ContentDataLoaderResult`
 - **Registration**: `#[AutoconfigureTag('content_system.data_loader', ['source' => 'id'])]`
-- **Built-in sources**: `entity`, `entity_collection`, `product_listing`
+- **Built-in sources**: `entity`, `entity_collection`, `product_listing`, `navigation`, `language`, `currency`, `payment_method`, `shipping_method`
 - **Config**: Separate config class + serializer
 - **Return**: `ContentDataLoaderResult` (never throw)
 - **Cache results**: `notFound()`, `cached($data, ...$tags)`, `cachedExternally($data)`, `uncacheable($data)`

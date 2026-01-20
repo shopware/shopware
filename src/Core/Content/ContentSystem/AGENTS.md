@@ -5,11 +5,15 @@
 ## Source Code References
 
 - **Context Factories**: `Adapter/ProductContentLayoutContextFactory`, `Adapter/CategoryContentLayoutContextFactory`, `Adapter/LandingPageContentLayoutContextFactory`
+- **Header/Footer Factories**: `Adapter/HeaderSpecificationFactory`, `Adapter/FooterSpecificationFactory`
+- **Resolvers**: `Adapter/FactoryHelper/DomainAwareLayoutResolver`, `Adapter/FactoryHelper/NavigationAliasResolver`
 - **Events**: `Event/PreContentHydrationEvent`, `Event/PostHydrationEvent`
 - **Event Subscribers**: `EventSubscriber/PreHydration/`, `EventSubscriber/PostHydration/`
-- **Specification**: `RenderingSpecification`, `PlaceholderValues`
+- **Specification**: `LayoutType`, `RenderingSpecification`, `PlaceholderValues`
 - **Hydration**: `Hydration/ContentElementHydrator`
-- **Store API**: `SalesChannel/ContentRoute`, `SalesChannel/ContentDecomposedRoute`, `SalesChannel/ContentSkeletonRoute`, `SalesChannel/ContentDataRoute`
+- **Store API (Main)**: `SalesChannel/ContentRoute`, `SalesChannel/ContentDecomposedRoute`, `SalesChannel/ContentSkeletonRoute`, `SalesChannel/ContentDataRoute`
+- **Store API (Header)**: `SalesChannel/Header/ContentHeaderRoute`, `SalesChannel/Header/ContentHeaderDecomposedRoute`, `SalesChannel/Header/ContentHeaderSkeletonRoute`, `SalesChannel/Header/ContentHeaderDataRoute`
+- **Store API (Footer)**: `SalesChannel/Footer/ContentFooterRoute`, `SalesChannel/Footer/ContentFooterDecomposedRoute`, `SalesChannel/Footer/ContentFooterSkeletonRoute`, `SalesChannel/Footer/ContentFooterDataRoute`
 - **Pipeline**: `ContentPipeline`, `RenderingSpecificationResolver`
 
 ## Quick Reference
@@ -20,7 +24,11 @@
 - **Main exception class**: `ContentSystemException`
 - **ID generation**: `Uuid::randomHex()`
 - **Package**: `#[Package('discovery')]`
-- **Main API endpoint**: `/store-api/content/{path}`
+- **API endpoints**:
+  - Main: `/store-api/content/{path}` (entity-based resolution)
+  - Header: `/store-api/content-header*` (domain-aware resolution)
+  - Footer: `/store-api/content-footer*` (domain-aware resolution)
+- **Layout types**: `LayoutType::MAIN`, `LayoutType::HEADER`, `LayoutType::FOOTER`
 - **DAL**: Use Criteria API + EntityDefinition, NOT Doctrine ORM
 
 ## Store API Schema

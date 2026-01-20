@@ -106,4 +106,15 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
             },
         });
     });
+
+    it('should set languageId from admin context when creating sales channel', async () => {
+        const mockLanguageId = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+
+        Shopware.Store.get('context').api.systemLanguageId = mockLanguageId;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.salesChannel.languageId).toBe(mockLanguageId);
+    });
 });

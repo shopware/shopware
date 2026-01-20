@@ -292,6 +292,10 @@ class SalesChannelProxyController extends AbstractController
         $subrequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
         $subrequest->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $salesChannel->getAccessKey());
 
+        if (!$this->validLanguageId($salesChannel, $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID))) {
+            $subrequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel->getLanguageId());
+        }
+
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $subrequest, $context);
 
         if ($path === self::SEARCH_ROUTE) {
@@ -483,5 +487,18 @@ class SalesChannelProxyController extends AbstractController
         $validation->add('unitPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(value: 0));
         $validation->add('totalPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(value: 0));
         $this->validator->validate($request->request->all('shippingCosts'), $validation);
+    }
+
+    private function validLanguageId(SalesChannelEntity $salesChannel, ?string $languageId): bool
+    {
+        if ($salesChannel->getLanguageId() === $languageId) {
+            return true;
+        }
+
+        $criteria = (new Criteria([$salesChannel->getId()]))
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('languages.id', $languageId));
+
+        return (bool) $this->salesChannelRepository->searchIds($criteria, Context::createDefaultContext())->getTotal();
     }
 }

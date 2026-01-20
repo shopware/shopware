@@ -36,7 +36,7 @@ class CacheCookieEventSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($flashBag->hasAnyFlashes()) {
+        if ($flashBag->hasAnyFlashes() || $flashBag->displayedAnyFlashes()) {
             $extension->result = true;
         }
     }

@@ -45,20 +45,18 @@ class StatefulFlashBag implements FlashBagInterface
 
     public function get(string $type, array $default = []): array
     {
-        $result = $this->inner->get($type, $default);
-
-        if ($result === []) {
+        if ($this->has($type)) {
             $this->displayedAnyFlashes = true;
         }
 
-        return $result;
+        return $this->inner->get($type, $default);
     }
 
     public function all(): array
     {
         $result = $this->inner->all();
 
-        if ($result === []) {
+        if ($result !== []) {
             $this->displayedAnyFlashes = true;
         }
 

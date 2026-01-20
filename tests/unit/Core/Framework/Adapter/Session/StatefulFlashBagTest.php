@@ -69,27 +69,39 @@ class StatefulFlashBagTest extends TestCase
     public function testGet(): void
     {
         static::assertEquals([], $this->bag->get('non_existing'));
-        static::assertEquals(['default'], $this->bag->get('not_existing', ['default']));
-        static::assertEquals(['A previous flash message'], $this->bag->get('notice'));
-        static::assertEquals([], $this->bag->get('notice'));
+        static::assertFalse($this->bag->displayedAnyFlashes());
+        static::assertTrue($this->bag->hasAnyFlashes());
 
-        static::assertFalse($this->bag->hasAnyFlashes());
+        static::assertEquals(['default'], $this->bag->get('not_existing', ['default']));
+        static::assertFalse($this->bag->displayedAnyFlashes());
+        static::assertTrue($this->bag->hasAnyFlashes());
+
+        static::assertEquals(['A previous flash message'], $this->bag->get('notice'));
         static::assertTrue($this->bag->displayedAnyFlashes());
+        static::assertFalse($this->bag->hasAnyFlashes());
+
+        static::assertEquals([], $this->bag->get('notice'));
+        static::assertTrue($this->bag->displayedAnyFlashes());
+        static::assertFalse($this->bag->hasAnyFlashes());
     }
 
     public function testAll(): void
     {
         $this->bag->set('notice', 'Foo');
         $this->bag->set('error', 'Bar');
+        static::assertFalse($this->bag->displayedAnyFlashes());
+        static::assertTrue($this->bag->hasAnyFlashes());
+
         static::assertEquals(
             [
                 'notice' => ['Foo'],
                 'error' => ['Bar'], ],
             $this->bag->all()
         );
+        static::assertTrue($this->bag->displayedAnyFlashes());
+        static::assertFalse($this->bag->hasAnyFlashes());
 
         static::assertEquals([], $this->bag->all());
-
         static::assertFalse($this->bag->hasAnyFlashes());
         static::assertTrue($this->bag->displayedAnyFlashes());
     }

@@ -45,24 +45,20 @@ readonly class CacheAttribute
      */
     public static function fromAttributeValue(array|bool|string|int|CacheAttribute|null $attributeValue): ?self
     {
-        if (\is_string($attributeValue)) { // string values can come from XML route definitions
-            $attributeValue = \in_array(strtolower($attributeValue), ['true', '1'], true);
-        } elseif (\is_int($attributeValue)) {
-            $attributeValue = $attributeValue === 1;
-        }
-
-        if ($attributeValue === null || $attributeValue === false) {
-            return null;
-        }
-
-        if ($attributeValue === true) {
-            return new self();
-        }
-
         if ($attributeValue instanceof CacheAttribute) {
             return $attributeValue;
         }
 
-        return self::fromArray($attributeValue);
+        if (\is_array($attributeValue)) {
+            return self::fromArray($attributeValue);
+        }
+
+        // from XML route definitions string values can come
+        $attributeValue = filter_var($attributeValue, \FILTER_VALIDATE_BOOLEAN);
+        if ($attributeValue === true) {
+            return new self();
+        }
+
+        return null;
     }
 }

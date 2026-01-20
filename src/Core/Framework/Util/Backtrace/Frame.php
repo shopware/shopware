@@ -14,9 +14,9 @@ final readonly class Frame
     }
 
     /**
-     * @return array<string, ?string>
+     * @return array{class: string|null, function: string|null}
      */
-    public function jsonSerialize(): array
+    public function toArray(): array
     {
         return [
             'class' => $this->class,

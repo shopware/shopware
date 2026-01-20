@@ -113,7 +113,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                         (new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidatePropertyFilters'
-                        ))->jsonSerialize(),
+                        ))->toArray(),
                         $context['caller']
                     );
 
@@ -153,7 +153,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                         (new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidateSnippets'
-                        ))->jsonSerialize(),
+                        ))->toArray(),
                         $context['caller']
                     );
 
@@ -214,7 +214,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                         (new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidatePropertyFilters'
-                        ))->jsonSerialize(),
+                        ))->toArray(),
                         $context['caller']
                     );
 
@@ -270,7 +270,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                         (new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidatePropertyFilters'
-                        ))->jsonSerialize(),
+                        ))->toArray(),
                         $context['caller']
                     );
 

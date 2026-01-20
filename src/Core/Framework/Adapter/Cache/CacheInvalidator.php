@@ -117,7 +117,7 @@ class CacheInvalidator
                 \sprintf('Purged tags (%d).', \count($keys)),
                 [
                     'tags' => $keys,
-                    'caller' => $callerFrame?->jsonSerialize(),
+                    'caller' => $callerFrame?->toArray(),
                 ]
             );
         }

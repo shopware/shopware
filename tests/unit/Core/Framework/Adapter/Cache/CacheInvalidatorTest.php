@@ -77,7 +77,7 @@ class CacheInvalidatorTest extends TestCase
                 'Purged tags (1).',
                 [
                     'tags' => ['foo'],
-                    'caller' => (new Frame('Foo', 'a'))->jsonSerialize(),
+                    'caller' => (new Frame('Foo', 'a'))->toArray(),
                 ]
             );
 
@@ -117,7 +117,7 @@ class CacheInvalidatorTest extends TestCase
                 'Purged tags (1).',
                 [
                     'tags' => ['foo'],
-                    'caller' => (new Frame('Foo', 'a'))->jsonSerialize(),
+                    'caller' => (new Frame('Foo', 'a'))->toArray(),
                 ]
             );
 
@@ -255,7 +255,7 @@ class CacheInvalidatorTest extends TestCase
                     'caller' => (new Frame(
                         CacheInvalidationSubscriber::class,
                         'invalidatePropertyFilters'
-                    ))->jsonSerialize(),
+                    ))->toArray(),
                 ]
             );
 
@@ -294,7 +294,7 @@ class CacheInvalidatorTest extends TestCase
                     'caller' => (new Frame(
                         CacheInvalidationSubscriber::class,
                         'invalidatePropertyFilters'
-                    ))->jsonSerialize(),
+                    ))->toArray(),
                 ]
             );
 

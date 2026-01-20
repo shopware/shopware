@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Util\BacktraceCollector;
-use Shopware\Core\Framework\Util\Dto\BacktraceFrame;
+use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
+use Shopware\Core\Framework\Util\Backtrace\Frame;
 
 /**
  * @internal
@@ -21,7 +21,7 @@ class BacktraceCollectorTest extends TestCase
     public function testGetFirstFrame(
         array $frames,
         callable $skipFrame,
-        ?BacktraceFrame $expected
+        ?Frame $expected
     ): void {
         $collector = (new class($frames) extends BacktraceCollector {
             /**
@@ -57,7 +57,7 @@ class BacktraceCollectorTest extends TestCase
                 ['class' => 'Bar', 'function' => 'b'],
             ],
             'skipFrame' => static fn (array $frame): bool => false,
-            'expected' => new BacktraceFrame('Foo', 'a'),
+            'expected' => new Frame('Foo', 'a'),
         ];
 
         yield 'skips first frame' => [
@@ -66,7 +66,7 @@ class BacktraceCollectorTest extends TestCase
                 ['class' => 'Bar', 'function' => 'b'],
             ],
             'skipFrame' => static fn (array $frame): bool => $frame['class'] === 'Foo',
-            'expected' => new BacktraceFrame('Bar', 'b'),
+            'expected' => new Frame('Bar', 'b'),
         ];
 
         yield 'returns null when all frames are skipped' => [

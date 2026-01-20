@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Util\Dto;
+namespace Shopware\Core\Framework\Util\Backtrace;
 
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-final readonly class BacktraceFrame
+final readonly class Frame
 {
     public function __construct(
         public ?string $class,

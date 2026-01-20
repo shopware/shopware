@@ -10,8 +10,8 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
-use Shopware\Core\Framework\Util\BacktraceCollector;
-use Shopware\Core\Framework\Util\Dto\BacktraceFrame;
+use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
+use Shopware\Core\Framework\Util\Backtrace\Frame;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -77,7 +77,7 @@ class CacheInvalidatorTest extends TestCase
                 'Purged tags (1).',
                 [
                     'tags' => ['foo'],
-                    'caller' => new BacktraceFrame('Foo', 'a'),
+                    'caller' => new Frame('Foo', 'a'),
                 ]
             );
 
@@ -117,7 +117,7 @@ class CacheInvalidatorTest extends TestCase
                 'Purged tags (1).',
                 [
                     'tags' => ['foo'],
-                    'caller' => new BacktraceFrame('Foo', 'a'),
+                    'caller' => new Frame('Foo', 'a'),
                 ]
             );
 
@@ -252,7 +252,7 @@ class CacheInvalidatorTest extends TestCase
                 'Purged tags (1).',
                 [
                     'tags' => ['foo'],
-                    'caller' => new BacktraceFrame(
+                    'caller' => new Frame(
                         CacheInvalidationSubscriber::class,
                         'invalidatePropertyFilters'
                     ),
@@ -291,7 +291,7 @@ class CacheInvalidatorTest extends TestCase
                 'Purged tags (1).',
                 [
                     'tags' => ['foo'],
-                    'caller' => new BacktraceFrame(
+                    'caller' => new Frame(
                         CacheInvalidationSubscriber::class,
                         'invalidatePropertyFilters'
                     ),
@@ -420,7 +420,7 @@ class CacheInvalidatorTest extends TestCase
         $collector = $this->createMock(BacktraceCollector::class);
 
         if (!empty($class) && !empty($function)) {
-            $firstFrame = new BacktraceFrame($class, $function);
+            $firstFrame = new Frame($class, $function);
         } else {
             $firstFrame = null;
         }

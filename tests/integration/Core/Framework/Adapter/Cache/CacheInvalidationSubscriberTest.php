@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Util\BacktraceCollector;
-use Shopware\Core\Framework\Util\Dto\BacktraceFrame;
+use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
+use Shopware\Core\Framework\Util\Backtrace\Frame;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -83,8 +83,15 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'function' => 'invalidate', // must be skipped
             ],
             [
-                'class' => '',
+                'class' => CacheInvalidator::class, // must be skipped
+            ],
+            [
+                'class' => null,
                 'function' => 'invalidate',  // must be skipped
+            ],
+            [
+                'class' => CacheInvalidator::class,
+                'function' => null,  // must be skipped
             ],
             [
                 'class' => CacheInvalidator::class, // must be skipped
@@ -103,7 +110,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
                     static::assertEquals(
-                        new BacktraceFrame(
+                        new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidatePropertyFilters'
                         ),
@@ -143,7 +150,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
                     static::assertEquals(
-                        new BacktraceFrame(
+                        new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidateSnippets'
                         ),
@@ -204,7 +211,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
                     static::assertEquals(
-                        new BacktraceFrame(
+                        new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidatePropertyFilters'
                         ),
@@ -260,7 +267,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
                     static::assertEquals(
-                        new BacktraceFrame(
+                        new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidatePropertyFilters'
                         ),

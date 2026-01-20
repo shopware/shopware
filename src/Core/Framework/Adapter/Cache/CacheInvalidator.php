@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\BacktraceCollector;
+use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\Psr16Cache;
@@ -109,7 +109,7 @@ class CacheInvalidator
 
         if ($this->tagInvalidationLogEnabled) {
             $callerFrame = $this->backtraceCollector->getFirstFrame(
-                fn (array $frame) => empty($frame['class'])
+                fn (array $frame) => !isset($frame['class'], $frame['function'])
                     || $frame['class'] === self::class
             );
 

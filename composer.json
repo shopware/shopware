@@ -83,7 +83,7 @@
         "composer/class-map-generator": "^1.7",
         "composer/composer": "^2.9.3",
         "composer/semver": "^3.4.0",
-        "doctrine/dbal": "~3.9.0",
+        "doctrine/dbal": "~3.10.0",
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "2.0.4",
         "dragonmantank/cron-expression": "^3.3",
@@ -490,7 +490,8 @@
     },
     "autoload": {
         "files": [
-            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
+            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "src/Core/Framework/Adapter/Database/Mysql.php"
         ],
         "psr-4": {
             "Shopware\\": "src/"

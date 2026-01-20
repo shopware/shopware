@@ -56,11 +56,11 @@ class ContactFormValidationFactoryTest extends TestCase
                     'comment' => [new NotBlank()],
                     'firstName' => [
                         new NotBlank(),
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                     'lastName' => [
                         new NotBlank(),
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                     'phone' => [new NotBlank()],
                 ]);
@@ -79,10 +79,10 @@ class ContactFormValidationFactoryTest extends TestCase
                     'subject' => [new NotBlank()],
                     'comment' => [new NotBlank()],
                     'firstName' => [
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                     'lastName' => [
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                 ]);
             },

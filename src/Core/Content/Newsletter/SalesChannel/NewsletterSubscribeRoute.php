@@ -227,25 +227,19 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     {
         $definition = new DataValidationDefinition('newsletter_recipient.create');
         $definition->add('email', new NotBlank(), new Email())
-            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection($context, $dataBag->get('email')))));
+            ->add('option', new NotBlank(), new Choice(choices: array_keys($this->getOptionSelection($context, $dataBag->get('email')))));
 
         if (!empty($dataBag->get('firstName'))) {
-            $definition->add('firstName', new NotBlank(), new Regex([
-                'pattern' => self::DOMAIN_NAME_REGEX,
-                'match' => false,
-            ]));
+            $definition->add('firstName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, match: false));
         }
 
         if (!empty($dataBag->get('lastName'))) {
-            $definition->add('lastName', new NotBlank(), new Regex([
-                'pattern' => self::DOMAIN_NAME_REGEX,
-                'match' => false,
-            ]));
+            $definition->add('lastName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, match: false));
         }
 
         if ($validateStorefrontUrl) {
             $definition
-                ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
+                ->add('storefrontUrl', new NotBlank(), new Choice(choices: array_values($this->getDomainUrls($context))));
         }
 
         $validationEvent = new BuildValidationEvent($definition, $dataBag, $context->getContext());

@@ -69,10 +69,10 @@ class LineItemReleaseDateRuleTest extends TestCase
         $operators = $ruleConstraints['operator'];
 
         static::assertEquals(new NotBlank(), $date[0]);
-        static::assertEquals(new Type(['type' => 'string']), $date[1]);
+        static::assertEquals(new Type(type: 'string'), $date[1]);
 
         static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -10,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 /**
  * @internal
@@ -36,14 +36,15 @@ class ProductTypeImmutableTest extends TestCase
     {
         Feature::skipTestIfInActive('v6.8.0.0', $this);
 
+        // The update with same type should succeed without exceptions
+        static::expectNotToPerformAssertions();
+
         $id = Uuid::randomHex();
         $this->createProduct($id, 'special');
 
         $this->getRepository()->update([
             ['id' => $id, 'type' => 'special'],
         ], Context::createDefaultContext());
-
-        static::assertTrue(true, 'No exception when setting the same type again.');
     }
 
     private function createProduct(string $id, string $type): void
@@ -63,7 +64,7 @@ class ProductTypeImmutableTest extends TestCase
 
     private function getRepository(): EntityRepository
     {
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<ProductCollection> $repo */
         $repo = static::getContainer()->get('product.repository');
 
         return $repo;

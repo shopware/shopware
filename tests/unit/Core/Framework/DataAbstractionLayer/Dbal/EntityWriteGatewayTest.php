@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -46,15 +47,18 @@ class EntityWriteGatewayTest extends TestCase
 
     public function testImmutableFieldSameValueIsIgnored(): void
     {
+        static::expectNotToPerformAssertions();
+
         $gateway = $this->createGateway();
         $context = WriteContext::createFromContext(Context::createDefaultContext());
         $command = $this->createUpdateCommand('initial', 'initial');
 
         $this->invokeValidateCommands($gateway, [$command], $context);
-
-        static::assertTrue(true, 'No exception should be thrown when immutable field value is unchanged.');
     }
 
+    /**
+     * @param array<WriteCommand> $commands
+     */
     private function invokeValidateCommands(EntityWriteGateway $gateway, array $commands, WriteContext $context): void
     {
         $method = (new \ReflectionClass(EntityWriteGateway::class))->getMethod('validateCommands');

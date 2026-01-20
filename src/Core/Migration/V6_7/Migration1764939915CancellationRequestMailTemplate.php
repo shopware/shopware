@@ -116,14 +116,14 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
     private function createMailTemplateCustomer(
         Connection $connection,
         string $mailTemplateType_bytesId,
-        string $enLanguage_byteId,
-        ?string $deLanguage_byteId
+        ?string $enLanguageByteId,
+        ?string $deLanguageByteId
     ): void {
         $hasMailTemplate = true;
         $mailStruct = $this->createMailStruct(self::CUSTOMER_DIRECTORY);
-        $mailTemplate_byteId = $this->getMailTemplateId($connection, self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['en_subject']);
-        if (empty($mailTemplate_byteId)) {
-            $mailTemplate_byteId = Uuid::randomBytes();
+        $mailTemplateByteId = $this->getMailTemplateId($connection, self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['en_subject']);
+        if (empty($mailTemplateByteId)) {
+            $mailTemplateByteId = Uuid::randomBytes();
             $hasMailTemplate = false;
         }
 
@@ -131,7 +131,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             $connection->insert(
                 'mail_template',
                 [
-                    'id' => $mailTemplate_byteId,
+                    'id' => $mailTemplateByteId,
                     'mail_template_type_id' => $mailTemplateType_bytesId,
                     'system_default' => 1,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -139,12 +139,12 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             );
         }
 
-        if (!$this->hasMailTemplateTranslation($connection, $mailTemplate_byteId, $enLanguage_byteId)) {
+        if (\is_string($enLanguageByteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $enLanguageByteId)) {
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'mail_template_id' => $mailTemplate_byteId,
-                    'language_id' => $enLanguage_byteId,
+                    'mail_template_id' => $mailTemplateByteId,
+                    'language_id' => $enLanguageByteId,
                     'sender_name' => '{{ salesChannel.name }}',
                     'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['en_subject'],
                     'description' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['en_description'],
@@ -155,12 +155,12 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             );
         }
 
-        if (\is_string($deLanguage_byteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplate_byteId, $deLanguage_byteId)) {
+        if (\is_string($deLanguageByteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $deLanguageByteId)) {
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'mail_template_id' => $mailTemplate_byteId,
-                    'language_id' => $deLanguage_byteId,
+                    'mail_template_id' => $mailTemplateByteId,
+                    'language_id' => $deLanguageByteId,
                     'sender_name' => '{{ salesChannel.name }}',
                     'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['de_subject'],
                     'description' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['de_description'],

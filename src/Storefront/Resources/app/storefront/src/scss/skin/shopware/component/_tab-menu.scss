@@ -24,10 +24,10 @@ https://getbootstrap.com/docs/5.2/components/card/#navigation
         --#{$prefix}nav-link-color: #{$body-color};
         --#{$prefix}nav-tabs-border-width: 0;
         --#{$prefix}nav-tabs-border-radius: 0;
-        --#{$prefix}nav-tabs-link-hover-border-color: #{$primary};
-        --#{$prefix}nav-link-hover-color: #{$primary};
+        --#{$prefix}nav-tabs-link-hover-border-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
+        --#{$prefix}nav-link-hover-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
         --#{$prefix}nav-tabs-link-active-color: #{$body-color};
-        --#{$prefix}nav-tabs-link-active-border-color: #{$primary};
+        --#{$prefix}nav-tabs-link-active-border-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
         border-bottom: 2px solid $border-color;
 
         &.active,

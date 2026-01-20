@@ -6,6 +6,8 @@ Custom skin styling for bootstrap button component.
 https://getbootstrap.com/docs/5.2/components/buttons
 */
 
+@if not feature('EXPERIENCE_THEME') {
+
 .btn {
     --#{$prefix}btn-disabled-color: #{$btn-link-disabled-color};
     overflow: hidden;
@@ -24,7 +26,7 @@ https://getbootstrap.com/docs/5.2/components/buttons
         opacity: 1;
         background: $disabled-btn-bg;
         border-color: $disabled-btn-border-color;
-        color: $gray-300;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-300), $gray-300);
     }
 }
 
@@ -37,7 +39,7 @@ https://getbootstrap.com/docs/5.2/components/buttons
 .btn-link-inline {
     --#{$prefix}btn-color: #{$btn-link-color};
     --#{$prefix}btn-hover-color: #{$btn-link-hover-color};
-    --#{$prefix}btn-font-weight: #{$font-weight-normal};
+    --#{$prefix}btn-font-weight: #{if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-normal), $font-weight-normal)};
     --#{$prefix}btn-font-size: inherit;
     --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
     --#{$prefix}btn-line-height: #{$line-height-base};
@@ -59,4 +61,6 @@ https://getbootstrap.com/docs/5.2/components/buttons
     .btn-outline-#{$variant} {
         --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow};
     }
+}
+
 }

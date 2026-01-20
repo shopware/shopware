@@ -10,9 +10,9 @@ Contains styles for the search suggest popover in the shop header.
     left: 0;
     list-style: none;
     touch-action: manipulation;
-    background: $white;
+    background: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
     padding: $spacer;
-    border: 1px solid $border-color;
+    border: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
     width: 100%;
     z-index: $search-suggest-zindex;
     box-shadow: 0 10px 25px -15px $black;
@@ -25,16 +25,16 @@ Contains styles for the search suggest popover in the shop header.
         content: '';
         display: block;
         position: absolute;
-        background: $white;
+        background: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
         left: 48%;
-        border: 1px solid $border-color;
+        border: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
         border-top: 0 none;
         border-right: 0 none;
     }
 }
 
 .search-suggest-product {
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
 
     &:last-child {
         border-bottom: 0;
@@ -49,8 +49,8 @@ Contains styles for the search suggest popover in the shop header.
 
     &:focus,
     &:focus-visible {
-        color: $primary;
-        box-shadow: $focus-ring-box-shadow-inset;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
+        box-shadow: if(feature('EXPERIENCE_THEME'), var(--sw-focus-ring-box-shadow-inset), $focus-ring-box-shadow-inset);
         outline: none;
     }
 }
@@ -58,11 +58,11 @@ Contains styles for the search suggest popover in the shop header.
 .search-suggest-product-link {
     display: block;
     padding: $spacer-sm 0;
-    color: $body-color;
+    color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-content), $body-color);
     text-decoration: none;
 
     &:hover {
-        color: $primary;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     }
 }
 
@@ -73,8 +73,8 @@ Contains styles for the search suggest popover in the shop header.
 }
 
 .search-suggest-product-variation {
-    font-size: $font-size-sm;
-    color: $gray-600;
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-sm), $font-size-sm);
+    color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-600), $gray-600);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -87,7 +87,7 @@ Contains styles for the search suggest popover in the shop header.
 
 .search-suggest-product-list-price,
 .search-suggest-product-reference-price {
-    color: $gray-600;
+    color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-600), $gray-600);
     text-align: right;
     display: block;
 }

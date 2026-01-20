@@ -30,11 +30,11 @@
 
     &:hover {
         cursor: pointer;
-        border-color: $primary;
+        border-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
         background-color: $white;
 
         .icon.icon-arrow-switch {
-            color: $primary;
+            color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
         }
     }
 }

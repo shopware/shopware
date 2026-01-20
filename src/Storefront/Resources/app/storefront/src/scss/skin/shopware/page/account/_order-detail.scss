@@ -19,7 +19,7 @@
 }
 
 .order-table-header {
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
 }
 
 .order-item-header {
@@ -33,12 +33,12 @@
 }
 
 .order-item-name {
-    color: $gray-800;
+    color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-800), $gray-800);
 }
 
 .order-detail-content-header {
     margin-top: $spacer-md;
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
 
     .order-detail-content-header-cell[class*='col-'] {
         &:first-of-type {
@@ -55,12 +55,12 @@
     color: $headings-color;
 
     &:hover {
-        color: $primary;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
         text-decoration: none;
     }
 
     strong {
-        font-weight: $font-weight-bold;
+        font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
     }
 }
 
@@ -77,7 +77,7 @@
 }
 
 .order-item-number-value {
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
 }
 
 .order-pseudo-price-value {
@@ -88,16 +88,16 @@
     margin: 0;
 
     &.is-child {
-        background-color: $gray-100;
+        background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-100), $gray-100);
     }
 }
 
 .order-item-nested-icon {
-    background-color: $gray-600;
+    background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-600), $gray-600);
 }
 
 .order-item-detail-footer {
-    background-color: $gray-100;
+    background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-100), $gray-100);
 }
 
 .order-detail-table-footer {
@@ -105,13 +105,13 @@
 }
 
 .order-price-unit {
-    font-size: $font-size-sm;
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-sm), $font-size-sm);
 }
 
 .order-item-variants {
-    font-size: $font-size-sm;
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-sm), $font-size-sm);
 }
 
 .order-item-variants-properties-name {
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
 }

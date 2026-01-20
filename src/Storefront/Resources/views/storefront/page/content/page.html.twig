@@ -3,8 +3,8 @@
 {% block base_main_inner %}
     {% if feature('STOREFRONT_COMPONENTS') and contentPage %}
         {# <div class="container-main container"> #}
-            {# {% sw_include '@Storefront/storefront/page/content/component-demo.html.twig' %} #}
-            {# {% sw_include '@Storefront/storefront/page/content/bootstrap-5-demo.html.twig' %} #}
+            {% sw_include '@Storefront/storefront/page/content/component-demo.html.twig' %}
+            {% sw_include '@Storefront/storefront/page/content/bootstrap-5-demo.html.twig' %}
         {# </div> #}
 
         <div class="container-main">

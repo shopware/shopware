@@ -14,7 +14,7 @@ https://getbootstrap.com/docs/5.2/forms/select
     }
 
     &:hover {
-        border-color: $primary;
-        color: $primary;
+        border-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     }
 }

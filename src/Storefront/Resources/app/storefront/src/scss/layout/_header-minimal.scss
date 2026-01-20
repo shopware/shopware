@@ -5,7 +5,7 @@ Contains custom styles for the minimal header which is used on checkout pages.
 */
 
 .header-minimal {
-    background: $white;
+    background: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
     border-bottom: 1px solid var(--text-color-brand-primary);
 }
 
@@ -23,7 +23,7 @@ Contains custom styles for the minimal header which is used on checkout pages.
 }
 
 .header-minimal-contact a {
-    color: $primary;
+    color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
 }
 
 .header-minimal-back-to-shop {

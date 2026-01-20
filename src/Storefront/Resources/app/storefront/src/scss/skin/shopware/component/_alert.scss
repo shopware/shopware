@@ -17,10 +17,14 @@ https://getbootstrap.com/docs/5.2/components/alerts
     }
 }
 
+@if not feature('EXPERIENCE_THEME') {
+
 @each $state, $value in $theme-colors {
     .alert-#{$state} {
         --#{$prefix}alert-border-color: #{$value};
         --#{$prefix}alert-bg: #{saturate(tint-color($value, 90%), 40%)};
         --#{$prefix}alert-color: #{$body-color};
     }
+}
+
 }

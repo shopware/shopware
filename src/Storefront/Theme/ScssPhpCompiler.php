@@ -47,6 +47,8 @@ class ScssPhpCompiler extends AbstractScssCompiler
             $this->compiler->setImportPaths($importPaths);
         }
 
+        $this->compiler->setSourceMap(Compiler::SOURCE_MAP_INLINE);
+
         $css = $this->compiler->compileString($scss, $path)->getCss();
 
         $this->reset(); // Reset compiler for multiple usage

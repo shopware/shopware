@@ -15,12 +15,12 @@ This filter item should only be used inside a filter panel.
     cursor: pointer;
 
     &.is-active {
-        border-color: $primary;
+        border-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     }
 
     &:hover {
-        border-color: $primary;
-        color: $primary;
+        border-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     }
 
     &.disabled {

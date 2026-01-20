@@ -132,11 +132,11 @@ $box-standard-height-img: 200px;
 .product-wishlist-info {
     &-item {
         min-height: 2em;
-        font-size: $font-size-sm;
+        font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-sm), $font-size-sm);
     }
 
     &-text {
-        font-weight: $font-weight-bold;
+        font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
     }
 
     /* stylelint-disable value-no-vendor-prefix, property-no-vendor-prefix */

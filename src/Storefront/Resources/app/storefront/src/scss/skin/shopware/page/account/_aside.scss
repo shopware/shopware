@@ -1,28 +1,28 @@
 .account-aside-header {
     background: none;
     color: $headings-color;
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
     margin-bottom: $spacer;
 }
 
 .account-aside-item {
     --#{$prefix}list-group-item-padding-x: 0;
-    --#{$prefix}list-group-action-active-color: #{$primary};
+    --#{$prefix}list-group-action-active-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
     --#{$prefix}list-group-action-active-bg: #{$list-group-bg};
-    --#{$prefix}list-group-action-hover-color: #{$primary};
+    --#{$prefix}list-group-action-hover-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
     --#{$prefix}list-group-action-hover-bg: #{$list-group-bg};
     --#{$prefix}list-group-border-width: 0;
 
     &.is-active {
-        color: $primary;
-        font-weight: $font-weight-bold;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
+        font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
     }
 }
 
 .account-aside-footer {
     background: none;
     margin-top: 1px;
-    border-top: 1px solid $border-color;
+    border-top: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
 }
 
 .account-aside-btn {

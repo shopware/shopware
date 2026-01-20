@@ -60,7 +60,7 @@ dl {
 }
 
 blockquote {
-    font-size: $font-size-lg;
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-lg), $font-size-lg);
     font-style: italic;
     line-height: 24px;
     margin-top: 16px;

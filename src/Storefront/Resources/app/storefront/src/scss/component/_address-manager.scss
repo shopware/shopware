@@ -30,7 +30,7 @@
     }
 
     .address-manager-modal-select-address:hover {
-        border-color: $primary;
+        border-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
         cursor: pointer;
     }
 

@@ -1,6 +1,6 @@
 .order-table {
     margin-bottom: $spacer-lg;
-    border: 1px solid $border-color;
+    border: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
     position: relative;
 
     .order-item-detail {
@@ -8,7 +8,7 @@
     }
 
     .order-detail-content {
-        border-top: 1px solid $border-color;
+        border-top: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
         padding: 0;
         box-shadow: none;
     }
@@ -67,7 +67,7 @@
 }
 
 .order-table-header-order-status {
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
 }
 
 .order-table-header-context-menu-wrapper {
@@ -83,7 +83,7 @@
 
 .order-table-header-order-number {
     display: block;
-    font-weight: $font-weight-normal;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-normal), $font-weight-normal);
     margin-bottom: $spacer-lg;
     width: 100%;
     padding-left: 0;
@@ -118,7 +118,7 @@
 }
 
 .order-table-header-order-table-header {
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
 
     .order-table-header-order-table-header-cell[class*='col-'] {
         margin-bottom: 10px;
@@ -175,19 +175,19 @@
     /* stylelint-disable selector-class-pattern */
     &.order-item-status-badge-open,
     &.order-item-status-badge-in_progress {
-        background-color: $info;
-        color: $white;
+        background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-info), $info);
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
     }
 
     &.order-item-status-badge-completed {
-        background-color: $success;
-        color: $white;
+        background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-success), $success);
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
     }
 
     &.order-item-status-badge-failed,
     &.order-item-status-badge-cancelled {
-        background-color: $danger;
-        color: $white;
+        background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-danger), $danger);
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
     }
     /* stylelint-enable selector-class-pattern */
 

@@ -17,15 +17,17 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'abstract/mixins/truncate-multiline';
 
 /*
- * Skin variables
- * ---------- */
-
-/*
  * Vendors
  * ------- */
 @import 'vendor/bootstrap';
 @import 'vendor/tiny-slider';
 @import 'vendor/datepicker';
+
+/**
+ * Native CSS Theme
+ * ------ */
+ @import 'theme/variables';
+
 
 /*
  * Base stuff
@@ -119,11 +121,7 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'page/checkout/register';
 @import 'page/checkout/confirm';
 @import 'page/checkout/finish';
-
 @import 'page/search/search';
-
 @import 'page/wishlist/wishlist';
 
-
-@import 'theme/variables';
 @import 'theme/bootstrap';

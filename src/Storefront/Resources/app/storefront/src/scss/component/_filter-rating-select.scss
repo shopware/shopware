@@ -18,7 +18,7 @@ This filter item should only be used inside a filter panel.
         box-shadow: $input-btn-focus-box-shadow;
 
         .filter-rating-select-item-label-text {
-            color: $primary;
+            color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
             font-weight: $font-weight-bold;
         }
     }

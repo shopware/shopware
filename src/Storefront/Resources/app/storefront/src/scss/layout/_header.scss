@@ -70,7 +70,7 @@ The header contains the shop logo, the search form and various actions like the 
 
 .storefront-staging-info {
     .icon {
-        color: $white;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
 
         svg {
             top: 0;

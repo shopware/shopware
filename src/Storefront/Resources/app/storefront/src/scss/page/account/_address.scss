@@ -12,7 +12,7 @@
         &:hover,
         &:focus {
             span.icon {
-                color: $white;
+                color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
             }
         }
     }

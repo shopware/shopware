@@ -7,10 +7,10 @@
     }
 
     &-feature {
-        font-size: $font-size-sm;
+        font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-sm), $font-size-sm);
     }
 
     &-value {
-        font-weight: $font-weight-bold;
+        font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
     }
 }

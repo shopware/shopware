@@ -15,16 +15,16 @@
         right: 20px;
         width: 36px;
         height: 36px;
-        color: $white;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
         font-size: 20px;
         cursor: pointer;
         display: none;
         z-index: 1101;
         background-color: $black;
-        border: 1px solid $white;
+        border: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
 
         svg {
-            color: $white;
+            color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
         }
     }
 
@@ -38,7 +38,7 @@
         background-color: rgba(0, 0, 0, 0.45);
 
         svg {
-            color: $white;
+            color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
         }
 
         .ar-anim-container {

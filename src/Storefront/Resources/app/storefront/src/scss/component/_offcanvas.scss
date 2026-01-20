@@ -51,7 +51,7 @@ The sliding direction can be left or right.
         text-align: left;
 
         &:focus-visible {
-            box-shadow: $focus-ring-box-shadow-inset;
+            box-shadow: if(feature('EXPERIENCE_THEME'), var(--sw-focus-ring-box-shadow-inset), $focus-ring-box-shadow-inset);
         }
     }
 
@@ -68,10 +68,12 @@ The sliding direction can be left or right.
 
     // For horizontal OffCanvas, always reserve some space when the mobile viewport
     // reaches the width of the OffCanvas itself, so it does not cover the whole viewport.
-    &.offcanvas-end,
-    &.offcanvas-start {
-        @media (max-width: $offcanvas-horizontal-width + ($grid-gutter-width / 2)) {
-            width: calc(100% - #{$grid-gutter-width / 2});
+    @if not feature('EXPERIENCE_THEME') {
+        &.offcanvas-end,
+        &.offcanvas-start {
+            @media (max-width: $offcanvas-horizontal-width + ($grid-gutter-width / 2)) {
+                width: calc(100% - #{$grid-gutter-width / 2});
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ Based on custom offcanvas component.
 .navigation-offcanvas-placeholder,
 .navigation-offcanvas-overlay {
     width: 100%;
-    background-color: $white;
+    background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
     position: absolute;
     top: 0;
     left: 0;

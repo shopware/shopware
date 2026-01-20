@@ -6,7 +6,7 @@ Custom skin styling for the cart offcanvas.
 
 .offcanvas-cart-header-count {
     color: $text-muted;
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
 }
 
 .offcanvas-cart-tax {

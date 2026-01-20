@@ -6,6 +6,8 @@
  * ==================================================
  */
 
+ @if feature('EXPERIENCE_THEME') {
+
  // Bootstrap Configuration
  // ================================
 
@@ -798,6 +800,10 @@ a:hover {
 .form-control,
 .form-select {
     font-size: var(--sw-font-size-base);
+    // `--sw-size-fields` is a spacing *delta* for controls. Since overall control height is
+    // `line-height + (padding-y * 2) + borders`, we reduce the line-height by the delta to
+    // avoid scaling the total height by the delta twice (via padding).
+    line-height: calc(var(--sw-font-size-base) * var(--sw-line-height-base) - var(--sw-size-fields));
     padding: calc(0.375rem + var(--sw-size-fields)) calc(0.75rem + var(--sw-size-fields));
     min-height: calc(2.375rem + var(--sw-size-fields));
     background-color: var(--sw-color-background);
@@ -806,6 +812,7 @@ a:hover {
 .form-control-sm,
 .form-select-sm {
     font-size: var(--sw-font-size-sm);
+    line-height: calc(var(--sw-font-size-sm) * var(--sw-line-height-base) - var(--sw-size-fields));
     padding: calc(0.25rem + var(--sw-size-fields)) calc(0.5rem + var(--sw-size-fields));
     min-height: calc(2.0625rem + var(--sw-size-fields));
 }
@@ -813,6 +820,7 @@ a:hover {
 .form-control-lg,
 .form-select-lg {
     font-size: var(--sw-font-size-lg);
+    line-height: calc(var(--sw-font-size-lg) * var(--sw-line-height-base) - var(--sw-size-fields));
     padding: calc(0.5rem + var(--sw-size-fields)) calc(1rem + var(--sw-size-fields));
     min-height: calc(3.5rem + var(--sw-size-fields));
 }
@@ -922,6 +930,7 @@ a:hover {
     --#{$prefix}btn-focus-box-shadow: var(--sw-focus-ring-box-shadow);
     --#{$prefix}btn-padding-y: calc(0.375rem + var(--sw-size-fields));
     --#{$prefix}btn-padding-x: calc(0.75rem + var(--sw-size-fields));
+    --#{$prefix}btn-line-height: var(--sw-line-height-base);
     --#{$prefix}btn-font-size: var(--sw-font-size-base);
     box-shadow: var(--#{$prefix}btn-box-shadow);
 }
@@ -1174,4 +1183,6 @@ a:hover {
     --#{$prefix}btn-disabled-bg: transparent;
     --#{$prefix}btn-disabled-border-color: var(--sw-color-base-400);
     --#{$prefix}btn-disabled-opacity: var(--sw-opacity-disabled);
+}
+
 }

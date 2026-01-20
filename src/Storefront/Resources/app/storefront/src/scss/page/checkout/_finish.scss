@@ -43,7 +43,7 @@
 }
 
 .finish-ordernumber {
-    font-size: $font-size-lg;
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-lg), $font-size-lg);
     font-weight: $headings-font-weight;
     text-align: center;
 }

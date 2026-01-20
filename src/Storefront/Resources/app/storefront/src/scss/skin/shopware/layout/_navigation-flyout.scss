@@ -15,7 +15,7 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
             position: relative;
 
             &::before {
-                border-left: 1px solid $border-color;
+                border-left: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
                 content: '';
                 height: 100%;
                 left: 15px;
@@ -33,28 +33,28 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
 
 .navigation-flyout-link {
     @include transition(padding 0.25s cubic-bezier(0, 0.77, 0.33, 1));
-    color: $body-color;
-    font-size: $font-size-base;
+    color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-content), $body-color);
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-base), $font-size-base);
     margin: 0 $spacer;
     padding: $spacer-xs 0;
 
     &.is-level-0 {
-        font-weight: $font-weight-bold;
+        font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
     }
 
     &.is-level-2 {
-        font-size: $font-size-base;
+        font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-base), $font-size-base);
         padding: $spacer-xs / 2 0;
     }
 
     &:hover {
-        color: $primary;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
         padding-left: 5px;
     }
 
     &.active {
-        color: $primary;
-        font-weight: $font-weight-bold;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
+        font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
     }
 }
 
@@ -64,6 +64,6 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
 }
 
 .navigation-flyout-category-link {
-    font-weight: $font-weight-bold;
-    font-size: $font-size-base;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-base), $font-size-base);
 }

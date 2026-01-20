@@ -25,8 +25,8 @@ https://getbootstrap.com/docs/5.2/components/breadcrumb
     }
 
     a {
-        color: $body-color;
-        font-size: $font-size-base;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-content), $body-color);
+        font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-base), $font-size-base);
 
         &:hover {
             color: $sw-color-brand-primary;

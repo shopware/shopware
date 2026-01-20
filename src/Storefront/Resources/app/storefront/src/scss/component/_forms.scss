@@ -37,7 +37,7 @@ https://getbootstrap.com/docs/5.2/forms/overview
 }
 
 .form-text {
-    font-size: $font-size-base;
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-base), $font-size-base);
 }
 
 .forms-boolean {
@@ -50,12 +50,12 @@ https://getbootstrap.com/docs/5.2/forms/overview
     cursor: pointer;
 
     &.is-active {
-        border-color: $primary;
+        border-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     }
 
     &:hover {
-        border-color: $primary;
-        color: $primary;
+        border-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     }
 }
 

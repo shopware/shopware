@@ -168,8 +168,8 @@ General styling for cms elements
 
 .cms-element-product-slider {
     .cms-element-title {
-        font-size: $font-size-lg;
-        font-weight: $font-weight-bold;
+        font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-lg), $font-size-lg);
+        font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
         color: $headings-color;
     }
 

@@ -19,13 +19,13 @@
 }
 
 .product-detail-tab-preview {
-    font-weight: $font-weight-normal;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-normal), $font-weight-normal);
     margin-top: $spacer-sm;
 }
 
 .product-detail-tab-preview-more {
-    color: $primary;
-    font-weight: $font-weight-bold;
+    color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
 }
 
 @include media-breakpoint-down(sm) {
@@ -37,7 +37,7 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            font-weight: $font-weight-bold;
+            font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
             word-wrap: normal;
         }
     }

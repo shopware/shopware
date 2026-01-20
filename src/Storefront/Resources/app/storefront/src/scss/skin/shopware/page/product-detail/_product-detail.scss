@@ -10,11 +10,11 @@
 .product-detail-price {
     color: $price-color;
     margin-bottom: 0;
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
     vertical-align: middle;
 
     &.with-list-price {
-        color: $sw-color-danger;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-danger), $sw-color-danger);
         display: inline-block;
     }
 
@@ -23,15 +23,15 @@
     }
 
     &.with-advanced-list-price {
-        color: $sw-color-danger;
-        font-size: $font-size-base;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-danger), $sw-color-danger);
+        font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-base), $font-size-base);
         display: inline-block;
     }
 }
 
 .list-price-badge {
     display: inline-block;
-    background: $sw-color-danger;
+    background: if(feature('EXPERIENCE_THEME'), var(--sw-color-danger), $sw-color-danger);
     color: #fff;
     text-align: center;
     border-radius: 3px;
@@ -49,7 +49,7 @@
 .product-detail-regulation-price-wrapper,
 .product-detail-list-price-wrapper {
     color: $headings-color;
-    font-weight: $font-weight-normal;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-normal), $font-weight-normal);
     font-size: 0.75rem;
     display: inline-block;
     height: 1.625rem;
@@ -67,7 +67,7 @@
 .product-detail-advanced-regulation-price-wrapper,
 .product-detail-advanced-list-price-wrapper {
     color: $headings-color;
-    font-weight: $font-weight-normal;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-normal), $font-weight-normal);
     font-size: 12px;
     vertical-align: bottom;
     display: block;
@@ -108,7 +108,7 @@
 }
 
 .product-detail-ordernumber-label {
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
 }
 
 .product-detail-quantity-select {

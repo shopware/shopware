@@ -1,5 +1,5 @@
 .order-detail-content {
-    border-top: 1px solid $border-color;
+    border-top: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
 }
 
 .order-detail-content-header {
@@ -12,13 +12,13 @@
 
 .document-detail-content-header {
     display: block;
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
     padding-bottom: $spacer-sm;
 }
 
 .download-detail-content-header {
     display: block;
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
     padding-bottom: $spacer-sm;
 }
 
@@ -34,7 +34,7 @@
 }
 
 .order-detail-content-row {
-    font-weight: $font-weight-normal;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-normal), $font-weight-normal);
     padding-top: $spacer;
     padding-bottom: $spacer;
     margin-right: $order-grid-gutter-width;
@@ -86,7 +86,7 @@
     margin-bottom: $spacer;
 
     &-divider {
-        border-top: 1px solid $border-color;
+        border-top: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
         margin: $spacer $order-grid-gutter-width;
     }
 
@@ -96,7 +96,7 @@
 
     &.is-discount {
         .cart-item-total-price {
-            color: $success;
+            color: if(feature('EXPERIENCE_THEME'), var(--sw-color-success), $success);
         }
     }
 }
@@ -106,7 +106,7 @@
 }
 
 .order-item-total {
-    font-weight: $font-weight-bold;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
 }
 
 .order-item-nested-icon {
@@ -149,7 +149,7 @@
 }
 
 .order-item-detail-labels-value {
-    font-weight: $font-weight-normal;
+    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-normal), $font-weight-normal);
 }
 
 .order-item-detail-summary {
@@ -205,7 +205,7 @@
 }
 
 .order-item-detail-footnote {
-    background-color: $gray-100;
+    background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-100), $gray-100);
     padding: 0 $spacer $spacer;
 }
 
@@ -214,7 +214,7 @@
         display: block;
         padding-top: $spacer-sm;
         padding-bottom: $spacer-sm;
-        border-bottom: 1px solid $border-color;
+        border-bottom: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
     }
 
     .order-item-label {

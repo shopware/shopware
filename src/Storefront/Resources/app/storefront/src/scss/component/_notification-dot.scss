@@ -12,7 +12,7 @@ Styling for notification dot component.
     display: inline-block;
 
     &.notification-dot-primary {
-        background-color: $primary;
+        background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     }
 
     &.notification-dot-secondary {

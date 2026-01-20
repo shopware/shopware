@@ -34,7 +34,7 @@ This filter item should only be used inside a filter panel.
     transition: all 0.15s ease-in-out;
     opacity: 0;
     transform: translateY(-5px);
-    background-color: $primary;
+    background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     border: 0.125rem solid $body-bg;
     top: -0.375rem;
     right: -0.375rem;

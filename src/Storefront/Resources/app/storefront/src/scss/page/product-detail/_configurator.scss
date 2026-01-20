@@ -6,7 +6,7 @@
     --#{$prefix}btn-line-height: 1.625rem;
     --#{$prefix}btn-active-bg: #{$white};
     --#{$prefix}btn-active-color: #{$body-color};
-    --#{$prefix}btn-active-border-color: #{$primary};
+    --#{$prefix}btn-active-border-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
     --#{$prefix}btn-disabled-border-color: #{$gray-600};
     --#{$prefix}btn-disabled-color: #{$body-color};
     --#{$prefix}btn-disabled-opacity: 0.65;

@@ -5,6 +5,8 @@ Contains skin styles for the top bar located at the top of the page.
 The top bar contains e.g. the language switcher, the currency switcher and the service menu.
 */
 
+@if not feature('EXPERIENCE_THEME') {
+
 .top-bar-nav-btn.btn {
     --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
     --#{$prefix}btn-color: #{$body-color};
@@ -13,16 +15,18 @@ The top bar contains e.g. the language switcher, the currency switcher and the s
     --#{$prefix}btn-border-color: transparent;
     --#{$prefix}btn-padding-x: 0;
     --#{$prefix}btn-padding-y: 0;
-    --#{$prefix}btn-hover-color: #{$primary};
+    --#{$prefix}btn-hover-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
 }
 
 .top-bar-list {
     --#{$prefix}dropdown-link-hover-bg: transparent;
-    --#{$prefix}dropdown-link-hover-color: #{$primary};
-    --#{$prefix}dropdown-link-active-color: #{$primary};
+    --#{$prefix}dropdown-link-hover-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
+    --#{$prefix}dropdown-link-active-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
     --#{$prefix}dropdown-link-active-bg: transparent;
 }
 
 .top-bar-list-item-currency-symbol {
     min-width: 1.7rem;
+}
+
 }

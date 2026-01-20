@@ -17,8 +17,8 @@
 
     .product-detail-variant-characteristics {
         padding-left: $spacer-sm;
-        font-size: $font-size-lg;
-        font-weight: $font-weight-bold;
+        font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-lg), $font-size-lg);
+        font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
         color: $gray-500;
     }
 }
@@ -32,11 +32,11 @@
 }
 
 .product-detail-price-unit {
-    font-size: $font-size-sm;
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-sm), $font-size-sm);
 }
 
 .product-detail-tax {
-    font-size: $font-size-base;
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-base), $font-size-base);
 }
 
 .product-detail-delivery-information {
@@ -53,7 +53,7 @@
 
 .product-block-prices-grid {
     thead {
-        background-color: $gray-100;
+        background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-100), $gray-100);
     }
 
     th {
@@ -61,7 +61,7 @@
     }
 
     td {
-        font-weight: $font-weight-bold;
+        font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
     }
 
     .product-block-prices-cell {
@@ -70,14 +70,14 @@
         line-height: 20px;
 
         &.product-block-prices-cell-thin {
-            font-weight: $font-weight-normal;
-            font-size: $font-size-sm;
+            font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-normal), $font-weight-normal);
+            font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-sm), $font-size-sm);
             line-height: 22px;
         }
     }
 
     .product-block-prices-body .product-block-prices-row {
-        border-top: 1px solid $gray-200;
+        border-top: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-color-base-200), $gray-200);
 
         &:first-of-type {
             border-top: 0 none;

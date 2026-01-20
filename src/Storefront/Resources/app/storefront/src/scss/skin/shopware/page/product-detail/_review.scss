@@ -14,12 +14,12 @@
 
 // review item
 .product-detail-review-item {
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
     margin-bottom: 10px;
 }
 
 .product-detail-review-item-date {
-    color: $gray-600;
+    color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-600), $gray-600);
 }
 
 .product-detail-review-item-verify {

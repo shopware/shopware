@@ -595,7 +595,7 @@ $infoItemRemoveMdSpace: 1;
 
 a.line-item-label {
     &:hover {
-        color: $primary;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     }
 }
 

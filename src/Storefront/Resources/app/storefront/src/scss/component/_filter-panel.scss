@@ -36,15 +36,15 @@ This file contains the generic styling for all filter items.
         --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
         --#{$prefix}btn-border-color: #{$input-border-color};
         --#{$prefix}btn-hover-border-color: #{$input-border-color};
-        --#{$prefix}btn-active-border-color: #{$primary};
-        --#{$prefix}btn-active-color: #{$primary};
+        --#{$prefix}btn-active-border-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
+        --#{$prefix}btn-active-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
         --#{$prefix}btn-font-weight: #{$font-weight-normal};
     }
 }
 
 .filter-panel-item-toggle.show {
     .icon-filter-panel-item-toggle svg {
-        color: $primary;
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
         transform: rotate(180deg);
     }
 }
@@ -59,7 +59,7 @@ This file contains the generic styling for all filter items.
 .filter-panel-submit {
     height: 40px;
     margin-bottom: 12px;
-    border: 1px solid $primary;
+    border: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     background-color: $white;
     color: $dark;
 }
@@ -67,11 +67,11 @@ This file contains the generic styling for all filter items.
 .filter-active {
     --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
     --#{$prefix}btn-border-color: #{$input-border-color};
-    --#{$prefix}btn-hover-border-color: #{$primary};
-    --#{$prefix}btn-hover-color: #{$primary};
+    --#{$prefix}btn-hover-border-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
+    --#{$prefix}btn-hover-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
     --#{$prefix}btn-hover-bg: #{$gray-100};
-    --#{$prefix}btn-active-border-color: #{$primary};
-    --#{$prefix}btn-active-color: #{$primary};
+    --#{$prefix}btn-active-border-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
+    --#{$prefix}btn-active-color: #{if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary)};
     --#{$prefix}btn-font-weight: #{$font-weight-normal};
     --#{$prefix}btn-border-radius: #{$border-radius-pill};
     --#{$prefix}btn-padding-y: 0.125rem;
@@ -105,7 +105,7 @@ This file contains the generic styling for all filter items.
 
     .filter-panel-item-dropdown {
         min-width: 100%;
-        border: 1px solid $primary;
+        border: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
         border-top: 0;
         border-radius: 0 0 4px 4px;
     }
@@ -120,14 +120,14 @@ This file contains the generic styling for all filter items.
         display: flex;
 
         &[aria-expanded='true'] {
-            color: $primary;
-            border-color: $primary;
+            color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
+            border-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
             border-bottom-left-radius: 0;
             border-bottom-right-radius: 0;
             border-bottom: 0 none;
 
             svg {
-                color: $primary;
+                color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
                 transform: rotate(180deg);
             }
         }

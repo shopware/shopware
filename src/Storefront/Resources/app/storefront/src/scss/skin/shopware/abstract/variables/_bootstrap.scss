@@ -8,6 +8,8 @@ https://getbootstrap.com/docs/5.2/customize/sass/#variable-defaults
 @sw-package framework
 */
 
+@if not feature('EXPERIENCE_THEME') {
+
 // Color system
 $gray-100: #f9f9f9 !default;
 $gray-200: #eee !default;
@@ -189,3 +191,5 @@ $badge-padding-y: 0 !default;
 
 // Navbar
 $navbar-light-active-color: $primary !default;
+
+}

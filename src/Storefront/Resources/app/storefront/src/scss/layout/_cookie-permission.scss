@@ -8,15 +8,15 @@ Shows a cookie permission alert at the bottom of the page.
 
 .cookie-permission-container {
     display: none;
-    border-top: 1px solid $border-color;
-    background: $white;
+    border-top: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
+    background: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
     position: fixed;
     bottom: 0;
     right: 0;
     left: 0;
     text-align: center;
     padding: $spacer-sm;
-    font-size: $font-size-sm;
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-sm), $font-size-sm);
     z-index: $cookie-msg-zindex;
 }
 

@@ -7,9 +7,9 @@
 }
 
 .quickview-minimal-product-number {
-    font-size: $font-size-sm;
+    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-sm), $font-size-sm);
 }
 
 .quickview-minimal-footer-heading {
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-border-color), $border-color);
 }

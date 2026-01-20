@@ -9,6 +9,6 @@
     }
 
     .address-card .card-body .address:first-line {
-        font-weight: $font-weight-bold;
+        font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
     }
 }

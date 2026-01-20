@@ -20,7 +20,7 @@ based on: https://github.com/ganlanyuan/tiny-slider
 
         .base-slider-dot,
         button {
-            background-color: $gray-800;
+            background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-800), $gray-800);
             border: 0;
             height: 8px;
             width: 8px;
@@ -30,7 +30,7 @@ based on: https://github.com/ganlanyuan/tiny-slider
 
             &:hover,
             &.tns-nav-active {
-                background-color: $primary;
+                background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
             }
 
             &.tns-nav-active {
@@ -80,17 +80,17 @@ based on: https://github.com/ganlanyuan/tiny-slider
     transition: opacity 0.15s ease;
     cursor: pointer;
     padding: 0;
-    color: $body-color;
-    background: $body-bg;
-    border: 1px solid $body-bg;
+    color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-content), $body-color);
+    background: if(feature('EXPERIENCE_THEME'), var(--sw-color-background), $body-bg);
+    border: 1px solid if(feature('EXPERIENCE_THEME'), var(--sw-color-background), $body-bg);
 
     .icon {
         color: currentColor;
     }
 
     &:hover {
-        border-color: $primary;
-        color: $primary;
+        border-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
+        color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
     }
 
     &[disabled] {

@@ -19,7 +19,7 @@ https://getbootstrap.com/docs/5.2/components/navs-tabs
 
     .main-navigation-link.root {
         &.active .main-navigation-link-text {
-            border-color: $primary;
+            border-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-primary), $primary);
         }
     }
 

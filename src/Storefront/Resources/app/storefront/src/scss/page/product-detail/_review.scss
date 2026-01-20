@@ -73,7 +73,7 @@
 
     &.point-blank {
         .icon {
-            color: $gray-200;
+            color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base-200), $gray-200);
         }
     }
 }

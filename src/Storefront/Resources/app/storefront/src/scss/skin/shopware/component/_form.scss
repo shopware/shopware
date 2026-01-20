@@ -10,6 +10,8 @@ https://getbootstrap.com/docs/5.2/forms/overview
     margin-bottom: 20px;
 }
 
+@if not feature('EXPERIENCE_THEME') {
+
 .was-validated .form-control,
 .was-validated .form-select,
 .form-control,
@@ -24,6 +26,8 @@ https://getbootstrap.com/docs/5.2/forms/overview
 
 .form-required-label {
     color: $sw-color-danger;
+}
+
 }
 
 .form-field-feedback {

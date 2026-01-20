@@ -48,7 +48,7 @@ Displays a single image or a gallery slider in a zoom modal with zoom functions.
         right: 0;
         padding: 0 0 $spacer;
         justify-content: center;
-        background-color: $white;
+        background-color: if(feature('EXPERIENCE_THEME'), var(--sw-color-base), $white);
         margin: 0 30px;
     }
 

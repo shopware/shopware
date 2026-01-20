@@ -185,7 +185,7 @@ class MediaApiService extends ApiService {
         );
     }
 
-    _startUpload(task, uploadTag) {
+    _startUpload(task, uploadTag = null) {
         if (task.src instanceof File) {
             return fileReader.readAsArrayBuffer(task.src).then((buffer) => {
                 return this.uploadMediaById(task.targetId, task.src.type, buffer, task.extension, task.fileName, uploadTag);

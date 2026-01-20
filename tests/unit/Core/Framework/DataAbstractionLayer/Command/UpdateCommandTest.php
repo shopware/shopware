@@ -58,15 +58,12 @@ class UpdateCommandTest extends TestCase
             $this->createMock(EntityWriteGatewayInterface::class)
         );
 
-        $command = $this->getMockForAbstractClass(
-            UpdateCommand::class,
-            [
-                $registry->getByEntityName($definition->getEntityName()),
-                [],
-                [],
-                $this->createMock(EntityExistence::class),
-                'path/to/entity',
-            ]
+        $command = new UpdateCommand(
+            $registry->getByEntityName($definition->getEntityName()),
+            [],
+            [],
+            $this->createMock(EntityExistence::class),
+            'path/to/entity',
         );
 
         $immutableChanges = ['field1', 'field2', 'field3'];

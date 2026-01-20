@@ -36,6 +36,23 @@ Core provides these loaders:
 - Product listings with filters, sorting, pagination
 - Config: See `ProductListingLoaderConfig` class
 
+**NavigationDataLoader** (`source: "navigation"`)
+- Loads navigation tree via NavigationLoaderInterface
+- Config: `rootId` (alias or UUID), `depth`
+- Supports aliases: `main-navigation`, `service-navigation`, `footer-navigation`
+
+**LanguageDataLoader** (`source: "language"`)
+- Loads available languages via AbstractLanguageRoute
+
+**CurrencyDataLoader** (`source: "currency"`)
+- Loads available currencies via AbstractCurrencyRoute
+
+**PaymentMethodDataLoader** (`source: "payment_method"`)
+- Loads payment methods via AbstractPaymentMethodRoute
+
+**ShippingMethodDataLoader** (`source: "shipping_method"`)
+- Loads shipping methods via AbstractShippingMethodRoute
+
 ## Loader Interface
 
 ```php

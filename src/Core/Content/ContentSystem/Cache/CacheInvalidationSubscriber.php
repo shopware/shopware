@@ -6,6 +6,8 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ContentSystem\SalesChannel\ContentRoute;
+use Shopware\Core\Content\ContentSystem\SalesChannel\Footer\ContentFooterRoute;
+use Shopware\Core\Content\ContentSystem\SalesChannel\Header\ContentHeaderRoute;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -44,6 +46,8 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $this->invalidateProductContentLayout($event);
         $this->invalidateCategoryContentLayout($event);
         $this->invalidateLandingPageContentLayout($event);
+        $this->invalidateHeaderContentLayout($event);
+        $this->invalidateFooterContentLayout($event);
     }
 
     private function invalidateContentLayout(EntityWrittenContainerEvent $event): void
@@ -131,6 +135,52 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $this->cacheInvalidator->invalidate($tags);
     }
 
+    private function invalidateHeaderContentLayout(EntityWrittenContainerEvent $event): void
+    {
+        $ids = $event->getPrimaryKeys('header_content_layout');
+
+        if ($ids === []) {
+            return;
+        }
+
+        $layoutIds = $this->getLayoutIdsFromHeaderAssignments($ids);
+
+        if ($layoutIds === []) {
+            return;
+        }
+
+        $tags = [];
+        foreach ($layoutIds as $layoutId) {
+            $tags[] = ContentRoute::buildLayoutTag($layoutId);
+            $tags[] = ContentHeaderRoute::buildLayoutTag($layoutId);
+        }
+
+        $this->cacheInvalidator->invalidate($tags);
+    }
+
+    private function invalidateFooterContentLayout(EntityWrittenContainerEvent $event): void
+    {
+        $ids = $event->getPrimaryKeys('footer_content_layout');
+
+        if ($ids === []) {
+            return;
+        }
+
+        $layoutIds = $this->getLayoutIdsFromFooterAssignments($ids);
+
+        if ($layoutIds === []) {
+            return;
+        }
+
+        $tags = [];
+        foreach ($layoutIds as $layoutId) {
+            $tags[] = ContentRoute::buildLayoutTag($layoutId);
+            $tags[] = ContentFooterRoute::buildLayoutTag($layoutId);
+        }
+
+        $this->cacheInvalidator->invalidate($tags);
+    }
+
     /**
      * @param list<string> $assignmentIds
      *
@@ -168,6 +218,34 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     {
         return $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(landing_page_id)) FROM landing_page_content_layout WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($assignmentIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
+     * @param list<string> $assignmentIds
+     *
+     * @return list<string>
+     */
+    private function getLayoutIdsFromHeaderAssignments(array $assignmentIds): array
+    {
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(content_layout_id)) FROM header_content_layout WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($assignmentIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
+     * @param list<string> $assignmentIds
+     *
+     * @return list<string>
+     */
+    private function getLayoutIdsFromFooterAssignments(array $assignmentIds): array
+    {
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(content_layout_id)) FROM footer_content_layout WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($assignmentIds)],
             ['ids' => ArrayParameterType::BINARY]
         );

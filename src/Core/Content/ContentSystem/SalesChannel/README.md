@@ -83,3 +83,10 @@ Returns 404 if:
 - Layout assignment not found for entity
 
 ContentSystemException thrown with specific error codes.
+
+## Subdirectories
+
+Header and footer content have dedicated endpoints in subdirectories. These routes are singletons (no `{path}` parameter) and use domain-aware resolution instead of entity-based resolution.
+
+- **Header/** - Header content endpoints (`/store-api/content-header*`)
+- **Footer/** - Footer content endpoints (`/store-api/content-footer*`)

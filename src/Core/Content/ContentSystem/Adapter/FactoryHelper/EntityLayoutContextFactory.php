@@ -11,6 +11,7 @@ use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Content\ContentSystem\LayoutType;
 use Shopware\Core\Content\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -74,6 +75,7 @@ class EntityLayoutContextFactory
             dataRequirements: $dataRequirements,
             placeholderValues: $layoutData->placeholderValues,
             request: $request,
+            layoutType: LayoutType::MAIN,
             targetElementId: $targetElementId,
             cacheTags: $cacheTags,
         );

@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Snippet\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\TranslationCommandHelper;
-use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
@@ -26,7 +26,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class InstallTranslationCommand extends Command
 {
     public function __construct(
-        private readonly TranslationLoader $translationLoader,
+        private readonly AbstractTranslationLoader $translationLoader,
         private readonly TranslationConfig $config,
         private readonly TranslationMetadataLoader $metadataLoader,
     ) {

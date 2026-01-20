@@ -61,6 +61,7 @@ A new `Immutable` flag is available for Data Abstraction Layer fields. Fields ma
 
 Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
 If the value is not set in the payload, or the value won't change, no exception is thrown.
+Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values. If the original value is not set, or the value doesnt change, no exception is thrown.
 
 ### Performance Improvement for `ProductCategoryDenormalizer`
 

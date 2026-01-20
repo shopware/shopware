@@ -26,7 +26,7 @@ class PluginCreateCommandTest extends TestCase
      * @param array<int, array<string, mixed>> $generators
      */
     #[DataProvider('commandProvider')]
-    public function testSuccessfulCreateCommandWithArguments(
+    public function testSuccessfulCreateCommandWithArgumentsOrInputs(
         array $arguments,
         array $inputs,
         array $generators = []

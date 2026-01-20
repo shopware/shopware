@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\Exception\InvalidPluginCreationInputException;
 use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
 use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
@@ -296,8 +295,15 @@ class PluginException extends HttpException
         return new PluginExtractionException($message);
     }
 
-    public static function invalidPluginCreationInputError(string $reason): InvalidPluginCreationInputException
+    public static function invalidPluginCreationInputError(string $reason): self
     {
-        return new InvalidPluginCreationInputException($reason);
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PLUGIN_CREATION_INVALID_ENTRY,
+            'Invalid input provided during plugin creation. Error: {{ reason }}',
+            [
+                'reason' => $reason,
+            ]
+        );
     }
 }

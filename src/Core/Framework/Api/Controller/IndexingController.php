@@ -45,7 +45,7 @@ class IndexingController extends AbstractController
         $indexingSkips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
 
         if (!$request->request->has('offset')) {
-            throw ApiException::offsetParameterMissing();
+            throw ApiException::missingRequestParameter('offset');
         }
 
         $indexer = $this->registry->getIndexer($indexer);
@@ -70,7 +70,7 @@ class IndexingController extends AbstractController
     public function products(Request $request): JsonResponse
     {
         if (!$request->request->has('ids')) {
-            throw ApiException::idsParameterMissing();
+            throw ApiException::missingRequestParameter('ids');
         }
 
         $ids = $request->request->all('ids');

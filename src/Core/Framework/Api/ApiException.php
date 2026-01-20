@@ -58,8 +58,7 @@ class ApiException extends HttpException
     public const API_ROUTES_ARE_LOADED_ALREADY = 'FRAMEWORK__API_ROUTES_ARE_LOADED_ALREADY';
     public const API_NOTIFICATION_THROTTLED = 'FRAMEWORK__NOTIFICATION_THROTTLED';
     public const API_DIRECTORY_NOT_CREATED = 'FRAMEWORK__API_DIRECTORY_NOT_CREATED';
-    public const API_OFFSET_PARAMETER_MISSING = 'FRAMEWORK__API_OFFSET_PARAMETER_MISSING';
-    public const API_IDS_PARAMETER_MISSING = 'FRAMEWORK__API_IDS_PARAMETER_MISSING';
+    public const API_MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__API_REQUEST_PARAMETER_MISSING';
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
 
     /**
@@ -447,21 +446,13 @@ class ApiException extends HttpException
         );
     }
 
-    public static function offsetParameterMissing(): self
+    public static function missingRequestParameter(string $name): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::API_OFFSET_PARAMETER_MISSING,
-            'Parameter "offset" is missing.',
-        );
-    }
-
-    public static function idsParameterMissing(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::API_IDS_PARAMETER_MISSING,
-            'Parameter "ids" is missing.',
+            self::API_MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name]
         );
     }
 

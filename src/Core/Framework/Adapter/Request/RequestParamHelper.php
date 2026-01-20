@@ -34,6 +34,11 @@ class RequestParamHelper
     public static function get(Request $request, string $name, mixed $default = null): mixed
     {
         if (!Feature::isActive('v6.8.0.0') && $request->attributes->has($name)) {
+            // To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first.
+            // However, it should be possible to strictly differentiate between request attributes (which are generally controlled and set by the application itself) and input parameters (which are provided by the client, and based on how they are passed are either part of the query bag or the request bag) in the future.
+            // Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release.
+            // When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
+            // In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
                 'Using `RequestParamHelper::get()` to access parameters in attribute bag is deprecated. Consider using `$request->attributes` directly or store the parameters in `$request->query` or `$request->request` bags.'

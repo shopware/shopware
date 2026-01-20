@@ -132,8 +132,14 @@ class MailContentTest extends TestCase
         $languageCode = substr($localeCode, 0, 2);
         $fixturePath = self::FIXTURE_FOLDER . $technicalName . '/' . $languageCode;
 
-        $plainFixturePath = $fixturePath . '-plain.html.twig';
         $htmlFixturePath = $fixturePath . '-html.html.twig';
+        $plainFixturePath = $fixturePath . '-plain.html.twig';
+        if (!$this->filesystem->exists($plainFixturePath)) {
+            $plainFixturePath = $fixturePath . '-plain.txt.twig';
+        }
+
+        static::assertFileExists($htmlFixturePath);
+        static::assertFileExists($plainFixturePath);
 
         $plainFixtureContent = $this->filesystem->readFile($plainFixturePath);
         $htmlFixtureContent = $this->filesystem->readFile($htmlFixturePath);

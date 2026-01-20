@@ -534,4 +534,176 @@ describe('core/service/login.service.js', () => {
 
         expect(logoutListener).toHaveBeenCalled();
     });
+
+    describe('token refresh behavior', () => {
+
+        it('should not logout when refresh fails due to another tab already refreshing', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            const logoutListener = jest.fn();
+            loginService.addOnLogoutListener(logoutListener);
+
+            clientMock.onPost('/oauth/token').replyOnce(401, {
+                error: 'invalid_grant',
+            });
+
+            try {
+                await loginService.refreshToken();
+            } catch (error) {
+                // Expected to fail
+            }
+
+            expect(logoutListener).not.toHaveBeenCalled();
+            expect(loginService.getToken()).toBe('aCcEsS_tOkEn');
+        });
+
+        it('should continue with current token when refresh fails', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            const initialExpiry = loginService.getBearerAuthentication('expiry');
+
+            clientMock.onPost('/oauth/token').replyOnce(500, {
+                error: 'server_error',
+            });
+
+            await expect(loginService.refreshToken()).rejects.toThrow();
+
+            expect(loginService.getToken()).toBe('aCcEsS_tOkEn');
+            expect(loginService.getBearerAuthentication('expiry')).toBe(initialExpiry);
+        });
+    });
+
+    describe('multi-tab token synchronization', () => {
+
+        it('should handle token refresh race condition between tabs', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'shared_token',
+                refresh_token: 'shared_refresh',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.reset();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'tab1_new_token',
+                refresh_token: 'tab1_new_refresh',
+            });
+
+            clientMock.onPost('/oauth/token').replyOnce(401, {
+                error: 'invalid_grant',
+            });
+
+            const tab1Promise = loginService.refreshToken();
+            const tab2Promise = loginService.refreshToken();
+
+            await expect(tab1Promise).resolves.toBe('tab1_new_token');
+            await expect(tab2Promise).rejects.toThrow();
+
+            expect(loginService.isLoggedIn()).toBe(true);
+            expect(loginService.getToken()).toBe('tab1_new_token');
+        });
+
+        it('should synchronize token across tabs via cookie storage', () => {
+            const { loginService } = loginServiceFactory();
+            const { loginService: loginServiceTab2 } = loginServiceFactory();
+
+            loginService.setBearerAuthentication({
+                access: 'test_token',
+                refresh: 'test_refresh',
+                expiry: 3600,
+            });
+
+            expect(loginServiceTab2.getToken()).toBe('test_token');
+            expect(loginServiceTab2.getBearerAuthentication('refresh')).toBe('test_refresh');
+        });
+
+        it('should handle concurrent refresh attempts gracefully', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'initial_token',
+                refresh_token: 'initial_refresh',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.reset();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'refreshed_token',
+                refresh_token: 'refreshed_refresh',
+            });
+
+            clientMock.onPost('/oauth/token').replyOnce(401);
+
+            const promises = [
+                loginService.refreshToken(),
+                loginService.refreshToken(),
+            ];
+
+            const results = await Promise.allSettled(promises);
+
+            const successCount = results.filter(r => r.status === 'fulfilled').length;
+            expect(successCount).toBeGreaterThan(0);
+
+            expect(loginService.isLoggedIn()).toBe(true);
+        });
+
+        it('should notify token changed listeners when another tab updates the token', () => {
+            const { loginService } = loginServiceFactory();
+
+            const tokenChangedListener = jest.fn();
+            loginService.addOnTokenChangedListener(tokenChangedListener);
+
+            loginService.setBearerAuthentication({
+                access: 'initial_token',
+                refresh: 'initial_refresh',
+                expiry: 3600,
+            });
+
+            expect(tokenChangedListener).toHaveBeenCalledTimes(1);
+
+            loginService.setBearerAuthentication({
+                access: 'updated_token',
+                refresh: 'updated_refresh',
+                expiry: 3600,
+            });
+
+            expect(tokenChangedListener).toHaveBeenCalledTimes(2);
+            expect(tokenChangedListener).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    access: 'updated_token',
+                })
+            );
+        });
+    });
 });

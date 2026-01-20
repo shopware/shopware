@@ -419,11 +419,9 @@ class CacheInvalidatorTest extends TestCase
     {
         $collector = $this->createMock(BacktraceCollector::class);
 
-        if (!empty($class) && !empty($function)) {
-            $firstFrame = new Frame($class, $function);
-        } else {
-            $firstFrame = null;
-        }
+        $firstFrame = ($class !== null && $function !== null)
+            ? new Frame($class, $function)
+            : null;
 
         $collector->expects($this->once())->method('getFirstFrame')->willReturn($firstFrame);
 

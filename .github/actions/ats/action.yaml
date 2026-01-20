@@ -182,23 +182,30 @@ runs:
               retention-days: 3
           continue-on-error: true
 
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            aws-region: eu-west-1
-            role-session-name: gha-playwright-${{ github.run_id }}
-            role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+        -   name: Configure AWS credentials
+            if: >
+                github.repository_owner == 'shopware' &&
+                (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+            uses: aws-actions/configure-aws-credentials@v4
+            with:
+                aws-region: eu-central-1
+                role-session-name: gha-playwright-${{ github.run_id }}
+                role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+
 
         - name: Upload Playwright HTML report to S3 (unique per run)
           if: always()
           shell: bash
+          env:
+              S3_BUCKET: shopware-ci-playwright-traces
+              REPORT_PREFIX: playwright-reports
           run: |
                 set -euo pipefail
                 DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
 
-                if [ ! -d "playwright-report" ]; then
-                  echo "No playwright-report/ directory found. Skipping upload."
-                  exit 0
+                if [ ! -f "playwright-report/index.html" ]; then
+                echo "No Playwright report found, skipping upload."
+                exit 0
                 fi
 
                 aws s3 sync "playwright-report" "s3://${S3_BUCKET}/${DEST}/" --delete
@@ -209,6 +216,7 @@ runs:
           shell: bash
           env:
             CLOUDFRONT_DOMAIN: ${{ secrets.CLOUDFRONT_DOMAIN }} # e.g. d111111abcdef8.cloudfront.net (or your custom domain)
+            REPORT_PREFIX: playwright-reports
           run: |
                 set -euo pipefail
                 DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"

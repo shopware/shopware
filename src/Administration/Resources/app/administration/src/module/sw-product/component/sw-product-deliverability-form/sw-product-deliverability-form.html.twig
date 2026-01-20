@@ -100,7 +100,6 @@
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
                     number-type="int"
-                    allow-empty
                     :min="0"
                     :disabled="props.isInherited || !allowEdit"
                     :label="$tc('sw-product.settingsForm.labelRestockTime')"
@@ -220,7 +219,6 @@
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
                     number-type="int"
-                    :allow-empty="true"
                     :min="0"
                     :error="productMaxPurchaseError"
                     :label="$tc('sw-product.settingsForm.labelMaxPurchase')"

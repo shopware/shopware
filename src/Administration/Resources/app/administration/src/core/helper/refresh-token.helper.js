@@ -72,7 +72,13 @@ class RefreshTokenHelper {
                 this.isRefreshing = false;
             })
             .catch(() => {
-                loginService.logout();
+                if (!loginService.getToken()) {
+                    setTimeout(() => {
+                        if (!loginService.getToken()) {
+                            loginService.logout();
+                        }
+                    }, 1000);
+                }
                 this.onRefreshTokenFailed();
                 return Promise.reject();
             });

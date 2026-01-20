@@ -1,4 +1,11 @@
-# 6.7.6.0 (upcoming)
+# 6.7.6.2
+
+## Critical Fixes
+
+### Fixed plugin translations
+Fixed a timing issue in `6.7.6.1` where `Locale.extend` could cause unresolved translations in the administration. Vue snippets are now dynamically updated after extending locales.
+
+# 6.7.6.0
 
 ## Features
 

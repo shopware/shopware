@@ -387,6 +387,10 @@ class ThemeLifecycleServiceTest extends TestCase
             static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
 
+        $this->themeRuntimeConfigService->expects($this->once())
+            ->method('deleteByTechnicalName')
+            ->with($bundle->getTechnicalName());
+
         $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
 
         // check whether the theme is no longer in the table and the associated media have been deleted
@@ -430,6 +434,10 @@ class ThemeLifecycleServiceTest extends TestCase
         foreach ($themeMedia as $media) {
             static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
+
+        $this->themeRuntimeConfigService->expects($this->once())
+            ->method('deleteByTechnicalName')
+            ->with($bundle->getTechnicalName());
 
         $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
 

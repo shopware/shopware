@@ -10,6 +10,7 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
     '~' => [
         '^symfony\/.*$' => 'We are too tightly coupled to symfony, therefore minor updates often cause breaks',
         '^php$' => 'PHP does not follow semantic versioning, therefore minor updates include breaks',
+        '^doctrine\/dbal$' => 'Minor updates often introduce deprecations, which cause PHPStan to fail.',
     ],
     'strict' => [
         '^phpstan\/phpstan.*$' => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',

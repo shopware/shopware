@@ -536,7 +536,6 @@ describe('core/service/login.service.js', () => {
     });
 
     describe('token refresh behavior', () => {
-
         it('should not logout when refresh fails due to another tab already refreshing', async () => {
             const { loginService, clientMock } = loginServiceFactory();
 
@@ -592,7 +591,6 @@ describe('core/service/login.service.js', () => {
     });
 
     describe('multi-tab token synchronization', () => {
-
         it('should handle token refresh race condition between tabs', async () => {
             const { loginService, clientMock } = loginServiceFactory();
 
@@ -672,7 +670,7 @@ describe('core/service/login.service.js', () => {
 
             const results = await Promise.allSettled(promises);
 
-            const successCount = results.filter(r => r.status === 'fulfilled').length;
+            const successCount = results.filter((r) => r.status === 'fulfilled').length;
             expect(successCount).toBeGreaterThan(0);
 
             expect(loginService.isLoggedIn()).toBe(true);
@@ -702,8 +700,47 @@ describe('core/service/login.service.js', () => {
             expect(tokenChangedListener).toHaveBeenCalledWith(
                 expect.objectContaining({
                     access: 'updated_token',
-                })
+                }),
             );
         });
+    });
+
+    it('should restart auto refresh when token refresh fails', async () => {
+        jest.useFakeTimers();
+
+        const { loginService, clientMock } = loginServiceFactory();
+
+        // Initial login
+        clientMock.onPost('/oauth/token').replyOnce(200, {
+            token_type: 'Bearer',
+            expires_in: 3600,
+            access_token: 'aCcEsS_tOkEn',
+            refresh_token: 'rEfReSh_ToKeN',
+        });
+
+        await loginService.loginByUsername('admin', 'shopware');
+
+        const currentExpiry = loginService.getBearerAuthentication('expiry');
+        expect(currentExpiry).toBeDefined();
+
+        // Make the next refresh fail
+        clientMock.onPost('/oauth/token').replyOnce(401, {
+            error: 'invalid_grant',
+            error_description: 'The refresh token has been revoked.',
+        });
+
+        // Advance time to trigger auto refresh (half of expiry time)
+        const timeToAdvance = (currentExpiry - Date.now()) / 2;
+        jest.advanceTimersByTime(timeToAdvance);
+        await jest.runAllTimers();
+
+        // Verify that the token refresh was attempted (login + failed refresh)
+        expect(clientMock.history.post.length).toBe(2);
+
+        // User should still be logged in with the old token
+        expect(loginService.isLoggedIn()).toBe(true);
+        expect(loginService.getToken()).toBe('aCcEsS_tOkEn');
+
+        jest.useRealTimers();
     });
 });

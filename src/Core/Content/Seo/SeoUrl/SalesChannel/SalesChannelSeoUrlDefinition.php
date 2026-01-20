@@ -23,6 +23,8 @@ class SalesChannelSeoUrlDefinition extends SeoUrlDefinition implements SalesChan
         if (!$criteria->hasEqualsFilter('isCanonical')) {
             $criteria->addFilter(new EqualsFilter('isCanonical', true));
         }
-        $criteria->addFilter(new EqualsFilter('isDeleted', false));
+        if (!$criteria->hasEqualsFilter('isDeleted')) {
+            $criteria->addFilter(new EqualsFilter('isDeleted', false));
+        }
     }
 }

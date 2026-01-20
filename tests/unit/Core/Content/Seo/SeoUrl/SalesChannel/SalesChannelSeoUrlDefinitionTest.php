@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Seo\SeoUrl\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrl\SalesChannel\SalesChannelSeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,7 +19,7 @@ use Shopware\Core\Test\Generator;
 #[Package('inventory')]
 class SalesChannelSeoUrlDefinitionTest extends TestCase
 {
-    public function testProcessCriteriaAddsDefaultIsCanonicalFilter(): void
+    public function testProcessCriteriaAddsDefaultFilters(): void
     {
         $definition = new SalesChannelSeoUrlDefinition();
         $criteria = new Criteria();
@@ -29,99 +30,72 @@ class SalesChannelSeoUrlDefinitionTest extends TestCase
         $filters = $criteria->getFilters();
         static::assertNotEmpty($filters);
 
-        // Find the isCanonical filter
-        $isCanonicalFilter = null;
-        foreach ($filters as $filter) {
-            if ($filter instanceof EqualsFilter && $filter->getField() === 'isCanonical') {
-                $isCanonicalFilter = $filter;
-                break;
-            }
-        }
+        // Check all expected default filters
+        static::assertTrue($criteria->hasEqualsFilter('languageId'));
+        static::assertTrue($criteria->hasEqualsFilter('isCanonical'));
+        static::assertTrue($criteria->hasEqualsFilter('isDeleted'));
 
-        static::assertNotNull($isCanonicalFilter, 'isCanonical filter should be present');
-        static::assertTrue($isCanonicalFilter->getValue(), 'Default isCanonical filter should be true');
+        // Verify default values
+        $isCanonicalFilter = $this->findEqualsFilter($filters, 'isCanonical');
+        static::assertNotNull($isCanonicalFilter);
+        static::assertTrue($isCanonicalFilter->getValue(), 'Default isCanonical should be true');
+
+        $isDeletedFilter = $this->findEqualsFilter($filters, 'isDeleted');
+        static::assertNotNull($isDeletedFilter);
+        static::assertFalse($isDeletedFilter->getValue(), 'Default isDeleted should be false');
     }
 
-    public function testProcessCriteriaRespectsUserProvidedIsCanonicalFilter(): void
+    /**
+     * @return iterable<string, array{field: string, userValue: bool, expectedValue: bool}>
+     */
+    public static function provideOverridableFilters(): iterable
+    {
+        yield 'isCanonical can be overridden to false' => [
+            'field' => 'isCanonical',
+            'userValue' => false,
+            'expectedValue' => false,
+        ];
+
+        yield 'isDeleted can be overridden to true' => [
+            'field' => 'isDeleted',
+            'userValue' => true,
+            'expectedValue' => true,
+        ];
+    }
+
+    #[DataProvider('provideOverridableFilters')]
+    public function testProcessCriteriaRespectsUserProvidedFilter(string $field, bool $userValue, bool $expectedValue): void
     {
         $definition = new SalesChannelSeoUrlDefinition();
         $criteria = new Criteria();
         $context = Generator::generateSalesChannelContext();
 
-        // User provides isCanonical = false filter
-        $criteria->addFilter(new EqualsFilter('isCanonical', false));
+        $criteria->addFilter(new EqualsFilter($field, $userValue));
 
         $definition->processCriteria($criteria, $context);
 
         $filters = $criteria->getFilters();
 
-        // Count isCanonical filters - should only be one (the user-provided one)
-        $isCanonicalFilters = array_filter(
+        // Count filters for this field - should only be one (the user-provided one)
+        $fieldFilters = array_filter(
             $filters,
-            static fn ($filter) => $filter instanceof EqualsFilter && $filter->getField() === 'isCanonical'
+            static fn ($filter) => $filter instanceof EqualsFilter && $filter->getField() === $field
         );
 
-        static::assertCount(1, $isCanonicalFilters, 'Should only have one isCanonical filter');
+        static::assertCount(1, $fieldFilters, "Should only have one $field filter");
 
-        $isCanonicalFilter = reset($isCanonicalFilters);
-        static::assertInstanceOf(EqualsFilter::class, $isCanonicalFilter);
-        static::assertFalse($isCanonicalFilter->getValue(), 'User-provided isCanonical filter should be preserved as false');
+        $filter = reset($fieldFilters);
+        static::assertInstanceOf(EqualsFilter::class, $filter);
+        static::assertSame($expectedValue, $filter->getValue(), "User-provided $field filter should be preserved");
     }
 
-    public function testProcessCriteriaAlwaysAppliesOtherDefaultFilters(): void
-    {
-        $definition = new SalesChannelSeoUrlDefinition();
-        $criteria = new Criteria();
-        $context = Generator::generateSalesChannelContext();
-
-        // User provides isCanonical filter
-        $criteria->addFilter(new EqualsFilter('isCanonical', false));
-
-        $definition->processCriteria($criteria, $context);
-
-        $filters = $criteria->getFilters();
-
-        // Check languageId filter is present
-        $languageIdFilter = null;
-        foreach ($filters as $filter) {
-            if ($filter instanceof EqualsFilter && $filter->getField() === 'languageId') {
-                $languageIdFilter = $filter;
-                break;
-            }
-        }
-        static::assertNotNull($languageIdFilter, 'languageId filter should be present');
-        static::assertSame($context->getLanguageId(), $languageIdFilter->getValue());
-
-        // Check salesChannelId MultiFilter is present
-        $salesChannelMultiFilter = null;
-        foreach ($filters as $filter) {
-            if ($filter instanceof MultiFilter) {
-                $salesChannelMultiFilter = $filter;
-                break;
-            }
-        }
-        static::assertNotNull($salesChannelMultiFilter, 'salesChannelId MultiFilter should be present');
-
-        // Check isDeleted filter is present
-        $isDeletedFilter = null;
-        foreach ($filters as $filter) {
-            if ($filter instanceof EqualsFilter && $filter->getField() === 'isDeleted') {
-                $isDeletedFilter = $filter;
-                break;
-            }
-        }
-        static::assertNotNull($isDeletedFilter, 'isDeleted filter should be present');
-        static::assertFalse($isDeletedFilter->getValue());
-    }
-
-    public function testProcessCriteriaAddsDefaultFilterWhenIsCanonicalInNestedMultiFilter(): void
+    public function testProcessCriteriaAddsDefaultFilterWhenFilterIsNested(): void
     {
         $definition = new SalesChannelSeoUrlDefinition();
         $criteria = new Criteria();
         $context = Generator::generateSalesChannelContext();
 
         // User provides isCanonical inside a MultiFilter (not a top-level EqualsFilter)
-        // This simulates: filter[0][type]=multi&filter[0][operator]=or&filter[0][queries][0][type]=equals&filter[0][queries][0][field]=isCanonical&filter[0][queries][0][value]=false
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('isCanonical', false),
             new EqualsFilter('isCanonical', null),
@@ -129,20 +103,26 @@ class SalesChannelSeoUrlDefinitionTest extends TestCase
 
         $definition->processCriteria($criteria, $context);
 
-        $filters = $criteria->getFilters();
-
-        // The hasEqualsFilter() only checks top-level EqualsFilters, not nested ones
-        // So the default isCanonical=true filter will still be added
-        $topLevelIsCanonicalFilters = array_filter(
-            $filters,
+        // hasEqualsFilter() only checks top-level filters, so default is still added
+        $topLevelFilters = array_filter(
+            $criteria->getFilters(),
             static fn ($filter) => $filter instanceof EqualsFilter && $filter->getField() === 'isCanonical'
         );
 
-        // Default filter is added because nested EqualsFilter is not detected
-        static::assertCount(1, $topLevelIsCanonicalFilters, 'Default isCanonical filter should be added when only nested filters exist');
+        static::assertCount(1, $topLevelFilters, 'Default filter added when only nested filters exist');
+    }
 
-        $defaultFilter = reset($topLevelIsCanonicalFilters);
-        static::assertInstanceOf(EqualsFilter::class, $defaultFilter);
-        static::assertTrue($defaultFilter->getValue(), 'Default isCanonical filter should be true');
+    /**
+     * @param array<mixed> $filters
+     */
+    private function findEqualsFilter(array $filters, string $field): ?EqualsFilter
+    {
+        foreach ($filters as $filter) {
+            if ($filter instanceof EqualsFilter && $filter->getField() === $field) {
+                return $filter;
+            }
+        }
+
+        return null;
     }
 }

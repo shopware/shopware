@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1733323215AddHashToAppTemplate;
 
 /**
@@ -39,6 +39,6 @@ class Migration1733323215AddHashToAppTemplateTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue(DbTableHelper::columnExists($this->connection, 'app_template', 'hash'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'app_template', 'hash'));
     }
 }

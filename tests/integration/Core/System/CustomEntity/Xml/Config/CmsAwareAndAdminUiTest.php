@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -167,7 +167,7 @@ class CmsAwareAndAdminUiTest extends TestCase
     private function assertCmsAwareAndAdminUiIsInstalled(AppEntity|PluginEntity $entity): void
     {
         static::assertTrue(
-            DbTableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME),
             'The custom entity should be created'
         );
 
@@ -188,12 +188,12 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'custom_entity_string_field',
                 'custom_entity_int_field',
             ],
-            DbTableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME)->columnNames,
+            TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME)->columnNames,
             'Exactly these columns should exist for this cms-aware custom entity'
         );
 
         static::assertTrue(
-            DbTableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_translation'),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_translation'),
             'The translation table for this custom entity should be created'
         );
 
@@ -219,12 +219,12 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'sw_og_title',
                 'sw_og_description',
             ],
-            DbTableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME . '_translation')->columnNames,
+            TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME . '_translation')->columnNames,
             'The fields translation table of this custom entity should have exactly these fields'
         );
 
         static::assertTrue(
-            DbTableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories'),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories'),
             'This table for the many-to-many fields of this custom entity should be created'
         );
 
@@ -234,7 +234,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'category_id',
                 'category_version_id',
             ],
-            DbTableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories')->columnNames,
+            TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories')->columnNames,
             'A cms-aware custom entity should be connected to the categories'
         );
 
@@ -272,17 +272,17 @@ class CmsAwareAndAdminUiTest extends TestCase
         );
 
         static::assertFalse(
-            DbTableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME),
             'The custom entity should be removed'
         );
 
         static::assertFalse(
-            DbTableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories'),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories'),
             'This table for the many-to-many fields of this custom entity should be removed'
         );
 
         static::assertFalse(
-            DbTableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_translation'),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_translation'),
             'The translation table for this custom entity should be removed'
         );
     }

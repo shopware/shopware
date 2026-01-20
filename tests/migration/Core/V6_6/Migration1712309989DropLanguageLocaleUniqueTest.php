@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1712309989DropLanguageLocaleUnique;
 use Shopware\Core\System\Language\LanguageDefinition;
 
@@ -42,7 +42,7 @@ class Migration1712309989DropLanguageLocaleUniqueTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertFalse(DbTableHelper::indexExists($this->connection, LanguageDefinition::ENTITY_NAME, 'uniq.translation_code_locale_id'));
+        static::assertFalse(TableHelper::indexExists($this->connection, LanguageDefinition::ENTITY_NAME, 'uniq.translation_code_locale_id'));
     }
 
     private function rollback(): void

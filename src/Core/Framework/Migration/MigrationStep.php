@@ -10,7 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 #[Package('framework')]
 abstract class MigrationStep
@@ -91,7 +91,7 @@ abstract class MigrationStep
     protected function indexExists(Connection $connection, string $table, string $index): bool
     {
         if (Feature::isActive('v6.8.0.0')) {
-            return DbTableHelper::indexExists($connection, $table, $index);
+            return TableHelper::indexExists($connection, $table, $index);
         }
 
         $exists = $connection->fetchOne(

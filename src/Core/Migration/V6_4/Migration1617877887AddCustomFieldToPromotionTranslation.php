@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class Migration1617877887AddCustomFieldToPromotionTranslation extends MigrationS
 
     public function update(Connection $connection): void
     {
-        if (!DbTableHelper::columnExists($connection, 'promotion_translation', 'custom_fields')) {
+        if (!TableHelper::columnExists($connection, 'promotion_translation', 'custom_fields')) {
             $connection->executeStatement(
                 'ALTER TABLE `promotion_translation`
                 ADD COLUMN `custom_fields` JSON NULL AFTER `language_id`,

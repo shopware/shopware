@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1701677136RemovePluginChangelogField;
 
 /**
@@ -30,7 +30,7 @@ class Migration1701677136RemovePluginChangelogFieldTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'plugin_translation', 'changelog'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'plugin_translation', 'changelog'));
     }
 
     private function addColumn(): void

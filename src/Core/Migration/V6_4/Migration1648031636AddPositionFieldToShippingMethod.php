@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class Migration1648031636AddPositionFieldToShippingMethod extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!DbTableHelper::columnExists($connection, 'shipping_method', 'position')) {
+        if (!TableHelper::columnExists($connection, 'shipping_method', 'position')) {
             $connection->executeStatement('ALTER TABLE `shipping_method` ADD `position` INT(11) NOT NULL DEFAULT 1 AFTER `active`;');
         }
     }

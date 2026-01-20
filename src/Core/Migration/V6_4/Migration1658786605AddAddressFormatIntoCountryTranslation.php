@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\System\Country\CountryDefinition;
 
 /**
@@ -21,7 +21,7 @@ class Migration1658786605AddAddressFormatIntoCountryTranslation extends Migratio
 
     public function update(Connection $connection): void
     {
-        if (DbTableHelper::columnExists($connection, 'country_translation', 'address_format')) {
+        if (TableHelper::columnExists($connection, 'country_translation', 'address_format')) {
             return;
         }
 

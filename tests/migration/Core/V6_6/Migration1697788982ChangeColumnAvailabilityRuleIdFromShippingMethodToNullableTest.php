@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable;
 
 /**
@@ -30,7 +30,7 @@ class Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNulla
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $column = DbTableHelper::getColumnOfTable($this->connection, 'shipping_method', 'availability_rule_id');
+        $column = TableHelper::getColumnOfTable($this->connection, 'shipping_method', 'availability_rule_id');
         static::assertFalse($column->isNotNull);
         static::assertNull($column->defaultValue);
     }

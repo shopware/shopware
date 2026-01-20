@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1718658881AddValidationDataToOrderTransaction;
 
 /**
@@ -32,7 +32,7 @@ class Migration1718658881AddValidationDataToOrderTransactionTest extends TestCas
         $this->migrate();
         $this->migrate();
 
-        $column = DbTableHelper::getColumnOfTable($this->connection, 'order_transaction', 'validation_data');
+        $column = TableHelper::getColumnOfTable($this->connection, 'order_transaction', 'validation_data');
         static::assertFalse($column->isNotNull);
     }
 

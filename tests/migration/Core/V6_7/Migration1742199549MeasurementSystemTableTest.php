@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1742199549MeasurementSystemTable;
 
 /**
@@ -36,15 +36,15 @@ class Migration1742199549MeasurementSystemTableTest extends TestCase
 
     public function testMigration(): void
     {
-        static::assertFalse(DbTableHelper::tableExists($this->connection, 'measurement_system'));
-        static::assertFalse(DbTableHelper::tableExists($this->connection, 'measurement_system_translation'));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'measurement_system'));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'measurement_system_translation'));
 
         $migration = new Migration1742199549MeasurementSystemTable();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'measurement_system'));
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'measurement_system_translation'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'measurement_system'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'measurement_system_translation'));
 
         // Check that default systems were created
         $metricCount = $this->connection->fetchOne('SELECT COUNT(*) FROM `measurement_system` WHERE `technical_name` = "metric"');

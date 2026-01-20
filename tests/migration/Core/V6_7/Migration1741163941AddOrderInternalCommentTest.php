@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1741163941AddOrderInternalComment;
 
 /**
@@ -29,7 +29,7 @@ class Migration1741163941AddOrderInternalCommentTest extends TestCase
         $migration->update($connection);
         $migration->update($connection);
 
-        $column = DbTableHelper::getColumnOfTable($connection, 'order', 'internal_comment');
+        $column = TableHelper::getColumnOfTable($connection, 'order', 'internal_comment');
         static::assertFalse($column->isNotNull);
     }
 

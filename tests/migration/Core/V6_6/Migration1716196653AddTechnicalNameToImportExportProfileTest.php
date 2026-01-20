@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1716196653AddTechnicalNameToImportExportProfile;
 
@@ -27,7 +27,7 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
     {
         $connection = self::getContainer()->get(Connection::class);
 
-        if (!DbTableHelper::columnExists($connection, 'import_export_profile', 'name')) {
+        if (!TableHelper::columnExists($connection, 'import_export_profile', 'name')) {
             $connection->executeStatement('ALTER TABLE `import_export_profile` ADD COLUMN `name` VARCHAR(255) NULL');
             self::$nameColumnAdded = true;
         }
@@ -47,11 +47,11 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
 
     public function testMigration(): void
     {
-        if (DbTableHelper::columnExists($this->connection, 'import_export_profile', 'technical_name')) {
+        if (TableHelper::columnExists($this->connection, 'import_export_profile', 'technical_name')) {
             $this->connection->executeStatement('ALTER TABLE `import_export_profile` DROP COLUMN `technical_name`');
         }
 
-        if (DbTableHelper::indexExists($this->connection, 'import_export_profile', 'uniq.import_export_profile.technical_name')) {
+        if (TableHelper::indexExists($this->connection, 'import_export_profile', 'uniq.import_export_profile.technical_name')) {
             $this->connection->executeStatement('ALTER TABLE `import_export_profile` DROP INDEX `uniq.import_export_profile.technical_name`');
         }
 
@@ -59,9 +59,9 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
         $m->update($this->connection);
         $m->update($this->connection);
 
-        static::assertTrue(DbTableHelper::columnExists($this->connection, 'import_export_profile', 'technical_name'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'import_export_profile', 'technical_name'));
 
-        static::assertTrue(DbTableHelper::indexExists($this->connection, 'import_export_profile', 'uniq.import_export_profile.technical_name'));
+        static::assertTrue(TableHelper::indexExists($this->connection, 'import_export_profile', 'uniq.import_export_profile.technical_name'));
     }
 
     /**

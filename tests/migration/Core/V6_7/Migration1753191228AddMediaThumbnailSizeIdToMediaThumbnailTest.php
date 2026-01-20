@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnail;
 
 /**
@@ -29,7 +29,7 @@ class Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnailTest extends Tes
         $migration->update($connection);
         $migration->update($connection);
 
-        $sizeIdColumn = DbTableHelper::getColumnOfTable($connection, 'media_thumbnail', 'media_thumbnail_size_id');
+        $sizeIdColumn = TableHelper::getColumnOfTable($connection, 'media_thumbnail', 'media_thumbnail_size_id');
         static::assertFalse($sizeIdColumn->isNotNull);
     }
 
@@ -43,7 +43,7 @@ class Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnailTest extends Tes
         $migration->updateDestructive($connection);
         $migration->updateDestructive($connection);
 
-        $sizeIdColumn = DbTableHelper::getColumnOfTable($connection, 'media_thumbnail', 'media_thumbnail_size_id');
+        $sizeIdColumn = TableHelper::getColumnOfTable($connection, 'media_thumbnail', 'media_thumbnail_size_id');
         static::assertTrue($sizeIdColumn->isNotNull);
     }
 
@@ -54,7 +54,7 @@ class Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnailTest extends Tes
 
     private function revertMigration(Connection $connection): void
     {
-        if (DbTableHelper::columnExists($connection, 'media_thumbnail', 'media_thumbnail_size_id')) {
+        if (TableHelper::columnExists($connection, 'media_thumbnail', 'media_thumbnail_size_id')) {
             $connection->executeStatement('ALTER TABLE `media_thumbnail` DROP FOREIGN KEY `fk.media_thumbnail.media_thumbnail_size_id`');
             $connection->executeStatement('ALTER TABLE `media_thumbnail` DROP COLUMN `media_thumbnail_size_id`');
         }
@@ -62,7 +62,7 @@ class Migration1753191228AddMediaThumbnailSizeIdToMediaThumbnailTest extends Tes
 
     private function revertDestructiveMigration(Connection $connection): void
     {
-        if (DbTableHelper::columnExists($connection, 'media_thumbnail', 'media_thumbnail_size_id')) {
+        if (TableHelper::columnExists($connection, 'media_thumbnail', 'media_thumbnail_size_id')) {
             $connection->executeStatement('ALTER TABLE `media_thumbnail` DROP FOREIGN KEY `fk.media_thumbnail.media_thumbnail_size_id`');
         }
         $connection->executeStatement('

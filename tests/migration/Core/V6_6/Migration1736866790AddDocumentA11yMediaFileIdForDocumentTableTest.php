@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable;
 
 /**
@@ -48,7 +48,7 @@ class Migration1736866790AddDocumentA11yMediaFileIdForDocumentTableTest extends 
 
     private function hasForeignKey(): bool
     {
-        $foreignKey = DbTableHelper::getForeignKeyOfTable($this->connection, 'document', 'fk.document.document_a11y_media_file_id');
+        $foreignKey = TableHelper::getForeignKeyOfTable($this->connection, 'document', 'fk.document.document_a11y_media_file_id');
 
         return $foreignKey->referencedTableName === 'media'
             && $foreignKey->referencingColumnNames[0] === 'document_a11y_media_file_id'

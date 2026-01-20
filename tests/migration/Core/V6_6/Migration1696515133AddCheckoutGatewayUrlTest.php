@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1696515133AddCheckoutGatewayUrl;
 
 /**
@@ -32,7 +32,7 @@ class Migration1696515133AddCheckoutGatewayUrlTest extends TestCase
         $this->migrate();
         $this->migrate();
 
-        $urlColumn = DbTableHelper::getColumnOfTable($this->connection, 'app', 'checkout_gateway_url');
+        $urlColumn = TableHelper::getColumnOfTable($this->connection, 'app', 'checkout_gateway_url');
         static::assertFalse($urlColumn->isNotNull);
     }
 

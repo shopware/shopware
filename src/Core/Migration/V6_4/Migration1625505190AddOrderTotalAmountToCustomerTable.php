@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -23,7 +23,7 @@ class Migration1625505190AddOrderTotalAmountToCustomerTable extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        if (DbTableHelper::columnExists($connection, 'customer', 'order_total_amount')) {
+        if (TableHelper::columnExists($connection, 'customer', 'order_total_amount')) {
             return;
         }
 

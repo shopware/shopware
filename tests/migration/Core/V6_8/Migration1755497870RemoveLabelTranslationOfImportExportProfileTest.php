@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_8\Migration1755497870RemoveLabelTranslationOfImportExportProfile;
 
 /**
@@ -29,17 +29,17 @@ class Migration1755497870RemoveLabelTranslationOfImportExportProfileTest extends
 
     public function testUpdate(): void
     {
-        if (!DbTableHelper::tableExists($this->connection, 'import_export_profile_translation')) {
+        if (!TableHelper::tableExists($this->connection, 'import_export_profile_translation')) {
             $this->addTable();
         }
 
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'import_export_profile_translation'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'import_export_profile_translation'));
 
         $migration = new Migration1755497870RemoveLabelTranslationOfImportExportProfile();
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse(DbTableHelper::tableExists($this->connection, 'import_export_profile_translation'));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'import_export_profile_translation'));
     }
 
     private function addTable(): void

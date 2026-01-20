@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1697112044PaymentAndShippingTechnicalNameRequired;
 
 /**
@@ -39,10 +39,10 @@ class Migration1697112044PaymentAndShippingTechnicalNameRequiredTest extends Tes
         $this->migrate();
         $this->migrate();
 
-        $paymentMethodTechnicalNameColumn = DbTableHelper::getColumnOfTable($this->connection, PaymentMethodDefinition::ENTITY_NAME, 'technical_name');
+        $paymentMethodTechnicalNameColumn = TableHelper::getColumnOfTable($this->connection, PaymentMethodDefinition::ENTITY_NAME, 'technical_name');
         static::assertTrue($paymentMethodTechnicalNameColumn->isNotNull);
 
-        $shippingMethodTechnicalNameColumn = DbTableHelper::getColumnOfTable($this->connection, ShippingMethodDefinition::ENTITY_NAME, 'technical_name');
+        $shippingMethodTechnicalNameColumn = TableHelper::getColumnOfTable($this->connection, ShippingMethodDefinition::ENTITY_NAME, 'technical_name');
         static::assertTrue($shippingMethodTechnicalNameColumn->isNotNull);
     }
 

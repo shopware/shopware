@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1735807464AddCustomFieldStoreApiAware;
 
 /**
@@ -33,7 +33,7 @@ class Migration1735807464AddCustomFieldStoreApiAwareTest extends TestCase
         $this->executeMigration();
         $this->executeMigration();
 
-        $storeApiAwareColumn = DbTableHelper::getColumnOfTable($this->connection, 'custom_field', 'store_api_aware');
+        $storeApiAwareColumn = TableHelper::getColumnOfTable($this->connection, 'custom_field', 'store_api_aware');
         static::assertSame(Types::BOOLEAN, $storeApiAwareColumn->type);
         static::assertTrue($storeApiAwareColumn->isNotNull);
         static::assertSame('1', $storeApiAwareColumn->defaultValue);
@@ -46,7 +46,7 @@ class Migration1735807464AddCustomFieldStoreApiAwareTest extends TestCase
 
     private function rollback(): void
     {
-        if (!DbTableHelper::columnExists($this->connection, 'custom_field', 'store_api_aware')) {
+        if (!TableHelper::columnExists($this->connection, 'custom_field', 'store_api_aware')) {
             return;
         }
 

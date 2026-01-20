@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Migration\V6_7\Migration1737472122TokenUser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -32,18 +32,18 @@ class Migration1737472122TokenUserTest extends TestCase
 
     public function testMigration(): void
     {
-        if (DbTableHelper::tableExists($this->connection, 'oauth_user')) {
+        if (TableHelper::tableExists($this->connection, 'oauth_user')) {
             $this->dropTable();
         }
 
-        static::assertFalse(DbTableHelper::tableExists($this->connection, 'oauth_user'));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'oauth_user'));
 
         $migration = new Migration1737472122TokenUser();
 
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'oauth_user'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'oauth_user'));
     }
 
     public function dropTable(): void

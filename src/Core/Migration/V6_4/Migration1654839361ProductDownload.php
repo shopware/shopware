@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -21,7 +21,7 @@ class Migration1654839361ProductDownload extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!DbTableHelper::columnExists($connection, 'product', 'states')) {
+        if (!TableHelper::columnExists($connection, 'product', 'states')) {
             $connection->executeStatement('
                 ALTER TABLE `product`
                 ADD COLUMN `states` JSON NULL,

@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1717572627RemoveImportExportProfileName;
 
 /**
@@ -26,7 +26,7 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
 
     public function testUpdateDestructiveRemovesColumn(): void
     {
-        $exists = DbTableHelper::columnExists($this->connection, 'import_export_profile', 'name');
+        $exists = TableHelper::columnExists($this->connection, 'import_export_profile', 'name');
 
         if (!$exists) {
             $this->addColumn();
@@ -36,7 +36,7 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'import_export_profile', 'name'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'import_export_profile', 'name'));
 
         if ($exists) {
             $this->addColumn();

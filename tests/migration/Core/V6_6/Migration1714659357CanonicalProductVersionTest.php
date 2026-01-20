@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1714659357CanonicalProductVersion;
 
 /**
@@ -45,9 +45,9 @@ class Migration1714659357CanonicalProductVersionTest extends TestCase
         $m->update($this->connection);
         $m->update($this->connection);
 
-        static::assertTrue(DbTableHelper::columnExists($this->connection, 'product', 'canonical_product_version_id'));
-        static::assertTrue(DbTableHelper::columnExists($this->connection, 'product', 'canonical_product_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'canonical_product_version_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'canonical_product_id'));
 
-        static::assertTrue(DbTableHelper::indexExists($this->connection, 'product', 'fk.product.canonical_product_id'));
+        static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'fk.product.canonical_product_id'));
     }
 }

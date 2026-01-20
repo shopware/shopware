@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1742568836CreateThemeRuntimeConfigTable;
 
 /**
@@ -34,7 +34,7 @@ class Migration1742568836CreateThemeRuntimeConfigTableTest extends TestCase
     {
         $this->connection->executeStatement('DROP TABLE IF EXISTS `theme_runtime_config`;');
 
-        static::assertFalse(DbTableHelper::tableExists($this->connection, 'theme_runtime_config'));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'theme_runtime_config'));
 
         $migration = new Migration1742568836CreateThemeRuntimeConfigTable();
         static::assertSame(1742568836, $migration->getCreationTimestamp());
@@ -44,11 +44,11 @@ class Migration1742568836CreateThemeRuntimeConfigTableTest extends TestCase
         $migration->update($this->connection);
 
         // check updated table
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'theme_runtime_config'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'theme_runtime_config'));
 
-        $scriptFilesColumn = DbTableHelper::getColumnOfTable($this->connection, 'theme_runtime_config', 'script_files');
+        $scriptFilesColumn = TableHelper::getColumnOfTable($this->connection, 'theme_runtime_config', 'script_files');
         static::assertFalse($scriptFilesColumn->isNotNull);
 
-        static::assertTrue(DbTableHelper::indexExists($this->connection, 'theme_runtime_config', 'idx.technical_name'));
+        static::assertTrue(TableHelper::indexExists($this->connection, 'theme_runtime_config', 'idx.technical_name'));
     }
 }

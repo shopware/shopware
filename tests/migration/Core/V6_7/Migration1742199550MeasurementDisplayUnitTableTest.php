@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1742199549MeasurementSystemTable;
 use Shopware\Core\Migration\V6_7\Migration1742199550MeasurementDisplayUnitTable;
 
@@ -41,15 +41,15 @@ class Migration1742199550MeasurementDisplayUnitTableTest extends TestCase
 
     public function testMigration(): void
     {
-        static::assertFalse(DbTableHelper::tableExists($this->connection, 'measurement_display_unit'));
-        static::assertFalse(DbTableHelper::tableExists($this->connection, 'measurement_display_unit_translation'));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'measurement_display_unit'));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'measurement_display_unit_translation'));
 
         $migration = new Migration1742199550MeasurementDisplayUnitTable();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'measurement_display_unit'));
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'measurement_display_unit_translation'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'measurement_display_unit'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'measurement_display_unit_translation'));
 
         // Check that default units were created
         $unitCount = $this->connection->fetchOne('SELECT COUNT(*) FROM `measurement_display_unit`');

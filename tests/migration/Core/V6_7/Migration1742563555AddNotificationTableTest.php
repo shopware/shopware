@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1742563555AddNotificationTable;
 
 /**
@@ -29,17 +29,17 @@ class Migration1742563555AddNotificationTableTest extends TestCase
 
     public function testMigration(): void
     {
-        static::assertFalse(DbTableHelper::tableExists($this->connection, 'notification'));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'notification'));
 
         $migration = new Migration1742563555AddNotificationTable();
 
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'notification'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'notification'));
 
-        static::assertCount(9, DbTableHelper::getTable($this->connection, 'notification')->columnNames);
-        $messageColumn = DbTableHelper::getColumnOfTable($this->connection, 'notification', 'message');
+        static::assertCount(9, TableHelper::getTable($this->connection, 'notification')->columnNames);
+        $messageColumn = TableHelper::getColumnOfTable($this->connection, 'notification', 'message');
         static::assertSame(Types::TEXT, $messageColumn->type);
     }
 }

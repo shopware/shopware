@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1720610755RemoveDefaultPaymentMethodFromCustomer;
 
@@ -29,7 +29,7 @@ class Migration1720610755RemoveDefaultPaymentMethodFromCustomerTest extends Test
 
     public function testUpdateMakesColumnNullable(): void
     {
-        if (!DbTableHelper::columnExists($this->connection, 'customer', 'default_payment_method_id')) {
+        if (!TableHelper::columnExists($this->connection, 'customer', 'default_payment_method_id')) {
             $this->addColumn();
         }
 
@@ -37,13 +37,13 @@ class Migration1720610755RemoveDefaultPaymentMethodFromCustomerTest extends Test
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $column = DbTableHelper::getColumnOfTable($this->connection, 'customer', 'default_payment_method_id');
+        $column = TableHelper::getColumnOfTable($this->connection, 'customer', 'default_payment_method_id');
         static::assertFalse($column->isNotNull);
     }
 
     public function testUpdateDestructiveRemovesColumn(): void
     {
-        $exists = DbTableHelper::columnExists($this->connection, 'customer', 'default_payment_method_id');
+        $exists = TableHelper::columnExists($this->connection, 'customer', 'default_payment_method_id');
 
         if (!$exists) {
             $this->addColumn();
@@ -53,7 +53,7 @@ class Migration1720610755RemoveDefaultPaymentMethodFromCustomerTest extends Test
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'customer', 'default_payment_method_id'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'customer', 'default_payment_method_id'));
 
         if ($exists) {
             $this->addColumn();

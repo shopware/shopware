@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class Migration1661759290AddDateAndCurrencyIndexToOrderTable extends MigrationSt
 
     public function update(Connection $connection): void
     {
-        if (DbTableHelper::indexExists($connection, 'order', 'idx.order_date_currency_id')) {
+        if (TableHelper::indexExists($connection, 'order', 'idx.order_date_currency_id')) {
             return;
         }
 

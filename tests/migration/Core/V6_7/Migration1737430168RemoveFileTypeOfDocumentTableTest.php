@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1737430168RemoveFileTypeOfDocumentTable;
 
 /**
@@ -26,7 +26,7 @@ class Migration1737430168RemoveFileTypeOfDocumentTableTest extends TestCase
 
     public function testUpdateSetsColumnToNullable(): void
     {
-        $exists = DbTableHelper::columnExists($this->connection, 'document', 'file_type');
+        $exists = TableHelper::columnExists($this->connection, 'document', 'file_type');
 
         if (!$exists) {
             $this->addColumn();
@@ -36,7 +36,7 @@ class Migration1737430168RemoveFileTypeOfDocumentTableTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $fileTypeColumn = DbTableHelper::getColumnOfTable($this->connection, 'document', 'file_type');
+        $fileTypeColumn = TableHelper::getColumnOfTable($this->connection, 'document', 'file_type');
         static::assertFalse($fileTypeColumn->isNotNull);
 
         if (!$exists) {
@@ -46,7 +46,7 @@ class Migration1737430168RemoveFileTypeOfDocumentTableTest extends TestCase
 
     public function testUpdateDestructiveRemovesColumn(): void
     {
-        $exists = DbTableHelper::columnExists($this->connection, 'document', 'file_type');
+        $exists = TableHelper::columnExists($this->connection, 'document', 'file_type');
 
         if (!$exists) {
             $this->addColumn();
@@ -56,7 +56,7 @@ class Migration1737430168RemoveFileTypeOfDocumentTableTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'document', 'file_type'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'document', 'file_type'));
 
         if ($exists) {
             $this->addColumn();

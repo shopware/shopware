@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,11 +20,11 @@ class Migration1622782058AddDeleteAtIntoIntegrationAndAclRole extends MigrationS
 
     public function update(Connection $connection): void
     {
-        if (!DbTableHelper::columnExists($connection, 'integration', 'deleted_at')) {
+        if (!TableHelper::columnExists($connection, 'integration', 'deleted_at')) {
             $connection->executeStatement('ALTER TABLE `integration` ADD COLUMN `deleted_at` DATETIME(3) NULL');
         }
 
-        if (!DbTableHelper::columnExists($connection, 'acl_role', 'deleted_at')) {
+        if (!TableHelper::columnExists($connection, 'acl_role', 'deleted_at')) {
             $connection->executeStatement('ALTER TABLE `acl_role` ADD COLUMN `deleted_at` DATETIME(3) NULL');
         }
     }

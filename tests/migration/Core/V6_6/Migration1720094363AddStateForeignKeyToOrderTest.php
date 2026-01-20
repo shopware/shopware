@@ -10,7 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1720094363AddStateForeignKeyToOrder;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
@@ -124,7 +124,7 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
 
     private function hasForeignKey(): bool
     {
-        $foreignKey = DbTableHelper::getForeignKeyOfTable($this->connection, 'order', 'fk.order.state_id');
+        $foreignKey = TableHelper::getForeignKeyOfTable($this->connection, 'order', 'fk.order.state_id');
 
         return $foreignKey->referencedTableName === 'state_machine_state'
             && $foreignKey->referencingColumnNames[0] === 'state_id'

@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1740563553AddAppRequestedPrivileges;
 
 /**
@@ -33,12 +33,12 @@ class Migration1740563553AddAppRequestedPrivilegesTest extends TestCase
 
     public function testMigration(): void
     {
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'app', 'requested_privileges'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'app', 'requested_privileges'));
 
         $migration = new Migration1740563553AddAppRequestedPrivileges();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue(DbTableHelper::columnExists($this->connection, 'app', 'requested_privileges'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'app', 'requested_privileges'));
     }
 }

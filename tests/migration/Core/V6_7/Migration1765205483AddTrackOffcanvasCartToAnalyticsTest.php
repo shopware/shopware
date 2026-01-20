@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1765205483AddTrackOffcanvasCartToAnalytics;
 
 /**
@@ -36,12 +36,12 @@ class Migration1765205483AddTrackOffcanvasCartToAnalyticsTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue(DbTableHelper::columnExists($this->connection, 'sales_channel_analytics', 'track_offcanvas_cart'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'sales_channel_analytics', 'track_offcanvas_cart'));
     }
 
     private function rollback(): void
     {
-        if (DbTableHelper::columnExists($this->connection, 'sales_channel_analytics', 'track_offcanvas_cart')) {
+        if (TableHelper::columnExists($this->connection, 'sales_channel_analytics', 'track_offcanvas_cart')) {
             $this->connection->executeStatement('ALTER TABLE `sales_channel_analytics` DROP COLUMN `track_offcanvas_cart`;');
         }
     }

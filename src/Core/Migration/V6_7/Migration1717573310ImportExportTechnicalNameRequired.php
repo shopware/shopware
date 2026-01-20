@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -49,8 +49,8 @@ class Migration1717573310ImportExportTechnicalNameRequired extends MigrationStep
             );
         }
 
-        if (DbTableHelper::columnExists($connection, ImportExportProfileDefinition::ENTITY_NAME, 'technical_name')
-            && !DbTableHelper::getColumnOfTable($connection, ImportExportProfileDefinition::ENTITY_NAME, 'technical_name')->isNotNull
+        if (TableHelper::columnExists($connection, ImportExportProfileDefinition::ENTITY_NAME, 'technical_name')
+            && !TableHelper::getColumnOfTable($connection, ImportExportProfileDefinition::ENTITY_NAME, 'technical_name')->isNotNull
         ) {
             $connection->executeStatement('ALTER TABLE `import_export_profile` MODIFY COLUMN `technical_name` VARCHAR(255) NOT NULL');
         }

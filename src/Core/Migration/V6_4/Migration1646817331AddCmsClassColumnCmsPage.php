@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class Migration1646817331AddCmsClassColumnCmsPage extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!DbTableHelper::columnExists($connection, 'cms_page', 'css_class')) {
+        if (!TableHelper::columnExists($connection, 'cms_page', 'css_class')) {
             $connection->executeStatement('ALTER TABLE `cms_page` ADD `css_class` VARCHAR(255) NULL AFTER `locked`;');
         }
     }

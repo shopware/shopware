@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1713345551AddAppManagedColumn;
 
 /**
@@ -31,12 +31,12 @@ class Migration1713345551AddAppManagedColumnTest extends TestCase
 
     public function testMigration(): void
     {
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'app', 'self_managed'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'app', 'self_managed'));
 
         $migration = new Migration1713345551AddAppManagedColumn();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue(DbTableHelper::columnExists($this->connection, 'app', 'self_managed'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'app', 'self_managed'));
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Util\DbTableHelper;
+namespace Shopware\Core\Framework\Util\Database;
 
 use Shopware\Core\Framework\Log\Package;
 

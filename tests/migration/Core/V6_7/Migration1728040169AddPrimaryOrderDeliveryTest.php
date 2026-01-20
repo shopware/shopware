@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1728040169AddPrimaryOrderDelivery;
 use Shopware\Core\Test\TestDefaults;
@@ -48,8 +48,8 @@ class Migration1728040169AddPrimaryOrderDeliveryTest extends TestCase
         $this->migrate();
         $this->migrate();
 
-        static::assertTrue(DbTableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_delivery_id'));
-        static::assertTrue(DbTableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_delivery_version_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_delivery_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_delivery_version_id'));
 
         $query = $this->connection->createQueryBuilder();
         $query->select('*');
@@ -68,8 +68,8 @@ class Migration1728040169AddPrimaryOrderDeliveryTest extends TestCase
         $this->migrate();
         $this->migrate();
 
-        static::assertTrue(DbTableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_delivery_id'));
-        static::assertTrue(DbTableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_delivery_version_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_delivery_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, OrderDefinition::ENTITY_NAME, 'primary_order_delivery_version_id'));
 
         $query = $this->connection->createQueryBuilder();
         $query->select('*');
@@ -144,11 +144,11 @@ class Migration1728040169AddPrimaryOrderDeliveryTest extends TestCase
     {
         $this->dropIndexIfExists($this->connection, 'order', 'uidx.order.primary_order_delivery');
 
-        if (DbTableHelper::columnExists($this->connection, 'order', 'primary_order_delivery_id')) {
+        if (TableHelper::columnExists($this->connection, 'order', 'primary_order_delivery_id')) {
             $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_delivery_id`');
         }
 
-        if (DbTableHelper::columnExists($this->connection, 'order', 'primary_order_delivery_version_id')) {
+        if (TableHelper::columnExists($this->connection, 'order', 'primary_order_delivery_version_id')) {
             $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_delivery_version_id`');
         }
     }

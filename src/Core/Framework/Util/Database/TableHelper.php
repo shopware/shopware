@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Util;
+namespace Shopware\Core\Framework\Util\Database;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -11,9 +11,7 @@ use Doctrine\DBAL\Schema\Column as DbalColumn;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\DbTableHelper\Column;
-use Shopware\Core\Framework\Util\DbTableHelper\ForeignKey;
-use Shopware\Core\Framework\Util\DbTableHelper\Table;
+use Shopware\Core\Framework\Util\UtilException;
 
 /**
  * @final
@@ -21,7 +19,7 @@ use Shopware\Core\Framework\Util\DbTableHelper\Table;
  * @template TPlatform of AbstractPlatform
  */
 #[Package('framework')]
-class DbTableHelper
+class TableHelper
 {
     /**
      * @var AbstractSchemaManager<TPlatform>|null

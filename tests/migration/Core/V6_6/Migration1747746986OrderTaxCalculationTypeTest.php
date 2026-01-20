@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1747746986OrderTaxCalculationType;
 
 /**
@@ -26,7 +26,7 @@ class Migration1747746986OrderTaxCalculationTypeTest extends TestCase
 
     public function testAddedColumn(): void
     {
-        if (DbTableHelper::columnExists($this->connection, 'order', 'tax_calculation_type')) {
+        if (TableHelper::columnExists($this->connection, 'order', 'tax_calculation_type')) {
             $this->rollback();
         }
 
@@ -34,7 +34,7 @@ class Migration1747746986OrderTaxCalculationTypeTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue(DbTableHelper::columnExists($this->connection, 'order', 'tax_calculation_type'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'order', 'tax_calculation_type'));
     }
 
     private function rollback(): void

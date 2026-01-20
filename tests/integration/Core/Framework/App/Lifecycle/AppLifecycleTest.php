@@ -50,7 +50,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptCollection;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
@@ -1632,7 +1632,7 @@ class AppLifecycleTest extends TestCase
 
         $customEntities = $this->customEntityRepository->search($criteria, $this->context);
 
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'custom_entity_test'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
 
         $customEntity = $customEntities->first();
@@ -1646,7 +1646,7 @@ class AppLifecycleTest extends TestCase
         $customEntity = $customEntities->first();
         static::assertNotNull($customEntity);
 
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'custom_entity_test'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
         static::assertNotNull($customEntity->getDeletedAt());
 
@@ -1678,7 +1678,7 @@ class AppLifecycleTest extends TestCase
 
         $customEntities = $this->customEntityRepository->search($criteria, $this->context);
 
-        static::assertTrue(DbTableHelper::tableExists($this->connection, 'custom_entity_test'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(1, $customEntities);
 
         $customEntity = $customEntities->first();
@@ -1689,7 +1689,7 @@ class AppLifecycleTest extends TestCase
 
         $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
 
-        static::assertFalse(DbTableHelper::tableExists($this->connection, 'custom_entity_test'));
+        static::assertFalse(TableHelper::tableExists($this->connection, 'custom_entity_test'));
         static::assertCount(0, $customEntities);
 
         // Cleanup

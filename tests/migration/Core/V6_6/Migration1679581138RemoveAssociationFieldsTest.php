@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1679581138RemoveAssociationFields;
 
 /**
@@ -24,18 +24,18 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
 
     public function testUpdateMakesColumnNullable(): void
     {
-        $existed = DbTableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields');
+        $existed = TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields');
         if (!$existed) {
             $this->addColumn();
         }
 
-        static::assertTrue(DbTableHelper::getColumnOfTable($this->connection, 'media_default_folder', 'association_fields')->isNotNull);
+        static::assertTrue(TableHelper::getColumnOfTable($this->connection, 'media_default_folder', 'association_fields')->isNotNull);
 
         $migration = new Migration1679581138RemoveAssociationFields();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertFalse(DbTableHelper::getColumnOfTable($this->connection, 'media_default_folder', 'association_fields')->isNotNull);
+        static::assertFalse(TableHelper::getColumnOfTable($this->connection, 'media_default_folder', 'association_fields')->isNotNull);
 
         if (!$existed) {
             $migration->updateDestructive($this->connection);
@@ -48,7 +48,7 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
     {
         $migration = new Migration1679581138RemoveAssociationFields();
 
-        $existed = DbTableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields');
+        $existed = TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields');
 
         $tableData = null;
         if ($existed) {
@@ -56,12 +56,12 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
             $migration->updateDestructive($this->connection);
         }
 
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields'));
 
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields'));
 
         if ($existed) {
             $this->addColumn();
@@ -71,7 +71,7 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
 
     public function testUpdateDestructiveRemovesColumn(): void
     {
-        $existed = DbTableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields');
+        $existed = TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields');
 
         $tableData = null;
         if ($existed) {
@@ -84,7 +84,7 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields'));
 
         if ($existed) {
             $this->addColumn();

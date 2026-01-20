@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1763125902AddOrderLineItemProductTypePayload;
@@ -148,7 +148,7 @@ class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
 
     private function ensureStatesColumnExists(): void
     {
-        if (DbTableHelper::columnExists($this->connection, 'order_line_item', 'states')) {
+        if (TableHelper::columnExists($this->connection, 'order_line_item', 'states')) {
             return;
         }
 

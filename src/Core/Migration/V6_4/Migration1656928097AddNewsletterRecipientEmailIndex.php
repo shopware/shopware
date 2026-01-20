@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class Migration1656928097AddNewsletterRecipientEmailIndex extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (DbTableHelper::indexExists($connection, 'newsletter_recipient', 'idx.newsletter_recipient.email')) {
+        if (TableHelper::indexExists($connection, 'newsletter_recipient', 'idx.newsletter_recipient.email')) {
             return;
         }
 

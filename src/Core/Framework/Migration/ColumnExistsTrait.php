@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 trait ColumnExistsTrait
 {
@@ -16,7 +16,7 @@ trait ColumnExistsTrait
     protected function columnExists(Connection $connection, string $table, string $column): bool
     {
         if (Feature::isActive('v6.8.0.0')) {
-            return DbTableHelper::columnExists($connection, $table, $column);
+            return TableHelper::columnExists($connection, $table, $column);
         }
 
         $exists = $connection->fetchOne(

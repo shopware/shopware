@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1717573310ImportExportTechnicalNameRequired;
 
@@ -32,7 +32,7 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
     {
         $connection = self::getContainer()->get(Connection::class);
 
-        if (!DbTableHelper::columnExists($connection, 'import_export_profile', 'name')) {
+        if (!TableHelper::columnExists($connection, 'import_export_profile', 'name')) {
             $connection->executeStatement('ALTER TABLE `import_export_profile` ADD COLUMN `name` VARCHAR(255) NULL');
             self::$nameColumnAdded = true;
         }
@@ -64,7 +64,7 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $technicalNameColumn = DbTableHelper::getColumnOfTable($this->connection, ImportExportProfileDefinition::ENTITY_NAME, 'technical_name');
+        $technicalNameColumn = TableHelper::getColumnOfTable($this->connection, ImportExportProfileDefinition::ENTITY_NAME, 'technical_name');
         static::assertTrue($technicalNameColumn->isNotNull);
     }
 

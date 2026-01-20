@@ -6,7 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -21,7 +21,7 @@ class Migration1718615305AddEuToCountryTable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (DbTableHelper::columnExists($connection, 'country', 'is_eu')) {
+        if (TableHelper::columnExists($connection, 'country', 'is_eu')) {
             return;
         }
 

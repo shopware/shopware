@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1752499887UpdateAppRequestedPrivileges;
 
 /**
@@ -38,7 +38,7 @@ class Migration1752499887UpdateAppRequestedPrivilegesTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $requestedPrivilegesColumn = DbTableHelper::getColumnOfTable($this->connection, AppDefinition::ENTITY_NAME, 'requested_privileges');
+        $requestedPrivilegesColumn = TableHelper::getColumnOfTable($this->connection, AppDefinition::ENTITY_NAME, 'requested_privileges');
         static::assertTrue($requestedPrivilegesColumn->isNotNull, 'Column should be NOT NULL');
     }
 }

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1738661307AddMediaIndices;
 
 /**
@@ -38,7 +38,7 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
 
         static::assertTrue($this->hasIndex($this->connection, 'idx.media.file_extension', ['file_extension']));
         static::assertTrue($this->hasIndex($this->connection, 'idx.media.file_name', ['file_name']));
-        static::assertTrue(DbTableHelper::columnExists($this->connection, 'media', 'file_hash'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'media', 'file_hash'));
         static::assertTrue($this->hasIndex($this->connection, 'idx.media.file_hash', ['file_hash']));
     }
 
@@ -49,12 +49,12 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
 
     private function undoMigration(): void
     {
-        if (DbTableHelper::columnExists($this->connection, 'media', 'file_hash')) {
+        if (TableHelper::columnExists($this->connection, 'media', 'file_hash')) {
             $this->connection->executeStatement('ALTER TABLE `media` DROP COLUMN `file_hash`;');
         }
 
         foreach (['idx.media.file_extension', 'idx.media.file_name', 'idx.media.file_hash'] as $indexName) {
-            if (DbTableHelper::indexExists($this->connection, 'media', $indexName)) {
+            if (TableHelper::indexExists($this->connection, 'media', $indexName)) {
                 $this->connection->executeStatement("ALTER TABLE `media` DROP INDEX `$indexName`;");
             }
         }
@@ -65,6 +65,6 @@ class Migration1738661307AddMediaIndicesTest extends TestCase
      */
     private function hasIndex(Connection $connection, string $indexName, array $spansColumns = []): bool
     {
-        return DbTableHelper::indexSpansColumns($connection, 'media', $indexName, $spansColumns);
+        return TableHelper::indexSpansColumns($connection, 'media', $indexName, $spansColumns);
     }
 }

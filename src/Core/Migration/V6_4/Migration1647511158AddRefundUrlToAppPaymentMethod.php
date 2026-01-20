@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class Migration1647511158AddRefundUrlToAppPaymentMethod extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!DbTableHelper::columnExists($connection, 'app_payment_method', 'refund_url')) {
+        if (!TableHelper::columnExists($connection, 'app_payment_method', 'refund_url')) {
             $connection->executeStatement('ALTER TABLE `app_payment_method` ADD COLUMN `refund_url` VARCHAR(255) NULL AFTER `capture_url`');
         }
     }

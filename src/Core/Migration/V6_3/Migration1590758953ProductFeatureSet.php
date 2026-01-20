@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -80,7 +80,7 @@ SQL;
 
     private function updateTables(Connection $connection): void
     {
-        if (!DbTableHelper::columnExists($connection, 'product', 'product_feature_set_id')) {
+        if (!TableHelper::columnExists($connection, 'product', 'product_feature_set_id')) {
             $sql = <<<'SQL'
 ALTER TABLE `product`
     ADD COLUMN `product_feature_set_id` BINARY(16) NULL AFTER `unit_id`;
@@ -92,7 +92,7 @@ SQL;
             $connection->executeStatement($sql);
         }
 
-        if (!DbTableHelper::columnExists($connection, 'product', 'featureSet')) {
+        if (!TableHelper::columnExists($connection, 'product', 'featureSet')) {
             $this->updateInheritance($connection, 'product', 'featureSet');
         }
     }

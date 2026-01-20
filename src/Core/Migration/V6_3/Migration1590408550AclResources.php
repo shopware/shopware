@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -22,7 +22,7 @@ class Migration1590408550AclResources extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!DbTableHelper::tableExists($connection, 'acl_resource')) {
+        if (!TableHelper::tableExists($connection, 'acl_resource')) {
             return;
         }
 

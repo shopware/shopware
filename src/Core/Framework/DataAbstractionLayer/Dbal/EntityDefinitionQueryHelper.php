@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -48,9 +48,9 @@ class EntityDefinitionQueryHelper
     }
 
     /**
-     * @param non-empty-string $table
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see TableHelper::columnExists} instead
      *
-     * @deprecated tag:v6.8.0 - Will be removed. Use {@see DbTableHelper::columnExists} instead
+     *@param non-empty-string $table
      */
     public static function columnExists(Connection $connection, string $table, string $column): bool
     {
@@ -86,7 +86,7 @@ class EntityDefinitionQueryHelper
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use {@see DbTableHelper::tableExists} instead
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see TableHelper::tableExists} instead
      */
     public static function tableExists(Connection $connection, string $table): bool
     {

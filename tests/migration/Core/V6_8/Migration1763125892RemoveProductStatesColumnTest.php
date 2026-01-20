@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_8\Migration1763125892RemoveProductStatesColumn;
 
 /**
@@ -44,12 +44,12 @@ class Migration1763125892RemoveProductStatesColumnTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'product', 'states'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'product', 'states'));
     }
 
     private function addStatesColumn(): void
     {
-        if (DbTableHelper::columnExists($this->connection, 'product', 'states')) {
+        if (TableHelper::columnExists($this->connection, 'product', 'states')) {
             return;
         }
 

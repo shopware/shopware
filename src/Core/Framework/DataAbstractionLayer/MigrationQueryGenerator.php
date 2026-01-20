@@ -7,7 +7,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -30,7 +30,7 @@ class MigrationQueryGenerator
      */
     public function generateQueries(EntityDefinition $entityDefinition): array
     {
-        if (DbTableHelper::tableExists($this->connection, $entityDefinition->getEntityName())) {
+        if (TableHelper::tableExists($this->connection, $entityDefinition->getEntityName())) {
             return $this->getAlterTableQueries($entityDefinition);
         }
 

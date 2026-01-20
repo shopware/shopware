@@ -7,7 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1756068711FixOrderAddressFirstNameLength;
 
 /**
@@ -39,20 +39,20 @@ class Migration1756068711FixOrderAddressFirstNameLengthTest extends TestCase
             MODIFY COLUMN `first_name` VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL
         ');
 
-        $firstNameColumn = DbTableHelper::getColumnOfTable($this->connection, 'order_address', 'first_name');
+        $firstNameColumn = TableHelper::getColumnOfTable($this->connection, 'order_address', 'first_name');
         static::assertSame(Types::STRING, $firstNameColumn->type);
         static::assertSame(50, $firstNameColumn->length);
 
         $migration->update($this->connection);
 
-        $firstNameColumn = DbTableHelper::getColumnOfTable($this->connection, 'order_address', 'first_name');
+        $firstNameColumn = TableHelper::getColumnOfTable($this->connection, 'order_address', 'first_name');
         static::assertSame(Types::STRING, $firstNameColumn->type);
         static::assertSame(255, $firstNameColumn->length);
         static::assertTrue($firstNameColumn->isNotNull);
 
         $migration->update($this->connection);
 
-        $firstNameColumn = DbTableHelper::getColumnOfTable($this->connection, 'order_address', 'first_name');
+        $firstNameColumn = TableHelper::getColumnOfTable($this->connection, 'order_address', 'first_name');
         static::assertSame(Types::STRING, $firstNameColumn->type);
         static::assertSame(255, $firstNameColumn->length);
         static::assertTrue($firstNameColumn->isNotNull);

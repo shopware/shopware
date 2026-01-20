@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class Migration1617953690AddCustomFieldToProductReview extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!DbTableHelper::columnExists($connection, 'product_review', 'custom_fields')) {
+        if (!TableHelper::columnExists($connection, 'product_review', 'custom_fields')) {
             $connection->executeStatement(
                 'ALTER TABLE `product_review`
                 ADD COLUMN `custom_fields` JSON NULL AFTER `comment`,

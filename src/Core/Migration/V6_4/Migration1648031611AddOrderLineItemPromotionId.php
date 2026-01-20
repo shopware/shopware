@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -21,7 +21,7 @@ class Migration1648031611AddOrderLineItemPromotionId extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (DbTableHelper::columnExists($connection, 'order_line_item', 'promotion_id')) {
+        if (TableHelper::columnExists($connection, 'order_line_item', 'promotion_id')) {
             return;
         }
 

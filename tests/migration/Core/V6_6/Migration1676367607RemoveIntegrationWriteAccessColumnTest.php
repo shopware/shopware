@@ -5,7 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1676367607RemoveIntegrationWriteAccessColumn;
 
 /**
@@ -18,7 +18,7 @@ class Migration1676367607RemoveIntegrationWriteAccessColumnTest extends TestCase
     {
         $connection = KernelLifecycleManager::getConnection();
 
-        $existed = DbTableHelper::columnExists($connection, 'integration', 'write_access');
+        $existed = TableHelper::columnExists($connection, 'integration', 'write_access');
 
         if (!$existed) {
             $connection->executeStatement('
@@ -31,7 +31,7 @@ class Migration1676367607RemoveIntegrationWriteAccessColumnTest extends TestCase
         $migration->updateDestructive($connection);
         $migration->updateDestructive($connection);
 
-        static::assertFalse(DbTableHelper::columnExists($connection, 'integration', 'write_access'));
+        static::assertFalse(TableHelper::columnExists($connection, 'integration', 'write_access'));
 
         if ($existed) {
             $connection->executeStatement('

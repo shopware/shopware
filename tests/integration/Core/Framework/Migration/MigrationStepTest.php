@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Util\UtilException;
 
 /**
@@ -120,7 +120,7 @@ SQL
 
         $step->doDropTableIfExists($connection, 'test_table');
 
-        static::assertFalse(DbTableHelper::tableExists($connection, 'test_table'));
+        static::assertFalse(TableHelper::tableExists($connection, 'test_table'));
     }
 
     public function testAddColumn(): void

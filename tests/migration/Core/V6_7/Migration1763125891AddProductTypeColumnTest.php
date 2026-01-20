@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1763125891AddProductTypeColumn;
 
 /**
@@ -33,25 +33,25 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $typeColumn = DbTableHelper::getColumnOfTable($this->connection, 'product', 'type');
+        $typeColumn = TableHelper::getColumnOfTable($this->connection, 'product', 'type');
         static::assertSame('physical', $typeColumn->defaultValue);
-        static::assertTrue(DbTableHelper::indexExists($this->connection, 'product', 'idx.product.type'));
+        static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'idx.product.type'));
     }
 
     private function dropTypeColumnIfExists(): void
     {
-        if (DbTableHelper::indexExists($this->connection, 'product', 'idx.product.type')) {
+        if (TableHelper::indexExists($this->connection, 'product', 'idx.product.type')) {
             $this->connection->executeStatement('DROP INDEX `idx.product.type` ON `product`');
         }
 
-        if (DbTableHelper::columnExists($this->connection, 'product', 'type')) {
+        if (TableHelper::columnExists($this->connection, 'product', 'type')) {
             $this->connection->executeStatement('ALTER TABLE `product` DROP COLUMN `type`');
         }
     }
 
     private function ensureStatesColumnExists(): void
     {
-        if (DbTableHelper::columnExists($this->connection, 'product', 'states')) {
+        if (TableHelper::columnExists($this->connection, 'product', 'states')) {
             return;
         }
 

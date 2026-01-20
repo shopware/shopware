@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1764064756AddCustomFieldSearchable;
 
 /**
@@ -39,12 +39,12 @@ class Migration1764064756AddCustomFieldSearchableTest extends TestCase
 
     public function testAddColumn(): void
     {
-        static::assertFalse(DbTableHelper::columnExists($this->connection, 'custom_field', 'include_in_search'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'custom_field', 'include_in_search'));
 
         $this->migration->update($this->connection);
         $this->migration->update($this->connection);
 
-        $column = DbTableHelper::getColumnOfTable($this->connection, 'custom_field', 'include_in_search');
+        $column = TableHelper::getColumnOfTable($this->connection, 'custom_field', 'include_in_search');
         static::assertTrue($column->isNotNull);
         static::assertSame('0', $column->defaultValue);
     }

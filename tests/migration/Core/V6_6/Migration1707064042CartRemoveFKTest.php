@@ -5,7 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1707064042CartRemoveFK;
 
 /**
@@ -31,7 +31,7 @@ ADD FOREIGN KEY (`fk.cart.payment_method_id`) REFERENCES `payment_method` (`id`)
         $m->update($connection);
         $m->update($connection);
 
-        static::assertFalse(DbTableHelper::indexExists($connection, 'cart', 'fk.cart.payment_method_id'));
+        static::assertFalse(TableHelper::indexExists($connection, 'cart', 'fk.cart.payment_method_id'));
     }
 
     public function testDestructive(): void
@@ -47,6 +47,6 @@ ADD FOREIGN KEY (`fk.cart.payment_method_id`) REFERENCES `payment_method` (`id`)
         $m->updateDestructive($connection);
         $m->updateDestructive($connection);
 
-        static::assertFalse(DbTableHelper::columnExists($connection, 'cart', 'price'));
+        static::assertFalse(TableHelper::columnExists($connection, 'cart', 'price'));
     }
 }

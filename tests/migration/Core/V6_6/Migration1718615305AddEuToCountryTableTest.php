@@ -9,7 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Util\DbTableHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1718615305AddEuToCountryTable;
 
 /**
@@ -38,7 +38,7 @@ class Migration1718615305AddEuToCountryTableTest extends TestCase
         $this->executeMigration();
         $this->executeMigration();
 
-        $isEuColumn = DbTableHelper::getColumnOfTable($this->connection, 'country', 'is_eu');
+        $isEuColumn = TableHelper::getColumnOfTable($this->connection, 'country', 'is_eu');
         static::assertSame(Types::BOOLEAN, $isEuColumn->type);
         static::assertTrue($isEuColumn->isNotNull);
         static::assertSame('0', $isEuColumn->defaultValue);

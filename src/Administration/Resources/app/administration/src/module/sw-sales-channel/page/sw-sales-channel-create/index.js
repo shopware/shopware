@@ -44,6 +44,9 @@ export default {
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
 
+            // Set default language from admin context
+            this.salesChannel.languageId = Shopware.Store.get('context').api.languageId;
+
             this.setMeasurementUnits()
                 .catch(() => {
                     this.createNotificationError({

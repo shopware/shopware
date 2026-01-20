@@ -345,7 +345,7 @@ class SchemaBuilder
             } elseif ($field->is(RestrictDelete::class)) {
                 $delete = 'RESTRICT';
             } elseif ($definition instanceof EntityTranslationDefinition) {
-                // When we're a FK in a translation definition, we should be a cascade. So when the main entity is deleted, we're deleted too. same for translation
+                // When a foreign key is used in a translation definition, cascade deletion should be applied so that related records are deleted when the main entity is removed, including translations.
                 $delete = 'CASCADE';
             } else {
                 $delete = 'SET NULL';

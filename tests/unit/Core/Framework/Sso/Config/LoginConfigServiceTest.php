@@ -40,6 +40,7 @@ class LoginConfigServiceTest extends TestCase
             'jwks_path' => '/jwks.json',
             'scope' => 'scope',
             'register_url' => 'http://register.url',
+            'prompt' => 'login',
         ];
 
         $configService = $this->createLoginConfigService($rawConfig);
@@ -54,10 +55,11 @@ class LoginConfigServiceTest extends TestCase
         static::assertSame($rawConfig['base_url'], $config->baseUrl);
         static::assertSame($rawConfig['authorize_path'], $config->authorizePath);
         static::assertSame($rawConfig['token_path'], $config->tokenPath);
+        static::assertSame($rawConfig['prompt'], $config->prompt);
     }
 
     /**
-     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string, jwks_path: non-empty-string, scope: non-empty-string, register_url: non-empty-string} $rawConfig
+     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string, jwks_path: non-empty-string, scope: non-empty-string, register_url: non-empty-string, prompt?: non-empty-string} $rawConfig
      */
     #[DataProvider('getConfigErrorsTestDataProvider')]
     public function testGetConfigErrors(array $rawConfig, string $exceptionMessage): void
@@ -274,6 +276,14 @@ class LoginConfigServiceTest extends TestCase
                 'rawConfig' => self::createConfig(['register_url' => 'registerUrl']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is invalid URL',
             ],
+            'prompt is blank' => [
+                'rawConfig' => self::createConfig(['prompt' => '']),
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [prompt] is blank',
+            ],
+            'prompt is not a string' => [
+                'rawConfig' => self::createConfig(['prompt' => 12]),
+                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [prompt] is invalid string',
+            ],
         ];
     }
 
@@ -300,6 +310,7 @@ class LoginConfigServiceTest extends TestCase
             'jwks_path' => '/jwks.json',
             'scope' => 'scope',
             'register_url' => 'http://register.url',
+            'prompt' => 'login',
         ];
 
         $configService = $this->createLoginConfigService($rawConfig);
@@ -308,6 +319,20 @@ class LoginConfigServiceTest extends TestCase
 
         static::assertFalse($result->useDefault);
         static::assertSame('oauth.sso.auth?rdm=randomString', $result->url);
+    }
+
+    public function testCreateRedirectUrlOmitsNullPrompt(): void
+    {
+        $rawConfig = self::createConfig(['prompt' => null]);
+        $configService = $this->createLoginConfigService($rawConfig);
+
+        $loginConfig = $configService->getConfig();
+        static::assertInstanceOf(LoginConfig::class, $loginConfig);
+        static::assertNull($loginConfig->prompt);
+
+        $result = $configService->createRedirectUrl('random');
+        $query = $this->getQueryParamsAsArray($result);
+        static::assertArrayNotHasKey('prompt', $query);
     }
 
     /**
@@ -327,6 +352,11 @@ class LoginConfigServiceTest extends TestCase
         $query = $this->getQueryParamsAsArray($result);
         static::assertSame($loginConfig->clientId, $query['client_id']);
         static::assertSame($loginConfig->redirectUri, $query['redirect_uri']);
+        if ($loginConfig->prompt !== null) {
+            static::assertSame($loginConfig->prompt, $query['prompt']);
+        } else {
+            static::assertArrayNotHasKey('prompt', $query);
+        }
 
         static::assertIsString($query['state']);
 
@@ -361,8 +391,9 @@ class LoginConfigServiceTest extends TestCase
                     'jwks_path' => '/jwks.json',
                     'scope' => 'scope',
                     'register_url' => 'http://register.url',
+                    'prompt' => 'login',
                 ],
-                'expectedUrl' => 'http://justABaseUrl.net/authorize?client_id=justAClientID&redirect_uri=http%3A%2F%2FjustARedirectUri.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString',
+                'expectedUrl' => 'http://justABaseUrl.net/authorize?client_id=justAClientID&redirect_uri=http%3A%2F%2FjustARedirectUri.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString&prompt=login',
             ],
 
             'Test case two' => [
@@ -378,8 +409,25 @@ class LoginConfigServiceTest extends TestCase
                     'jwks_path' => '/jwks.json',
                     'scope' => 'scope',
                     'register_url' => 'http://register.url',
+                    'prompt' => 'login',
                 ],
-                'expectedUrl' => 'http://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=http%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString',
+                'expectedUrl' => 'http://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=http%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString&prompt=login',
+            ],
+            'Test case without prompt' => [
+                'random' => 'justARandomString',
+                'rawConfig' => [
+                    'use_default' => true,
+                    'client_id' => 'clientIDNoPrompt',
+                    'client_secret' => 'clientSecretNoPrompt',
+                    'redirect_uri' => 'http://redirect-no-prompt.org',
+                    'base_url' => 'http://base-no-prompt.net',
+                    'authorize_path' => '/authorize',
+                    'token_path' => '/token',
+                    'jwks_path' => '/jwks.json',
+                    'scope' => 'scope',
+                    'register_url' => 'http://register.url',
+                ],
+                'expectedUrl' => 'http://base-no-prompt.net/authorize?client_id=clientIDNoPrompt&redirect_uri=http%3A%2F%2Fredirect-no-prompt.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString',
             ],
         ];
     }
@@ -417,6 +465,7 @@ class LoginConfigServiceTest extends TestCase
             'jwks_path' => '/jwks.json',
             'scope' => 'scope',
             'register_url' => 'http://register.url',
+            'prompt' => 'login',
         ];
 
         foreach ($unset as $key) {

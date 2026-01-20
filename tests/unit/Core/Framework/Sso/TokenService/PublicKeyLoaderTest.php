@@ -136,6 +136,7 @@ class PublicKeyLoaderTest extends TestCase
             'jwks_path' => '/jwks.json',
             'scope' => 'scope',
             'register_url' => 'https://register.url',
+            'prompt' => 'login',
         ];
 
         return new LoginConfigService($rawConfig, $this->createMock(RouterInterface::class));

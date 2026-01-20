@@ -89,6 +89,7 @@ class ExternalTokenServiceTest extends TestCase
             'jwks_path' => '/json.json',
             'scope' => 'scope',
             'register_url' => 'https://register.url',
+            'prompt' => 'login',
         ];
 
         if ($withEmptyConfig) {

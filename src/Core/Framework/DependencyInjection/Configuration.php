@@ -1197,6 +1197,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('jwks_path')->isRequired()->end()
                 ->scalarNode('scope')->isRequired()->end()
                 ->scalarNode('register_url')->isRequired()->end()
+                ->scalarNode('prompt')->defaultNull()->end()
             ->end();
 
         return $rootNode;

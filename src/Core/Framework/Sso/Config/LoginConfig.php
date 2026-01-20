@@ -20,6 +20,7 @@ final readonly class LoginConfig
      * @param non-empty-string $jwksPath
      * @param non-empty-string $scope
      * @param non-empty-string $registerUrl
+     * @param non-empty-string|null $prompt
      */
     public function __construct(
         public bool $useDefault,
@@ -32,6 +33,7 @@ final readonly class LoginConfig
         public string $jwksPath,
         public string $scope,
         public string $registerUrl,
+        public ?string $prompt,
     ) {
     }
 }

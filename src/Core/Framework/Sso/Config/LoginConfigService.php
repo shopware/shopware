@@ -9,6 +9,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
@@ -31,7 +32,8 @@ final readonly class LoginConfigService
      *     token_path: non-empty-string,
      *     jwks_path: non-empty-string,
      *     scope: non-empty-string,
-     *     register_url: non-empty-string
+     *     register_url: non-empty-string,
+     *     prompt?: non-empty-string
      * } $rawConfig
      */
     public function __construct(
@@ -59,6 +61,7 @@ final readonly class LoginConfigService
             $this->rawConfig['jwks_path'],
             $this->rawConfig['scope'],
             $this->rawConfig['register_url'],
+            $this->rawConfig['prompt'] ?? null,
         );
     }
 
@@ -81,20 +84,34 @@ final readonly class LoginConfigService
 
         $state = $this->router->generate('api.oauth.sso.code', ['rdm' => $random], UrlGeneratorInterface::ABSOLUTE_URL);
 
+        $params = [
+            'client_id' => $loginConfig->clientId,
+            'redirect_uri' => $loginConfig->redirectUri,
+            'response_type' => 'code',
+            'scope' => $loginConfig->scope,
+            'state' => $state,
+        ];
+
+        if ($loginConfig->prompt !== null) {
+            $params['prompt'] = $loginConfig->prompt;
+        }
+
         return \sprintf(
-            '%s%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s',
+            '%s%s?%s',
             $loginConfig->baseUrl,
             $loginConfig->authorizePath,
-            $loginConfig->clientId,
-            \urlencode($loginConfig->redirectUri ?? ''),
-            \urlencode($loginConfig->scope),
-            \urlencode($state)
+            \http_build_query($params, '', '&', \PHP_QUERY_RFC3986)
         );
     }
 
     private function validate(): void
     {
-        $violations = Validation::createValidator()->validate($this->rawConfig, $this->createConstraint());
+        $rawConfig = $this->rawConfig;
+        if (($rawConfig['prompt'] ?? null) === null) {
+            unset($rawConfig['prompt']);
+        }
+
+        $violations = Validation::createValidator()->validate($rawConfig, $this->createConstraint());
         if ($violations->count() === 0) {
             return;
         }
@@ -173,6 +190,10 @@ final readonly class LoginConfigService
                     new Type('string', $invalidStringMessage),
                     new Url(message: $invalidUrlMessage, requireTld: true),
                 ],
+                'prompt' => new Optional([
+                    new NotBlank(null, $notBlankMessage),
+                    new Type('string', $invalidStringMessage),
+                ]),
             ],
             allowExtraFields: true,
             allowMissingFields: false,

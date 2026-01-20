@@ -137,6 +137,7 @@ class ShopwareGrantTypeTest extends TestCase
                 'jwks_path' => '/jwks.json',
                 'scope' => 'scope',
                 'register_url' => 'https://register.url',
+                'prompt' => 'login',
             ],
             $this->createMock(RouterInterface::class)
         );

@@ -14,6 +14,7 @@ use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\Service\ConsentService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -90,7 +91,9 @@ class ConsentControllerTest extends TestCase
             ->with('test-consent', $context)
             ->willReturn(new ConsentState('test-consent', ConsentScope\AdminUser::NAME, $userId, ConsentStatus::ACCEPTED, $userId));
 
-        $response = $this->controller->acceptConsent($context, 'test-consent');
+        $request = new Request(request: ['consent' => 'test-consent']);
+
+        $response = $this->controller->acceptConsent($context, $request);
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -119,7 +122,9 @@ class ConsentControllerTest extends TestCase
             ->with('test-consent', $context)
             ->willReturn(new ConsentState('test-consent', ConsentScope\AdminUser::NAME, $userId, ConsentStatus::REVOKED, $userId));
 
-        $response = $this->controller->revokeConsent($context, 'test-consent');
+        $request = new Request(request: ['consent' => 'test-consent']);
+
+        $response = $this->controller->revokeConsent($context, $request);
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());

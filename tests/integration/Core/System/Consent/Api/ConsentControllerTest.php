@@ -26,16 +26,32 @@ class ConsentControllerTest extends TestCase
     public function testAcceptConsentRequiresAuthentication(): void
     {
         $browser = $this->getBrowser(false);
-        $browser->request('POST', '/api/consents/test-api-consent/accept');
+        $browser->request('POST', '/api/consents/accept', content: '{ "consent": "test-api-consent" }');
 
         static::assertSame(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testAcceptConsentRequiresConsentParameter(): void
+    {
+        $browser = $this->getBrowser(true);
+        $browser->request('POST', '/api/consents/accept', content: '{}');
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
     }
 
     public function testRevokeConsentRequiresAuthentication(): void
     {
         $browser = $this->getBrowser(false);
-        $browser->request('POST', '/api/consents/test-api-consent/revoke');
+        $browser->request('POST', '/api/consents/revoke', content: '{ "consent": "test-api-consent" }');
 
         static::assertSame(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testRevokeConsentRequiresConsentParameter(): void
+    {
+        $browser = $this->getBrowser(true);
+        $browser->request('POST', '/api/consents/revoke', content: '{}');
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
     }
 }

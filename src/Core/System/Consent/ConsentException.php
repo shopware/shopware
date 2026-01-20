@@ -10,12 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 class ConsentException extends HttpException
 {
     final public const NOT_FOUND = 'SYSTEM__CONSENT_NOT_FOUND';
-    final public const ALREADY_EXISTS = 'SYSTEM__CONSENT_ALREADY_EXISTS';
     final public const STORAGE_NOT_FOUND = 'SYSTEM__CONSENT_STORAGE_NOT_FOUND';
     final public const INVALID_CONSENT = 'SYSTEM__CONSENT_INVALID_CONSENT';
     final public const INVALID_CONSENT_STATUS = 'SYSTEM__CONSENT_INVALID_CONSENT_STATUS';
     final public const INVALID_SCOPE = 'SYSTEM__CONSENT_INVALID_SCOPE';
-    final public const IDENTIFIER_REQUIRED = 'SYSTEM__CONSENT_IDENTIFIER_REQUIRED';
 
     public static function notFound(string $name): self
     {

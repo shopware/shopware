@@ -22,14 +22,14 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
 
     public const MAIL_TEMPLATE_TYPE_TRANSLATIONS = [
         'en_name' => 'Cancellation request',
-        'de_name' => 'Kündigungsantrag',
+        'de_name' => 'Widerrufsantrag',
     ];
 
     public const MAIL_TEMPLATE_TRANSLATIONS_MERCHANT = [
         'en_subject' => 'Cancellation request received',
-        'de_subject' => 'Kündigungsantrag erhalten',
+        'de_subject' => 'Widerrufsantrag erhalten',
         'en_description' => 'Received cancellation request from customer',
-        'de_description' => 'Kündigungsantrag von Kunden erhalten',
+        'de_description' => 'Widerrufsantrag von Kunden erhalten',
     ];
 
     public const MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER = [
@@ -46,27 +46,25 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $enLanguage_byteId = $this->getLanguageIdByLocale($connection, 'en-GB');
-        \assert(\is_string($enLanguage_byteId));
-        $deLanguage_byteId = $this->getLanguageIdByLocale($connection, 'de-DE');
-        \assert(\is_string($deLanguage_byteId));
+        $enLanguageByteId = $this->getLanguageIdByLocale($connection, 'en-GB');
+        $deLanguageByteId = $this->getLanguageIdByLocale($connection, 'de-DE');
 
-        $mailTemplateType_bytesId = $this->createMailTemplateType($connection, $enLanguage_byteId, $deLanguage_byteId);
-        $this->createMailTemplateMerchant($connection, $mailTemplateType_bytesId, $enLanguage_byteId, $deLanguage_byteId);
-        $this->createMailTemplateCustomer($connection, $mailTemplateType_bytesId, $enLanguage_byteId, $deLanguage_byteId);
+        $mailTemplateTypeByteId = $this->createMailTemplateType($connection, $enLanguageByteId, $deLanguageByteId);
+        $this->createMailTemplateMerchant($connection, $mailTemplateTypeByteId, $enLanguageByteId, $deLanguageByteId);
+        $this->createMailTemplateCustomer($connection, $mailTemplateTypeByteId, $enLanguageByteId, $deLanguageByteId);
     }
 
     private function createMailTemplateMerchant(
         Connection $connection,
-        string $mailTemplateType_bytesId,
-        string $enLanguage_byteId,
-        ?string $deLanguage_byteId
+        string $mailTemplateTypeByteId,
+        ?string $enLanguageByteId,
+        ?string $deLanguageByteId
     ): void {
         $hasMailTemplate = true;
         $mailStruct = $this->createMailStruct(self::MERCHANT_DIRECTORY);
-        $mailTemplate_byteId = $this->getMailTemplateId($connection, self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['en_subject']);
-        if (empty($mailTemplate_byteId)) {
-            $mailTemplate_byteId = Uuid::randomBytes();
+        $mailTemplateByteId = $this->getMailTemplateId($connection, $mailTemplateTypeByteId);
+        if (empty($mailTemplateByteId)) {
+            $mailTemplateByteId = Uuid::randomBytes();
             $hasMailTemplate = false;
         }
 
@@ -74,20 +72,20 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             $connection->insert(
                 'mail_template',
                 [
-                    'id' => $mailTemplate_byteId,
-                    'mail_template_type_id' => $mailTemplateType_bytesId,
+                    'id' => $mailTemplateByteId,
+                    'mail_template_type_id' => $mailTemplateTypeByteId,
                     'system_default' => 1,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
 
-        if (!$this->hasMailTemplateTranslation($connection, $mailTemplate_byteId, $enLanguage_byteId)) {
+        if (\is_string($enLanguageByteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $enLanguageByteId)) {
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'mail_template_id' => $mailTemplate_byteId,
-                    'language_id' => $enLanguage_byteId,
+                    'mail_template_id' => $mailTemplateByteId,
+                    'language_id' => $enLanguageByteId,
                     'sender_name' => '{{ salesChannel.name }}',
                     'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['en_subject'],
                     'description' => self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['en_description'],
@@ -98,12 +96,12 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             );
         }
 
-        if (\is_string($deLanguage_byteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplate_byteId, $deLanguage_byteId)) {
+        if (\is_string($deLanguageByteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $deLanguageByteId)) {
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'mail_template_id' => $mailTemplate_byteId,
-                    'language_id' => $deLanguage_byteId,
+                    'mail_template_id' => $mailTemplateByteId,
+                    'language_id' => $deLanguageByteId,
                     'sender_name' => '{{ salesChannel.name }}',
                     'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['de_subject'],
                     'description' => self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['de_description'],
@@ -180,19 +178,19 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
 
         $mailStruct = new MailStruct(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT);
         $mailStruct->setEnHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/en-html.html.twig'));
-        $mailStruct->setEnPlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/en-plain.text.twig'));
+        $mailStruct->setEnPlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/en-plain.txt.twig'));
         $mailStruct->setDeHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/de-html.html.twig'));
-        $mailStruct->setDePlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/de-plain.text.twig'));
+        $mailStruct->setDePlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/de-plain.txt.twig'));
 
         return $mailStruct;
     }
 
-    private function createMailTemplateType(Connection $connection, string $enLanguage_byteId, ?string $deLanguage_byteId): string
+    private function createMailTemplateType(Connection $connection, ?string $enLanguageByteId, ?string $deLanguageByteId): string
     {
         $hasMailTemplateType = true;
-        $mailTemplateType_byteId = $this->getMailTemplateTypeId($connection);
-        if (empty($mailTemplateType_byteId)) {
-            $mailTemplateType_byteId = Uuid::randomBytes();
+        $mailTemplateTypeByteId = $this->getMailTemplateTypeId($connection);
+        if (empty($mailTemplateTypeByteId)) {
+            $mailTemplateTypeByteId = Uuid::randomBytes();
             $hasMailTemplateType = false;
         }
 
@@ -200,39 +198,39 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             $connection->insert(
                 'mail_template_type',
                 [
-                    'id' => $mailTemplateType_byteId,
+                    'id' => $mailTemplateTypeByteId,
                     'technical_name' => MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT,
-                    'available_entities' => json_encode([]),
+                    'available_entities' => '[]',
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
 
-        if (!$this->hasTemplateTypeTranslation($connection, $mailTemplateType_byteId, $enLanguage_byteId)) {
+        if (\is_string($enLanguageByteId) && !$this->hasTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $enLanguageByteId)) {
             $connection->insert(
                 'mail_template_type_translation',
                 [
-                    'mail_template_type_id' => $mailTemplateType_byteId,
+                    'mail_template_type_id' => $mailTemplateTypeByteId,
                     'name' => self::MAIL_TEMPLATE_TYPE_TRANSLATIONS['en_name'],
-                    'language_id' => $enLanguage_byteId,
+                    'language_id' => $enLanguageByteId,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
 
-        if (\is_string($deLanguage_byteId) && !$this->hasTemplateTypeTranslation($connection, $mailTemplateType_byteId, $deLanguage_byteId)) {
+        if (\is_string($deLanguageByteId) && !$this->hasTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $deLanguageByteId)) {
             $connection->insert(
                 'mail_template_type_translation',
                 [
-                    'mail_template_type_id' => $mailTemplateType_byteId,
+                    'mail_template_type_id' => $mailTemplateTypeByteId,
                     'name' => self::MAIL_TEMPLATE_TYPE_TRANSLATIONS['de_name'],
-                    'language_id' => $deLanguage_byteId,
+                    'language_id' => $deLanguageByteId,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
 
-        return $mailTemplateType_byteId;
+        return $mailTemplateTypeByteId;
     }
 
     private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
@@ -270,28 +268,21 @@ SQL;
         return $result;
     }
 
-    private function hasTemplateTypeTranslation(Connection $connection, string $mailTemplateType_byteId, string $language_byteId): bool
+    private function hasTemplateTypeTranslation(Connection $connection, string $mailTemplateTypeByteId, string $languageByteId): bool
     {
         $result = $connection->fetchOne(
-            'SELECT `name` FROM `mail_template_type_translation` WHERE `mail_template_type_id` = :mailTemplateTypeId AND `language_id` = :languageId',
-            ['mailTemplateTypeId' => $mailTemplateType_byteId, 'languageId' => $language_byteId]
+            'SELECT 1 FROM `mail_template_type_translation` WHERE `mail_template_type_id` = :mailTemplateTypeId AND `language_id` = :languageId',
+            ['mailTemplateTypeId' => $mailTemplateTypeByteId, 'languageId' => $languageByteId]
         );
 
         return !empty($result);
     }
 
-    private function getMailTemplateId(Connection $connection, string $subject): ?string
+    private function getMailTemplateId(Connection $connection, string $mailTemplateTypeByteId): ?string
     {
-        $sql = <<<'SQL'
-SELECT `template`.`id`
-FROM `mail_template` AS `template`
-INNER JOIN `mail_template_translation` as `translation` ON `translation`.`mail_template_id` = `template`.`id`
-WHERE `translation`.`subject` = :subject
-SQL;
-
         $result = $connection->fetchOne(
-            $sql,
-            ['subject' => $subject]
+            'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId',
+            ['mailTemplateTypeId' => $mailTemplateTypeByteId]
         );
 
         if ($result === false) {
@@ -301,11 +292,11 @@ SQL;
         return $result;
     }
 
-    private function hasMailTemplateTranslation(Connection $connection, string $mailTemplate_byteId, string $language_byteId): bool
+    private function hasMailTemplateTranslation(Connection $connection, string $mailTemplateByteId, string $languageByteId): bool
     {
         $result = $connection->fetchOne(
             'SELECT `mail_template_id` FROM `mail_template_translation` WHERE `mail_template_id` = :mailTemplateId AND `language_id` = :languageId',
-            ['mailTemplateId' => $mailTemplate_byteId, 'languageId' => $language_byteId]
+            ['mailTemplateId' => $mailTemplateByteId, 'languageId' => $languageByteId]
         );
 
         return !empty($result);

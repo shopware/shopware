@@ -29,7 +29,7 @@ class Migration1764939915CancellationRequestMailTemplateTest extends TestCase
     {
         $mailTemplateTypeId = $this->getMailTemplateTypeId();
         $mailTemplateIds = $this->getMailTemplateIds($mailTemplateTypeId);
-        if (!empty($mailTemplateTypeId)) {
+        if (!empty($mailTemplateIds)) {
             foreach ($mailTemplateIds as $mailTemplateId) {
                 $this->connection->delete('mail_template_translation', ['mail_template_id' => $mailTemplateId]);
                 $this->connection->delete('mail_template', ['id' => $mailTemplateId]);

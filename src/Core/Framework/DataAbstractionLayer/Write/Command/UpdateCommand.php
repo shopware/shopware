@@ -13,8 +13,29 @@ class UpdateCommand extends WriteCommand implements ChangeSetAware
 {
     use ChangeSetAwareTrait;
 
+    /**
+     * @var array<string>
+     */
+    private array $immutableChanges = [];
+
     public function getPrivilege(): ?string
     {
         return AclRoleDefinition::PRIVILEGE_UPDATE;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getImmutableChanges(): array
+    {
+        return $this->immutableChanges;
+    }
+
+    /**
+     * @param array<string> $immutableChanges
+     */
+    public function setImmutableChanges(array $immutableChanges): void
+    {
+        $this->immutableChanges = $immutableChanges;
     }
 }

@@ -109,11 +109,11 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'Purged tags (1).',
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
-                    static::assertEquals(
-                        new Frame(
+                    static::assertSame(
+                        (new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidatePropertyFilters'
-                        ),
+                        ))->jsonSerialize(),
                         $context['caller']
                     );
 
@@ -149,11 +149,11 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'Purged tags (1).',
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
-                    static::assertEquals(
-                        new Frame(
+                    static::assertSame(
+                        (new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidateSnippets'
-                        ),
+                        ))->jsonSerialize(),
                         $context['caller']
                     );
 
@@ -210,11 +210,11 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'Purged tags (1).',
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
-                    static::assertEquals(
-                        new Frame(
+                    static::assertSame(
+                        (new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidatePropertyFilters'
-                        ),
+                        ))->jsonSerialize(),
                         $context['caller']
                     );
 
@@ -266,11 +266,11 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'Purged tags (1).',
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
-                    static::assertEquals(
-                        new Frame(
+                    static::assertSame(
+                        (new Frame(
                             'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
                             'invalidatePropertyFilters'
-                        ),
+                        ))->jsonSerialize(),
                         $context['caller']
                     );
 

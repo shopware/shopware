@@ -12,4 +12,15 @@ final readonly class Frame
         public ?string $function,
     ) {
     }
+
+    /**
+     * @return array<string, ?string>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'class' => $this->class,
+            'function' => $this->function,
+        ];
+    }
 }

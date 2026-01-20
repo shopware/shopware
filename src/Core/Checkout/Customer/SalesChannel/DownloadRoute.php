@@ -39,14 +39,14 @@ class DownloadRoute extends AbstractDownloadRoute
     public function load(Request $request, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();
-        $downloadId = $request->get('downloadId', false);
-        $orderId = $request->get('orderId', false);
+        $downloadId = $request->attributes->get('downloadId');
+        $orderId = $request->attributes->get('orderId');
 
         if (!$customer) {
             throw CustomerException::customerNotLoggedIn();
         }
 
-        if ($downloadId === false || $orderId === false) {
+        if ($downloadId === null || $orderId === null) {
             throw RoutingException::missingRequestParameter(!$downloadId ? 'downloadId' : 'orderId');
         }
 

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -99,7 +100,7 @@ class SearchController extends StorefrontController
     #[Route(path: '/widgets/search/filter', name: 'widgets.search.filter', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET', 'POST'])]
     public function filter(Request $request, SalesChannelContext $context): Response
     {
-        $term = $request->get('search');
+        $term = RequestParamHelper::get($request, 'search');
         if (!$term) {
             throw RoutingException::missingRequestParameter('search');
         }
@@ -137,7 +138,7 @@ class SearchController extends StorefrontController
             return null;
         }
 
-        if ($request->get('search') === mb_strtolower($product->getProductNumber())) {
+        if ($request->query->get('search') === mb_strtolower($product->getProductNumber())) {
             return $this->redirectToRoute('frontend.detail.page', ['productId' => $product->getId()]);
         }
 

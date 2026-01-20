@@ -267,9 +267,10 @@ class ControllerRateLimiterTest extends TestCase
         );
 
         $controller->load(new Request([
-            'deepLinkCode' => $order->getDeepLinkCode(),
             'email' => 'orderTest@example.com',
             'zipcode' => '12345',
+        ], [], [
+            'deepLinkCode' => $order->getDeepLinkCode(),
         ]), $this->salesChannelContext);
     }
 

@@ -79,7 +79,7 @@ class DocumentController extends AbstractController
     #[Route(path: '/api/_action/order/document/download', name: 'api.action.download.documents', methods: ['POST'], defaults: ['_acl' => ['document:read']])]
     public function downloadDocuments(Request $request, Context $context): Response
     {
-        $documentIds = $request->get('documentIds', []);
+        $documentIds = $request->request->all()['documentIds'] ?? [];
 
         if (!\is_array($documentIds) || empty($documentIds)) {
             throw DocumentException::invalidRequestParameter('documentIds');

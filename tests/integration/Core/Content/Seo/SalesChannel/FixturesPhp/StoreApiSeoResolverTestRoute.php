@@ -36,7 +36,8 @@ class StoreApiSeoResolverTestRoute
     ]
     public function noAuthRequiredAction(Request $request): StoreApiResponse
     {
-        $salesChannelId = $request->get('sales-channel-id');
+        $salesChannelId = $request->query->get('sales-channel-id');
+        \assert($salesChannelId !== null);
 
         return $this->categoryRoute->load(
             CategoryRoute::HOME,

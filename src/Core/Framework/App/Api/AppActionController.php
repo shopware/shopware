@@ -40,7 +40,8 @@ class AppActionController extends AbstractController
     #[Route(path: 'api/app-system/action-button/run/{id}', name: 'api.app_system.action_button.run', methods: ['POST'], defaults: ['_acl' => ['app']])]
     public function runAction(string $id, Request $request, Context $context): Response
     {
-        $entityIds = $request->get('ids', []);
+        /** @var array<string> $entityIds */
+        $entityIds = $request->request->all()['ids'] ?? [];
 
         $action = $this->appActionFactory->loadAppAction($id, $entityIds, $context);
 

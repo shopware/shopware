@@ -123,7 +123,7 @@ class ThemeCreateCommandTest extends TestCase
 
         $commandTester = new CommandTester($themeCreateCommand);
         $application = new Application();
-        $application->add($themeCreateCommand);
+        $application->addCommand($themeCreateCommand);
 
         return $commandTester;
     }

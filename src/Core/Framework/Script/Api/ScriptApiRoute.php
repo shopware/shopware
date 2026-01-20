@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Context;
@@ -43,7 +44,7 @@ class ScriptApiRoute
         $this->executor->execute($instance);
 
         $fields = new ResponseFields(
-            $request->get('includes', [])
+            RequestParamHelper::get($request, 'includes', []),
         );
 
         return $this->scriptResponseEncoder->encodeToSymfonyResponse(

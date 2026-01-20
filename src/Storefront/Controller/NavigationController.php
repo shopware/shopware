@@ -110,6 +110,15 @@ class NavigationController extends StorefrontController
     {
         $footer = $this->footerLoader->load($request, $context);
 
+<<<<<<< HEAD
         return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', ['footer' => $footer]);
+=======
+        $this->hook(new FooterPageletLoadedHook($footer, $context));
+
+        return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', [
+            'footer' => $footer,
+            'footerParameters' => $request->query->all()['footerParameters'] ?? [],
+        ]);
+>>>>>>> 0bd2c4bca76 (chore: Update to symfony 7.4 (#14319))
     }
 }

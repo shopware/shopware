@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Api;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -42,7 +43,7 @@ class StoreApiResponseListener implements EventSubscriberInterface
 
         $this->dispatch($event);
 
-        $includes = $event->getRequest()->get('includes', []);
+        $includes = RequestParamHelper::get($event->getRequest(), 'includes', []);
 
         if (!\is_array($includes)) {
             $includes = explode(',', $includes);

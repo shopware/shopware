@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\Framework\Routing\RouteScopeListener;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -26,7 +27,7 @@ class RouteScopeListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testRouteScopeListenerFailsHardWithoutMasterRequest(): void
+    public function testRouteScopeListenerFailsHardWithoutMainRequest(): void
     {
         $listener = static::getContainer()->get(RouteScopeListener::class);
 
@@ -34,8 +35,7 @@ class RouteScopeListenerTest extends TestCase
 
         $event = $this->createEvent($request);
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unable to check the request scope without master request');
+        $this->expectExceptionObject(RoutingException::missingMainRequest());
         $listener->checkScope($event);
     }
 
@@ -93,15 +93,15 @@ class RouteScopeListenerTest extends TestCase
         $listener->checkScope($event);
     }
 
-    public function testSubrequestsAreValidatedAgainstTheMasterScope(): void
+    public function testSubrequestsAreValidatedAgainstTheMainScope(): void
     {
         $stack = static::getContainer()->get(RequestStack::class);
         $listener = static::getContainer()->get(RouteScopeListener::class);
 
-        $requestMaster = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
+        $mainRequest = $this->createRequest('/api', 'api', new AdminApiSource(null, null));
         $requestSub = $this->createRequest('/api', 'api', new SalesChannelApiSource(Uuid::randomHex()));
 
-        $stack->push($requestMaster);
+        $stack->push($mainRequest);
         $stack->push($requestSub);
 
         $event = $this->createEvent($requestSub);

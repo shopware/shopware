@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,7 +43,7 @@ class PaymentController extends AbstractController
     #[Route(path: '/payment/finalize-transaction', name: 'payment.finalize.transaction', methods: ['GET', 'POST'])]
     public function finalizeTransaction(Request $request): Response
     {
-        $paymentToken = $request->get('_sw_payment_token');
+        $paymentToken = RequestParamHelper::get($request, '_sw_payment_token');
 
         if ($paymentToken === null) {
             throw RoutingException::missingRequestParameter('_sw_payment_token');

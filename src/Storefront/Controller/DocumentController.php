@@ -37,11 +37,11 @@ class DocumentController extends StorefrontController
     #[Route(path: '/account/order/document/{documentId}/{deepLinkCode}/{fileType}', name: 'frontend.account.order.single.document.a11y', defaults: ['_noStore' => true], methods: ['GET', 'POST'])]
     public function downloadDocument(Request $request, SalesChannelContext $context, string $documentId): Response
     {
-        $fileType = $request->get('fileType', PdfRenderer::FILE_EXTENSION);
+        $fileType = $request->attributes->get('fileType') ?? $request->query->getString('fileType', PdfRenderer::FILE_EXTENSION);
 
         try {
             /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
-            return $this->documentRoute->download($documentId, $request, $context, $request->get('deepLinkCode'), $fileType);
+            return $this->documentRoute->download($documentId, $request, $context, $request->attributes->get('deepLinkCode'), $fileType);
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
             if ($context->getCustomer() !== null) {
                 $this->logoutRoute->logout($context, new RequestDataBag([]));
@@ -52,7 +52,7 @@ class DocumentController extends StorefrontController
                 [
                     'redirectTo' => 'frontend.account.order.single.document.a11y',
                     'redirectParameters' => [
-                        'deepLinkCode' => $request->get('deepLinkCode'),
+                        'deepLinkCode' => $request->attributes->get('deepLinkCode'),
                         'documentId' => $documentId,
                         'fileType' => $fileType,
                     ],

@@ -60,9 +60,9 @@ class CheckoutFinishPageLoader
             $page->setOrder($this->getOrder($request, $salesChannelContext));
         });
 
-        $page->setChangedPayment((bool) $request->get('changedPayment', false));
+        $page->setChangedPayment((bool) $request->query->get('changedPayment', ''));
 
-        $page->setPaymentFailed((bool) $request->get('paymentFailed', false));
+        $page->setPaymentFailed((bool) $request->query->get('paymentFailed', ''));
 
         $this->eventDispatcher->dispatch(
             new CheckoutFinishPageLoadedEvent($page, $salesChannelContext, $request)
@@ -115,7 +115,7 @@ class CheckoutFinishPageLoader
             throw CartException::customerNotLoggedIn();
         }
 
-        $orderId = $request->get('orderId');
+        $orderId = $request->query->get('orderId');
         if (!$orderId) {
             throw RoutingException::missingRequestParameter('orderId', '/orderId');
         }

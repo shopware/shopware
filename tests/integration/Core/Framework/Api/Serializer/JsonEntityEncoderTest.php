@@ -33,6 +33,7 @@ use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicW
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicWithToOneRelationship;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestCollectionWithSelfReference;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestCollectionWithToOneRelationship;
+use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestExcludeFieldsWithExtension;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestInternalFieldsAreFiltered;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestMainResourceShouldNotBeInIncluded;
 
@@ -116,6 +117,43 @@ class JsonEntityEncoderTest extends TestCase
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         unset($actual['apiAlias']);
+        static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
+        $this->assertValues($fixture->getAdminJsonFixtures(), $actual);
+    }
+
+    public function testEncodeStructWithExtensionExcludesFields(): void
+    {
+        $this->registerDefinition(ExtendableDefinition::class, ExtendedDefinition::class);
+        $extendableDefinition = new ExtendableDefinition();
+        $extendableDefinition->addExtension(new AssociationExtension());
+        $extendableDefinition->addExtension(new ScalarRuntimeExtension());
+
+        $extendableDefinition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $fixture = new TestExcludeFieldsWithExtension();
+
+        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $criteria = new Criteria();
+
+        $criteria->setIncludes([
+            'array' => [
+                'id',
+                'createdAt',
+                'extensions',
+                'name',
+                'toOne',
+                'toMany',
+            ],
+        ]);
+        $criteria->setExcludes([
+            'array' => [
+                'forbiddenFields',
+            ],
+        ]);
+
+        $actual = $encoder->encode($criteria, $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
+
+        unset($actual['apiAlias']);
+
         static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
         $this->assertValues($fixture->getAdminJsonFixtures(), $actual);
     }

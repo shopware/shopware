@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -75,6 +76,7 @@ class JsonEntityEncoder
 
         $includes = $criteria->getIncludes() ?? [];
         $excludes = $criteria->getExcludes() ?? [];
+
         $decoded = $this->filterDecodedFields($includes, $excludes, $decoded, $entity);
 
         if (isset($decoded['customFields']) && $decoded['customFields'] === []) {
@@ -87,6 +89,14 @@ class JsonEntityEncoder
 
         if (isset($decoded['extensions'])) {
             unset($decoded['extensions']['foreignKeys']);
+
+            foreach ($decoded['extensions'] as $extensionName => $extensionData) {
+                if ($extensionData !== [] && $entity->hasExtension($extensionName)) {
+                    $extension = $entity->getExtension($extensionName);
+
+                    $decoded['extensions'][$extensionName] = $this->filterDecodedFields($includes, $excludes, [$extensionName => $extensionData], new ArrayStruct([$extensionName => $extension], $extension->getApiAlias()))[$extensionName];
+                }
+            }
 
             if ($decoded['extensions'] === []) {
                 unset($decoded['extensions']);

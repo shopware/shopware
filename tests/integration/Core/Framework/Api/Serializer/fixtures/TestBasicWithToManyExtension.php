@@ -138,6 +138,7 @@ class TestBasicWithToManyExtension extends SerializationFixture
                         'extensions' => [],
                         'id' => '548faa1f7846436c85944f4aea792d96',
                         'name' => 'toMany#1',
+                        'apiAlias' => 'array',
                     ],
                 ],
             ],

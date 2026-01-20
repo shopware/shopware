@@ -9,45 +9,42 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 /**
  * @internal
  */
-class TestBasicWithExtension extends SerializationFixture
+class TestExcludeFieldsWithExtension extends SerializationFixture
 {
     public function getInput(): EntityCollection|Entity
     {
         $extendable = new ArrayEntity([
             'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
+            'name' => 'main',
             'createdAt' => new \DateTime('2018-01-15T08:01:16.000+00:00'),
         ]);
-
-        $extendable->addExtension('toOne', new ArrayEntity([
-            'id' => '6f51622eb3814c75ae0263cece27ce72',
-            'name' => 'toOne',
-        ]));
-
-        $extendable->addExtension('toOneWithoutApiAware', new ArrayEntity([
-            'id' => '6f51622eb3814c75ae0263cece27ce72',
-            'name' => 'toOneWithoutApiAware',
-        ]));
 
         $collection = new EntityCollection([
             new ArrayEntity([
                 'id' => '548faa1f7846436c85944f4aea792d96',
+                'forbiddenFields' => 'should be excluded',
                 'name' => 'toMany#1',
             ]),
             new ArrayEntity([
-                'id' => '3e352be2d85846dd97529c0f6b544870',
+                'id' => '548faa1f7846436c85944f4aea792d97',
+                'forbiddenFields' => 'should be excluded',
                 'name' => 'toMany#2',
             ]),
         ]);
 
         $extendable->addExtension('toMany', $collection);
-
-        $extendable->addExtension('test', new ArrayEntity([
-            'test' => 'testValue',
+        $extendable->addExtension('toOne', new ArrayEntity([
+            'id' => '548faa1f7846436c85944f4aea792d95',
+            'forbiddenFields' => 'should be excluded',
+            'name' => 'toOne',
         ]));
 
         return $extendable;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getJsonApiFixtures(string $baseUrl): array
     {
         return [
@@ -77,9 +74,9 @@ class TestBasicWithExtension extends SerializationFixture
                     'type' => 'extended',
                     'attributes' => [
                         'name' => 'toMany#1',
-                        'extendableId' => null,
                         'createdAt' => null,
                         'updatedAt' => null,
+                        'extendableId' => null,
                     ],
                     'links' => [
                         'self' => \sprintf('%s/extended/548faa1f7846436c85944f4aea792d96', $baseUrl),
@@ -101,71 +98,9 @@ class TestBasicWithExtension extends SerializationFixture
                     'meta' => [],
                 ],
                 [
-                    'id' => '3e352be2d85846dd97529c0f6b544870',
-                    'type' => 'extended',
-                    'attributes' => [
-                        'name' => 'toMany#2',
-                        'extendableId' => null,
-                        'createdAt' => null,
-                        'updatedAt' => null,
-                    ],
-                    'links' => [
-                        'self' => \sprintf('%s/extended/3e352be2d85846dd97529c0f6b544870', $baseUrl),
-                    ],
-                    'relationships' => [
-                        'toOne' => [
-                            'data' => null,
-                            'links' => [
-                                'related' => \sprintf('%s/extended/3e352be2d85846dd97529c0f6b544870/to-one', $baseUrl),
-                            ],
-                        ],
-                        'toMany' => [
-                            'data' => null,
-                            'links' => [
-                                'related' => \sprintf('%s/extended/3e352be2d85846dd97529c0f6b544870/to-many', $baseUrl),
-                            ],
-                        ],
-                    ],
-                    'meta' => [],
-                ],
-                [
-                    'id' => '6f51622eb3814c75ae0263cece27ce72',
-                    'type' => 'extended',
-                    'attributes' => [
-                        'name' => 'toOne',
-                        'extendableId' => null,
-                        'createdAt' => null,
-                        'updatedAt' => null,
-                    ],
-                    'links' => [
-                        'self' => \sprintf('%s/extended/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
-                    ],
-                    'relationships' => [
-                        'toOne' => [
-                            'data' => null,
-                            'links' => [
-                                'related' => \sprintf('%s/extended/6f51622eb3814c75ae0263cece27ce72/to-one', $baseUrl),
-                            ],
-                        ],
-                        'toMany' => [
-                            'data' => null,
-                            'links' => [
-                                'related' => \sprintf('%s/extended/6f51622eb3814c75ae0263cece27ce72/to-many', $baseUrl),
-                            ],
-                        ],
-                    ],
-                    'meta' => [],
-                ],
-                [
                     'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
                     'type' => 'extension',
-                    'attributes' => [
-                        'test' => [
-                            'extensions' => [],
-                            'translated' => [],
-                            'test' => 'testValue',
-                        ],
-                    ],
+                    'attributes' => [],
                     'links' => [],
                     'relationships' => [
                         'toMany' => [
@@ -174,20 +109,13 @@ class TestBasicWithExtension extends SerializationFixture
                                     'type' => 'extended',
                                     'id' => '548faa1f7846436c85944f4aea792d96',
                                 ],
-                                [
-                                    'type' => 'extended',
-                                    'id' => '3e352be2d85846dd97529c0f6b544870',
-                                ],
                             ],
                             'links' => [
                                 'related' => \sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toMany', $baseUrl),
                             ],
                         ],
                         'toOne' => [
-                            'data' => [
-                                'type' => 'extended',
-                                'id' => '6f51622eb3814c75ae0263cece27ce72',
-                            ],
+                            'data' => null,
                             'links' => [
                                 'related' => \sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toOne', $baseUrl),
                             ],
@@ -199,43 +127,37 @@ class TestBasicWithExtension extends SerializationFixture
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getJsonFixtures(): array
     {
         return [
-            'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
-            'createdAt' => '2018-01-15T08:01:16.000+00:00',
-            'translated' => [],
             'extensions' => [
-                'toOne' => [
-                    'translated' => [],
-                    'extensions' => [],
-                    'id' => '6f51622eb3814c75ae0263cece27ce72',
-                    'name' => 'toOne',
-                    'apiAlias' => 'array',
-                ],
                 'toMany' => [
                     [
-                        'translated' => [],
                         'extensions' => [],
                         'id' => '548faa1f7846436c85944f4aea792d96',
                         'name' => 'toMany#1',
                         'apiAlias' => 'array',
                     ],
                     [
-                        'translated' => [],
                         'extensions' => [],
-                        'id' => '3e352be2d85846dd97529c0f6b544870',
+                        'id' => '548faa1f7846436c85944f4aea792d97',
                         'name' => 'toMany#2',
                         'apiAlias' => 'array',
                     ],
                 ],
-                'test' => [
-                    'translated' => [],
+                'toOne' => [
                     'extensions' => [],
-                    'test' => 'testValue',
+                    'id' => '548faa1f7846436c85944f4aea792d95',
+                    'name' => 'toOne',
                     'apiAlias' => 'array',
                 ],
             ],
+            'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
+            'name' => 'main',
+            'createdAt' => '2018-01-15T08:01:16.000+00:00',
         ];
     }
 }

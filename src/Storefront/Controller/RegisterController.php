@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -103,7 +104,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->get('redirectParameters', json_encode([], \JSON_THROW_ON_ERROR)),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? '[]',
             'errorRoute' => $errorRoute,
             'page' => $page,
             'data' => $data,
@@ -144,7 +145,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->get('redirectParameters', json_encode([], \JSON_THROW_ON_ERROR)),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? '[]',
             'errorRoute' => $request->attributes->get('_route'),
             'errorParameters' => json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR),
             'page' => $page,
@@ -161,7 +162,7 @@ class RegisterController extends StorefrontController
     )]
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $redirect = $request->get('redirectTo', 'frontend.checkout.confirm.page');
+        $redirect = $request->query->get('redirectTo', 'frontend.checkout.confirm.page');
         \assert(\is_string($redirect));
         $errorRoute = $request->attributes->get('_route');
 
@@ -232,7 +233,7 @@ class RegisterController extends StorefrontController
             $params = $this->decodeParam($request, 'errorParameters');
 
             // this is to show the correct form because we have different use-cases (account/register||checkout/register)
-            return $this->forwardToRoute($request->get('errorRoute'), ['formViolations' => $formViolations], $params);
+            return $this->forwardToRoute((string) RequestParamHelper::get($request, 'errorRoute'), ['formViolations' => $formViolations], $params);
         }
 
         if ($this->isDoubleOptIn($data, $context)) {

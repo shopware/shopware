@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -18,11 +19,11 @@ class BehaviorListingProcessor extends AbstractListingProcessor
 
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        if ($request->get('no-aggregations')) {
+        if (RequestParamHelper::get($request, 'no-aggregations')) {
             $criteria->resetAggregations();
         }
 
-        if ($request->get('only-aggregations')) {
+        if (RequestParamHelper::get($request, 'only-aggregations')) {
             // set limit to zero to fetch no products.
             $criteria->setLimit(0);
 

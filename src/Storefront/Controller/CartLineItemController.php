@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -91,7 +92,7 @@ class CartLineItemController extends StorefrontController
     {
         return Profiler::trace('cart::delete-line-items', function () use ($cart, $request, $context) {
             try {
-                $idData = $request->get('ids');
+                $idData = RequestParamHelper::get($request, 'ids');
                 if (!\is_array($idData) || $idData === []) {
                     throw RoutingException::missingRequestParameter('ids');
                 }
@@ -151,7 +152,7 @@ class CartLineItemController extends StorefrontController
     {
         return Profiler::trace('cart::change-quantity', function () use ($cart, $id, $request, $context) {
             try {
-                $quantity = $request->get('quantity');
+                $quantity = RequestParamHelper::get($request, 'quantity');
 
                 if ($quantity === null) {
                     throw RoutingException::missingRequestParameter('quantity');

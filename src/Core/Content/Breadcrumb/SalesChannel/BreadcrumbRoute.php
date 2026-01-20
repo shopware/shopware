@@ -43,14 +43,14 @@ class BreadcrumbRoute extends AbstractBreadcrumbRoute
     )]
     public function load(Request $request, SalesChannelContext $salesChannelContext): BreadcrumbRouteResponse
     {
-        $id = $request->get('id', '');
-        $type = $request->get('type', 'product');
+        $id = $request->attributes->get('id', '');
+        $type = $request->query->get('type', 'product');
         if ($type === 'category') {
             $breadcrumb = $this->getCategories($id, $salesChannelContext);
         } else {
             $breadcrumb = $this->tryToGetCategoriesFromProductOrCategory(
                 $id,
-                $request->get('referrerCategoryId', ''),
+                $request->query->get('referrerCategoryId', ''),
                 $salesChannelContext
             );
         }

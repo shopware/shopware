@@ -33,17 +33,34 @@ class ThemeChangeCommandTest extends TestCase
      */
     private EntityRepository $salesChannelRepository;
 
-    private MockObject $pluginRegistry;
+    private MockObject&StorefrontPluginRegistry $pluginRegistry;
+
+    private MockObject&ThemeService $themeService;
 
     /**
      * @var EntityRepository<ThemeCollection>
      */
     private EntityRepository $themeRepository;
 
+    private CommandTester $commandTester;
+
     protected function setUp(): void
     {
         $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $this->themeRepository = static::getContainer()->get('theme.repository');
+        $this->pluginRegistry = $this->getPluginRegistryMock();
+        $this->themeService = $this->createMock(ThemeService::class);
+
+        $themeChangeCommand = new ThemeChangeCommand(
+            $this->themeService,
+            $this->pluginRegistry,
+            $this->salesChannelRepository,
+            $this->themeRepository
+        );
+
+        $this->commandTester = new CommandTester($themeChangeCommand);
+        $application = new Application();
+        $application->addCommand($themeChangeCommand);
     }
 
     public function testThemeChangeCommandAllSalesChannels(): void
@@ -59,38 +76,15 @@ class ThemeChangeCommandTest extends TestCase
 
         $this->themeRepository->create($themes, $context);
 
-        $this->pluginRegistry = $this->getPluginRegistryMock();
         $salesChannels = $this->salesChannelRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
             Context::createDefaultContext()
         )->getEntities();
 
-        $arguments = [];
-
-        foreach ($salesChannels as $salesChannel) {
-            $arguments[] = [
-                $themes[0]['id'],
-                $salesChannel->getId(),
-                Context::createDefaultContext(),
-            ];
-        }
-
-        $themeService = $this->createMock(ThemeService::class);
-        $themeService->expects($this->exactly(\count($salesChannels)))
+        $this->themeService->expects($this->exactly(\count($salesChannels)))
             ->method('assignTheme');
 
-        $themeChangeCommand = new ThemeChangeCommand(
-            $themeService,
-            $this->pluginRegistry,
-            $this->salesChannelRepository,
-            $this->themeRepository
-        );
-
-        $commandTester = new CommandTester($themeChangeCommand);
-        $application = new Application();
-        $application->add($themeChangeCommand);
-
-        $commandTester->execute([
+        $this->commandTester->execute([
             'theme-name' => $themes[0]['technicalName'],
             '--all' => true,
         ]);
@@ -107,25 +101,11 @@ class ThemeChangeCommandTest extends TestCase
 
         $this->themeRepository->create($themes, $context);
 
-        $this->pluginRegistry = $this->getPluginRegistryMock();
-
-        $themeService = $this->createMock(ThemeService::class);
-        $themeService->expects($this->exactly(1))
+        $this->themeService->expects($this->exactly(1))
             ->method('assignTheme')
             ->with($themes[0]['id'], $salesChannel['id'], $context);
 
-        $themeChangeCommand = new ThemeChangeCommand(
-            $themeService,
-            $this->pluginRegistry,
-            $this->salesChannelRepository,
-            $this->themeRepository
-        );
-
-        $commandTester = new CommandTester($themeChangeCommand);
-        $application = new Application();
-        $application->add($themeChangeCommand);
-
-        $commandTester->execute([
+        $this->commandTester->execute([
             'theme-name' => $themes[0]['technicalName'],
             '--sales-channel' => $salesChannel['id'],
         ]);
@@ -133,44 +113,16 @@ class ThemeChangeCommandTest extends TestCase
 
     public function testThemeChangeCommandWithNotExistingSalesChannelAndTheme(): void
     {
-        $themeService = $this->createMock(ThemeService::class);
-        $this->pluginRegistry = $this->getPluginRegistryMock();
+        $this->commandTester->execute(['theme-name' => 'not existing theme', '--sales-channel' => 'not existing saleschannel'], ['interactive' => true]);
 
-        $themeChangeCommand = new ThemeChangeCommand(
-            $themeService,
-            $this->pluginRegistry,
-            $this->salesChannelRepository,
-            $this->themeRepository
-        );
-
-        $commandTester = new CommandTester($themeChangeCommand);
-        $application = new Application();
-        $application->add($themeChangeCommand);
-
-        $commandTester->execute(['theme-name' => 'not existing theme', '--sales-channel' => 'not existing saleschannel'], ['interactive' => true]);
-
-        static::assertStringContainsString('[ERROR] Could not find sales channel with ID not existing saleschannel', $commandTester->getDisplay());
+        static::assertStringContainsString('[ERROR] Could not find sales channel with ID not existing saleschannel', $this->commandTester->getDisplay());
     }
 
     public function testThemeChangeCommandWithNoSalesChannel(): void
     {
-        $themeService = $this->createMock(ThemeService::class);
-        $this->pluginRegistry = $this->getPluginRegistryMock();
+        $this->commandTester->execute(['--all' => true, '--sales-channel' => 'foo'], ['interactive' => true]);
 
-        $themeChangeCommand = new ThemeChangeCommand(
-            $themeService,
-            $this->pluginRegistry,
-            $this->salesChannelRepository,
-            $this->themeRepository
-        );
-
-        $commandTester = new CommandTester($themeChangeCommand);
-        $application = new Application();
-        $application->add($themeChangeCommand);
-
-        $commandTester->execute(['--all' => true, '--sales-channel' => 'foo'], ['interactive' => true]);
-
-        static::assertStringContainsString('[ERROR] You can use either --sales-channel or --all, not both at the same time.', $commandTester->getDisplay());
+        static::assertStringContainsString('[ERROR] You can use either --sales-channel or --all, not both at the same time.', $this->commandTester->getDisplay());
     }
 
     public function testThemeChangeCommandWithOneSalesChannelWithoutCompiling(): void
@@ -184,25 +136,11 @@ class ThemeChangeCommandTest extends TestCase
 
         $this->themeRepository->create($themes, $context);
 
-        $this->pluginRegistry = $this->getPluginRegistryMock();
-
-        $themeService = $this->createMock(ThemeService::class);
-        $themeService->expects($this->exactly(1))
+        $this->themeService->expects($this->exactly(1))
             ->method('assignTheme')
             ->with($themes[0]['id'], $salesChannel['id'], $context, true);
 
-        $themeChangeCommand = new ThemeChangeCommand(
-            $themeService,
-            $this->pluginRegistry,
-            $this->salesChannelRepository,
-            $this->themeRepository
-        );
-
-        $commandTester = new CommandTester($themeChangeCommand);
-        $application = new Application();
-        $application->add($themeChangeCommand);
-
-        $commandTester->execute([
+        $this->commandTester->execute([
             'theme-name' => $themes[0]['technicalName'],
             '--sales-channel' => $salesChannel['id'],
             '--no-compile' => true,
@@ -221,25 +159,11 @@ class ThemeChangeCommandTest extends TestCase
 
         $this->themeRepository->create($themes, $context);
 
-        $this->pluginRegistry = $this->getPluginRegistryMock();
-
-        $themeService = $this->createMock(ThemeService::class);
-        $themeService->expects($this->exactly(1))
+        $this->themeService->expects($this->exactly(1))
             ->method('assignTheme')
             ->with($themes[0]['id'], $salesChannel['id'], $context, false);
 
-        $themeChangeCommand = new ThemeChangeCommand(
-            $themeService,
-            $this->pluginRegistry,
-            $this->salesChannelRepository,
-            $this->themeRepository
-        );
-
-        $commandTester = new CommandTester($themeChangeCommand);
-        $application = new Application();
-        $application->add($themeChangeCommand);
-
-        $commandTester->execute([
+        $this->commandTester->execute([
             'theme-name' => $themes[0]['technicalName'],
             '--sales-channel' => $salesChannel['id'],
             '--sync' => true,

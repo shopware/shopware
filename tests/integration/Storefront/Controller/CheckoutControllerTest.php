@@ -604,7 +604,7 @@ class CheckoutControllerTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
         $request = $this->createRequest($salesChannelContext);
-        $request->request->set('orderId', $order->getId());
+        $request->query->set('orderId', $order->getId());
         $requestDataBag = $this->createRequestDataBag('');
 
         static::getContainer()->get(CheckoutController::class)->finishPage($request, $salesChannelContext, $requestDataBag);

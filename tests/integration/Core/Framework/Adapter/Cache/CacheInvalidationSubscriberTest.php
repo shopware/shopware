@@ -80,6 +80,14 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $this->backtraceCollector->expects($this->once())->method('collectDebugBacktrace')->willReturn([
             [
+                'class' => '',
+                'function' => 'invalidate',
+            ],
+            [
+                'class' => CacheInvalidator::class,
+                'function' => 'invalidate',
+            ],
+            [
                 'class' => CacheInvalidationSubscriber::class,
                 'function' => 'invalidatePropertyFilters',
             ],

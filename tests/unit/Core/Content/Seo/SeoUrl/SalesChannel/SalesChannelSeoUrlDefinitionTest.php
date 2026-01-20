@@ -6,9 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrl\SalesChannel\SalesChannelSeoUrlDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
@@ -46,49 +48,78 @@ class SalesChannelSeoUrlDefinitionTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{field: string, userValue: bool, expectedValue: bool}>
+     * @return iterable<string, array{field: string, userValue: bool|null}>
      */
-    public static function provideOverridableFilters(): iterable
+    public static function provideApiFilterOverrides(): iterable
     {
         yield 'isCanonical can be overridden to false' => [
             'field' => 'isCanonical',
             'userValue' => false,
-            'expectedValue' => false,
+        ];
+
+        yield 'isCanonical can be overridden to null' => [
+            'field' => 'isCanonical',
+            'userValue' => null,
         ];
 
         yield 'isDeleted can be overridden to true' => [
             'field' => 'isDeleted',
             'userValue' => true,
-            'expectedValue' => true,
         ];
     }
 
-    #[DataProvider('provideOverridableFilters')]
-    public function testProcessCriteriaRespectsUserProvidedFilter(string $field, bool $userValue, bool $expectedValue): void
+    /**
+     * Tests with QueryStringParser to simulate real Store API behavior.
+     * The API automatically prefixes field names with the entity name (e.g., "isCanonical" becomes "seo_url.isCanonical").
+     */
+    #[DataProvider('provideApiFilterOverrides')]
+    public function testProcessCriteriaRespectsApiProvidedFilter(string $field, ?bool $userValue): void
     {
         $definition = new SalesChannelSeoUrlDefinition();
         $criteria = new Criteria();
         $context = Generator::generateSalesChannelContext();
 
-        $criteria->addFilter(new EqualsFilter($field, $userValue));
+        // Simulate API request - QueryStringParser adds entity prefix to field names
+        $filter = QueryStringParser::fromArray(
+            $definition,
+            ['type' => 'equals', 'field' => $field, 'value' => $userValue],
+            new SearchRequestException()
+        );
 
+        $prefixedField = 'seo_url.' . $field;
+
+        // Verify QueryStringParser added the prefix
+        static::assertInstanceOf(EqualsFilter::class, $filter);
+        static::assertSame($prefixedField, $filter->getField(), 'QueryStringParser should prefix field with entity name');
+
+        $criteria->addFilter($filter);
         $definition->processCriteria($criteria, $context);
 
         $filters = $criteria->getFilters();
 
-        // Count filters for this field - should only be one (the user-provided one)
-        $fieldFilters = array_filter(
+        // Verify no default filter was added for the base field
+        $defaultFilters = array_filter(
             $filters,
-            static fn ($filter) => $filter instanceof EqualsFilter && $filter->getField() === $field
+            static fn ($f) => $f instanceof EqualsFilter && $f->getField() === $field
         );
+        static::assertCount(0, $defaultFilters, "Default $field filter should not be added when API filter exists");
 
-        static::assertCount(1, $fieldFilters, "Should only have one $field filter");
+        // Verify user's prefixed filter is preserved with correct value
+        $prefixedFilters = array_filter(
+            $filters,
+            static fn ($f) => $f instanceof EqualsFilter && $f->getField() === $prefixedField
+        );
+        static::assertCount(1, $prefixedFilters, 'User API filter should be preserved');
 
-        $filter = reset($fieldFilters);
-        static::assertInstanceOf(EqualsFilter::class, $filter);
-        static::assertSame($expectedValue, $filter->getValue(), "User-provided $field filter should be preserved");
+        $preservedFilter = reset($prefixedFilters);
+        static::assertInstanceOf(EqualsFilter::class, $preservedFilter);
+        static::assertSame($userValue, $preservedFilter->getValue(), "User-provided $field value should be preserved");
     }
 
+    /**
+     * Documents limitation: hasEqualsFilter() only checks top-level filters.
+     * Filters nested in MultiFilter are not detected, so defaults are still added.
+     */
     public function testProcessCriteriaAddsDefaultFilterWhenFilterIsNested(): void
     {
         $definition = new SalesChannelSeoUrlDefinition();
@@ -97,8 +128,8 @@ class SalesChannelSeoUrlDefinitionTest extends TestCase
 
         // User provides isCanonical inside a MultiFilter (not a top-level EqualsFilter)
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('isCanonical', false),
-            new EqualsFilter('isCanonical', null),
+            new EqualsFilter('seo_url.isCanonical', false),
+            new EqualsFilter('seo_url.isCanonical', null),
         ]));
 
         $definition->processCriteria($criteria, $context);

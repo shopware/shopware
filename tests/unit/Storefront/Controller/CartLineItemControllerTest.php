@@ -508,7 +508,7 @@ class CartLineItemControllerTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $request = new Request(['quantity' => 3]);
+        $request = new Request([], ['quantity' => 3]);
         $cart = new Cart(Uuid::randomHex());
         $cart->addLineItems(new LineItemCollection([new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE)]));
         $context = $this->createMock(SalesChannelContext::class);

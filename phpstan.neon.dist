@@ -194,3 +194,6 @@ parameters:
         - # RedisArray has missing methods in the stub. See https://github.com/phpredis/phpredis/discussions/2736
             message: '#Call to an undefined method Predis\\ClientInterface\|Redis\|RedisArray\|RedisCluster\|Relay\\Cluster\|Relay\\Relay::#'
             identifier: method.notFound
+
+        - # XML config format will be migrated step by step, so we ignore errors for now, see https://github.com/shopware/shopware/issues/13072
+            message: '#deprecated class Symfony\\Component\\DependencyInjection\\Loader\\XmlFileLoader#'

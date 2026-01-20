@@ -131,7 +131,7 @@ class AddressController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/edit.html.twig', [
             'page' => $page,
-            'redirectTo' => $request->get('redirectTo') ?: 'frontend.account.address.page',
+            'redirectTo' => $request->query->get('redirectTo') ?: 'frontend.account.address.page',
         ]);
     }
 

@@ -69,7 +69,7 @@ class GuestWishlistPageletTest extends TestCase
     {
         $request = new Request();
 
-        $request->attributes->set('productIds', [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()]);
+        $request->request->set('productIds', [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()]);
 
         // Mocks the load function
         $productRouteLoadClosure = static function (Criteria $criteria, SalesChannelContext $context): ProductListResponse {
@@ -122,7 +122,7 @@ class GuestWishlistPageletTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $request = new Request();
-        $request->attributes->set('productIds', [$productId]);
+        $request->request->set('productIds', [$productId]);
 
         $context = $this->salesChannelContextMock;
 

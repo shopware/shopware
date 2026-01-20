@@ -344,7 +344,7 @@ class CreateAppCommandTest extends TestCase
 
         $commandTester = new CommandTester($appCreateCommand);
         $application = new Application();
-        $application->add($appCreateCommand);
+        $application->addCommand($appCreateCommand);
 
         return $commandTester;
     }

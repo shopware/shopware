@@ -53,9 +53,9 @@ class SystemDefaultValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param string[] $ids
+     * @param list<string> $ids
      *
-     * @return string[]
+     * @return list<string>
      */
     private function filterSystemDefaults(array $ids): array
     {

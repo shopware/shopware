@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRo
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -80,8 +81,8 @@ class AccountProfileController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/profile/index.html.twig', [
             'page' => $page,
-            'passwordFormViolation' => $request->get('passwordFormViolation'),
-            'emailFormViolation' => $request->get('emailFormViolation'),
+            'passwordFormViolation' => $request->attributes->get('passwordFormViolation'),
+            'emailFormViolation' => $request->attributes->get('emailFormViolation'),
         ]);
     }
 
@@ -157,7 +158,7 @@ class AccountProfileController extends StorefrontController
             return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'passwordFormViolation' => true]);
         }
 
-        if ($request->get('redirectTo') || $request->get('forwardTo')) {
+        if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'forwardTo')) {
             return $this->createActionResponse($request);
         }
 
@@ -180,7 +181,7 @@ class AccountProfileController extends StorefrontController
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
-        if ($request->get('redirectTo') || $request->get('forwardTo')) {
+        if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'forwardTo')) {
             return $this->createActionResponse($request);
         }
 

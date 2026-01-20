@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited as Inherit
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited as ReverseInheritedFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -91,11 +92,12 @@ class AttributeEntityCompilerTest extends TestCase
 
         static::assertNotNull($entityDefinition, 'Entity definition not found in compiled result');
 
-        // Find fields with Inherited flag
+        // Find fields with Inherited and ReverseInherited flag
         $inheritedStringField = null;
         $inheritedCurrencyIdField = null;
         $inheritedCurrencyField = null;
         $inheritedWithForeignKeyField = null;
+        $inheritedProductField = null;
 
         foreach ($entityDefinition['fields'] as $field) {
             switch ($field['name'] ?? null) {
@@ -110,6 +112,9 @@ class AttributeEntityCompilerTest extends TestCase
                     break;
                 case 'inheritedWithForeignKey':
                     $inheritedWithForeignKeyField = $field;
+                    break;
+                case 'product':
+                    $inheritedProductField = $field;
                     break;
             }
         }
@@ -139,6 +144,13 @@ class AttributeEntityCompilerTest extends TestCase
         static::assertIsArray($inheritedWithForeignKeyField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['class']);
         static::assertSame(['custom_fk'], $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['args'], 'foreignKey parameter should be passed through');
+
+        // Verify inherited association field has ReverseInherited flag
+        static::assertNotNull($inheritedProductField, 'product field not found');
+        static::assertArrayHasKey(ReverseInheritedFlag::class, $inheritedProductField['flags'], 'product should have ReverseInherited flag');
+        static::assertIsArray($inheritedProductField['flags'][ReverseInheritedFlag::class]);
+        static::assertSame(ReverseInheritedFlag::class, $inheritedProductField['flags'][ReverseInheritedFlag::class]['class']);
+        static::assertSame(['propertyName' => 'attributed'], $inheritedProductField['flags'][ReverseInheritedFlag::class]['args']);
     }
 
     /**

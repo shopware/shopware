@@ -282,7 +282,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 static::assertFalse($download->isAccessGranted());
 
                 try {
-                    $request = new Request(['downloadId' => $download->getId(), 'orderId' => $orderId]);
+                    $request = new Request([], [], ['downloadId' => $download->getId(), 'orderId' => $orderId]);
                     $this->downloadRoute->load($request, $this->salesChannelContext);
 
                     static::fail('Download route returned response without access granted');
@@ -339,7 +339,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 static::assertTrue($download->isAccessGranted());
                 static::assertNotNull($download->getMedia());
 
-                $request = new Request(['downloadId' => $download->getId(), 'orderId' => $orderId]);
+                $request = new Request([], [], ['downloadId' => $download->getId(), 'orderId' => $orderId]);
                 $response = $this->downloadRoute->load($request, $this->salesChannelContext);
                 static::assertInstanceOf(StreamedResponse::class, $response);
                 ob_start();

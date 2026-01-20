@@ -9,6 +9,7 @@ use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -107,7 +108,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
         $criteria = new Criteria([$pageId]);
         $criteria->setTitle('landing-page::cms-page');
 
-        $slots = $request->get('slots');
+        $slots = RequestParamHelper::get($request, 'slots');
 
         if (\is_string($slots)) {
             $slots = explode('|', $slots);

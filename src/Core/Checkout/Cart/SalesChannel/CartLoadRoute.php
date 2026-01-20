@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -38,8 +39,8 @@ class CartLoadRoute extends AbstractCartLoadRoute
     #[Route(path: '/store-api/checkout/cart', name: 'store-api.checkout.cart.read', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): CartResponse
     {
-        $token = $request->get('token', $context->getToken());
-        $taxed = $request->get('taxed', false);
+        $token = RequestParamHelper::get($request, 'token', $context->getToken());
+        $taxed = RequestParamHelper::get($request, 'taxed', false);
 
         try {
             $cart = $this->persister->load($token, $context);

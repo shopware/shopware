@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -44,7 +45,7 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
     public function remove(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
         return $this->cartLocker->locked($context, function () use ($request, $cart, $context) {
-            $ids = $request->get('ids');
+            $ids = RequestParamHelper::get($request, 'ids');
             $lineItems = [];
 
             foreach ($ids as $id) {

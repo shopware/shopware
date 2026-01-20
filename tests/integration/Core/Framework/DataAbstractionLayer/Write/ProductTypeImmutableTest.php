@@ -62,6 +62,9 @@ class ProductTypeImmutableTest extends TestCase
         ], Context::createDefaultContext());
     }
 
+    /**
+     * @return EntityRepository<ProductCollection>
+     */
     private function getRepository(): EntityRepository
     {
         /** @var EntityRepository<ProductCollection> $repo */

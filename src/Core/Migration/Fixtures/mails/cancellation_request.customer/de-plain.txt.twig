@@ -1,4 +1,4 @@
-Wir haben Ihre Kündigungsanfrage für den Vertrag mit der Nummer {{ contractNumber }} erhalten.
+Wir haben Ihren Wiederrufsantrag für den Vertrag mit der Nummer {{ contractNumber }} erhalten.
 
 Weitere Informationen:
 Vorname: {{ cancellationFormData.firstName }}
@@ -7,4 +7,4 @@ E-Mail-Adresse: {{ cancellationFormData.email }}
 Vertragsnummer (Bestellnummer, Abonnementnummer, ...): {{ contractNumber }}
 Kommentar: {{ cancellationFormData.comment }}
 
-Das Formular wurde am {{ date }} um {{ time }} Uhr eingereicht.
+Das Formular wurde am {{ cancellationFormData.submitTime|format_datetime('medium', 'short', locale='de-DE') }} eingereicht.

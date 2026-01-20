@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey as Primary
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Protection;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required as RequiredAttr;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReverseInherited as ReverseInheritedAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
@@ -45,6 +46,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -303,6 +305,11 @@ class AttributeEntityCompiler
         if ($inherited = $this->getAttribute($property, InheritedAttr::class)) {
             $instance = $inherited->newInstance();
             $flags[Inherited::class] = ['class' => Inherited::class, 'args' => [$instance->foreignKey]];
+        }
+
+        if ($reverseInherited = $this->getAttribute($property, ReverseInheritedAttr::class)) {
+            $instance = $reverseInherited->newInstance();
+            $flags[ReverseInherited::class] = ['class' => ReverseInherited::class, 'args' => ['propertyName' => $instance->propertyName]];
         }
 
         if ($this->getAttribute($property, AllowEmptyStringAttr::class)) {

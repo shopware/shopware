@@ -135,7 +135,7 @@ class MailContentTest extends TestCase
         $htmlFixturePath = $fixturePath . '-html.html.twig';
         $plainFixturePath = $fixturePath . '-plain.html.twig';
         if (!$this->filesystem->exists($plainFixturePath)) {
-            $plainFixturePath = $fixturePath . '-plain.text.twig';
+            $plainFixturePath = $fixturePath . '-plain.txt.twig';
         }
 
         static::assertFileExists($htmlFixturePath);

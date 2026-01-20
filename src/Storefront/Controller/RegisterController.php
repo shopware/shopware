@@ -218,7 +218,6 @@ class RegisterController extends StorefrontController
         $this->addFlash(self::SUCCESS, $this->trans('account.doubleOptInRegistrationSuccessfully'));
 
         if ($redirectTo = $queryDataBag->get('redirectTo')) {
-            /** @var array<string, mixed> $parameters */
             $parameters = $queryDataBag->all();
             unset($parameters['em'], $parameters['hash'], $parameters['redirectTo']);
 
@@ -259,9 +258,7 @@ class RegisterController extends StorefrontController
         $definition = new DataValidationDefinition('storefront.confirmation');
 
         if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation', $context->getSalesChannelId())) {
-            $definition->add('emailConfirmation', new NotBlank(), new EqualTo([
-                'value' => $data->get('email'),
-            ]));
+            $definition->add('emailConfirmation', new NotBlank(), new EqualTo(value: $data->get('email')));
         }
 
         if ($data->getBoolean('guest')) {
@@ -269,15 +266,13 @@ class RegisterController extends StorefrontController
         }
 
         if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation', $context->getSalesChannelId())) {
-            $definition->add('passwordConfirmation', new NotBlank(), new EqualTo([
-                'value' => $data->get('password'),
-            ]));
+            $definition->add('passwordConfirmation', new NotBlank(), new EqualTo(value: $data->get('password')));
         }
 
         return $definition;
     }
 
-    private function prepareAffiliateTracking(RequestDataBag $data, SessionInterface $session): DataBag
+    private function prepareAffiliateTracking(RequestDataBag $data, SessionInterface $session): RequestDataBag
     {
         $affiliateCode = $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
         $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);

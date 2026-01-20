@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorSto
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\BacktraceCollector;
+use Shopware\Core\Framework\Util\Dto\BacktraceFrame;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -39,7 +40,11 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         $this->ids = new IdsCollection();
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->backtraceCollector = $this->createMock(BacktraceCollector::class);
+
+        $this->backtraceCollector = $this
+            ->getMockBuilder(BacktraceCollector::class)
+            ->onlyMethods(['collectDebugBacktrace'])
+            ->getMock();
 
         $cacheInvalidator = new CacheInvalidator(
             [$this->createMock(TagAwareAdapterInterface::class)],
@@ -51,7 +56,6 @@ class CacheInvalidationSubscriberTest extends TestCase
             false,
             false,
             true,
-            'info',
             $this->backtraceCollector
         );
 
@@ -74,7 +78,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->backtraceCollector->expects($this->once())->method('collect')->willReturn([
+        $this->backtraceCollector->expects($this->once())->method('collectDebugBacktrace')->willReturn([
             [
                 'class' => CacheInvalidationSubscriber::class,
                 'function' => 'invalidatePropertyFilters',
@@ -82,14 +86,18 @@ class CacheInvalidationSubscriberTest extends TestCase
         ]);
 
         $this->logger->expects($this->once())
-            ->method('log')
+            ->method('info')
             ->with(
-                'info',
-                'Purged 1 tags.',
+                'Purged tags (1).',
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
-                    static::assertSame('Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber', $context['caller']['class']);
-                    static::assertSame('invalidatePropertyFilters', $context['caller']['function']);
+                    static::assertEquals(
+                        new BacktraceFrame(
+                            'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
+                            'invalidatePropertyFilters'
+                        ),
+                        $context['caller']
+                    );
 
                     return true;
                 })
@@ -110,7 +118,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->backtraceCollector->expects($this->once())->method('collect')->willReturn([
+        $this->backtraceCollector->expects($this->once())->method('collectDebugBacktrace')->willReturn([
             [
                 'class' => CacheInvalidationSubscriber::class,
                 'function' => 'invalidateSnippets',
@@ -118,14 +126,18 @@ class CacheInvalidationSubscriberTest extends TestCase
         ]);
 
         $this->logger->expects($this->once())
-            ->method('log')
+            ->method('info')
             ->with(
-                'info',
-                'Purged 1 tags.',
+                'Purged tags (1).',
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
-                    static::assertSame('Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber', $context['caller']['class']);
-                    static::assertSame('invalidateSnippets', $context['caller']['function']);
+                    static::assertEquals(
+                        new BacktraceFrame(
+                            'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
+                            'invalidateSnippets'
+                        ),
+                        $context['caller']
+                    );
 
                     return true;
                 })
@@ -167,7 +179,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->backtraceCollector->expects($this->once())->method('collect')->willReturn([
+        $this->backtraceCollector->expects($this->once())->method('collectDebugBacktrace')->willReturn([
             [
                 'class' => CacheInvalidationSubscriber::class,
                 'function' => 'invalidatePropertyFilters',
@@ -175,14 +187,18 @@ class CacheInvalidationSubscriberTest extends TestCase
         ]);
 
         $this->logger->expects($this->once())
-            ->method('log')
+            ->method('info')
             ->with(
-                'info',
-                'Purged 1 tags.',
+                'Purged tags (1).',
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
-                    static::assertSame('Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber', $context['caller']['class']);
-                    static::assertSame('invalidatePropertyFilters', $context['caller']['function']);
+                    static::assertEquals(
+                        new BacktraceFrame(
+                            'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
+                            'invalidatePropertyFilters'
+                        ),
+                        $context['caller']
+                    );
 
                     return true;
                 })
@@ -219,7 +235,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->backtraceCollector->expects($this->once())->method('collect')->willReturn([
+        $this->backtraceCollector->expects($this->once())->method('collectDebugBacktrace')->willReturn([
             [
                 'class' => CacheInvalidationSubscriber::class,
                 'function' => 'invalidatePropertyFilters',
@@ -227,14 +243,18 @@ class CacheInvalidationSubscriberTest extends TestCase
         ]);
 
         $this->logger->expects($this->once())
-            ->method('log')
+            ->method('info')
             ->with(
-                'info',
-                'Purged 1 tags.',
+                'Purged tags (1).',
                 static::callback(function (array $context): bool {
                     static::assertCount(1, $context['tags']);
-                    static::assertSame('Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber', $context['caller']['class']);
-                    static::assertSame('invalidatePropertyFilters', $context['caller']['function']);
+                    static::assertEquals(
+                        new BacktraceFrame(
+                            'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
+                            'invalidatePropertyFilters'
+                        ),
+                        $context['caller']
+                    );
 
                     return true;
                 })

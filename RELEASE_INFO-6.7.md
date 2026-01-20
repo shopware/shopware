@@ -111,8 +111,7 @@ This affects the following exception factory methods:
 
 ### Logging for invalidated cache tags
 
-Added configurable logging for invalidated cache tags, allowing the log level to be set via configuration and logging to be enabled or disabled as needed for debugging and transparency.
-
+Added logging for invalidated cache tags at the info level, with the ability to enable or disable the logging via configuration for debugging and transparency.
 ## Administration
 
 ### Deprecations in mail template components

@@ -441,11 +441,8 @@ class Configuration implements ConfigurationInterface
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
-                        ->booleanNode('log_tags')
-                            ->defaultTrue()
-                        ->end()
-                        ->scalarNode('log_level')
-                            ->defaultValue('info')
+                        ->booleanNode('tag_invalidation_log_enabled')
+                            ->defaultFalse()
                         ->end()
                         // @deprecated tag:v6.8.0 - remove all route specific invalidation options
                         ->arrayNode('product_listing_route')

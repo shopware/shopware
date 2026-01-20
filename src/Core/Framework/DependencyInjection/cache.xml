@@ -50,8 +50,7 @@
             <argument type="service" id="cache.http"/>
             <argument>%shopware.http_cache.soft_purge%</argument>
             <argument>%shopware.cache.invalidation.delay_enabled%</argument>
-            <argument>%shopware.cache.invalidation.log_tags%</argument>
-            <argument>%shopware.cache.invalidation.log_level%</argument>
+            <argument>%shopware.cache.invalidation.tag_invalidation_log_enabled%</argument>
             <argument type="service" id="Shopware\Core\Framework\Util\BacktraceCollector"/>
         </service>
 

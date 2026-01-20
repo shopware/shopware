@@ -36,8 +36,7 @@ class CacheInvalidator
         TagAwareAdapterInterface $httpCacheStore,
         private readonly bool $softPurge,
         private readonly bool $useDelayedCache,
-        private readonly bool $logInvalidations,
-        private readonly string $logLevel,
+        private readonly bool $tagInvalidationLogEnabled,
         private readonly BacktraceCollector $backtraceCollector
     ) {
         $this->httpCacheStore = new Psr16Cache($httpCacheStore);
@@ -108,13 +107,17 @@ class CacheInvalidator
             $this->httpCacheStore->setMultiple($list);
         }
 
-        if ($this->logInvalidations) {
-            $this->logger->log(
-                $this->logLevel,
-                \sprintf('Purged %d tags.', \count($keys)),
+        if ($this->tagInvalidationLogEnabled) {
+            $callerFrame = $this->backtraceCollector->getFirstFrame(
+                fn (array $frame) => !isset($frame['class'])
+                    || $frame['class'] === self::class
+            );
+
+            $this->logger->info(
+                \sprintf('Purged tags (%d).', \count($keys)),
                 [
                     'tags' => $keys,
-                    'caller' => $this->findCaller(),
+                    'caller' => $callerFrame,
                 ]
             );
         }
@@ -125,24 +128,5 @@ class CacheInvalidator
     private function shouldForceInvalidate(): bool
     {
         return $this->requestStack->getMainRequest()?->headers->get(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE) === '1';
-    }
-
-    /**
-     * @return array<string, int|string>|null
-     */
-    private function findCaller(): ?array
-    {
-        foreach ($this->backtraceCollector->collect() as $frame) {
-            if (!isset($frame['class']) || $frame['class'] === self::class) {
-                continue; // skip CacheInvalidator methods
-            }
-
-            return [
-                'class' => $frame['class'],
-                'function' => $frame['function'],
-            ];
-        }
-
-        return null;
     }
 }

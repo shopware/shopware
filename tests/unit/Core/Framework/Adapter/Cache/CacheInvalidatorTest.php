@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\Framework\Util\BacktraceCollector;
+use Shopware\Core\Framework\Util\Dto\BacktraceFrame;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -51,7 +51,6 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            'info',
             $this->createMock(BacktraceCollector::class)
         );
 
@@ -73,16 +72,12 @@ class CacheInvalidatorTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
-            ->method('log')
+            ->method('info')
             ->with(
-                'debug',
-                'Purged 1 tags.',
+                'Purged tags (1).',
                 [
                     'tags' => ['foo'],
-                    'caller' => [
-                        'class' => self::class,
-                        'function' => __FUNCTION__,
-                    ],
+                    'caller' => new BacktraceFrame('Foo', 'a'),
                 ]
             );
 
@@ -96,8 +91,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            'debug',
-            $this->createBacktraceCollectorMock(self::class, __FUNCTION__)
+            $this->createBacktraceCollectorMock('Foo', 'a')
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -118,16 +112,12 @@ class CacheInvalidatorTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
-            ->method('log')
+            ->method('info')
             ->with(
-                'info',
-                'Purged 1 tags.',
+                'Purged tags (1).',
                 [
                     'tags' => ['foo'],
-                    'caller' => [
-                        'class' => self::class,
-                        'function' => __FUNCTION__,
-                    ],
+                    'caller' => new BacktraceFrame('Foo', 'a'),
                 ]
             );
 
@@ -141,8 +131,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            'info',
-            $this->createBacktraceCollectorMock(self::class, __FUNCTION__)
+            $this->createBacktraceCollectorMock('Foo', 'a')
         );
 
         $invalidator->invalidate(['foo']);
@@ -165,7 +154,7 @@ class CacheInvalidatorTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE, '1');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('log');
+        $logger->expects($this->never())->method('info');
 
         $invalidator = new CacheInvalidator(
             [$tagAwareAdapter],
@@ -177,7 +166,6 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             false,
-            'none',
             $this->createMock(BacktraceCollector::class)
         );
 
@@ -206,7 +194,6 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            'info',
             $this->createMock(BacktraceCollector::class)
         );
 
@@ -238,7 +225,6 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            'info',
             $this->createMock(BacktraceCollector::class)
         );
 
@@ -261,16 +247,15 @@ class CacheInvalidatorTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
-            ->method('log')
+            ->method('info')
             ->with(
-                'info',
-                'Purged 1 tags.',
+                'Purged tags (1).',
                 [
                     'tags' => ['foo'],
-                    'caller' => [
-                        'class' => CacheInvalidationSubscriber::class,
-                        'function' => 'invalidatePropertyFilters',
-                    ],
+                    'caller' => new BacktraceFrame(
+                        CacheInvalidationSubscriber::class,
+                        'invalidatePropertyFilters'
+                    ),
                 ]
             );
 
@@ -286,7 +271,6 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            'info',
             $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters')
         );
 
@@ -302,16 +286,15 @@ class CacheInvalidatorTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
-            ->method('log')
+            ->method('info')
             ->with(
-                'info',
-                'Purged 1 tags.',
+                'Purged tags (1).',
                 [
                     'tags' => ['foo'],
-                    'caller' => [
-                        'class' => CacheInvalidationSubscriber::class,
-                        'function' => 'invalidatePropertyFilters',
-                    ],
+                    'caller' => new BacktraceFrame(
+                        CacheInvalidationSubscriber::class,
+                        'invalidatePropertyFilters'
+                    ),
                 ]
             );
 
@@ -326,7 +309,6 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             true,
-            'info',
             $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters')
         );
 
@@ -340,29 +322,18 @@ class CacheInvalidatorTest extends TestCase
         static::assertTrue(time() >= $itemValue, 'Timestamp should be set to current time or later');
     }
 
-    /**
-     * @param array<string, mixed> $backtrace
-     */
-    #[DataProvider('invalidBacktraceProvider')]
-    public function testInvalidBacktraceHandling(array $backtrace): void
+    public function testInvalidBacktraceHandling(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
-            ->method('log')
+            ->method('info')
             ->with(
-                'info',
-                'Purged 1 tags.',
+                'Purged tags (1).',
                 [
                     'tags' => ['foo'],
                     'caller' => null,
                 ]
             );
-
-        $backtraceCollector = $this->createMock(BacktraceCollector::class);
-        $backtraceCollector
-            ->expects($this->once())
-            ->method('collect')
-            ->willReturn($backtrace);
 
         $adapter = new ArrayAdapter();
         $invalidator = new CacheInvalidator(
@@ -375,48 +346,10 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             true,
-            'info',
-            $backtraceCollector
+            $this->createBacktraceCollectorMock()
         );
 
         $invalidator->invalidate(['foo'], true);
-    }
-
-    /**
-     * @return iterable<
-     *   string,
-     *   array{
-     *     backtrace: array{
-     *       file?: string,
-     *       line?: int,
-     *       function?: string,
-     *       class?: string
-     *     }
-     *   }
-     * >
-     */
-    public static function invalidBacktraceProvider(): iterable
-    {
-        yield 'empty backtrace' => [
-            'backtrace' => [],
-        ];
-
-        yield 'single frame (ignored)' => [
-            'backtrace' => [
-                'file' => '',
-                'line' => 42,
-                'function' => 'invalidate',
-                'class' => 'Shopware\Core\Framework\Adapter\Cache\CacheInvalidator',
-            ],
-        ];
-
-        yield 'frame without class' => [
-            'backtrace' => [
-                'file' => '',
-                'line' => 42,
-                'function' => 'invalidate',
-            ],
-        ];
     }
 
     public function testSoftPurgeIsSkipped(): void
@@ -438,7 +371,6 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            'info',
             $this->createMock(BacktraceCollector::class)
         );
 
@@ -477,24 +409,23 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            'info',
             $this->createMock(BacktraceCollector::class)
         );
 
         $invalidator->invalidate(['foo']);
     }
 
-    private function createBacktraceCollectorMock(string $class, string $function): BacktraceCollector
+    private function createBacktraceCollectorMock(?string $class = null, ?string $function = null): BacktraceCollector
     {
         $collector = $this->createMock(BacktraceCollector::class);
-        \assert($collector instanceof BacktraceCollector);
 
-        $collector->expects($this->once())->method('collect')->willReturn([
-            [
-                'class' => $class,
-                'function' => $function,
-            ],
-        ]);
+        if (!empty($class) && !empty($function)) {
+            $firstFrame = new BacktraceFrame($class, $function);
+        } else {
+            $firstFrame = null;
+        }
+
+        $collector->expects($this->once())->method('getFirstFrame')->willReturn($firstFrame);
 
         return $collector;
     }

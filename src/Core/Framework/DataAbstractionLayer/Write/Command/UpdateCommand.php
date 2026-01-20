@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @phpstan-ignore-next-line cannot be final, as it is extended, also designed to be used directly
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class UpdateCommand extends WriteCommand implements ChangeSetAware

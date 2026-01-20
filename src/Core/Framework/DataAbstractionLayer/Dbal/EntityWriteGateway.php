@@ -823,14 +823,14 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     continue;
                 }
 
-                $this->addImmutableViolation($immutableChangeField, $changeset->getAfter($immutableChangeField), $changeset->getBefore($immutableChangeField), $command->getEntityName(), $context);
+                $this->addImmutableViolation($immutableChangeField, $changeset->getBefore($immutableChangeField), $changeset->getAfter($immutableChangeField), $command->getEntityName(), $context);
             }
         }
 
         $context->getExceptions()->tryToThrow();
     }
 
-    private function addImmutableViolation(string $fieldName, mixed $fieldValue, mixed $currentValue, string $entityName, WriteContext $context): void
+    private function addImmutableViolation(string $fieldName, mixed $initialValue, mixed $invalidValue, string $entityName, WriteContext $context): void
     {
         $message = \sprintf('The field "%s" of "%s" is immutable and cannot be updated.', $fieldName, $entityName);
 
@@ -843,9 +843,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     'field' => $fieldName,
                     'entity' => $entityName,
                 ],
-                $fieldValue,
+                $initialValue,
                 $fieldName,
-                $currentValue
+                $invalidValue
             )
         );
 

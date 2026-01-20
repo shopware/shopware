@@ -8,8 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -17,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class ProductTypeImmutableTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     public function testUpdatingProductTypeToDifferentValueFails(): void
     {
@@ -34,8 +33,6 @@ class ProductTypeImmutableTest extends TestCase
 
     public function testUpdatingProductTypeWithSameValueSucceeds(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         // The update with same type should succeed without exceptions
         static::expectNotToPerformAssertions();
 

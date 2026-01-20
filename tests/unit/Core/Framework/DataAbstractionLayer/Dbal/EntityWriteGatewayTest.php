@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -18,13 +17,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Doctrine\FakeConnection;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -33,45 +37,67 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(EntityWriteGateway::class)]
 class EntityWriteGatewayTest extends TestCase
 {
+    private readonly EventDispatcherInterface $dispatcher;
+
+    protected function setUp(): void
+    {
+        $this->dispatcher = new EventDispatcher();
+    }
+
     public function testImmutableFieldChangeThrowsViolation(): void
     {
         $gateway = $this->createGateway();
         $context = WriteContext::createFromContext(Context::createDefaultContext());
         $command = $this->createUpdateCommand('updated', 'initial');
 
-        static::expectException(WriteException::class);
-        static::expectExceptionMessage('[immutable_field] The field "immutable_field" of "immutable_test" is immutable and cannot be updated.');
+        $exception = new WriteException();
 
-        $this->invokeValidateCommands($gateway, [$command], $context);
+        $violationList = new ConstraintViolationList();
+        $violationList->add(
+            new ConstraintViolation(
+                'The field "immutable_field" of "immutable_test" is immutable and cannot be updated.',
+                'The field "immutable_field" of "immutable_test" is immutable and cannot be updated.',
+                [
+                    'field' => 'immutable_field',
+                    'entity' => 'immutable_test',
+                ],
+                'initial',
+                'immutable_field',
+                'updated'
+            )
+        );
+
+        $exception->add(new WriteConstraintViolationException($violationList));
+        static::expectExceptionObject($exception);
+
+        $gateway->execute([$command], $context);
     }
 
     public function testImmutableFieldSameValueIsIgnored(): void
     {
-        static::expectNotToPerformAssertions();
-
         $gateway = $this->createGateway();
         $context = WriteContext::createFromContext(Context::createDefaultContext());
         $command = $this->createUpdateCommand('initial', 'initial');
 
-        $this->invokeValidateCommands($gateway, [$command], $context);
-    }
+        $postWriteEventDispatched = false;
 
-    /**
-     * @param array<WriteCommand> $commands
-     */
-    private function invokeValidateCommands(EntityWriteGateway $gateway, array $commands, WriteContext $context): void
-    {
-        $method = (new \ReflectionClass(EntityWriteGateway::class))->getMethod('validateCommands');
-        $method->setAccessible(true);
-        $method->invoke($gateway, $commands, $context);
+        $this->dispatcher->addListener(PostWriteValidationEvent::class, function (PostWriteValidationEvent $event) use (&$postWriteEventDispatched): void {
+            $postWriteEventDispatched = true;
+
+            static::assertCount(0, $event->getExceptions()->getExceptions());
+        });
+
+        $gateway->execute([$command], $context);
+
+        static::assertTrue($postWriteEventDispatched);
     }
 
     private function createGateway(): EntityWriteGateway
     {
         return new EntityWriteGateway(
             100,
-            $this->createMock(Connection::class),
-            $this->createMock(EventDispatcherInterface::class),
+            new FakeConnection([]),
+            $this->dispatcher,
             $this->createMock(ExceptionHandlerRegistry::class),
             $this->createMock(DefinitionInstanceRegistry::class)
         );

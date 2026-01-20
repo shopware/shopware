@@ -802,17 +802,21 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     private function validateCommands(array $commands, WriteContext $context): void
     {
         foreach ($commands as $command) {
-            if (!$command instanceof UpdateCommand || $command->getImmutableChanges() === []) {
+            if (!$command instanceof UpdateCommand) {
+                continue;
+            }
+
+            $immutableChanges = $command->getImmutableChanges();
+            if ($immutableChanges === []) {
                 continue;
             }
 
             $changeset = $command->getChangeSet();
-
             if (!$changeset instanceof ChangeSet) {
                 continue;
             }
 
-            foreach ($command->getImmutableChanges() as $immutableChangeField) {
+            foreach ($immutableChanges as $immutableChangeField) {
                 // if there was no value before, we can set it now
                 if ($changeset->getBefore($immutableChangeField) === null) {
                     continue;

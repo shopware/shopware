@@ -94,6 +94,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
+        // Keep documentIds available for other mail actions sharing this context (cleared in MailerTransportDecorator::send())
         $mailExtension = clone $extension;
 
         if (!$flow->hasData(MailAware::MAIL_STRUCT) || !$flow->hasData(MailAware::SALES_CHANNEL_ID)) {

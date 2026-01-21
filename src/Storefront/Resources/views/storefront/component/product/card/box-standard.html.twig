@@ -15,6 +15,10 @@
         {% set childCount = product.childCount %}
         {% set routeArguments = childCount > 0 and searchTerm ? { productId: id, search: searchTerm } : { productId: id } %}
 
+        {% if referrerCategoryId %}
+            {% set routeArguments = routeArguments|merge({ referrerCategoryId: referrerCategoryId }) %}
+        {% endif %}
+
         <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name, brand, price}|json_encode }}">
             {% block component_product_box_content %}
                 <div class="card-body">

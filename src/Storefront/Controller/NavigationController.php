@@ -174,16 +174,6 @@ class NavigationController extends StorefrontController
     )]
     public function breadcrumb(Request $request, SalesChannelContext $context): Response
     {
-        $type = $request->get('type', 'product');
-
-        if ($type === 'product' && $this->systemConfigService->getBool('core.listing.buildBreadcrumbByRefererCategory', $context->getSalesChannelId())) {
-            $refererCategoryId = $request->cookies->get('sw-referer-category-id');
-
-            if ($refererCategoryId !== null) {
-                $request->query->set('referrerCategoryId', $refererCategoryId);
-            }
-        }
-
         $breadcrumb = $this->breadcrumbLoader->load($request, $context);
 
         $this->hook(new BreadcrumbPageletLoadedHook($breadcrumb, $context));

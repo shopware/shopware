@@ -100,11 +100,11 @@ class ProductPageLoader
         }
 
         if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
-            if ($this->systemConfigService->getBool('core.listing.buildBreadcrumbByRefererCategory', $context->getSalesChannelId())) {
-                $refererCategoryId = $request->cookies->get('sw-referer-category-id');
+            if ($this->systemConfigService->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
+                $referrerCategoryId = $request->query->get('referrerCategoryId');
 
-                if ($refererCategoryId !== null && \in_array($refererCategoryId, $product->getCategoryIds() ?? [], true)) {
-                    $request->request->set('navigationId', $refererCategoryId);
+                if ($referrerCategoryId !== null && \in_array($referrerCategoryId, $product->getCategoryIds() ?? [], true)) {
+                    $request->request->set('navigationId', $referrerCategoryId);
                 }
             }
         }

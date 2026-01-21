@@ -8,10 +8,16 @@
     <div class="container-main">
         {% block page_content %}
             {% block cms_breadcrumb %}
+                {% set routeArguments = { id: page.product.id, breadcrumbParameters: breadcrumbParameters } %}
+
+                {% if config('core.listing.buildBreadcrumbByReferrerCategory') %}
+                    {% set routeArguments = routeArguments|merge({ referrerCategoryId: shopware.navigation.id }) %}
+                {% endif %}
+
                 <div class="cms-breadcrumb container">
                     {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
                         {% block cms_breadcrumb_esi %}
-                            {{ render_esi(path('frontend.breadcrumb', { id: page.product.id, breadcrumbParameters: breadcrumbParameters }), { ignore_errors: false } ) }}
+                            {{ render_esi(path('frontend.breadcrumb', routeArguments), { ignore_errors: false } ) }}
                         {% endblock %}
                     {% else %}
                         {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {

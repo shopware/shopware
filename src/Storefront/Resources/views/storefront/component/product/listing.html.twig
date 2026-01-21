@@ -23,8 +23,7 @@
          data-listing-pagination="true"
          data-listing-pagination-options="{{ paginationConfig|json_encode }}"
          data-listing="true"
-         data-listing-options="{{ listingPagination|json_encode }}"
-         {% if config('core.listing.buildBreadcrumbByRefererCategory') %}data-dynamic-breadcrumb="true"{% endif %}>
+         data-listing-options="{{ listingPagination|json_encode }}">
         {% block element_product_listing_wrapper_content %}
             <div class="cms-element-product-listing">
                 {% if searchResult.total > 0 %}
@@ -70,7 +69,8 @@
                                         {% block element_product_listing_box %}
                                             {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
                                                 layout: boxLayout,
-                                                displayMode: displayMode
+                                                displayMode: displayMode,
+                                                referrerCategoryId: config('core.listing.buildBreadcrumbByReferrerCategory') ? shopware.navigation.id : null,
                                             } %}
                                         {% endblock %}
                                     </div>

@@ -90,4 +90,4 @@ shopware:
         default: false
         major: false
         toggleable: true
-        description: "Experimental! Enables the new breadcrumb loading via ESI and adds the possibility to build the product breadcrumb using the referer category."
+        description: "Experimental! Enables the new breadcrumb loading via ESI and adds the possibility to build the product breadcrumb using the referrer category."

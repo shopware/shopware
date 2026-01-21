@@ -49,9 +49,9 @@ class NotificationController extends AbstractController
     {
         $payload = $request->getPayload();
 
-        $status = (string) $payload->get('status');
-        $message = (string) $payload->get('message');
-        $adminOnly = (bool) $payload->get('adminOnly', false);
+        $status = $payload->getString('status');
+        $message = $payload->getString('message');
+        $adminOnly = $payload->getBoolean('adminOnly');
 
         try {
             $requiredPrivileges = $payload->all('requiredPrivileges');

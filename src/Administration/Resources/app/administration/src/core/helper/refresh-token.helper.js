@@ -10,6 +10,7 @@ class RefreshTokenHelper {
         this._isRefreshing = false;
         this._subscribers = [];
         this._errorSubscribers = [];
+        this._logoutTimeoutId = null;
         // eslint-disable-next-line inclusive-language/use-inclusive-words
         this._whitelist = [
             '/oauth/token',
@@ -66,22 +67,51 @@ class RefreshTokenHelper {
         return loginService
             .refreshToken()
             .then((newToken) => {
+                this._clearLogoutTimeout();
                 this.onRefreshToken(newToken);
             })
             .finally(() => {
                 this.isRefreshing = false;
             })
             .catch(() => {
-                if (!loginService.getToken()) {
-                    setTimeout(() => {
-                        if (!loginService.getToken()) {
-                            loginService.logout();
-                        }
-                    }, 1000);
-                }
+                this._scheduleLogoutIfNoToken(loginService);
                 this.onRefreshTokenFailed();
                 return Promise.reject();
             });
+    }
+
+    /**
+     * Clears any pending logout timeout.
+     *
+     * @private
+     */
+    _clearLogoutTimeout() {
+        if (this._logoutTimeoutId !== null) {
+            clearTimeout(this._logoutTimeoutId);
+            this._logoutTimeoutId = null;
+        }
+    }
+
+    /**
+     * Schedules a logout if no token is present after a delay.
+     * Only one timeout can be active at a time to prevent multiple queued callbacks.
+     *
+     * @private
+     * @param {Object} loginService
+     */
+    _scheduleLogoutIfNoToken(loginService) {
+        if (this._logoutTimeoutId !== null) {
+            return;
+        }
+
+        if (!loginService.getToken()) {
+            this._logoutTimeoutId = setTimeout(() => {
+                this._logoutTimeoutId = null;
+                if (!loginService.getToken()) {
+                    loginService.logout();
+                }
+            }, 1000);
+        }
     }
 
     // eslint-disable-next-line inclusive-language/use-inclusive-words

@@ -563,6 +563,8 @@ describe('core/service/login.service.js', () => {
 
     describe('multi-tab token synchronization', () => {
         it('should handle token refresh race condition between tabs', async () => {
+            jest.useFakeTimers();
+
             const { loginService, clientMock } = loginServiceFactory();
 
             clientMock.onPost('/oauth/token').replyOnce(200, {
@@ -595,6 +597,22 @@ describe('core/service/login.service.js', () => {
 
             expect(loginService.isLoggedIn()).toBe(true);
             expect(loginService.getToken()).toBe('tab1_new_token');
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'auto_refreshed_token',
+                refresh_token: 'auto_refreshed_refresh',
+            });
+
+            await jest.runAllTimersAsync();
+
+            const refreshRequests = clientMock.history.post.filter(
+                (req) => JSON.parse(req.data).grant_type === 'refresh_token',
+            );
+            expect(refreshRequests.length).toBeGreaterThanOrEqual(3);
+
+            jest.useRealTimers();
         });
 
         it('should synchronize token across tabs via cookie storage', () => {

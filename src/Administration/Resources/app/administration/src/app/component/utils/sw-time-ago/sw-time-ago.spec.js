@@ -121,6 +121,18 @@ describe('src/app/component/utils/sw-time-ago', () => {
         expect(clearInterval).toHaveBeenCalledWith(expect.any(Number));
     });
 
+    it('should update when props are changed', async () => {
+        const wrapper = await createWrapper({
+            date: '2025-06-23T12:34:00.000+00:00',
+        });
+
+        expect(wrapper.text()).toContain('12:34');
+
+        await wrapper.setProps({ date: '2025-06-22T18:35:00.000+00:00' });
+
+        expect(wrapper.text()).toContain('18:35');
+    });
+
     describe('date property as string', () => {
         describe('past dates', () => {
             it('should show the correct time for less than one minute', async () => {

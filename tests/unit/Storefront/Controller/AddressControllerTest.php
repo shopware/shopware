@@ -121,7 +121,7 @@ class AddressControllerTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
         $request = new Request();
-        $request->request->set('redirectTo', 'foo');
+        $request->query->set('redirectTo', 'foo');
 
         $response = $this->controller->accountEditAddress($request, Generator::generateSalesChannelContext(), $customer);
         $renderParams = $this->controller->renderStorefrontParameters;

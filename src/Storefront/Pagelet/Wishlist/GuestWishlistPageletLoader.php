@@ -68,7 +68,7 @@ class GuestWishlistPageletLoader
      */
     private function extractProductIds(Request $request): array
     {
-        $productIds = $request->get('productIds', []);
+        $productIds = $request->request->all()['productIds'] ?? [];
 
         if (!\is_array($productIds)) {
             throw RoutingException::missingRequestParameter('productIds');

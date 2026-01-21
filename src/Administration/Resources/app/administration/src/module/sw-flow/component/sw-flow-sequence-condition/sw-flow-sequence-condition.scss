@@ -223,8 +223,26 @@
     &__rule {
         transition: all 100ms ease-in-out;
 
-        &:hover {
-            background: var(--color-elevation-surface-sunken);
+        &:has(.sw-flow-sequence-condition__rule-info) {
+            cursor: pointer;
+
+            &:hover {
+                background: var(--color-elevation-surface-sunken);
+            }
+        }
+
+        &:has(.sw-flow-sequence-condition__rule-empty) {
+            cursor: default;
+        }
+
+        .sw-flow-sequence-condition__rule-info {
+            padding: var(--scale-size-12) var(--scale-size-12) var(--scale-size-16) var(--scale-size-20);
+        }
+
+        .sw-flow-sequence-condition__rule-empty {
+            color: var(--color-text-primary-default);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-regular);
         }
     }
 
@@ -232,16 +250,6 @@
         display: flex;
         align-items: center;
         padding: var(--scale-size-16) var(--scale-size-20);
-    }
-
-    &__no-rule {
-        color: var(--color-text-primary-default);
-        font-size: var(--font-size-xs);
-        font-weight: var(--font-weight-regular);
-    }
-
-    &__rule-info {
-        padding: var(--scale-size-12) var(--scale-size-12) var(--scale-size-16) var(--scale-size-20);
     }
 
     &__rule-header {

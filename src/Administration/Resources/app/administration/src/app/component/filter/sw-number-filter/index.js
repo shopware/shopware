@@ -65,7 +65,7 @@ export default {
         },
 
         updateFilter(params) {
-            if (!this.numberValue.from && !this.numberValue.to) {
+            if (this.numberValue.from == null && this.numberValue.to == null) {
                 this.$emit('filter-reset', this.filter.name);
                 return;
             }

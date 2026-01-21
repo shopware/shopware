@@ -24,8 +24,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class ProductTypeImmutableTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     public function testUpdatingProductTypeToDifferentValueFails(): void
     {
@@ -45,16 +45,22 @@ class ProductTypeImmutableTest extends TestCase
                 ],
                 'special',
                 'type',
-                'not so special'
+                'alternative'
             )
         );
 
         $exception->add(new WriteConstraintViolationException($violationList));
         static::expectExceptionObject($exception);
 
-        $this->getRepository()->update([
-            ['id' => $id, 'type' => 'alternative'],
-        ], Context::createDefaultContext());
+        try {
+            $this->getRepository()->update([
+                ['id' => $id, 'type' => 'alternative'],
+            ], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            throw $e;
+        } finally {
+            $this->verifyProductAfterUpdate($id, 'default', 'Test product', 1);
+        }
     }
 
     public function testUpdatingProductTypeWithSameValueSucceeds(): void
@@ -64,7 +70,7 @@ class ProductTypeImmutableTest extends TestCase
 
         $postEventDispatched = false;
 
-        $this->getContainer()->get('event_dispatcher')->addListener(PostWriteValidationEvent::class, function (PostWriteValidationEvent $event) use (&$postEventDispatched) {
+        $this->getContainer()->get('event_dispatcher')->addListener(PostWriteValidationEvent::class, function (PostWriteValidationEvent $event) use (&$postEventDispatched): void {
             $postEventDispatched = true;
 
             self::assertCount(0, $event->getExceptions()->getExceptions());
@@ -76,12 +82,7 @@ class ProductTypeImmutableTest extends TestCase
 
         static::assertTrue($postEventDispatched);
 
-        $after = $this->getRepository()->search(new Criteria([$id]), Context::createDefaultContext())->get($id);
-
-        static::assertInstanceOf(ProductEntity::class, $after);
-        static::assertSame('special', $after->getType());
-        static::assertSame(2, $after->getStock());
-        static::assertSame('Test product updated', $after->getName());
+        $this->verifyProductAfterUpdate($id, 'special', 'Test product updated', 2);
     }
 
     public function testUpsertProductTypeManyTimesWithSameValueSucceeds(): void
@@ -119,15 +120,10 @@ class ProductTypeImmutableTest extends TestCase
             $id,
         ], $event->getEventByEntityName(ProductDefinition::ENTITY_NAME)?->getIds());
 
-        $after = $this->getRepository()->search(new Criteria([$id]), Context::createDefaultContext())->get($id);
-
-        static::assertInstanceOf(ProductEntity::class, $after);
-        static::assertSame('special', $after->getType());
-        static::assertSame(2, $after->getStock());
-        static::assertSame('Test product updated', $after->getName());
+        $this->verifyProductAfterUpdate($id, 'special', 'Test product updated', 2);
     }
 
-    public function testUpsertProductTypeManyTimesWithDifferentValueFailure(): void
+    public function testUpsertProductTypeManyTimesWithDifferentValueFails(): void
     {
         $id = Uuid::randomHex();
 
@@ -168,13 +164,19 @@ class ProductTypeImmutableTest extends TestCase
         $exception->add(new WriteConstraintViolationException($violationList));
         static::expectExceptionObject($exception);
 
-        $this->getRepository()->upsert([
-            [
-                'id' => $id,
-                'name' => 'Test product updated',
-                'type' => 'not so special', // different type than before
-            ],
-        ], Context::createDefaultContext());
+        try {
+            $this->getRepository()->upsert([
+                [
+                    'id' => $id,
+                    'name' => 'Test product updated',
+                    'type' => 'not so special', // different type than before
+                ],
+            ], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            throw $e;
+        } finally {
+            $this->verifyProductAfterUpdate($id, 'special', 'Test product', 1);
+        }
     }
 
     private function createProduct(string $id, string $type): void
@@ -201,5 +203,15 @@ class ProductTypeImmutableTest extends TestCase
         $repo = static::getContainer()->get('product.repository');
 
         return $repo;
+    }
+
+    private function verifyProductAfterUpdate(string $id, string $expectedType, string $expectedName, int $expectedStock): void
+    {
+        $product = $this->getRepository()->search(new Criteria([$id]), Context::createDefaultContext())->get($id);
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame($expectedType, $product->getType());
+        static::assertSame($expectedName, $product->getName());
+        static::assertSame($expectedStock, $product->getStock());
     }
 }

@@ -176,7 +176,7 @@ export default function createLoginService(
             })
             .catch((error) => {
                 const currentExpiry = getBearerAuthentication('expiry');
-                if (currentExpiry && !isNaN(currentExpiry)) {
+                if (currentExpiry && !Number.isNaN(currentExpiry)) {
                     restartAutoTokenRefresh(currentExpiry);
                 }
                 return Promise.reject(error);

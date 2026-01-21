@@ -22,7 +22,7 @@ class PluginCreateCommandTest extends TestCase
 {
     /**
      * @param array<string, string> $arguments
-     * @param array<string, string> $inputs
+     * @param list<string> $inputs
      * @param array<int, array<string, mixed>> $generators
      */
     #[DataProvider('commandProvider')]
@@ -106,7 +106,7 @@ class PluginCreateCommandTest extends TestCase
     }
 
     /**
-     * @param array<int, string> $inputs
+     * @param list<string> $inputs
      */
     #[DataProvider('invalidInputsProvider')]
     public function testInvalidInputs(array $inputs, string $expectedErrorMessage): void
@@ -169,7 +169,7 @@ class PluginCreateCommandTest extends TestCase
 
         $commandTester = new CommandTester($command);
         $application = new Application();
-        $application->add($command);
+        $application->addCommand($command);
 
         return $commandTester;
     }

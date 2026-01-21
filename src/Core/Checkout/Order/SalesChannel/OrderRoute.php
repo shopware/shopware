@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -125,7 +126,7 @@ class OrderRoute extends AbstractOrderRoute
                 $this->checkGuestAuth($order, $request);
             }
 
-            if ($request->get('login') && $customerId = $order->getOrderCustomer()?->getCustomerId()) {
+            if (RequestParamHelper::get($request, 'login') && $customerId = $order->getOrderCustomer()?->getCustomerId()) {
                 $newContextToken = $this->accountService->loginById($customerId, $context);
             }
         }

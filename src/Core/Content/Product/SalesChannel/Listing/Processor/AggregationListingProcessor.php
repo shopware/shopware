@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Events\ProductListingCollectFilterEvent;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\FilterCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -99,7 +100,7 @@ class AggregationListingProcessor extends AbstractListingProcessor
     {
         $aggregations = [];
 
-        if ($request->get('reduce-aggregations') === null) {
+        if (RequestParamHelper::get($request, 'reduce-aggregations') === null) {
             foreach ($filters as $filter) {
                 $aggregations = array_merge($aggregations, $filter->getAggregations());
             }

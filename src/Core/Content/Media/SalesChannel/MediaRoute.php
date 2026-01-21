@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\SalesChannel;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -50,7 +51,7 @@ class MediaRoute extends AbstractMediaRoute
     )]
     public function load(Request $request, SalesChannelContext $context): MediaRouteResponse
     {
-        $ids = $request->get('ids', []);
+        $ids = RequestParamHelper::get($request, 'ids', []);
         if (empty($ids)) {
             throw MediaException::emptyMediaId();
         }

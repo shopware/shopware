@@ -87,8 +87,8 @@ class DownloadRouteTest extends TestCase
         $this->downloadRepository->method('search')->willReturn($searchResult);
 
         $request = new Request();
-        $request->request->set('downloadId', 'foo');
-        $request->request->set('orderId', 'bar');
+        $request->attributes->set('downloadId', 'foo');
+        $request->attributes->set('orderId', 'bar');
 
         static::expectException(CustomerException::class);
         static::expectExceptionMessage('Line item download file with id "foo" not found.');
@@ -111,8 +111,8 @@ class DownloadRouteTest extends TestCase
         $this->downloadResponseGenerator->method('getResponse')->willReturn(new Response());
 
         $request = new Request();
-        $request->request->set('downloadId', 'foo');
-        $request->request->set('orderId', 'bar');
+        $request->attributes->set('downloadId', 'foo');
+        $request->attributes->set('orderId', 'bar');
 
         $response = $this->downloadRoute->load($request, $this->salesChannelContext);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());

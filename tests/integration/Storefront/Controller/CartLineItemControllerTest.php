@@ -22,7 +22,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\CartLineItemController;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 /**
  * @internal
@@ -196,10 +196,10 @@ class CartLineItemControllerTest extends TestCase
         static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
     }
 
-    private function getFlashBag(): FlashBag
+    private function getFlashBag(): FlashBagInterface
     {
-        /** @var FlashBag $sessionBag */
         $sessionBag = $this->getSession()->getBag('flashes');
+        static::assertInstanceOf(FlashBagInterface::class, $sessionBag);
 
         return $sessionBag;
     }

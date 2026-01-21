@@ -366,6 +366,32 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         static::assertSame($expectedNames, $result2);
     }
 
+    public function testDeleteByTechnicalName(): void
+    {
+        $technicalName = 'test-theme';
+
+        $this->storage
+            ->expects($this->once())
+            ->method('deleteByTechnicalName')
+            ->with($technicalName);
+
+        // Verify cache is cleared by checking storage is called again after delete
+        $this->storage
+            ->expects($this->exactly(2))
+            ->method('getByName')
+            ->with($technicalName)
+            ->willReturn(null);
+
+        // Populate cache
+        $this->service->getRuntimeConfigByName($technicalName);
+
+        // Delete - should call storage and reset cache
+        $this->service->deleteByTechnicalName($technicalName);
+
+        // This call should hit storage again (cache was reset)
+        $this->service->getRuntimeConfigByName($technicalName);
+    }
+
     /**
      * Creates a ThemeRuntimeConfig object for testing purposes
      *

@@ -72,5 +72,10 @@ return [
         // Inherited attribute $reversed parameter removed - attribute inheritance never worked before, so no BC break
         preg_quote('REMOVED: Property Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#$reversed was removed'),
         preg_quote('Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited#__construct()'),
+
+        // Defined entity property mismatch the entity class property type
+        'Type of property Shopware\\\\.*\\\\OrderTransactionCaptureEntity#$stateMachineState changed .* to Shopware\\\\.*\\\\StateMachineStateEntity|null',
+        'The return type of Shopware\\\\.*\\\\OrderTransactionCaptureEntity#getStateMachineState() changed .* Shopware\\\\.*\\\\StateMachineStateEntity|null',
+        'The parameter $stateMachineState of Shopware\\\\.*\\\\OrderTransactionCaptureEntity#setStateMachineState() changed .* Shopware\\\\.*\\\\StateMachineStateEntity|null',
     ],
 ];

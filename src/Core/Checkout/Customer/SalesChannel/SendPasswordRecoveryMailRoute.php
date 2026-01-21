@@ -132,7 +132,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         if ($validateStorefrontUrl) {
             $validation
-                ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
+                ->add('storefrontUrl', new NotBlank(), new Choice(choices: array_values($this->getDomainUrls($context))));
         }
 
         $this->dispatchValidationEvent($validation, $data, $context->getContext());

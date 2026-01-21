@@ -40,18 +40,26 @@ class DownloadRoute extends AbstractDownloadRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/order/download/{orderId}/{downloadId}', name: 'store-api.account.order.single.download', methods: ['GET'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/order/download/{orderId}/{downloadId}',
+        name: 'store-api.account.order.single.download',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function load(Request $request, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();
-        $downloadId = $request->get('downloadId', false);
-        $orderId = $request->get('orderId', false);
+        $downloadId = $request->attributes->get('downloadId');
+        $orderId = $request->attributes->get('orderId');
 
         if (!$customer) {
             throw CustomerException::customerNotLoggedIn();
         }
 
-        if ($downloadId === false || $orderId === false) {
+        if ($downloadId === null || $orderId === null) {
             // @deprecated tag:v6.8.0 - remove this if block
             if (!Feature::isActive('v6.8.0.0')) {
                 // @phpstan-ignore-next-line

@@ -24,6 +24,8 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 </details>
 
 # API
+## Changed returned status code for `/store-api/document/download/` when no documents are found
+The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
 # Core
 
@@ -131,7 +133,9 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
-## Only rules relevant for product prices are considered in the `sw-cache-hash`
+## Cache improvements
+
+### Only rules relevant for product prices are considered in the `sw-cache-hash`
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
 
 If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`. In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
@@ -155,8 +159,27 @@ class ResolveRuleIds implements EventSubscriberInterface
 
 If some custom entity has a relation to a rule, which might alter the storefront, you should add them to either an existing area, or your own are using the DAL flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on the rule association.
 
-## Removed unused `RuleAreas` constants
+### Removed unused `RuleAreas` constants
 The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed
+
+### Removed `sw-states` and `sw-currency` cache cookie handling
+The `sw-states` and `sw-currency` cache cookie handling is removed, which means by default the HTTP-Cache is also active for logged in customers or when the cart is filled.
+Due to the rework of the contained rules in the cache hash (see above), this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
+
+You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
+
+The following classes and constants were removed as they are no longer used:
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+Additionally, the following configuration was removed:
+* `shopware.cache.invalidation.http_cache`
 
 ## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
 * For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.
@@ -172,12 +195,19 @@ The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` 
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
 which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object.
 
+## `RequestParamHelper::get` ignores `attribute` bag
+
+The `RequestParamHelper::get` method now ignores the `attribute` bag when fetching parameters from the request.
+It only checks the `query` and `request` bags now.
+When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
+In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
+
 ## Removal of `ZugferdDocument::getPrice()`
 The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` was removed, replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
 ## Removed `TaskScheduler::getNextExecutionTime()`
 The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler::getNextExecutionTime()` method was not used anymore and was removed.
 
-## SnippetValidator
+## SnippetValidator becomes internal
 The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only. Use on own risk as it may change without prior notice.
 
 ## Removal of `EntityDefinition` constructor
@@ -288,6 +318,13 @@ Profiles are now identified and displayed only by their technical name.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
 
+## Removed unused `ImportExport` exceptions
+
+The unused exceptions
+* `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
+* `\Shopware\Core\Content\ImportExport\Exception\MappingException`
+were removed.
+
 ## Removed SystemConfig exceptions
 
 The exceptions
@@ -363,11 +400,149 @@ $parsed = $parser->parse('Disallow: /admin/', $context);
 new DomainRuleStruct($parsed, '/en');
 ```
 
+## Removed `PlatformRequest::ATTRIBUTE_HTTP_CACHE` states support
+
+The `$states` property in `Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute` is removed.
+
+**Migration**: Remove usage of `$states`, as state-based invalidation is not supported anymore.
+
+Using `#[Route]` attribute:
+
+```diff
+ #[Route(
+     path: '/store-api/my-route',
+     name: 'store-api.my-route',
+     methods: ['GET'],
+     defaults: [
+         PlatformRequest::ATTRIBUTE_HTTP_CACHE => [
+-            'states' => ['cart-filled'],
+         ],
+     ]
+ )]
+```
+
+Using request attributes:
+
+```diff
+ $request->attributes->set(
+     PlatformRequest::ATTRIBUTE_HTTP_CACHE,
+     new CacheAttribute(
+-        states: ['cart-filled', 'logged-in'],
+     )
+ );
+```
+
+## Removed `ResponseCacheConfiguration` methods
+Script\Api\ResponseCacheConfiguration::maxAge()` and
+`\Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration::invalidationState()` were removed with no replacement.
+
+## Removal of product manufacturer link column
+
+The column `link` of the table `product_manufacturer` was removed.
+
+Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
+
 </details>
 
 # Administration
 
 <details>
+
+## Axios v1 is now the default HTTP client
+
+Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2. This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.
+
+### What changed
+
+**Shopware 6.7.x:**
+- Default: axios 0.30.2
+- Opt-in to v1: `useAxiosV1: true`
+
+**Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
+- Default: axios 1.x
+- Opt-out to v0: `useAxiosV1: false`
+
+### Key differences between axios 0.30.2 and axios 1.x
+
+**Request Cancellation:**
+```javascript
+// Axios 0.30.2 (deprecated CancelToken)
+const { CancelToken } = Axios;
+const source = CancelToken.source();
+
+httpClient.get('/api/endpoint', {
+    cancelToken: source.token,
+});
+source.cancel('Operation cancelled');
+
+// Axios 1.x (modern AbortController)
+const controller = new AbortController();
+
+httpClient.get('/api/endpoint', {
+    signal: controller.signal,
+    useAxiosV1: true,
+});
+controller.abort();
+```
+
+**Error Detection:**
+```javascript
+// Works for both versions
+if (httpClient.isCancel(error)) {
+    // Handle cancellation
+}
+
+// Axios 1.x specific
+if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
+    // Handle cancellation
+}
+```
+
+**Version-Specific Interceptors and Defaults:**
+
+During the transition period, the HTTP client provides direct access to both axios versions' interceptors and defaults:
+
+```javascript
+// Access interceptors for specific version
+httpClient.interceptorsV0 // Always axios 0.30.2 interceptors
+httpClient.interceptorsV1 // Always axios 1.x interceptors
+httpClient.interceptors   // Current default version (v1 in 6.8+)
+
+// Access defaults for specific version
+httpClient.defaultsV0 // Always axios 0.30.2 defaults
+httpClient.defaultsV1 // Always axios 1.x defaults
+httpClient.defaults   // Current default version (v1 in 6.8+)
+
+// Example: Add interceptor to both versions during transition
+httpClient.interceptorsV0.request.use(myRequestHandler);
+httpClient.interceptorsV1.request.use(myRequestHandler);
+```
+
+This allows plugins to configure both axios versions simultaneously during the migration period.
+
+### Migration guide
+
+Most code will work without changes. However, if you use request cancellation or depend on specific axios behavior:
+
+1. **Update cancellation logic** to use `AbortController` instead of `CancelToken`
+2. **Test your plugin** with axios v1 before the 6.8 release
+3. **Review error handling** for version-specific error codes
+
+**If you need axios 0.30.2 temporarily:**
+```javascript
+// Explicitly opt-out to use axios 0.30.2
+httpClient.request({
+    method: 'get',
+    url: '/api/endpoint',
+    useAxiosV1: false, // Force axios 0.30.2
+});
+```
+
+### Future removal
+
+Axios 0.30.2 support will be completely removed in a future major release. The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version. Plan to migrate all code to axios v1 as soon as possible.
+
+For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 
 ## Removal of "sw-empty-state"
 * The old `sw-empty-state` component will be removed in the next major version. Please use the new `mt-empty-state` component instead.
@@ -423,15 +598,98 @@ The following snippet keys have been removed:
 * `global.sw-condition.condition.promotionCodeOfTypeRule`
 * `global.sw-condition.condition.dayOfWeekRule`
 
+## The following template blocks of the newsletter recipient filter have been removed
+* `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
+* `sw_newsletter_recipient_list_sidebar_filter_status_direct`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
+* `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
+
+Use the parent blocks instead
+
+## Removement of component sw-newsletter-recipient-filter-switch
+`administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
+
+## File accessibility changed from public to private
+`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+
+## Removed .png and .jpg images
+
+In favor of WebP the following images have been removed:
+
+-   `administration/static/img/sw-login-background.png`
+-   `administration/static/img/plugin-manager--login.png`
+-   `administration/static/img/data-consent-background.png`
+-   `administration/static/img/flowbuilder/ui-sample.png`
+-   `administration/static/img/cms/preview_plant_small.jpg`
+-   `administration/static/img/cms/preview_glasses_large.jpg`
+-   `administration/static/img/cms/preview_page_default.png`
+-   `administration/static/img/cms/preview_page_sidebar.png`
+-   `administration/static/img/cms/preview_glasses_small.jpg`
+-   `administration/static/img/cms/preview_youtube.jpg`
+-   `administration/static/img/cms/preview_plant_large.jpg`
+-   `administration/static/img/cms/preview_custom_entity_detail_default.png`
+-   `administration/static/img/cms/preview_mountain_large.jpg`
+-   `administration/static/img/cms/default_preview_product_detail.jpg`
+-   `administration/static/img/cms/preview_custom_entity_detail_sidebar.png`
+-   `administration/static/img/cms/preview_product_detail_sidebar.png`
+-   `administration/static/img/cms/preview_product_detail_default.png`
+-   `administration/static/img/cms/preview_product_list_default.png`
+-   `administration/static/img/cms/preview_product_list_sidebar.png`
+-   `administration/static/img/cms/preview_mountain_small.jpg`
+-   `administration/static/img/cms/default_preview_product_list.jpg`
+-   `administration/static/img/cms/preview_landingpage_sidebar.png`
+-   `administration/static/img/cms/vimeo-icon.png`
+-   `administration/static/img/cms/preview_landingpage_default.png`
+-   `administration/static/img/cms/youtube-icon.png`
+-   `administration/static/img/cms/preview_camera_small.jpg`
+-   `administration/static/img/cms/preview_custom_entity_list_sidebar.png`
+-   `administration/static/img/cms/preview_camera_large.jpg`
+-   `administration/static/img/cms/preview_vimeo.jpg`
+-   `administration/static/img/cms/preview_custom_entity_list_default.png`
+-   `administration/static/img/theme/default_theme_preview.jpg`
+-   `administration/static/fixtures/sw-login-background.png`
+-   `administration/static/fixtures/sw-test-image.png`
+-   `administration/static/fixtures/sw-login-background-2.png`
+-   `administration/src/module/sw-login/page/index/assets/sw-login-background.png`
+-   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
+
+Update image references to their `.webp` equivalents.
+For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`
+
+## Mail template component changes
+
+The mail template index page now uses separate tabs for templates and headers/footers.
+
+Changes in `sw-mail-template-list` and `sw-mail-header-footer-list`:
+* `searchTerm` prop and watcher were removed
+* `getList()` method: `searchTerm` variable was replaced with `this.term`
+* `@page-change` handler now uses `onPageChange` directly
+
+Changes in `sw-mail-template-index`:
+* `listing` mixin was removed
+* `term` data property was removed
+* `onChangeLanguage` method now only calls `tabContent` ref
+
 </details>
 
 # Storefront
 
 <details>
 
+## TOS checkbox position update
+The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
+
 ## Removal of hardcoded language flags
 
 Hardcoded CSS language flags in `src/Storefront/Resources/app/storefront/src/scss/component/_flags.scss` were removed.
+
+## Removal of `CheckoutProgressEvent` for Google Analytics
+
+The `CheckoutProgressEvent` class in `src/Storefront/Resources/app/storefront/src/plugin/google-analytics/events/checkout-progress.event.js` was removed.
+
+If your plugin or theme relies on the `checkout_progress` event for Google Analytics tracking, it will no longer fire after upgrading to 6.8.0.0.
+
+Migrate to the GA4-compliant events `view_cart`, `add_shipping_info`, and `add_payment_info` instead.
 
 ## Deprecated DomAccess Helper
 
@@ -505,6 +763,12 @@ The following will be removed in Shopware 6.8.0:
 ## Removal of `hasChildren` variable in `item-link.html.twig`
 
 The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates. In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
+
+## Removal of `pathIdList` option in NavbarPlugin
+
+The `pathIdList` option in `NavbarPlugin` and the corresponding key in the `navbarOptions` template variable in `navbar.html.twig` were removed.
+
+Use the `window.activeNavigationPathIdList` global variable instead, which is set in `meta.html.twig`.
 
 ## Refactor of providing cookies
 
@@ -603,6 +867,15 @@ to:
 {% endblock %}
 ```
 
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}` has been updated. Instead of returning `204`, the route now returns `404` (Not Found) when no generated document exists.
+
+## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}`
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}` has been updated. Instead of returning `204`, the route now returns:
+- `406` (Not Acceptable) for invalid/unsupported `fileType` values
+- `404` (Not Found) when no generated document exists for the requested `fileType`.
+
+
 </details>
 
 # App System
@@ -636,11 +909,71 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
 
 The `CountryStateController` route `/country/country-state-data` now supports only GET methods. This change improves compatibility with HTTP caching and aligns with the best practices for data retrieval routes.
 
+## App scripts methods maxAge() and invalidationState() removed
+
+Method `response.cache.maxAge()` was removed. Use `sharedMaxAge()` to set `s-maxage` instead. The `clientMaxAge()` method is also available for setting `max-age`.
+
+```diff
+-{% do response.cache.maxAge(3600) %}
++{% do response.cache.sharedMaxAge(3600) %}
+```
+
+Method `response.cache.invalidationState()` was removed. State-based invalidation is not supported anymore.
+
+```diff
+-{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
++{# No replacement #}
+```
+
 </details>
 
 # Hosting & Configuration
 
 <details>
+
+## HTTP Cache Changes
+
+### Removed configuration parameters
+
+The following configuration parameters were removed:
+
+- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable
+- `shopware.http.cache.default_ttl` parameter
+- `shopware.http_cache.stale_while_revalidate` parameter
+- `shopware.http_cache.stale_if_error` parameter
+
+**Migration**: Use cache policies instead:
+
+```diff
+-shopware:
+-  http:
+-    cache:
+-      default_ttl: 7200
++shopware:
++  http_cache:
++    policies:
++      my_cacheable:
++        headers:
++          cache_control:
++            public: true
++            ## replaces shopware.http.cache.default_ttl parameter (and related env var)
++            s_maxage: 7200
++            # replaces shopware.http_cache.stale_while_revalidate parameter
++            stale_while_revalidate: 120
++            # replaces shopware.http_cache.stale_if_error parameter
++            stale_if_error: 360
++    default_policies:
++      storefront:
++        cacheable: my_cacheable
+```
+
+### CacheControlListener removal
+
+The `CacheControlListener` has been removed. Previously, when no reverse proxy was configured, this listener replaced all Cache-Control headers with `no-cache` before sending responses to clients.
+
+With this change, Cache-Control headers defined by cache policies are sent directly to browsers. This means:
+- Client-side caching (browser cache) now respects your configured policies.
+- Ensure your cache policies are configured appropriately for client exposure: unlike reverse proxies that use tag-based invalidation, browser caches cannot be invalidated on-demand.
 
 ## Dropped support for OpenSearch 1.x
 
@@ -694,5 +1027,11 @@ Concretely this means the following configuration options are removed:
 - `shopware.cache.invalidation.country_state_route`
 - `shopware.cache.invalidation.salutation_route`
 - `shopware.cache.invalidation.sitemap_route`
+
+## Removal of product's `states` field in favor of `type` field
+
+The `states` field of the `product` entity has been removed. Instead, you must use the `type` field to indicate the product type.
+The `states` field of the `line_item` and `order_line_item` entity has also been removed. Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
+Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
 
 </details>

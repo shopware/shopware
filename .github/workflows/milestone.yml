@@ -27,6 +27,8 @@ jobs:
           env:
             NEXT_MINOR: ${{ steps.versions.outputs.next-minor }}
             NEXT_PATCH: ${{ steps.versions.outputs.next-patch }}
+            FREEZE_START: "${{ vars.FREEZE_START }}"
+            FROZEN_VERSION: "${{ vars.FROZEN_VERSION }}"
           with:
             result-encoding: string
             script: |
@@ -38,6 +40,16 @@ jobs:
 
                 // Use next minor if target is trunk or is an issue
                 if (context.payload.pull_request.base.ref == "trunk") {
+                  const nextMinorRegex = new RegExp(/^([0-9]+).([0-9]+).([0-9]+).([0-9]+|x)$/, "mg");
+                  const nextMinorSplitted = nextMinorRegex.exec(nextMinor);
+                  const today = new Date();
+                  const freezeStart = new Date(process.env.FREEZE_START);
+                  const frozenVersion = process.env.FROZEN_VERSION;
+                  // Skip minor if it is in a frozen state
+                  if (today >= freezeStart && nextMinor == frozenVersion) {
+                    nextMinorSplitted[3]++;
+                    return `${nextMinorSplitted.slice(1, nextMinorSplitted.length -1).join(".")}.0`;
+                  }
                   return nextMinor;
                 } else if (versionBaseRef !== null) {
                     const refVersion = `${versionBaseRef.slice(1, versionBaseRef.length - 1).join(".")}.0`

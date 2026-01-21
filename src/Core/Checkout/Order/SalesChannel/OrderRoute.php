@@ -8,12 +8,14 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\Event\OrderCriteriaEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -56,7 +58,12 @@ class OrderRoute extends AbstractOrderRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/order', name: 'store-api.order', methods: ['GET', 'POST'], defaults: ['_entity' => 'order'])]
+    #[Route(
+        path: '/store-api/order',
+        name: 'store-api.order',
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => OrderDefinition::ENTITY_NAME],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
     {
         ReplicaConnection::ensurePrimary();
@@ -119,7 +126,7 @@ class OrderRoute extends AbstractOrderRoute
                 $this->checkGuestAuth($order, $request);
             }
 
-            if ($request->get('login') && $customerId = $order->getOrderCustomer()?->getCustomerId()) {
+            if (RequestParamHelper::get($request, 'login') && $customerId = $order->getOrderCustomer()?->getCustomerId()) {
                 $newContextToken = $this->accountService->loginById($customerId, $context);
             }
         }
@@ -129,7 +136,7 @@ class OrderRoute extends AbstractOrderRoute
         }
 
         $response = new OrderRouteResponse($orderResult);
-        if ($request->get('checkPromotion') === true) {
+        if ($request->query->getBoolean('checkPromotion') === true) {
             foreach ($orders as $order) {
                 $promotions = $this->getActivePromotions($order, $context);
                 $changeable = true;

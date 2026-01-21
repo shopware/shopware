@@ -1,12 +1,12 @@
-import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
+import Plugin from 'src/plugin-system/plugin.class';
 
 export default class NavbarPlugin extends Plugin {
     static options = {
         /**
          * Hover debounce delay.
          */
-        debounceTime: 125,
+        debounceTime: 200,
         /**
          * Class to select the main navigation items, which contain both the top level link and the dropdown navigation.
          */
@@ -26,6 +26,7 @@ export default class NavbarPlugin extends Plugin {
         activeClass: 'active',
 
         /**
+         * @deprecated tag:v6.8.0 - Will be removed. Use window.activeNavigationPathIdList instead.
          * Array of ids representing the path to the currently active category.
          */
         pathIdList: [],
@@ -61,18 +62,16 @@ export default class NavbarPlugin extends Plugin {
     _toggleNavbar(topLevelLink, event) {
         const currentDropdown = window.bootstrap.Dropdown.getOrCreateInstance(topLevelLink);
         if (event.type === 'mouseenter') {
-            if (!currentDropdown?._menu) {
-                this._closeAllDropdowns();
-
-                return;
-            }
-
             this._isMouseOver = true;
             this._debounce(() => {
-                if (this._isMouseOver && currentDropdown?._menu && !currentDropdown._menu.classList.contains('show')) {
+                if (this._isMouseOver) {
                     this._closeAllDropdowns();
-                    currentDropdown.show();
-                    topLevelLink.blur();
+
+                    if (currentDropdown?._menu && !currentDropdown._menu.classList.contains('show')) {
+                        currentDropdown.show();
+                        topLevelLink.blur();
+                    }
+
                     this.$emitter.publish('showDropdown');
                 }
             }, this.options.debounceTime);
@@ -156,7 +155,9 @@ export default class NavbarPlugin extends Plugin {
             }
         }
 
-        this.options.pathIdList.forEach((id) => {
+        // Use window.activeNavigationPathIdList (from main page, not ESI-cached) with fallback to options for backward compatibility
+        const pathIdList = window.activeNavigationPathIdList || this.options.pathIdList || [];
+        pathIdList.forEach((id) => {
             const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', id);
             const activeNavItem = this.el.querySelector(navItemSelector);
 

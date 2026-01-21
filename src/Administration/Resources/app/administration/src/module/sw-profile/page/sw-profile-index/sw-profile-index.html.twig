@@ -51,6 +51,14 @@
                     {{ $tc('sw-profile.tabSearchPreferences.title') }}
                 </sw-tabs-item>
                 {% endblock %}
+
+                <sw-tabs-item
+                    v-if="feature.isActive('PRODUCT_ANALYTICS')"
+                    :route="{ name: 'sw.profile.index.privacyPreferences' }"
+                    :title="$tc('sw-profile.tabPrivacyPreferences.title')"
+                >
+                    {{ $tc('sw-profile.tabPrivacyPreferences.title') }}
+                </sw-tabs-item>
             </sw-tabs>
             {% endblock %}
 

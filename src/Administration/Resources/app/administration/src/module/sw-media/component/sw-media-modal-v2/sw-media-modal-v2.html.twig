@@ -172,6 +172,7 @@
         {% block sw_media_modal_v2_button_confirm_selection %}
         <mt-button
             variant="primary"
+            :disabled="selection.length < 1"
             @click="onEmitSelection"
         >
             {{ $tc('sw-media.sw-media-modal-v2.labelButtonSaveSelection') }}

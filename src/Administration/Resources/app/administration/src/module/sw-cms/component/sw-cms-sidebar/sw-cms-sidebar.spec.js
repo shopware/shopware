@@ -236,7 +236,7 @@ async function createWrapper(
                                                     },
                                                     data: {
                                                         media: {
-                                                            value: 'preview_mountain_large.jpg',
+                                                            value: 'preview_mountain_large.webp',
                                                             source: 'default',
                                                         },
                                                     },
@@ -844,13 +844,13 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
                             value: 'standard',
                         },
                         media: {
-                            value: 'preview_mountain_large.jpg',
+                            value: 'preview_mountain_large.webp',
                             source: 'default',
                         },
                     },
                     data: {
                         media: {
-                            value: 'preview_mountain_large.jpg',
+                            value: 'preview_mountain_large.webp',
                             source: 'default',
                         },
                     },

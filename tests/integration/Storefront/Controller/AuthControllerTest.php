@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -56,12 +57,13 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class AuthControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -424,7 +426,7 @@ class AuthControllerTest extends TestCase
         static::getContainer()->get('event_dispatcher')->removeSubscriber($testSubscriber);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get(StorefrontController::SUCCESS));
@@ -518,7 +520,7 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
@@ -541,7 +543,7 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
@@ -559,7 +561,7 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
@@ -576,7 +578,7 @@ class AuthControllerTest extends TestCase
         ]);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertContains(
             'The passwords you have entered do not match.',
@@ -599,6 +601,17 @@ class AuthControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         static::assertSame('/account/login', $response->headers->get('location'));
+    }
+
+    public function testLoginWithUnwantedQueryParameter(): void
+    {
+        $responseContent = $this->request(
+            'GET',
+            '/account/login?loginError=1&waitTime=<a%20href%3D"https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FPhishing">Here<%2Fa>',
+            []
+        )->getContent();
+        static::assertIsString($responseContent);
+        static::assertStringNotContainsString('https://de.wikipedia.org/wiki/Phishing', $responseContent);
     }
 
     private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void

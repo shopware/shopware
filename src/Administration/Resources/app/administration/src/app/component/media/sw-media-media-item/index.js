@@ -1,5 +1,6 @@
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
+import 'src/module/sw-media/mixin/video-cover.mixin';
 
 const { Mixin } = Shopware;
 const { dom } = Shopware.Utils;
@@ -31,7 +32,17 @@ export default {
 
     inheritAttrs: false,
 
-    inject: ['mediaService'],
+    inject: [
+        'mediaService',
+        'acl',
+    ],
+
+    props: {
+        item: {
+            type: Object,
+            required: true,
+        },
+    },
 
     emits: [
         'media-item-rename-success',
@@ -43,6 +54,7 @@ export default {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('video-cover'),
     ],
 
     data() {
@@ -50,6 +62,7 @@ export default {
             showModalReplace: false,
             showModalDelete: false,
             showModalMove: false,
+            showCoverSelectionModal: false,
         };
     },
 
@@ -81,7 +94,16 @@ export default {
 
         extensionSdkButtons() {
             return Shopware.Store.get('actionButtons').buttons.filter((button) => {
-                return button.entity === 'media' && button.view === 'item';
+                if (button.entity !== 'media' || button.view !== 'item') {
+                    return false;
+                }
+
+                return (
+                    !button.fileTypes?.length ||
+                    button.fileTypes.some((type) => {
+                        return this.item?.fileExtension && type.toLowerCase() === this.item.fileExtension.toLowerCase();
+                    })
+                );
             });
         },
     },

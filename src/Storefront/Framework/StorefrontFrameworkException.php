@@ -4,21 +4,18 @@ namespace Shopware\Storefront\Framework;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class StorefrontFrameworkException extends HttpException
 {
     public const APP_TEMPLATE_FILE_NOT_READABLE = 'STOREFRONT__APP_TEMPLATE_NOT_READABLE';
-
     public const APP_REQUEST_NOT_AVAILABLE = 'STOREFRONT__APP_REQUEST_NOT_AVAILABLE';
     public const SALES_CHANNEL_CONTEXT_OBJECT_NOT_FOUND = 'STOREFRONT__SALES_CHANNEL_CONTEXT_OBJECT_NOT_FOUND';
     public const MEDIA_ILLEGAL_FILE_TYPE = 'STOREFRONT__MEDIA_ILLEGAL_FILE_TYPE';
-
     public const INVALID_ARGUMENT = 'STOREFRONT__INVALID_ARGUMENT';
+    public const SALES_CHANNEL_MAPPING_EXCEPTION = 'FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING';
 
     public static function appTemplateFileNotReadable(string $path): self
     {
@@ -65,5 +62,10 @@ class StorefrontFrameworkException extends HttpException
             self::INVALID_ARGUMENT,
             $message
         );
+    }
+
+    public static function salesChannelMappingException(string $url): self
+    {
+        return new SalesChannelMappingException($url);
     }
 }

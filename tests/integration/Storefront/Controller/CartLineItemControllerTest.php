@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,11 +22,12 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\CartLineItemController;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class CartLineItemControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -194,10 +196,10 @@ class CartLineItemControllerTest extends TestCase
         static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
     }
 
-    private function getFlashBag(): FlashBag
+    private function getFlashBag(): FlashBagInterface
     {
-        /** @var FlashBag $sessionBag */
         $sessionBag = $this->getSession()->getBag('flashes');
+        static::assertInstanceOf(FlashBagInterface::class, $sessionBag);
 
         return $sessionBag;
     }

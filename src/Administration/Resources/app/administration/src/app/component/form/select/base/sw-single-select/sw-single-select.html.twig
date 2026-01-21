@@ -17,7 +17,7 @@
             {% block sw_single_select_single_selection_inner %}
             {% block sw_single_select_single_selection_inner_label %}
             <div
-                v-if="!isExpanded"
+                v-show="!isExpanded"
                 class="sw-single-select__selection-text"
                 :class="selectionTextClasses"
             >
@@ -26,7 +26,8 @@
                         name="selection-label-property"
                         v-bind="{ item: singleSelection, labelProperty, valueProperty, searchTerm, getKey }"
                     >
-                        {{ getKey(singleSelection, labelProperty) }}
+                        <!-- !isExpanded check is needed here for fixing acceptance test "getByText" selector -->
+                        {{ !isExpanded ? getKey(singleSelection, labelProperty) : '' }}
                     </slot>
                 </template>
                 <template v-else>

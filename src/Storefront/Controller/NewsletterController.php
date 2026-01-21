@@ -35,7 +35,11 @@ class NewsletterController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/newsletter-subscribe', name: 'frontend.newsletter.subscribe', methods: ['GET'])]
+    #[Route(
+        path: '/newsletter-subscribe',
+        name: 'frontend.newsletter.subscribe',
+        methods: [Request::METHOD_GET]
+    )]
     public function subscribeMail(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag): Response
     {
         /*
@@ -57,7 +61,7 @@ class NewsletterController extends StorefrontController
         } catch (\Throwable $throwable) {
             $this->addFlash(self::DANGER, $this->trans('newsletter.subscriptionConfirmationFailed'));
 
-            throw new \Exception($throwable->getMessage(), $throwable->getCode(), $throwable);
+            throw $throwable;
         }
 
         $page = $this->newsletterConfirmRegisterPageLoader->load($request, $context);
@@ -65,7 +69,15 @@ class NewsletterController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/newsletter/confirm-subscribe.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/widgets/account/newsletter', name: 'frontend.account.newsletter', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/widgets/account/newsletter',
+        name: 'frontend.account.newsletter',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $pagelet = $this->newsletterAccountPageletLoader->action($request, $dataBag, $context, $customer);

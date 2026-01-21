@@ -24,6 +24,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -41,6 +42,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @internal
  */
 #[CoversClass(CartLineItemController::class)]
+#[Package('checkout')]
 class CartLineItemControllerTest extends TestCase
 {
     private CartLineItemController $controller;
@@ -100,6 +102,44 @@ class CartLineItemControllerTest extends TestCase
             'removable' => 1,
             'quantity' => 1,
             'payload' => ['some' => 'value'],
+        ];
+
+        $request = new Request([], ['lineItems' => [$productId => $lineItemData]]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+        $expectedLineItem = new LineItem($productId, 'product');
+
+        $this->lineItemRegistryMock->expects($this->once())
+            ->method('create')
+            ->with($expectedLineItemData, $this->createMock(SalesChannelContext::class))
+            ->willReturn($expectedLineItem);
+
+        $this->translatorCallback();
+
+        $this->controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
+    }
+
+    public function testAddLineItemsCallsLineItemWithNestedArrayPayload(): void
+    {
+        $productId = Uuid::randomHex();
+        $lineItemData = [
+            'id' => $productId,
+            'referencedId' => $productId,
+            'type' => 'product',
+            'stackable' => 1,
+            'removable' => 1,
+            'quantity' => 1,
+            'payload' => ['some' => 'value', 'nested' => ['key' => 'data']],
+        ];
+
+        $expectedLineItemData = [
+            'id' => $productId,
+            'referencedId' => $productId,
+            'type' => 'product',
+            'stackable' => 1,
+            'removable' => 1,
+            'quantity' => 1,
+            'payload' => ['some' => 'value', 'nested' => ['key' => 'data']],
         ];
 
         $request = new Request([], ['lineItems' => [$productId => $lineItemData]]);
@@ -468,7 +508,7 @@ class CartLineItemControllerTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $request = new Request(['quantity' => 3]);
+        $request = new Request([], ['quantity' => 3]);
         $cart = new Cart(Uuid::randomHex());
         $cart->addLineItems(new LineItemCollection([new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE)]));
         $context = $this->createMock(SalesChannelContext::class);
@@ -627,6 +667,18 @@ class CartLineItemControllerTest extends TestCase
         $this->controller->deleteLineItems($cart, $request, $context);
 
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public function testDeleteCart(): void
+    {
+        $request = new Request([], ['all' => true]);
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->cartService->expects($this->once())
+            ->method('deleteCart')
+            ->with($context);
+
+        $this->controller->deleteCart($request, $context);
     }
 
     public function testUpdateLineItems(): void

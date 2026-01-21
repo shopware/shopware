@@ -491,7 +491,7 @@ class SalesChannelProxyController extends AbstractController
 
     private function validLanguageId(SalesChannelEntity $salesChannel, ?string $languageId): bool
     {
-        if ($salesChannel->getLanguageId() === $languageId) {
+        if ($languageId === null || $salesChannel->getLanguageId() === $languageId) {
             return true;
         }
 

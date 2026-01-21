@@ -190,6 +190,51 @@ class SalesChannelProxyControllerTest extends TestCase
         );
     }
 
+    public function testNonValidLanguages(): void
+    {
+        $salesChannelLanguageId = Uuid::randomHex();
+        $salesChannel = $this->createSalesChannel();
+        $this->createLanguage($salesChannelLanguageId, $salesChannel['id']);
+
+        $salesChannelData = ['languageId' => $salesChannelLanguageId];
+        $this->getBrowser()->jsonRequest('PATCH', '/api/sales-channel/' . $salesChannel['id'], $salesChannelData);
+
+        // create a new language not connected to the sales channel
+        $langId = Uuid::randomHex();
+        $localeId = Uuid::randomHex();
+        $languageData = [
+            'id' => $langId,
+            'name' => 'random language ' . $langId,
+            'locale' => [
+                'id' => $localeId,
+                'code' => 'x-tst_' . $localeId,
+                'name' => 'Random locale ' . $localeId,
+                'territory' => 'Random territory ' . $localeId,
+            ],
+            'translationCodeId' => $localeId,
+            'active' => true,
+        ];
+
+        $this->getBrowser()->jsonRequest('POST', '/api/language', $languageData);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $this->getBrowser()->request('GET', '/api/language/' . $langId);
+
+
+        $this->assertTranslation(
+            ['name' => 'third translation', 'translated' => ['name' => 'third translation']],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => ['name' => 'not translated'],
+                    $langId => ['name' => 'second translated'],
+                    $salesChannelLanguageId => ['name' => 'third translation'],
+                ],
+            ],
+            $salesChannel['id'],
+            $langId
+        );
+    }
+
     public function testUpdatingPromotionAfterUpdateProductLineItem(): void
     {
         $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);

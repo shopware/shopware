@@ -35,7 +35,7 @@ shopware:
         default: false
         major: true
         toggleable: true
-        description: "Experimental! Execute flows after the main unit of work has concluded. Will become the default for next major 6.8"
+        description: "Execute flows after the main unit of work has concluded. Will become the default for next major 6.8"
       - name: PERFORMANCE_TWEAKS
         default: false
         major: true

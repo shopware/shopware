@@ -70,7 +70,7 @@ readonly class FlowFactory
 
     public function restoreBuffered(BufferedFlow $bufferedFlow): StorableFlow
     {
-        return $this->restore($bufferedFlow->getEventName(), $bufferedFlow->getEventContext(), $bufferedFlow->getStored());
+        return $this->restore($bufferedFlow->eventName, $bufferedFlow->eventContext, $bufferedFlow->stored);
     }
 
     /**

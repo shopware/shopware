@@ -27,7 +27,7 @@ readonly class BufferedFlowExecutionTriggersListener implements EventSubscriberI
 
     public static function getSubscribedEvents(): array
     {
-        if (!Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') && !Feature::isActive('v6.8.0.0')) {
+        if (!(Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0'))) {
             return [];
         }
 

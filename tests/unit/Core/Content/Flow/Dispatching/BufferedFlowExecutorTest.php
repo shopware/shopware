@@ -81,7 +81,7 @@ class BufferedFlowExecutorTest extends TestCase
                 ],
             ]);
 
-        $flow = new StorableFlow($bufferedFlow->getEventName(), $bufferedFlow->getEventContext(), [], []);
+        $flow = new StorableFlow($bufferedFlow->eventName, $bufferedFlow->eventContext, [], []);
         $this->flowFactoryMock->expects($this->once())
             ->method('restoreBuffered')
             ->with($bufferedFlow)
@@ -109,7 +109,7 @@ class BufferedFlowExecutorTest extends TestCase
         $this->bufferedFlowQueueMock->method('isEmpty')->willReturnOnConsecutiveCalls(false, true);
         $this->bufferedFlowQueueMock->method('dequeueFlows')->willReturn([$bufferedFlow]);
 
-        $flow = new StorableFlow($bufferedFlow->getEventName(), $bufferedFlow->getEventContext(), [], []);
+        $flow = new StorableFlow($bufferedFlow->eventName, $bufferedFlow->eventContext, [], []);
         $this->flowFactoryMock->expects($this->once())->method('restoreBuffered')->with($bufferedFlow)->willReturn($flow);
 
         $this->flowLoaderMock->expects($this->once())->method('load')->willReturn([]);

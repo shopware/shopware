@@ -54,7 +54,7 @@ class BufferedFlowExecutor
 
         if ($flowExecutionDepth >= self::MAXIMUM_EXECUTION_DEPTH) {
             $eventNames = array_map(
-                static fn (BufferedFlow $event) => $event->getEventName(),
+                static fn (BufferedFlow $bufferedFlow) => $bufferedFlow->eventName,
                 $this->bufferedFlowQueue->dequeueFlows(),
             );
 

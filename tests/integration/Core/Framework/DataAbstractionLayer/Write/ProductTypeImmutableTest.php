@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,15 +34,22 @@ class ProductTypeImmutableTest extends TestCase
 
     public function testUpdatingProductTypeWithSameValueSucceeds(): void
     {
-        // The update with same type should succeed without exceptions
-        static::expectNotToPerformAssertions();
-
         $id = Uuid::randomHex();
         $this->createProduct($id, 'special');
+
+        $postEventDispatched = false;
+
+        $this->getContainer()->get('event_dispatcher')->addListener(PostWriteValidationEvent::class, function (PostWriteValidationEvent $event) use (&$postEventDispatched) {
+            $postEventDispatched = true;
+
+            self::assertCount(0, $event->getExceptions()->getExceptions());
+        });
 
         $this->getRepository()->update([
             ['id' => $id, 'type' => 'special'],
         ], Context::createDefaultContext());
+
+        static::assertTrue($postEventDispatched);
     }
 
     private function createProduct(string $id, string $type): void

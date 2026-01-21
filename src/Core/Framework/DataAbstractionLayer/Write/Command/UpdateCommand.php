@@ -6,9 +6,9 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @phpstan-ignore-next-line cannot be final, as it is extended, also designed to be used directly
- *
  * @codeCoverageIgnore
+ *
+ * @phpstan-ignore-next-line cannot be final, as it is extended, also designed to be used directly
  */
 #[Package('framework')]
 class UpdateCommand extends WriteCommand implements ChangeSetAware

@@ -99,12 +99,10 @@ class EntityExistsValidatorTest extends TestCase
         $validator = $this->getValidator();
 
         $constraint = new All(
-            [
-                'constraints' => [
-                    new EntityExists(
-                        ['context' => $context, 'entity' => LocaleDefinition::ENTITY_NAME]
-                    ),
-                ],
+            constraints: [
+                new EntityExists(
+                    ['context' => $context, 'entity' => LocaleDefinition::ENTITY_NAME]
+                ),
             ]
         );
 

@@ -64,34 +64,32 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
     protected function getConstraints(Field $field): array
     {
         return [
-            new Collection([
-                'allowExtraFields' => true,
-                'allowMissingFields' => false,
-                'fields' => [
+            new Collection(
+                fields: [
                     'eventName' => [new NotBlank(), new Type('string')],
                     'description' => [new Type('string')],
                     'sequences' => [
-                        [
-                            new Optional(
-                                new Collection([
-                                    'allowExtraFields' => true,
-                                    'allowMissingFields' => false,
-                                    'fields' => [
-                                        'id' => [new NotBlank(), new Uuid()],
-                                        'actionName' => [new NotBlank(), new Type('string')],
-                                        'parentId' => [new Uuid()],
-                                        'ruleId' => [new Uuid()],
-                                        'position' => [new Type('numeric')],
-                                        'trueCase' => [new Type('boolean')],
-                                        'displayGroup' => [new Type('numeric')],
-                                        'config' => [new Type('array')],
-                                    ],
-                                ])
-                            ),
-                        ],
+                        new Optional(
+                            new Collection(
+                                fields: [
+                                    'id' => [new NotBlank(), new Uuid()],
+                                    'actionName' => [new NotBlank(), new Type('string')],
+                                    'parentId' => [new Uuid()],
+                                    'ruleId' => [new Uuid()],
+                                    'position' => [new Type('numeric')],
+                                    'trueCase' => [new Type('boolean')],
+                                    'displayGroup' => [new Type('numeric')],
+                                    'config' => [new Type('array')],
+                                ],
+                                allowExtraFields: true,
+                                allowMissingFields: false,
+                            )
+                        ),
                     ],
                 ],
-            ]),
+                allowExtraFields: true,
+                allowMissingFields: false,
+            ),
         ];
     }
 }

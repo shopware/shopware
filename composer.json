@@ -134,7 +134,6 @@
         "symfony/finder": "~7.4.0",
         "symfony/framework-bundle": "~7.4.0",
         "symfony/http-client": "~7.4.0",
-        "symfony/http-client-contracts": "~3.6.0",
         "symfony/http-foundation": "~7.4.0",
         "symfony/http-kernel": "~7.4.0",
         "symfony/intl": "~7.4.0",

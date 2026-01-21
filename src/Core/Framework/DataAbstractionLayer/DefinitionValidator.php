@@ -91,6 +91,7 @@ class DefinitionValidator
         'admin_elasticsearch_index_task',
         'app_config',
         'cart',
+        'deleted_apps',
         'migration',
         'sales_channel_api_context',
         'elasticsearch_index_task',

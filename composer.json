@@ -103,6 +103,7 @@
         "opensearch-project/opensearch-php": "^2.3.1",
         "padaliyajay/php-autoprefixer": "^1.4",
         "pentatrion/vite-bundle": "^7.0",
+        "phpseclib/phpseclib": "^3.0",
         "psr/cache": "^3.0.0",
         "psr/event-dispatcher": "^1.0.0",
         "psr/http-factory": "^1.0.1",

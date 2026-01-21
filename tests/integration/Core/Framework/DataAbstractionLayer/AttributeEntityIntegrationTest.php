@@ -21,6 +21,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -929,6 +931,52 @@ class AttributeEntityIntegrationTest extends TestCase
         $record = $search->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntityWithHydrator::class, $record);
         static::assertSame('code-number', $record->number);
+    }
+
+    public function testInheritedFlagAppliedToFields(): void
+    {
+        $definition = static::getContainer()->get('attribute_entity_inheritance.definition');
+
+        static::assertInstanceOf(AttributeEntityDefinition::class, $definition);
+
+        $inheritedStringField = $definition->getFields()->get('inheritedString');
+        static::assertNotNull($inheritedStringField, 'inheritedString field should exist');
+        static::assertTrue(
+            $inheritedStringField->is(Inherited::class),
+            'inheritedString field should have Inherited flag'
+        );
+
+        $currencyIdField = $definition->getFields()->get('currencyId');
+        static::assertNotNull($currencyIdField, 'currencyId field should exist');
+        static::assertTrue(
+            $currencyIdField->is(Inherited::class),
+            'currencyId field should have Inherited flag'
+        );
+
+        $currencyField = $definition->getFields()->get('currency');
+        static::assertNotNull($currencyField, 'currency field should exist');
+        static::assertTrue(
+            $currencyField->is(Inherited::class),
+            'currency association field should have Inherited flag'
+        );
+
+        $inheritedWithForeignKeyField = $definition->getFields()->get('inheritedWithForeignKey');
+        static::assertNotNull($inheritedWithForeignKeyField, 'inheritedWithForeignKey field should exist');
+        static::assertTrue(
+            $inheritedWithForeignKeyField->is(Inherited::class),
+            'inheritedWithForeignKey field should have Inherited flag'
+        );
+
+        $inheritedFlag = $inheritedWithForeignKeyField->getFlag(Inherited::class);
+        static::assertInstanceOf(Inherited::class, $inheritedFlag);
+        static::assertSame('custom_fk', $inheritedFlag->getForeignKey());
+
+        $productField = $definition->getFields()->get('product');
+        static::assertNotNull($productField, 'product field should exist');
+        static::assertTrue(
+            $productField->is(ReverseInherited::class),
+            'product association field should have ReverseInherited flag'
+        );
     }
 
     /**

@@ -1,9 +1,7 @@
 {% block sw_import_export %}
 <sw-page class="sw-import-export">
-
     <template #content>
         <sw-card-view>
-
             {% block sw_import_export_tabs %}
             <sw-tabs position-identifier="sw-import-export">
                 {% block sw_import_export_tabs_import %}
@@ -34,6 +32,5 @@
     {# @deprecated tag:v6.8.0 - Block will be removed. #}
     {% block sw_import_export_language_switch %}
     {% endblock %}
-
 </sw-page>
 {% endblock %}

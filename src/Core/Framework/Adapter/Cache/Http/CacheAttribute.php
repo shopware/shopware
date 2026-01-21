@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * Value object extended for cache attribute in request
  *
  * @phpstan-type CacheAttributeArray array{ clientMaxAge?: int, sharedMaxAge?: int, maxAge?: int, states?: list<string> }
- * @phpstan-type CacheAttributeType CacheAttributeArray|true|CacheAttribute
+ * @phpstan-type CacheAttributeType CacheAttributeArray|bool|string|int|CacheAttribute
  *
  * @internal
  */
@@ -43,20 +43,22 @@ readonly class CacheAttribute
     /**
      * @param CacheAttributeType $attributeValue
      */
-    public static function fromAttributeValue(array|bool|CacheAttribute|null $attributeValue): ?self
+    public static function fromAttributeValue(array|bool|string|int|CacheAttribute|null $attributeValue): ?self
     {
-        if ($attributeValue === null || $attributeValue === false) {
-            return null;
-        }
-
-        if ($attributeValue === true) {
-            return new self();
-        }
-
         if ($attributeValue instanceof CacheAttribute) {
             return $attributeValue;
         }
 
-        return self::fromArray($attributeValue);
+        if (\is_array($attributeValue)) {
+            return self::fromArray($attributeValue);
+        }
+
+        // from XML route definitions string values can come
+        $attributeValue = filter_var($attributeValue, \FILTER_VALIDATE_BOOLEAN);
+        if ($attributeValue === true) {
+            return new self();
+        }
+
+        return null;
     }
 }

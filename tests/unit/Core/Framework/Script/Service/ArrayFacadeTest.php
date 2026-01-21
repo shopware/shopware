@@ -72,4 +72,21 @@ class ArrayFacadeTest extends TestCase
 
         static::assertSame('baz', $a['foo']);
     }
+
+    public function testReset(): void
+    {
+        $array = [1, 2, 3, 'foo' => 'bar'];
+        $facade = new ArrayFacade($array);
+
+        static::assertCount(4, $facade);
+        static::assertTrue($facade->offsetExists(0));
+        static::assertTrue($facade->offsetExists('foo'));
+
+        $facade->reset();
+
+        static::assertCount(0, $facade);
+        static::assertFalse($facade->offsetExists(0));
+        static::assertFalse($facade->offsetExists('foo'));
+        static::assertSame([], $facade->all());
+    }
 }

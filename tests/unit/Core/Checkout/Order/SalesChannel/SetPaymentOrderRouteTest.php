@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -192,17 +193,20 @@ class SetPaymentOrderRouteTest extends TestCase
         $transactionState->setId(Uuid::randomHex());
         $transactionState->setPaymentMethodId(Uuid::randomHex());
         $transactionState->setStateId(Uuid::randomHex());
+        $transactionState->setAmount(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $transactionStateLastId = Uuid::randomHex();
         $transactionStateLast = new OrderTransactionEntity();
         $transactionStateLast->setId($transactionStateLastId);
         $transactionStateLast->setPaymentMethodId($paymentMethod->getId());
         $transactionStateLast->setStateId(Uuid::randomHex());
+        $transactionStateLast->setAmount(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
         $order->setPrimaryOrderTransactionId($transactionStateLastId);
         $order->setPrimaryOrderTransaction($transactionStateLast);
         $order->setTransactions(new OrderTransactionCollection([$transactionState, $transactionStateLast]));
+        $order->setPrice(new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE));
 
         /** @var StaticEntityRepository<OrderCollection> $staticRepository */
         $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());

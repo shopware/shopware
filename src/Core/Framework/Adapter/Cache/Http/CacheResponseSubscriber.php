@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
-use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
@@ -82,11 +81,16 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $this->cacheHeadersService->applyCacheHeaders($context, $response);
 
+        $area = $this->isStoreApi($request) ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT;
+
         if (!$this->httpCacheEnabled) {
+            // no-store attribute still has to be processed even in early return case
+            if ($request->attributes->has(PlatformRequest::ATTRIBUTE_NO_STORE)) {
+                $this->applyPolicy($request, $response, $area, false, null);
+            }
+
             return;
         }
-
-        $area = $this->isStoreApi($request) ? self::POLICY_AREA_STORE_API : self::POLICY_AREA_STOREFRONT;
 
         if (!$this->maintenanceResolver->shouldBeCached($request)) {
             $this->noCache($request, $response, $area);
@@ -140,7 +144,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         // even when the response is not cached itself, so that the cache-hash on the client is updated for the next request
         //
         // It should be called here as side effects (cookie, header) should also appy for non-cacheable responses
-        $cacheHash = $this->cacheHeadersService->applyCacheHash($request, $context, $cart, $response);
+        $cacheHashEvent = $this->cacheHeadersService->applyCacheHash($request, $context, $cart, $response);
 
         if (!$request->isMethod(Request::METHOD_GET)) {
             $this->noCache($request, $response, $area);
@@ -155,7 +159,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         // No cache when dynamic calculation says so
-        if ($cacheHash === HttpCacheCookieEvent::NOT_CACHEABLE) {
+        if ($cacheHashEvent && !$cacheHashEvent->shouldResponseBeCached()) {
             // Response is not cacheable because of dynamic calculation, giving a hint to the reverse proxy
             $response->headers->set(HttpCacheKeyGenerator::HEADER_DYNAMIC_CACHE_BYPASS, '1');
             $this->noCache($request, $response, $area);
@@ -163,6 +167,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $cacheHash = $cacheHashEvent?->getHash();
         // No cache when client cache hash does not match the expected one. This protects from cache poisoning
         if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
             $clientHash = $request->headers->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE) ??
@@ -243,8 +248,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     private function applyPolicy(Request $request, Response $response, string $area, bool $cacheable, ?CacheAttribute $cacheAttribute): void
     {
         $route = (string) $request->attributes->get('_route', '');
+        $enforceNoStore = $request->attributes->has(PlatformRequest::ATTRIBUTE_NO_STORE);
 
-        $policy = $this->policyProvider->getPolicy($route, $area, $cacheable, $cacheAttribute);
+        $policy = $this->policyProvider->getPolicy($route, $area, $cacheable, $cacheAttribute, $enforceNoStore);
 
         // reset existing cache-control to avoid mixing policies
         $response->headers->remove('cache-control');

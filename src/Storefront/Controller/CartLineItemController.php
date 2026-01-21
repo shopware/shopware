@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -91,7 +92,7 @@ class CartLineItemController extends StorefrontController
     {
         return Profiler::trace('cart::delete-line-items', function () use ($cart, $request, $context) {
             try {
-                $idData = $request->get('ids');
+                $idData = RequestParamHelper::get($request, 'ids');
                 if (!\is_array($idData) || $idData === []) {
                     throw RoutingException::missingRequestParameter('ids');
                 }
@@ -151,7 +152,7 @@ class CartLineItemController extends StorefrontController
     {
         return Profiler::trace('cart::change-quantity', function () use ($cart, $id, $request, $context) {
             try {
-                $quantity = $request->get('quantity');
+                $quantity = RequestParamHelper::get($request, 'quantity');
 
                 if ($quantity === null) {
                     throw RoutingException::missingRequestParameter('quantity');
@@ -353,13 +354,7 @@ class CartLineItemController extends StorefrontController
     private function getLineItemArray(RequestDataBag $lineItemData, ?array $defaultValues): array
     {
         if ($lineItemData->has('payload')) {
-            $payload = $lineItemData->get('payload');
-
-            if (mb_strlen($payload, '8bit') > (1024 * 256)) {
-                throw RoutingException::invalidRequestParameter('payload');
-            }
-
-            $lineItemData->set('payload', json_decode($payload, true, 512, \JSON_THROW_ON_ERROR));
+            $lineItemData->set('payload', $this->normalizePayload($lineItemData->get('payload')));
         }
 
         $lineItemArray = $lineItemData->all();
@@ -388,6 +383,23 @@ class CartLineItemController extends StorefrontController
         }
 
         return $lineItemArray;
+    }
+
+    /**
+     * @throws RoutingException
+     * @throws \JsonException
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizePayload(mixed $payload): array
+    {
+        return match (true) {
+            $payload instanceof RequestDataBag => $payload->all(),
+            \is_array($payload) => $payload,
+            \is_string($payload) && mb_strlen($payload, '8bit') > 256 * 1024 => throw RoutingException::invalidRequestParameter('payload'),
+            \is_string($payload) => json_decode($payload, true, 512, \JSON_THROW_ON_ERROR),
+            default => throw RoutingException::invalidRequestParameter('payload'),
+        };
     }
 
     /**

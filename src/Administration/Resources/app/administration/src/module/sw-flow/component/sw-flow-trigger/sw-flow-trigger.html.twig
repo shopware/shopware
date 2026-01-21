@@ -58,10 +58,8 @@
             v-if="isExpanded"
             class="sw-flow-trigger__event-selection"
         >
-
             {% block sw_flow_trigger_container %}
             <sw-container class="sw-flow-trigger__event-container">
-
                 {% block sw_flow_trigger_select_tree %}
                 <sw-tree
                     v-if="showTreeView"
@@ -75,7 +73,6 @@
                     :on-change-route="changeTrigger"
                     bind-items-to-folder
                 >
-
                     {% block sw_flow_trigger_tree_headline %}
                     <template #headline>
                         <span></span>
@@ -109,7 +106,6 @@
                             :display-checkbox="false"
                             @check-item="checkItem"
                         >
-
                             {% block sw_flow_trigger_tree_item_actions %}
                             <template #actions>
                                 <span></span>
@@ -140,7 +136,7 @@
                         <div class="sw-flow-trigger__search-result-icon">
                             <mt-icon
                                 name="regular-circle-xxs"
-                                size="18"
+                                size="8px"
                             />
                         </div>
                         {% endblock %}

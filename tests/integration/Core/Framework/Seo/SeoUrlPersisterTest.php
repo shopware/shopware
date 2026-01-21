@@ -787,7 +787,7 @@ class SeoUrlPersisterTest extends TestCase
     /**
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
      *
-     * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
+     * @return array<array{seoPathInfo: string, isCanonical: bool|null, isDeleted: bool, languageId: string}>
      */
     private function getAllSeoUrlsForProduct(string $productId, EntityRepository $seoUrlRepository): array
     {
@@ -810,7 +810,7 @@ class SeoUrlPersisterTest extends TestCase
     /**
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
      *
-     * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
+     * @return array<array{seoPathInfo: string, isCanonical: bool|null, isDeleted: bool, languageId: string}>
      */
     private function getCurrentCanonicalSeoUrls(string $productId, EntityRepository $seoUrlRepository): array
     {
@@ -835,7 +835,7 @@ class SeoUrlPersisterTest extends TestCase
     /**
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
      *
-     * @return array<array{seoPathInfo: string, isCanonical: bool, isDeleted: bool, languageId: string}>
+     * @return array<array{seoPathInfo: string, isCanonical: bool|null, isDeleted: bool, languageId: string}>
      */
     private function getObsoleteSeoUrls(string $productId, EntityRepository $seoUrlRepository): array
     {

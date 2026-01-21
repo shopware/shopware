@@ -77,11 +77,11 @@ class UserListCommand extends Command
      * @return list<array{
      *     id: string,
      *     'email': string,
-     *     'active': string,
+     *     'active': bool,
      *     'username': string,
      *     'name': string,
      *     'roles': array<string>,
-     *     'date_created': string
+     *     'created': string
      * }>
      */
     private function mapUsersToJson(UserCollection $users): array
@@ -102,9 +102,9 @@ class UserListCommand extends Command
      *     'email': string,
      *     'username': string,
      *     'name': string,
-     *     'active': string,
+     *     'active': bool,
      *     'roles': string,
-     *     'date_created': string
+     *     'created': string
      * }>
      */
     private function mapUsersToConsole(UserCollection $users): array

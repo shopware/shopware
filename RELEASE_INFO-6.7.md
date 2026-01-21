@@ -60,6 +60,7 @@ A new `Immutable` flag is available for Data Abstraction Layer fields. Fields ma
 * `custom_field_set.name`
 
 Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
+If the value is not set in the payload, or the value won't change, no exception is thrown.
 
 ### Performance Improvement for `ProductCategoryDenormalizer`
 
@@ -141,6 +142,10 @@ This affects the following exception factory methods:
 A new `doNotStore` property was added to the `HttpCacheCookieEvent` to allow fine-grained control over caching behavior.
 This new property allows preventing the current response from being stored in the cache.
 This behaviour differs from the existing ìsCacheable` property, which will also prevent the following requests from that session being cached.
+
+### Logging for invalidated cache tags
+
+Added logging for invalidated cache tags at the info level, with the ability to enable or disable the logging via configuration for debugging and transparency.
 
 ## Administration
 

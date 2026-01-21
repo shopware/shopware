@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\Psr16Cache;
@@ -34,7 +35,9 @@ class CacheInvalidator
         private readonly RequestStack $requestStack,
         TagAwareAdapterInterface $httpCacheStore,
         private readonly bool $softPurge,
-        private readonly bool $useDelayedCache
+        private readonly bool $useDelayedCache,
+        private readonly bool $tagInvalidationLogEnabled,
+        private readonly BacktraceCollector $backtraceCollector
     ) {
         $this->httpCacheStore = new Psr16Cache($httpCacheStore);
     }
@@ -76,8 +79,6 @@ class CacheInvalidator
             return $tags;
         }
 
-        $this->logger->info(\sprintf('Purged %d tags', \count($tags)));
-
         $this->purge($tags);
 
         return $tags;
@@ -104,6 +105,21 @@ class CacheInvalidator
             }
 
             $this->httpCacheStore->setMultiple($list);
+        }
+
+        if ($this->tagInvalidationLogEnabled) {
+            $callerFrame = $this->backtraceCollector->getFirstFrame(
+                fn (array $frame) => !isset($frame['class'], $frame['function'])
+                    || $frame['class'] === self::class
+            );
+
+            $this->logger->info(
+                \sprintf('Purged tags (%d).', \count($keys)),
+                [
+                    'tags' => $keys,
+                    'caller' => $callerFrame?->toArray(),
+                ]
+            );
         }
 
         $this->dispatcher->dispatch(new InvalidateCacheEvent($keys));

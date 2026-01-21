@@ -66,6 +66,10 @@ jobs:
           use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
+          playwright-role-arn: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+          cloudfront-domain: ${{ secrets.CLOUDFRONT_DOMAIN }}
+          s3-bucket: shopware-ci-playwright-traces
+          report-prefix: playwright-reports
 
   acceptance-tests-changed:
     runs-on: ubuntu-24.04

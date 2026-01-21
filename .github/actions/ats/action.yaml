@@ -68,6 +68,21 @@ inputs:
         default: "ats"
         description: "Prefix for the artifact name"
 
+    playwright-role-arn:
+        required: false
+        description: "Role ARN to assume for uploading traces (pass as secret)"
+    cloudfront-domain:
+        required: false
+        description: "CloudFront domain for report URLs"
+    s3-bucket:
+        required: false
+        default: "shopware-ci-playwright-traces"
+        description: "S3 bucket name"
+    report-prefix:
+        required: false
+        default: "playwright-reports"
+        description: "S3 prefix for reports"
+
 runs:
 
   using: "composite"
@@ -182,12 +197,13 @@ runs:
         -   name: Configure AWS credentials
             if: >
                 github.repository_owner == 'shopware' &&
-                (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+                (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) &&
+                inputs.playwright-role-arn != ''
             uses: aws-actions/configure-aws-credentials@v4
             with:
                 aws-region: eu-central-1
                 role-session-name: gha-playwright-${{ github.run_id }}
-                role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+                role-to-assume: ${{ inputs.playwright-role-arn }}
 
 
         - name: Upload Playwright HTML report to S3 (unique per run)
@@ -198,15 +214,15 @@ runs:
               REPORT_PREFIX: playwright-reports
           run: |
                 set -euo pipefail
-                DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+                DEST="${{ inputs.report-prefix }}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
 
                 if [ ! -f "playwright-report/index.html" ]; then
                 echo "No Playwright report found, skipping upload."
                 exit 0
                 fi
 
-                aws s3 sync "playwright-report" "s3://${S3_BUCKET}/${DEST}/" --delete
-                echo "Uploaded to s3://${S3_BUCKET}/${DEST}/"
+                aws s3 sync "playwright-report" "s3://${{ inputs.s3-bucket }}/${DEST}/" --delete
+                echo "Uploaded to s3://${{ inputs.s3-bucket }}/${DEST}/"
 
         - name: Publish CloudFront URL in GitHub Summary
           if: always()
@@ -216,8 +232,8 @@ runs:
             REPORT_PREFIX: playwright-reports
           run: |
                 set -euo pipefail
-                DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-                URL="https://${CLOUDFRONT_DOMAIN}/${DEST}/index.html"
+                DEST="${{ inputs.report-prefix }}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+                URL="https://${{ inputs.cloudfront-domain }}/${DEST}/index.html"
 
                 echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
                 echo "" >> "$GITHUB_STEP_SUMMARY"

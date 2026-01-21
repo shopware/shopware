@@ -74,6 +74,7 @@ class AppSecretRotationService
 
         $currentIntegrationId = $app->getIntegrationId();
         $currentIntegration = $app->getIntegration();
+        \assert($currentIntegration !== null);
 
         $manifest = $this->resolveManifest($app);
 

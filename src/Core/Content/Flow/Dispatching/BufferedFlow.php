@@ -13,10 +13,15 @@ use Shopware\Core\Framework\Struct\Struct;
  * @interal
  *
  * @final
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class BufferedFlow extends Struct
 {
+    /**
+     * @param array<string, mixed> $stored
+     */
     public function __construct(
         protected string $eventName,
         protected Context $eventContext,
@@ -44,11 +49,17 @@ class BufferedFlow extends Struct
         $this->eventContext = $eventContext;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getStored(): array
     {
         return $this->stored;
     }
 
+    /**
+     * @param array<string, mixed> $stored
+     */
     public function setStored(array $stored): void
     {
         $this->stored = $stored;

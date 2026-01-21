@@ -38,7 +38,7 @@ class RequestParamHelper
             // Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release.
             // When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
             // In case you used to set request attributes to override specific parameters, you should instead overwrite the parameters in the `query` or `request` parameter bags directly.
-            $request->attributes->get($name, $default);
+            return $request->attributes->get($name, $default);
         }
 
         if ($request->query->has($name)) {

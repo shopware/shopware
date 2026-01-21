@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Request;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 

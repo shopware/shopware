@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
@@ -69,21 +70,23 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
                     'eventName' => [new NotBlank(), new Type('string')],
                     'description' => [new Type('string')],
                     'sequences' => [
-                        new Optional(
-                            new Collection(
-                                fields: [
-                                    'id' => [new NotBlank(), new Uuid()],
-                                    'actionName' => [new NotBlank(), new Type('string')],
-                                    'parentId' => [new Uuid()],
-                                    'ruleId' => [new Uuid()],
-                                    'position' => [new Type('numeric')],
-                                    'trueCase' => [new Type('boolean')],
-                                    'displayGroup' => [new Type('numeric')],
-                                    'config' => [new Type('array')],
-                                ],
-                                allowExtraFields: true,
-                                allowMissingFields: false,
-                            )
+                        new All(
+                            new Optional(
+                                new Collection(
+                                    fields: [
+                                        'id' => [new NotBlank(), new Uuid()],
+                                        'actionName' => [new NotBlank(), new Type('string')],
+                                        'parentId' => [new Uuid()],
+                                        'ruleId' => [new Uuid()],
+                                        'position' => [new Type('numeric')],
+                                        'trueCase' => [new Type('boolean')],
+                                        'displayGroup' => [new Type('numeric')],
+                                        'config' => [new Type('array')],
+                                    ],
+                                    allowExtraFields: true,
+                                    allowMissingFields: false,
+                                )
+                            ),
                         ),
                     ],
                 ],

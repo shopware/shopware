@@ -171,7 +171,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
             $this->getOrderRouteWithValidOrder($orderId, null, $totalRounding),
         );
 
-        $request = new Request([], [], [
+        $request = new Request([
             'orderId' => $orderId,
             'changedPayment' => false,
             'paymentFailed' => false,

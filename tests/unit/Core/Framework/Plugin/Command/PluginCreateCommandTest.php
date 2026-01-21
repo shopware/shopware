@@ -26,7 +26,7 @@ class PluginCreateCommandTest extends TestCase
      * @param array<int, array<string, mixed>> $generators
      */
     #[DataProvider('commandProvider')]
-    public function testSuccessfulCreateCommandWithArguments(
+    public function testSuccessfulCreateCommandWithArgumentsOrInputs(
         array $arguments,
         array $inputs,
         array $generators = []
@@ -109,13 +109,13 @@ class PluginCreateCommandTest extends TestCase
      * @param list<string> $inputs
      */
     #[DataProvider('invalidInputsProvider')]
-    public function testInvalidInputs(array $inputs, string $expectedErrorMessage): void
+    public function testInvalidInputs(array $inputs, string $expectedErrorMessage, bool $interactive = true): void
     {
         $commandTester = $this->getCommandTester();
 
         $commandTester->setInputs($inputs);
 
-        $commandTester->execute([]);
+        $commandTester->execute([], ['interactive' => $interactive]);
 
         static::assertStringContainsString(
             $expectedErrorMessage,
@@ -133,6 +133,12 @@ class PluginCreateCommandTest extends TestCase
         yield 'invalid plugin name' => [
             'inputs' => ['test'],
             'expectedErrorMessage' => 'The name must start with an uppercase character',
+        ];
+
+        yield 'non-interactive without arguments' => [
+            'inputs' => [],
+            'expectedErrorMessage' => 'This command requires interactive mode or the argument must be provided.',
+            'interactive' => false,
         ];
     }
 

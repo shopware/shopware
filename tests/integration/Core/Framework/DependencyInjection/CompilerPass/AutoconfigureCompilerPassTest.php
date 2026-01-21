@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityInterface;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -72,6 +73,23 @@ class AutoconfigureCompilerPassTest extends TestCase
         static::assertInstanceOf(Reference::class, $arg2);
         static::assertSame('shopware.filesystem.public', (string) $arg2);
     }
+
+    public function testAttribute(): void
+    {
+        $container = new ContainerBuilder();
+
+        $container->addCompilerPass(new AutoconfigureCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
+        $definition = new Definition(ExampleEntity::class);
+        $definition->setPublic(true);
+        $definition->setAutoconfigured(true);
+        $definition->setAutowired(true);
+
+        $container->setDefinition(ExampleEntity::class, $definition);
+
+        $container->compile();
+
+        static::assertArrayHasKey('shopware.entity', $container->getDefinition(ExampleEntity::class)->getTags());
+    }
 }
 
 /**
@@ -91,4 +109,12 @@ class ExampleService
         public FilesystemOperator $publicFilesystem
     ) {
     }
+}
+
+/**
+ * @internal
+ */
+#[Entity('foo')]
+class ExampleEntity
+{
 }

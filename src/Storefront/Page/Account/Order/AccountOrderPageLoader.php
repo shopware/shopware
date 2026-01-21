@@ -69,7 +69,7 @@ class AccountOrderPageLoader
 
         $firstOrder = $page->getOrders()->getEntities()->first();
         $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomerId();
-        if ($request->get('deepLinkCode') && $orderCustomerId !== null) {
+        if ($request->attributes->get('deepLinkCode') && $orderCustomerId !== null) {
             $this->accountService->loginById($orderCustomerId, $salesChannelContext);
         }
 
@@ -113,7 +113,6 @@ class AccountOrderPageLoader
         if (RequestParamHelper::get($request, 'email', false) && RequestParamHelper::get($request, 'zipcode', false)) {
             $apiRequest->query->set('email', RequestParamHelper::get($request, 'email'));
             $apiRequest->query->set('zipcode', RequestParamHelper::get($request, 'zipcode'));
-
         }
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);

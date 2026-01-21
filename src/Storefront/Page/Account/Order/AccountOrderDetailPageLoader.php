@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -47,7 +48,7 @@ class AccountOrderDetailPageLoader
             throw CartException::customerNotLoggedIn();
         }
 
-        $orderId = (string) $request->get('id');
+        $orderId = (string) RequestParamHelper::get($request, 'id');
 
         if ($orderId === '') {
             throw RoutingException::missingRequestParameter('id');

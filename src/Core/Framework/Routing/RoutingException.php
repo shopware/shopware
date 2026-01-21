@@ -104,7 +104,7 @@ class RoutingException extends HttpException
         );
     }
 
-    public static function invalidRouteScope(?string $routeName): self
+    public static function invalidRouteScope(string $routeName): self
     {
         return new InvalidRouteScopeException($routeName);
     }

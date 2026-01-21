@@ -191,7 +191,7 @@ class ProductController extends StorefrontController
 
         return $this->renderStorefront('storefront/component/review/review.html.twig', [
             'reviews' => $reviews,
-            'ratingSuccess' => $request->get('success'),
+            'ratingSuccess' => RequestParamHelper::get($request, 'success'),
         ]);
     }
 

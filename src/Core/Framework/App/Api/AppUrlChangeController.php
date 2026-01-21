@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Api;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
@@ -40,7 +41,7 @@ class AppUrlChangeController extends AbstractController
     #[Route(path: 'api/app-system/app-url-change/resolve', name: 'api.app_system.app-url-change-resolve', methods: ['POST'])]
     public function resolve(Request $request, Context $context): Response
     {
-        $strategy = $request->get('strategy');
+        $strategy = RequestParamHelper::get($request, 'strategy');
 
         if (!$strategy) {
             throw AppException::missingRequestParameter('strategy');

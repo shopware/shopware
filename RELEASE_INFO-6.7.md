@@ -60,6 +60,7 @@ A new `Immutable` flag is available for Data Abstraction Layer fields. Fields ma
 * `custom_field_set.name`
 
 Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
+If the value is not set in the payload, or the value won't change, no exception is thrown.
 
 ### Performance Improvement for `ProductCategoryDenormalizer`
 
@@ -135,6 +136,16 @@ This affects the following exception factory methods:
 * `DataAbstractionLayerException::unexpectedFieldType(...)`
 * `WebhookException::invalidDataMapping(...)`
 * `WebhookException::unknownEventDataType(...)`
+
+### More fine-grained caching control in `HttpCacheCookieEvent`
+
+A new `doNotStore` property was added to the `HttpCacheCookieEvent` to allow fine-grained control over caching behavior.
+This new property allows preventing the current response from being stored in the cache.
+This behaviour differs from the existing ìsCacheable` property, which will also prevent the following requests from that session being cached.
+
+### Logging for invalidated cache tags
+
+Added logging for invalidated cache tags at the info level, with the ability to enable or disable the logging via configuration for debugging and transparency.
 
 ## Administration
 
@@ -221,6 +232,10 @@ shopware:
 
 **Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
 
+### Flash messages are not cached anymore
+
+As soon as a flash message is displayed, the response won't be stored in the HTTP cache anymore, thus preventing the message from being displayed to other users.
+Additionally, the cache will be passed as soon as there is a flash message that still needs to be displayed. This ensures that flash messages are always displayed on the next request, and not only on the next request to an uncached page.
 
 # 6.7.6.0
 

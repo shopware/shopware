@@ -134,6 +134,10 @@ parameters:
                 - src/**/Test/**
                 - tests/**
 
+        # implementation of symfony flashbag interface which does not define iterable types
+        - identifier: missingType.iterableValue
+          path: src/Core/Framework/Adapter/Session/StatefulFlashBag.php
+
         # ArrayFacadeTest explicitly tests array access on object, so it works from twig scripts
         - identifier: offsetAssign.dimType
           path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php

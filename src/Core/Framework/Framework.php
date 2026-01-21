@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMig
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\HttpCacheConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\MessengerMiddlewareCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\OverwriteSessionFactoryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
@@ -120,6 +121,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new IncrementerGatewayCompilerPass());
         $container->addCompilerPass(new ReverseProxyCompilerPass());
         $container->addCompilerPass(new CacheCompilerPass());
+        $container->addCompilerPass(new OverwriteSessionFactoryCompilerPass());
         $container->addCompilerPass(new RedisPrefixCompilerPass(), PassConfig::TYPE_BEFORE_REMOVING, 0);
         $container->addCompilerPass(new AutoconfigureCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new HttpCacheConfigCompilerPass());

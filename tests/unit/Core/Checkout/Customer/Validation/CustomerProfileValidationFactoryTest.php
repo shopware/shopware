@@ -218,7 +218,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
             ->add('salutationId', new EntityExists(entity: SalutationDefinition::ENTITY_NAME, context: $context->getContext()))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
-            ->add('accountType', new Choice($this->accountTypes))
+            ->add('accountType', new Choice(choices: $this->accountTypes))
             ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
             ->add('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
             ->add('lastName', new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME));

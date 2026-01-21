@@ -266,6 +266,10 @@
           },
           "anonymizeIp": {
             "label": "Anonymise IP"
+          },
+          "trackOffcanvasCart": {
+            "label": "Track offcanvas cart",
+            "helpText": "When enabled, a 'view_cart' event is also fired when the offcanvas cart opens, not just on the dedicated cart page. Useful for detailed funnel analysis but may inflate cart view metrics."
           }
         }
       },

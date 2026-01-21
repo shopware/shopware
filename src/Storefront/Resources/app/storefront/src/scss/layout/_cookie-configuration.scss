@@ -56,19 +56,19 @@ Offcanvas containing a list of cookies which need to be manually selected by the
 }
 
 .offcanvas-cookie-entries {
-    > p,
+    > p {
+        padding: 8px 8px 0;
+        margin: 0;
+    }
+
     .offcanvas-cookie-entry {
         padding: 8px 8px 0 24px;
-        margin: 0;
+        margin: 0 0 0 24px;
+        overflow: visible;
 
         > p {
             margin: 8px 0;
         }
-    }
-
-    .offcanvas-cookie-entry {
-        margin-left: 24px;
-        overflow: visible;
 
         &.custom-control,
         &.form-check {

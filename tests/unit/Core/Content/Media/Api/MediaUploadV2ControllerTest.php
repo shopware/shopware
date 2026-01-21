@@ -73,9 +73,9 @@ class MediaUploadV2ControllerTest extends TestCase
         static::assertSame(['id' => $mediaId], $content);
     }
 
-    public function testUploadUrlWithInvalidUrl(): void
+    public function testUploadUrlWithMissingUrl(): void
     {
-        $request = new Request([], ['url' => null]);
+        $request = new Request();
         $context = Context::createDefaultContext();
 
         $this->expectException(MediaException::class);
@@ -85,10 +85,10 @@ class MediaUploadV2ControllerTest extends TestCase
 
     public function testUploadUrlWithNonStringUrl(): void
     {
-        $request = new Request([], ['url' => ['invalid' => 'array']]);
+        $request = new Request([], ['url' => 123]);
         $context = Context::createDefaultContext();
 
-        $this->expectException(\TypeError::class);
+        $this->expectExceptionObject(MediaException::invalidUrl('123'));
 
         $this->controller->uploadUrl($request, new MediaUploadParameters(), $context);
     }
@@ -114,9 +114,9 @@ class MediaUploadV2ControllerTest extends TestCase
         static::assertSame(['id' => $mediaId], $content);
     }
 
-    public function testExternalLinkWithInvalidUrl(): void
+    public function testExternalLinkWithMissingUrl(): void
     {
-        $request = new Request([], ['url' => null]);
+        $request = new Request();
         $context = Context::createDefaultContext();
 
         $this->expectException(MediaException::class);
@@ -129,8 +129,7 @@ class MediaUploadV2ControllerTest extends TestCase
         $request = new Request([], ['url' => 123]);
         $context = Context::createDefaultContext();
 
-        $this->expectException(\TypeError::class);
-
+        $this->expectExceptionObject(MediaException::invalidUrl('123'));
         $this->controller->externalLink($request, new MediaUploadParameters(), $context);
     }
 }

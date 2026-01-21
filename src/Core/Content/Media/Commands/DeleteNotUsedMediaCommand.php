@@ -69,7 +69,9 @@ class DeleteNotUsedMediaCommand extends Command
             return $this->dryRun($input, $output);
         }
 
-        $confirm = $io->confirm('Are you sure that you want to delete unused media files?', false);
+        $confirm = $input->isInteractive()
+            ? $io->confirm('Are you sure that you want to delete unused media files?', false)
+            : true;
 
         if (!$confirm) {
             $io->caution('Aborting due to user input.');
@@ -182,7 +184,7 @@ class DeleteNotUsedMediaCommand extends Command
         );
 
         $totalCount = 0;
-        $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, function ($batchNum, array $medias) use ($io, $cursor, &$totalCount) {
+        $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, function ($batchNum, array $medias) use ($io, $cursor, &$totalCount, $input) {
             if ($batchNum === 0 && \count($medias) === 0) {
                 return true;
             }
@@ -223,7 +225,9 @@ class DeleteNotUsedMediaCommand extends Command
                 return true;
             }
 
-            return $io->confirm('Show next page?', false);
+            return $input->isInteractive()
+                ? $io->confirm('Show next page?', false)
+                : true;
         });
 
         if ($totalCount === 0) {

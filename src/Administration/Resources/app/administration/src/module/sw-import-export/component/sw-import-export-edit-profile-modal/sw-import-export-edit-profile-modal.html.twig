@@ -7,7 +7,6 @@
         variant="full"
         @modal-close="$emit('profile-close')"
     >
-
         {% block sw_import_export_edit_profile_modal_alert %}
         <mt-banner
             v-if="profile.systemDefault"
@@ -23,9 +22,7 @@
             :small="false"
             default-item="general"
         >
-
             <template #default="{ active }">
-
                 {% block sw_import_export_edit_profile_modal_tabs_general %}
                 <sw-tabs-item
                     :title="$tc('sw-import-export.profile.generalTab')"
@@ -63,6 +60,7 @@
                     <sw-import-export-edit-profile-general :profile="profile" />
 
                     <sw-import-export-edit-profile-field-indicators :profile="profile" />
+
                     {% block sw_import_export_edit_profile_modal_tabs_general_import_settings %}
                     <sw-import-export-edit-profile-import-settings :profile="profile" />
                     {% endblock %}
@@ -70,7 +68,6 @@
 
                 <template v-if="active === 'mappings'">
                     {% block sw_import_export_edit_profile_modal_tabs_mappings %}
-
                     {% block sw_import_export_edit_profile_modal_tabs_mappings_text %}
                     <p class="sw-import-export-edit-profile-modal__text">
                         {{ $tc('sw-import-export.profile.mappingDescription') }}
@@ -89,7 +86,6 @@
 
                 <template v-if="active === 'advanced' && profile.type !== 'export' && profile.config.updateEntities !== false">
                     {% block sw_import_export_edit_profile_modal_tabs_advanced %}
-
                     {% block sw_import_export_edit_profile_modal_tabs_advanced_text %}
                     <p class="sw-import-export-edit-profile-modal__text">
                         {{ $tc('sw-import-export.profile.advancedDescription') }}
@@ -122,6 +118,7 @@
             >
                 {{ $tc('global.default.cancel') }}
             </mt-button>
+
             <template v-if="profile.systemDefault">
                 <mt-button
                     class="sw-import-export-edit-profile-modal__save-action"
@@ -132,6 +129,7 @@
                     {{ $tc('sw-import-export.profile.closeProfileLabel') }}
                 </mt-button>
             </template>
+
             <template v-else>
                 <mt-button
                     class="sw-import-export-edit-profile-modal__save-action"
@@ -156,7 +154,6 @@
         class="sw-import-export-edit-profile-modal__violation-modal"
         @modal-close="resetViolations"
     >
-
         {% block sw_import_export_edit_profile_violation_modal_message %}
         <p>{{ $tc('sw-import-export.profile.violationMessage') }}</p>
         {% endblock %}

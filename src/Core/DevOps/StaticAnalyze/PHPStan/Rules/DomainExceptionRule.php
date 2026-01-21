@@ -75,7 +75,7 @@ class DomainExceptionRule implements Rule
         private readonly ReflectionProvider $reflectionProvider,
         private readonly Configuration $configuration,
     ) {
-        // see src/Core/DevOps/StaticAnalyze/PHPStan/extension.neon for the default config
+        // see src/Core/DevOps/StaticAnalyze/PHPStan/common.neon for the default config
         $this->validExceptionClasses = $this->configuration->getAllowedNonDomainExceptions();
     }
 

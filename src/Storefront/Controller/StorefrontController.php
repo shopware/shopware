@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -120,10 +121,10 @@ abstract class StorefrontController extends AbstractController
 
     protected function createActionResponse(Request $request): Response
     {
-        if ($request->get('redirectTo') || $request->get('redirectTo') === '') {
+        if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'redirectTo') === '') {
             $params = $this->decodeParam($request, 'redirectParameters');
 
-            $redirectTo = $request->get('redirectTo');
+            $redirectTo = RequestParamHelper::get($request, 'redirectTo');
 
             if ($redirectTo && \is_string($redirectTo)) {
                 return $this->redirectToRoute($redirectTo, $params);
@@ -132,10 +133,10 @@ abstract class StorefrontController extends AbstractController
             return $this->redirectToRoute('frontend.home.page', $params);
         }
 
-        if ($request->get('forwardTo')) {
+        if (RequestParamHelper::get($request, 'forwardTo')) {
             $params = $this->decodeParam($request, 'forwardParameters');
 
-            return $this->forwardToRoute($request->get('forwardTo'), [], $params);
+            return $this->forwardToRoute(RequestParamHelper::get($request, 'forwardTo'), [], $params);
         }
 
         return new Response();
@@ -187,7 +188,7 @@ abstract class StorefrontController extends AbstractController
      */
     protected function decodeParam(Request $request, string $param): array
     {
-        $params = $request->get($param);
+        $params = RequestParamHelper::get($request, $param);
 
         if (\is_string($params)) {
             $params = json_decode($params, true);

@@ -147,20 +147,38 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should accept customer registration button called', async () => {
+        await wrapper.setData({
+            customer: {
+                active: true,
+            },
+        });
+
+        await flushPromises();
+
         expect(wrapper.vm.customerGroupRegistrationService.decline).not.toHaveBeenCalled();
         expect(wrapper.vm.customerGroupRegistrationService.accept).not.toHaveBeenCalled();
 
         const button = wrapper.find('.sw-customer-detail__customer-registration-alert button:last-child');
+        expect(button.attributes().disabled).toBeFalsy();
         await button.trigger('click');
 
         expect(wrapper.vm.customerGroupRegistrationService.accept).toHaveBeenCalled();
     });
 
     it('should decline customer registration button called', async () => {
+        await wrapper.setData({
+            customer: {
+                active: true,
+            },
+        });
+
+        await flushPromises();
+
         expect(wrapper.vm.customerGroupRegistrationService.decline).not.toHaveBeenCalled();
         expect(wrapper.vm.customerGroupRegistrationService.accept).not.toHaveBeenCalled();
 
         const button = wrapper.find('.sw-customer-detail__customer-registration-alert button:first-child');
+        expect(button.attributes().disabled).toBeFalsy();
         await button.trigger('click');
 
         expect(wrapper.vm.customerGroupRegistrationService.decline).toHaveBeenCalled();

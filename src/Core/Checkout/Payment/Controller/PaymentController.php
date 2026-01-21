@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -62,7 +63,7 @@ class PaymentController extends AbstractController
     )]
     public function finalizeTransaction(Request $request): Response
     {
-        $paymentToken = $request->get('_sw_payment_token');
+        $paymentToken = RequestParamHelper::get($request, '_sw_payment_token');
 
         if (!\is_string($paymentToken)) {
             // @deprecated tag:v6.8.0 - remove this if block

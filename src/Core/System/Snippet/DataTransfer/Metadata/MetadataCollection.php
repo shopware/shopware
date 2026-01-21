@@ -42,12 +42,12 @@ class MetadataCollection extends Collection
 
     public function jsonSerialize(): array
     {
-        return array_map(function (MetadataEntry $entry) {
+        return $this->map(static function (MetadataEntry $entry) {
             $serialized = $entry->jsonSerialize();
             unset($serialized['isUpdateRequired']);
 
             return $serialized;
-        }, $this->elements);
+        });
     }
 
     /**

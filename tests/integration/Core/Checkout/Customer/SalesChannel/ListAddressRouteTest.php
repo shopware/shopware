@@ -78,6 +78,8 @@ class ListAddressRouteTest extends TestCase
         static::assertSame('12345', $response['elements'][0]['zipcode']);
         static::assertSame($this->getValidCountryId(), $response['elements'][0]['countryId']);
         static::assertSame($this->getValidSalutationId(), $response['elements'][0]['salutation']['id']);
+        static::assertTrue($response['elements'][0]['isDefaultBillingAddress']);
+        static::assertTrue($response['elements'][0]['isDefaultShippingAddress']);
     }
 
     public function testListAddressesIncludes(): void

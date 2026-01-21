@@ -49,7 +49,7 @@ class CacheHeadersService
         $response->setVary($newVaryArray);
     }
 
-    public function applyCacheHash(Request $request, SalesChannelContext $context, Cart $cart, Response $response): ?string
+    public function applyCacheHash(Request $request, SalesChannelContext $context, Cart $cart, Response $response): ?HttpCacheCookieEvent
     {
         $isCacheHashRequired = $this->extensions->publish(
             CacheHashRequiredExtension::NAME,
@@ -66,7 +66,8 @@ class CacheHeadersService
             return null;
         }
 
-        $newValue = $this->buildCacheHash($request, $context);
+        $event = $this->buildCacheHash($request, $context);
+        $newValue = $event->getHash();
 
         if ($request->cookies->get(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
             $cookie = Cookie::create(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
@@ -77,10 +78,10 @@ class CacheHeadersService
 
         $response->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $newValue);
 
-        return $newValue;
+        return $event;
     }
 
-    private function buildCacheHash(Request $request, SalesChannelContext $context): string
+    private function buildCacheHash(Request $request, SalesChannelContext $context): HttpCacheCookieEvent
     {
         $ruleAreas = $this->ruleResolver->resolveRuleAreas($request, $context);
 
@@ -111,7 +112,7 @@ class CacheHeadersService
         $event = new HttpCacheCookieEvent($request, $context, $parts);
         $this->dispatcher->dispatch($event);
 
-        return $event->getHash();
+        return $event;
     }
 
     private function isCacheHashRequired(Request $request, SalesChannelContext $salesChannelContext, Cart $cart): bool

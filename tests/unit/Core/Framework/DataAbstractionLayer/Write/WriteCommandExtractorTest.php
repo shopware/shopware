@@ -19,6 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -134,7 +136,7 @@ class WriteCommandExtractorTest extends TestCase
         ];
     }
 
-    public function testImmutableFieldCanOnlyBeSetOnCreate(): void
+    public function testCreateUpdateCommandWithImmutableChanges(): void
     {
         $definition = new class extends EntityDefinition {
             final public const ENTITY_NAME = 'immutable_test';
@@ -189,6 +191,14 @@ class WriteCommandExtractorTest extends TestCase
             'immutableField' => 'initial',
         ], $createParameters);
 
+        static::assertCount(1, $createParameters->getCommandQueue()->getCommands());
+        static::assertArrayHasKey('immutable_test', $createParameters->getCommandQueue()->getCommands());
+
+        $commands = $createParameters->getCommandQueue()->getCommands()['immutable_test'];
+
+        static::assertCount(1, $commands);
+        $command = $commands[0];
+        static::assertInstanceOf(InsertCommand::class, $command);
         static::assertCount(0, $createParameters->getContext()->getExceptions()->getExceptions());
 
         $updateParameters = new WriteParameterBag(
@@ -205,13 +215,18 @@ class WriteCommandExtractorTest extends TestCase
             'immutableField' => 'updated',
         ], $updateParameters);
 
-        $exceptions = $updateParameters->getContext()->getExceptions()->getExceptions();
-        static::assertCount(1, $exceptions);
-        $exception = \array_shift($exceptions);
-        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
+        static::assertCount(1, $updateParameters->getCommandQueue()->getCommands());
+        static::assertArrayHasKey('immutable_test', $updateParameters->getCommandQueue()->getCommands());
 
-        $violations = $exception->getViolations();
-        static::assertCount(1, $violations);
-        static::assertSame('The field "immutableField" of "immutable_test" is immutable and cannot be updated.', $violations->get(0)->getMessage());
+        $commands = $updateParameters->getCommandQueue()->getCommands()['immutable_test'];
+
+        static::assertCount(1, $commands);
+        $command = $commands[0];
+
+        static::assertInstanceOf(UpdateCommand::class, $command);
+        static::assertCount(0, $createParameters->getContext()->getExceptions()->getExceptions());
+
+        static::assertTrue($command->requiresChangeSet());
+        static::assertSame(['immutable_field'], $command->getImmutableFieldsChanges());
     }
 }

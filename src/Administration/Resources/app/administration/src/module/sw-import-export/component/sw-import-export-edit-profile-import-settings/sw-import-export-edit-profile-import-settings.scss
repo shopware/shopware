@@ -1,6 +1,21 @@
 .sw-import-export-edit-profile-import-settings {
-    .sw-import-export-edit-profile-import-settings__create-switch,
-    .sw-import-export-edit-profile-import-settings__update-switch {
+    &__headline {
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-medium);
+        margin-bottom: var(--scale-size-4);
+    }
+
+    &__container {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-4);
+        margin-top: var(--scale-size-8);
+    }
+
+    &__create-switch,
+    &__update-switch {
         margin-top: 0;
         margin-bottom: 0;
     }

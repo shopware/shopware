@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProviderFactory;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\DefaultPolicies;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -90,17 +91,7 @@ class CacheResponseSubscriberTest extends TestCase
 
     public function testNoHeadersAreSetIfCacheIsDisabled(): void
     {
-        // manually create instance with cache disabled
-        $subscriber = new CacheResponseSubscriber(
-            $this->cartService,
-            100,
-            false,
-            new MaintenanceModeResolver($this->eventDispatcher),
-            null,
-            null,
-            $this->createMock(CacheHeadersService::class),
-            $this->createCachePolicyProvider(),
-        );
+        $subscriber = $this->getCacheResponseSubscriberWithCacheDisabled();
 
         $customer = new CustomerEntity();
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -119,6 +110,29 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertSame($expectedHeaders, $response->headers->all());
     }
 
+    public function testNoStoreAppliedWhenCacheDisabled(): void
+    {
+        $subscriber = $this->getCacheResponseSubscriberWithCacheDisabled();
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
+
+        $response = new Response();
+
+        $event = $this->createResponseEvent($request, $response);
+
+        $subscriber->setResponseCache($event);
+
+        // Verify no-store headers are applied even when cache is disabled
+        static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
+        static::assertTrue($response->headers->hasCacheControlDirective('no-cache'));
+        static::assertTrue($response->headers->hasCacheControlDirective('must-revalidate'));
+        static::assertFalse($response->isCacheable());
+    }
+
     public function testNoAutoCacheControlHeader(): void
     {
         $request = new Request();
@@ -135,17 +149,7 @@ class CacheResponseSubscriberTest extends TestCase
 
     public function testNoAutoCacheControlHeaderCacheDisabled(): void
     {
-        // manually create instance with cache disabled
-        $subscriber = new CacheResponseSubscriber(
-            $this->cartService,
-            100,
-            false,
-            new MaintenanceModeResolver($this->eventDispatcher),
-            null,
-            null,
-            $this->createMock(CacheHeadersService::class),
-            $this->createCachePolicyProvider(),
-        );
+        $subscriber = $this->getCacheResponseSubscriberWithCacheDisabled();
 
         $request = new Request();
         $request->attributes->add([PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]);
@@ -675,6 +679,17 @@ class CacheResponseSubscriberTest extends TestCase
             ],
             'expectedCacheControl' => 'max-age=0, no-cache, private, s-maxage=0',
         ];
+
+        yield 'no-store attribute enforces noStore policy' => [
+            'requestResponseOptions' => array_merge($storefrontRequestAttributes, [
+                PlatformRequest::ATTRIBUTE_NO_STORE => true,
+            ]),
+            'subscriberConfig' => [
+                'policies' => $basePolicies,
+                'defaultPolicies' => $defaultPolicies,
+            ],
+            'expectedCacheControl' => 'max-age=0, must-revalidate, no-cache, no-store, private',
+        ];
     }
 
     /**
@@ -764,9 +779,23 @@ class CacheResponseSubscriberTest extends TestCase
             $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $clientHash['cookie']);
         }
 
-        $cacheHeadersService->expects($this->once())
-            ->method('applyCacheHash')
-            ->willReturn($serviceHash);
+        if ($serviceHash !== null) {
+            $eventMock = $this->createMock(HttpCacheCookieEvent::class);
+            $eventMock->method('getHash')->willReturn($serviceHash);
+
+            if ($serviceHash === HttpCacheCookieEvent::NOT_CACHEABLE) {
+                $eventMock->method('shouldResponseBeCached')->willReturn(false);
+            } else {
+                $eventMock->method('shouldResponseBeCached')->willReturn(true);
+            }
+            $cacheHeadersService->expects($this->once())
+                ->method('applyCacheHash')
+                ->willReturn($eventMock);
+        } else {
+            $cacheHeadersService->expects($this->once())
+                ->method('applyCacheHash')
+                ->willReturn(null);
+        }
 
         $response = new Response();
         $subscriber->setResponseCache(new ResponseEvent(
@@ -867,6 +896,20 @@ class CacheResponseSubscriberTest extends TestCase
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
+        );
+    }
+
+    private function getCacheResponseSubscriberWithCacheDisabled(): CacheResponseSubscriber
+    {
+        return new CacheResponseSubscriber(
+            $this->cartService,
+            100,
+            false,
+            new MaintenanceModeResolver($this->eventDispatcher),
+            null,
+            null,
+            $this->createMock(CacheHeadersService::class),
+            $this->createCachePolicyProvider(),
         );
     }
 }

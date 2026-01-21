@@ -806,8 +806,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 continue;
             }
 
-            $immutableChanges = $command->getImmutableChanges();
-            if ($immutableChanges === []) {
+            $immutableFieldsChanges = $command->getImmutableFieldsChanges();
+            if ($immutableFieldsChanges === []) {
                 continue;
             }
 
@@ -816,18 +816,18 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 continue;
             }
 
-            foreach ($immutableChanges as $immutableChangeField) {
+            foreach ($immutableFieldsChanges as $immutableField) {
                 // if there was no value before, we can set it now
-                if ($changeset->getBefore($immutableChangeField) === null) {
+                if ($changeset->getBefore($immutableField) === null) {
                     continue;
                 }
 
                 // if the value did not change, we can ignore it
-                if (!$changeset->getAfter($immutableChangeField)) {
+                if (!$changeset->getAfter($immutableField)) {
                     continue;
                 }
 
-                $this->addImmutableViolation($immutableChangeField, $changeset->getBefore($immutableChangeField), $changeset->getAfter($immutableChangeField), $command->getEntityName(), $context);
+                $this->addImmutableViolation($immutableField, $changeset->getBefore($immutableField), $changeset->getAfter($immutableField), $command->getEntityName(), $context);
             }
         }
 

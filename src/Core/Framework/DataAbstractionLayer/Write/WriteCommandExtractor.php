@@ -422,11 +422,11 @@ class WriteCommandExtractor
         if ($existence->exists()) {
             $command = new UpdateCommand($definition, $data, $pkData, $existence, $parameterBag->getPath());
 
-            $immutableChanges = $this->getImmutableChanges($fields, $data);
+            $immutableFieldsChanges = $this->getImmutableFieldsChanges($fields, $data);
 
-            if ($immutableChanges !== []) {
+            if ($immutableFieldsChanges !== []) {
                 $command->requestChangeSet();
-                $command->setImmutableChanges($immutableChanges);
+                $command->setImmutableFieldsChanges($immutableFieldsChanges);
             }
         } else {
             $command = new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence, $parameterBag->getPath());
@@ -580,7 +580,7 @@ class WriteCommandExtractor
      *
      * @return array<string>
      */
-    private function getImmutableChanges(array $fields, array $data): array
+    private function getImmutableFieldsChanges(array $fields, array $data): array
     {
         $changes = [];
 

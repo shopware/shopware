@@ -684,5 +684,7 @@ frame-ancestors 'none';
             <argument>%shopware.cache.invalidation.http_cache%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Util\Backtrace\BacktraceCollector"/>
+
     </services>
 </container>

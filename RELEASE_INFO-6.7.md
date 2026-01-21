@@ -6,6 +6,7 @@
 
 All symfony packages have been updated to version 7.4. 
 Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
+
 ### Changed maintenance mode redirect
 After maintenance ends, users are now redirected back to the page they were on before maintenance.
 Previously, users were always redirected to the shop homepage.

@@ -98,6 +98,7 @@ class HtmlSanitizer implements ResetInterface
         $allowedElements = [];
         $allowedAttributes = [];
         $customAttributes = [];
+        $customTags = [];
 
         foreach ($options as $element => $attributes) {
             if ($element !== '*') {
@@ -115,6 +116,11 @@ class HtmlSanitizer implements ResetInterface
             foreach ($sets as $set) {
                 if (isset($this->sets[$set]['tags'])) {
                     $allowedElements = array_merge($allowedElements, $this->sets[$set]['tags']);
+                }
+                if (isset($this->sets[$set]['custom_tags'])) {
+                    $allowedTags = array_map(fn($customElement) => $customElement['tag'], $this->sets[$set]['custom_tags']);
+                    $allowedElements = array_merge($allowedElements, $allowedTags);
+                    $customTags = array_merge($customTags, $this->sets[$set]['custom_tags']);
                 }
                 if (isset($this->sets[$set]['attributes'])) {
                     $allowedAttributes = array_merge($allowedAttributes, $this->sets[$set]['attributes']);
@@ -148,6 +154,18 @@ class HtmlSanitizer implements ResetInterface
         }
 
         $this->addHTML5Tags($definition);
+
+        foreach ($customTags as $customTag) {
+            if ($definition->manager->getElement($customTag['tag']) === false) {
+                $definition->addElement(
+                    $customTag['tag'],
+                    $customTag['type'],
+                    $customTag['contents'],
+                    $customTag['attr_collections'],
+                    $customTag['attributes'],
+                );
+            }
+        }
 
         foreach ($customAttributes as $tag => $attributes) {
             foreach ($attributes as $attribute) {

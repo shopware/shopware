@@ -53,11 +53,17 @@ class TwigComponent extends Struct
 
     public function getTag(): string
     {
-        if ($this->namespace !== self::MAIN_NAMESPACE) {
-            return $this->namespace . ':' . $this->name;
+        $name = $this->name;
+
+        if ($this->isIndexComponent()) {
+            $name = str_replace(':index', '', $name);
         }
 
-        return $this->name;
+        if ($this->namespace !== self::MAIN_NAMESPACE) {
+            return $this->namespace . ':' . $name;
+        }
+
+        return $name;
     }
 
     public function getPath(): string
@@ -67,12 +73,24 @@ class TwigComponent extends Struct
 
     public function getRelativeNamespacePath(): string
     {
-        return str_replace(':', '/', $this->getTag());
+        $relativeName = $this->getName();
+
+        if ($this->namespace !== self::MAIN_NAMESPACE) {
+            $relativeName = $this->namespace . ':' . $relativeName;
+        }
+
+        return str_replace(':', '/', $relativeName);
     }
 
     public function getRelativeNamespaceDirectory(): string
     {
-        $nameParts = explode(':', $this->getTag());
+        $relativeName = $this->getName();
+
+        if ($this->namespace !== self::MAIN_NAMESPACE) {
+            $relativeName = $this->namespace . ':' . $relativeName;
+        }
+
+        $nameParts = explode(':', $relativeName);
 
         array_pop($nameParts);
 
@@ -99,6 +117,11 @@ class TwigComponent extends Struct
         }
 
         return $scriptPath;
+    }
+
+    public function isIndexComponent(): bool
+    {
+        return strcasecmp(basename($this->path), 'index.html.twig') === 0;
     }
 
     public function getDirectory(): string

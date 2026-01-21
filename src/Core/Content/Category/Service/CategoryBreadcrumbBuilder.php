@@ -13,7 +13,6 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -30,10 +29,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Exception\MethodNotAllowedException;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\RouterInterface;
 
 #[Package('discovery')]
 class CategoryBreadcrumbBuilder
@@ -47,9 +42,7 @@ class CategoryBreadcrumbBuilder
     public function __construct(
         private readonly EntityRepository $categoryRepository,
         private readonly SalesChannelRepository $productRepository,
-        private readonly Connection $connection,
-        private readonly RouterInterface $router,
-        private readonly AbstractSeoResolver $seoResolver
+        private readonly Connection $connection
     ) {
     }
 

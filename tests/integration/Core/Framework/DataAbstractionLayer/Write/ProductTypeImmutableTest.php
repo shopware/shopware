@@ -10,7 +10,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -68,19 +67,14 @@ class ProductTypeImmutableTest extends TestCase
         $id = Uuid::randomHex();
         $this->createProduct($id, 'special');
 
-        $postEventDispatched = false;
-
-        $this->getContainer()->get('event_dispatcher')->addListener(PostWriteValidationEvent::class, function (PostWriteValidationEvent $event) use (&$postEventDispatched): void {
-            $postEventDispatched = true;
-
-            self::assertCount(0, $event->getExceptions()->getExceptions());
-        });
-
-        $this->getRepository()->update([
+        $event = $this->getRepository()->update([
             ['id' => $id, 'name' => 'Test product updated', 'stock' => 2, 'type' => 'special'],
         ], Context::createDefaultContext());
 
-        static::assertTrue($postEventDispatched);
+        static::assertCount(0, $event->getErrors());
+        static::assertSame([
+            $id,
+        ], $event->getEventByEntityName(ProductDefinition::ENTITY_NAME)?->getIds());
 
         $this->verifyProductAfterUpdate($id, 'special', 'Test product updated', 2);
     }

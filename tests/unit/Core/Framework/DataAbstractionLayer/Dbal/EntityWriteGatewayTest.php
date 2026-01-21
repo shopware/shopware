@@ -138,7 +138,7 @@ class EntityWriteGatewayTest extends TestCase
             $existence,
             '/0'
         );
-        $command->setImmutableChanges(['immutable_field']);
+        $command->setImmutableFieldsChanges(['immutable_field']);
         $command->setChangeSet(new ChangeSet($state, ['immutable_field' => $newValue], false));
 
         return $command;

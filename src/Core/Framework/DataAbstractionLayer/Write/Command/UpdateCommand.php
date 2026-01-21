@@ -27,11 +27,17 @@ class UpdateCommand extends WriteCommand implements ChangeSetAware
         return AclRoleDefinition::PRIVILEGE_UPDATE;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getImmutableFieldsChanges(): array
     {
         return $this->immutableFieldsChanges;
     }
 
+    /**
+     * @param array<string> $immutableFieldsChanges
+     */
     public function setImmutableFieldsChanges(array $immutableFieldsChanges): void
     {
         $this->immutableFieldsChanges = $immutableFieldsChanges;

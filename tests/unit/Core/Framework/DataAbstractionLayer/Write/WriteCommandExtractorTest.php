@@ -227,6 +227,6 @@ class WriteCommandExtractorTest extends TestCase
         static::assertCount(0, $createParameters->getContext()->getExceptions()->getExceptions());
 
         static::assertTrue($command->requiresChangeSet());
-        static::assertSame(['immutable_field'], $command->getImmutableChanges());
+        static::assertSame(['immutable_field'], $command->getImmutableFieldsChanges());
     }
 }

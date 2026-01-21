@@ -10,6 +10,10 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator" public="true">
+            <argument>%shopware.cache.disable_stampede_protection%</argument>
+        </service>
+
         <service id="shopware.cache.invalidator.storage.redis_adapter" class="Redis" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getConnection"/>
             <argument>%shopware.cache.invalidation.delay_options.connection%</argument>

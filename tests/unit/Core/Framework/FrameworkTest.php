@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\Framework;
@@ -29,7 +30,11 @@ class FrameworkTest extends TestCase
         $registry = $this->createMock(FeatureFlagRegistry::class);
         $registry->expects($this->once())->method('register');
 
+        $stampedeProtectionConfigurator = $this->createMock(StampedeProtectionConfigurator::class);
+        $stampedeProtectionConfigurator->expects($this->once())->method('apply');
+
         $container->set(FeatureFlagRegistry::class, $registry);
+        $container->set(StampedeProtectionConfigurator::class, $stampedeProtectionConfigurator);
         $container->set(DefinitionInstanceRegistry::class, $this->createMock(DefinitionInstanceRegistry::class));
         $container->set(SalesChannelDefinitionInstanceRegistry::class, $this->createMock(SalesChannelDefinitionInstanceRegistry::class));
         $container->setParameter('kernel.cache_dir', '/tmp');

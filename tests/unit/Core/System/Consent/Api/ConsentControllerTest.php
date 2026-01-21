@@ -41,8 +41,8 @@ class ConsentControllerTest extends TestCase
         $context = new Context($source);
 
         $consents = [
-            new ConsentState('consent-1', ConsentScope\AdminUser::NAME, $userId, ConsentStatus::ACCEPTED, $userId),
-            new ConsentState('consent-2', ConsentScope\System::NAME, 'system', ConsentStatus::REQUESTED, null),
+            new ConsentState('consent-1', ConsentScope\AdminUser::NAME, $userId, ConsentStatus::ACCEPTED, $userId, '2025-12-31 23:59:59.0'),
+            new ConsentState('consent-2', ConsentScope\System::NAME, 'system', ConsentStatus::REQUESTED, null, null),
         ];
 
         $this->consentService
@@ -68,6 +68,7 @@ class ConsentControllerTest extends TestCase
         static::assertSame($userId, $content[0]['identifier']);
         static::assertSame('accepted', $content[0]['status']);
         static::assertSame('user-123', $content[0]['actorId']);
+        static::assertSame('2025-12-31 23:59:59.0', $content[0]['updatedAt']);
 
         static::assertIsArray($content[1]);
         static::assertArrayHasKey('name', $content[1]);
@@ -77,6 +78,7 @@ class ConsentControllerTest extends TestCase
         static::assertSame('system', $content[1]['identifier']);
         static::assertSame('requested', $content[1]['status']);
         static::assertNull($content[1]['actorId']);
+        static::assertNull($content[1]['updatedAt']);
     }
 
     public function testAcceptConsent(): void
@@ -89,7 +91,14 @@ class ConsentControllerTest extends TestCase
             ->expects($this->once())
             ->method('acceptConsent')
             ->with('test-consent', $context)
-            ->willReturn(new ConsentState('test-consent', ConsentScope\AdminUser::NAME, $userId, ConsentStatus::ACCEPTED, $userId));
+            ->willReturn(new ConsentState(
+                'test-consent',
+                ConsentScope\AdminUser::NAME,
+                $userId,
+                ConsentStatus::ACCEPTED,
+                $userId,
+                '2026-01-20 12:00:00.0'
+            ));
 
         $request = new Request(request: ['consent' => 'test-consent']);
 
@@ -107,6 +116,7 @@ class ConsentControllerTest extends TestCase
             'identifier' => $userId,
             'status' => 'accepted',
             'actorId' => $userId,
+            'updatedAt' => '2026-01-20 12:00:00.0',
         ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
     }
 
@@ -120,7 +130,14 @@ class ConsentControllerTest extends TestCase
             ->expects($this->once())
             ->method('revokeConsent')
             ->with('test-consent', $context)
-            ->willReturn(new ConsentState('test-consent', ConsentScope\AdminUser::NAME, $userId, ConsentStatus::REVOKED, $userId));
+            ->willReturn(new ConsentState(
+                'test-consent',
+                ConsentScope\AdminUser::NAME,
+                $userId,
+                ConsentStatus::REVOKED,
+                $userId,
+                '2026-01-20 12:00:00.0'
+            ));
 
         $request = new Request(request: ['consent' => 'test-consent']);
 
@@ -138,6 +155,7 @@ class ConsentControllerTest extends TestCase
             'identifier' => $userId,
             'status' => 'revoked',
             'actorId' => $userId,
+            'updatedAt' => '2026-01-20 12:00:00.0',
         ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
     }
 }

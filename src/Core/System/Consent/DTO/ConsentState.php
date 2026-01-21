@@ -18,11 +18,12 @@ class ConsentState
         public readonly string $identifier,
         public readonly ConsentStatus $status,
         public readonly ?string $actorId,
+        public readonly ?string $updatedAt
     ) {
     }
 
     public static function fromDefinitionAndRecord(ConsentDefinition $consent, ConsentStateRecord $record): self
     {
-        return new self($consent->getName(), $consent->getScopeName(), $record->identifier, $record->status, $record->actorId);
+        return new self($consent->getName(), $consent->getScopeName(), $record->identifier, $record->status, $record->actorId, $record->updatedAt);
     }
 }

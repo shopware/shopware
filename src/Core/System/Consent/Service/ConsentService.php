@@ -74,6 +74,7 @@ class ConsentService
                 identifier: $this->getScope($consent)->resolveIdentifier($context),
                 status: ConsentStatus::REQUESTED,
                 actorId: null,
+                updatedAt: null,
             );
         }, $this->consentDefinitions);
     }

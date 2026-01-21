@@ -10,7 +10,6 @@ use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\Definition\Tracking;
-use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 
 /**
@@ -46,13 +45,11 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
         static::assertSame('tracking', $states[0]->name);
 
-        static::assertEquals(new ConsentState(
-            $tracking->getName(),
-            $tracking->getScopeName(),
-            $userId,
-            ConsentStatus::ACCEPTED,
-            $userId
-        ), $updatedState);
+        static::assertSame($tracking->getName(), $updatedState->name);
+        static::assertSame($tracking->getScopeName(), $updatedState->scopeName);
+        static::assertEquals($userId, $updatedState->actorId);
+        static::assertEquals(ConsentStatus::ACCEPTED, $updatedState->status);
+        static::assertEquals($userId, $updatedState->identifier);
     }
 
     public function testUpdateSystemConsentState(): void

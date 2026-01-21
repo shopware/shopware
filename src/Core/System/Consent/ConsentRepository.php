@@ -27,7 +27,7 @@ class ConsentRepository
     public function fetchAllConsentStates(): array
     {
         $result = $this->connection->fetchAllAssociative(
-            'SELECT name, identifier, state, consent_state.actor_id FROM consent_state'
+            'SELECT name, identifier, state, consent_state.actor_id, consent_state.updated_at FROM consent_state'
         );
 
         return array_map(
@@ -35,7 +35,8 @@ class ConsentRepository
                 $row['name'],
                 $row['identifier'],
                 ConsentStatus::from($row['state']),
-                $row['actor_id']
+                $row['actor_id'],
+                $row['updated_at']
             ),
             $result
         );
@@ -74,7 +75,7 @@ class ConsentRepository
                 'identifier' => $scopeIdentifier,
                 'state' => $state->value,
                 'actor_id' => $actorId,
-                'created_at' => $now,
+                'updated_at' => $now,
             ]);
         }
 
@@ -83,7 +84,8 @@ class ConsentRepository
             $consent->getScopeName(),
             $scopeIdentifier,
             $state,
-            $actorId
+            $actorId,
+            $now
         );
     }
 }

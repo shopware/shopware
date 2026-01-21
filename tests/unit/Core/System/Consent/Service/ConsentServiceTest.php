@@ -43,9 +43,9 @@ class ConsentServiceTest extends TestCase
             'consent-2' => AdminUser::NAME,
         ]);
 
-        $record1 = new ConsentStateRecord('consent-1', 'system', ConsentStatus::ACCEPTED, 'user-123');
-        $record2 = new ConsentStateRecord('consent-2', 'user-123', ConsentStatus::REQUESTED, 'user-123');
-        $record3 = new ConsentStateRecord('consent-2', 'user-456', ConsentStatus::ACCEPTED, 'user-456');
+        $record1 = new ConsentStateRecord('consent-1', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00');
+        $record2 = new ConsentStateRecord('consent-2', 'user-123', ConsentStatus::REQUESTED, 'user-123', '2026-01-26 00:00:00');
+        $record3 = new ConsentStateRecord('consent-2', 'user-456', ConsentStatus::ACCEPTED, 'user-456', '2026-01-26 00:00:00');
 
         $this->consentRepository
             ->expects($this->once())
@@ -101,7 +101,7 @@ class ConsentServiceTest extends TestCase
             'consent-1' => ConsentScope\System::NAME,
         ]);
 
-        $record = new ConsentStateRecord('consent-1', ConsentScope\System::NAME, ConsentStatus::ACCEPTED, 'user-123');
+        $record = new ConsentStateRecord('consent-1', ConsentScope\System::NAME, ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00');
 
         $this->consentRepository
             ->expects($this->once())
@@ -159,7 +159,7 @@ class ConsentServiceTest extends TestCase
         $this->consentRepository
             ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([new ConsentStateRecord('consent-1', 'system', ConsentStatus::ACCEPTED, 'user-123')]);
+            ->willReturn([new ConsentStateRecord('consent-1', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00')]);
 
         $this->consentRepository
             ->expects($this->never())
@@ -195,7 +195,7 @@ class ConsentServiceTest extends TestCase
                 ConsentStatus::ACCEPTED,
                 'user-123'
             )
-            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123'));
+            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'));
 
         $source = new AdminApiSource('user-123');
         $context = Context::createDefaultContext($source);
@@ -203,7 +203,7 @@ class ConsentServiceTest extends TestCase
         $updatedState = $service->acceptConsent('consent-1', $context);
 
         static::assertEquals(
-            new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123'),
+            new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'),
             $updatedState
         );
     }
@@ -230,7 +230,7 @@ class ConsentServiceTest extends TestCase
         $this->consentRepository
             ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([new ConsentStateRecord('consent-1', 'system', ConsentStatus::REVOKED, 'user-123')]);
+            ->willReturn([new ConsentStateRecord('consent-1', 'system', ConsentStatus::REVOKED, 'user-123', '2026-01-26 00:00:00')]);
 
         $this->consentRepository
             ->expects($this->never())
@@ -266,7 +266,7 @@ class ConsentServiceTest extends TestCase
                 ConsentStatus::REVOKED,
                 'user-456'
             )
-            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456'));
+            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456', '2026-01-26 00:00:00'));
 
         $source = new AdminApiSource('user-456');
         $context = Context::createDefaultContext($source);
@@ -274,7 +274,7 @@ class ConsentServiceTest extends TestCase
         $updatedState = $service->revokeConsent('consent-1', $context);
 
         static::assertEquals(
-            new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456'),
+            new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456', '2026-01-26 00:00:00'),
             $updatedState
         );
     }

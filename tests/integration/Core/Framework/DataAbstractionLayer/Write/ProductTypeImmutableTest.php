@@ -55,8 +55,6 @@ class ProductTypeImmutableTest extends TestCase
             $this->getRepository()->update([
                 ['id' => $id, 'type' => 'alternative'],
             ], Context::createDefaultContext());
-        } catch (WriteException $e) {
-            throw $e;
         } finally {
             $this->verifyProductAfterUpdate($id, 'default', 'Test product', 1);
         }
@@ -166,8 +164,6 @@ class ProductTypeImmutableTest extends TestCase
                     'type' => 'not so special', // different type than before
                 ],
             ], Context::createDefaultContext());
-        } catch (WriteException $e) {
-            throw $e;
         } finally {
             $this->verifyProductAfterUpdate($id, 'special', 'Test product', 1);
         }

@@ -5,6 +5,16 @@
  * Refresh token helper which manages a cache of requests to retry them after the token got refreshed.
  * @class
  */
+
+/**
+ * Delay in milliseconds before logging out after a failed token refresh.
+ * This gives other browser tabs time to potentially refresh the token successfully
+ * and sync it via cookie storage, preventing unnecessary logouts in multi-tab scenarios.
+ *
+ * @type {number}
+ */
+const TOKEN_SYNC_DELAY_MS = 1000;
+
 class RefreshTokenHelper {
     constructor() {
         this._isRefreshing = false;
@@ -110,7 +120,7 @@ class RefreshTokenHelper {
                 if (!loginService.getToken()) {
                     loginService.logout();
                 }
-            }, 1000);
+            }, TOKEN_SYNC_DELAY_MS);
         }
     }
 

@@ -44,7 +44,7 @@ class RequestParamHelper
                 'Using `RequestParamHelper::get()` to access parameters in attribute bag is deprecated. Consider using `$request->attributes` directly or store the parameters in `$request->query` or `$request->request` bags.'
             );
 
-            $request->attributes->get($name, $default);
+            return $request->attributes->get($name);
         }
 
         if ($request->query->has($name)) {

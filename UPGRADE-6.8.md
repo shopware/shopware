@@ -195,12 +195,19 @@ The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` 
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
 which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object.
 
+## `RequestParamHelper::get` ignores `attribute` bag
+
+The `RequestParamHelper::get` method now ignores the `attribute` bag when fetching parameters from the request.
+It only checks the `query` and `request` bags now.
+When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
+In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
+
 ## Removal of `ZugferdDocument::getPrice()`
 The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` was removed, replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
 ## Removed `TaskScheduler::getNextExecutionTime()`
 The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler::getNextExecutionTime()` method was not used anymore and was removed.
 
-## SnippetValidator
+## SnippetValidator becomes internal
 The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only. Use on own risk as it may change without prior notice.
 
 ## Removal of `EntityDefinition` constructor

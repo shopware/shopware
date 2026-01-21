@@ -114,5 +114,40 @@ class CacheAttributeTest extends TestCase
             'input' => ['states' => ['state1', 'state2']],
             'expected' => new CacheAttribute(states: ['state1', 'state2']),
         ];
+
+        yield 'string "true" returns empty CacheAttribute' => [
+            'input' => 'true',
+            'expected' => new CacheAttribute(),
+        ];
+
+        yield 'string "1" returns empty CacheAttribute' => [
+            'input' => '1',
+            'expected' => new CacheAttribute(),
+        ];
+
+        yield 'string "false" returns null' => [
+            'input' => 'false',
+            'expected' => null,
+        ];
+
+        yield 'string "0" returns null' => [
+            'input' => '0',
+            'expected' => null,
+        ];
+
+        yield 'empty string returns null' => [
+            'input' => '',
+            'expected' => null,
+        ];
+
+        yield 'int(0) returns null' => [
+            'input' => 0,
+            'expected' => null,
+        ];
+
+        yield 'int(1) returns empty CacheAttribute' => [
+            'input' => 1,
+            'expected' => new CacheAttribute(),
+        ];
     }
 }

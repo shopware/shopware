@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -47,9 +48,9 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
     {
-        $switchedGroup = $request->get('switchedGroup');
+        $switchedGroup = RequestParamHelper::get($request, 'switchedGroup');
 
-        $options = $request->get('options') ? $request->get('options', []) : [];
+        $options = RequestParamHelper::get($request, 'options', []);
 
         foreach ($options as $optionId) {
             if (!\is_string($optionId)) {

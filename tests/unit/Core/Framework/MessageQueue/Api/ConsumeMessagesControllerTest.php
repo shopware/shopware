@@ -69,7 +69,7 @@ class ConsumeMessagesControllerTest extends TestCase
         static::expectExceptionMessage('Another worker is already running for receiver: "async"');
 
         $request = new Request();
-        $request->query->set('receiver', 'async');
+        $request->request->set('receiver', 'async');
         $controller->consumeMessages($request);
     }
 }

@@ -2,6 +2,11 @@
 
 ## Features
 
+### Symfony 7.4 update
+
+All symfony packages have been updated to version 7.4. 
+Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
+
 ### Support of media paths with up to 2046 characters
 Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the
 database field already supported up to 2046 characters. This limitation has now been lifted and media paths can be up to
@@ -78,6 +83,32 @@ As part of this change, the following deprecations were made:
 If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
 
+### New `RequestParamHelper` 
+
+Symfony deprecated the "magic" `Request::get()` method, which was used to retrieve parameters from the request, by checking the `attribute`, `query` or `request` parameter bags.
+For easier backward compatibilty we backported the old behaviour in the new `RequestParamHelper` class, however, it should only be used in explicit cases, where the parameter could be in any of those parameter bags.
+The best practice is to check the explicit parameter bag, where you expect the parameter to be. 
+However, as we have a lot of API routes that support being called by `GET` and `POST` methods both, the helper is handy in such cases.
+
+Before:
+```php
+$parameter = $request->get($parameterName, $default);
+```
+After:
+```php
+$parameter = RequestParameterHelper::get($request, $parameterName, $default);
+```
+
+To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first. 
+However, it should be possible to strictly differentiate between request attributes (which are generally controlled and set by the application itself) and input parameters (which are provided by the client, and based on how they are passed are either part of the query bag or the request bag) in the future.
+Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release. 
+When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
+In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
+
+### The `TranslationLoader` class is now decoratable
+
+The `TranslationLoader` class extends from the new `AbstractTranslationLoader` class and implements the decoratable pattern. This allows third-party developers to decorate the loader to add custom logic when a translation is loaded.
+
 ### DomainExceptions don't create \RuntimeException anymore
 
 All factory methods for domain exceptions now return specific exception classes instead of creating a generic `\RuntimeException`.
@@ -123,13 +154,18 @@ The following deprecations apply to `sw-mail-template-index`:
 
 ## Storefront
 
+### Cookie consent now language-aware
+
+The cookie consent banner now tracks cookie configuration per language. Previously, switching languages would cause the cookie banner to reappear because the configuration hash changed due to translated cookie descriptions. Now, switching back to a previously accepted language will not show the banner again.
+
+The Store API endpoint `/store-api/cookie-groups` now includes a `languageId` field in the response.
 ### New `window.activeNavigationPathIdList` variable
 
 A new global JavaScript variable `window.activeNavigationPathIdList` is now available, containing the IDs of parent categories for the current page. This can be used by plugins or themes to implement custom navigation highlighting.
 
 ### Improved cookie consent dialog UI and accessibility
 
-The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. The button layout has been improved with a clearer visual hierarchy, placing the primary action on the right side. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
+The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
 
 ### HTTP caching policies update
 

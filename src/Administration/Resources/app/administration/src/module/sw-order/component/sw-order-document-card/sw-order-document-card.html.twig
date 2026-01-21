@@ -8,18 +8,15 @@
     <template #grid>
         {% block sw_order_document_card_header %}
         <sw-card-section
-            divider="bottom"
             :secondary="showCardFilter"
             slim
         >
-
             {% block sw_order_document_card_header_filter %}
             <sw-card-filter
                 v-if="showCardFilter"
                 :placeholder="$tc('sw-order.documentCard.searchBarPlaceholder')"
                 @sw-card-filter-term-change="onSearchTermChange"
             >
-
                 <template #filter>
                     {% block sw_order_document_card_header_create_document_context_button %}
                     <mt-button
@@ -37,24 +34,21 @@
                         data-analytics-id="sw-order-document-card.show-select-document-type-modal-from-filter"
                         @click="onShowSelectDocumentTypeModal"
                     >
-
                         {% block sw_order_document_card_header_create_document_button_label %}
                         {{ $tc('sw-order.documentCard.labelCreateNew') }}
                         {% endblock %}
-
                     </mt-button>
                     {% endblock %}
-
                 </template>
             </sw-card-filter>
             {% endblock %}
-
         </sw-card-section>
         {% endblock %}
 
         {% block sw_order_document_card_grid %}
         <sw-entity-listing
             v-if="!documentsEmpty"
+            class="sw-order-document-card__grid"
             :repository="documentRepository"
             :items="documents"
             :is-loading="documentsLoading"
@@ -65,7 +59,6 @@
             :full-page="false"
             :plain-appearance="true"
         >
-
             {% block sw_order_document_card_grid_column_date %}
             <template #column-createdAt="{ item }">
                 {% block sw_order_document_card_grid_column_date_label %}
@@ -181,10 +174,8 @@
                 {% endblock %}
             </template>
             {% endblock %}
-
         </sw-entity-listing>
         {% endblock %}
-
     </template>
 
     {% block sw_order_document_card_grid_column_modal %}
@@ -226,8 +217,10 @@
     {% block sw_order_document_card_empty_state %}
     <mt-empty-state
         v-if="documentsEmpty && !isDataLoading && !term"
+        class="sw-order-document-card__empty-state"
         :icon="$route.meta.$module.icon"
         :headline="emptyStateTitle"
+        centered
     >
         <template #button>
             <mt-button
@@ -245,11 +238,9 @@
                 data-analytics-id="sw-order-document-card.show-select-document-type-modal"
                 @click="onShowSelectDocumentTypeModal"
             >
-
                 {% block sw_order_document_card_header_create_document_button_label %}
                 {{ $tc('sw-order.documentCard.labelCreateNew') }}
                 {% endblock %}
-
             </mt-button>
         </template>
     </mt-empty-state>

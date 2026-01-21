@@ -56,6 +56,12 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber">
+            <argument type="service" id="session.factory"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoader" decorates="Shopware\Storefront\Framework\Routing\DomainLoader" decoration-priority="-1000">
             <argument type="service" id="Shopware\Storefront\Framework\Routing\CachedDomainLoader.inner"/>
             <argument type="service" id="cache.object"/>

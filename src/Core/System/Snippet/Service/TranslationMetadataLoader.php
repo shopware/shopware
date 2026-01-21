@@ -71,7 +71,7 @@ class TranslationMetadataLoader
 
     protected function getPath(): string
     {
-        return Path::join(TranslationLoader::TRANSLATION_DIR, self::CROWDIN_METADATA_LOCK);
+        return Path::join(AbstractTranslationLoader::TRANSLATION_DIR, self::CROWDIN_METADATA_LOCK);
     }
 
     private function downloadFile(): ResponseInterface

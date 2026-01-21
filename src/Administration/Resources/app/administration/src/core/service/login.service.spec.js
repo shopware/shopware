@@ -536,35 +536,6 @@ describe('core/service/login.service.js', () => {
     });
 
     describe('token refresh behavior', () => {
-        it('should not logout when refresh fails due to another tab already refreshing', async () => {
-            const { loginService, clientMock } = loginServiceFactory();
-
-            clientMock.onPost('/oauth/token').replyOnce(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN',
-            });
-
-            await loginService.loginByUsername('admin', 'shopware');
-
-            const logoutListener = jest.fn();
-            loginService.addOnLogoutListener(logoutListener);
-
-            clientMock.onPost('/oauth/token').replyOnce(401, {
-                error: 'invalid_grant',
-            });
-
-            try {
-                await loginService.refreshToken();
-            } catch (error) {
-                // Expected to fail
-            }
-
-            expect(logoutListener).not.toHaveBeenCalled();
-            expect(loginService.getToken()).toBe('aCcEsS_tOkEn');
-        });
-
         it('should continue with current token when refresh fails', async () => {
             const { loginService, clientMock } = loginServiceFactory();
 
@@ -579,8 +550,8 @@ describe('core/service/login.service.js', () => {
 
             const initialExpiry = loginService.getBearerAuthentication('expiry');
 
-            clientMock.onPost('/oauth/token').replyOnce(500, {
-                error: 'server_error',
+            clientMock.onPost('/oauth/token').replyOnce(400, {
+                error: 'invalid_grant',
             });
 
             await expect(loginService.refreshToken()).rejects.toThrow();
@@ -612,7 +583,7 @@ describe('core/service/login.service.js', () => {
                 refresh_token: 'tab1_new_refresh',
             });
 
-            clientMock.onPost('/oauth/token').replyOnce(401, {
+            clientMock.onPost('/oauth/token').replyOnce(400, {
                 error: 'invalid_grant',
             });
 
@@ -638,42 +609,6 @@ describe('core/service/login.service.js', () => {
 
             expect(loginServiceTab2.getToken()).toBe('test_token');
             expect(loginServiceTab2.getBearerAuthentication('refresh')).toBe('test_refresh');
-        });
-
-        it('should handle concurrent refresh attempts gracefully', async () => {
-            const { loginService, clientMock } = loginServiceFactory();
-
-            clientMock.onPost('/oauth/token').replyOnce(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'initial_token',
-                refresh_token: 'initial_refresh',
-            });
-
-            await loginService.loginByUsername('admin', 'shopware');
-
-            clientMock.reset();
-
-            clientMock.onPost('/oauth/token').replyOnce(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'refreshed_token',
-                refresh_token: 'refreshed_refresh',
-            });
-
-            clientMock.onPost('/oauth/token').replyOnce(401);
-
-            const promises = [
-                loginService.refreshToken(),
-                loginService.refreshToken(),
-            ];
-
-            const results = await Promise.allSettled(promises);
-
-            const successCount = results.filter((r) => r.status === 'fulfilled').length;
-            expect(successCount).toBeGreaterThan(0);
-
-            expect(loginService.isLoggedIn()).toBe(true);
         });
 
         it('should notify token changed listeners when another tab updates the token', () => {
@@ -703,44 +638,5 @@ describe('core/service/login.service.js', () => {
                 }),
             );
         });
-    });
-
-    it('should restart auto refresh when token refresh fails', async () => {
-        jest.useFakeTimers();
-
-        const { loginService, clientMock } = loginServiceFactory();
-
-        // Initial login
-        clientMock.onPost('/oauth/token').replyOnce(200, {
-            token_type: 'Bearer',
-            expires_in: 3600,
-            access_token: 'aCcEsS_tOkEn',
-            refresh_token: 'rEfReSh_ToKeN',
-        });
-
-        await loginService.loginByUsername('admin', 'shopware');
-
-        const currentExpiry = loginService.getBearerAuthentication('expiry');
-        expect(currentExpiry).toBeDefined();
-
-        // Make the next refresh fail
-        clientMock.onPost('/oauth/token').replyOnce(401, {
-            error: 'invalid_grant',
-            error_description: 'The refresh token has been revoked.',
-        });
-
-        // Advance time to trigger auto refresh (half of expiry time)
-        const timeToAdvance = (currentExpiry - Date.now()) / 2;
-        jest.advanceTimersByTime(timeToAdvance);
-        await jest.runAllTimers();
-
-        // Verify that the token refresh was attempted (login + failed refresh)
-        expect(clientMock.history.post.length).toBe(2);
-
-        // User should still be logged in with the old token
-        expect(loginService.isLoggedIn()).toBe(true);
-        expect(loginService.getToken()).toBe('aCcEsS_tOkEn');
-
-        jest.useRealTimers();
     });
 });

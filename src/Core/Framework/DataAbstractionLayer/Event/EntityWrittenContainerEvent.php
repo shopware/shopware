@@ -144,7 +144,7 @@ class EntityWrittenContainerEvent extends NestedEvent
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
         );
 
         return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) {
@@ -152,7 +152,7 @@ class EntityWrittenContainerEvent extends NestedEvent
                 return true;
             }
 
-            return !empty($result->getPayload());
+            return $result->getPayload() !== [];
         });
     }
 
@@ -168,7 +168,7 @@ class EntityWrittenContainerEvent extends NestedEvent
                 return true;
             }
 
-            return !empty(array_diff(array_keys($result->getPayload()), $ignoredFields));
+            return array_diff(array_keys($result->getPayload()), $ignoredFields) !== [];
         });
     }
 

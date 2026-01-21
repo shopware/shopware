@@ -5,7 +5,7 @@ import './sw-customer-list.scss';
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -203,14 +203,13 @@ export default {
         emailIdnFilter() {
             return Shopware.Filter.getByName('decode-idn-email');
         },
-    },
 
-    watch: {
-        defaultCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
         },
     },
 
@@ -249,7 +248,13 @@ export default {
                 this.defaultCriteria,
             );
 
-            const newCriteria = await this.addQueryScores(this.term, criteria);
+            let newCriteria;
+            if (this.adminEsEnable) {
+                newCriteria = criteria;
+                newCriteria.setTerm(this.term);
+            } else {
+                newCriteria = await this.addQueryScores(this.term, criteria);
+            }
 
             this.activeFilterNumber = criteria.filters.length;
 
@@ -287,9 +292,28 @@ export default {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.customerRepository.delete(id).then(() => {
-                this.getList();
-            });
+            return this.customerRepository
+                .delete(id)
+                .then(() => {
+                    this.getList();
+                })
+                .catch((errorResponse) => {
+                    const errors = errorResponse?.response?.data?.errors;
+
+                    if (Array.isArray(errors) && errors.length > 0) {
+                        errors.forEach((error) => {
+                            this.createNotificationError({
+                                title: error.title,
+                                message: error.detail,
+                            });
+                        });
+                    } else {
+                        this.createNotificationError({
+                            title: this.$tc('global.default.error'),
+                            message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        });
+                    }
+                });
         },
 
         async onChangeLanguage() {
@@ -424,9 +448,12 @@ export default {
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-            this.filterCriteria = criteria;
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         async onBulkEditItems() {

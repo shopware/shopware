@@ -38,10 +38,10 @@ export default Component.wrapComponentConfig({
 
     computed: {
         title() {
-            const modulName = this.$tc('sw-login.general.mainMenuItemIndex');
+            const moduleName = this.$tc('sw-login.general.mainMenuItemIndex');
             const adminName = this.$tc('global.sw-admin-menu.textShopwareAdmin');
 
-            return `${modulName} | ${adminName}`;
+            return `${moduleName} | ${adminName}`;
         },
     },
 

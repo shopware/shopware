@@ -92,7 +92,7 @@ class EntityWriteResultFactory
 
             $ids = array_map(fn (EntityWriteResult $result) => $result->getPrimaryKey(), $result);
 
-            if (empty($ids)) {
+            if ($ids === []) {
                 continue;
             }
 
@@ -236,7 +236,7 @@ class EntityWriteResultFactory
                 $writeResults,
                 static fn (EntityWriteResult $result): bool => $result->getOperation() === EntityWriteResult::OPERATION_DELETE
             ));
-            if (!empty($deletedEntities)) {
+            if ($deletedEntities !== []) {
                 $deleted[$entityName] = $deletedEntities;
             }
 
@@ -245,7 +245,7 @@ class EntityWriteResultFactory
                 static fn (EntityWriteResult $result): bool => \in_array($result->getOperation(), [EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE], true)
             ));
 
-            if (!empty($updatedEntities)) {
+            if ($updatedEntities !== []) {
                 $updated[$entityName] = $updatedEntities;
             }
         }
@@ -306,7 +306,7 @@ class EntityWriteResultFactory
 
         $ids = array_unique(array_filter(array_column($parentIds, 'id')));
 
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             return [];
         }
 

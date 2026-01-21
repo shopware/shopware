@@ -2,27 +2,28 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
-use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
+ * @internal not intended for decoration or replacement
+ *
+ * @final
  */
 #[Package('after-sales')]
 class BufferedFlowQueue
 {
     /**
-     * @var array<FlowEventAware>
+     * @var array<BufferedFlow>
      */
     private array $bufferedFlows = [];
 
-    public function queueFlow(FlowEventAware $flowEvent): void
+    public function queueFlow(BufferedFlow $bufferedFlow): void
     {
-        $this->bufferedFlows[] = $flowEvent;
+        $this->bufferedFlows[] = $bufferedFlow;
     }
 
     /**
-     * @return array<FlowEventAware>
+     * @return array<BufferedFlow>
      */
     public function dequeueFlows(): array
     {
@@ -34,6 +35,6 @@ class BufferedFlowQueue
 
     public function isEmpty(): bool
     {
-        return empty($this->bufferedFlows);
+        return $this->bufferedFlows === [];
     }
 }

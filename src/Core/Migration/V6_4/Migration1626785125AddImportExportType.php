@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,20 +20,11 @@ class Migration1626785125AddImportExportType extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $column = $connection->fetchOne(
-            'SHOW COLUMNS FROM `import_export_profile` WHERE `Field` LIKE :column;',
-            ['column' => 'type']
-        );
-
-        if ($column === false) {
+        if (!TableHelper::columnExists($connection, 'import_export_profile', 'type')) {
             $connection->executeStatement(
                 'ALTER TABLE import_export_profile
             ADD COLUMN type varchar(255) NOT NULL DEFAULT "import-export" AFTER `enclosure`'
             );
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

@@ -50,7 +50,7 @@ class DocumentGenerator
         string $documentId,
         Context $context,
         string $deepLinkCode = '',
-        string $fileType = PdfRenderer::FILE_EXTENSION
+        ?string $fileType = PdfRenderer::FILE_EXTENSION
     ): ?RenderedDocument {
         $criteria = (new Criteria([$documentId]))
             ->addAssociations([
@@ -67,6 +67,8 @@ class DocumentGenerator
         if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
+
+        $fileType ??= $document->getDocumentMediaFile()?->getFileExtension() ?? PdfRenderer::FILE_EXTENSION;
 
         $document = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
         $documentMedia = $this->loadMediaByFileType($document, $fileType);
@@ -91,8 +93,8 @@ class DocumentGenerator
         $config = new DocumentRendererConfig();
         $config->deepLinkCode = $deepLinkCode;
 
-        if (!empty($operation->getConfig()['custom']['invoiceNumber'])) {
-            $invoiceNumber = (string) $operation->getConfig()['custom']['invoiceNumber'];
+        $invoiceNumber = (string) ($operation->getConfig()['custom']['invoiceNumber'] ?? '');
+        if ($invoiceNumber !== '') {
             $operation->setReferencedDocumentId($this->getReferenceId($operation->getOrderId(), $invoiceNumber));
         }
 
@@ -216,7 +218,7 @@ class DocumentGenerator
      */
     private function writeRecords(array $records, Context $context): void
     {
-        if (empty($records)) {
+        if ($records === []) {
             return;
         }
 

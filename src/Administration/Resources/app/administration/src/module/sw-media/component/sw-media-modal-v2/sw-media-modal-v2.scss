@@ -1,16 +1,19 @@
 $sw-media-modal-v2-non-grid-margin: 0 24px;
 
-.sw-modal.sw-media-modal-v2.sw-modal--full {
+// mt-modal styles for sw-media-modal-v2
+// Using :has() selector because teleport removes the class from mt-modal
+.mt-modal:has(.sw-media-modal-v2__content) {
     z-index: 1100;
+    height: calc(100dvh - 2rem);
 
-    .sw-modal__dialog {
-        height: 100%;
-        display: grid;
-        grid-template-rows: auto 1fr auto;
+    .mt-modal__content {
+        flex: 1;
+        min-height: 0;
     }
 
-    .sw-modal__body {
+    .mt-modal__content-inner {
         padding: 0;
+        height: 100%;
     }
 
     .sw-media-modal-v2__content {
@@ -78,5 +81,12 @@ $sw-media-modal-v2-non-grid-margin: 0 24px;
 
     .sw-media-modal-v2__library-content {
         display: contents;
+    }
+
+    .sw-media-modal-v2__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        width: 100%;
     }
 }

@@ -140,7 +140,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
 
             $ids = $data->getIds($definition);
             $routes = $this->seoUrlRouteRegistry->findByDefinition($definition);
-            if (\count($routes) === 0) {
+            if ($routes === []) {
                 continue;
             }
 

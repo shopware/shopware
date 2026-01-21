@@ -103,6 +103,14 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
             | { type: 'download'; value: OrderDownloadDocument['value'] }) {
             this.orderDocuments[type].value = value;
         },
+        resetOrderDocumentsIsChanged() {
+            Object.keys(this.orderDocuments).forEach((type) => {
+                this.setOrderDocumentsIsChanged({
+                    type: type as keyof SwBulkState['orderDocuments'],
+                    isChanged: false,
+                });
+            });
+        },
     },
 
     getters: {

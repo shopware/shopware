@@ -94,7 +94,7 @@ class CriteriaPartResolver
         }
 
         $parsed = $this->parser->parse($filter, $definition, $context);
-        if (empty($parsed->getWheres())) {
+        if ($parsed->getWheres() === []) {
             return;
         }
 
@@ -105,7 +105,7 @@ class CriteriaPartResolver
         $subQuery->andWhere(implode(' AND ', $parsed->getWheres()));
 
         $singleFieldFilters = array_filter($filter->getQueries(), fn (Filter $filter): bool => $filter instanceof SingleFieldFilter);
-        if (empty($singleFieldFilters)) {
+        if ($singleFieldFilters === []) {
             return;
         }
 
@@ -318,12 +318,7 @@ class CriteriaPartResolver
             return self::escape($field->getReferenceField());
         }
 
-        $flag = $field->getFlag(ReverseInherited::class);
-        if ($flag === null) {
-            return self::escape($field->getReferenceField());
-        }
-
-        return self::escape($flag->getReversedPropertyName());
+        return self::escape($field->getFlag(ReverseInherited::class)->getReversedPropertyName());
     }
 
     private function buildMappingVersionWhere(EntityDefinition $definition, AssociationField $field): string

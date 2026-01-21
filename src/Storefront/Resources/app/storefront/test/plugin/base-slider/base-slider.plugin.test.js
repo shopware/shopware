@@ -32,6 +32,7 @@ describe('BaseSliderPlugin tests', () => {
                 };
             },
             initializePlugins: undefined,
+            initializePluginsInParentElement: jest.fn(),
         };
 
         document.$emitter = new NativeEventEmitter();

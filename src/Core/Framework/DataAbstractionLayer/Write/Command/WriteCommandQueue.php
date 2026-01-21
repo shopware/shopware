@@ -83,7 +83,7 @@ class WriteCommandQueue
         $commands = array_filter($this->commands);
         $counter = 0;
 
-        while (!empty($commands)) {
+        while ($commands !== []) {
             ++$counter;
 
             if ($counter === 50) {

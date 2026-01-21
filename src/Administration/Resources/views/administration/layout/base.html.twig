@@ -10,6 +10,10 @@
         </title>
     {% endblock %}
 
+    {% block administration_meta %}
+        <meta name="robots" content="noindex, nofollow" />
+    {% endblock %}
+
     {% block administration_favicons %}
         <link rel="apple-touch-icon" href="{{ asset('administration/static/img/favicon/apple-touch-icon.png', '@Administration') }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('administration/static/img/favicon/favicon-16x16.png', '@Administration') }}">

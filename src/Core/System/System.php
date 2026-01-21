@@ -11,6 +11,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
@@ -31,13 +32,14 @@ class System extends Bundle
     {
         parent::build($container);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $configLocator = new FileLocator(__DIR__ . '/DependencyInjection/');
+
+        $loader = new XmlFileLoader($container, $configLocator);
         $loader->load('sales_channel.xml');
         $loader->load('country.xml');
         $loader->load('currency.xml');
         $loader->load('custom_entity.xml');
         $loader->load('locale.xml');
-        $loader->load('usage_data.xml');
         $loader->load('snippet.xml');
         $loader->load('salutation.xml');
         $loader->load('tax.xml');
@@ -49,6 +51,10 @@ class System extends Bundle
         $loader->load('configuration.xml');
         $loader->load('number_range.xml');
         $loader->load('tag.xml');
+
+        $phpLoader = new PhpFileLoader($container, $configLocator);
+        $phpLoader->load('consent.php');
+        $phpLoader->load('usage_data.php');
 
         $container->addCompilerPass(new SalesChannelEntityCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new NumberRangeIncrementerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);

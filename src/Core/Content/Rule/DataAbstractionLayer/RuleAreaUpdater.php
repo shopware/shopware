@@ -107,7 +107,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             $ruleIds = $this->hydrateRuleIds($this->getForeignKeyFields($definition), $nestedEvent, $ruleIds);
         }
 
-        if (empty($ruleIds)) {
+        if ($ruleIds === []) {
             return;
         }
 

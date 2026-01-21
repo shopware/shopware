@@ -80,7 +80,7 @@
                         ref="swSettingsTaxGrid"
                         class="sw-settings-tax-list-grid"
                         detail-route="sw.settings.tax.detail"
-                        :items="tax"
+                        :data-source="tax"
                         :columns="getTaxColumns()"
                         :repository="taxRepository"
                         :full-page="false"

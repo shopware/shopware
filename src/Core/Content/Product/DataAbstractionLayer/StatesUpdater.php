@@ -49,13 +49,13 @@ class StatesUpdater
                 LEFT JOIN `product_download` ON `product`.`id` = `product_download`.`product_id`
                 AND `product`.`version_id` = `product_download`.`product_version_id`
                 WHERE `product`.`id` IN (:ids)
-                AND `type` != :currentType
+                AND `type` = :currentType
                 AND `product`.`version_id` = :versionId
                 GROUP BY `product`.`id`';
 
         $params = [
             'ids' => Uuid::fromHexToBytesList($ids),
-            'currentType' => ProductDefinition::TYPE_DIGITAL,
+            'currentType' => ProductDefinition::TYPE_PHYSICAL,
             'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
         ];
 
@@ -70,14 +70,14 @@ class StatesUpdater
             $newStates = $this->getNewStates($product);
             $oldStates = $product['states'] ? json_decode((string) $product['states'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
-            if (\count(array_diff($newStates, $oldStates)) === 0) {
+            if (array_diff($newStates, $oldStates) === []) {
                 continue;
             }
 
             $updates[] = new UpdatedStates($product['id'], $oldStates, $newStates);
         }
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return;
         }
 

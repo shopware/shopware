@@ -19,15 +19,22 @@
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Debugging\ScriptTraces"/>
             <argument type="service" id="service_container"/>
-            <argument type="service" id="twig.extension.trans"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptEnvironmentFactory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Script\Execution\ScriptEnvironmentFactory" public="true">
+            <argument type="service" id="twig.extension.debug"/>
+            <argument type="tagged_iterator" tag="shopware.app_script.twig.extension"/>
             <argument>%kernel.shopware_version%</argument>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\ScriptDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Script\Debugging\ScriptTraces">
+        <service id="Shopware\Core\Framework\Script\Debugging\ScriptTraces" public="true">
             <tag name="data_collector"/>
             <tag name="kernel.reset" method="reset"/>
         </service>

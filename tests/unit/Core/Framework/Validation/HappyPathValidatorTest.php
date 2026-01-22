@@ -42,43 +42,43 @@ class HappyPathValidatorTest extends TestCase
     public static function constraintDataProvider(): \Generator
     {
         yield 'min range valid' => [
-            new Range(['min' => 11]),
+            new Range(min: 11),
             11,
             true,
         ];
 
         yield 'min range invalid' => [
-            new Range(['min' => 11]),
+            new Range(min: 11),
             10,
             false,
         ];
 
         yield 'max range valid' => [
-            new Range(['max' => 11]),
+            new Range(max: 11),
             11,
             true,
         ];
 
         yield 'max range invalid' => [
-            new Range(['max' => 11]),
+            new Range(max: 11),
             12,
             false,
         ];
 
         yield 'min max range valid' => [
-            new Range(['min' => 11, 'max' => 20]),
+            new Range(min: 11, max: 20),
             20,
             true,
         ];
 
         yield 'min max range too low' => [
-            new Range(['min' => 11, 'max' => 20]),
+            new Range(min: 11, max: 20),
             10,
             false,
         ];
 
         yield 'min max range too high' => [
-            new Range(['min' => 11, 'max' => 20]),
+            new Range(min: 11, max: 20),
             21,
             false,
         ];

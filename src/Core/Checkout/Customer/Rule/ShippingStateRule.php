@@ -61,7 +61,7 @@ class ShippingStateRule extends Rule
         $constraints = [
             'operator' => [
                 new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
+                new Choice(choices: [self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
             ],
         ];
 

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
+use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -22,6 +23,8 @@ class RoutingException extends HttpException
 
     public const CUSTOMER_NOT_LOGGED_IN_CODE = 'FRAMEWORK__ROUTING_CUSTOMER_NOT_LOGGED_IN';
     public const ACCESS_DENIED_FOR_XML_HTTP_REQUEST = 'FRAMEWORK__ACCESS_DENIED_FOR_XML_HTTP_REQUEST';
+    public const INVALID_ROUTE_SCOPE = 'FRAMEWORK__ROUTING_INVALID_ROUTE_SCOPE';
+    public const MISSING_MAIN_REQUEST = 'FRAMEWORK__MAIN_REQUEST_MISSING';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -98,6 +101,27 @@ class RoutingException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::ACCESS_DENIED_FOR_XML_HTTP_REQUEST,
             'PageController can\'t be requested via XmlHttpRequest.'
+        );
+    }
+
+    public static function invalidRouteScope(string $routeName): self
+    {
+        return new InvalidRouteScopeException($routeName);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return self in the future
+     */
+    public static function missingMainRequest(): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \InvalidArgumentException('Unable to check the request scope without main request.');
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_MAIN_REQUEST,
+            'Unable to check the request scope without main request.'
         );
     }
 }

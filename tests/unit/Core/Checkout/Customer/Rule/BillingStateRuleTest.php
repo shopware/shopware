@@ -46,7 +46,7 @@ class BillingStateRuleTest extends TestCase
         static::assertArrayHasKey('operator', $constraints, 'Constraint operator not found in Rule');
         static::assertArrayHasKey('stateIds', $constraints, 'Constraint stateIds not found in Rule');
 
-        static::assertEquals([new NotBlank(), new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY])], $constraints['operator']);
+        static::assertEquals([new NotBlank(), new Choice(choices: [Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY])], $constraints['operator']);
         static::assertEquals([new NotBlank(), new ArrayOfUuid()], $constraints['stateIds']);
     }
 

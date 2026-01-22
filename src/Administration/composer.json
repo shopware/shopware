@@ -29,12 +29,12 @@
     },
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
-        "doctrine/dbal": "~3.9.0",
+        "doctrine/dbal": "~3.10.0",
         "pentatrion/vite-bundle": "^7.0",
         "shopware/core": "*",
-        "symfony/framework-bundle": "~7.3.0",
-        "symfony/http-foundation": "~7.3.0",
-        "symfony/mime": "~7.3.0",
-        "symfony/routing": "~7.3.0"
+        "symfony/framework-bundle": "~7.4.0",
+        "symfony/http-foundation": "~7.4.0",
+        "symfony/mime": "~7.4.0",
+        "symfony/routing": "~7.4.0"
     }
 }

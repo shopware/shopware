@@ -203,7 +203,7 @@ class SystemInstallCommandTest extends TestCase
 
         $application = new Application();
         $application->setAutoExit(false);
-        $application->add(
+        $application->addCommand(
             new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory)
         );
         $application->setDispatcher($dispatcher);

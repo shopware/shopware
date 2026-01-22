@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Util\Hasher;
@@ -327,7 +328,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function setCurrencyCookie(Request $request, Response $response): void
     {
-        $currencyId = $request->get(SalesChannelContextService::CURRENCY_ID);
+        $currencyId = RequestParamHelper::get($request, SalesChannelContextService::CURRENCY_ID);
 
         if (!$currencyId) {
             return;

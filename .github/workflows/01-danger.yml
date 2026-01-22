@@ -9,7 +9,7 @@ jobs:
       - name: Clone
         uses: actions/checkout@v4
         with:
-          ref: 6.6.x
+          ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Danger
         uses: docker://ghcr.io/shyim/danger-php:latest

@@ -356,7 +356,7 @@ class AccountOrderControllerTest extends TestCase
         );
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 

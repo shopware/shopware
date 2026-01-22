@@ -27,7 +27,7 @@ class OrderDetailPageTest extends TestCase
         $orderId = $this->placeRandomOrder($context);
 
         $request = new Request();
-        $request->query->set('id', $orderId);
+        $request->attributes->set('id', $orderId);
 
         $accountOrderDetailEvent = null;
         $this->catchEvent(AccountOrderDetailPageLoadedEvent::class, $accountOrderDetailEvent);
@@ -58,7 +58,7 @@ class OrderDetailPageTest extends TestCase
     public function testUnknownOrderThrowsNotFoundHttpException(): void
     {
         $request = new Request();
-        $request->query->set('id', Uuid::randomHex());
+        $request->attributes->set('id', Uuid::randomHex());
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         $this->expectException(NotFoundHttpException::class);

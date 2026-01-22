@@ -354,7 +354,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if ($validateStorefrontUrl) {
             $definition
-                ->add('storefrontUrl', new NotBlank(), new Choice($this->getDomainUrls($context)));
+                ->add('storefrontUrl', new NotBlank(), new Choice(choices: $this->getDomainUrls($context)));
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
@@ -493,7 +493,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $validation->set('zipcode', new CustomerZipCode(['countryId' => $address->get('countryId')]));
-        $validation->add('zipcode', new Length(['max' => 50]));
+        $validation->add('zipcode', new Length(max: 50));
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
@@ -515,11 +515,14 @@ class RegisterRoute extends AbstractRegisterRoute
         ]));
 
         if (!$isGuest) {
-            $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
+            $minLength = $this->systemConfigService->getInt('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
+            if ($minLength < 0) {
+                $minLength = 0;
+            }
             $validation->add(
                 'password',
                 new NotBlank(),
-                new Length(['min' => $minLength, 'max' => PasswordHasherInterface::MAX_PASSWORD_LENGTH, 'maxMessage' => 'VIOLATION::PASSWORD_IS_TOO_LONG'])
+                new Length(min: $minLength, max: PasswordHasherInterface::MAX_PASSWORD_LENGTH, maxMessage: 'VIOLATION::PASSWORD_IS_TOO_LONG')
             );
             $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
             $validation->add('email', new CustomerEmailUnique($options));

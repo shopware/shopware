@@ -35,7 +35,7 @@ class WeekdayRule extends Rule
     {
         return [
             'operator' => RuleConstraints::stringOperators(false),
-            'dayOfWeek' => [new NotBlank(), new Range(['min' => 1, 'max' => 7])],
+            'dayOfWeek' => [new NotBlank(), new Range(min: 1, max: 7)],
         ];
     }
 

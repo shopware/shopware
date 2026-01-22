@@ -63,7 +63,7 @@ class AuthController extends StorefrontController
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
-        $redirect = $request->get('redirectTo', 'frontend.account.home.page');
+        $redirect = $request->query->get('redirectTo', 'frontend.account.home.page');
 
         $customer = $context->getCustomer();
 
@@ -79,7 +79,7 @@ class AuthController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? json_encode([]),
             'errorRoute' => $request->attributes->get('_route'),
             'page' => $page,
             'loginError' => $request->attributes->getBoolean('loginError'),
@@ -93,7 +93,7 @@ class AuthController extends StorefrontController
     public function guestLoginPage(Request $request, SalesChannelContext $context): Response
     {
         /** @var string|null $redirect */
-        $redirect = $request->get('redirectTo');
+        $redirect = $request->query->get('redirectTo');
         if (!$redirect) {
             // page was probably called directly
             $this->addFlash(self::DANGER, $this->trans('account.orderGuestLoginWrongCredentials'));
@@ -109,12 +109,16 @@ class AuthController extends StorefrontController
             return $this->createActionResponse($request);
         }
 
-        $waitTime = (int) $request->get('waitTime');
+        // WaitTime can be either set as attribute when it's forwarded to this route
+        // or as query parameter when it's redirected
+        $waitTime = (int) ($request->attributes->get('waitTime') ?? $request->query->get('waitTime'));
         if ($waitTime) {
             $this->addFlash(self::INFO, $this->trans('account.loginThrottled', ['%seconds%' => $waitTime]));
         }
 
-        if ((bool) $request->get('loginError')) {
+        // loginError can be either set as attribute when it's forwarded to this route
+        // or as query parameter when it's redirected
+        if ($request->attributes->getBoolean('loginError') || $request->query->getBoolean('loginError')) {
             $this->addFlash(self::DANGER, $this->trans('account.orderGuestLoginWrongCredentials'));
         }
 
@@ -124,7 +128,7 @@ class AuthController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/guest-auth.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'redirectParameters' => $request->query->all()['redirectParameters'] ?? json_encode([]),
             'page' => $page,
         ]);
     }
@@ -236,8 +240,7 @@ class AuthController extends StorefrontController
     #[Route(path: '/account/recover/password', name: 'frontend.account.recover.password.page', methods: ['GET'])]
     public function resetPasswordForm(Request $request, SalesChannelContext $context): Response
     {
-        /** @var ?string $hash */
-        $hash = $request->get('hash');
+        $hash = $request->query->get('hash');
 
         if (!$hash || !\is_string($hash)) {
             $this->addFlash(self::DANGER, $this->trans('account.passwordHashNotFound'));
@@ -263,7 +266,7 @@ class AuthController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/profile/reset-password.html.twig', [
             'page' => $page,
-            'formViolations' => $request->get('formViolations'),
+            'formViolations' => $request->attributes->get('formViolations') ?? ($request->query->all()['formViolations'] ?? null),
         ]);
     }
 

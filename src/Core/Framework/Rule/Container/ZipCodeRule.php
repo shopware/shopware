@@ -29,7 +29,7 @@ abstract class ZipCodeRule extends Rule
         $constraints = [
             'operator' => [
                 new NotBlank(),
-                new Choice([
+                new Choice(choices: [
                     self::OPERATOR_EQ,
                     self::OPERATOR_NEQ,
                     self::OPERATOR_EMPTY,

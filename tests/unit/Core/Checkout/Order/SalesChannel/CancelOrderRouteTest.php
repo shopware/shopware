@@ -76,7 +76,7 @@ class CancelOrderRouteTest extends TestCase
             ]),
         );
 
-        $route->cancel(new Request(['orderId' => Uuid::randomHex()]), $salesChannelContext);
+        $route->cancel(new Request([], ['orderId' => Uuid::randomHex()]), $salesChannelContext);
     }
 
     public function testOrderNotFound(): void
@@ -107,7 +107,7 @@ class CancelOrderRouteTest extends TestCase
             ]),
         );
 
-        $route->cancel(new Request(['orderId' => Uuid::randomHex()]), $salesChannelContext);
+        $route->cancel(new Request([], ['orderId' => Uuid::randomHex()]), $salesChannelContext);
     }
 
     public function testCancelOrder(): void
@@ -147,6 +147,6 @@ class CancelOrderRouteTest extends TestCase
             ]),
         );
 
-        $route->cancel(new Request(['orderId' => $orderId]), $salesChannelContext);
+        $route->cancel(new Request([], ['orderId' => $orderId]), $salesChannelContext);
     }
 }

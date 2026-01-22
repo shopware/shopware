@@ -30,7 +30,7 @@ class ThemePrepareIconsCommandTest extends TestCase
         $command = new ThemePrepareIconsCommand();
         $this->commandTester = new CommandTester($command);
         $application = new Application();
-        $application->add($command);
+        $application->addCommand($command);
     }
 
     protected function tearDown(): void

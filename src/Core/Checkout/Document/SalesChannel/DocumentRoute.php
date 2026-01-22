@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -130,12 +131,14 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
+        $email = RequestParamHelper::get($request, 'email', false);
+        $zipcode = RequestParamHelper::get($request, 'zipcode', false);
         // Verify email and zip code with this order
-        if ($request->get('email', false) && $request->get('zipcode', false)) {
+        if ($email && $zipcode) {
             $billingAddress = $order->getBillingAddress();
             if ($billingAddress === null
-                || $request->get('email') !== $orderCustomer->getEmail()
-                || $request->get('zipcode') !== $billingAddress->getZipcode()) {
+                || $email !== $orderCustomer->getEmail()
+                || $zipcode !== $billingAddress->getZipcode()) {
                 throw DocumentException::wrongGuestCredentials();
             }
         } else {

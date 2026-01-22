@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Pagelet\Header;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\TreeItem;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -48,7 +49,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
 
         $navigationId = null;
         if (!Feature::isActive('cache_rework')) {
-            $navigationId = $request->get('navigationId');
+            $navigationId = RequestParamHelper::get($request, 'navigationId');
             if ($navigationId !== null) {
                 Feature::triggerDeprecationOrThrow(
                     'cache_rework',

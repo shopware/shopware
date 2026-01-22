@@ -426,7 +426,6 @@ jobs:
 
             # build the destination prefix and export it for subsequent steps
             REPORT_DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
-            echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
 
             if [ ! -f "playwright-report/index.html" ]; then
             echo "No Playwright report found, skipping upload."
@@ -434,6 +433,7 @@ jobs:
             fi
 
             aws s3 cp "playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
+            echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
             echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
 
       - name: Publish S3 Static Website URL
@@ -441,6 +441,17 @@ jobs:
         shell: bash
         run: |
             set -euo pipefail
+
+            if [ -z "${REPORT_DEST:-}" ]; then
+            echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+            exit 0
+            fi
+
+            if ! aws s3 ls "s3://${S3_BUCKET}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
+            echo "Index file not found ... skipping publish." >&2
+            exit 0
+            fi
+
             DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
             URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
             echo "${URL}"

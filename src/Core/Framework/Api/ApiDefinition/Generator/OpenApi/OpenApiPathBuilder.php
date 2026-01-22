@@ -11,6 +11,8 @@ use OpenApi\Annotations\Post;
 use OpenApi\Annotations\Response as OpenApiResponse;
 use OpenApi\Annotations\Tag;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -187,6 +189,11 @@ class OpenApiPathBuilder
             $tags[] = 'Experimental';
         }
 
+        // Use Create schema if entity has immutable fields, otherwise use Update schema
+        $requestSchema = $this->hasImmutableFields($definition)
+            ? $schemaName . 'Create'
+            : $schemaName . 'Update';
+
         return new Post([
             'summary' => 'Create a new ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
             'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
@@ -204,8 +211,7 @@ class OpenApiPathBuilder
                 'content' => [
                     'application/json' => [
                         'schema' => [
-                            // Always use Create schema - it contains all writable fields
-                            '$ref' => '#/components/schemas/' . $schemaName . 'Create',
+                            '$ref' => '#/components/schemas/' . $requestSchema,
                         ],
                     ],
                 ],
@@ -536,5 +542,24 @@ class OpenApiPathBuilder
         $reflection = new \ReflectionClass($definition);
 
         return str_contains($reflection->getDocComment() ?: '', '@' . self::EXPERIMENTAL_ANNOTATION_NAME);
+    }
+
+    /**
+     * Checks if the entity definition has any immutable fields.
+     * Used to determine if a Create schema exists (only generated for entities with immutable fields).
+     */
+    private function hasImmutableFields(EntityDefinition $definition): bool
+    {
+        foreach ($definition->getFields() as $field) {
+            if ($field->is(Extension::class)) {
+                continue;
+            }
+
+            if ($field->is(Immutable::class)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

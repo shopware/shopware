@@ -104,24 +104,28 @@ class OpenApiDefinitionSchemaBuilder
         $schema[$schemaName . 'Update'] = $this->buildUpdateSchema(
             $schemaName,
             $fieldData['updateAttributes'],
+            $fieldData['updateRequiredAttributes'],
             $definition->since()
         );
 
-        // Generate Create schema - ALL writable fields (modifiable + immutable, no technical fields)
-        // Uses allOf to extend Update with immutable fields when they exist
-        $schema[$schemaName . 'Create'] = $this->buildCreateSchema(
-            $schemaName,
-            $fieldData['immutableAttributes'],
-            $fieldData['createRequiredAttributes'],
-            $fieldData['hasImmutableFields'],
-            $definition->since()
-        );
+        // Generate Create schema ONLY if there are immutable fields
+        // If no immutable fields, Create would just reference Update which is redundant
+        if ($fieldData['hasImmutableFields']) {
+            $schema[$schemaName . 'Create'] = $this->buildCreateSchema(
+                $schemaName,
+                $fieldData['immutableAttributes'],
+                $fieldData['createRequiredAttributes'],
+                $definition->since()
+            );
+        }
 
         // Generate Read schema - all fields including technical read-only (id, createdAt, updatedAt) and relationships
+        // References Create if it exists, otherwise references Update
         $schema[$schemaName] = $this->buildReadSchema(
             $schemaName,
             $fieldData['readOnlyAttributes'],
             $fieldData['relationships'],
+            $fieldData['hasImmutableFields'],
             $definition->since()
         );
 
@@ -364,12 +368,13 @@ class OpenApiDefinitionSchemaBuilder
      * Builds the Read schema using allOf composition:
      * - Contains read-only properties inline (id, createdAt, updatedAt, etc.)
      * - Contains relationship properties inline
-     * - References Create schema (which contains all writable fields)
+     * - References Create schema if entity has immutable fields, otherwise references Update
      *
      * @param Property[] $readOnlyAttributes Read-only fields (id, createdAt, updatedAt, etc.)
      * @param Property[] $relationships Relationship properties (associations)
+     * @param bool $hasImmutableFields Whether to reference Create or Update schema
      */
-    private function buildReadSchema(string $schemaName, array $readOnlyAttributes, array $relationships, ?string $since): Schema
+    private function buildReadSchema(string $schemaName, array $readOnlyAttributes, array $relationships, bool $hasImmutableFields, ?string $since): Schema
     {
         $description = 'All fields of ' . $schemaName . ' entity including read-only technical fields.';
         if (!empty($since)) {
@@ -388,13 +393,17 @@ class OpenApiDefinitionSchemaBuilder
             'properties' => $inlineProperties,
         ]);
 
-        // Always reference Create schema (which now always exists)
+        // Reference Create schema if it exists (entity has immutable fields), otherwise reference Update
+        $writableSchemaRef = $hasImmutableFields
+            ? '#/components/schemas/' . $schemaName . 'Create'
+            : '#/components/schemas/' . $schemaName . 'Update';
+
         return new Schema([
             'schema' => $schemaName,
             'description' => $description,
             'allOf' => [
                 $readOnlySchema,
-                new Schema(['ref' => '#/components/schemas/' . $schemaName . 'Create']),
+                new Schema(['ref' => $writableSchemaRef]),
             ],
         ]);
     }
@@ -455,43 +464,48 @@ class OpenApiDefinitionSchemaBuilder
     }
 
     /**
-     * Builds the Update schema (only modifiable fields, no required fields)
-     * All fields are optional for partial updates (PATCH).
+     * Builds the Update schema (modifiable fields only).
+     * For PATCH: no required fields (partial updates allowed).
+     * For POST (when no Create schema): includes required fields.
      *
      * @param Property[] $attributes Modifiable fields only
+     * @param string[] $requiredAttributes Required fields (used for POST when no Create schema exists)
      */
-    private function buildUpdateSchema(string $schemaName, array $attributes, ?string $since): Schema
+    private function buildUpdateSchema(string $schemaName, array $attributes, array $requiredAttributes, ?string $since): Schema
     {
         $description = 'Fields available for update operations on ' . $schemaName . ' entities. All fields are optional for partial updates.';
         if (!empty($since)) {
             $description .= ' Added since version: ' . $since;
         }
 
-        return new Schema([
+        $schema = new Schema([
             'type' => 'object',
             'schema' => $schemaName . 'Update',
             'description' => $description,
             'properties' => $attributes,
         ]);
-        // No required fields for Update - PATCH operations allow partial updates
+
+        // Include required fields - these apply when this schema is used for POST (no immutable fields)
+        if (\count($requiredAttributes)) {
+            $schema->required = $requiredAttributes;
+        }
+
+        return $schema;
     }
 
     /**
-     * Builds the Create schema using allOf composition:
+     * Builds the Create schema using allOf composition.
+     * Only called when entity has immutable fields.
      * - References Update schema (modifiable fields)
      * - Adds immutable fields that can only be set during creation
      * - Includes required fields for entity creation
      *
-     * @param Property[] $immutableAttributes Immutable-only fields (empty if no immutable fields)
+     * @param Property[] $immutableAttributes Immutable fields
      * @param string[] $requiredAttributes All required fields for creation (modifiable + immutable)
-     * @param bool $hasImmutableFields Whether the entity has immutable fields
      */
-    private function buildCreateSchema(string $schemaName, array $immutableAttributes, array $requiredAttributes, bool $hasImmutableFields, ?string $since): Schema
+    private function buildCreateSchema(string $schemaName, array $immutableAttributes, array $requiredAttributes, ?string $since): Schema
     {
-        $description = 'Schema for creating ' . $schemaName . ' entities. Contains all writable fields.';
-        if ($hasImmutableFields) {
-            $description .= ' Includes immutable fields that can only be set during creation.';
-        }
+        $description = 'Schema for creating ' . $schemaName . ' entities. Includes immutable fields that can only be set during creation.';
         if (!empty($since)) {
             $description .= ' Added since version: ' . $since;
         }
@@ -500,8 +514,8 @@ class OpenApiDefinitionSchemaBuilder
             new Schema(['ref' => '#/components/schemas/' . $schemaName . 'Update']),
         ];
 
-        // Add immutable properties as additional schema if they exist
-        if ($hasImmutableFields && !empty($immutableAttributes)) {
+        // Add immutable properties
+        if (!empty($immutableAttributes)) {
             $immutableSchema = new Schema([
                 'type' => 'object',
                 'properties' => $immutableAttributes,

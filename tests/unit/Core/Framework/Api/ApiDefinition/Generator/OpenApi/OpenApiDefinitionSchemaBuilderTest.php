@@ -178,9 +178,9 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayHasKey('SimpleUpdate', $schema);
     }
 
-    public function testGeneratesCreateSchemaForAllEntities(): void
+    public function testCreateSchemaOnlyGeneratedWhenImmutableFieldsExist(): void
     {
-        // SimpleDefinition has no immutable fields - should STILL have Create schema
+        // SimpleDefinition has no immutable fields - should NOT have Create schema
         $simpleSchema = $this->schemaBuilder->getSchemaByDefinition(
             $this->definitionRegistry->get(SimpleDefinition::class),
             '/simple',
@@ -188,7 +188,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         );
 
         static::assertArrayHasKey('SimpleUpdate', $simpleSchema);
-        static::assertArrayHasKey('SimpleCreate', $simpleSchema);
+        static::assertArrayNotHasKey('SimpleCreate', $simpleSchema, 'Create schema should not exist when no immutable fields');
 
         // ImmutableFieldsDefinition has immutable fields - SHOULD have Create schema
         $immutableSchema = $this->schemaBuilder->getSchemaByDefinition(
@@ -283,7 +283,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertSame('#/components/schemas/ImmutableTestCreate', $readSchema['allOf'][1]['$ref']);
     }
 
-    public function testReadSchemaReferencesCreateWhenNoImmutableFields(): void
+    public function testReadSchemaReferencesUpdateWhenNoImmutableFields(): void
     {
         $schema = $this->schemaBuilder->getSchemaByDefinition(
             $this->definitionRegistry->get(SimpleDefinition::class),
@@ -296,16 +296,16 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         // Read schema should use allOf composition
         static::assertArrayHasKey('allOf', $readSchema);
 
-        // Should reference Create schema (Create schema always exists)
-        $hasCreateRef = false;
+        // Should reference Update schema directly (no Create schema when no immutable fields)
+        $hasUpdateRef = false;
         foreach ($readSchema['allOf'] as $item) {
-            if (isset($item['$ref']) && $item['$ref'] === '#/components/schemas/SimpleCreate') {
-                $hasCreateRef = true;
+            if (isset($item['$ref']) && $item['$ref'] === '#/components/schemas/SimpleUpdate') {
+                $hasUpdateRef = true;
 
                 break;
             }
         }
-        static::assertTrue($hasCreateRef, 'Read schema should reference Create schema');
+        static::assertTrue($hasUpdateRef, 'Read schema should reference Update schema when no immutable fields');
     }
 
     public function testImmutableFieldRequiredInCreateSchema(): void

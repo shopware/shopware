@@ -66,7 +66,7 @@ class RuleAreasFlagNotAllowedRule implements Rule
                 continue;
             }
 
-            if ($class->getName() !== RuleDefinition::class && !$class->isSubclassOf(RuleDefinition::class)) {
+            if ($class->getName() !== RuleDefinition::class && !$class->is(RuleDefinition::class)) {
                 return [
                     RuleErrorBuilder::message('RuleAreas flag may only be added within the scope of RuleDefinition')
                         ->identifier('shopware.ruleAreaFlag')
@@ -81,7 +81,7 @@ class RuleAreasFlagNotAllowedRule implements Rule
             }
 
             $mockedClass = $this->reflectionProvider->getClass($fieldClassName);
-            if (!$mockedClass->isSubclassOf(AssociationField::class)) {
+            if (!$mockedClass->is(AssociationField::class)) {
                 return [
                     RuleErrorBuilder::message('RuleAreas flag may only be added on instances of AssociationField')
                         ->identifier('shopware.ruleAreaFlag')

@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS `php_bench` (
                 ->fetchOne('SELECT ids FROM php_bench WHERE `key` = :key', ['key' => 'ids']);
 
             self::$ids = \unserialize($ids);
+            \assert(self::$ids instanceof IdsCollection);
         }
 
         return self::$ids;

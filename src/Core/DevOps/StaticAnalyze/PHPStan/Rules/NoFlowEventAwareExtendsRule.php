@@ -7,6 +7,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -21,6 +22,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class NoFlowEventAwareExtendsRule implements Rule
 {
+    public function __construct(
+        private readonly ReflectionProvider $reflectionProvider,
+    ) {
+    }
+
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -39,7 +45,7 @@ class NoFlowEventAwareExtendsRule implements Rule
             return [];
         }
 
-        if (!$reflection->isSubclassOf(FlowEventAware::class)) {
+        if (!$reflection->isSubclassOfClass($this->reflectionProvider->getClass(FlowEventAware::class))) {
             return [];
         }
 

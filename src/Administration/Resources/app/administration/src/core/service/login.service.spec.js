@@ -559,10 +559,46 @@ describe('core/service/login.service.js', () => {
             expect(loginService.getToken()).toBe('aCcEsS_tOkEn');
             expect(loginService.getBearerAuthentication('expiry')).toBe(initialExpiry);
         });
+
+        it('should retry with interval when refresh fails', async () => {
+            jest.useFakeTimers();
+
+            const { loginService, clientMock } = loginServiceFactory();
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+            clientMock.resetHistory();
+
+            clientMock.onPost('/oauth/token').replyOnce(400, { error: 'invalid_grant' });
+
+            await expect(loginService.refreshToken()).rejects.toThrow();
+
+            expect(clientMock.history.post.length).toBe(1);
+
+            clientMock.onPost('/oauth/token').replyOnce(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'new_token',
+                refresh_token: 'new_refresh',
+            });
+
+            await jest.advanceTimersByTimeAsync(2500);
+
+            expect(clientMock.history.post.length).toBe(2);
+            expect(loginService.getToken()).toBe('new_token');
+
+            jest.useRealTimers();
+        });
     });
 
     describe('multi-tab token synchronization', () => {
-        it('should handle token refresh race condition between tabs', async () => {
+        it('should handle concurrent refresh calls with singleton promise', async () => {
             jest.useFakeTimers();
 
             const { loginService, clientMock } = loginServiceFactory();
@@ -585,36 +621,24 @@ describe('core/service/login.service.js', () => {
                 refresh_token: 'tab1_new_refresh',
             });
 
-            clientMock.onPost('/oauth/token').replyOnce(400, {
-                error: 'invalid_grant',
-            });
-
             const tab1Promise = loginService.refreshToken();
             const tab2Promise = loginService.refreshToken();
 
             await expect(tab1Promise).resolves.toBe('tab1_new_token');
-            await expect(tab2Promise).rejects.toThrow();
-
-            expect(loginService.isLoggedIn()).toBe(true);
-            expect(loginService.getToken()).toBe('tab1_new_token');
-
-            clientMock.onPost('/oauth/token').reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'auto_refreshed_token',
-                refresh_token: 'auto_refreshed_refresh',
-            });
-
-            await jest.runAllTimersAsync();
+            await expect(tab2Promise).resolves.toBe('tab1_new_token');
 
             const refreshRequests = clientMock.history.post.filter(
                 (req) => JSON.parse(req.data).grant_type === 'refresh_token',
             );
-            expect(refreshRequests.length).toBeGreaterThanOrEqual(3);
+            expect(refreshRequests.length).toBe(1);
+
+            expect(loginService.isLoggedIn()).toBe(true);
+            expect(loginService.getToken()).toBe('tab1_new_token');
 
             jest.useRealTimers();
         });
 
+       
         it('should synchronize token across tabs via cookie storage', () => {
             const { loginService } = loginServiceFactory();
             const { loginService: loginServiceTab2 } = loginServiceFactory();

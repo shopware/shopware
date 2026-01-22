@@ -231,7 +231,8 @@ runs:
           shell: bash
           run: |
                 set -euo pipefail
-                URL="https://${{ inputs.playwright-traces-domain }}/${REPORT_DEST}/index.html"
+                DOMAIN="${{ inputs.playwright-traces-domain }}"
+                URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
 
                 echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
                 echo "" >> "$GITHUB_STEP_SUMMARY"

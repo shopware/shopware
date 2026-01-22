@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Definition\BackendData;
-use Shopware\Core\System\Consent\Definition\Tracking;
+use Shopware\Core\System\Consent\Definition\ProductAnalytics;
 use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 
 /**
@@ -31,10 +31,10 @@ class ConsentRepositoryTest extends TestCase
 
     public function testUpdateConsentState(): void
     {
-        $tracking = new Tracking();
+        $productAnalytics = new ProductAnalytics();
 
         $userId = Uuid::randomHex();
-        $updatedState = $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId);
+        $updatedState = $this->repository->updateConsentState($productAnalytics, $userId, ConsentStatus::ACCEPTED, $userId);
 
         $states = $this->repository->fetchAllConsentStates();
 
@@ -43,10 +43,10 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame($userId, $states[0]->actorId);
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
-        static::assertSame('tracking', $states[0]->name);
+        static::assertSame($productAnalytics->getName(), $states[0]->name);
 
-        static::assertSame($tracking->getName(), $updatedState->name);
-        static::assertSame($tracking->getScopeName(), $updatedState->scopeName);
+        static::assertSame($productAnalytics->getName(), $updatedState->name);
+        static::assertSame($productAnalytics->getScopeName(), $updatedState->scopeName);
         static::assertEquals($userId, $updatedState->actorId);
         static::assertEquals(ConsentStatus::ACCEPTED, $updatedState->status);
         static::assertEquals($userId, $updatedState->identifier);
@@ -71,7 +71,7 @@ class ConsentRepositoryTest extends TestCase
 
     public function testUpdateConsentStateUpdatesExisting(): void
     {
-        $tracking = new Tracking();
+        $tracking = new ProductAnalytics();
 
         $userId = Uuid::randomHex();
         $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId);
@@ -97,14 +97,14 @@ class ConsentRepositoryTest extends TestCase
 
     public function testFetchAllConsentStates(): void
     {
-        $tracking = new Tracking();
+        $productAnalytics = new ProductAnalytics();
         $backendData = new BackendData();
 
         $user1 = Uuid::randomHex();
         $this->repository->updateConsentState($backendData, 'system', ConsentStatus::ACCEPTED, $user1);
 
         $user2 = Uuid::randomHex();
-        $this->repository->updateConsentState($tracking, $user2, ConsentStatus::REVOKED, $user2);
+        $this->repository->updateConsentState($productAnalytics, $user2, ConsentStatus::REVOKED, $user2);
 
         $result = $this->repository->fetchAllConsentStates();
 
@@ -116,7 +116,7 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame($user1, $result[0]->actorId);
         static::assertSame(ConsentStatus::ACCEPTED, $result[0]->status);
 
-        static::assertSame('tracking', $result[1]->name);
+        static::assertSame($productAnalytics->getName(), $result[1]->name);
         static::assertSame($user2, $result[1]->identifier);
         static::assertSame($user2, $result[1]->actorId);
         static::assertSame(ConsentStatus::REVOKED, $result[1]->status);

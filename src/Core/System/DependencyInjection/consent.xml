@@ -24,7 +24,7 @@
             <tag name="shopware.consent.definition"/>
         </service>
 
-        <service id="Shopware\Core\System\Consent\Definition\Tracking">
+        <service id="Shopware\Core\System\Consent\Definition\ProductAnalytics">
             <tag name="shopware.consent.definition"/>
         </service>
 

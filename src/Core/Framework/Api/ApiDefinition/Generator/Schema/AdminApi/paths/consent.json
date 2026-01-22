@@ -16,22 +16,11 @@
             "content": {
               "application\/json": {
                 "schema": {
-                  "$ref": "#\/components\/schemas\/consentListResponse"
-                },
-                "example": [
-                  {
-                    "name": "data-collection",
-                    "identifier": "user-123",
-                    "status": "accepted",
-                    "actorId": "user-123"
-                  },
-                  {
-                    "name": "analytics-tracking",
-                    "identifier": "user-123",
-                    "status": "requested",
-                    "actorId": "user-123"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConsentState"
                   }
-                ]
+                }
               }
             }
           },
@@ -41,7 +30,7 @@
         }
       }
     },
-    "/consents/{consent}/accept": {
+    "/consents/accept": {
       "post": {
         "tags": [
           "Consent Management"
@@ -49,23 +38,38 @@
         "summary": "Accept a consent",
         "description": "Marks the specified consent as accepted for the authenticated admin user.",
         "operationId": "acceptConsent",
-        "parameters": [
-          {
-            "name": "consent",
-            "in": "path",
-            "description": "The name of the consent to accept",
-            "required": true,
-            "schema": {
-              "type": "string"
+        "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "consent": {
+                      "type": "string",
+                      "description": "The name of the consent to accept"
+                    }
+                  },
+                  "required": ["consent"],
+                  "example": {
+                    "consent": "product_analytics"
+                  }
+                }
+              }
             }
-          }
-        ],
+        },
         "responses": {
-          "204": {
-            "description": "Consent accepted successfully - no content returned"
+          "200": {
+            "description": "Consent status changed successfully. Returns the updated consent status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentState"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Bad request - Consent not found"
+            "description": "Bad request - Consent not found or consent property was empty"
           },
           "401": {
             "description": "Unauthorized - User not logged in or invalid session"
@@ -73,7 +77,7 @@
         }
       }
     },
-    "/consents/{consent}/revoke": {
+    "/consents/revoke": {
       "post": {
         "tags": [
           "Consent Management"
@@ -81,26 +85,94 @@
         "summary": "Revoke a consent",
         "description": "Marks the specified consent as revoked for the authenticated admin user.",
         "operationId": "revokeConsent",
-        "parameters": [
-          {
-            "name": "consent",
-            "in": "path",
-            "description": "The name of the consent to revoke",
-            "required": true,
-            "schema": {
-              "type": "string"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "consent": {
+                    "type": "string",
+                    "description": "The name of the consent to accept"
+                  }
+                },
+                "required": ["consent"],
+                "example": {
+                  "consent": "product_analytics"
+                }
+              }
             }
           }
-        ],
+        },
         "responses": {
-          "204": {
-            "description": "Consent revoked successfully - no content returned"
+          "200": {
+            "description": "Consent status changed successfully. Returns the updated consent status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentState"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Bad request - Consent not found"
+            "description": "Bad request - Consent not found or consent property was empty"
           },
           "401": {
             "description": "Unauthorized - User not logged in or invalid session"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ConsentState": {
+        "type": "object",
+        "required": [
+          "name",
+          "scopeName",
+          "identifier",
+          "status",
+          "actorId",
+          "updatedAt"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the consent"
+          },
+          "scopeName": {
+            "type": "string",
+            "description": "The scope of the consent that defines how the identifier is resolved"
+          },
+          "identifier": {
+            "type": "string",
+            "description": "The resolved identifier of the consent"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requested",
+              "accepted",
+              "revoked"
+            ],
+            "description": "The current status of the consent (requested, accepted, revoked)"
+          },
+          "actorId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The ID of the actor (user) who made the consent decision. null if never updated"
+          },
+          "updatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "The timestamp of when the consent status was last updated. null if never updated"
           }
         }
       }

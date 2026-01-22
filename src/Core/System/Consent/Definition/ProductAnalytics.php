@@ -12,11 +12,11 @@ use Shopware\Core\System\Consent\ConsentScope;
  * @codeCoverageIgnore
  */
 #[Package('data-services')]
-class Tracking implements ConsentDefinition
+class ProductAnalytics implements ConsentDefinition
 {
     public function getName(): string
     {
-        return 'tracking';
+        return 'product_analytics';
     }
 
     public function getScopeName(): string

@@ -312,7 +312,7 @@ class DateRangeRuleTest extends TestCase
 
     public function testWakeupSetsTimezoneToNullWhenMissingInLegacySerializedData(): void
     {
-        $legacySerialized = "O:42:\"Shopware\\Core\\Framework\\Rule\\DateRangeRule\":5:{"
+        $legacySerialized = 'O:42:"Shopware\\Core\\Framework\\Rule\\DateRangeRule":5:{'
             . "s:13:\"\0*\0extensions\";a:0:{}"
             . "s:8:\"\0*\0_name\";s:9:\"dateRange\";"
             . "s:11:\"\0*\0fromDate\";O:8:\"DateTime\":3:{s:4:\"date\";s:26:\"2026-01-01 00:00:00.000000\";s:13:\"timezone_type\";i:3;s:8:\"timezone\";s:3:\"UTC\";}"

@@ -86,6 +86,20 @@ class OpenApiDefinitionSchemaBuilder
 
         $schema = [];
 
+        // For Store API (sales channel), only generate a flat Read schema without Update/Create
+        // Store API is read-only for entity resources, so Update/Create schemas are not needed
+        if ($forSalesChannel) {
+            return $this->buildStoreApiSchema(
+                $schemaName,
+                $fieldData['allAttributes'],
+                $fieldData['allRequiredAttributes'],
+                $fieldData['relationships'],
+                $definition->since(),
+                $onlyFlat,
+                $apiType
+            );
+        }
+
         // Generate Update schema (only modifiable fields - no immutable, no read-only, no required)
         $schema[$schemaName . 'Update'] = $this->buildUpdateSchema(
             $schemaName,
@@ -383,6 +397,61 @@ class OpenApiDefinitionSchemaBuilder
                 new Schema(['ref' => '#/components/schemas/' . $schemaName . 'Create']),
             ],
         ]);
+    }
+
+    /**
+     * Builds a flat schema for Store API (sales channel) without Update/Create separation.
+     * Store API is read-only for entity resources, so we don't need write operation schemas.
+     *
+     * @param Property[] $attributes All attributes
+     * @param string[] $requiredAttributes Required field names
+     * @param Property[] $relationships Relationship properties
+     *
+     * @return Schema[]
+     */
+    private function buildStoreApiSchema(
+        string $schemaName,
+        array $attributes,
+        array $requiredAttributes,
+        array $relationships,
+        ?string $since,
+        bool $onlyFlat,
+        string $apiType
+    ): array {
+        $schema = [];
+
+        // Add relationship properties to attributes
+        foreach ($relationships as $relationship) {
+            $attributes[] = $this->getRelationShipProperty($relationship);
+        }
+
+        // Build flat Read schema (original behavior before Update/Create split)
+        $schema[$schemaName] = new Schema([
+            'type' => 'object',
+            'schema' => $schemaName,
+            'properties' => $attributes,
+        ]);
+
+        if (!empty($since)) {
+            $schema[$schemaName]->description = 'Added since version: ' . $since;
+        }
+
+        if (\count($requiredAttributes)) {
+            $schema[$schemaName]->required = $requiredAttributes;
+        }
+
+        // Generate JsonApi schema for JSON:API format
+        if (!$onlyFlat && $apiType === DefinitionService::TYPE_JSON_API) {
+            $schema[$schemaName . 'JsonApi'] = $this->buildJsonApiSchema(
+                $schemaName,
+                $attributes,
+                $requiredAttributes,
+                $relationships,
+                $since
+            );
+        }
+
+        return $schema;
     }
 
     /**

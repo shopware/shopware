@@ -243,10 +243,5 @@ parameters:
             The query parts are implementation details and should not be relied upon\\.$#
         """
 
-        - # XML config format will be migrated step by step, so we ignore errors for now, see https://github.com/shopware/shopware/issues/13072
+        - # XML config fromat is deprecated and will be removed in symfony 8, however in 6.6 lane we will never upgrade to 8, therefore we stick with the xml config format
             message: '#deprecated class Symfony\\Component\\DependencyInjection\\Loader\\XmlFileLoader#'
-
-        # known issue with symfony 7.4 and older versions of phpstan symfony extension, but fixed version of extension needs a phpstan update
-        # https://github.com/phpstan/phpstan-symfony/releases/tag/2.0.9
-        - '#unknown class Symfony\\Component\\Config\\Definition\\Builder\\NodeBuilder\<Symfony\\Component\\Config\\Definition\\Builder\\ArrayNodeDefinition\>#'
-        - '#unknown class Symfony\\Component\\Config\\Definition\\Builder\\ArrayNodeDefinition\<Symfony\\Component\\Config\\Definition\\Builder\\ArrayNodeDefinition\>#'

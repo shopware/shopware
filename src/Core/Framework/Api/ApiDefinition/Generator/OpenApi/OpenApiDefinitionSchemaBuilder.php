@@ -388,10 +388,11 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         // Build the read-only and relationship properties object
-        $readOnlySchema = new Schema([
-            'type' => 'object',
-            'properties' => $inlineProperties,
-        ]);
+        $readOnlySchemaConfig = ['type' => 'object'];
+        if (!empty($inlineProperties)) {
+            $readOnlySchemaConfig['properties'] = $inlineProperties;
+        }
+        $readOnlySchema = new Schema($readOnlySchemaConfig);
 
         // Reference Create schema if it exists (entity has immutable fields), otherwise reference Update
         $writableSchemaRef = $hasImmutableFields
@@ -435,11 +436,17 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         // Build flat Read schema (original behavior before Update/Create split)
-        $schema[$schemaName] = new Schema([
+        $schemaConfig = [
             'type' => 'object',
             'schema' => $schemaName,
-            'properties' => $attributes,
-        ]);
+        ];
+
+        // Only add properties if not empty to avoid empty array serialization as []
+        if (!empty($attributes)) {
+            $schemaConfig['properties'] = $attributes;
+        }
+
+        $schema[$schemaName] = new Schema($schemaConfig);
 
         if (!empty($since)) {
             $schema[$schemaName]->description = 'Added since version: ' . $since;
@@ -478,12 +485,18 @@ class OpenApiDefinitionSchemaBuilder
             $description .= ' Added since version: ' . $since;
         }
 
-        $schema = new Schema([
+        $schemaConfig = [
             'type' => 'object',
             'schema' => $schemaName . 'Update',
             'description' => $description,
-            'properties' => $attributes,
-        ]);
+        ];
+
+        // Only add properties if not empty to avoid empty array serialization as []
+        if (!empty($attributes)) {
+            $schemaConfig['properties'] = $attributes;
+        }
+
+        $schema = new Schema($schemaConfig);
 
         // Include required fields - these apply when this schema is used for POST (no immutable fields)
         if (\count($requiredAttributes)) {
@@ -546,14 +559,16 @@ class OpenApiDefinitionSchemaBuilder
      */
     private function buildJsonApiSchema(string $schemaName, array $attributes, array $requiredAttributes, array $relationships, ?string $since): Schema
     {
+        $propertiesSchemaConfig = ['type' => 'object'];
+        if (!empty($attributes)) {
+            $propertiesSchemaConfig['properties'] = $attributes;
+        }
+
         $schema = new Schema([
             'schema' => $schemaName . 'JsonApi',
             'allOf' => [
                 new Schema(['ref' => '#/components/schemas/resource']),
-                new Schema([
-                    'type' => 'object',
-                    'properties' => $attributes,
-                ]),
+                new Schema($propertiesSchemaConfig),
             ],
         ]);
 
@@ -566,6 +581,10 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         if (\count($relationships)) {
+            // Initialize properties array if not set
+            if ($schema->allOf[1]->properties === \OpenApi\Generator::UNDEFINED) {
+                $schema->allOf[1]->properties = [];
+            }
             $schema->allOf[1]->properties[] = new Property([
                 'property' => 'relationships',
                 'type' => 'object',

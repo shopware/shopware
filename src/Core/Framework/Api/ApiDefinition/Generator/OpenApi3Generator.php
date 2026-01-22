@@ -140,13 +140,18 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel);
-            $schema = array_shift($schema);
-            if ($schema === null) {
+            $schemas = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel);
+            $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
+
+            // Get the Read schema (base entity name) which contains all properties and relationships
+            $readSchema = $schemas[$schemaName] ?? null;
+            if ($readSchema === null) {
                 throw new \RuntimeException('Invalid schema detected. Aborting');
             }
-            $schema = json_decode($schema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
-            $schema = $schema['allOf'][1]['properties'];
+            $readSchemaData = json_decode($readSchema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+            // Extract properties from allOf composition (new structure) or direct properties (legacy/store-api)
+            $schema = $this->extractPropertiesFromSchemaData($readSchemaData, $schemas);
 
             $relationships = [];
             if (\array_key_exists('relationships', $schema)) {
@@ -264,5 +269,52 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         }
 
         return false;
+    }
+
+    private function snakeCaseToCamelCase(string $input): string
+    {
+        return str_replace(' ', '', ucwords(str_replace('_', ' ', $input)));
+    }
+
+    /**
+     * Extracts properties from schema data, handling both allOf composition and direct properties
+     *
+     * @param array<string, mixed> $schemaData
+     * @param array<string, \OpenApi\Annotations\Schema> $allSchemas
+     *
+     * @return array<string, mixed>
+     */
+    private function extractPropertiesFromSchemaData(array $schemaData, array $allSchemas): array
+    {
+        // Direct properties (legacy/store-api structure)
+        if (isset($schemaData['properties'])) {
+            return $schemaData['properties'];
+        }
+
+        // allOf composition (new structure)
+        if (!isset($schemaData['allOf'])) {
+            return [];
+        }
+
+        $properties = [];
+
+        foreach ($schemaData['allOf'] as $item) {
+            // Inline properties
+            if (isset($item['properties'])) {
+                $properties = array_merge($properties, $item['properties']);
+            }
+
+            // Reference to another schema
+            if (isset($item['$ref'])) {
+                $refName = str_replace('#/components/schemas/', '', $item['$ref']);
+                if (isset($allSchemas[$refName])) {
+                    $refSchemaData = json_decode($allSchemas[$refName]->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+                    $refProperties = $this->extractPropertiesFromSchemaData($refSchemaData, $allSchemas);
+                    $properties = array_merge($properties, $refProperties);
+                }
+            }
+        }
+
+        return $properties;
     }
 }

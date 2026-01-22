@@ -226,7 +226,7 @@ export default {
                 })
                 .catch((e) => {
                     const options = {
-                        message: e?.message || 'Unknown error',
+                        message: e?.response?.data?.errors[0]?.detail || e?.message || 'Unknown error',
                     };
                     this.createNotificationError({
                         message: this.$tc('sw-settings-listing.general.messageSaveError', options),

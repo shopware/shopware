@@ -358,7 +358,8 @@ class SchemaBuilder
                 [
                     'onUpdate' => $update,
                     'onDelete' => $delete,
-                ]
+                ],
+                \substr(\sprintf('fk__%s__%s', $definition->getEntityName(), $field->getStorageName()), 0, 64)
             );
         }
     }

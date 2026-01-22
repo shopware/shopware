@@ -1777,6 +1777,80 @@ class EntityReaderTest extends TestCase
         static::assertCount(0, $category2->getProducts());
     }
 
+    public function testLoadManyToManyWithFilteringOutAllAssociatedEntities(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
+
+        $product1 = [
+            'id' => $id1,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => true,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $product2 = [
+            'id' => $id2,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $product3 = [
+            'id' => $id3,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $this->categoryRepository->upsert(
+            [
+                ['id' => $id1, 'name' => 'test', 'products' => [$product1, $product3]],
+                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]],
+            ],
+            $context
+        );
+
+        $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
+        static::assertCount(4, $mapping);
+
+        $criteria = new Criteria([$id1, $id2]);
+
+        $criteria->getAssociation('products')
+            ->addFilter(new EqualsFilter('product.name', 'foo'));
+
+        $categories = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        static::assertInstanceOf(CategoryEntity::class, $category1);
+        static::assertInstanceOf(ProductCollection::class, $category1->getProducts());
+        static::assertCount(0, $category1->getProducts());
+
+        static::assertInstanceOf(CategoryEntity::class, $category2);
+        static::assertInstanceOf(ProductCollection::class, $category2->getProducts());
+        static::assertCount(0, $category2->getProducts());
+    }
+
     public function testLoadManyToManySupportsSorting(): void
     {
         $id1 = Uuid::randomHex();

@@ -65,6 +65,10 @@ export default function createLoginService(
     const cookieStorage = cookieStorageFactory();
     let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
+    let refreshPromise: Promise<string> | null = null;
+    let refreshRetryCount = 0;
+    const MAX_REFRESH_RETRIES = 5;
+
     return {
         loginByUsername,
         verifyUserByUsername,
@@ -143,13 +147,17 @@ export default function createLoginService(
      * Sends an AJAX request to the authentication end point and retries to refresh the token.
      */
     function refreshToken(): Promise<AuthObject['access']> {
-        const token = getRefreshToken();
+        // No parallel requests
+        if (refreshPromise) {
+            return refreshPromise;
+        }
 
+        const token = getRefreshToken();
         if (!token || !token.length) {
             return Promise.reject(new Error('No refresh token found.'));
         }
 
-        return httpClient
+        refreshPromise = httpClient
             .post<TokenResponse>(
                 '/oauth/token',
                 {
@@ -175,12 +183,23 @@ export default function createLoginService(
                 return response.data.access_token;
             })
             .catch((error) => {
-                const currentExpiry = getBearerAuthentication('expiry');
-                if (typeof currentExpiry === 'number' && !Number.isNaN(currentExpiry)) {
-                    restartAutoTokenRefresh(currentExpiry);
+                refreshRetryCount++;
+
+                if (refreshRetryCount >= MAX_REFRESH_RETRIES) {
+                    refreshRetryCount = 0;
+                    logout(true);
+                } else {
+                    const backoffMs = Math.pow(2, refreshRetryCount) * 1000;
+                    restartAutoTokenRefresh(Date.now() + backoffMs);
                 }
+
                 return Promise.reject(error);
+            })
+            .finally(() => {
+                refreshPromise = null;
             });
+
+        return refreshPromise;
     }
 
     function verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {

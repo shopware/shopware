@@ -180,7 +180,7 @@ export default function createLoginService(
                     refresh: response.data.refresh_token,
                 });
 
-                refreshRetryCount = 0
+                refreshRetryCount = 0;
 
                 return response.data.access_token;
             })

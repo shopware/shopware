@@ -638,7 +638,6 @@ describe('core/service/login.service.js', () => {
             jest.useRealTimers();
         });
 
-       
         it('should synchronize token across tabs via cookie storage', () => {
             const { loginService } = loginServiceFactory();
             const { loginService: loginServiceTab2 } = loginServiceFactory();

@@ -242,3 +242,6 @@ parameters:
             #^Call to deprecated method getQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
             The query parts are implementation details and should not be relied upon\\.$#
         """
+
+        - # XML config format is deprecated and will be removed in Symfony 8, however in 6.6 lane we will never upgrade to 8, therefore we stick with the XML config format
+            message: '#deprecated class Symfony\\Component\\DependencyInjection\\Loader\\XmlFileLoader#'

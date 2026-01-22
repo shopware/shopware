@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -32,10 +33,9 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
     #[Route(path: '/store-api/product/{productId}/find-variant', name: 'store-api.product.find-variant', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
     {
-        /** @var string|null $switchedGroup */
-        $switchedGroup = $request->get('switchedGroup');
+        $switchedGroup = RequestParamHelper::get($request, 'switchedGroup');
 
-        $options = $request->get('options') ? $request->get('options', []) : [];
+        $options = RequestParamHelper::get($request, 'options', []);
 
         foreach ($options as $optionId) {
             if (!\is_string($optionId)) {

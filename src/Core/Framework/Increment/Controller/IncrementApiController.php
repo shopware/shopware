@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Increment\Controller;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Increment\IncrementException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -94,7 +95,7 @@ class IncrementApiController
 
     private function getCluster(Request $request): string
     {
-        $cluster = $request->get('cluster');
+        $cluster = RequestParamHelper::get($request, 'cluster');
 
         if ($cluster && \is_string($cluster)) {
             return $cluster;

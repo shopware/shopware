@@ -404,10 +404,21 @@ jobs:
           path: new-shopware/tests/acceptance/test-results/
           retention-days: 3
 
-      - name: Configure AWS credentials
-        if: >
-            github.repository_owner == 'shopware' &&
-            (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+      - name: Check if this run should attempt AWS operations
+        id: check-aws-allowed
+        if: ${{ github.repository_owner == 'shopware' &&
+              (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        shell: bash
+        run: |
+              if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
+                echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+                echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
+              else
+                echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+              fi
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
            aws-region: eu-central-1

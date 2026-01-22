@@ -7,6 +7,14 @@ on:
     inputs:
       nightly:
         default: ""
+      s3-bucket:
+        required: false
+        default: "shopware-ci-playwright-traces"
+        description: "S3 bucket name"
+      report-prefix:
+        required: false
+        default: "playwright-reports"
+        description: "S3 prefix for reports"
   workflow_call:
     inputs:
       nightly:
@@ -400,15 +408,15 @@ jobs:
         if: >
            github.repository_owner == 'shopware' &&
             (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-            && inputs.playwright-role-arn != ''
+            && secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN != ''
         uses: aws-actions/configure-aws-credentials@v4
         with:
            aws-region: eu-central-1
            role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
-           role-to-assume: ${{ inputs.playwright-role-arn }}
+           role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
 
       - name: Upload Playwright HTML report to S3
-        working-directory: ${{ inputs.directory }}
+        working-directory: new-shopware/tests/acceptance
         if: always()
         shell: bash
         run: |
@@ -432,7 +440,7 @@ jobs:
         shell: bash
         run: |
             set -euo pipefail
-            DOMAIN="${{ inputs.playwright-traces-domain }}"
+            DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
             URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
             echo "${URL}"
 

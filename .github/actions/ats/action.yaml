@@ -218,7 +218,7 @@ runs:
 
         - name: Upload Playwright HTML report to S3
           working-directory: ${{ inputs.directory }}
-          if: always()
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
           shell: bash
           run: |
                 set -euo pipefail
@@ -237,7 +237,7 @@ runs:
                 echo "Uploaded to s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/"
 
         - name: Publish S3 Static Website URL
-          if: always()
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
           shell: bash
           run: |
                 set -euo pipefail

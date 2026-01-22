@@ -243,5 +243,5 @@ parameters:
             The query parts are implementation details and should not be relied upon\\.$#
         """
 
-        - # XML config fromat is deprecated and will be removed in symfony 8, however in 6.6 lane we will never upgrade to 8, therefore we stick with the xml config format
+        - # XML config format is deprecated and will be removed in Symfony 8, however in 6.6 lane we will never upgrade to 8, therefore we stick with the XML config format
             message: '#deprecated class Symfony\\Component\\DependencyInjection\\Loader\\XmlFileLoader#'

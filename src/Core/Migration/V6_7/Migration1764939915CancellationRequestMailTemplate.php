@@ -68,7 +68,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
     public const MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER = [
         'en_subject' => 'Cancellation request sent',
         'de_subject' => 'Wiederrufsantrag gesendet',
-        'en_description' => 'Confirmation of receipt of customers cancellation request',
+        'en_description' => 'Confirmation receipt of customers cancellation request',
         'de_description' => 'Empfangsbestätigung für Wiederrufsantrag des Kunden',
     ];
 

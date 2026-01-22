@@ -185,13 +185,13 @@ export default function createLoginService(
                 return response.data.access_token;
             })
             .catch((error) => {
-                refreshRetryCount+=1;
+                refreshRetryCount += 1;
 
                 if (refreshRetryCount >= MAX_REFRESH_RETRIES) {
                     refreshRetryCount = 0;
                     logout(true);
                 } else {
-                    const backoffMs = (2 ** refreshRetryCount) * 1000;
+                    const backoffMs = 2 ** refreshRetryCount * 1000;
                     restartAutoTokenRefresh(Date.now() + backoffMs);
                 }
 

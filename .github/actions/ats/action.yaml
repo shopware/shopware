@@ -207,6 +207,7 @@ runs:
 
 
         - name: Upload Playwright HTML report to S3
+          working-directory: ${{ inputs.directory }}
           if: always()
           shell: bash
           run: |

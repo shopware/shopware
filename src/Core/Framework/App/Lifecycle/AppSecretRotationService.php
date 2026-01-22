@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -72,6 +73,8 @@ class AppSecretRotationService
         $app = $this->loadApp($appId, $context);
 
         $currentIntegrationId = $app->getIntegrationId();
+        $currentIntegration = $app->getIntegration();
+        \assert($currentIntegration !== null);
 
         $manifest = $this->resolveManifest($app);
 
@@ -84,16 +87,20 @@ class AppSecretRotationService
         // Generate new access key and secret
         $newAccessKey = AccessKeyHelper::generateAccessKey('integration');
         $newSecret = AccessKeyHelper::generateSecretAccessKey();
+        $newIntegrationId = Uuid::randomHex();
+
+        $integrationUpdated = false;
 
         try {
-            $this->registrationService->registerApp($manifest, $appId, $newSecret, $context);
-            // Commit the new integration to the app and schedule deletion of the old one to allow in-flight requests to complete.
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $newAccessKey, $newSecret, $currentIntegrationId): void {
+            // Rotate the integration before, so that we minimize the changes inside the registration call.
+            // This still works because the old integration is still valid until a scheduled cleanup deletes it.
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $currentIntegration, $newAccessKey, $newSecret, $newIntegrationId, $currentIntegrationId): void {
                 $this->appRepository->update([
                     [
                         'id' => $app->getId(),
                         'integration' => [
-                            'label' => $app->getIntegration()?->getLabel() ?? '',
+                            'id' => $newIntegrationId,
+                            'label' => $currentIntegration->getLabel(),
                             'accessKey' => $newAccessKey,
                             'secretAccessKey' => $newSecret,
                         ],
@@ -105,6 +112,9 @@ class AppSecretRotationService
                     'deletedAt' => new \DateTimeImmutable(),
                 ]], $context);
             });
+            $integrationUpdated = true;
+
+            $this->registrationService->registerApp($manifest, $appId, $newSecret, $context);
 
             $this->logger->info('App secret rotation completed', [
                 'appId' => $app->getId(),
@@ -112,6 +122,26 @@ class AppSecretRotationService
                 'trigger' => $trigger,
             ]);
         } catch (\Throwable $exception) {
+            if ($integrationUpdated) {
+                $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $currentIntegrationId, $newIntegrationId): void {
+                    $this->appRepository->update([[
+                        'id' => $app->getId(),
+                        'integrationId' => $currentIntegrationId,
+                    ]], $context);
+
+                    $this->integrationRepository->update([
+                        [
+                            'id' => $currentIntegrationId,
+                            'deletedAt' => null,
+                        ],
+                        [
+                            'id' => $newIntegrationId,
+                            'deletedAt' => new \DateTimeImmutable(),
+                        ],
+                    ], $context);
+                });
+            }
+
             $this->logger->error('App secret rotation failed', [
                 'appId' => $app->getId(),
                 'appName' => $app->getName(),

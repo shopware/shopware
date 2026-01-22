@@ -396,6 +396,50 @@ jobs:
           path: new-shopware/tests/acceptance/test-results/
           retention-days: 3
 
+      - name: Configure AWS credentials
+        if: >
+           github.repository_owner == 'shopware' &&
+            (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+            && inputs.playwright-role-arn != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+           aws-region: eu-central-1
+           role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+           role-to-assume: ${{ inputs.playwright-role-arn }}
+
+      - name: Upload Playwright HTML report to S3
+        working-directory: ${{ inputs.directory }}
+        if: always()
+        shell: bash
+        run: |
+            set -euo pipefail
+            RANDOM_STR=$(openssl rand -hex 6)
+
+            # build the destination prefix and export it for subsequent steps
+            REPORT_DEST="${{ inputs.report-prefix }}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+            echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
+
+            if [ ! -f "playwright-report/index.html" ]; then
+            echo "No Playwright report found, skipping upload."
+            exit 0
+            fi
+
+            aws s3 cp "playwright-report" "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/" --recursive
+            echo "Uploaded to s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/"
+
+      - name: Publish S3 Static Website URL
+        if: always()
+        shell: bash
+        run: |
+            set -euo pipefail
+            DOMAIN="${{ inputs.playwright-traces-domain }}"
+            URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+            echo "${URL}"
+
+            echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
+
   blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
     runs-on: ubuntu-24.04

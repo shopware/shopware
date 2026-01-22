@@ -194,17 +194,16 @@ runs:
               retention-days: 3
           continue-on-error: true
 
-        -   name: Configure AWS credentials
-            if: >
-                github.repository_owner == 'shopware' &&
-                (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) &&
-                inputs.playwright-role-arn != ''
-            uses: aws-actions/configure-aws-credentials@v4
-            with:
-                aws-region: eu-central-1
-                role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
-                role-to-assume: ${{ inputs.playwright-role-arn }}
-
+        - name: Configure AWS credentials
+          if: >
+            github.repository_owner == 'shopware' &&
+            (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) &&
+            inputs.playwright-role-arn != ''
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-region: eu-central-1
+            role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+            role-to-assume: ${{ inputs.playwright-role-arn }}
 
         - name: Upload Playwright HTML report to S3
           working-directory: ${{ inputs.directory }}

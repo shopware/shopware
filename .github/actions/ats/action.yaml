@@ -233,6 +233,7 @@ runs:
                 set -euo pipefail
                 DOMAIN="${{ inputs.playwright-traces-domain }}"
                 URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+                echo "${URL}"
 
                 echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
                 echo "" >> "$GITHUB_STEP_SUMMARY"

@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
+use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
@@ -24,6 +26,8 @@ class RoutingException extends HttpException
     public const ACCESS_DENIED_FOR_XML_HTTP_REQUEST = 'FRAMEWORK__ACCESS_DENIED_FOR_XML_HTTP_REQUEST';
     public const CURRENCY_NOT_FOUND = 'FRAMEWORK__ROUTING_CURRENCY_NOT_FOUND';
     public const MISSING_PRIVILEGE = 'FRAMEWORK__ROUTING_MISSING_PRIVILEGE';
+    public const INVALID_ROUTE_SCOPE = 'FRAMEWORK__ROUTING_INVALID_ROUTE_SCOPE';
+    public const MISSING_MAIN_REQUEST = 'FRAMEWORK__MAIN_REQUEST_MISSING';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -119,5 +123,26 @@ class RoutingException extends HttpException
     public static function unexpectedType(mixed $actualType, string $expectedType): UnexpectedTypeException
     {
         return new UnexpectedTypeException($actualType, $expectedType);
+    }
+
+    public static function invalidRouteScope(?string $routeName): self
+    {
+        return new InvalidRouteScopeException($routeName);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return self in the future
+     */
+    public static function missingMainRequest(): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \InvalidArgumentException('Unable to check the request scope without main request.');
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_MAIN_REQUEST,
+            'Unable to check the request scope without main request.'
+        );
     }
 }

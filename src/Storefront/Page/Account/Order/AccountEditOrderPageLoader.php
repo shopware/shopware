@@ -62,7 +62,7 @@ class AccountEditOrderPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountEditOrderPage
     {
-        if (!$salesChannelContext->getCustomer() && $request->get('deepLinkCode', false) === false) {
+        if (!$salesChannelContext->getCustomer() && !$request->query->getBoolean('deepLinkCode')) {
             throw CartException::customerNotLoggedIn();
         }
 
@@ -87,7 +87,7 @@ class AccountEditOrderPageLoader
         $page->setOrder($order);
         $page->setPaymentChangeable($this->isPaymentChangeable($orderRouteResponse, $page));
         $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext, $request, $order));
-        $page->setDeepLinkCode($request->get('deepLinkCode'));
+        $page->setDeepLinkCode($request->query->get('deepLinkCode'));
 
         $this->eventDispatcher->dispatch(
             new AccountEditOrderPageLoadedEvent($page, $salesChannelContext, $request)
@@ -123,8 +123,8 @@ class AccountEditOrderPageLoader
 
     private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        if ($request->get('orderId')) {
-            $criteria = new Criteria([$request->get('orderId')]);
+        if ($request->query->get('orderId')) {
+            $criteria = new Criteria([$request->query->get('orderId')]);
         } else {
             $criteria = new Criteria();
         }
@@ -155,8 +155,8 @@ class AccountEditOrderPageLoader
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomerId()));
-        } elseif ($request->get('deepLinkCode')) {
-            $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));
+        } elseif ($request->query->get('deepLinkCode')) {
+            $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->query->get('deepLinkCode')));
         } else {
             throw CartException::customerNotLoggedIn();
         }

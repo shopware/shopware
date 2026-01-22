@@ -48,7 +48,7 @@ class ProductReviewLoaderTest extends TestCase
     {
         $reviewId = Uuid::randomHex();
         $productId = Uuid::randomHex();
-        $request = new Request([], [], ['productId' => $productId]);
+        $request = new Request();
         $salesChannelContext = $this->getSalesChannelContext(false);
 
         $review = $this->getReviewEntity($reviewId);
@@ -80,7 +80,7 @@ class ProductReviewLoaderTest extends TestCase
     {
         $reviewId = Uuid::randomHex();
         $productId = Uuid::randomHex();
-        $request = new Request([], [], ['productId' => $productId, 'p' => 2]);
+        $request = new Request(['p' => 2]);
         $salesChannelContext = $this->getSalesChannelContext(false);
 
         $review = $this->getReviewEntity($reviewId);
@@ -117,7 +117,7 @@ class ProductReviewLoaderTest extends TestCase
     {
         $reviewId = Uuid::randomHex();
         $productId = Uuid::randomHex();
-        $request = new Request([], [], ['productId' => $productId, 'p' => -2]);
+        $request = new Request(['p' => -2]);
         $salesChannelContext = $this->getSalesChannelContext(false);
 
         $review = $this->getReviewEntity($reviewId);
@@ -153,7 +153,7 @@ class ProductReviewLoaderTest extends TestCase
     {
         $reviewId = Uuid::randomHex();
         $productId = Uuid::randomHex();
-        $request = new Request([], [], ['productId' => $productId, 'parentId' => $productId, 'sort' => 'points', 'language' => 'filter-language']);
+        $request = new Request(['sort' => 'points', 'language' => 'filter-language']);
         $salesChannelContext = $this->getSalesChannelContext();
 
         $review = $this->getReviewEntity($reviewId);
@@ -186,7 +186,7 @@ class ProductReviewLoaderTest extends TestCase
     {
         $reviewId = Uuid::randomHex();
         $productId = Uuid::randomHex();
-        $request = new Request([], [], ['productId' => $productId, 'points' => ['4', 'gg']]);
+        $request = new Request(['points' => ['4', 'gg']]);
         $salesChannelContext = $this->getSalesChannelContext();
 
         $review = $this->getReviewEntity($reviewId);
@@ -279,8 +279,8 @@ class ProductReviewLoaderTest extends TestCase
 
     private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        $limit = (int) $request->get('limit', $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId()));
-        $page = (int) $request->get('p', 1);
+        $limit = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId());
+        $page = $request->query->getInt('p', 1);
         $offset = max(0, $limit * ($page - 1));
 
         $criteria = new Criteria();
@@ -289,13 +289,13 @@ class ProductReviewLoaderTest extends TestCase
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $sorting = new FieldSorting('createdAt', 'DESC');
-        if ($request->get('sort', 'createdAt') === 'points') {
+        if ($request->query->get('sort', 'createdAt') === 'points') {
             $sorting = new FieldSorting('points', 'DESC');
         }
 
         $criteria->addSorting($sorting);
 
-        if ($request->get('language') === 'filter-language') {
+        if ($request->query->get('language') === 'filter-language') {
             $criteria->addPostFilter(
                 new EqualsFilter('languageId', $context->getLanguageId())
             );

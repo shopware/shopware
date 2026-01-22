@@ -766,6 +766,86 @@ class SendMailActionTest extends TestCase
         }
     }
 
+    public function testMailAttachmentsRemainForMultipleMailActionsWhenProvidedViaContextExtension(): void
+    {
+        $context = Context::createDefaultContext();
+        $customerId = $this->createCustomer($context);
+        $orderId = $this->createOrder($customerId, $context);
+
+        $documentIdOne = $this->createDocumentWithFile($orderId, $context);
+        $documentIdTwo = $this->createDocumentWithFile($orderId, $context);
+
+        $mailTemplateId = $this->retrieveMailTemplateId();
+
+        $context->addExtension(
+            SendMailAction::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(false, [$documentIdOne, $documentIdTwo], [])
+        );
+
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+
+        $transportDecorator = new MailerTransportDecorator(
+            $this->createMock(TransportInterface::class),
+            static::getContainer()->get(MailAttachmentsBuilder::class),
+            static::getContainer()->get('shopware.filesystem.public'),
+            $this->documentRepository
+        );
+
+        $mailService = new TestEmailService(static::getContainer()->get(MailFactory::class), $transportDecorator);
+
+        $sendMailAction = new SendMailAction(
+            $mailService,
+            $this->mailTemplateRepository,
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get(Translator::class),
+            $this->connection,
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            true
+        );
+
+        $flow->setConfig([
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => [
+                'type' => 'custom',
+                'data' => [
+                    'first@test.com' => 'first recipient',
+                ],
+            ],
+        ]);
+
+        $sendMailAction->handleFlow($flow);
+
+        static::assertInstanceOf(Email::class, $mailService->mail);
+        static::assertCount(2, $mailService->mail->getAttachments());
+
+        $extension = $context->getExtension(SendMailAction::MAIL_CONFIG_EXTENSION);
+        static::assertInstanceOf(MailSendSubscriberConfig::class, $extension);
+        static::assertCount(2, $extension->getDocumentIds());
+
+        $flow->setConfig([
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => [
+                'type' => 'custom',
+                'data' => [
+                    'second@test.com' => 'second recipient',
+                ],
+            ],
+        ]);
+
+        $sendMailAction->handleFlow($flow);
+
+        static::assertCount(2, $mailService->mail->getAttachments());
+    }
+
     private function createCustomer(Context $context): string
     {
         $customerId = Uuid::randomHex();

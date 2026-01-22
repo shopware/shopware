@@ -55,6 +55,7 @@ class AclAnnotationValidator implements EventSubscriberInterface
         }
 
         foreach ($privileges as $privilege) {
+            /** special acl annotation for @see \Shopware\Core\Framework\App\Api\AppActionController::runAction */
             if ($privilege === 'app') {
                 if ($context->isAllowed('app.all')) {
                     return;
@@ -71,7 +72,8 @@ class AclAnnotationValidator implements EventSubscriberInterface
 
     private function getAppPrivilege(Request $request): string
     {
-        $actionId = $request->get('id');
+        /** special case for @see \Shopware\Core\Framework\App\Api\AppActionController::runAction */
+        $actionId = $request->attributes->get('id');
 
         if (empty($actionId)) {
             throw ApiException::appIdParameterIsMissing();

@@ -223,7 +223,7 @@ runs:
                 exit 0
                 fi
 
-                aws s3 sync "playwright-report" "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/" --delete
+                aws s3 cp "playwright-report" "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/" --recursive
                 echo "Uploaded to s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/"
 
         - name: Publish S3 Static Website URL

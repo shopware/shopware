@@ -1,6 +1,6 @@
 <div style="font-family: arial; font-size: 12px;">
     <p>
-        Wir haben Ihren Wiederrufsantrag für den Vertrag mit der Nummer {{ contractNumber }} erhalten.
+        Wir haben Ihren Wiederrufsantrag für den Vertrag mit der Nummer {{ cancellationFormData.contractNumber }}  erhalten.
     </p>
     <p>
         Weitere Informationen:
@@ -11,7 +11,7 @@
         <br/>
         E-Mail-Adresse: {{ cancellationFormData.email }}
         <br/>
-        Vertragsnummer (Bestellnummer, Abonnementnummer, ...): {{ contractNumber }}
+        Vertragsnummer (Bestellnummer, Abonnementnummer, ...): {{ cancellationFormData.contractNumber }}
         <br/>
         Kommentar:<br/>
         {{ cancellationFormData.comment }}

@@ -1,10 +1,10 @@
-We have received your cancellation request for the contract with the number {{ contractNumber }}
+We have received your cancellation request for the contract with the number {{ cancellationFormData.contractNumber }}
 
 Further information:
 First name: {{ cancellationFormData.firstName }}
 Last name: {{ cancellationFormData.lastName }}
 Email address: {{ cancellationFormData.email }}
-Contract number (order number, subscription number, ...): {{ contractNumber }}
+Contract number (order number, subscription number, ...): {{ cancellationFormData.contractNumber }}
 Comment: {{ cancellationFormData.comment }}
 
 The form was submitted at {{ cancellationFormData.submitTime|format_datetime('medium', 'short', locale='en-GB') }}

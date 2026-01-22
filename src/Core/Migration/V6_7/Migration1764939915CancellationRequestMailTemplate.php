@@ -20,23 +20,56 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
     public const MERCHANT_DIRECTORY = 'cancellation_request.merchant';
     public const CUSTOMER_DIRECTORY = 'cancellation_request.customer';
 
-    public const MAIL_TEMPLATE_TYPE_TRANSLATIONS = [
-        'en_name' => 'Cancellation request',
-        'de_name' => 'Widerrufsantrag',
+    /**
+     * @var array{
+     *     en_name: string,
+     *     de_name: string,
+     * }
+     */
+    public const MAIL_TEMPLATE_TYPE_MERCHANT_TRANSLATIONS = [
+        'en_name' => 'Cancellation request received',
+        'de_name' => 'Wiederrufsantrag erhalten',
     ];
 
+    /**
+     * @var array{
+     *     en_name: string,
+     *     de_name: string,
+     * }
+     */
+    public const MAIL_TEMPLATE_TYPE_CUSTOMER_TRANSLATIONS = [
+        'en_name' => 'Cancellation request requested',
+        'de_name' => 'Wiederrufsantrag gestellt',
+    ];
+
+    /**
+     * @var array{
+     *     en_subject: string,
+     *     de_subject: string,
+     *     en_description: string,
+     *     de_description: string
+     * }
+     */
     public const MAIL_TEMPLATE_TRANSLATIONS_MERCHANT = [
         'en_subject' => 'Cancellation request received',
-        'de_subject' => 'Widerrufsantrag erhalten',
+        'de_subject' => 'Wiederrufsantrag erhalten',
         'en_description' => 'Received cancellation request from customer',
-        'de_description' => 'Widerrufsantrag von Kunden erhalten',
+        'de_description' => 'Wiederrufsantrag von Kunden erhalten',
     ];
 
+    /**
+     * @var array{
+     *     en_subject: string,
+     *     de_subject: string,
+     *     en_description: string,
+     *     de_description: string
+     * }
+     */
     public const MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER = [
         'en_subject' => 'Cancellation request sent',
-        'de_subject' => 'Kündigungsantrag gesendet',
-        'en_description' => 'Cancellation request sent',
-        'de_description' => 'Kündigungsantrag gesendet',
+        'de_subject' => 'Wiederrufsantrag gesendet',
+        'en_description' => 'Confirmation of receipt of customers cancellation request',
+        'de_description' => 'Empfangsbestätigung für Wiederrufsantrag des Kunden',
     ];
 
     public function getCreationTimestamp(): int
@@ -49,19 +82,53 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
         $enLanguageByteId = $this->getLanguageIdByLocale($connection, 'en-GB');
         $deLanguageByteId = $this->getLanguageIdByLocale($connection, 'de-DE');
 
-        $mailTemplateTypeByteId = $this->createMailTemplateType($connection, $enLanguageByteId, $deLanguageByteId);
-        $this->createMailTemplateMerchant($connection, $mailTemplateTypeByteId, $enLanguageByteId, $deLanguageByteId);
-        $this->createMailTemplateCustomer($connection, $mailTemplateTypeByteId, $enLanguageByteId, $deLanguageByteId);
+        $merchantMailTemplateTypeByteId = $this->createMailTemplateType(
+            $connection,
+            self::MAIL_TEMPLATE_TYPE_MERCHANT_TRANSLATIONS,
+            MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT,
+            $enLanguageByteId,
+            $deLanguageByteId
+        );
+        $merchantMailStruct = $this->createMailStruct(self::MERCHANT_DIRECTORY);
+        $this->createMailTemplate(
+            $connection,
+            $merchantMailTemplateTypeByteId,
+            self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT,
+            $merchantMailStruct,
+            $enLanguageByteId,
+            $deLanguageByteId
+        );
+
+        $customerMailTemplateTypeByteId = $this->createMailTemplateType(
+            $connection,
+            self::MAIL_TEMPLATE_TYPE_CUSTOMER_TRANSLATIONS,
+            MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_CUSTOMER,
+            $enLanguageByteId,
+            $deLanguageByteId
+        );
+        $customerMailStruct = $this->createMailStruct(self::CUSTOMER_DIRECTORY);
+        $this->createMailTemplate(
+            $connection,
+            $customerMailTemplateTypeByteId,
+            self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER,
+            $customerMailStruct,
+            $enLanguageByteId,
+            $deLanguageByteId
+        );
     }
 
-    private function createMailTemplateMerchant(
+    /**
+     * @param array{en_subject: string, de_subject: string, en_description: string, de_description: string} $translations
+     */
+    private function createMailTemplate(
         Connection $connection,
         string $mailTemplateTypeByteId,
+        array $translations,
+        MailStruct $mailStruct,
         ?string $enLanguageByteId,
         ?string $deLanguageByteId
     ): void {
         $hasMailTemplate = true;
-        $mailStruct = $this->createMailStruct(self::MERCHANT_DIRECTORY);
         $mailTemplateByteId = $this->getMailTemplateId($connection, $mailTemplateTypeByteId);
         if (empty($mailTemplateByteId)) {
             $mailTemplateByteId = Uuid::randomBytes();
@@ -87,8 +154,8 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
                     'mail_template_id' => $mailTemplateByteId,
                     'language_id' => $enLanguageByteId,
                     'sender_name' => '{{ salesChannel.name }}',
-                    'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['en_subject'],
-                    'description' => self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['en_description'],
+                    'subject' => $translations['en_subject'],
+                    'description' => $translations['en_description'],
                     'content_html' => $mailStruct->getEnHtml(),
                     'content_plain' => $mailStruct->getEnPlain(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -103,67 +170,8 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
                     'mail_template_id' => $mailTemplateByteId,
                     'language_id' => $deLanguageByteId,
                     'sender_name' => '{{ salesChannel.name }}',
-                    'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['de_subject'],
-                    'description' => self::MAIL_TEMPLATE_TRANSLATIONS_MERCHANT['de_description'],
-                    'content_html' => $mailStruct->getDeHtml(),
-                    'content_plain' => $mailStruct->getDePlain(),
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]
-            );
-        }
-    }
-
-    private function createMailTemplateCustomer(
-        Connection $connection,
-        string $mailTemplateType_bytesId,
-        ?string $enLanguageByteId,
-        ?string $deLanguageByteId
-    ): void {
-        $hasMailTemplate = true;
-        $mailStruct = $this->createMailStruct(self::CUSTOMER_DIRECTORY);
-        $mailTemplateByteId = $this->getMailTemplateId($connection, self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['en_subject']);
-        if (empty($mailTemplateByteId)) {
-            $mailTemplateByteId = Uuid::randomBytes();
-            $hasMailTemplate = false;
-        }
-
-        if (!$hasMailTemplate) {
-            $connection->insert(
-                'mail_template',
-                [
-                    'id' => $mailTemplateByteId,
-                    'mail_template_type_id' => $mailTemplateType_bytesId,
-                    'system_default' => 1,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]
-            );
-        }
-
-        if (\is_string($enLanguageByteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $enLanguageByteId)) {
-            $connection->insert(
-                'mail_template_translation',
-                [
-                    'mail_template_id' => $mailTemplateByteId,
-                    'language_id' => $enLanguageByteId,
-                    'sender_name' => '{{ salesChannel.name }}',
-                    'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['en_subject'],
-                    'description' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['en_description'],
-                    'content_html' => $mailStruct->getEnHtml(),
-                    'content_plain' => $mailStruct->getEnPlain(),
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]
-            );
-        }
-
-        if (\is_string($deLanguageByteId) && !$this->hasMailTemplateTranslation($connection, $mailTemplateByteId, $deLanguageByteId)) {
-            $connection->insert(
-                'mail_template_translation',
-                [
-                    'mail_template_id' => $mailTemplateByteId,
-                    'language_id' => $deLanguageByteId,
-                    'sender_name' => '{{ salesChannel.name }}',
-                    'subject' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['de_subject'],
-                    'description' => self::MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER['de_description'],
+                    'subject' => $translations['de_subject'],
+                    'description' => $translations['de_description'],
                     'content_html' => $mailStruct->getDeHtml(),
                     'content_plain' => $mailStruct->getDePlain(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -185,10 +193,18 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
         return $mailStruct;
     }
 
-    private function createMailTemplateType(Connection $connection, ?string $enLanguageByteId, ?string $deLanguageByteId): string
-    {
+    /**
+     * @param array{en_name: string, de_name: string} $translations
+     */
+    private function createMailTemplateType(
+        Connection $connection,
+        array $translations,
+        string $mailTemplateTypeTechnicalName,
+        ?string $enLanguageByteId,
+        ?string $deLanguageByteId
+    ): string {
         $hasMailTemplateType = true;
-        $mailTemplateTypeByteId = $this->getMailTemplateTypeId($connection);
+        $mailTemplateTypeByteId = $this->getMailTemplateTypeId($connection, $mailTemplateTypeTechnicalName);
         if (empty($mailTemplateTypeByteId)) {
             $mailTemplateTypeByteId = Uuid::randomBytes();
             $hasMailTemplateType = false;
@@ -199,7 +215,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
                 'mail_template_type',
                 [
                     'id' => $mailTemplateTypeByteId,
-                    'technical_name' => MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT,
+                    'technical_name' => $mailTemplateTypeTechnicalName,
                     'available_entities' => '[]',
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
@@ -211,7 +227,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
                 'mail_template_type_translation',
                 [
                     'mail_template_type_id' => $mailTemplateTypeByteId,
-                    'name' => self::MAIL_TEMPLATE_TYPE_TRANSLATIONS['en_name'],
+                    'name' => $translations['en_name'],
                     'language_id' => $enLanguageByteId,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
@@ -223,7 +239,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
                 'mail_template_type_translation',
                 [
                     'mail_template_type_id' => $mailTemplateTypeByteId,
-                    'name' => self::MAIL_TEMPLATE_TYPE_TRANSLATIONS['de_name'],
+                    'name' => $translations['de_name'],
                     'language_id' => $deLanguageByteId,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
@@ -254,11 +270,11 @@ SQL;
         return $languageId;
     }
 
-    private function getMailTemplateTypeId(Connection $connection): ?string
+    private function getMailTemplateTypeId(Connection $connection, string $technicalName): ?string
     {
         $result = $connection->fetchOne(
             'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
-            ['technicalName' => MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT]
+            ['technicalName' => $technicalName]
         );
 
         if ($result === false) {

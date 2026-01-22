@@ -7,14 +7,6 @@ on:
     inputs:
       nightly:
         default: ""
-      s3-bucket:
-        required: false
-        default: "shopware-ci-playwright-traces"
-        description: "S3 bucket name"
-      report-prefix:
-        required: false
-        default: "playwright-reports"
-        description: "S3 prefix for reports"
   workflow_call:
     inputs:
       nightly:
@@ -31,6 +23,9 @@ jobs:
     permissions:
         id-token: write
         contents: read
+    env:
+        S3_BUCKET: shopware-ci-playwright-traces
+        REPORT_PREFIX: playwright-reports
     strategy:
       fail-fast: false
       matrix:
@@ -434,7 +429,7 @@ jobs:
             RANDOM_STR=$(openssl rand -hex 6)
 
             # build the destination prefix and export it for subsequent steps
-            REPORT_DEST="${{ inputs.report-prefix }}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+            REPORT_DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
             echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
 
             if [ ! -f "playwright-report/index.html" ]; then
@@ -442,8 +437,8 @@ jobs:
             exit 0
             fi
 
-            aws s3 cp "playwright-report" "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/" --recursive
-            echo "Uploaded to s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/"
+            aws s3 cp "playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
+            echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
 
       - name: Publish S3 Static Website URL
         if: always()

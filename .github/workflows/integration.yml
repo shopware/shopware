@@ -418,7 +418,7 @@ jobs:
 
       - name: Upload Playwright HTML report to S3
         working-directory: new-shopware/tests/acceptance
-        if: always()
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
         shell: bash
         run: |
             set -euo pipefail
@@ -437,7 +437,7 @@ jobs:
             echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
 
       - name: Publish S3 Static Website URL
-        if: always()
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
         shell: bash
         run: |
             set -euo pipefail

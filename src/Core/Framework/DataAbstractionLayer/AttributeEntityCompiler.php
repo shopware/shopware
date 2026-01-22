@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Protection;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required as RequiredAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReverseInherited as ReverseInheritedAttr;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\SearchRanking as SearchRankingAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
@@ -47,6 +48,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -365,6 +367,11 @@ class AttributeEntityCompiler
             if ($flags['cascade'] === null) {
                 unset($flags['cascade']);
             }
+        }
+
+        if ($searchRanking = $this->getAttribute($property, SearchRankingAttr::class)) {
+            $instance = $searchRanking->newInstance();
+            $flags[SearchRanking::class] = ['class' => SearchRanking::class, 'args' => ['ranking' => $instance->ranking, 'tokenize' => $instance->tokenize]];
         }
 
         if ($field->type === AutoIncrement::TYPE) {

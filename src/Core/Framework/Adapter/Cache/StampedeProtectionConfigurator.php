@@ -19,12 +19,17 @@ use Symfony\Component\Cache\LockRegistry;
  * See https://github.com/shopware/shopware/issues/12823#issuecomment-3677936635
  *
  * @internal
+ *
+ * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\StampedeProtectionConfiguratorTest
  */
 #[Package('framework')]
 readonly class StampedeProtectionConfigurator
 {
     public function __construct(
         private bool $disableStampedeProtection,
+        /**
+         * Needed for testing with different session handlers independently of php configuration.
+         */
         private ?string $sessionSaveHandler = null
     ) {
     }

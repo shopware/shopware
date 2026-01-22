@@ -406,9 +406,9 @@ jobs:
 
       - name: Configure AWS credentials
         if: >
-           github.repository_owner == 'shopware' &&
-            (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-            && secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN != ''
+            ${{ github.repository_owner == 'shopware' &&
+            (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) &&
+             secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN != '' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
            aws-region: eu-central-1

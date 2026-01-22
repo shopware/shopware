@@ -34,6 +34,12 @@ trait ItemsIteratorTrait
             };
         }
 
+        /**
+         * We need to force the type here, as `ContainerFacade` extends `ItemFacade`, so `ItemFacade|ContainerFacade` is normalized to `ItemFacade`.
+         * See https://github.com/phpstan/phpstan/discussions/12727
+         *
+         * @var \ArrayIterator<array-key, ItemFacade>
+         */
         return new \ArrayIterator($items);
     }
 

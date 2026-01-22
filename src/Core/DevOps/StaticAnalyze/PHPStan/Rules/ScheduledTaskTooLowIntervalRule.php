@@ -46,7 +46,7 @@ class ScheduledTaskTooLowIntervalRule implements Rule
 
         $class = $scope->getClassReflection();
 
-        if ($class === null || !$class->isSubclassOf(ScheduledTask::class) || $class->hasMethod('shouldRun')) {
+        if ($class === null || !$class->is(ScheduledTask::class) || $class->hasMethod('shouldRun')) {
             return [];
         }
 
@@ -56,7 +56,7 @@ class ScheduledTaskTooLowIntervalRule implements Rule
 
         foreach ($node->stmts ?? [] as $stmt) {
             if ($stmt instanceof Return_ && $stmt->expr instanceof LNumber) {
-                $interval = (int) $stmt->expr->value;
+                $interval = $stmt->expr->value;
 
                 if ($interval < self::MIN_SCHEDULED_TASK_INTERVAL) {
                     return [

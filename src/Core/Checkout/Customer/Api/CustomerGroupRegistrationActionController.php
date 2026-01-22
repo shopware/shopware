@@ -57,6 +57,10 @@ class CustomerGroupRegistrationActionController
         $updateData = [];
 
         foreach ($customers as $customer) {
+            if (!$customer->getActive()) {
+                throw CustomerException::inactive($customer->getId());
+            }
+
             $updateData[] = [
                 'id' => $customer->getId(),
                 'requestedGroupId' => null,

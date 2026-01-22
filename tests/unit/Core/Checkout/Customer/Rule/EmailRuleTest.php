@@ -73,7 +73,7 @@ class EmailRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
         $operators = $ruleConstraints['operator'];
         static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
 
         static::assertArrayHasKey('email', $ruleConstraints, 'Constraint email not found in Rule');
         $email = $ruleConstraints['email'];

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Twig\Environment;
+use Twig\Error\RuntimeError;
 use Twig\Loader\ArrayLoader;
 
 /**
@@ -18,45 +19,47 @@ class SecurityExtensionTest extends TestCase
     #[DataProvider('notAllowedTemplates')]
     public function testNotAllowedTemplates(string $template): void
     {
-        // Depending on the twig version it might throw a RuntimeError or a TypeError,
-        // all we care about is that it throws
-        $this->expectException(\Throwable::class);
-        $this->runTwig($template);
+        // don't expect any errors being thrown without our security extension
+        $this->runUnsafeTwig($template, ['arrayCaller' => [SecurityExtensionGadget::class, 'do']]);
+
+        // expect an error when our security extension is enabled
+        $this->expectException(RuntimeError::class);
+        $this->runTwig($template, [], ['arrayCaller' => [SecurityExtensionGadget::class, 'do']]);
     }
 
     public static function notAllowedTemplates(): \Generator
     {
-        yield 'map not allowed function' => ['{{ ["a", "b", "c"]|map("str_rot13")|join }}'];
+        yield 'map not allowed function' => ['{{ ["a", "b", "c"]|map("strcmp")|join }}'];
 
         yield 'map not allowed callback function string' => ['{{ ["a", "b", "c"]|map("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do")|join }}'];
 
         yield 'map not allowed callback function array' => ['{{ ["a", "b", "c"]|map([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
 
-        yield 'map on array throws error' => ['{{ ["a", "b", "c"]|map([\'SecurityExtensionGadget\', \'do\'])|join }}'];
+        yield 'map not allowed callback function array on variable' => ['{{ ["a", "b", "c"]|map(arrayCaller)|join }}'];
 
-        yield 'reduce not allowed function' => ['{{ ["a", "b", "c"]|reduce("empty")|join }}'];
+        yield 'reduce not allowed function' => ['{{ ["a", "b", "c"]|reduce("str_replace")|join }}'];
 
         yield 'reduce not allowed callback function string' => ['{{ ["a", "b", "c"]|reduce("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do")|join }}'];
 
         yield 'reduce not allowed callback function array' => ['{{ ["a", "b", "c"]|reduce([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
 
-        yield 'reduce on array throws error' => ['{{ ["a", "b", "c"]|reduce([\'SecurityExtensionGadget\', \'do\'])|join }}'];
+        yield 'reduce not allowed callback function array on variable' => ['{{ ["a", "b", "c"]|reduce(arrayCaller)|join }}'];
 
-        yield 'filter not allowed function' => ['{{ ["a", "b", "c"]|filter("str_rot13")|join }}'];
+        yield 'filter not allowed function' => ['{{ ["a", "b", "c"]|filter("strcmp")|join }}'];
 
         yield 'filter not allowed callback function string' => ['{{ ["a", "b", "c"]|filter("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do")|join }}'];
 
         yield 'filter not allowed callback function array' => ['{{ ["a", "b", "c"]|filter([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
 
-        yield 'filter on array throws error' => ['{{ ["a", "b", "c"]|filter([\'SecurityExtensionGadget\', \'do\'])|join }}'];
+        yield 'filter not allowed callback function array on variable' => ['{{ ["a", "b", "c"]|filter(arrayCaller)|join }}'];
 
-        yield 'sort not allowed function' => ['{{ ["a", "b", "c"]|sort("str_rot13")|join }}'];
+        yield 'sort not allowed function' => ['{{ ["a", "b", "c"]|sort("strcmp")|join }}'];
 
         yield 'sort not allowed callback function string' => ['{{ ["a", "b", "c"]|sort("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do")|join }}'];
 
         yield 'sort not allowed callback function array' => ['{{ ["a", "b", "c"]|sort([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
 
-        yield 'sort on array throws error' => ['{{ ["a", "b", "c"]|sort([\'SecurityExtensionGadget\', \'do\'])|join }}'];
+        yield 'sort not allowed callback function array on variable' => ['{{ ["a", "b", "c"]|sort(arrayCaller)|join }}'];
     }
 
     public function testMapWithAllowedFunction(): void
@@ -174,6 +177,18 @@ class SecurityExtensionTest extends TestCase
 
         return $twig->render('test', $variables);
     }
+
+    /**
+     * @param array<mixed> $variables
+     */
+    private function runUnsafeTwig(string $template, array $variables = []): string
+    {
+        $twig = new Environment(new ArrayLoader([
+            'test' => $template,
+        ]));
+
+        return $twig->render('test', $variables);
+    }
 }
 
 /**
@@ -185,7 +200,7 @@ class SecurityExtensionGadget
 {
     public static function do(): void
     {
-        throw new \Error('This should not be called');
+        // no op, do not throw as we need to check that an exception is thrown by the security extension, not here
     }
 }
 

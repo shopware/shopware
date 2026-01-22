@@ -16,7 +16,7 @@
       "tabPlugins": "Erweiterungen",
       "textSettingRenameBanner": "Die Einstellung <b>Maßeinheiten</b> wurde in <b>Produkteinheiten</b> umbenannt.",
       "search": {
-        "placeholder": "Finde Einstellungen...",
+        "placeholder": "Finde Einstellungen ...",
         "noResultsHeadline": "Keine Ergebnisse gefunden",
         "noResultsDescription": "Es konnten keine Einstellungen gefunden werden. Versuche es mit einem anderen Suchbegriff."
       }

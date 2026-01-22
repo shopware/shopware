@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -53,9 +54,9 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
             throw OrderException::orderNotCancellable();
         }
 
-        $orderId = $request->get('orderId', null);
+        $orderId = RequestParamHelper::get($request, 'orderId');
 
-        if ($orderId === null) {
+        if (!$orderId) {
             throw OrderException::invalidRequestParameter('orderId');
         }
 

@@ -327,7 +327,7 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
 
-    public function testMProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
+    public function testProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
     {
         $productId = $this->createProduct();
 

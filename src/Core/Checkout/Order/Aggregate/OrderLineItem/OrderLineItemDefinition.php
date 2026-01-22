@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -78,7 +80,7 @@ class OrderLineItemDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of OrderLineItem.'),
             (new VersionField())->addFlags(new ApiAware()),
 
@@ -101,7 +103,6 @@ class OrderLineItemDefinition extends EntityDefinition
             (new BoolField('removable', 'removable'))->addFlags(new ApiAware())->setDescription('Allows the line item to be removable from the cart when set to true.'),
             (new BoolField('stackable', 'stackable'))->addFlags(new ApiAware())->setDescription('Allows to change the quantity of the line item when set to true.'),
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required())->setDescription('Position of line items placed in an order.'),
-            (new ListField('states', 'states', StringField::class))->addFlags(new ApiAware(), new Required())->setDescription('Internal field.'),
 
             (new CalculatedPriceField('price', 'price'))->addFlags(new Required())->setDescription('Contains cheapest price from last 30 days as per EU law.'),
             (new PriceDefinitionField('price_definition', 'priceDefinition'))->addFlags(new ApiAware())->setDescription('Description of how the price has to be calculated. For example, in percentage or absolute value, etc.'),
@@ -120,5 +121,14 @@ class OrderLineItemDefinition extends EntityDefinition
             (new ParentAssociationField(self::class))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware(), new Required()),
         ]);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $fields->add(
+                (new ListField('states', 'states', StringField::class))
+                    ->addFlags(new ApiAware(), new Required(), new Deprecated('v6.7.6.0', 'v6.8.0.0', 'payload.productType'))->setDescription('Internal field.'),
+            );
+        }
+
+        return $fields;
     }
 }

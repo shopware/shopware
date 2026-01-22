@@ -574,8 +574,8 @@ class DefinitionValidator
 
         $parentDefinition = $translationDefinition->getParentDefinition();
         $translationsAssociationFields = $parentDefinition->getFields()
-            ->filterInstance(TranslationsAssociationField::class)
-            ->filter(fn (TranslationsAssociationField $f) => $f->getReferenceDefinition() === $translationDefinition)->getElements();
+            ->filter(fn (Field $f) => $f instanceof TranslationsAssociationField && $f->getReferenceDefinition() === $translationDefinition)
+            ->getElements();
 
         $parentDefinitionClass = $parentDefinition->getClass();
         $translationDefinitionClass = $translationDefinition->getClass();
@@ -1197,14 +1197,14 @@ class DefinitionValidator
         }
 
         // see if this is the owning side
-        $owningSide = $definition->getFields()->filterInstance(FkField::class)
-            ->filter(fn (FkField $field): bool => $field->getReferenceDefinition() === $reference);
+        $owningSide = $definition->getFields()
+            ->filter(fn (Field $field): bool => $field instanceof FkField && $field->getReferenceDefinition() === $reference);
 
         if ($owningSide->count() === 0) {
             return null;
         }
-        $referenceVersionFieldForReference = $definition->getFields()->filterInstance(ReferenceVersionField::class)
-            ->filter(fn (ReferenceVersionField $field): bool => $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass());
+        $referenceVersionFieldForReference = $definition->getFields()
+            ->filter(fn (Field $field): bool => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass());
 
         if (\count($referenceVersionFieldForReference) > 0) {
             return null;

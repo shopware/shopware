@@ -86,7 +86,7 @@ class SalesChannelListCommand extends Command
                 $language?->getName() ?? 'n/a',
                 $languages->map(fn (LanguageEntity $language) => $language->getName()),
                 $currency?->getName() ?? 'n/a',
-                $currencies->map(fn (CurrencyEntity $currency) => $currency->getName()),
+                $currencies->map(fn (CurrencyEntity $currency) => (string) $currency->getName()),
                 $domains->map(fn (SalesChannelDomainEntity $domain) => $domain->getUrl()),
             ];
         }
@@ -99,7 +99,7 @@ class SalesChannelListCommand extends Command
     }
 
     /**
-     * @param list<list<string|array<string, string>>> $data
+     * @param list<list<string|array<string, string|null>>> $data
      */
     private function renderJson(OutputInterface $output, array $data): int
     {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -54,6 +55,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
                 ->append($this->createSsoLoginSection())
+                ->append($this->createProductTypesSection())
             ->end();
 
         return $treeBuilder;
@@ -439,6 +441,9 @@ class Configuration implements ConfigurationInterface
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
+                        ->booleanNode('tag_invalidation_log_enabled')
+                            ->defaultFalse()
+                        ->end()
                         // @deprecated tag:v6.8.0 - remove all route specific invalidation options
                         ->arrayNode('product_listing_route')
                             ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
@@ -620,6 +625,21 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(120)
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductTypesSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->arrayNode('allowed_types')
+                ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_PHYSICAL])
+                ->scalarPrototype()->end()
             ->end();
 
         return $rootNode;

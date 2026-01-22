@@ -60,6 +60,10 @@
             <tag name="shopware.entity"/>
         </service>
 
+        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithInheritance">
+            <tag name="shopware.entity"/>
+        </service>
+
         <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\DummyHydrator" public="true">
             <argument type="service" id="service_container"/>
         </service>

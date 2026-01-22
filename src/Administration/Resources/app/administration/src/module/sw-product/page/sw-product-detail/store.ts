@@ -61,8 +61,12 @@ const swProductDetail = Shopware.Store.register({
                 'essential_characteristics',
                 'custom_fields',
             ],
-            /* Product "types" provided by the split button for creating a new product through a router parameter */
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed, use `creationType` instead.
+             */
             creationStates: [] as string[],
+            /* Product "types" provided by the split button for creating a new product through a router parameter */
+            creationType: 'physical' as string,
             lengthUnit: 'mm',
             weightUnit: 'kg',
         };
@@ -144,6 +148,21 @@ const swProductDetail = Shopware.Store.register({
             return !!state.advancedModeSetting.value?.advancedMode.enabled;
         },
 
+        productType(state): string {
+            if (state.product.isNew?.() && state.creationType) {
+                return state.creationType;
+            }
+
+            if (state.product.type) {
+                return state.product.type;
+            }
+
+            return 'physical';
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `productType` instead.
+         */
         productStates(state): string[] {
             if (state.product.isNew?.() && state.creationStates) {
                 return state.creationStates;

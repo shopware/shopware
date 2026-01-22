@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\TestCollection;
 
 /**
  * @internal
@@ -90,6 +91,7 @@ class CollectionTest extends TestCase
 
     public function testFmap(): void
     {
+        /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
         $collection->fmap(function (): void {
             static::fail('fmap should not be called for empty collection');
@@ -103,17 +105,18 @@ class CollectionTest extends TestCase
 
     public function testSort(): void
     {
+        /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
 
         $collection->sort(function (): void {
-            static::fail('fmap should not be called for empty collection');
+            static::fail('sort should not be called for empty collection');
         });
 
         $collection->add('b');
         $collection->add('c');
         $collection->add('a');
 
-        $collection->sort(fn ($a, $b) => strcmp((string) $a, (string) $b));
+        $collection->sort(fn ($a, $b) => strcmp($a, $b));
 
         static::assertSame([2 => 'a', 0 => 'b', 1 => 'c'], $collection->getElements());
     }
@@ -135,6 +138,7 @@ class CollectionTest extends TestCase
 
     public function testFilter(): void
     {
+        /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
         $collection->filter(function (): void {
             static::fail('filter should not be called for empty collection');
@@ -265,7 +269,7 @@ class CollectionTest extends TestCase
         $data = [
             'some-string',
             new \stdClass(),
-            ['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()], // Entity class has no setId method
+            ['versionId' => Uuid::randomHex()],
             ['_uniqueIdentifier' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
         ];
 
@@ -275,15 +279,4 @@ class CollectionTest extends TestCase
         static::assertInstanceOf(Entity::class, $collection->first());
         static::assertNotNull($collection->first()->getVersionId());
     }
-}
-
-/**
- * @internal
- *
- * @template TElement
- *
- * @extends Collection<TElement>
- */
-class TestCollection extends Collection
-{
 }

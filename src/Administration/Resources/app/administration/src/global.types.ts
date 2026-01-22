@@ -29,6 +29,7 @@ import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type ShopIdChangeService from 'src/core/service/api/shop-id-change.service';
+import type ProductTypeApiService from 'src/app/service/product-type.api.service';
 import type { ComponentInternalInstance, PropType as VuePropType } from 'vue';
 import type { I18n } from 'vue-i18n';
 import type {
@@ -298,6 +299,7 @@ declare global {
         ssoSettingsService: SsoSettingsService;
         ssoInvitationService: SsoInvitationService;
         shopIdChangeService: ShopIdChangeService;
+        productTypeService: ProductTypeApiService;
     }
 
     interface MixinContainer {
@@ -566,5 +568,16 @@ declare module 'axios' {
     interface AxiosRequestConfig {
         // adds the shopware API version to the RequestConfig
         version?: number;
+        // Opt-in flag to use axios v1 instead of v0 for this request
+        useAxiosV1?: boolean;
+    }
+}
+
+declare module 'axios-v1' {
+    interface AxiosRequestConfig {
+        // adds the shopware API version to the RequestConfig
+        version?: number;
+        // Opt-in flag to use axios v1 instead of v0 for this request
+        useAxiosV1?: boolean;
     }
 }

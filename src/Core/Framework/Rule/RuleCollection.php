@@ -22,9 +22,6 @@ class RuleCollection extends Collection
      */
     protected array $classes = [];
 
-    /**
-     * @param Rule $rule
-     */
     public function add($rule): void
     {
         parent::add($rule);

@@ -1,7 +1,7 @@
 /**
  * @sw-package buyers-experience
  */
-import MediaApiService from 'src/core/service/api/media.api.service';
+import MediaApiService, { UploadEvents } from 'src/core/service/api/media.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 
@@ -38,16 +38,21 @@ describe('storeService', () => {
     it('handles keeping files', async () => {
         const mediaApiService = getMediaApiService();
         const callback = jest.fn();
-        const event = mediaApiService._createUploadEvent('media-upload-finish', uploadTaskMock.uploadTag, {
-            targetId: uploadTaskMock.targetId,
+        const keepTask = {
+            ...uploadTaskMock,
+            originalTargetId: 'original-target-id',
+        };
+        const event = mediaApiService._createUploadEvent('media-upload-finish', keepTask.uploadTag, {
+            targetId: keepTask.targetId,
+            originalTargetId: keepTask.originalTargetId,
             successAmount: 0,
             failureAmount: 0,
             totalAmount: 0,
             customMessage: 'global.sw-media-upload.notification.assigned.message',
         });
-        mediaApiService.addListener(uploadTaskMock.uploadTag, callback);
+        mediaApiService.addListener(keepTask.uploadTag, callback);
 
-        mediaApiService.keepFile(uploadTaskMock.uploadTag, uploadTaskMock);
+        mediaApiService.keepFile(keepTask.uploadTag, keepTask);
 
         expect(callback).toHaveBeenCalledWith(event);
     });
@@ -59,6 +64,39 @@ describe('storeService', () => {
         mediaApiService.uploadMediaById('test', '', {}, 'glb', 'test');
 
         expect(httpClientPostSpy.mock.calls[0][2].headers['Content-Type']).toBe('model/gltf-binary');
+    });
+
+    it('emits upload progress events when onUploadProgress fires', async () => {
+        const mediaApiService = getMediaApiService();
+        const callback = jest.fn();
+
+        mediaApiService.addListener('upload-tag', callback);
+
+        const httpClientPostSpy = jest
+            .spyOn(mediaApiService.httpClient, 'post')
+            .mockImplementation((route, data, config) => {
+                config.onUploadProgress({
+                    loaded: 5,
+                    total: 10,
+                });
+
+                return Promise.resolve({ data: null });
+            });
+
+        await mediaApiService.uploadMediaById('test-id', 'image/png', new ArrayBuffer(10), 'png', 'test', 'upload-tag');
+
+        expect(callback).toHaveBeenCalledWith({
+            action: UploadEvents.UPLOAD_PROGRESS,
+            uploadTag: 'upload-tag',
+            payload: {
+                targetId: 'test-id',
+                loaded: 5,
+                total: 10,
+            },
+        });
+
+        mediaApiService.removeListener('upload-tag', callback);
+        httpClientPostSpy.mockRestore();
     });
 
     it('test getDefaultFolderId without result', async () => {

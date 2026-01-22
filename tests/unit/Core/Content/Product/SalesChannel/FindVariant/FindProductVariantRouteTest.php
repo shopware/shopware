@@ -9,7 +9,9 @@ use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -30,6 +32,8 @@ class FindProductVariantRouteTest extends TestCase
      */
     private MockObject&SalesChannelRepository $productRepositoryMock;
 
+    private MockObject&CacheTagCollector $cacheTagCollector;
+
     private FindProductVariantRoute $route;
 
     private IdsCollection $ids;
@@ -37,7 +41,11 @@ class FindProductVariantRouteTest extends TestCase
     protected function setUp(): void
     {
         $this->productRepositoryMock = $this->createMock(SalesChannelRepository::class);
-        $this->route = new FindProductVariantRoute($this->productRepositoryMock);
+        $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $this->route = new FindProductVariantRoute(
+            $this->productRepositoryMock,
+            $this->cacheTagCollector,
+        );
         $this->ids = new IdsCollection();
     }
 
@@ -98,6 +106,10 @@ class FindProductVariantRouteTest extends TestCase
                 )
             );
 
+        $this->cacheTagCollector->expects($this->once())
+            ->method('addTag')
+            ->with(EntityCacheKeyGenerator::buildProductTag($this->ids->get('productId')));
+
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 
         static::assertSame($found1Id, $response->getFoundCombination()->getVariantId());
@@ -153,6 +165,10 @@ class FindProductVariantRouteTest extends TestCase
                     $context
                 ),
             );
+
+        $this->cacheTagCollector->expects($this->once())
+            ->method('addTag')
+            ->with(EntityCacheKeyGenerator::buildProductTag($this->ids->get('productId')));
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 

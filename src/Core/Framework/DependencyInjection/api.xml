@@ -136,6 +136,8 @@
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection">
             <argument type="service" id="kernel.bundles"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">

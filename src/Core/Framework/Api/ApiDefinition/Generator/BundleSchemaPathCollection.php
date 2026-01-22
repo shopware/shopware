@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -17,8 +18,11 @@ class BundleSchemaPathCollection
     /**
      * @param iterable<Bundle> $bundles
      */
-    public function __construct(private readonly iterable $bundles)
-    {
+    public function __construct(
+        private readonly iterable $bundles,
+        private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly string $projectDir,
+    ) {
     }
 
     /**
@@ -30,6 +34,7 @@ class BundleSchemaPathCollection
     {
         $apiFolder = $api === DefinitionService::API ? 'AdminApi' : 'StoreApi';
         $openApiDirs = [];
+
         foreach ($this->bundles as $bundle) {
             $path = $bundle->getPath() . '/Resources/Schema/' . $apiFolder;
             if (!is_dir($path)) {
@@ -39,6 +44,15 @@ class BundleSchemaPathCollection
             if ($bundle->getName() === $bundleName) {
                 return [$path];
             }
+        }
+
+        foreach ($this->activeAppsLoader->getActiveApps() as $app) {
+            $appPath = str_starts_with($app['path'], '/') ? $app['path'] : $this->projectDir . '/' . $app['path'];
+            $path = $appPath . '/Resources/Schema/' . $apiFolder;
+            if (!is_dir($path)) {
+                continue;
+            }
+            $openApiDirs[] = $path;
         }
 
         return $openApiDirs;

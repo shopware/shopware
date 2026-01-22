@@ -27,35 +27,79 @@ class Migration1764939915CancellationRequestMailTemplateTest extends TestCase
 
     public function testUpdate(): void
     {
-        $mailTemplateTypeId = $this->getMailTemplateTypeId();
-        $mailTemplateIds = $this->getMailTemplateIds($mailTemplateTypeId);
-        if (!empty($mailTemplateIds)) {
-            foreach ($mailTemplateIds as $mailTemplateId) {
-                $this->connection->delete('mail_template_translation', ['mail_template_id' => $mailTemplateId]);
-                $this->connection->delete('mail_template', ['id' => $mailTemplateId]);
-            }
-        }
-
-        if (!empty($mailTemplateTypeId)) {
-            $this->connection->delete('mail_template_type_translation', ['mail_template_type_id' => $mailTemplateTypeId]);
-            $this->connection->delete('mail_template', ['id' => $mailTemplateTypeId]);
-        }
+        $this->removePreinstalled(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT);
+        $this->removePreinstalled(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_CUSTOMER);
 
         $migration = new Migration1764939915CancellationRequestMailTemplate();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $mailTemplateTypeId = $this->getMailTemplateTypeId();
-        static::assertIsString($mailTemplateTypeId);
-        static::assertTrue(Uuid::isValid(Uuid::fromBytesToHex($mailTemplateTypeId)));
-        static::assertCount(1, $this->getMailTemplateIds($mailTemplateTypeId));
+        $this->assertIsInstalled(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT);
+        $this->assertIsInstalled(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_CUSTOMER);
     }
 
-    private function getMailTemplateTypeId(): ?string
+    private function assertIsInstalled(string $technicalName): void
+    {
+        $mailTemplateTypeId = $this->getMailTemplateTypeId($technicalName);
+        $mailTemplateTypeId = $this->assertIsValidByteId($mailTemplateTypeId);
+
+        $typeTranslations = $this->getTranslations('mail_template_type_translation', 'mail_template_type_id', $mailTemplateTypeId);
+        static::assertCount(2, $typeTranslations);
+
+        $mailTemplateId = $this->getMailTemplateId($mailTemplateTypeId);
+        $mailTemplateId = $this->assertIsValidByteId($mailTemplateId);
+
+        $templateTranslations = $this->getTranslations('mail_template_translation', 'mail_template_id', $mailTemplateId);
+        static::assertCount(2, $templateTranslations);
+    }
+
+    private function assertIsValidByteId(?string $byteId): string
+    {
+        static::assertIsString($byteId);
+        $id = Uuid::fromBytesToHex($byteId);
+        static::assertTrue(Uuid::isValid($id));
+
+        return $byteId;
+    }
+
+    private function removePreinstalled(string $technicalName): void
+    {
+        $mailTemplateTypeId = $this->getMailTemplateTypeId($technicalName);
+        $mailTemplateId = $this->getMailTemplateId($mailTemplateTypeId);
+        $this->delete('mail_template_translation', $mailTemplateId, 'mail_template_id');
+        $this->delete('mail_template', $mailTemplateId);
+        $this->delete('mail_template_type_translation', $mailTemplateTypeId, 'mail_template_type_id');
+        $this->delete('mail_template_type', $mailTemplateTypeId);
+    }
+
+    private function delete(string $table, ?string $id, ?string $identifier = 'id'): void
+    {
+        if (!\is_string($id)) {
+            return;
+        }
+
+        $this->connection->delete($table, [$identifier => $id]);
+    }
+
+    private function getMailTemplateTypeId(string $technicalName): ?string
     {
         $result = $this->connection->fetchOne(
             'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
-            ['technicalName' => MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT]
+            ['technicalName' => $technicalName]
+        );
+
+        if ($result === false) {
+            return null;
+        }
+
+        return $result;
+    }
+
+    private function getMailTemplateId(?string $mailTemplateTypeId): ?string
+    {
+        $result = $this->connection->fetchOne(
+            'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId',
+            ['mailTemplateTypeId' => $mailTemplateTypeId]
         );
 
         if ($result === false) {
@@ -66,13 +110,15 @@ class Migration1764939915CancellationRequestMailTemplateTest extends TestCase
     }
 
     /**
-     * @return list<array<string,mixed>>
+     * @return list<array<string, mixed>>
      */
-    private function getMailTemplateIds(?string $mailTemplateTypeId): array
+    private function getTranslations(string $table, string $criteriaKey, string $criteriaValue): array
     {
+        $sql = \sprintf('SELECT * FROM `%s` WHERE `%s` = :criteriaValue', $table, $criteriaKey);
+
         return $this->connection->fetchAllAssociative(
-            'SELECT * FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId',
-            ['mailTemplateTypeId' => $mailTemplateTypeId]
+            $sql,
+            ['criteriaValue' => $criteriaValue]
         );
     }
 }

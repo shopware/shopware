@@ -579,7 +579,7 @@ describe('core/service/login.service.js', () => {
 
             await expect(loginService.refreshToken()).rejects.toThrow();
 
-            expect(clientMock.history.post.length).toBe(1);
+            expect(clientMock.history.post).toHaveLength(1);
 
             clientMock.onPost('/oauth/token').replyOnce(200, {
                 token_type: 'Bearer',
@@ -590,7 +590,7 @@ describe('core/service/login.service.js', () => {
 
             await jest.advanceTimersByTimeAsync(2500);
 
-            expect(clientMock.history.post.length).toBe(2);
+            expect(clientMock.history.post).toHaveLength(2);
             expect(loginService.getToken()).toBe('new_token');
 
             jest.useRealTimers();
@@ -630,7 +630,7 @@ describe('core/service/login.service.js', () => {
             const refreshRequests = clientMock.history.post.filter(
                 (req) => JSON.parse(req.data).grant_type === 'refresh_token',
             );
-            expect(refreshRequests.length).toBe(1);
+            expect(refreshRequests).toHaveLength(1);
 
             expect(loginService.isLoggedIn()).toBe(true);
             expect(loginService.getToken()).toBe('tab1_new_token');

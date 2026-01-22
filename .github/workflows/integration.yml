@@ -20,12 +20,6 @@ permissions:
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
-    permissions:
-        id-token: write
-        contents: read
-    env:
-        S3_BUCKET: shopware-ci-playwright-traces
-        REPORT_PREFIX: playwright-reports
     strategy:
       fail-fast: false
       matrix:
@@ -302,6 +296,8 @@ jobs:
       SW_RECOVERY_NEXT_VERSION: "6.7.9999999.9999999"
       SW_RECOVERY_NEXT_BRANCH: "6.7.9999999.9999999"
       SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "${{ github.workspace }}/new-shopware/src/*", "options": { "symlink": true } }'
+      S3_BUCKET: "shopware-ci-playwright-traces"
+      REPORT_PREFIX: "playwright-reports"
     steps:
       - name: Create shopware dirs
         run: mkdir -p old-shopware new-shopware

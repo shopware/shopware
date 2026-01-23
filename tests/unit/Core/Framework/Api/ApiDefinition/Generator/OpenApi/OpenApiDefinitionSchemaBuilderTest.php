@@ -352,6 +352,68 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertArrayNotHasKey('allOf', $readSchema);
     }
 
+    public function testTypeJsonUsesFlatSchema(): void
+    {
+        // TYPE_JSON should produce a flat schema structure (backward compatible)
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(SimpleDefinition::class),
+            '/simple',
+            false,
+            false,
+            \Shopware\Core\Framework\Api\ApiDefinition\DefinitionService::TYPE_JSON
+        );
+
+        // TYPE_JSON should have the Read schema
+        static::assertArrayHasKey('Simple', $schema);
+
+        // TYPE_JSON should NOT have Update/Create schemas
+        static::assertArrayNotHasKey('SimpleUpdate', $schema);
+        static::assertArrayNotHasKey('SimpleCreate', $schema);
+
+        // TYPE_JSON should NOT have JsonApi schema
+        static::assertArrayNotHasKey('SimpleJsonApi', $schema);
+
+        // The Read schema should be flat (no allOf composition)
+        $readSchema = json_decode($schema['Simple']->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('properties', $readSchema);
+        static::assertArrayNotHasKey('allOf', $readSchema);
+    }
+
+    public function testStoreApiWithJsonApiTypeGeneratesJsonApiSchema(): void
+    {
+        // Store API with TYPE_JSON_API should generate JsonApi schema
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(SimpleDefinition::class),
+            '/simple',
+            true, // forSalesChannel = true
+            false, // onlyFlat = false
+            \Shopware\Core\Framework\Api\ApiDefinition\DefinitionService::TYPE_JSON_API
+        );
+
+        // Should have both Read and JsonApi schemas
+        static::assertArrayHasKey('Simple', $schema);
+        static::assertArrayHasKey('SimpleJsonApi', $schema);
+    }
+
+    public function testOnlyFlatDoesNotGenerateJsonApiSchema(): void
+    {
+        // When onlyFlat is true, JsonApi schema should not be generated
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(SimpleDefinition::class),
+            '/simple',
+            false,
+            true, // onlyFlat = true
+            \Shopware\Core\Framework\Api\ApiDefinition\DefinitionService::TYPE_JSON_API
+        );
+
+        // Should have Update and Read schemas
+        static::assertArrayHasKey('SimpleUpdate', $schema);
+        static::assertArrayHasKey('Simple', $schema);
+
+        // Should NOT have JsonApi schema when onlyFlat is true
+        static::assertArrayNotHasKey('SimpleJsonApi', $schema);
+    }
+
     /**
      * Helper method to extract all properties from a schema that uses allOf composition.
      * Merges properties from all allOf items that have direct properties.

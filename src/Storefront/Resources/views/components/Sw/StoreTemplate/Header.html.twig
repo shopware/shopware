@@ -7,7 +7,7 @@
 } %}
 
 <header {{ attributes.defaults(attributeDefaults) }}>
-    <twig:Sw:StoreTemplate:TopBar />
+    <twig:Sw:StoreTemplate:TopBar :header="header" />
 
     <twig:Sw:Grid:Container
         :columns="3"

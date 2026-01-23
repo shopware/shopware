@@ -1,0 +1,27 @@
+{% props
+    languages
+%}
+
+{% set attributeDefaults = {
+    action: path('frontend.checkout.switch-language'),
+    method: 'post',
+    class: 'sw-language-select',
+} %}
+
+<form {{ attributes.defaults(attributeDefaults) }}>
+    <select
+        name="languageId"
+        class="sw-language-select__options form-select form-select-sm"
+        aria-label="{{ 'header.languageTrigger'|trans({ '%lang%': context.languageInfo.name })|striptags }}"
+    >
+        {% for language in languages %}
+            {% set isActiveLanguage = language.id is same as(context.context.languageId) %}
+            <option
+                value="{{ language.id }}"
+                {% if isActiveLanguage %}selected{% endif %}
+            >
+                {{ language.name }}
+            </option>
+        {% endfor %}
+    </select>
+</form>

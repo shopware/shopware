@@ -1,6 +1,13 @@
 .sw-top-bar {
-    background: var(--bs-gray-200);
+    --sw-top-bar-background: var(--bs-body);
+    --sw-top-bar-gap: 0.5rem;
+
+    background: var(--sw-top-bar-background);
     margin-bottom: 2rem;
+}
+
+.sw-top-bar__container  {
+    gap: var(--sw-top-bar-gap);
     display: flex;
     justify-content: end;
 }

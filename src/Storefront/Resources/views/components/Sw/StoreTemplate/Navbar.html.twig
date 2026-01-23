@@ -20,6 +20,8 @@
 
 {% set attributeDefaults = {
     class: navbarCVA.apply({ scrollable }),
+    id: 'main-navigation-menu',
+    'aria-label': 'header.navigationAriaLabel'|trans|striptags,
     'data-component': 'Sw:StoreTemplate:Navbar',
     'data-component-options': jsOptions|json_encode,
 } %}
@@ -64,8 +66,6 @@
                                 :navigationTree="treeItem.children"
                             />
                         {% endif %}
-
-{#                        <div class="sw-navbar__backdrop modal-backdrop"></div>#}
                     </li>
                 {% endif %}
             {% endfor %}

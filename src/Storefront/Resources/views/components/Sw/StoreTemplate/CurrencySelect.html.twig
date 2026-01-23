@@ -1,0 +1,27 @@
+{% props
+    currencies
+%}
+
+{% set attributeDefaults = {
+    action: path('frontend.checkout.configure'),
+    method: 'post',
+    class: 'sw-currency-select',
+} %}
+
+<form {{ attributes.defaults(attributeDefaults) }}>
+    <select
+        name="currencyId"
+        class="sw-language-select__options form-select form-select-sm"
+        aria-label="{{ 'header.currencyTrigger'|trans({ '%currency%': context.currency.translated.name })|striptags }}"
+    >
+        {% for currency in currencies %}
+            {% set isActiveCurrency = currency.id is same as(context.currency.id) %}
+            <option
+                value="{{ currency.id }}"
+                {% if isActiveCurrency %}selected{% endif %}
+            >
+                {{ currency.name }}
+            </option>
+        {% endfor %}
+    </select>
+</form>

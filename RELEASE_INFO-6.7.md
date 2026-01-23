@@ -7,6 +7,10 @@
 All symfony packages have been updated to version 7.4. 
 Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
 
+### Changed maintenance mode redirect
+After maintenance ends, users are now redirected back to the page they were on before maintenance.
+Previously, users were always redirected to the shop homepage.
+
 ### Support of media paths with up to 2046 characters
 Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the
 database field already supported up to 2046 characters. This limitation has now been lifted and media paths can be up to
@@ -147,6 +151,12 @@ This behaviour differs from the existing ìsCacheable` property, which will also
 
 Added logging for invalidated cache tags at the info level, with the ability to enable or disable the logging via configuration for debugging and transparency.
 
+### Removed `CacheInvalidationSubscriber::getChangedPropertyFilterTags` due to performance issues
+
+The `getChangedPropertyFilterTags` method has been removed from `CacheInvalidationSubscriber` due to performance issues where it could cause invalidation storms by selecting all product IDs for popular property options.
+
+Changing a property group or option will no longer automatically invalidate product and product list caches. It's recommended to rely on TTLs for bigger shops. If you experience issues after changing a property group, a manual cache clear may be required.
+
 ## Administration
 
 ### Deprecations in mail template components
@@ -184,6 +194,11 @@ The following changes are relevant when HTTP caching policies feature is enabled
 
 * HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
 * `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
+
+### First tap on iOS Safari did not trigger call-to-action buttons on product detail page
+Fixes an issue on iOS Safari where the first tap does not trigger the desired action on the product detail page after scrolling over the image gallery.
+The `touchmove` event listener was removed from `zoom-modal.plugin.js` because it stopped the tap/click event.
+A regular `click` event is used instead to open the Zoom-Modal. The browser itself can determine via the `click` event if the user is still scrolling or clicking/taping.
 
 ### Google Analytics 4 Integration Update
 

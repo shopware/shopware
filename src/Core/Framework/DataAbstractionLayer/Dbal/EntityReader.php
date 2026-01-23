@@ -892,22 +892,27 @@ class EntityReader implements EntityReaderInterface
         }
         unset($row);
 
-        if (\count($ids) !== 0) {
-            $fieldCriteria->setIds($ids);
-        }
-
         $referenceClass = $association->getToManyReferenceDefinition();
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
-        $data = $this->_read(
-            $fieldCriteria,
-            $referenceClass,
-            $context,
-            new $collectionClass(),
-            $referenceClass->getFields()->getBasicFields(),
-            false,
-            $partial
-        );
+
+        if (\count($ids) !== 0) {
+            // only read data when we have found mapped IDs
+            // otherwise we would load the whole reference table
+            $fieldCriteria->setIds($ids);
+
+            $data = $this->_read(
+                $fieldCriteria,
+                $referenceClass,
+                $context,
+                new $collectionClass(),
+                $referenceClass->getFields()->getBasicFields(),
+                false,
+                $partial
+            );
+        } else {
+            $data = new $collectionClass();
+        }
 
         foreach ($collection as $struct) {
             $structData = new $collectionClass();

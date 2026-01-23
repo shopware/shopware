@@ -2,6 +2,15 @@
 
 ## Features
 
+### Symfony 7.4 update
+
+All symfony packages have been updated to version 7.4. 
+Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
+
+### Changed maintenance mode redirect
+After maintenance ends, users are now redirected back to the page they were on before maintenance.
+Previously, users were always redirected to the shop homepage.
+
 ### Support of media paths with up to 2046 characters
 Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the
 database field already supported up to 2046 characters. This limitation has now been lifted and media paths can be up to
@@ -12,6 +21,10 @@ database field already supported up to 2046 characters. This limitation has now 
 Custom fields are now **not searchable by default**. To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields. This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
 
 **Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
+
+### Media Model Viewer
+
+From now on you are able to inspect your 3D models directly in the Media module in the Administration. Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right. This new component is called `sw-model-viewer`.
 
 ## API
 
@@ -25,6 +38,23 @@ Next routes now support cache tagging, enabling automatic invalidation when rele
 
 ## Core
 
+### Rework of DAL query generation for nested filters groups
+The DAL criteria builder has been adjusted to generate `EXISTS` subqueries instead of `LEFT JOIN`s for nested filter groups.
+
+Previously, each level of nested filters resulted in an additional `LEFT JOIN`, even when the join was only required to check for the existence of a related entity subject to some filter.
+In complex criteria trees with multiple filters on the same entity, this led to an exponential explosion of joins and significant performance degradation (e.g., the same table being joined multiple times only to evaluate existence conditions).
+
+An example of this is a query such as "find orders that have a line item of type A and one of type B and one of type C".
+According to [aadr/2020-11-19-dal-join-filter.md](adr/2020-11-19-dal-join-filter.md), this would look like:
+```php
+$criteria->addFilter(
+    new EqualsFilter('lineItems.type', 'product'),
+    new EqualsFilter('lineItems.type', 'custom'),
+    new EqualsFilter('lineItems.type', 'other'),
+);
+```
+Previously, the generated query would `LEFT JOIN` `order_line_item` multiple times onto `order`, causing the query to be extremely slow. The new `EXISTS` checks prevent this, making the query much faster.
+
 ### Introduce Immutable DAL flag
 
 A new `Immutable` flag is available for Data Abstraction Layer fields. Fields marked as immutable can be set during entity creation but cannot be updated later. This prevents accidental renames of technical identifiers that other subsystems rely on. Core entities now using the flag include:
@@ -34,6 +64,13 @@ A new `Immutable` flag is available for Data Abstraction Layer fields. Fields ma
 * `custom_field_set.name`
 
 Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
+If the value is not set in the payload, or the value won't change, no exception is thrown.
+
+### Performance Improvement for `ProductCategoryDenormalizer`
+
+The SQL Query inside the `ProductCategoryDenormalizer` has been optimized to run faster, especially on large catalogues.
+Previously MySql needed to perform a full table scan based on the where condition, now the result set is already limited by indexed columns.
+This lead to performance improvements from up to 3s for the query down to less than 1ms on large catalogues (3000%).
 
 ### Deprecation of product states in favor of the new product type
 
@@ -50,6 +87,32 @@ As part of this change, the following deprecations were made:
 
 If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
+
+### New `RequestParamHelper` 
+
+Symfony deprecated the "magic" `Request::get()` method, which was used to retrieve parameters from the request, by checking the `attribute`, `query` or `request` parameter bags.
+For easier backward compatibilty we backported the old behaviour in the new `RequestParamHelper` class, however, it should only be used in explicit cases, where the parameter could be in any of those parameter bags.
+The best practice is to check the explicit parameter bag, where you expect the parameter to be. 
+However, as we have a lot of API routes that support being called by `GET` and `POST` methods both, the helper is handy in such cases.
+
+Before:
+```php
+$parameter = $request->get($parameterName, $default);
+```
+After:
+```php
+$parameter = RequestParameterHelper::get($request, $parameterName, $default);
+```
+
+To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first. 
+However, it should be possible to strictly differentiate between request attributes (which are generally controlled and set by the application itself) and input parameters (which are provided by the client, and based on how they are passed are either part of the query bag or the request bag) in the future.
+Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release. 
+When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
+In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
+
+### The `TranslationLoader` class is now decoratable
+
+The `TranslationLoader` class extends from the new `AbstractTranslationLoader` class and implements the decoratable pattern. This allows third-party developers to decorate the loader to add custom logic when a translation is loaded.
 
 ### DomainExceptions don't create \RuntimeException anymore
 
@@ -78,6 +141,16 @@ This affects the following exception factory methods:
 * `WebhookException::invalidDataMapping(...)`
 * `WebhookException::unknownEventDataType(...)`
 
+### More fine-grained caching control in `HttpCacheCookieEvent`
+
+A new `doNotStore` property was added to the `HttpCacheCookieEvent` to allow fine-grained control over caching behavior.
+This new property allows preventing the current response from being stored in the cache.
+This behaviour differs from the existing ìsCacheable` property, which will also prevent the following requests from that session being cached.
+
+### Logging for invalidated cache tags
+
+Added logging for invalidated cache tags at the info level, with the ability to enable or disable the logging via configuration for debugging and transparency.
+
 ## Administration
 
 ### Deprecations in mail template components
@@ -96,9 +169,18 @@ The following deprecations apply to `sw-mail-template-index`:
 
 ## Storefront
 
+### Cookie consent now language-aware
+
+The cookie consent banner now tracks cookie configuration per language. Previously, switching languages would cause the cookie banner to reappear because the configuration hash changed due to translated cookie descriptions. Now, switching back to a previously accepted language will not show the banner again.
+
+The Store API endpoint `/store-api/cookie-groups` now includes a `languageId` field in the response.
+### New `window.activeNavigationPathIdList` variable
+
+A new global JavaScript variable `window.activeNavigationPathIdList` is now available, containing the IDs of parent categories for the current page. This can be used by plugins or themes to implement custom navigation highlighting.
+
 ### Improved cookie consent dialog UI and accessibility
 
-The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. The button layout has been improved with a clearer visual hierarchy, placing the primary action on the right side. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
+The cookie consent dialog now uses toggle switches instead of checkboxes for a more modern look. Additionally, accessibility improvements were made by adding proper ARIA attributes (`role="switch"`, `aria-disabled`, `aria-labelledby`) and converting links to semantic buttons where appropriate.
 
 ### HTTP caching policies update
 
@@ -106,6 +188,11 @@ The following changes are relevant when HTTP caching policies feature is enabled
 
 * HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
 * `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
+
+### First tap on iOS Safari did not trigger call-to-action buttons on product detail page
+Fixes an issue on iOS Safari where the first tap does not trigger the desired action on the product detail page after scrolling over the image gallery.
+The `touchmove` event listener was removed from `zoom-modal.plugin.js` because it stopped the tap/click event.
+A regular `click` event is used instead to open the Zoom-Modal. The browser itself can determine via the `click` event if the user is still scrolling or clicking/taping.
 
 ### Google Analytics 4 Integration Update
 
@@ -135,6 +222,11 @@ A new configuration option `Open offcanvas cart after adding a product` has been
 ## Hosting & Configuration
 
 ## Critical Fixes
+
+### Flash messages are not cached anymore
+
+As soon as a flash message is displayed, the response won't be stored in the HTTP cache anymore, thus preventing the message from being displayed to other users.
+Additionally, the cache will be passed as soon as there is a flash message that still needs to be displayed. This ensures that flash messages are always displayed on the next request, and not only on the next request to an uncached page.
 
 # 6.7.6.0
 
@@ -250,7 +342,43 @@ We don't synchronously fetch and generate the SEO-Urls for all child categories 
 Instead, we rely on the CategoryIndexer to trigger the re-index of children asynchronously.
 This prevents cases where SEO-Urls were generated multiple times for the same category, and thus it considerably improves the performance of category indexing.
 
+### Make the find best variant on searching as non default behaviour
+
+Since [6.7.2.0](https://github.com/shopware/shopware/pull/11107), the "find best variant" feature was always the default behaviour on the search. It means that if a product has variants, the best matching variant is returned instead of what merchant has configured in the product's Storefront presentation > Product listings > "Show main product or variant" setting.
+This behaviour is now optional and can be enabled by setting the `core.listing.findBestVariant` config to `true` or setting it via the admin interface under Settings > Products > "Preview best matching variant for search results"
+
 ## Administration
+
+As part of this change, the following deprecations were made:
+- The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
+- `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
+- The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
+- The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
+- A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
+- For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
+
+If you have using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
+If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
+
+## Administration
+When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
+### Axios upgrade with dual-client dispatcher
+
+The Administration now supports axios 1.x alongside the existing axios 0.30.2 to address security vulnerability CVE-2023-45857. A dual-client dispatcher pattern has been implemented that allows both versions to coexist, enabling a gradual migration path for plugins and custom code.
+
+**Current behavior (6.7.x):**
+- Default: axios 0.30.2 (backward compatible)
+- Opt-in: Add `useAxiosV1: true` to request configuration to use axios 1.x
+
+**Future behavior (6.8.0+):**
+- Default: axios 1.x (when `V6_8_0_0` feature flag is active)
+- Opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
+
+**Key differences between versions:**
+- **Cancellation**: axios 0.x uses `CancelToken`, axios 1.x uses `AbortController` (modern standard)
+- **Error codes**: axios 1.x provides more standardized error codes like `ERR_CANCELED`
+
+Plugin developers should test their code with `useAxiosV1: true` to ensure compatibility before the 6.8 release. The migration guide is available at `technical-docs/09-security/axios-migration-guide.md`.
 
 ### Loading indicator for whole page
 

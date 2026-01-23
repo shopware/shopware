@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
@@ -181,6 +182,10 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         foreach ($transactions as $transaction) {
             if ($transaction->getPaymentMethodId() === $paymentMethodId && $lastTransaction->getId() === $transaction->getId()) {
+                if ($this->hasChangedAmount($order->getPrice(), $transaction->getAmount())) {
+                    return false;
+                }
+
                 $initialState = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
                 if ($transaction->getStateId() === $initialState) {
                     return true;
@@ -282,5 +287,24 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         }
 
         throw OrderException::paymentMethodNotChangeable();
+    }
+
+    private function hasChangedAmount(CartPrice $original, CalculatedPrice $transactionAmount): bool
+    {
+        if ($original->getTotalPrice() !== $transactionAmount->getTotalPrice()) {
+            return true;
+        }
+
+        $cartTaxes = $original->getCalculatedTaxes();
+        $transactionTaxes = $transactionAmount->getCalculatedTaxes();
+        if ($cartTaxes->getKeys() !== $transactionTaxes->getKeys()) {
+            return true;
+        }
+
+        if ($cartTaxes->getAmount() !== $transactionTaxes->getAmount()) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -87,7 +87,10 @@ class MediaVideoCoverControllerTest extends TestCase
 
     private function getController(): MediaVideoCoverController
     {
-        return static::getContainer()->get(MediaVideoCoverController::class);
+        $controller = static::getContainer()->get(MediaVideoCoverController::class);
+        static::assertInstanceOf(MediaVideoCoverController::class, $controller);
+
+        return $controller;
     }
 
     private function createVideoMedia(): MediaEntity

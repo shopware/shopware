@@ -51,7 +51,7 @@ class BreadcrumbRouteTest extends TestCase
         $categoryEntity->setName('Test LP');
         $categoryEntity->setType('category');
 
-        $request = new Request(['id' => '1', 'type' => 'category']);
+        $request = new Request(['type' => 'category'], [], ['id' => '1']);
         $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', 'categoryId1')]));
         $this->breadcrumbBuilder->method('loadCategory')->willReturn($categoryEntity);
 
@@ -70,7 +70,7 @@ class BreadcrumbRouteTest extends TestCase
 
     public function testLoadCategoryBreadcrumbReturnsCorrectBreadcrumbNullCategory(): void
     {
-        $request = new Request(['id' => '1', 'type' => 'category']);
+        $request = new Request(['type' => 'category'], [], ['id' => '1']);
         $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', 'categoryId1')]));
 
         $response = $this->breadcrumbRoute->load($request, $this->context);
@@ -85,7 +85,7 @@ class BreadcrumbRouteTest extends TestCase
 
     public function testLoadProductBreadcrumbReturnsCorrectBreadcrumb(): void
     {
-        $request = new Request(['id' => 'productId1', 'type' => 'product']);
+        $request = new Request(['type' => 'product'], [], ['id' => 'productId1']);
         $this->breadcrumbBuilder->method('getProductBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Product', 'categoryId1')]));
 
         $this->cacheTagCollector
@@ -111,7 +111,7 @@ class BreadcrumbRouteTest extends TestCase
         $categoryEntity->setName('Test LP');
         $categoryEntity->setType('page');
 
-        $request = new Request(['id' => '1', 'type' => 'product']);
+        $request = new Request(['type' => 'product'], [], ['id' => '1']);
         $this->breadcrumbBuilder->method('getProductBreadcrumbUrls')->willThrowException(new ProductNotFoundException('1'));
         $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Category', 'category')]));
         $this->breadcrumbBuilder->method('loadCategory')->willReturn($categoryEntity);
@@ -125,7 +125,7 @@ class BreadcrumbRouteTest extends TestCase
 
     public function testLoadProductBreadcrumbWithFallbackToCategoryNullCategory(): void
     {
-        $request = new Request(['id' => '1', 'type' => 'product']);
+        $request = new Request(['type' => 'product'], [], ['id' => '1']);
         $this->breadcrumbBuilder->method('getProductBreadcrumbUrls')->willThrowException(new ProductNotFoundException('1'));
         $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Category', 'category')]));
 
@@ -135,7 +135,7 @@ class BreadcrumbRouteTest extends TestCase
 
     public function testLoadBreadcrumbWithInvalidType(): void
     {
-        $request = new Request(['id' => '1', 'type' => 'invalid']);
+        $request = new Request(['type' => 'invalid'], [], ['id' => '1']);
         $response = $this->breadcrumbRoute->load($request, $this->context);
 
         static::assertCount(0, $response->getBreadcrumbCollection());

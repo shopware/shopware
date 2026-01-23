@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ImmutableFieldsDefinition;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -58,6 +59,7 @@ class OpenApi3GeneratorTest extends TestCase
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
             [
                 SimpleDefinition::class,
+                ImmutableFieldsDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -131,5 +133,73 @@ class OpenApi3GeneratorTest extends TestCase
         static::assertArrayHasKey('Presentation', $entities);
         static::assertArrayHasKey('infoConfigResponse', $entities);
         static::assertSame('Experimental', $schema['tags'][0]['name'] ?? null);
+    }
+
+    public function testGetSchemaExtractsPropertiesFromAllOfComposition(): void
+    {
+        // ImmutableFieldsDefinition uses allOf composition for Read schema
+        $schema = $this->generator->getSchema(
+            ['immutable_test' => $this->definitionRegistry->get(ImmutableFieldsDefinition::class)]
+        );
+
+        static::assertArrayHasKey('immutable_test', $schema);
+
+        // Verify properties are extracted correctly from allOf composition
+        $properties = $schema['immutable_test']['properties'];
+
+        // Should have id (read-only)
+        static::assertArrayHasKey('id', $properties);
+
+        // Should have modifiable fields
+        static::assertArrayHasKey('description', $properties);
+        static::assertArrayHasKey('label', $properties);
+
+        // Should have immutable fields
+        static::assertArrayHasKey('name', $properties);
+        static::assertArrayHasKey('type', $properties);
+    }
+
+    public function testGetSchemaIncludesTranslatableFields(): void
+    {
+        $schema = $this->generator->getSchema(
+            $this->definitionRegistry->getDefinitions()
+        );
+
+        static::assertArrayHasKey('simple', $schema);
+        static::assertArrayHasKey('translatable', $schema['simple']);
+    }
+
+    public function testGenerateWithImmutableFieldsCreatesProperSchemas(): void
+    {
+        $schema = $this->generator->generate(
+            ['immutable_test' => $this->definitionRegistry->get(ImmutableFieldsDefinition::class)],
+            DefinitionService::API,
+            DefinitionService::TYPE_JSON_API
+        );
+
+        $entities = $schema['components']['schemas'];
+
+        // Should have Update, Create, and Read schemas
+        static::assertArrayHasKey('ImmutableTestUpdate', $entities);
+        static::assertArrayHasKey('ImmutableTestCreate', $entities);
+        static::assertArrayHasKey('ImmutableTest', $entities);
+    }
+
+    public function testGenerateWithoutImmutableFieldsDoesNotCreateCreateSchema(): void
+    {
+        $schema = $this->generator->generate(
+            ['simple' => $this->definitionRegistry->get(SimpleDefinition::class)],
+            DefinitionService::API,
+            DefinitionService::TYPE_JSON_API
+        );
+
+        $entities = $schema['components']['schemas'];
+
+        // Should have Update and Read schemas
+        static::assertArrayHasKey('SimpleUpdate', $entities);
+        static::assertArrayHasKey('Simple', $entities);
+
+        // Should NOT have Create schema (no immutable fields)
+        static::assertArrayNotHasKey('SimpleCreate', $entities);
     }
 }

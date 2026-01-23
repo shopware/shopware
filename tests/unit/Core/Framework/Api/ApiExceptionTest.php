@@ -302,4 +302,13 @@ class ApiExceptionTest extends TestCase
             $exception->getMessage()
         );
     }
+
+    public function testInvalidSchemaStructure(): void
+    {
+        $exception = ApiException::invalidSchemaStructure('product');
+
+        static::assertSame(ApiException::API_INVALID_SCHEMA_STRUCTURE, $exception->getErrorCode());
+        static::assertSame('Invalid schema structure detected for entity "product".', $exception->getMessage());
+        static::assertSame(500, $exception->getStatusCode());
+    }
 }

@@ -49,6 +49,8 @@ export interface LoginService {
     getStorage: () => CookieStorage;
     setRememberMe: (active?: boolean) => void;
     getLoginTemplateConfig: () => Promise<LoginConfig>;
+    subscribeToTokenRefresh: (successCallback: (token: string) => void, errorCallback: (error: Error) => void) => void;
+    isRefreshing: () => boolean;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -64,10 +66,20 @@ export default function createLoginService(
     const onLoginListener: (() => void)[] = [];
     const cookieStorage = cookieStorageFactory();
     let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
+    let logoutTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
     let refreshPromise: Promise<string> | null = null;
     let refreshRetryCount = 0;
     const MAX_REFRESH_RETRIES = 5;
+
+    // Subscriber pattern for token refresh events
+    const refreshSubscribers: Array<(token: string) => void> = [];
+    const refreshErrorSubscribers: Array<(error: Error) => void> = [];
+
+    // Delay in milliseconds before logging out after a failed token refresh.
+    // This gives other browser tabs time to potentially refresh the token successfully
+    // and sync it via cookie storage, preventing unnecessary logouts in multi-tab scenarios.
+    const TOKEN_SYNC_DELAY_MS = 1000;
 
     return {
         loginByUsername,
@@ -89,6 +101,8 @@ export default function createLoginService(
         getStorage,
         setRememberMe,
         getLoginTemplateConfig,
+        subscribeToTokenRefresh,
+        isRefreshing,
     };
 
     /**
@@ -147,7 +161,7 @@ export default function createLoginService(
      * Sends an AJAX request to the authentication end point and retries to refresh the token.
      */
     function refreshToken(): Promise<AuthObject['access']> {
-        // No parallel requests
+        // No parallel requests - return existing promise if refresh is already in progress
         if (refreshPromise) {
             return refreshPromise;
         }
@@ -173,16 +187,25 @@ export default function createLoginService(
             )
             .then((response) => {
                 const expiry = response.data.expires_in;
+                const newToken = response.data.access_token;
 
                 setBearerAuthentication({
-                    access: response.data.access_token,
+                    access: newToken,
                     expiry: expiry,
                     refresh: response.data.refresh_token,
                 });
 
                 refreshRetryCount = 0;
+                clearLogoutTimeout();
 
-                return response.data.access_token;
+                // Notify all subscribers about successful token refresh
+                refreshSubscribers.forEach((callback) => {
+                    callback(newToken);
+                });
+                refreshSubscribers.length = 0;
+                refreshErrorSubscribers.length = 0;
+
+                return newToken;
             })
             .catch((error) => {
                 refreshRetryCount += 1;
@@ -195,6 +218,17 @@ export default function createLoginService(
                     restartAutoTokenRefresh(Date.now() + backoffMs);
                 }
 
+                // Schedule logout if no token is present after delay
+                scheduleLogoutIfNoToken();
+
+                // Notify all error subscribers
+                const errorObj = error instanceof Error ? error : new Error(String(error));
+                refreshErrorSubscribers.forEach((callback) => {
+                    callback(errorObj);
+                });
+                refreshSubscribers.length = 0;
+                refreshErrorSubscribers.length = 0;
+
                 return Promise.reject(error);
             })
             .finally(() => {
@@ -202,6 +236,60 @@ export default function createLoginService(
             });
 
         return refreshPromise;
+    }
+
+    /**
+     * Subscribe to token refresh events. Callbacks will be called when token refresh succeeds or fails.
+     *
+     * @param successCallback - Called with the new token when refresh succeeds
+     * @param errorCallback - Called with the error when refresh fails
+     */
+    function subscribeToTokenRefresh(
+        successCallback: (token: string) => void,
+        errorCallback: (error: Error) => void,
+    ): void {
+        refreshSubscribers.push(successCallback);
+        refreshErrorSubscribers.push(errorCallback);
+    }
+
+    /**
+     * Returns whether a token refresh is currently in progress.
+     */
+    function isRefreshing(): boolean {
+        return refreshPromise !== null;
+    }
+
+    /**
+     * Clears any pending logout timeout.
+     *
+     * @private
+     */
+    function clearLogoutTimeout(): void {
+        if (logoutTimeoutId !== undefined) {
+            clearTimeout(logoutTimeoutId);
+            logoutTimeoutId = undefined;
+        }
+    }
+
+    /**
+     * Schedules a logout if no token is present after a delay.
+     * Only one timeout can be active at a time to prevent multiple queued callbacks.
+     *
+     * @private
+     */
+    function scheduleLogoutIfNoToken(): void {
+        if (logoutTimeoutId !== undefined) {
+            return;
+        }
+
+        if (!getToken()) {
+            logoutTimeoutId = setTimeout(() => {
+                logoutTimeoutId = undefined;
+                if (!getToken()) {
+                    logout();
+                }
+            }, TOKEN_SYNC_DELAY_MS);
+        }
     }
 
     function verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {
@@ -418,6 +506,8 @@ export default function createLoginService(
             clearTimeout(autoRefreshTokenTimeoutId);
             autoRefreshTokenTimeoutId = undefined;
         }
+
+        clearLogoutTimeout();
 
         forwardLogout(isInactivityLogout, shouldRedirect);
 

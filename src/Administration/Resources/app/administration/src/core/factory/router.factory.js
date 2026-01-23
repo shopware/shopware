@@ -80,7 +80,6 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
             setModuleFavicon(to, assetPath);
             const loggedIn = LoginService.isLoggedIn();
-            const tokenHandler = new Shopware.Helper.RefreshTokenHelper();
             const loginAllowlist = [
                 '/login/',
                 '/login',
@@ -123,9 +122,8 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                     }),
                 );
 
-                if (!tokenHandler.isRefreshing) {
-                    return tokenHandler
-                        .fireRefreshTokenRequest()
+                if (!LoginService.isRefreshing()) {
+                    return LoginService.refreshToken()
                         .then(() => {
                             return addModuleInfoToTarget(to);
                         })

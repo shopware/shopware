@@ -5,7 +5,8 @@
     "/consents": {
       "get": {
         "tags": [
-          "Consent Management"
+          "Consent Management",
+          "experimental"
         ],
         "summary": "List all consents for current user",
         "description": "Returns a list of all available consents with their current status for the authenticated admin user. Each consent includes its name, identifier, and current state (requested, accepted, or revoked).",
@@ -33,7 +34,8 @@
     "/consents/accept": {
       "post": {
         "tags": [
-          "Consent Management"
+          "Consent Management",
+          "experimental"
         ],
         "summary": "Accept a consent",
         "description": "Marks the specified consent as accepted for the authenticated admin user.",
@@ -80,7 +82,8 @@
     "/consents/revoke": {
       "post": {
         "tags": [
-          "Consent Management"
+          "Consent Management",
+          "experimental"
         ],
         "summary": "Revoke a consent",
         "description": "Marks the specified consent as revoked for the authenticated admin user.",

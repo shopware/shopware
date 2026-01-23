@@ -151,6 +151,12 @@ This behaviour differs from the existing ìsCacheable` property, which will also
 
 Added logging for invalidated cache tags at the info level, with the ability to enable or disable the logging via configuration for debugging and transparency.
 
+### Removed `CacheInvalidationSubscriber::getChangedPropertyFilterTags` due to performance issues
+
+The `getChangedPropertyFilterTags` method has been removed from `CacheInvalidationSubscriber` due to performance issues where it could cause invalidation storms by selecting all product IDs for popular property options.
+
+Changing a property group or option will no longer automatically invalidate product and product list caches. It's recommended to rely on TTLs for bigger shops. If you experience issues after changing a property group, a manual cache clear may be required.
+
 ## Administration
 
 ### Deprecations in mail template components

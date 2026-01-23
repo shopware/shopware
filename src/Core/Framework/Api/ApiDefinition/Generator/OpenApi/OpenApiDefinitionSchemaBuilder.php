@@ -100,43 +100,58 @@ class OpenApiDefinitionSchemaBuilder
             );
         }
 
-        // Generate Update schema (only modifiable fields - no immutable, no read-only, no required)
-        $schema[$schemaName . 'Update'] = $this->buildUpdateSchema(
-            $schemaName,
-            $fieldData['updateAttributes'],
-            $fieldData['updateRequiredAttributes'],
-            $definition->since()
-        );
-
-        // Generate Create schema ONLY if there are immutable fields
-        // If no immutable fields, Create would just reference Update which is redundant
-        if ($fieldData['hasImmutableFields']) {
-            $schema[$schemaName . 'Create'] = $this->buildCreateSchema(
+        // For TYPE_JSON_API (Admin API), generate Update/Create/Read schemas with allOf composition
+        // For TYPE_JSON, generate a flat schema (backward compatible)
+        if ($apiType === DefinitionService::TYPE_JSON_API) {
+            // Generate Update schema (only modifiable fields - no immutable, no read-only, no required)
+            $schema[$schemaName . 'Update'] = $this->buildUpdateSchema(
                 $schemaName,
-                $fieldData['immutableAttributes'],
-                $fieldData['createRequiredAttributes'],
+                $fieldData['updateAttributes'],
+                $fieldData['updateRequiredAttributes'],
                 $definition->since()
             );
-        }
 
-        // Generate Read schema - all fields including technical read-only (id, createdAt, updatedAt) and relationships
-        // References Create if it exists, otherwise references Update
-        $schema[$schemaName] = $this->buildReadSchema(
-            $schemaName,
-            $fieldData['readOnlyAttributes'],
-            $fieldData['relationships'],
-            $fieldData['hasImmutableFields'],
-            $definition->since()
-        );
+            // Generate Create schema ONLY if there are immutable fields
+            // If no immutable fields, Create would just reference Update which is redundant
+            if ($fieldData['hasImmutableFields']) {
+                $schema[$schemaName . 'Create'] = $this->buildCreateSchema(
+                    $schemaName,
+                    $fieldData['immutableAttributes'],
+                    $fieldData['createRequiredAttributes'],
+                    $definition->since()
+                );
+            }
 
-        // Generate JsonApi schema for JSON:API format
-        if (!$onlyFlat && $apiType === DefinitionService::TYPE_JSON_API) {
-            $schema[$schemaName . 'JsonApi'] = $this->buildJsonApiSchema(
+            // Generate Read schema - all fields including technical read-only (id, createdAt, updatedAt) and relationships
+            // References Create if it exists, otherwise references Update
+            $schema[$schemaName] = $this->buildReadSchema(
+                $schemaName,
+                $fieldData['readOnlyAttributes'],
+                $fieldData['relationships'],
+                $fieldData['hasImmutableFields'],
+                $definition->since()
+            );
+
+            // Generate JsonApi schema for JSON:API format
+            if (!$onlyFlat) {
+                $schema[$schemaName . 'JsonApi'] = $this->buildJsonApiSchema(
+                    $schemaName,
+                    $fieldData['allAttributes'],
+                    $fieldData['allRequiredAttributes'],
+                    $fieldData['relationships'],
+                    $definition->since()
+                );
+            }
+        } else {
+            // TYPE_JSON: Build flat schema (backward compatible structure)
+            return $this->buildStoreApiSchema(
                 $schemaName,
                 $fieldData['allAttributes'],
                 $fieldData['allRequiredAttributes'],
                 $fieldData['relationships'],
-                $definition->since()
+                $definition->since(),
+                $onlyFlat,
+                $apiType
             );
         }
 

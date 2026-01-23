@@ -48,7 +48,7 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
                 ['ids' => ArrayParameterType::STRING]
             );
         } catch (\Throwable) {
-           // On MySQL 9.6+ there is no longer support for MD5, so we silently ignore the missing function error here.
+            // On MySQL 9.6+ there is no longer support for MD5, so we silently ignore the missing function error here.
         }
     }
 }

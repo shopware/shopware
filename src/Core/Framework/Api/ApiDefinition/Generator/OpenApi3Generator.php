@@ -109,6 +109,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
 
+        // Remove unused schema components to reduce spec size
+        // Only for JSON_API type where we have paths that reference schemas
+        if ($apiType === DefinitionService::TYPE_JSON_API && !empty($bundleName) === false) {
+            $finalSpecs = $this->removeUnreferencedSchemas($finalSpecs);
+        }
+
         return $finalSpecs;
     }
 
@@ -317,5 +323,97 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         }
 
         return $properties;
+    }
+
+    /**
+     * Removes schema components that are not referenced anywhere in the spec.
+     * This reduces the size of the OpenAPI specification by removing orphaned schemas
+     * like mapping entities that are never directly referenced in paths or other schemas.
+     *
+     * @param OpenApiSpec $spec
+     *
+     * @return OpenApiSpec
+     */
+    private function removeUnreferencedSchemas(array $spec): array
+    {
+        if (!isset($spec['components']['schemas'])) {
+            return $spec;
+        }
+
+        $schemas = $spec['components']['schemas'];
+        $referencedSchemas = $this->collectReferencedSchemas($spec, $schemas);
+
+        // Filter schemas to only keep referenced ones
+        $spec['components']['schemas'] = array_filter(
+            $schemas,
+            static fn (mixed $schema, string $name): bool => isset($referencedSchemas[$name]),
+            \ARRAY_FILTER_USE_BOTH
+        );
+
+        return $spec;
+    }
+
+    /**
+     * Collects all schema names that are referenced in the spec.
+     * Recursively resolves references to include transitive dependencies.
+     *
+     * @param array<string, mixed> $spec
+     * @param array<string, mixed> $allSchemas
+     *
+     * @return array<string, true>
+     */
+    private function collectReferencedSchemas(array $spec, array $allSchemas): array
+    {
+        $referenced = [];
+
+        // Collect direct references from paths and other parts (excluding components.schemas itself)
+        $specWithoutSchemas = $spec;
+        unset($specWithoutSchemas['components']['schemas']);
+        $this->findRefsRecursive($specWithoutSchemas, $referenced);
+
+        // Resolve transitive references from referenced schemas
+        $queue = array_keys($referenced);
+        while ($queue !== []) {
+            $schemaName = array_shift($queue);
+            if (!isset($allSchemas[$schemaName])) {
+                continue;
+            }
+
+            $schemaRefs = [];
+            $this->findRefsRecursive($allSchemas[$schemaName], $schemaRefs);
+
+            foreach ($schemaRefs as $refName => $true) {
+                if (!isset($referenced[$refName])) {
+                    $referenced[$refName] = true;
+                    $queue[] = $refName;
+                }
+            }
+        }
+
+        return $referenced;
+    }
+
+    /**
+     * Recursively finds all $ref references in a data structure.
+     *
+     * @param array<string, true> $refs
+     */
+    private function findRefsRecursive(mixed $data, array &$refs): void
+    {
+        if (!\is_array($data)) {
+            return;
+        }
+
+        if (isset($data['$ref']) && \is_string($data['$ref'])) {
+            $refName = str_replace('#/components/schemas/', '', $data['$ref']);
+            if (!str_starts_with($data['$ref'], '#/components/schemas/')) {
+                return;
+            }
+            $refs[$refName] = true;
+        }
+
+        foreach ($data as $value) {
+            $this->findRefsRecursive($value, $refs);
+        }
     }
 }

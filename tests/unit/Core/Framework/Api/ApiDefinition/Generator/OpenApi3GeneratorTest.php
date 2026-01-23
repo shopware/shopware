@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleMappingDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ImmutableFieldsDefinition;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -60,6 +61,7 @@ class OpenApi3GeneratorTest extends TestCase
             [
                 SimpleDefinition::class,
                 ImmutableFieldsDefinition::class,
+                SimpleMappingDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -201,5 +203,46 @@ class OpenApi3GeneratorTest extends TestCase
 
         // Should NOT have Create schema (no immutable fields)
         static::assertArrayNotHasKey('SimpleCreate', $entities);
+    }
+
+    public function testUnreferencedSchemasAreRemoved(): void
+    {
+        // Generate schema with both a regular entity and a mapping entity
+        $schema = $this->generator->generate(
+            [
+                'simple' => $this->definitionRegistry->get(SimpleDefinition::class),
+                'simple_mapping' => $this->definitionRegistry->get(SimpleMappingDefinition::class),
+            ],
+            DefinitionService::API,
+            DefinitionService::TYPE_JSON_API
+        );
+
+        $entities = $schema['components']['schemas'];
+
+        // Simple entity should exist (it has paths that reference it)
+        static::assertArrayHasKey('Simple', $entities);
+        static::assertArrayHasKey('SimpleUpdate', $entities);
+
+        // SimpleMappingDefinition should NOT exist (it's a mapping entity with no references)
+        static::assertArrayNotHasKey('SimpleMapping', $entities);
+        static::assertArrayNotHasKey('SimpleMappingUpdate', $entities);
+    }
+
+    public function testReferencedSchemasAreKept(): void
+    {
+        // Generate schema where schemas reference each other
+        $schema = $this->generator->generate(
+            ['immutable_test' => $this->definitionRegistry->get(ImmutableFieldsDefinition::class)],
+            DefinitionService::API,
+            DefinitionService::TYPE_JSON_API
+        );
+
+        $entities = $schema['components']['schemas'];
+
+        // All schemas should exist because they reference each other:
+        // ImmutableTest references ImmutableTestCreate, which references ImmutableTestUpdate
+        static::assertArrayHasKey('ImmutableTest', $entities);
+        static::assertArrayHasKey('ImmutableTestCreate', $entities);
+        static::assertArrayHasKey('ImmutableTestUpdate', $entities);
     }
 }

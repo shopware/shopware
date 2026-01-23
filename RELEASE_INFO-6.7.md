@@ -189,6 +189,11 @@ The following changes are relevant when HTTP caching policies feature is enabled
 * HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
 * `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
 
+### First tap on iOS Safari did not trigger call-to-action buttons on product detail page
+Fixes an issue on iOS Safari where the first tap does not trigger the desired action on the product detail page after scrolling over the image gallery.
+The `touchmove` event listener was removed from `zoom-modal.plugin.js` because it stopped the tap/click event.
+A regular `click` event is used instead to open the Zoom-Modal. The browser itself can determine via the `click` event if the user is still scrolling or clicking/taping.
+
 ### Google Analytics 4 Integration Update
 
 The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities.

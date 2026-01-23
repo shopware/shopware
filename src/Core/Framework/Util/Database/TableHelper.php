@@ -19,6 +19,8 @@ use Shopware\Core\Framework\Util\UtilException;
  * @internal
  *
  * @template TPlatform of AbstractPlatform
+ *
+ * @codeCoverageIgnore Cannot be reasonable unit-tested. Covered by {@see \Shopware\Tests\Integration\Core\Framework\Util\Database\TableHelperTest}
  */
 #[Package('framework')]
 class TableHelper
@@ -32,15 +34,23 @@ class TableHelper
     {
     }
 
+    /**
+     * @throws TableHelperException
+     */
     public static function tableExists(Connection $connection, string $tableName): bool
     {
         try {
             return self::getSchemaManager($connection)->tableExists($tableName);
+        } catch (TableHelperException $e) {
+            throw $e;
         } catch (\Throwable $e) {
-            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
     }
 
+    /**
+     * @throws TableHelperException
+     */
     public static function getTable(Connection $connection, string $tableName): Table
     {
         try {
@@ -51,25 +61,33 @@ class TableHelper
                     return $column->getObjectName()->getIdentifier()->getValue();
                 }, $dbalTable->getColumns())
             );
+        } catch (TableHelperException $e) {
+            throw $e;
         } catch (\Throwable $e) {
-            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
     }
 
     /**
      * @param non-empty-string $table
+     *
+     * @throws TableHelperException
      */
     public static function columnExists(Connection $connection, string $table, string $columnName): bool
     {
         try {
             return self::getSchemaManager($connection)->introspectTable($table)->hasColumn($columnName);
+        } catch (TableHelperException $e) {
+            throw $e;
         } catch (\Throwable $e) {
-            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
     }
 
     /**
      * @param non-empty-string $table
+     *
+     * @throws TableHelperException
      */
     public static function getColumnOfTable(Connection $connection, string $table, string $columnName): Column
     {
@@ -82,38 +100,50 @@ class TableHelper
                 isNotNull: $dbalColumn->getNotnull(),
                 defaultValue: $dbalColumn->getDefault(),
             );
+        } catch (TableHelperException $e) {
+            throw $e;
         } catch (\Throwable $e) {
-            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
     }
 
     /**
      * @param non-empty-string $table
+     *
+     * @throws TableHelperException
      */
     public static function indexExists(Connection $connection, string $table, string $indexName): bool
     {
         try {
             return self::getSchemaManager($connection)->introspectTable($table)->hasIndex($indexName);
+        } catch (TableHelperException $e) {
+            throw $e;
         } catch (\Throwable $e) {
-            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
     }
 
     /**
      * @param non-empty-string $table
      * @param list<string> $spansColumns
+     *
+     * @throws TableHelperException
      */
     public static function indexSpansColumns(Connection $connection, string $table, string $indexName, array $spansColumns): bool
     {
         try {
             return self::getSchemaManager($connection)->introspectTable($table)->getIndex($indexName)->spansColumns($spansColumns);
+        } catch (TableHelperException $e) {
+            throw $e;
         } catch (\Throwable $e) {
-            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
     }
 
     /**
      * @param non-empty-string $table
+     *
+     * @throws TableHelperException
      */
     public static function getForeignKeyOfTable(Connection $connection, string $table, string $foreignKeyName): ForeignKey
     {
@@ -130,8 +160,10 @@ class TableHelper
                 }, $dbalForeignKey->getReferencedColumnNames()),
                 onDeleteAction: $dbalForeignKey->getOnDeleteAction()->value,
             );
+        } catch (TableHelperException $e) {
+            throw $e;
         } catch (\Throwable $e) {
-            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
     }
 
@@ -141,6 +173,8 @@ class TableHelper
     }
 
     /**
+     * @throws TableHelperException
+     *
      * @return AbstractSchemaManager<TPlatform>
      */
     private static function getSchemaManager(Connection $connection): AbstractSchemaManager
@@ -152,7 +186,7 @@ class TableHelper
         try {
             self::$schemaManager = $connection->createSchemaManager();
         } catch (\Throwable $e) {
-            throw UtilException::dbTableHelperException(__FUNCTION__, $e);
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
 
         return self::$schemaManager;

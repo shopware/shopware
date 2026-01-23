@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Util;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Database\TableHelperException;
 use Shopware\Core\Framework\Util\Exception\Base64DecodingException;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
 use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
@@ -124,14 +125,10 @@ class UtilException extends HttpException
         );
     }
 
-    public static function dbTableHelperException(string $executedAction, \Throwable $previousException): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DB_TABLE_HELPER_EXCEPTION,
-            'Could not execute "{{ executedAction }}". Reason: {{ message }}',
-            ['executedAction' => $executedAction, 'message' => $previousException->getMessage()],
-            $previousException,
-        );
+    public static function databaseTableHelperException(
+        string $executedAction,
+        \Throwable $previousException
+    ): TableHelperException {
+        return new TableHelperException($executedAction, $previousException);
     }
 }

@@ -150,7 +150,7 @@ SQL
             $this->expectException(TableNotFoundException::class);
             $this->expectExceptionMessageMatches('/SQLSTATE\[42S02\]\: Base table or view not found\: 1146 Table .*foo\' doesn\'t exist/');
         } else {
-            $this->expectExceptionObject(UtilException::dbTableHelperException('columnExists', TableDoesNotExist::new('foo')));
+            $this->expectExceptionObject(UtilException::databaseTableHelperException('columnExists', TableDoesNotExist::new('foo')));
         }
         static::assertTrue($step->doAddColumn($connection, 'foo', 'test_column', 'VARCHAR(255)'));
     }

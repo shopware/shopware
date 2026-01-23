@@ -41,10 +41,14 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
             ['ids' => ArrayParameterType::STRING]
         );
 
-        $connection->executeStatement(
-            'UPDATE `product` SET `display_group` = MD5(HEX(`parent_id`)) WHERE `parent_id` IN (:ids)',
-            ['ids' => $productIds],
-            ['ids' => ArrayParameterType::STRING]
-        );
+        try {
+            $connection->executeStatement(
+                'UPDATE `product` SET `display_group` = MD5(HEX(`parent_id`)) WHERE `parent_id` IN (:ids)',
+                ['ids' => $productIds],
+                ['ids' => ArrayParameterType::STRING]
+            );
+        } catch (\Throwable) {
+           // On MySQL 9.6+ there is no longer support for MD5, so we silently ignore the missing function error here.
+        }
     }
 }

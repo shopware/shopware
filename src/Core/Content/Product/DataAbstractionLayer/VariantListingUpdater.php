@@ -41,7 +41,7 @@ class VariantListingUpdater
 
         $displayParent = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE product SET display_group = MD5(HEX(product.id)) WHERE product.id = :id AND product.version_id = :versionId')
+            $this->connection->prepare('UPDATE product SET display_group = SHA2(HEX(product.id), 256) WHERE product.id = :id AND product.version_id = :versionId')
         );
 
         $hideParent = new RetryableQuery(
@@ -51,7 +51,7 @@ class VariantListingUpdater
 
         $singleVariant = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE product SET display_group = MD5(HEX(product.parent_id)) WHERE product.parent_id = :id AND product.version_id = :versionId')
+            $this->connection->prepare('UPDATE product SET display_group = SHA2(HEX(product.parent_id), 256) WHERE product.parent_id = :id AND product.version_id = :versionId')
         );
 
         foreach ($listingConfiguration as $parentId => $config) {
@@ -99,12 +99,12 @@ class VariantListingUpdater
             $query->addSelect('CONCAT(' . implode(',', $fields) . ')');
 
             $sql = '
-            UPDATE product SET display_group = MD5(
+            UPDATE product SET display_group = SHA2(
                 CONCAT(
                     LOWER(HEX(product.parent_id)),
                     (' . $query->getSQL() . ')
                 )
-            ) WHERE parent_id = :parentId AND version_id = :versionId';
+            , 256) WHERE parent_id = :parentId AND version_id = :versionId';
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
                 $this->connection->executeStatement($sql, $params);

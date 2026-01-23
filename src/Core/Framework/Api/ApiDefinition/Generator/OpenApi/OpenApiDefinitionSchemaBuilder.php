@@ -327,7 +327,6 @@ class OpenApiDefinitionSchemaBuilder
             'type' => 'string',
             'pattern' => '^[0-9a-f]{32}$',
             'readOnly' => true,
-            'description' => 'Server-generated unique ID',
         ]);
         $readOnlyAttributes = [$idProperty, ...$readOnlyAttributes];
         $allAttributes = [$idProperty, ...$allAttributes];

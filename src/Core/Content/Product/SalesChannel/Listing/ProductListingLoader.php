@@ -295,7 +295,7 @@ class ProductListingLoader
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria);
+        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -311,13 +311,24 @@ class ProductListingLoader
         return $event->getMapping();
     }
 
-    private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria): bool
+    private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria, SalesChannelContext $context): bool
     {
         if ($hasOptionFilter === true) {
             return false;
         }
 
-        return !$criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+
+        $shouldLoadPreviewsOnSearch = !$this->systemConfigService->getBool(
+            'core.listing.findBestVariant',
+            $context->getSalesChannelId()
+        );
+
+        if ($shouldLoadPreviewsOnSearch && $isSearchRoute) {
+            return true;
+        }
+
+        return !$isSearchRoute;
     }
 
     /**

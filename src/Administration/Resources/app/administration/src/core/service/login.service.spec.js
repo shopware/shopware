@@ -595,9 +595,7 @@ describe('core/service/login.service.js', () => {
 
             jest.useRealTimers();
         });
-    });
 
-    describe('multi-tab token synchronization', () => {
         it('should handle concurrent refresh calls with singleton promise', async () => {
             jest.useFakeTimers();
 
@@ -638,21 +636,7 @@ describe('core/service/login.service.js', () => {
             jest.useRealTimers();
         });
 
-        it('should synchronize token across tabs via cookie storage', () => {
-            const { loginService } = loginServiceFactory();
-            const { loginService: loginServiceTab2 } = loginServiceFactory();
-
-            loginService.setBearerAuthentication({
-                access: 'test_token',
-                refresh: 'test_refresh',
-                expiry: 3600,
-            });
-
-            expect(loginServiceTab2.getToken()).toBe('test_token');
-            expect(loginServiceTab2.getBearerAuthentication('refresh')).toBe('test_refresh');
-        });
-
-        it('should notify token changed listeners when another tab updates the token', () => {
+        it('should notify token changed listeners when the token gets updated', () => {
             const { loginService } = loginServiceFactory();
 
             const tokenChangedListener = jest.fn();
@@ -678,6 +662,22 @@ describe('core/service/login.service.js', () => {
                     access: 'updated_token',
                 }),
             );
+        });
+    });
+
+    describe('multi-tab token synchronization', () => {
+        it('should synchronize token across tabs via cookie storage', () => {
+            const { loginService } = loginServiceFactory();
+            const { loginService: loginServiceTab2 } = loginServiceFactory();
+
+            loginService.setBearerAuthentication({
+                access: 'test_token',
+                refresh: 'test_refresh',
+                expiry: 3600,
+            });
+
+            expect(loginServiceTab2.getToken()).toBe('test_token');
+            expect(loginServiceTab2.getBearerAuthentication('refresh')).toBe('test_refresh');
         });
     });
 });

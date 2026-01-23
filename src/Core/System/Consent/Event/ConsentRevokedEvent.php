@@ -15,7 +15,8 @@ readonly class ConsentRevokedEvent implements Hookable
     public function __construct(
         public string $consentName,
         public string $consentScope,
-        public string $identifier
+        public string $identifier,
+        public string $actorId
     ) {
     }
 
@@ -33,6 +34,7 @@ readonly class ConsentRevokedEvent implements Hookable
             'consent' => $this->consentName,
             'scope' => $this->consentScope,
             'identifier' => $this->identifier,
+            'actorId' => $this->actorId,
         ];
     }
 

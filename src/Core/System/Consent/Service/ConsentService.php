@@ -90,7 +90,8 @@ class ConsentService
     {
         $updatedState = $this->updateState($name, ConsentStatus::ACCEPTED, $context);
 
-        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier));
+        \assert(\is_string($updatedState->actorId));
+        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actorId));
 
         $this->invalidateState();
 
@@ -101,7 +102,8 @@ class ConsentService
     {
         $updatedState = $this->updateState($name, ConsentStatus::REVOKED, $context);
 
-        $this->eventDispatcher->dispatch(new ConsentRevokedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier));
+        \assert(\is_string($updatedState->actorId));
+        $this->eventDispatcher->dispatch(new ConsentRevokedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actorId));
 
         $this->invalidateState();
 

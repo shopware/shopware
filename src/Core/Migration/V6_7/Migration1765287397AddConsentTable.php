@@ -31,5 +31,15 @@ class Migration1765287397AddConsentTable extends MigrationStep
                 UNIQUE KEY `uniq.consent_state` (`name`, `identifier`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
+
+        $connection->executeStatement('
+            CREATE TABLE IF NOT EXISTS `consent_log` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
+                `consent_name` VARCHAR(100) NOT NULL,
+                `message` LONGTEXT NOT NULL,
+                PRIMARY KEY (`id`),
+                KEY `idx.consent_log.history` (`consent_name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ');
     }
 }

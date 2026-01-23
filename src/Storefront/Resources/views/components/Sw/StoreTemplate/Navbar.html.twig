@@ -3,11 +3,25 @@
     homeEnabled = context.salesChannel.translated.homeEnabled,
     homeLabel = context.salesChannel.translated.homeName|default('general.homeLink'|trans),
     homePath = path('frontend.home.page'),
+    scrollable = true,
 %}
 
+{% set navbarCVA = cva({
+    base: 'sw-navbar',
+    variants: {
+        scrollable: {
+            true: ['has--scroller'],
+            false: null,
+        }
+    }
+}) %}
+
+{% set jsOptions = { scrollable } %}
+
 {% set attributeDefaults = {
-    class: 'sw-navbar',
+    class: navbarCVA.apply({ scrollable }),
     'data-component': 'Sw:StoreTemplate:Navbar',
+    'data-component-options': jsOptions|json_encode,
 } %}
 
 <nav {{ attributes.defaults(attributeDefaults) }}>
@@ -33,7 +47,7 @@
                 {% if not itemSkipped %}
                     <li class="sw-navbar__nav-item nav-item" tabindex="0">
                         <a
-                            class="sw-navbar__nav-link nav-link"
+                            class="sw-navbar__nav-link nav-link{% if hasChildren %} has--children{% endif %}"
                             href="{{ treeItem.category.seoUrl ?: '#' }}"
                             data-category-id="{{ category.id }}"
                             {% if hasChildren %}tabindex="-1"{% endif %}
@@ -50,18 +64,25 @@
                                 :navigationTree="treeItem.children"
                             />
                         {% endif %}
+
+{#                        <div class="sw-navbar__backdrop modal-backdrop"></div>#}
                     </li>
                 {% endif %}
             {% endfor %}
         </ul>
 
-        <div class="sw-navbar__scroller" aria-hidden="true">
-            <div class="sw-navbar__scroll-button" tabindex="-1">
-
+        {% if scrollable %}
+            <div
+                class="sw-navbar__scroller"
+                aria-hidden="true"
+            >
+                <div class="sw-navbar__scroller-button is--left">
+                    <twig:Sw:Icon name="arrow-head-left" size="xs" />
+                </div>
+                <div class="sw-navbar__scroller-button is--right">
+                    <twig:Sw:Icon name="arrow-head-right" size="xs" />
+                </div>
             </div>
-            <div class="sw-navbar__scroll-button" tabindex="-1">
-
-            </div>
-        </div>
+        {% endif %}
     </div>
 </nav>

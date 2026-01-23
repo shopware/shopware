@@ -1,6 +1,7 @@
 {% props
     category,
     navigationTree,
+    backdrop = true
 %}
 
 {% set attributeDefaults = {
@@ -16,7 +17,7 @@
         </div>
 
         <div class="row">
-            <div class="col-10">
+            <div class="sw-flyout__categories-container col-10">
                 <twig:Sw:StoreTemplate:FlyoutCategories :navigationTree="navigationTree" />
             </div>
             <div class="col-2">
@@ -29,3 +30,7 @@
         </div>
     </div>
 </div>
+
+{% if backdrop %}
+    <div class="sw-flyout__backdrop modal-backdrop"></div>
+{% endif %}

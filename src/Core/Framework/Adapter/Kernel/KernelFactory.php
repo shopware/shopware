@@ -56,11 +56,11 @@ class KernelFactory
             $middlewares = [new ProfilingMiddleware()];
         }
 
-        $connection = $connection ?? MySQLFactory::create($middlewares);
+        $connection ??= MySQLFactory::create($middlewares);
 
-        $pluginLoader = $pluginLoader ?? new DbalKernelPluginLoader($classLoader, null, $connection);
+        $pluginLoader ??= new DbalKernelPluginLoader($classLoader, null, $connection);
 
-        $cacheId = EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID', '');
+        $cacheId = (string) EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID', '');
 
         if ($cacheId === '' && !Feature::isActive('v6.7.0.0')) {
             $storage = new MySQLKeyValueStorage($connection);
@@ -89,11 +89,11 @@ class KernelFactory
 
         $r = new \ReflectionClass(self::class);
 
-        /** @var string $dir */
+        /** @var non-empty-string $dir */
         $dir = $r->getFileName();
 
         $dir = $rootDir = \dirname($dir);
-        while (!file_exists($dir . '/vendor')) {
+        while (!\is_dir($dir . '/vendor')) {
             if ($dir === \dirname($dir)) {
                 return $rootDir;
             }

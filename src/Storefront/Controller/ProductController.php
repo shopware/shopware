@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoade
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -158,8 +159,9 @@ class ProductController extends StorefrontController
     public function loadReviews(string $productId, Request $request, SalesChannelContext $context): Response
     {
         $this->checkReviewsActive($context);
+        $parentId = RequestParamHelper::get($request, 'parentId');
 
-        $reviews = $this->productReviewLoader->load($request, $context, $productId, $request->get('parentId'));
+        $reviews = $this->productReviewLoader->load($request, $context, $productId, $parentId);
 
         $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));
 
@@ -189,7 +191,7 @@ class ProductController extends StorefrontController
 
         return $this->renderStorefront('storefront/component/review/review.html.twig', [
             'reviews' => $reviews,
-            'ratingSuccess' => $request->get('success'),
+            'ratingSuccess' => RequestParamHelper::get($request, 'success'),
         ]);
     }
 

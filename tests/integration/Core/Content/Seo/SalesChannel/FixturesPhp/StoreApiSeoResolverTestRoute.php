@@ -11,7 +11,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -36,7 +36,8 @@ class StoreApiSeoResolverTestRoute
     ]
     public function noAuthRequiredAction(Request $request): StoreApiResponse
     {
-        $salesChannelId = $request->get('sales-channel-id');
+        $salesChannelId = $request->query->get('sales-channel-id');
+        \assert($salesChannelId !== null);
 
         return $this->categoryRoute->load(
             CategoryRoute::HOME,

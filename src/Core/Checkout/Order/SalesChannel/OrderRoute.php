@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -104,7 +105,7 @@ class OrderRoute extends AbstractOrderRoute
         }
 
         $response = new OrderRouteResponse($orderResult);
-        if ($request->get('checkPromotion') === true) {
+        if (RequestParamHelper::get($request, 'checkPromotion') === true) {
             foreach ($orders as $order) {
                 $promotions = $this->getActivePromotions($order, $context);
                 $changeable = true;
@@ -217,12 +218,14 @@ class OrderRoute extends AbstractOrderRoute
             throw CartException::customerNotLoggedIn();
         }
 
+        $email = RequestParamHelper::get($request, 'email');
+        $zipcode = RequestParamHelper::get($request, 'zipcode');
         // Verify email and zip code with this order
-        if ($request->get('email', false) && $request->get('zipcode', false)) {
+        if ($email && $zipcode) {
             $billingAddress = $order->getBillingAddress();
             if ($billingAddress === null
-                || $request->get('email') !== $orderCustomer->getEmail()
-                || $request->get('zipcode') !== $billingAddress->getZipcode()) {
+                || $email !== $orderCustomer->getEmail()
+                || $zipcode !== $billingAddress->getZipcode()) {
                 throw new WrongGuestCredentialsException();
             }
         } else {

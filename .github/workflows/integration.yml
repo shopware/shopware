@@ -442,6 +442,26 @@ jobs:
         run: |
             set -euo pipefail
 
+            # 1) show the value you're checking
+            echo "REPORT_DEST='${REPORT_DEST:-<not set>}'"
+
+              # 2) show exact S3 path you're checking
+                echo "Checking s3://shopware-ci-playwright-traces/${REPORT_DEST}/index.html"
+
+              # 3) try listing the prefix (shows which objects the CLI can see)
+                aws s3 ls "s3://shopware-ci-playwright-traces/${REPORT_DEST}/" || echo "s3 ls failed (exit $?)"
+
+              # 4) try listing the bucket with prefix (needs ListBucket)
+                aws s3 ls "s3://shopware-ci-playwright-traces/" --recursive | grep "${REPORT_DEST}" || true
+
+              # 5) try head-object (more exact; requires s3:HeadObject / s3:GetObject)
+                aws s3api head-object --bucket shopware-ci-playwright-traces --key "${REPORT_DEST}/index.html" \
+              && echo "head-object OK" || echo "head-object failed (exit $?)"
+
+              # 6) check caller identity (ensure creds exist)
+                aws sts get-caller-identity || echo "No AWS identity (credentials missing or not allowed)"
+
+
             if [ -z "${REPORT_DEST:-}" ]; then
             echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
             exit 0

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitio
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
@@ -35,17 +36,20 @@ class StoreApiGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
+        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $activeAppsLoader->method('getActiveApps')->willReturn([]);
+
         $this->generator = new StoreApiGenerator(
             new OpenApiSchemaBuilder('0.1.0'),
             new OpenApiDefinitionSchemaBuilder(),
             [
                 'Framework' => ['path' => __DIR__ . '/_fixtures'],
             ],
-            new BundleSchemaPathCollection([]),
+            new BundleSchemaPathCollection([], $activeAppsLoader, __DIR__),
         );
 
         $this->customBundleSchemas = new ShopwareBundleWithName();
-        $customBundlePathCollection = new BundleSchemaPathCollection([$this->customBundleSchemas]);
+        $customBundlePathCollection = new BundleSchemaPathCollection([$this->customBundleSchemas], $activeAppsLoader, __DIR__);
 
         $this->customApiGenerator = new StoreApiGenerator(
             new OpenApiSchemaBuilder('0.1.0'),

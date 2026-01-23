@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -15,11 +17,13 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 #[CoversClass(BundleSchemaPathCollection::class)]
 class BundleSchemaPathCollectionTest extends TestCase
 {
-    private Bundle $bundleWithSchemas;
+    private Bundle&MockObject $bundleWithSchemas;
 
-    private Bundle $bundleWithoutSchemas;
+    private Bundle&MockObject $bundleWithoutSchemas;
 
-    private Bundle $customBundleSchemas;
+    private ShopwareBundleWithName $customBundleSchemas;
+
+    private ActiveAppsLoader $activeAppsLoader;
 
     protected function setUp(): void
     {
@@ -28,11 +32,13 @@ class BundleSchemaPathCollectionTest extends TestCase
         $this->bundleWithoutSchemas = $this->createMock(Bundle::class);
         $this->bundleWithoutSchemas->method('getPath')->willReturn(__DIR__ . '/_fixtures/BundleWithoutApiSchema');
         $this->customBundleSchemas = new ShopwareBundleWithName();
+        $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $this->activeAppsLoader->method('getActiveApps')->willReturn([]);
     }
 
     public function testGetPathsForStoreApi(): void
     {
-        $factory = new BundleSchemaPathCollection([$this->bundleWithSchemas, $this->bundleWithoutSchemas]);
+        $factory = new BundleSchemaPathCollection([$this->bundleWithSchemas, $this->bundleWithoutSchemas], $this->activeAppsLoader, __DIR__);
 
         $paths = $factory->getSchemaPaths(DefinitionService::STORE_API, null);
         static::assertContains(__DIR__ . '/_fixtures/BundleWithApiSchema/Resources/Schema/StoreApi', $paths);
@@ -41,7 +47,7 @@ class BundleSchemaPathCollectionTest extends TestCase
 
     public function testGetPathsForAdminApi(): void
     {
-        $factory = new BundleSchemaPathCollection([$this->bundleWithSchemas, $this->bundleWithoutSchemas]);
+        $factory = new BundleSchemaPathCollection([$this->bundleWithSchemas, $this->bundleWithoutSchemas], $this->activeAppsLoader, __DIR__);
 
         $paths = $factory->getSchemaPaths(DefinitionService::API, null);
         static::assertContains(__DIR__ . '/_fixtures/BundleWithApiSchema/Resources/Schema/AdminApi', $paths);
@@ -50,7 +56,7 @@ class BundleSchemaPathCollectionTest extends TestCase
 
     public function testGetPathsForSingleBundleAdminApi(): void
     {
-        $factory = new BundleSchemaPathCollection([$this->bundleWithSchemas, $this->bundleWithoutSchemas, $this->customBundleSchemas]);
+        $factory = new BundleSchemaPathCollection([$this->bundleWithSchemas, $this->bundleWithoutSchemas, $this->customBundleSchemas], $this->activeAppsLoader, __DIR__);
 
         $paths = $factory->getSchemaPaths(DefinitionService::API, $this->customBundleSchemas->getName());
         static::assertContains(__DIR__ . '/_fixtures/CustomBundleWithApiSchema/Resources/Schema/AdminApi', $paths);
@@ -60,7 +66,7 @@ class BundleSchemaPathCollectionTest extends TestCase
 
     public function testGetPathsForSingleBundleStoreApi(): void
     {
-        $factory = new BundleSchemaPathCollection([$this->bundleWithSchemas, $this->bundleWithoutSchemas, $this->customBundleSchemas]);
+        $factory = new BundleSchemaPathCollection([$this->bundleWithSchemas, $this->bundleWithoutSchemas, $this->customBundleSchemas], $this->activeAppsLoader, __DIR__);
 
         $paths = $factory->getSchemaPaths(DefinitionService::STORE_API, $this->customBundleSchemas->getName());
         static::assertContains(__DIR__ . '/_fixtures/CustomBundleWithApiSchema/Resources/Schema/StoreApi', $paths);

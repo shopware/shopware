@@ -60,6 +60,7 @@ class ApiException extends HttpException
     public const API_DIRECTORY_NOT_CREATED = 'FRAMEWORK__API_DIRECTORY_NOT_CREATED';
     public const API_MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__API_REQUEST_PARAMETER_MISSING';
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
+    public const API_INVALID_SCHEMA_STRUCTURE = 'FRAMEWORK__INVALID_SCHEMA_STRUCTURE';
 
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
@@ -343,6 +344,15 @@ class ApiException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
             \sprintf('Failed to parse JSON file "%s": %s', $filename, $exception->getMessage()),
+        );
+    }
+
+    public static function invalidSchemaStructure(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_SCHEMA_STRUCTURE,
+            \sprintf('Invalid schema structure detected for entity "%s".', $entityName),
         );
     }
 

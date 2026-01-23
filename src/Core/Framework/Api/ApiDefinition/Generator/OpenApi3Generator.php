@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -146,7 +147,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             // Get the Read schema (base entity name) which contains all properties and relationships
             $readSchema = $schemas[$schemaName] ?? null;
             if ($readSchema === null) {
-                throw new \RuntimeException('Invalid schema detected. Aborting');
+                throw ApiException::invalidSchemaStructure($definition->getEntityName());
             }
             $readSchemaData = json_decode($readSchema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -164,7 +165,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     } elseif ($type === 'array') {
                         $entity = $relationshipData['items']['properties']['type']['example'];
                     } else {
-                        throw new \RuntimeException('Invalid schema detected. Aborting');
+                        throw ApiException::invalidSchemaStructure($definition->getEntityName());
                     }
 
                     $relationships[$propertyName] = [
@@ -205,7 +206,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     } elseif ($type === 'array') {
                         $entity = $data['items']['properties']['type']['example'];
                     } else {
-                        throw new \RuntimeException('Invalid schema detected. Aborting');
+                        throw ApiException::invalidSchemaStructure($definition->getEntityName());
                     }
 
                     $extensions[$propertyName] = ['type' => $type, 'entity' => $entity];

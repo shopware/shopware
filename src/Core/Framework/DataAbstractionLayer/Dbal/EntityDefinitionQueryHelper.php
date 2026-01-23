@@ -50,7 +50,7 @@ class EntityDefinitionQueryHelper
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use {@see TableHelper::columnExists} instead
      *
-     *@param non-empty-string $table
+     * @param non-empty-string $table
      */
     public static function columnExists(Connection $connection, string $table, string $column): bool
     {

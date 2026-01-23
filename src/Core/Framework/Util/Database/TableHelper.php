@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Util\UtilException;
 /**
  * @final
  *
+ * @internal
+ *
  * @template TPlatform of AbstractPlatform
  */
 #[Package('framework')]
@@ -131,6 +133,11 @@ class TableHelper
         } catch (\Throwable $e) {
             throw UtilException::dbTableHelperException(__FUNCTION__, $e);
         }
+    }
+
+    public static function resetSchemaManager(): void
+    {
+        self::$schemaManager = null;
     }
 
     /**

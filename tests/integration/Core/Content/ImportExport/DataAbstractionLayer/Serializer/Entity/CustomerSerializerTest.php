@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
@@ -23,9 +21,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
  */
 #[Package('fundamentals@after-sales')]
 #[CoversClass(CustomerSerializer::class)]
-class CustomerSerializerTest extends TestCase
+class CustomerSerializerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     /**

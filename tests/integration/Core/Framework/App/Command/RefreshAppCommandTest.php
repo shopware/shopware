@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Command;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Command\AppPrinter;
@@ -13,17 +12,15 @@ use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
-class RefreshAppCommandTest extends TestCase
+class RefreshAppCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     /**
      * @var EntityRepository<AppCollection>

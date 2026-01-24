@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\Exception;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
@@ -37,10 +35,8 @@ use Twig\Loader\FilesystemLoader;
 /**
  * @internal
  */
-class ThumbnailExtensionTest extends TestCase
+class ThumbnailExtensionTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @throws SyntaxError
      * @throws \Throwable

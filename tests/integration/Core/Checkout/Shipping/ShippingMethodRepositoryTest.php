@@ -2,14 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Shipping;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -20,10 +18,8 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
  * @internal
  */
 #[Package('checkout')]
-class ShippingMethodRepositoryTest extends TestCase
+class ShippingMethodRepositoryTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @var EntityRepository<ShippingMethodCollection>
      */

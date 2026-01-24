@@ -3,11 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Cart;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Traits\TestShortHands;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -16,9 +14,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  * This test is used as "good" reference integration tests inside our guidelines.
  */
-class ProductCartTest extends TestCase
+class ProductCartTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use TestShortHands;
 
     /**

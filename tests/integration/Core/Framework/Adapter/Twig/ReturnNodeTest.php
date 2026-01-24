@@ -3,18 +3,14 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-class ReturnNodeTest extends TestCase
+class ReturnNodeTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @param array<string, int> $data
      */

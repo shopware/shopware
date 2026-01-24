@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -23,11 +21,10 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-class CustomFieldProtectionSubscriberTest extends TestCase
+class CustomFieldProtectionSubscriberTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     /**
      * @var EntityRepository<CustomFieldSetCollection>

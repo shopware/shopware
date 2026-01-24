@@ -30,7 +30,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -42,9 +41,8 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('checkout')]
-class ProcessorTest extends TestCase
+class ProcessorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
     private AbstractSalesChannelContextFactory $factory;

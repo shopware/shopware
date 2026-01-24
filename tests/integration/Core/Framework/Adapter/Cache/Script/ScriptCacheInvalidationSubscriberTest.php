@@ -3,10 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\Script;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -14,10 +12,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-class ScriptCacheInvalidationSubscriberTest extends TestCase
+class ScriptCacheInvalidationSubscriberTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     /**
      * @param callable(ContainerInterface): void $closure

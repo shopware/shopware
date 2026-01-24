@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Cms\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
@@ -13,7 +12,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -24,10 +22,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 #[Package('discovery')]
 #[CoversClass(CmsPageDefaultChangeSubscriber::class)]
-class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
+class CmsPageBeforeDefaultChangeSubscriberTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @var EntityRepository<CmsPageCollection>
      */

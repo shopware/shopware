@@ -2,19 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\Command\RegisterScheduledTasksCommand;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
-class RegisterScheduledTaskTest extends TestCase
+class RegisterScheduledTaskTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testNoValidationErrors(): void
     {
         $taskRegistry = $this->createMock(TaskRegistry::class);

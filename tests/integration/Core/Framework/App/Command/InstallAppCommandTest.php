@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Command;
 
-use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Command\AppPrinter;
@@ -11,17 +10,14 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
-class InstallAppCommandTest extends TestCase
+class InstallAppCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @var EntityRepository<AppCollection>
      */

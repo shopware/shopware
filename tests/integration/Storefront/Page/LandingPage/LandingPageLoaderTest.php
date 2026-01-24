@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\LandingPage;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
@@ -11,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\LandingPage\LandingPage;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedEvent;
@@ -23,9 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('discovery')]
-class LandingPageLoaderTest extends TestCase
+class LandingPageLoaderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     private IdsCollection $ids;

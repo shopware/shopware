@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\Backtrace\Frame;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -24,10 +22,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-class CacheInvalidationSubscriberTest extends TestCase
+class CacheInvalidationSubscriberTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private IdsCollection $ids;
 
     private CacheInvalidationSubscriber $cacheInvalidationSubscriber;

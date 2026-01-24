@@ -2,20 +2,16 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-class BundleHierarchyBuilderTest extends TestCase
+class BundleHierarchyBuilderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @var EntityRepository<AppCollection>
      */

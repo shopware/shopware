@@ -3,14 +3,12 @@
 namespace Shopware\Tests\Integration\Core\System\NumberRange;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeCollection;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
@@ -23,10 +21,8 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatter
 /**
  * @internal
  */
-class NumberRangeValueGeneratorTest extends TestCase
+class NumberRangeValueGeneratorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Context $context;
 
     private Connection $connection;

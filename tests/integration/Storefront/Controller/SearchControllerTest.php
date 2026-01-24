@@ -3,10 +3,8 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchWidgetLoadedHook;
@@ -17,9 +15,8 @@ use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
  * @internal
  */
 #[Package('inventory')]
-class SearchControllerTest extends TestCase
+class SearchControllerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     #[DataProvider('getProviderInvalidTerms')]

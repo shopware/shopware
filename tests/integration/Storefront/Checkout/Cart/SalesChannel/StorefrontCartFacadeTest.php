@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Checkout\Cart\SalesChannel;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -32,10 +30,8 @@ use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
  * @internal
  */
 #[Package('checkout')]
-class StorefrontCartFacadeTest extends TestCase
+class StorefrontCartFacadeTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private IdsCollection $ids;
 
     private SalesChannelContext $context;

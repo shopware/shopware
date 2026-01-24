@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -25,10 +23,9 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
  * @internal
  */
 #[Package('discovery')]
-class ProductUrlProviderTest extends TestCase
+class ProductUrlProviderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AdminApiTestBehaviour;
-    use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
     private const CONFIG_EXCLUDE_LINKED_PRODUCTS = 'core.sitemap.excludeLinkedProducts';

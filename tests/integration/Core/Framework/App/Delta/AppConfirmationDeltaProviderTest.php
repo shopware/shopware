@@ -2,19 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Delta;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-class AppConfirmationDeltaProviderTest extends TestCase
+class AppConfirmationDeltaProviderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testGetDeltas(): void
     {
         $deltas = $this->getAppConfirmationDeltaProvider()

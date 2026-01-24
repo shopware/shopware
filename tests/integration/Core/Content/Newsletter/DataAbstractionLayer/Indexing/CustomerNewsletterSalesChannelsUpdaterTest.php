@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Newsletter\DataAbstractionLayer\Indexing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\NewsletterRecipientIndexer;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
@@ -26,9 +24,8 @@ use Symfony\Component\Messenger\TraceableMessageBus;
  * @internal
  */
 #[Package('after-sales')]
-class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
+class CustomerNewsletterSalesChannelsUpdaterTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     public function testUpdatesCustomerOnNewsletterSubscription(): void

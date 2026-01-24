@@ -3,12 +3,10 @@
 namespace Shopware\Tests\Integration\Core\System\SalesChannel\Context;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -27,10 +25,8 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('discovery')]
-class SalesChannelContextTest extends TestCase
+class SalesChannelContextTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private TaxRuleTypeCollection $taxRuleTypes;
 
     protected function setUp(): void

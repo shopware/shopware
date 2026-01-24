@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Hmac;
 
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -20,10 +18,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  */
 #[CoversClass(QuerySigner::class)]
 #[Package('framework')]
-class QuerySignerTest extends TestCase
+class QuerySignerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private AppEntity $app;
 
     private QuerySigner $querySigner;

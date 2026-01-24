@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\Product\QuickView;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageCriteriaEvent;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoadedEvent;
@@ -18,9 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class MinimalQuickViewPageTest extends TestCase
+class MinimalQuickViewPageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     public function testItRequiresProductParam(): void

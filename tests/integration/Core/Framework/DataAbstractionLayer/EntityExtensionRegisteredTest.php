@@ -2,19 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @internal
  */
-class EntityExtensionRegisteredTest extends TestCase
+class EntityExtensionRegisteredTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testAdmin(): void
     {
         try {

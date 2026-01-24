@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\StoreSessionExpiredException;
 use Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,10 +23,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @internal
  */
 #[Package('checkout')]
-class StoreSessionExpiredMiddlewareTest extends TestCase
+class StoreSessionExpiredMiddlewareTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @var EntityRepository<UserCollection>
      */

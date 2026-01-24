@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -33,10 +31,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('data-services')]
-class DispatchEntityMessageHandlerTest extends TestCase
+class DispatchEntityMessageHandlerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private IdsCollection $idsCollection;
 
     private Connection $connection;

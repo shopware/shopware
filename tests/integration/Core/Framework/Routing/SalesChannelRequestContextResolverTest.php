@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -36,10 +34,9 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 /**
  * @internal
  */
-class SalesChannelRequestContextResolverTest extends TestCase
+class SalesChannelRequestContextResolverTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use CustomerTestTrait;
-    use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 

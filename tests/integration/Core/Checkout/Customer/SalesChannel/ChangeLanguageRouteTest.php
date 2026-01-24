@@ -4,12 +4,10 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -20,10 +18,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 #[Package('checkout')]
 #[Group('store-api')]
-class ChangeLanguageRouteTest extends TestCase
+class ChangeLanguageRouteTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use CustomerTestTrait;
-    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 

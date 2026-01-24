@@ -3,23 +3,19 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-class DownloadServiceTest extends TestCase
+class DownloadServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testUtf8Filename(): void
     {
         $filesystem = $this->getPrivateFilesystem();

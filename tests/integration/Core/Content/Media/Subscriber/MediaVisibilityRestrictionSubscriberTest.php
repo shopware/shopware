@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\Subscriber\MediaVisibilityRestrictionSubscriber;
@@ -19,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -27,10 +25,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  */
 #[Package('discovery')]
 #[CoversClass(MediaVisibilityRestrictionSubscriber::class)]
-class MediaVisibilityRestrictionSubscriberTest extends TestCase
+class MediaVisibilityRestrictionSubscriberTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @var EntityRepository<MediaCollection>
      */

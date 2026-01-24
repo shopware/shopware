@@ -2,20 +2,17 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\Api;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class MessageQueueEndpointTest extends TestCase
+class MessageQueueEndpointTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AdminFunctionalTestBehaviour;
-    use IntegrationTestBehaviour;
 
     public function testEndpoint(): void
     {

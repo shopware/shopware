@@ -3,21 +3,18 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Api;
 
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreDataController;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-class ExtensionStoreDataControllerTest extends TestCase
+class ExtensionStoreDataControllerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use ExtensionBehaviour;
-    use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
     private ExtensionStoreDataController $controller;

@@ -3,12 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Framework\Language;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageValidator;
@@ -16,10 +14,8 @@ use Shopware\Core\System\Language\LanguageValidator;
 /**
  * @internal
  */
-class LanguageValidatorTest extends TestCase
+class LanguageValidatorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Context $defaultContext;
 
     /**

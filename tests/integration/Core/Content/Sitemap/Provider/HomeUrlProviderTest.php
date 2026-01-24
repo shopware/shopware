@@ -2,12 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\Provider\HomeUrlProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -21,10 +19,8 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('discovery')]
-class HomeUrlProviderTest extends TestCase
+class HomeUrlProviderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private SalesChannelContext $salesChannelContext;
 
     /**

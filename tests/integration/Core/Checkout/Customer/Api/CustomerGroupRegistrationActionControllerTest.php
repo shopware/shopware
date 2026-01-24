@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Api;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -11,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
@@ -22,10 +20,9 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('checkout')]
-class CustomerGroupRegistrationActionControllerTest extends TestCase
+class CustomerGroupRegistrationActionControllerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use EventDispatcherBehaviour;
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     public const B2B_CUSTOMER_GROUP_NAME = 'B2B_GROUP';

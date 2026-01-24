@@ -2,16 +2,13 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 
 /**
  * @internal
  */
-class WellKnownControllerTest extends TestCase
+class WellKnownControllerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     public function testRedirectFromPasswordResetRoute(): void

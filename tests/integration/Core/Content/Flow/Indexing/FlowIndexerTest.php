@@ -3,19 +3,16 @@
 namespace Shopware\Tests\Integration\Core\Content\Flow\Indexing;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Indexing\FlowIndexerSubscriber;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-class FlowIndexerTest extends TestCase
+class FlowIndexerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
     public function testIndexingHappensAfterPluginLifecycle(): void

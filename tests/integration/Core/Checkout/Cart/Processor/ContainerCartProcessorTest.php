@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Processor;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
@@ -13,7 +12,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor\ContainerCartProcessor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
@@ -29,10 +27,8 @@ use Shopware\Tests\Integration\Core\Checkout\Cart\Processor\_fixtures\QuantityIt
  * @internal
  */
 #[Package('checkout')]
-class ContainerCartProcessorTest extends TestCase
+class ContainerCartProcessorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     #[DataProvider('calculationProvider')]
     public function testCalculation(LineItem $item, ?CalculatedPrice $expected): void
     {

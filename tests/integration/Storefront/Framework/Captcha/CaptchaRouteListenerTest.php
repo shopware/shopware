@@ -2,12 +2,10 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Captcha;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\Salutation\SalutationCollection;
@@ -20,9 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-class CaptchaRouteListenerTest extends TestCase
+class CaptchaRouteListenerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use StorefrontControllerTestBehaviour;
 

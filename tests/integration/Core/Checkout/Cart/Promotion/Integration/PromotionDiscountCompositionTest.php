@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -28,10 +26,9 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('checkout')]
-class PromotionDiscountCompositionTest extends TestCase
+class PromotionDiscountCompositionTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
-    use IntegrationTestBehaviour;
     use PromotionIntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 

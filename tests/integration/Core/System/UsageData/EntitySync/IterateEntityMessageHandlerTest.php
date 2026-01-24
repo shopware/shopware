@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\System\UsageData\EntitySync;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Monolog\Logger;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -17,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
@@ -38,10 +36,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('data-services')]
-class IterateEntityMessageHandlerTest extends TestCase
+class IterateEntityMessageHandlerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     protected function setUp(): void
     {
         /** @var MockHttpClient $client */

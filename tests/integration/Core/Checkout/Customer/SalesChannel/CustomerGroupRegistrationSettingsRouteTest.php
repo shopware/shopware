@@ -3,11 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -17,9 +15,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 #[Package('checkout')]
 #[Group('store-api')]
-class CustomerGroupRegistrationSettingsRouteTest extends TestCase
+class CustomerGroupRegistrationSettingsRouteTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;

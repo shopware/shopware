@@ -3,18 +3,14 @@
 namespace Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage;
 
 /**
  * @internal
  */
-class IncrementSqlStorageTest extends TestCase
+class IncrementSqlStorageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private IncrementSqlStorage $storage;
 
     private Connection $connection;

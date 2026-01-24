@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Commands;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -14,15 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
-class GenerateMediaTypesCommandTest extends TestCase
+class GenerateMediaTypesCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use MediaFixtures;
 
     /**

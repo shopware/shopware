@@ -3,11 +3,9 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Storefront\Theme\ConfigLoader;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
 
@@ -15,9 +13,8 @@ use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
  * @internal
  */
 #[Package('framework')]
-class DatabaseAvailableThemeProviderTest extends TestCase
+class DatabaseAvailableThemeProviderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     public function testReadSalesChannels(): void

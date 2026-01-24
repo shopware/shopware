@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Sitemap\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapGenerateTaskHandler;
 use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapMessage;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
@@ -29,9 +27,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @internal
  */
 #[Package('discovery')]
-class SitemapGenerateTaskHandlerTest extends TestCase
+class SitemapGenerateTaskHandlerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelFunctionalTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 

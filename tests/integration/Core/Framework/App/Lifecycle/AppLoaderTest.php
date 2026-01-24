@@ -2,18 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal
  */
-class AppLoaderTest extends TestCase
+class AppLoaderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     public function testLoad(): void
     {

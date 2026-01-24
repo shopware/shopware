@@ -3,22 +3,18 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\LoaderError;
 
 /**
  * @internal
  */
-class EntityTemplateLoaderTest extends TestCase
+class EntityTemplateLoaderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private const FIRST_TEMPLATE = '
         {% block base_navigation %}
             parent()

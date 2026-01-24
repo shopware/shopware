@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\PageLoadedEvent;
@@ -18,9 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class WishlistPageTest extends TestCase
+class WishlistPageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     private SystemConfigService $systemConfigService;

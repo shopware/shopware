@@ -4,20 +4,16 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Doctrin
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
-class MultiInsertQueryQueueTest extends TestCase
+class MultiInsertQueryQueueTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testNullableDatetime(): void
     {
         $connection = static::getContainer()->get(Connection::class);

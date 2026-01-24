@@ -3,21 +3,17 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 
 /**
  * @internal
  */
-class WebhookPersisterTest extends TestCase
+class WebhookPersisterTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private WebhookPersister $persister;
 
     private Connection $connection;

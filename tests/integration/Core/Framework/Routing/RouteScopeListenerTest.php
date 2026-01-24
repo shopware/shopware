@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\Framework\Routing\RouteScopeListener;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController;
@@ -24,10 +22,8 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
-class RouteScopeListenerTest extends TestCase
+class RouteScopeListenerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testRouteScopeListenerFailsHardWithoutMainRequest(): void
     {
         $listener = static::getContainer()->get(RouteScopeListener::class);

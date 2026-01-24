@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Service;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
 use Shopware\Core\Service\Permission\PermissionsService;
@@ -16,10 +14,8 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
-class PermissionsServiceTest extends TestCase
+class PermissionsServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private PermissionsService $permissionsService;
 
     private SystemConfigService $systemConfigService;

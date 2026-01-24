@@ -3,11 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Framework;
 
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -17,10 +15,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 #[Package('framework')]
 #[Group('slow')]
-class AdditionalPermissionValidationTest extends TestCase
+class AdditionalPermissionValidationTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @var array<int, string>
      */

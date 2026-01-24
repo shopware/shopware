@@ -4,12 +4,10 @@ namespace Shopware\Tests\Migration\Core;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Test\NullConnection;
 
 /**
@@ -17,10 +15,8 @@ use Shopware\Core\Migration\Test\NullConnection;
  */
 #[Package('framework')]
 #[CoversClass(MigrationCollection::class)]
-class MigrationExecuteQueryTest extends TestCase
+class MigrationExecuteQueryTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testExecuteQueryDoesNotPerformWriteOperations(): void
     {
         $nullConnection = new NullConnection();

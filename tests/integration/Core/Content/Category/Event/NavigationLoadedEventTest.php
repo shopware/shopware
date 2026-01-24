@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Category\Event;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\NavigationLoadedEvent;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -15,10 +13,8 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-class NavigationLoadedEventTest extends TestCase
+class NavigationLoadedEventTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     protected NavigationLoaderInterface $loader;
 
     protected function setUp(): void

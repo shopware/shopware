@@ -2,12 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -17,10 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class CriteriaQueryBuilderTest extends TestCase
+class CriteriaQueryBuilderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public IdsCollection $ids;
 
     /**

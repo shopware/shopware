@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage;
@@ -14,10 +12,8 @@ use Shopware\Core\Test\Stub\System\NumberRange\ValueGenerator\IncrementArrayStor
 /**
  * @internal
  */
-class IncrementStorageRegistryTest extends TestCase
+class IncrementStorageRegistryTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private IncrementStorageRegistry $registry;
 
     private Connection $connection;

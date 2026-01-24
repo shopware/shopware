@@ -4,14 +4,12 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -25,10 +23,9 @@ use Shopware\Core\Test\TestDefaults;
  */
 #[Package('checkout')]
 #[Group('store-api')]
-class CustomerRecoveryRouteTest extends TestCase
+class CustomerRecoveryRouteTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use CustomerTestTrait;
-    use IntegrationTestBehaviour;
 
     private string $hash;
 

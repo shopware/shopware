@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
@@ -16,9 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class CustomerGroupRegistrationTest extends TestCase
+class CustomerGroupRegistrationTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     private IdsCollection $ids;

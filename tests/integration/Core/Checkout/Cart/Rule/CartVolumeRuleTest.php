@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
@@ -25,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -36,10 +34,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
  */
 #[Package('fundamentals@after-sales')]
 #[Group('rules')]
-class CartVolumeRuleTest extends TestCase
+class CartVolumeRuleTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use CartRuleHelperTrait;
-    use IntegrationTestBehaviour;
 
     private CartVolumeRule $rule;
 

@@ -5,21 +5,18 @@ namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\ExtensionListingLoader;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-class ExtensionListingLoaderTest extends TestCase
+class ExtensionListingLoaderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
     private ExtensionListingLoader $extensionListingLoader;

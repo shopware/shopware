@@ -3,20 +3,16 @@
 namespace Shopware\Tests\Integration\Core\Content\Product;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
  */
 #[Package('inventory')]
-class ProductEntityTest extends TestCase
+class ProductEntityTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     #[DataProvider('productProvider')]
     public function testStringifyProduct(ProductEntity $entity, string $expected): void
     {

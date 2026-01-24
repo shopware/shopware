@@ -4,17 +4,13 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Framework\Util;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
  * @internal
  */
-class HtmlSanitizerTest extends TestCase
+class HtmlSanitizerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private string $unfilteredString = '<div style="background-color:#0E75FB;">test</div>';
 
     private HtmlSanitizer $sanitizer;

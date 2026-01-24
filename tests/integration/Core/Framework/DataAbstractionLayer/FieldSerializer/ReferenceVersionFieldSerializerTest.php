@@ -3,20 +3,16 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
-class ReferenceVersionFieldSerializerTest extends TestCase
+class ReferenceVersionFieldSerializerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testUpdateSerialize(): void
     {
         $ids = new IdsCollection();

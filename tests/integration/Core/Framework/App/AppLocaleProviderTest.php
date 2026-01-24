@@ -2,12 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\User\UserCollection;
@@ -16,10 +14,8 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-class AppLocaleProviderTest extends TestCase
+class AppLocaleProviderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private AppLocaleProvider $localeProvider;
 
     /**

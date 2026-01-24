@@ -2,17 +2,14 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\CustomFieldTypeTestBehaviour;
 
 /**
  * @internal
  */
-class MultiSelectFieldTest extends TestCase
+class MultiSelectFieldTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use CustomFieldTypeTestBehaviour;
-    use IntegrationTestBehaviour;
 
     public function testToEntityArray(): void
     {

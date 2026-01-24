@@ -5,11 +5,9 @@ namespace Shopware\Tests\Integration\Core\Content\Newsletter\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -22,9 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('after-sales')]
 #[CoversClass(NewsletterUnsubscribeRoute::class)]
 #[Group('store-api')]
-class NewsletterUnsubscribeRouteTest extends TestCase
+class NewsletterUnsubscribeRouteTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;

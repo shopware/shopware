@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Registration;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -21,10 +19,9 @@ use Shopware\Core\Test\AppSystemTestBehaviour;
 /**
  * @internal
  */
-class HandshakeFactoryTest extends TestCase
+class HandshakeFactoryTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     public function testManifestWithSecretProducesAPrivateHandshake(): void
     {

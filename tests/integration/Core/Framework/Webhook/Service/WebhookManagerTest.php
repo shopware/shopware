@@ -9,7 +9,6 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -34,7 +33,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -53,10 +51,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @internal
  */
 #[CoversClass(WebhookManager::class)]
-class WebhookManagerTest extends TestCase
+class WebhookManagerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use GuzzleTestClientBehaviour;
-    use IntegrationTestBehaviour;
 
     private MessageBusInterface&MockObject $bus;
 

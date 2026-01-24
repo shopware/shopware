@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
@@ -15,9 +13,8 @@ use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
  * @internal
  */
 #[Package('discovery')]
-class CmsControllerTest extends TestCase
+class CmsControllerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     private IdsCollection $ids;

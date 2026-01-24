@@ -3,13 +3,11 @@
 namespace Shopware\Tests\Integration\Storefront\Theme\ConfigLoader;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -20,10 +18,8 @@ use Shopware\Storefront\Theme\ThemeCollection;
 /**
  * @internal
  */
-class DatabaseConfigLoaderTest extends TestCase
+class DatabaseConfigLoaderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private const MEDIA_ID = 'eac39bbb419e4741a950cd94f55b35ef';
 
     private IdsCollection $ids;

@@ -2,17 +2,14 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\CustomFieldTypeTestBehaviour;
 
 /**
  * @internal
  */
-class MediaSelectionFieldTest extends TestCase
+class MediaSelectionFieldTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use CustomFieldTypeTestBehaviour;
-    use IntegrationTestBehaviour;
 
     public function testToEntityArray(): void
     {

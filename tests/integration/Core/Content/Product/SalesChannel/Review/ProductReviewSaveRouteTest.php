@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Review;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
@@ -13,7 +12,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -27,10 +25,9 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Group('store-api')]
-class ProductReviewSaveRouteTest extends TestCase
+class ProductReviewSaveRouteTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use EventDispatcherBehaviour;
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;

@@ -3,11 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Hookable;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\EntityBusinessEvent;
@@ -27,10 +25,8 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
-class HookableBusinessEventTest extends TestCase
+class HookableBusinessEventTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testGetter(): void
     {
         $scalarEvent = new ScalarBusinessEvent();

@@ -3,20 +3,16 @@
 namespace Shopware\Tests\DevOps\Core\DevOps\Docs\Command\App;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\App\DocsAppEventCommand;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * @internal
  */
 #[CoversClass(DocsAppEventCommand::class)]
-class DocsAppEventCommandTest extends TestCase
+class DocsAppEventCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testUptoDateEventDoc(): void
     {
         // Always check if the docs are up-to-date for the current minor branch

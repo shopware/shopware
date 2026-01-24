@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
@@ -12,9 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class OrderPageTest extends TestCase
+class OrderPageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     public function testItLoadsOrders(): void

@@ -2,22 +2,18 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Validation;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
 use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
-class HookableValidatorTest extends TestCase
+class HookableValidatorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private HookableValidator $hookableValidator;
 
     private string $roleId;

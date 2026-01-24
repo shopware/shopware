@@ -4,12 +4,10 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastLoginRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -21,10 +19,8 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('fundamentals@after-sales')]
 #[CoversClass(DaysSinceLastLoginRule::class)]
 #[Group('rules')]
-class DaysSinceLastLoginRuleTest extends TestCase
+class DaysSinceLastLoginRuleTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private DaysSinceLastLoginRule $rule;
 
     protected function setUp(): void

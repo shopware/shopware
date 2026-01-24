@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\ContactForm;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
@@ -12,7 +11,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,9 +24,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 #[Package('discovery')]
 #[Group('store-api')]
-class ContactFormRouteTest extends TestCase
+class ContactFormRouteTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
     use SalesChannelApiTestBehaviour;
 

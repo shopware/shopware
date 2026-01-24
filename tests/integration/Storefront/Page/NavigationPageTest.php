@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedEvent;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
@@ -15,9 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class NavigationPageTest extends TestCase
+class NavigationPageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     public function testItDoesLoadAPage(): void

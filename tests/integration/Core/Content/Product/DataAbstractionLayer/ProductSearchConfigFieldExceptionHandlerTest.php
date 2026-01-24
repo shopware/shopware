@@ -3,20 +3,16 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\DuplicateProductSearchConfigFieldException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
-class ProductSearchConfigFieldExceptionHandlerTest extends TestCase
+class ProductSearchConfigFieldExceptionHandlerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testDuplicateInsert(): void
     {
         static::getContainer()->get(Connection::class)

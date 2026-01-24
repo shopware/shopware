@@ -4,9 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_7\Migration1763544592UpdateGroupRegistrationMailTemplates;
 
@@ -15,10 +13,8 @@ use Shopware\Core\Migration\V6_7\Migration1763544592UpdateGroupRegistrationMailT
  */
 #[Package('after-sales')]
 #[CoversClass(Migration1763544592UpdateGroupRegistrationMailTemplates::class)]
-class Migration1763544592UpdateGroupRegistrationMailTemplatesTest extends TestCase
+class Migration1763544592UpdateGroupRegistrationMailTemplatesTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Connection $connection;
 
     protected function setUp(): void

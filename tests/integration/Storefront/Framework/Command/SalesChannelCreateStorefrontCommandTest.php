@@ -4,9 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Command;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -15,10 +13,8 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @internal
  */
 #[Package('discovery')]
-class SalesChannelCreateStorefrontCommandTest extends TestCase
+class SalesChannelCreateStorefrontCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Connection $connection;
 
     protected function setUp(): void

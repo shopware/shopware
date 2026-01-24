@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedEvent;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
@@ -12,9 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class GuestWishlistPageTest extends TestCase
+class GuestWishlistPageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     public function testItLoadsWishlistGuestPage(): void

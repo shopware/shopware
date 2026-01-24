@@ -2,24 +2,21 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Command;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Command\DeactivateAppCommand;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
-class DeactivateAppCommandTest extends TestCase
+class DeactivateAppCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     /**
      * @var EntityRepository<AppCollection>

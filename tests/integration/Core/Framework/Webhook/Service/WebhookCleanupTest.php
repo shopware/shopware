@@ -4,9 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Service\WebhookCleanup;
@@ -17,10 +15,8 @@ use Symfony\Component\Clock\MockClock;
  * @internal
  */
 #[CoversClass(WebhookCleanup::class)]
-class WebhookCleanupTest extends TestCase
+class WebhookCleanupTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Connection $connection;
 
     public function testRemoveOldLogs(): void

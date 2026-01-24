@@ -2,18 +2,14 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Message;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-class DeleteFileHandlerTest extends TestCase
+class DeleteFileHandlerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private DeleteFileHandler $handler;
 
     protected function setUp(): void

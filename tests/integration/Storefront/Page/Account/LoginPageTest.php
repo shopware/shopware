@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -14,9 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class LoginPageTest extends TestCase
+class LoginPageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     public function testItLoadsWithACustomer(): void

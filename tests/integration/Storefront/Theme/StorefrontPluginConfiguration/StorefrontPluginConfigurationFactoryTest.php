@@ -2,9 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Theme\StorefrontPluginConfiguration;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -13,10 +11,8 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @internal
  */
-class StorefrontPluginConfigurationFactoryTest extends TestCase
+class StorefrontPluginConfigurationFactoryTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private AbstractStorefrontPluginConfigurationFactory $configFactory;
 
     protected function setUp(): void

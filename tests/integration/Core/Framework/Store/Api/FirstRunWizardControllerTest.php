@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Store\Api;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -17,7 +16,6 @@ use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -27,10 +25,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-class FirstRunWizardControllerTest extends TestCase
+class FirstRunWizardControllerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use EventDispatcherBehaviour;
-    use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
     private FirstRunWizardController $frwController;

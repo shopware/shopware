@@ -4,14 +4,12 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoResolver;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -27,10 +25,8 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @phpstan-type SalesChannel array{id: string, name: string, active: bool, languages: array{id: string}[], domains: array{id: string, url: string, languageId: string, currencyId: string, snippetSetId: string}[]}
  */
-class RequestTransformerTest extends TestCase
+class RequestTransformerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     final public const LOCALE_DE_DE_ISO = 'de-DE';
     final public const LOCALE_EN_GB_ISO = 'en-GB';
 

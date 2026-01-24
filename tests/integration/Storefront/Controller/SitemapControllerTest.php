@@ -2,18 +2,15 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Sitemap\SitemapPageLoadedHook;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 
 /**
  * @internal
  */
-class SitemapControllerTest extends TestCase
+class SitemapControllerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     public function testSitemapPageLoadedHookScriptsAreExecuted(): void

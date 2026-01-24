@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Service\ProductReviewCountService;
@@ -12,7 +11,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -23,10 +21,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 #[Package('fundamentals@after-sales')]
 #[CoversClass(ProductReviewCountService::class)]
-class ProductReviewCountServiceTest extends TestCase
+class ProductReviewCountServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private IdsCollection $ids;
 
     private ProductReviewCountService $reviewCountService;

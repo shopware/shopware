@@ -3,12 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Payment\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
@@ -20,9 +18,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 #[Group('store-api')]
 #[Package('checkout')]
-class PaymentMethodRouteTest extends TestCase
+class PaymentMethodRouteTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;

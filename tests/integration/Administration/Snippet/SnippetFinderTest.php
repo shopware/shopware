@@ -6,12 +6,10 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem as Flysystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPath;
@@ -27,10 +25,8 @@ use Symfony\Component\Finder\SplFileInfo;
  */
 #[Package('discovery')]
 #[CoversClass(SnippetFinder::class)]
-class SnippetFinderTest extends TestCase
+class SnippetFinderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private SnippetFinder $snippetFinder;
 
     protected function setUp(): void

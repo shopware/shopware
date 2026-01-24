@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Payment\DataAbstractionLayer;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodIndexer;
 use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodIndexingMessage;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\TraceableMessageBus;
 
@@ -22,10 +20,8 @@ use Symfony\Component\Messenger\TraceableMessageBus;
  * @internal
  */
 #[Package('checkout')]
-class PaymentMethodIndexerTest extends TestCase
+class PaymentMethodIndexerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private PaymentMethodIndexer $indexer;
 
     private Context $context;

@@ -2,9 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Test\Theme\ThemeRuntimeConfigTestService;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
@@ -22,10 +20,8 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithoutStorefront\
 /**
  * @internal
  */
-class ThemeInheritanceBuilderTest extends TestCase
+class ThemeInheritanceBuilderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private AbstractStorefrontPluginConfigurationFactory $configFactory;
 
     protected function setUp(): void

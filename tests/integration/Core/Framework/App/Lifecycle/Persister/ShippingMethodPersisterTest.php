@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
@@ -17,16 +16,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
-class ShippingMethodPersisterTest extends TestCase
+class ShippingMethodPersisterTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use ExtensionBehaviour;
-    use IntegrationTestBehaviour;
 
     private const APP_NAME = 'test';
     private const APP_PATH = __DIR__ . '/../_fixtures/shippingMethodBase/test';

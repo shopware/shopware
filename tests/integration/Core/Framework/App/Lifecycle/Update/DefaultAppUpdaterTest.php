@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Update;
 
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\Context;
@@ -11,16 +10,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
-class DefaultAppUpdaterTest extends TestCase
+class DefaultAppUpdaterTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use ExtensionBehaviour;
-    use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
     private AbstractAppUpdater $updater;

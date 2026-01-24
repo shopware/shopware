@@ -4,20 +4,16 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Framework\Store\Command;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Command\StoreLoginCommand;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-class StoreLoginCommandTest extends TestCase
+class StoreLoginCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testEmptyPasswordOption(): void
     {
         $commandTester = new CommandTester(static::getContainer()->get(StoreLoginCommand::class));

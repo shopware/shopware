@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -22,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\SetNullOnDeleteChildDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\SetNullOnDeleteManyToOneDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\SetNullOnDeleteParentDefinition;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -30,10 +28,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-class SetNullOnDeleteTest extends TestCase
+class SetNullOnDeleteTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private EntityWriter $writer;
 
     /**

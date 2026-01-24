@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Commands;
 
 use League\Flysystem\Filesystem;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand;
 use Shopware\Core\Framework\Context;
@@ -11,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,9 +19,8 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-class DeleteExpiredFilesCommandTest extends TestCase
+class DeleteExpiredFilesCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
     /**

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Acl;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclAnnotationValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -23,10 +21,8 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 /**
  * @internal
  */
-class AclAnnotationValidatorTest extends TestCase
+class AclAnnotationValidatorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @var EntityRepository<AppCollection>
      */

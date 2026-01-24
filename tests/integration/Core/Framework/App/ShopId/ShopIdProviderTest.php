@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\ShopId;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
@@ -10,7 +9,6 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 
@@ -21,11 +19,10 @@ use Shopware\Core\Test\AppSystemTestBehaviour;
  * @phpstan-import-type ShopIdV2Config from ShopId
  */
 #[Package('framework')]
-class ShopIdProviderTest extends TestCase
+class ShopIdProviderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
     use EnvTestBehaviour;
-    use IntegrationTestBehaviour;
 
     private ShopIdProvider $shopIdProvider;
 

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Order;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
@@ -52,7 +51,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -72,11 +70,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 #[Group('slow')]
 #[Package('checkout')]
-class RecalculationServiceTest extends TestCase
+class RecalculationServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AdminApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
-    use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
     protected SalesChannelContext $salesChannelContext;

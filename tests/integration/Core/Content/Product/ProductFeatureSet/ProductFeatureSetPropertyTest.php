@@ -3,18 +3,15 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\ProductFeatureSet;
 
 use PHPUnit\Framework\Attributes\TestWith;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductFeatureSet\ProductFeatureSetFixtures;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-class ProductFeatureSetPropertyTest extends TestCase
+class ProductFeatureSetPropertyTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use ProductFeatureSetFixtures;
 
     #[TestWith(['featureSet'])]

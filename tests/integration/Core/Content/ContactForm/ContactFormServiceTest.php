@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ContactForm;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -19,9 +17,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-class ContactFormServiceTest extends TestCase
+class ContactFormServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
 
     private ContactFormRoute $contactFormRoute;

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Seo\SeoResolver;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -31,10 +29,8 @@ use Symfony\Component\Routing\RequestContext;
  * @internal
  */
 #[Group('slow')]
-class StorefrontRoutingTest extends TestCase
+class StorefrontRoutingTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private RequestTransformerInterface $requestTransformer;
 
     private Router $router;

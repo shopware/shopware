@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\AppCollection;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\ThemeCollection;
@@ -26,10 +24,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  */
 #[Package('checkout')]
-class ExtensionLifecycleServiceTest extends TestCase
+class ExtensionLifecycleServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use ExtensionBehaviour;
-    use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
     private AbstractExtensionLifecycle $lifecycleService;

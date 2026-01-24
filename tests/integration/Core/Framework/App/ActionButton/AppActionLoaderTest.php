@@ -2,24 +2,21 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppActionLoader;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal
  */
-class AppActionLoaderTest extends TestCase
+class AppActionLoaderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     public function testCreateAppActionReturnCorrectData(): void
     {

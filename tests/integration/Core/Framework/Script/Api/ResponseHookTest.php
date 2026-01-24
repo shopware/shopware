@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Script\Api;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -12,10 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-class ResponseHookTest extends TestCase
+class ResponseHookTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;

@@ -5,12 +5,10 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Subscriber;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogCollection;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -24,10 +22,9 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 /**
  * @internal
  */
-class RetryWebhookMessageFailedSubscriberTest extends TestCase
+class RetryWebhookMessageFailedSubscriberTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use GuzzleTestClientBehaviour;
-    use IntegrationTestBehaviour;
 
     private Context $context;
 

@@ -5,20 +5,16 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\Content\Media\Metadata;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * @internal
  */
-class MetadataLoaderTest extends TestCase
+class MetadataLoaderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @return iterable<string, array<string, mixed>>
      */

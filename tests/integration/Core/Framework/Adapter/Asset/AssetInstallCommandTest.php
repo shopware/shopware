@@ -3,13 +3,11 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Asset;
 
 use League\Flysystem\FilesystemOperator;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -17,10 +15,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-class AssetInstallCommandTest extends TestCase
+class AssetInstallCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testItInstallsAppAssets(): void
     {
         /** @var FilesystemOperator $filesystem */

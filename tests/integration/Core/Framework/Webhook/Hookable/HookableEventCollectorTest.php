@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Hookable;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -16,16 +15,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 
 /**
  * @internal
  */
-class HookableEventCollectorTest extends TestCase
+class HookableEventCollectorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private HookableEventCollector $hookableEventCollector;
 
     protected function setUp(): void

@@ -4,10 +4,8 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1731576063UpdateProductComparisonTemplate;
@@ -18,10 +16,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 #[Package('framework')]
 #[CoversClass(Migration1731576063UpdateProductComparisonTemplate::class)]
-class Migration1731576063UpdateProductComparisonTemplateTest extends TestCase
+class Migration1731576063UpdateProductComparisonTemplateTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Connection $connection;
 
     protected function setUp(): void

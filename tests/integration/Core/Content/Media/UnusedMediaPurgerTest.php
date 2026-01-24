@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Media;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -21,9 +19,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 #[Package('discovery')]
 #[CoversClass(UnusedMediaPurger::class)]
-class UnusedMediaPurgerTest extends TestCase
+class UnusedMediaPurgerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use MediaFixtures;
     use QueueTestBehaviour;
 

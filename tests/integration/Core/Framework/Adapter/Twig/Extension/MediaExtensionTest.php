@@ -2,19 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\Extension;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
  */
-class MediaExtensionTest extends TestCase
+class MediaExtensionTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testSingleSearch(): void
     {
         $ids = new IdsCollection();

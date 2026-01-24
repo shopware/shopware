@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Storefront\Framework\Twig\TwigAppVariable;
 use Symfony\Bridge\Twig\AppVariable;
@@ -12,10 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class TwigAppVariableTest extends TestCase
+class TwigAppVariableTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testRequestCycleDoesntTouchActualRequest(): void
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());

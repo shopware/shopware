@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\System\UsageData\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
@@ -29,10 +27,9 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('data-services')]
-class EntityDeleteSubscriberTest extends TestCase
+class EntityDeleteSubscriberTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use ClockSensitiveTrait;
-    use IntegrationTestBehaviour;
 
     private Connection $connection;
 

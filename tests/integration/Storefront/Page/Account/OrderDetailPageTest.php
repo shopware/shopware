@@ -2,9 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoadedEvent;
@@ -16,9 +14,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * @internal
  */
-class OrderDetailPageTest extends TestCase
+class OrderDetailPageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     public function testItLoadsOrders(): void

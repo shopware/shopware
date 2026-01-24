@@ -2,18 +2,14 @@
 
 namespace Shopware\Tests\Integration\Core\System\User;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-class UserCrudTest extends TestCase
+class UserCrudTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * Tests a circular reference between user and media entity where a media is
      * defined as avatar image but at the same time the user provides some "created by" media.

@@ -3,12 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\ApiOrderCartService;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -21,10 +19,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  */
 #[Package('checkout')]
-class ApiOrderCartServiceTest extends TestCase
+class ApiOrderCartServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Connection $connection;
 
     private SalesChannelContextPersister $contextPersister;

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Flow;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -28,10 +26,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * @internal
  */
 #[Package('after-sales')]
-class ChangeCustomerGroupActionTest extends TestCase
+class ChangeCustomerGroupActionTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     /**

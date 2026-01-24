@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,9 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class ErrorPageTest extends TestCase
+class ErrorPageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     private SalesChannelContext $salesChannelContext;

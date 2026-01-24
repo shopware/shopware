@@ -2,21 +2,18 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 
 /**
  * @internal
  */
-class BundleConfigGeneratorTest extends TestCase
+class BundleConfigGeneratorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     private BundleConfigGeneratorInterface $configGenerator;
 

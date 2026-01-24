@@ -2,20 +2,16 @@
 
 namespace Shopware\Tests\Integration\Core\Content\MeasurementSystem\TwigExtension;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MeasurementSystem\TwigExtension\MeasurementConvertUnitTwigFilter;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-class MeasurementConvertUnitTwigFilterTest extends TestCase
+class MeasurementConvertUnitTwigFilterTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private MeasurementConvertUnitTwigFilter $measurementConvertUnitTwigFilter;
 
     protected function setUp(): void

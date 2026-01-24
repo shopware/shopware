@@ -6,10 +6,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1726557614FixProductComparisonIdealoWithHtmlFormat;
@@ -20,10 +18,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 #[Package('framework')]
 #[CoversClass(Migration1726557614FixProductComparisonIdealoWithHtmlFormat::class)]
-class Migration1726557614FixProductComparisonIdealoWithHtmlFormatTest extends TestCase
+class Migration1726557614FixProductComparisonIdealoWithHtmlFormatTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Connection $connection;
 
     protected function setUp(): void

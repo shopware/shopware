@@ -3,10 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\EventListener;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\EventListener\Authentication\SalesChannelAuthenticationListener;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -19,9 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 #[CoversClass(SalesChannelAuthenticationListener::class)]
 #[CoversClass(MaintenanceModeResolver::class)]
-class SalesChannelAuthenticationListenerTest extends TestCase
+class SalesChannelAuthenticationListenerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private const MAINTENANCE_ALLOWED_IPS = ['192.168.0.2', '192.168.0.1', '192.168.0.3'];

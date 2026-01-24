@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
@@ -19,7 +18,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -30,10 +28,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-class AppStateServiceTest extends TestCase
+class AppStateServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     /**
      * @var EntityRepository<AppCollection>

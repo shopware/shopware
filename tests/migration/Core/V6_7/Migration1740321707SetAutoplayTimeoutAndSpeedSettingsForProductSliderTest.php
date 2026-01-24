@@ -5,13 +5,11 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1740321707SetAutoplayTimeoutAndSpeedSettingsForProductSlider;
@@ -23,10 +21,8 @@ use Shopware\Core\Migration\V6_7\Migration1740321707SetAutoplayTimeoutAndSpeedSe
  */
 #[Package('framework')]
 #[CoversClass(Migration1740321707SetAutoplayTimeoutAndSpeedSettingsForProductSlider::class)]
-class Migration1740321707SetAutoplayTimeoutAndSpeedSettingsForProductSliderTest extends TestCase
+class Migration1740321707SetAutoplayTimeoutAndSpeedSettingsForProductSliderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Connection $connection;
 
     protected function setUp(): void

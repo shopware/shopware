@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Validation;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -16,9 +14,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @internal
  */
 #[Package('checkout')]
-class CustomerVatIdentificationValidatorTest extends TestCase
+class CustomerVatIdentificationValidatorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     public function testValidateVatIds(): void

@@ -2,22 +2,18 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Flow\Dispatching;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\FlowBuilder;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-class FlowBuilderTest extends TestCase
+class FlowBuilderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private FlowBuilder $flowBuilder;
 
     protected function setUp(): void

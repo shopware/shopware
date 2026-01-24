@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
@@ -22,11 +20,10 @@ use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 /**
  * @internal
  */
-class MoveShopPermanentlyStrategyTest extends TestCase
+class MoveShopPermanentlyStrategyTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
     use EnvTestBehaviour;
-    use IntegrationTestBehaviour;
 
     private ShopIdProvider $shopIdProvider;
 

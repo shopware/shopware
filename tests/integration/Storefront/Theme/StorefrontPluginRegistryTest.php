@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -11,10 +9,9 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 /**
  * @internal
  */
-class StorefrontPluginRegistryTest extends TestCase
+class StorefrontPluginRegistryTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     public function testConfigIsAddedIfItsATheme(): void
     {

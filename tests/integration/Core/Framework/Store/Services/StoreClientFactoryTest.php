@@ -6,20 +6,16 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-class StoreClientFactoryTest extends TestCase
+class StoreClientFactoryTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private const TEST_STORE_URI = 'http://test-store';
 
     private const STORE_URI_CONFIG_KEY = 'core.store.apiUri';

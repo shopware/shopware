@@ -2,9 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Search\SearchPageLoadedEvent;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -15,9 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('inventory')]
-class SearchPageTest extends TestCase
+class SearchPageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     private const TEST_TERM = 'foo';

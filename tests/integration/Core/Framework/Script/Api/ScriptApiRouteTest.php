@@ -2,14 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Script\Api;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,11 +15,10 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-class ScriptApiRouteTest extends TestCase
+class ScriptApiRouteTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     public function testApiEndpoint(): void
     {

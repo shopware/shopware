@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\Checkout;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
@@ -16,9 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class FinishPageTest extends TestCase
+class FinishPageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     public function testItRequiresAOrderId(): void

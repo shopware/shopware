@@ -2,17 +2,13 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\Extension;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\SwSanitizeTwigFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-class SwSanitizeTwigFilterTest extends TestCase
+class SwSanitizeTwigFilterTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private SwSanitizeTwigFilter $swSanitize;
 
     protected function setUp(): void

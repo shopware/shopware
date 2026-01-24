@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Cart;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartCalculator;
@@ -28,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -43,10 +41,8 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-class ProductCartProcessorTest extends TestCase
+class ProductCartProcessorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     final public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
     final public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
     final public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -11,7 +10,6 @@ use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -19,9 +17,8 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  */
 #[Package('checkout')]
-class ExtensionDownloaderTest extends TestCase
+class ExtensionDownloaderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
     private ExtensionDownloader $extensionDownloader;

@@ -3,20 +3,16 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Payment\Cleanup;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cleanup\CleanupPaymentTokenTaskHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-class CleanupPaymentTokenHandlerTest extends TestCase
+class CleanupPaymentTokenHandlerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testHandler(): void
     {
         $connection = static::getContainer()->get(Connection::class);

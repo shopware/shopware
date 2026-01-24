@@ -7,7 +7,5 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class ViolatingTest extends TestCase
 {
-
     use IntegrationTestBehaviour;
-
 }

@@ -3,17 +3,13 @@
 namespace Shopware\Tests\Integration\Core\Framework\Increment;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-class MySQLIncrementerTest extends TestCase
+class MySQLIncrementerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private MySQLIncrementer $mysqlIncrementer;
 
     protected function setUp(): void

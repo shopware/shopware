@@ -3,12 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Command;
 
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Command\ImportEntityCommand;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
@@ -18,10 +16,8 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
  */
 #[Package('fundamentals@after-sales')]
 #[Group('slow')]
-class ImportEntityCommandTest extends TestCase
+class ImportEntityCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private const DEFAULT_CATEGORY_IMPORT_PROFILE_TECHNICAL_NAME = 'default_category';
     private const DEFAULT_PRODUCT_IMPORT_PROFILE_TECHNICAL_NAME = 'default_product';
     private const TEST_IMPORT_FILE_PATH = __DIR__ . '/../fixtures/categories.csv';

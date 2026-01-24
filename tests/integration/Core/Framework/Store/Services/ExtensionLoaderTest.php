@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use Composer\IO\NullIO;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
@@ -21,16 +20,14 @@ use Shopware\Core\Framework\Store\Struct\PermissionCollection;
 use Shopware\Core\Framework\Store\Struct\PermissionStruct;
 use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-class ExtensionLoaderTest extends TestCase
+class ExtensionLoaderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use ExtensionBehaviour;
-    use IntegrationTestBehaviour;
 
     private ExtensionLoader $extensionLoader;
 

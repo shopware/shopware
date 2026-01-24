@@ -2,12 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\System\User\Service;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\User\Service\UserValidationService;
@@ -18,10 +16,8 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('fundamentals@framework')]
-class UserValidationServiceTest extends TestCase
+class UserValidationServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @var EntityRepository<UserCollection>
      */

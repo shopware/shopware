@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Api;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Api\MediaVideoCoverController;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,10 +19,9 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-class MediaVideoCoverControllerTest extends TestCase
+class MediaVideoCoverControllerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use DatabaseTransactionBehaviour;
-    use IntegrationTestBehaviour;
     use MediaFixtures;
 
     /**

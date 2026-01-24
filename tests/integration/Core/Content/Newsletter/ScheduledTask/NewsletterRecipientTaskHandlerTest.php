@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Newsletter\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler;
@@ -14,16 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-class NewsletterRecipientTaskHandlerTest extends TestCase
+class NewsletterRecipientTaskHandlerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testGetExpiredNewsletterRecipientCriteria(): void
     {
         $taskHandler = $this->getTaskHandler();

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadSubscriber;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -17,17 +16,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-class RulePayloadSubscriberTest extends TestCase
+class RulePayloadSubscriberTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Connection $connection;
 
     private RulePayloadSubscriber $rulePayloadSubscriber;

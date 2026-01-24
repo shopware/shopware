@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -14,15 +13,13 @@ use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time\Migration1;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
 #[CoversClass(MigrationCollection::class)]
-class MigrationCollectionRuntimeTest extends TestCase
+class MigrationCollectionRuntimeTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use MigrationTestBehaviour;
 
     private Connection $connection;

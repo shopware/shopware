@@ -2,18 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\File;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-class FileNameProviderTest extends TestCase
+class FileNameProviderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use MediaFixtures;
 
     private FileNameProvider $nameProvider;

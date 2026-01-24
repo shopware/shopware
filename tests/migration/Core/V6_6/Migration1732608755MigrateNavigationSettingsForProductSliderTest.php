@@ -5,13 +5,11 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1732608755MigrateNavigationSettingsForProductSlider;
@@ -23,10 +21,8 @@ use Shopware\Core\Migration\V6_6\Migration1732608755MigrateNavigationSettingsFor
  */
 #[Package('framework')]
 #[CoversClass(Migration1732608755MigrateNavigationSettingsForProductSlider::class)]
-class Migration1732608755MigrateNavigationSettingsForProductSliderTest extends TestCase
+class Migration1732608755MigrateNavigationSettingsForProductSliderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private Connection $connection;
 
     protected function setUp(): void

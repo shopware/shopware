@@ -2,9 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\UsageData\Consent;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
@@ -16,10 +14,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('data-services')]
-class ConsentServiceTest extends TestCase
+class ConsentServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testStoresAndReportsRequestedConsentState(): void
     {
         $consentStateReported = false;

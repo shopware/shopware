@@ -2,19 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\System\UsageData\Services;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 
 /**
  * @internal
  */
-class EntityDefinitionServiceTest extends TestCase
+class EntityDefinitionServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testTaggedEntitiesOnlyHaveSinglePrimaryKey(): void
     {
         $problematicEntities = [];

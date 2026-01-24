@@ -3,9 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -16,9 +14,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 #[Package('discovery')]
 #[Group('store-api')]
-class SitemapRouteTest extends TestCase
+class SitemapRouteTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;

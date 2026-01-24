@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleException;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
@@ -23,10 +21,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
  */
 #[Package('fundamentals@after-sales')]
 #[Group('rules')]
-class LineItemOfManufacturerRuleTest extends TestCase
+class LineItemOfManufacturerRuleTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use CartRuleHelperTrait;
-    use IntegrationTestBehaviour;
 
     private LineItemOfManufacturerRule $rule;
 

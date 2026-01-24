@@ -3,10 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\EntityBusinessEvent;
@@ -25,10 +23,8 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
-class BusinessEventEncoderTest extends TestCase
+class BusinessEventEncoderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private BusinessEventEncoder $businessEventEncoder;
 
     protected function setUp(): void

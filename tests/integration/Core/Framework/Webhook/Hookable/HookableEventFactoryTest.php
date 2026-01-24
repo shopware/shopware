@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Hookable;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableBusinessEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -28,10 +26,8 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[CoversClass(HookableEventFactory::class)]
-class HookableEventFactoryTest extends TestCase
+class HookableEventFactoryTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private HookableEventFactory $hookableEventFactory;
 
     protected function setUp(): void

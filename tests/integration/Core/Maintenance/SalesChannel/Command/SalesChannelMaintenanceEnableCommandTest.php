@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Maintenance\SalesChannel\Command;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelMaintenanceEnableCommand;
 use Shopware\Core\Test\TestDefaults;
@@ -16,10 +14,8 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @internal
  */
 #[Package('framework')]
-class SalesChannelMaintenanceEnableCommandTest extends TestCase
+class SalesChannelMaintenanceEnableCommandTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testNoValidationErrors(): void
     {
         $commandTester = new CommandTester(static::getContainer()->get(SalesChannelMaintenanceEnableCommand::class));

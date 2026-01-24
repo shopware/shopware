@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Order;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 
@@ -22,10 +20,9 @@ use Shopware\Core\Test\Integration\Traits\OrderFixture;
  */
 #[CoversClass(OrderAddressService::class)]
 #[Package('checkout')]
-class OrderAddressServiceTest extends TestCase
+class OrderAddressServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AdminApiTestBehaviour;
-    use IntegrationTestBehaviour;
     use OrderFixture;
 
     /**

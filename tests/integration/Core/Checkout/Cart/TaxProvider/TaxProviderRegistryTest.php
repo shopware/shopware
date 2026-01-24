@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\TaxProvider;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderRegistry;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestEmptyTaxProvider;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestGenericExceptionTaxProvider;
@@ -14,10 +12,8 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestGenericExce
  * @internal
  */
 #[Package('checkout')]
-class TaxProviderRegistryTest extends TestCase
+class TaxProviderRegistryTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private TaxProviderRegistry $taxProviderRegistry;
 
     protected function setUp(): void

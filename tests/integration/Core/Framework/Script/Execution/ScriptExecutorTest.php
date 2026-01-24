@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Script\Execution;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\Constraint\IsInstanceOf;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\Test\Script\Execution\DeprecatedTestHook;
 use Shopware\Core\Framework\Test\Script\Execution\FunctionWillBeRequiredTestHook;
 use Shopware\Core\Framework\Test\Script\Execution\StoppableTestHook;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,10 +25,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-class ScriptExecutorTest extends TestCase
+class ScriptExecutorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     private ScriptExecutor $executor;
 

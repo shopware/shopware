@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -22,9 +20,8 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('checkout')]
-class ExtensionStoreLicensesServiceTest extends TestCase
+class ExtensionStoreLicensesServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
     private AbstractExtensionStoreLicensesService $extensionLicensesService;

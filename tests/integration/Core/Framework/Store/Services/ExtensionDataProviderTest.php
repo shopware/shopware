@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -23,10 +21,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @internal
  */
 #[Package('checkout')]
-class ExtensionDataProviderTest extends TestCase
+class ExtensionDataProviderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use ExtensionBehaviour;
-    use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
     private AbstractExtensionDataProvider $extensionDataProvider;

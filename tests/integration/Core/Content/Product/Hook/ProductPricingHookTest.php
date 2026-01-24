@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Hook;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Content\Product\Hook\Pricing\ProductPricingHook;
 use Shopware\Core\Content\Product\Hook\Pricing\ProductProxy;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,10 +26,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 #[Package('inventory')]
 #[CoversClass(ProductPricingHook::class)]
-class ProductPricingHookTest extends TestCase
+class ProductPricingHookTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testScripts(): void
     {
         $ids = new IdsCollection();

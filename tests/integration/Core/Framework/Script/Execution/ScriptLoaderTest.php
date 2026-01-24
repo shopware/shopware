@@ -2,18 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Script\Execution;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal
  */
-class ScriptLoaderTest extends TestCase
+class ScriptLoaderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
 
     public function testGetScripts(): void
     {

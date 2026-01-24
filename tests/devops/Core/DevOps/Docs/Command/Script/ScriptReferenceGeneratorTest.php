@@ -3,20 +3,16 @@
 namespace Shopware\Tests\DevOps\Core\DevOps\Docs\Command\Script;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceDataCollector;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGenerator;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommand;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
 #[CoversClass(ScriptReferenceGeneratorCommand::class)]
-class ScriptReferenceGeneratorTest extends TestCase
+class ScriptReferenceGeneratorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public static function tearDownAfterClass(): void
     {
         ScriptReferenceDataCollector::reset();

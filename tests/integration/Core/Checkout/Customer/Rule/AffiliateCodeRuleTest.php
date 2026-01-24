@@ -4,12 +4,10 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\AffiliateCodeRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -21,10 +19,8 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('fundamentals@after-sales')]
 #[CoversClass(AffiliateCodeRule::class)]
 #[Group('rules')]
-class AffiliateCodeRuleTest extends TestCase
+class AffiliateCodeRuleTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private AffiliateCodeRule $rule;
 
     protected function setUp(): void

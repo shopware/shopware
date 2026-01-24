@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Rule;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -11,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 
@@ -19,10 +17,8 @@ use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-class PaymentMethodRuleAccessibleTest extends TestCase
+class PaymentMethodRuleAccessibleTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     /**
      * @var EntityRepository<RuleCollection>
      */

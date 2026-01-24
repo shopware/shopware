@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Helper\MailEventListener;
 use Shopware\Core\Test\Integration\Traits\TestShortHands;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -14,9 +12,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('checkout')]
-class BasicOrderProductTest extends TestCase
+class BasicOrderProductTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use TestShortHands;
 
     public function testBasicOrderFlow(): void

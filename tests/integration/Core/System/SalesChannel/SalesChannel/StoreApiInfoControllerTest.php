@@ -4,9 +4,7 @@ namespace Shopware\Tests\Integration\Core\System\SalesChannel\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController;
 
@@ -16,9 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController;
 #[Package('discovery')]
 #[CoversClass(StoreApiInfoController::class)]
 #[Group('store-api')]
-class StoreApiInfoControllerTest extends TestCase
+class StoreApiInfoControllerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     public function testFetchStoreApiRoutes(): void

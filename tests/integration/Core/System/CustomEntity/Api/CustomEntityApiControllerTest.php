@@ -2,19 +2,16 @@
 
 namespace Shopware\Tests\Integration\Core\System\CustomEntity\Api;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Tests\Integration\Core\System\CustomEntity\CustomEntityTest;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
-class CustomEntityApiControllerTest extends TestCase
+class CustomEntityApiControllerTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use AdminApiTestBehaviour;
-    use IntegrationTestBehaviour;
 
     /**
      * All other cases are covered in @see CustomEntityTest

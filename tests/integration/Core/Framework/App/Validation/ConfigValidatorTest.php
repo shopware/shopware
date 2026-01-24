@@ -2,19 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Validation;
 
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-class ConfigValidatorTest extends TestCase
+class ConfigValidatorTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private ConfigValidator $configValidator;
 
     protected function setUp(): void

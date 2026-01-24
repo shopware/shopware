@@ -3,19 +3,15 @@
 namespace Shopware\Tests\Integration\Core\Installer\Configuration;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\ShopConfigurationService;
 
 /**
  * @internal
  */
-class ShopConfigurationServiceTest extends TestCase
+class ShopConfigurationServiceTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testUpdateShop(): void
     {
         $service = new ShopConfigurationService($this->getContainer()->get('event_dispatcher'));

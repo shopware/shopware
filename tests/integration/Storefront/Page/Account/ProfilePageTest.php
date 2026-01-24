@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedEvent;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
@@ -12,9 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class ProfilePageTest extends TestCase
+class ProfilePageTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
     public function testItLoadsTheProfilePage(): void

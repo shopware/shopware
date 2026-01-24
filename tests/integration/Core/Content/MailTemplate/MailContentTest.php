@@ -4,9 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\MailTemplate;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -14,10 +12,8 @@ use Symfony\Component\Finder\Finder;
  * @internal
  */
 #[Package('after-sales')]
-class MailContentTest extends TestCase
+class MailContentTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
-    use IntegrationTestBehaviour;
-
     private const FIXTURE_FOLDER = __DIR__ . '/../../../../../src/Core/Migration/Fixtures/mails/';
     private const EXCLUDED_DIRECTORIES = [
         'defaultMailFooter',

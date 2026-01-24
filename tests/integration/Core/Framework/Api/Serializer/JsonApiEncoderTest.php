@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Serializer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -28,7 +27,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Exten
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\SerializationFixture;
@@ -45,12 +43,11 @@ use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestMainRe
 /**
  * @internal
  */
-class JsonApiEncoderTest extends TestCase
+class JsonApiEncoderTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {
         tearDown as protected tearDownDefinitions;
     }
-    use IntegrationTestBehaviour;
 
     private Connection $connection;
 

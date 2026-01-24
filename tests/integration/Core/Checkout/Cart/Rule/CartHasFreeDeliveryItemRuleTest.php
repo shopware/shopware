@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
@@ -25,10 +23,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
  */
 #[Package('fundamentals@after-sales')]
 #[Group('rules')]
-class CartHasFreeDeliveryItemRuleTest extends TestCase
+class CartHasFreeDeliveryItemRuleTest extends \Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestCase
 {
     use CartRuleHelperTrait;
-    use IntegrationTestBehaviour;
 
     /**
      * @var EntityRepository<RuleCollection>

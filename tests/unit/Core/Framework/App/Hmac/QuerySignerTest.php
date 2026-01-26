@@ -64,7 +64,7 @@ class QuerySignerTest extends TestCase
         static::assertArrayHasKey('sw-user-language', $url);
         static::assertArrayHasKey('shopware-shop-signature', $url);
         static::assertArrayHasKey('app-version', $url);
-        static::assertArrayHasKey('user-id', $url);
+        static::assertArrayHasKey('sw-user-id', $url);
 
         static::assertSame('shopId', $url['shop-id']);
         static::assertSame('http://shop.url', $url['shop-url']);
@@ -74,7 +74,7 @@ class QuerySignerTest extends TestCase
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $url['sw-context-language']);
         static::assertSame('en-GB', $url['sw-user-language']);
         static::assertSame('1.0.0', $url['app-version']);
-        static::assertSame($userId, $url['user-id']);
+        static::assertSame($userId, $url['sw-user-id']);
     }
 
     public function testUserIdIsEmptyStringWhenSourceIsNotAdminApiSource(): void
@@ -116,8 +116,8 @@ class QuerySignerTest extends TestCase
 
         \parse_str($signedQuery->getQuery(), $url);
 
-        static::assertArrayHasKey('user-id', $url);
-        static::assertSame('', $url['user-id']);
+        static::assertArrayHasKey('sw-user-id', $url);
+        static::assertSame('', $url['sw-user-id']);
     }
 
     public function testThrowsWithoutAppSecret(): void

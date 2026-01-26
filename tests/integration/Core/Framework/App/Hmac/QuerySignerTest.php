@@ -83,8 +83,8 @@ class QuerySignerTest extends TestCase
         static::assertArrayHasKey('app-version', $signedQuery);
         static::assertSame('1.0.0', $signedQuery['app-version']);
 
-        static::assertArrayHasKey('user-id', $signedQuery);
-        static::assertSame($userId, $signedQuery['user-id']);
+        static::assertArrayHasKey('sw-user-id', $signedQuery);
+        static::assertSame($userId, $signedQuery['sw-user-id']);
 
         static::assertNotNull($this->app->getAppSecret());
 

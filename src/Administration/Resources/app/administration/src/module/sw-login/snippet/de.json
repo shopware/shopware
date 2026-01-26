@@ -7,7 +7,7 @@
     "index": {
       "headlineMain": "Hallo!",
       "subheadlineMain": "Willkommen zurück.",
-      "headlineForm": "Melde Dich in Deinem Shopware-Shop an",
+      "headlineForm": "Melde Dich bei Shopware an",
       "labelUsername": "Benutzername",
       "labelPassword": "Passwort",
       "labelKeepLoggedIn": "Angemeldet bleiben",
@@ -25,7 +25,7 @@
       "messageAccessDenied": "Der Zugriff wurde verweigert.",
       "messageGeneralRequestError": "Die Anfrage an \"{url}\" ist fehlgeschlagen.",
       "messageAuthThrottled": "Zu viele Anmeldeversuche. Bitte warten Sie {seconds} Sekunden, bevor Sie erneut versuchen, sich anzumelden.",
-      "forgottenPasswordLink": "Hast Du Dein Passwort vergessen?",
+      "forgottenPasswordLink": "Passwort vergessen?",
       "orContinueWith": "Oder fortfahren mit"
     },
     "recovery": {

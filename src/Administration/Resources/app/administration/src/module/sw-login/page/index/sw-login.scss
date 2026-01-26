@@ -55,7 +55,7 @@
 
     .sw-login__content-headline {
         color: var(--color-text-primary-default);
-        font-size: var(--font-size-l);
+        font-size: var(--font-size-xl);
         font-weight: var(--font-weight-semibold);
         margin-bottom: var(--scale-size-24);
     }
@@ -118,23 +118,43 @@
         }
 
         @media screen and (max-width: 31.25rem) {
-            display: none;
+            height: 48px;
+            width: 48px;
+
+            svg {
+                width: 24px;
+                height: 24px;
+            }
         }
     }
 
     .sw-login__submit {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: var(--scale-size-16);
         margin-top: var(--scale-size-32);
-        text-align: right;
 
         .mt-button {
             display: inline-block;
         }
 
-        @media screen and (max-width: 31.25rem) {
+        &-container {
             display: flex;
-            flex-direction: column-reverse;
             align-items: center;
-            gap: var(--scale-size-16);
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        @media screen and (max-width: 31.25rem) {
+            gap: var(--scale-size-32);
+
+            &-container {
+                flex-direction: column;
+                align-items: center;
+                gap: var(--scale-size-16);
+            }
 
             .mt-button {
                 display: block;
@@ -208,12 +228,11 @@
     }
 
     .sw-login__sso {
-        margin-top: var(--scale-size-24);
-
         &-divider {
             display: flex;
             align-items: center;
-            margin-bottom: var(--scale-size-24);
+            margin-top: var(--scale-size-32);
+            margin-bottom: var(--scale-size-32);
 
             &::before,
             &::after {
@@ -235,10 +254,6 @@
         }
     }
 
-    .sw-login__forgot-password-action {
-        margin-right: var(--scale-size-12);
-    }
-
     .sw-login__back-arrow {
         cursor: pointer;
     }
@@ -255,8 +270,14 @@
         transform: translateX(-20px);
     }
 
-    .sw-login-recovery p {
-        font-size: var(--font-size-xs);
+    .sw-login-recovery {
+        .sw-login__submit {
+            align-items: start;
+        }
+
+        p {
+            font-size: var(--font-size-xs);
+        }
     }
 
     .sw-login__recovery-form {

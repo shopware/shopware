@@ -45,38 +45,42 @@
             />
             {% endblock %}
 
-            <mt-checkbox
-                v-model:checked="rememberMe"
-                :label="$tc('sw-login.index.labelKeepLoggedIn')"
-            />
-
             {% block sw_login_login_submit %}
             <div class="sw-login__submit">
-                {% block sw_login_login_forgot_password %}
-                <mt-link
-                    :to="{ name: 'sw.login.index.recovery' }"
-                    class="sw-login__forgot-password-action"
-                >
-                    {{ $tc('sw-login.index.forgottenPasswordLink') }}
-                </mt-link>
-                {% endblock %}
-
                 {% block sw_login_login_submit_button %}
                 <mt-button
                     :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
                     class="sw-login__login-action"
                     variant="primary"
+                    size="default"
+                    :block="true"
                     type="submit"
                 >
                     {{ $tc('sw-login.index.buttonLogin') }}
                 </mt-button>
                 {% endblock %}
+
+                <div class="sw-login__submit-container">
+                    <mt-checkbox
+                        v-model:checked="rememberMe"
+                        :label="$tc('sw-login.index.labelKeepLoggedIn')"
+                    />
+
+                    {% block sw_login_login_forgot_password %}
+                    <mt-link
+                        :to="{ name: 'sw.login.index.recovery' }"
+                        class="sw-login__forgot-password-action"
+                    >
+                        {{ $tc('sw-login.index.forgottenPasswordLink') }}
+                    </mt-link>
+                    {% endblock %}
+                </div>
             </div>
             {% endblock %}
         </div>
 
         <div
-            v-if="loginConfig.url"
+            v-if="true"
             class="sw-login__sso"
         >
             <div class="sw-login__sso-divider">
@@ -90,6 +94,7 @@
                 :disabled="!loginConfigLoaded"
                 :is-loading="ssoLoading"
                 :block="true"
+                size="default"
                 variant="secondary"
                 @click.prevent="doSsoForwarding"
             >

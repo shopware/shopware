@@ -153,6 +153,11 @@ Added logging for invalidated cache tags at the info level, with the ability to 
 
 ## Administration
 
+### The default search result sorting can be empty despite of required
+
+Fixes the error that required value of default search result sorting can be saved as null.
+And method `salesChannelDefaultSortingError` will be removed in v6.8.0.0, use `emptyDefaultValueError` instead.
+
 ### Deprecations in mail template components
 
 The mail template index will be split into separate tabs for templates and headers/footers in v6.8.0.0.

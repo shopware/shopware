@@ -119,6 +119,19 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use emptyDefaultValueError instead
+         */
+        salesChannelDefaultSortingError() {
+            const code = this.$refs.systemConfig.isNotDefaultSalesChannel
+                ? 'PARENT_MUST_NOT_BE_EMPTY'
+                : 'c1051bb4-d103-4f74-8988-acbcafc7fdc3';
+
+            return new ShopwareError({
+                code,
+            });
+        },
+
         emptyDefaultValueError() {
             const code = this.$refs.systemConfig.isNotDefaultSalesChannel
                 ? 'PARENT_MUST_NOT_BE_EMPTY'

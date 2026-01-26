@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -30,7 +31,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
 
     public function build(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        $search = $request->get('search');
+        $search = RequestParamHelper::get($request, 'search');
 
         if (\is_array($search)) {
             $term = implode(' ', $search);

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -969,6 +970,13 @@ class AttributeEntityIntegrationTest extends TestCase
         $inheritedFlag = $inheritedWithForeignKeyField->getFlag(Inherited::class);
         static::assertInstanceOf(Inherited::class, $inheritedFlag);
         static::assertSame('custom_fk', $inheritedFlag->getForeignKey());
+
+        $productField = $definition->getFields()->get('product');
+        static::assertNotNull($productField, 'product field should exist');
+        static::assertTrue(
+            $productField->is(ReverseInherited::class),
+            'product association field should have ReverseInherited flag'
+        );
     }
 
     /**

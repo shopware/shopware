@@ -182,10 +182,10 @@ class PromotionCalculator
         $allPromotionIdMapping = [];
 
         foreach ($discountLineItems as $discountItem) {
-            if (!$discountItem->hasPayloadValue('promotionId')) {
+            $currentPromotionId = $discountItem->getPayloadValue('promotionId');
+            if ($currentPromotionId === null) {
                 continue;
             }
-            $currentPromotionId = $discountItem->getPayloadValue('promotionId');
 
             $allPromotionIdMapping[$currentPromotionId] = true;
 
@@ -203,10 +203,10 @@ class PromotionCalculator
 
         // add explicit exclusions both to the excluding and excluded items
         foreach ($discountLineItems as $discountItem) {
-            if (!$discountItem->hasPayloadValue('promotionId')) {
+            $currentPromotionId = $discountItem->getPayloadValue('promotionId');
+            if ($currentPromotionId === null) {
                 continue;
             }
-            $currentPromotionId = $discountItem->getPayloadValue('promotionId');
 
             if ($discountItem->getPayloadValue('preventCombination')) {
                 // if preventCombination is set, no explicit exclusions exist yet. Add exclusions for all other promotions.
@@ -228,29 +228,47 @@ class PromotionCalculator
     {
         $exclusions = [];
         $checkedPromotionId = $checkedItem->getPayloadValue('promotionId');
+        $lineItems = $calculated->getLineItems();
 
         foreach ($sortedDiscountItems as $discountItem) {
-            // if we dont have a scope
-            // then skip it, it might not belong to us
+            // if we dont have a scope: skip it, it might not belong to us
             if (!$discountItem->hasPayloadValue('discountScope')) {
                 continue;
             }
-            if ($discountItem->getPayloadValue('priority') < $checkedItem->getPayloadValue('priority')) {
+
+            $priorityDiff = $discountItem->getPayloadValue('priority') - $checkedItem->getPayloadValue('priority');
+
+            if ($priorityDiff < 0) {
+                // collection is sorted by priority, from here on out there are only lower-priority items
                 break;
             }
 
-            if ($discountItem->hasPayloadValue('promotionId')) {
-                $promotionId = $discountItem->getPayloadValue('promotionId');
-
-                if ($promotionId === $checkedPromotionId) {
-                    break;
-                }
-
-                // if promotion is on exclusions stack it is ignored
-                // this avoids cycles that both promotions exclude each other
-                if (isset($exclusions[$promotionId])) {
+            if (!$lineItems->exists($discountItem)) {
+                if ($priorityDiff > 0) {
+                    // valid discountItem with higher priority would have been added to the cart already
                     continue;
                 }
+                // $priorityDiff === 0 is implied at this point
+
+                if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
+                    // requirements are not fulfilled
+                    continue;
+                }
+            }
+
+            $promotionId = $discountItem->getPayloadValue('promotionId');
+            if ($promotionId === null) {
+                continue;
+            }
+
+            if ($promotionId === $checkedPromotionId) {
+                break;
+            }
+
+            // if promotion is on exclusions stack it is ignored
+            // this avoids cycles that both promotions exclude each other
+            if (isset($exclusions[$promotionId])) {
+                continue;
             }
 
             // check if the promotion is active by its conditions

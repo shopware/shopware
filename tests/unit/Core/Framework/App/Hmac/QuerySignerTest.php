@@ -77,6 +77,49 @@ class QuerySignerTest extends TestCase
         static::assertSame($userId, $url['user-id']);
     }
 
+    public function testUserIdIsEmptyStringWhenSourceIsNotAdminApiSource(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $localeProvider = $this->createMock(LocaleProvider::class);
+        $localeProvider
+            ->expects($this->once())
+            ->method('getLocaleFromContext')
+            ->with($context)
+            ->willReturn('en-GB');
+
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider
+            ->expects($this->once())
+            ->method('getShopId')
+            ->willReturn('shopId');
+
+        $app = new AppEntity();
+        $app->setName('extension-1');
+        $app->setAppSecret('devSecret');
+        $app->setId(Uuid::randomHex());
+        $app->setVersion('1.0.0');
+
+        $querySigner = new QuerySigner(
+            'http://shop.url',
+            '1.0.0',
+            $localeProvider,
+            $shopIdProvider,
+            StaticInAppPurchaseFactory::createWithFeatures(),
+        );
+
+        $signedQuery = $querySigner->signUri(
+            'http://app.url/?foo=bar',
+            $app,
+            $context
+        );
+
+        \parse_str($signedQuery->getQuery(), $url);
+
+        static::assertArrayHasKey('user-id', $url);
+        static::assertSame('', $url['user-id']);
+    }
+
     public function testThrowsWithoutAppSecret(): void
     {
         $app = new AppEntity();

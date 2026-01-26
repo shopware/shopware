@@ -16,6 +16,7 @@
             {% block address_base_list_search %}
                 <input
                     type="search"
+                    aria-label="{{ 'account.addressListSearch'|trans|sw_sanitize }}"
                     class="form-control address-manager-list-search"
                     placeholder="{{ 'account.addressSearchPlaceholder'|trans|sw_sanitize }}"
                     name="search"

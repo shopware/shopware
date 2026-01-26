@@ -2,11 +2,6 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
-use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
-use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
-use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
-use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
-use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppLifecycleHook;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\AclFacadeHookFactory;
@@ -17,12 +12,9 @@ use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Script\ServiceStubs;
-use Shopware\Core\Framework\Struct\ArrayStruct;
-use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use Twig\Environment;
-use Twig\Extension\DebugExtension;
+use Twig\Extension\ExtensionInterface;
 
 /**
  * @codeCoverageIgnore This class is fully tested by @see \Shopware\Tests\Integration\Core\Framework\Script\Execution\ScriptExecutorTest
@@ -40,14 +32,15 @@ class ScriptExecutor
     ];
 
     /**
+     * @param ExtensionInterface[] $twigExtensions
+     *
      * @internal
      */
     public function __construct(
         private readonly ScriptLoader $loader,
         private readonly ScriptTraces $traces,
         private readonly ContainerInterface $container,
-        private readonly TranslationExtension $translationExtension,
-        private readonly string $shopwareVersion,
+        private readonly ScriptEnvironmentFactory $scriptEnvironmentFactory,
     ) {
     }
 
@@ -88,7 +81,7 @@ class ScriptExecutor
 
     private function render(Hook $hook, Script $script): void
     {
-        $twig = $this->initEnv($script);
+        $twig = $this->scriptEnvironmentFactory->initEnv($script);
 
         $services = $this->initServices($hook, $script);
 
@@ -132,30 +125,6 @@ class ScriptExecutor
         });
 
         $this->callAfter($services, $hook, $script);
-    }
-
-    private function initEnv(Script $script): Environment
-    {
-        $twig = new TwigEnvironment(
-            new ScriptTwigLoader($script),
-            $script->getTwigOptions()
-        );
-
-        $twig->addExtension(new PhpSyntaxExtension());
-        $twig->addExtension($this->translationExtension);
-        $twig->addExtension(new SecurityExtension([]));
-        $twig->addExtension(new PcreExtension());
-        $twig->addExtension(new ReplaceRecursiveFilter());
-
-        if ($script->getTwigOptions()['debug'] ?? false) {
-            $twig->addExtension(new DebugExtension());
-        }
-
-        $twig->addGlobal('shopware', new ArrayStruct([
-            'version' => $this->shopwareVersion,
-        ]));
-
-        return $twig;
     }
 
     private function initServices(Hook $hook, Script $script): ServiceStubs

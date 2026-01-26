@@ -55,7 +55,7 @@ class OrderDocumentTypeRuleTest extends TestCase
         static::assertArrayHasKey('operator', $constraints, 'operator constraints not found');
 
         static::assertEquals([new NotBlank(), new ArrayOfUuid()], $constraints['documentIds']);
-        static::assertEquals([new NotBlank(), new Choice($operators)], $constraints['operator']);
+        static::assertEquals([new NotBlank(), new Choice(choices: $operators)], $constraints['operator']);
     }
 
     /**

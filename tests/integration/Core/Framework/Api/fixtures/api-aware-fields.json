@@ -1621,5 +1621,7 @@
     "attribute_entity_agg.createdAt",
     "attribute_entity_agg.updatedAt",
     "attribute_entity_with_hydrator.createdAt",
-    "attribute_entity_with_hydrator.updatedAt"
+    "attribute_entity_with_hydrator.updatedAt",
+    "attribute_entity_inheritance.createdAt",
+    "attribute_entity_inheritance.updatedAt"
 ]

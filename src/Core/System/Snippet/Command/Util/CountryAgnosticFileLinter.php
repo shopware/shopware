@@ -179,8 +179,8 @@ class CountryAgnosticFileLinter
         $apps = $this->appRepository->search($criteria, $context)->getEntities();
 
         $extensionPaths = [
-            ...$plugins->map(static fn (PluginEntity $plugin) => $plugin->getPath()),
-            ...$apps->map(static fn (AppEntity $app) => $app->getPath()),
+            ...$plugins->fmap(static fn (PluginEntity $plugin) => $plugin->getPath()),
+            ...$apps->fmap(static fn (AppEntity $app) => $app->getPath()),
         ];
 
         if (empty($extensionPaths)) {

@@ -96,6 +96,20 @@
                         <input type="hidden"
                                name="lineItems[{{ product.id }}][removable]"
                                value="1">
+
+                        <input type="hidden"
+                               name="lineItems[{{ product.id }}][payload][manufacturerName]"
+                               value="{{ product.manufacturer ? product.manufacturer.getName() : '' }}">
+
+                        {# Google Analytics supports up to 5 category levels. We take the first 5 from the breadcrumb. #}
+                        {% if page is defined and page.product is defined and page.product.seoCategory is defined %}
+                            {% set breadcrumb = sw_breadcrumb_full(page.product.seoCategory, context)|slice(0, 5) %}
+                            {% for i, category in breadcrumb %}
+                                <input type="hidden"
+                                       name="lineItems[{{ product.id }}][payload][categoryNames][{{ i }}]"
+                                       value="{{ category.name }}">
+                            {% endfor %}
+                        {% endif %}
                     {% endblock %}
 
                     {% block buy_widget_product_buy_meta %}
@@ -104,7 +118,7 @@
                                value="{{ product.translated.name }}">
                         <input type="hidden"
                                name="brand-name"
-                               value="{{ product.manufacturer.getName() }}">
+                               value="{{ product.manufacturer ? product.manufacturer.getName() : '' }}">
                     {% endblock %}
 
                     {% block buy_widget_buy_button_container %}

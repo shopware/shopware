@@ -90,7 +90,7 @@ class ErrorController extends StorefrontController
         $formViolations = new ConstraintViolationException($violations, []);
         if (!$request->isXmlHttpRequest()) {
             $errorRoute = (string) $request->request->get('errorRoute');
-            $route = $errorRoute !== '' ? $errorRoute : (($fallback = (string) $request->get('_route')) !== '' ? $fallback : 'frontend.home.page');
+            $route = $errorRoute !== '' ? $errorRoute : (($fallback = $request->attributes->getString('_route')) !== '' ? $fallback : 'frontend.home.page');
 
             return $this->forwardToRoute($route, ['formViolations' => $formViolations]);
         }

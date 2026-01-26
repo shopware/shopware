@@ -1,3 +1,10 @@
+---
+title: Introduce Product Type And Deprecate Product States
+date: 2025-11-14
+area: inventory
+tags: [store-api, inventory, structure]
+---
+
 # Introduce Product Type And Deprecate Product States
 
 ## Context
@@ -40,7 +47,7 @@ In a more detailed manner, we will make the following changes:
 - Introduce `LineItemProductTypeRule` for rule builder usage and deprecate the legacy `LineItemProductStatesRule`.
 - Rules automatically pick up custom product types registered via the shared registry (@See `ProductTypeRegistry`), so PHP-based conditions stay consistent with storefront/admin filters.
 
-#### Introduce a server-side `ProductTypeRegistry` 
+#### Introduce a server-side `ProductTypeRegistry`
 
 - This registry help both core rules and plugins can register additional product types via the parameter `%shopware.product.allowed_types%` as an array.
 

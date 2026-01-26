@@ -192,6 +192,7 @@ class SchemaBuilder
             );
         }
 
+        /** @var array<non-empty-string> $primaryKeys */
         $primaryKeys = $definition->getPrimaryKeys()->fmap(static function (Field $field): ?string {
             if ($field instanceof StorageAware) {
                 return $field->getStorageName();

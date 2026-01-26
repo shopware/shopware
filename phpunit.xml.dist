@@ -23,6 +23,8 @@
             <directory suffix=".php">src</directory>
         </include>
         <exclude>
+            <directory suffix="Exception.php">src</directory>
+
             <file>src/Administration/Events/PreResetExcludedSearchTermEvent.php</file>
             <directory suffix="Definition.php">src/Administration/Notification/</directory>
             <directory suffix="Entity.php">src/Administration/Notification/</directory>

@@ -2,7 +2,9 @@
 import { execSync } from "child_process";
 
 // IDs of advisories to ignore
-const ignored: number[] = [];
+const ignored: number[] = [
+  1112030, // Elliptic Uses a Cryptographic Primitive with a Risky Implementation (low severity)
+];
 let auditRaw = "";
 
 try {
@@ -22,10 +24,34 @@ try {
 try {
   const audit = JSON.parse(auditRaw);
 
+  // First pass: filter out ignored advisories
   for (const pkgName in audit.vulnerabilities) {
     const pkg = audit.vulnerabilities[pkgName];
     if (pkg.via && Array.isArray(pkg.via)) {
       pkg.via = pkg.via.filter((v: any) => !ignored.includes(v.source));
+    }
+  }
+
+  // Second pass: remove packages that only have transitive dependencies on filtered packages
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const pkgName in audit.vulnerabilities) {
+      const pkg = audit.vulnerabilities[pkgName];
+      if (pkg.via && Array.isArray(pkg.via) && pkg.via.length > 0) {
+        // Filter out string references to packages that have no vulnerabilities left
+        pkg.via = pkg.via.filter((v: any) => {
+          if (typeof v === 'string') {
+            // Check if the referenced package has any vulnerabilities left
+            const refPkg = audit.vulnerabilities[v];
+            return refPkg && refPkg.via && refPkg.via.length > 0;
+          }
+          return true; // Keep object entries that weren't filtered in first pass
+        });
+        if (pkg.via.length === 0) {
+          changed = true;
+        }
+      }
     }
   }
 

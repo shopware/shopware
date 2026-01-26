@@ -10,9 +10,6 @@ use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
-/**
- * @codeCoverageIgnore
- */
 class MigrationException extends HttpException
 {
     final public const FRAMEWORK_MIGRATION_INVALID_VERSION_SELECTION_MODE = 'FRAMEWORK__MIGRATION_INVALID_VERSION_SELECTION_MODE';

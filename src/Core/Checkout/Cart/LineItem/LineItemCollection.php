@@ -10,14 +10,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @extends Collection<LineItem>
+ * @extends Collection<LineItem, string>
  */
 #[Package('checkout')]
 class LineItemCollection extends Collection
 {
-    /**
-     * @param LineItem[] $elements
-     */
     public function __construct(iterable $elements = [])
     {
         parent::__construct();
@@ -28,8 +25,6 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @param LineItem $lineItem
-     *
      * @throws CartException
      */
     public function add($lineItem): void
@@ -58,10 +53,6 @@ class LineItemCollection extends Collection
         $this->elements[$this->getKey($lineItem)] = $lineItem;
     }
 
-    /**
-     * @param int|string $key
-     * @param LineItem $lineItem
-     */
     public function set($key, $lineItem): void
     {
         $this->validateType($lineItem);
@@ -168,7 +159,6 @@ class LineItemCollection extends Collection
     public function sortByPriority(): void
     {
         $lineItemsByPricePriority = [];
-        /** @var LineItem $lineItem */
         foreach ($this->elements as $lineItem) {
             $priceDefinitionPriority = QuantityPriceDefinition::SORTING_PRIORITY;
             if ($lineItem->getPriceDefinition()) {
@@ -185,7 +175,11 @@ class LineItemCollection extends Collection
         krsort($lineItemsByPricePriority);
 
         if (\count($lineItemsByPricePriority)) {
-            $this->elements = array_merge(...$lineItemsByPricePriority);
+            $merged = array_merge(...$lineItemsByPricePriority);
+            $this->elements = \array_combine(
+                \array_map($this->getKey(...), $merged),
+                $merged,
+            );
         }
     }
 

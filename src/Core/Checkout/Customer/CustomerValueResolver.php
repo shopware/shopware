@@ -20,7 +20,7 @@ class CustomerValueResolver implements ValueResolverInterface
 
         $loginRequired = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED);
 
-        if ($loginRequired !== true) {
+        if ($loginRequired !== true && $loginRequired !== 'true') {
             $route = $request->attributes->get('_route');
 
             throw CustomerException::missingRouteAnnotation('LoginRequired', $route);

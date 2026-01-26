@@ -258,6 +258,12 @@ A new configuration option `Open offcanvas cart after adding a product` has been
 
 ## Hosting & Configuration
 
+### `cache:clear` now removes other cache hash directories (#4545)
+
+Symfony's `cache:clear` only clears the current kernel's cache directory. When CLI and web use different plugin loaders (`DbalKernelPluginLoader` vs `ComposerPluginLoader`), they produce different cache hashes, causing CLI cache clears to have no effect on web requests.
+
+The new `ContainerCacheDirectoryClearer` service hooks into Symfony's cache clearing via the `kernel.cache_clearer` tag and removes stale hash variant directories (e.g., `var/cache/prod_hOLDHASH123/`).
+
 ## Critical Fixes
 
 ### Flash messages are not cached anymore

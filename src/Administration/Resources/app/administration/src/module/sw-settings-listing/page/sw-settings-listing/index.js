@@ -204,7 +204,7 @@ export default {
                      * display both errors in the UI
                      * instead of just one using reject() right after the first error
                      */
-                    reject(new Error(this.$tc('sw-settings-listing.general.messageSaveDefaultValuesEmpty')));
+                    reject(new Error(this.$t('sw-settings-listing.general.messageSaveDefaultValuesEmpty')));
                 }
 
                 resolve();

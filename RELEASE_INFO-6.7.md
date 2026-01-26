@@ -169,6 +169,10 @@ The following deprecations apply to `sw-mail-template-index`:
 
 ## Storefront
 
+### Selling and packaging information in the product detail page
+
+Deprecated block `buy_widget_price_unit` in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
+
 ### Cookie consent now language-aware
 
 The cookie consent banner now tracks cookie configuration per language. Previously, switching languages would cause the cookie banner to reappear because the configuration hash changed due to translated cookie descriptions. Now, switching back to a previously accepted language will not show the banner again.

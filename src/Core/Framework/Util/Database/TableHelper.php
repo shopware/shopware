@@ -140,6 +140,17 @@ class TableHelper
         }
     }
 
+    public static function foreignKeyExists(Connection $connection, string $table, string $foreignKeyName): bool
+    {
+        try {
+            return self::getSchemaManager($connection)->introspectTable($table)->hasForeignKey($foreignKeyName);
+        } catch (TableHelperException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
+        }
+    }
+
     /**
      * @param non-empty-string $table
      *

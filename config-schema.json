@@ -711,6 +711,11 @@
                 },
                 "sitemap_route": {
                     "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "tag_invalidation_log_enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable logging of cache invalidation events."
                 }
             },
             "title": "Cache invalidation"

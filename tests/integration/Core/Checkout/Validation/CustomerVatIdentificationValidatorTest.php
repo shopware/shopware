@@ -46,9 +46,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
     {
         $this->expectExceptionObject(new ConstraintViolationException(ConstraintViolationList::createFromMessage('This value should be of type array.'), []));
 
-        $constraint = new CustomerVatIdentification([
-            'countryId' => $this->getValidCountryId(),
-        ]);
+        $constraint = new CustomerVatIdentification(countryId: $this->getValidCountryId());
 
         $validation = new DataValidationDefinition('customer.create');
 

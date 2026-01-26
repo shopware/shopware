@@ -177,7 +177,8 @@ The following deprecations apply to `sw-mail-template-index`:
 
 ### Selling and packaging information in the product detail page
 
-Deprecated block `buy_widget_price_unit` in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
+* Display the selling and packaging information with the product that has advanced pricing.
+* Deprecated block `buy_widget_price_unit` in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
 
 ### Cookie consent now language-aware
 

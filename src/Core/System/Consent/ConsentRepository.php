@@ -27,7 +27,7 @@ class ConsentRepository
     public function fetchAllConsentStates(): array
     {
         $result = $this->connection->fetchAllAssociative(
-            'SELECT name, identifier, state, consent_state.actor_id, consent_state.updated_at FROM consent_state'
+            'SELECT name, identifier, state, actor_id, updated_at FROM consent_state'
         );
 
         return array_map(
@@ -48,36 +48,23 @@ class ConsentRepository
         ConsentStatus $state,
         string $actorId
     ): ConsentState {
-        $existing = $this->connection->fetchOne(
-            'SELECT id FROM consent_state WHERE name = :consentName AND identifier <=> :identifier',
-            [
-                'consentName' => $consent->getName(),
-                'identifier' => $scopeIdentifier,
-            ]
-        );
-
         $now = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        if ($existing) {
-            $this->connection->update(
-                'consent_state',
-                [
-                    'state' => $state->value,
-                    'actor_id' => $actorId,
-                    'updated_at' => $now,
-                ],
-                ['id' => $existing]
-            );
-        } else {
-            $this->connection->insert('consent_state', [
-                'id' => Uuid::randomBytes(),
-                'name' => $consent->getName(),
-                'identifier' => $scopeIdentifier,
-                'state' => $state->value,
-                'actor_id' => $actorId,
-                'updated_at' => $now,
-            ]);
-        }
+        $this->connection->executeStatement('
+        INSERT INTO consent_state (id, name, identifier, state, actor_id, updated_at)
+        VALUES (:id, :consentName, :identifier, :state, :actorId, :updatedAt)
+        ON DUPLICATE KEY UPDATE
+            state = :state,
+            actor_id = :actorId,
+            updated_at = :updatedAt
+        ', [
+            'id' => Uuid::randomBytes(),
+            'consentName' => $consent->getName(),
+            'identifier' => $scopeIdentifier,
+            'state' => $state->value,
+            'actorId' => $actorId,
+            'updatedAt' => $now,
+        ], ['id' => 'binary']);
 
         return new ConsentState(
             $consent->getName(),

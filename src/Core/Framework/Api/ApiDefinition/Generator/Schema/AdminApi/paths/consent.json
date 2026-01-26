@@ -17,9 +17,27 @@
             "content": {
               "application\/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
+                  "type": "object",
+                  "additionalProperties": {
                     "$ref": "#/components/schemas/ConsentState"
+                  },
+                  "example": {
+                    "product_analytics": {
+                      "name": "product_analytics",
+                      "scopeName": "admin_user",
+                      "identifier": "userId-12345",
+                      "status": "accepted",
+                      "actorId": "userId-12345",
+                      "updatedAt": "2024-01-15T10:20:30Z"
+                    },
+                    "backend_data": {
+                      "name": "backend_data",
+                      "scopeName": "system",
+                      "identifier": "system",
+                      "status": "requested",
+                      "actorId": null,
+                      "updatedAt": null
+                    }
                   }
                 }
               }

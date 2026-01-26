@@ -81,9 +81,13 @@ class ConsentService
 
     public function getConsentState(string $name, Context $context): ConsentState
     {
-        $this->getConsentDefinition($name);
+        $state = $this->list($context)[$name] ?? null;
 
-        return $this->list($context)[$name];
+        if ($state === null) {
+            throw ConsentException::notFound($name);
+        }
+
+        return $state;
     }
 
     public function acceptConsent(string $name, Context $context): ConsentState

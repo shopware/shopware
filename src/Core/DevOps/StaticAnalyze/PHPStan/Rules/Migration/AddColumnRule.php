@@ -122,7 +122,7 @@ class AddColumnRule implements Rule
         $pattern = '/ALTER TABLE .* ADD .*/m';
         if (preg_match($pattern, $arg->value)) {
             return [
-                RuleErrorBuilder::message('Do not use `ALTER TABLE ... ADD COLUMN` in migration. Use MigrationStep::addColumn() or MigrationStep::addColumnInstant() (use addColumnInstant() for guaranteed fast operations on large tables).')
+                RuleErrorBuilder::message('Do not use `ALTER TABLE ... ADD COLUMN` in migration. Use MigrationStep::addColumn() by default, or MigrationStep::addColumnInstant() for large tables to prevent slow table copies.')
                     ->identifier('shopware.addColumn')
                     ->build(),
             ];

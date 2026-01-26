@@ -103,7 +103,7 @@ Component.register('sw-text-editor-toolbar-button', {
                 return;
             }
 
-            if (button.type === 'foreColor' && event.target.closest('.mt-colorpicker__colorpicker')) {
+            if (button.type === 'foreColor' && event.target.closest('.sw-colorpicker__colorpicker')) {
                 return;
             }
 

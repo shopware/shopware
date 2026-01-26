@@ -51,7 +51,7 @@ Component.register('sw-text-editor-link-menu', {
         buttonVariant: ButtonVariant;
         linkCategory: LinkCategories;
         categoryCollection?: EntityCollection<'category'>;
-        buttonVariantList: Array<{ id: number; value: ButtonVariant; label: string }>;
+        buttonVariantList: Array<{ id: ButtonVariant; name: string }>;
     } {
         return {
             linkTitle: '',
@@ -64,24 +64,20 @@ Component.register('sw-text-editor-link-menu', {
             categoryCollection: undefined,
             buttonVariantList: [
                 {
-                    id: 1,
-                    value: 'primary',
-                    label: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
+                    id: 'primary',
+                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
                 },
                 {
-                    id: 2,
-                    value: 'secondary',
-                    label: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
+                    id: 'secondary',
+                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
                 },
                 {
-                    id: 3,
-                    value: 'primary-sm',
-                    label: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
+                    id: 'primary-sm',
+                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
                 },
                 {
-                    id: 4,
-                    value: 'secondary-sm',
-                    label: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
+                    id: 'secondary-sm',
+                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
                 },
             ],
         };

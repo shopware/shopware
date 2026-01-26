@@ -11,8 +11,12 @@
 <div {{ attributes.defaults(attributeDefaults) }}>
     <div class="sw-flyout__container container">
         <div class="flex justify-content-end pb-3">
-            <a href="{{ category.seoUrl ?: '#' }}" class="sw-flyout__show-all link-primary link-offset-2">
-                {{ 'general.toCategory'|trans|sw_sanitize }} {{ category.translated.name }} <twig:Sw:Icon name="arrow-head-right" size="xs" />
+            <a
+                href="{{ category.seoUrl ?: '#' }}"
+                class="sw-flyout__show-all link-primary link-offset-2"
+            >
+                {{ 'general.toCategory'|trans|sw_sanitize }} {{ category.translated.name }}
+                <twig:Sw:Icon name="arrow-head-right" size="xs" />
             </a>
         </div>
 

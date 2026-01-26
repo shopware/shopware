@@ -56,7 +56,10 @@
                         >
                             {{ treeItem.category.translated.name }}
                             {% if hasChildren %}
-                                <twig:Sw:Icon name="arrow-head-down" size="xs" />
+                                <twig:Sw:Icon
+                                    name="arrow-head-down"
+                                    size="xs"
+                                />
                             {% endif %}
                         </a>
 
@@ -77,10 +80,16 @@
                 aria-hidden="true"
             >
                 <div class="sw-navbar__scroller-button is--left">
-                    <twig:Sw:Icon name="arrow-head-left" size="xs" />
+                    <twig:Sw:Icon
+                        name="arrow-head-left"
+                        size="xs"
+                    />
                 </div>
                 <div class="sw-navbar__scroller-button is--right">
-                    <twig:Sw:Icon name="arrow-head-right" size="xs" />
+                    <twig:Sw:Icon
+                        name="arrow-head-right"
+                        size="xs"
+                    />
                 </div>
             </div>
         {% endif %}

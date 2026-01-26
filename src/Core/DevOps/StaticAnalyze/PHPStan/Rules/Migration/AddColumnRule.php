@@ -98,8 +98,10 @@ class AddColumnRule implements Rule
             return [];
         }
 
+        // ADD CONSTRAINT CHECK combined with ADD COLUMN requires COPY algorithm and should be caught
+        // Only allow ADD CONSTRAINT when it's NOT combined with ADD COLUMN
         $pattern = '/ALTER TABLE .* ADD CONSTRAINT.*/m';
-        if (preg_match($pattern, $arg->value)) {
+        if (preg_match($pattern, $arg->value) && !preg_match('/ALTER TABLE .* ADD COLUMN.*ADD CONSTRAINT/m', $arg->value)) {
             return [];
         }
 
@@ -120,7 +122,7 @@ class AddColumnRule implements Rule
         $pattern = '/ALTER TABLE .* ADD .*/m';
         if (preg_match($pattern, $arg->value)) {
             return [
-                RuleErrorBuilder::message('Do not use `ALTER TABLE ... ADD COLUMN` in migration. Use MigrationStep::addColumn instead')
+                RuleErrorBuilder::message('Do not use `ALTER TABLE ... ADD COLUMN` in migration. Use MigrationStep::addColumn() or MigrationStep::addColumnInstant() (use addColumnInstant() for guaranteed fast operations on large tables).')
                     ->identifier('shopware.addColumn')
                     ->build(),
             ];

@@ -10,7 +10,6 @@ use Shopware\Core\System\Consent\Log\DatabaseLog;
 /**
  * @internal
  */
-
 class DatabaseLogTest extends TestCase
 {
     use IntegrationTestBehaviour;

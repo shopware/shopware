@@ -146,12 +146,16 @@
                                     </span>
                                 {% endblock %}
 
-                                {% if price.referencePrice is not null %}
-                                    {% block buy_widget_price_unit_reference_content %}
-                                        <span class="price-unit-reference-content">
-                                            ({{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
-                                        </span>
-                                    {% endblock %}
+                                {% if product.calculatedPrices|length == 0 %}
+                                    {% set price = product.calculatedPrice %}
+
+                                    {% if price.referencePrice is not null %}
+                                        {% block buy_widget_price_unit_reference_content %}
+                                            <span class="price-unit-reference-content">
+                                                ({{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
+                                            </span>
+                                        {% endblock %}
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         {% endblock %}

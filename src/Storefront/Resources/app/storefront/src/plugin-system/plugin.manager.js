@@ -310,18 +310,55 @@ class PluginManagerSingleton {
             return;
         }
 
-        // Fetch all needed plugins
-        try {
-            fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
-                return queueItem.pluginClassPromise();
-            }));
-        } catch (error) {
-            console.error('An error occurred while fetching async JS-plugins', error);
-        }
+        queue.push({
+            pluginName: 'CantLoad',
+            pluginClassPromise: () => Promise.reject(new Error('Chunk load error')),
+        });
+
+        queue.push({
+            pluginName: 'CanLoadButHasError',
+            pluginClassPromise: () => new Promise(() => {
+                console.log('CanLoadButHasError');
+                missingFunctionWillFail();
+            }),
+        });
+
+        queue.push({
+            pluginName: 'CanLoadButEmpty',
+            pluginClassPromise: () => Promise.resolve(),
+        });
+
+        // Using Promise.allSettled to prevent early throws and wait for all promises, regardless if they are rejected.
+        // fetchedPluginClasses will always be set and contains rejected and fulfilled promises:
+        // [
+        //   { status: 'fulfilled', value: Module },
+        //   { status: 'rejected', reason: 'Chunk loading error' },
+        //   { status: 'fulfilled', value: Module },
+        // ]
+        // TODO: test if try-catch is still needed in case "pluginClassPromise" itself is faulty
+        fetchedPluginClasses = await Promise.allSettled(queue.map((queueItem) => {
+            return queueItem.pluginClassPromise();
+        }));
 
         // Set the fetched plugin classes to the registry, so they can be initialized later.
         queue.forEach((plugin, index) => {
-            const pluginClass = fetchedPluginClasses[index].default;
+            const fetchedItem = fetchedPluginClasses[index];
+
+            // If the promise from allSettled is rejected, we can be sure the plugin could not be fetched.
+            if (fetchedItem.status === 'rejected') {
+                console.warn(`The plugin "${plugin.pluginName}" could not be fetched. Reason: `, fetchedItem.reason);
+                return;
+            }
+
+            // fetchedItem.value must always be set because rejected promises are handled by status === 'rejected'.
+            // If the value is undefined or the default property is undefined, it is not a module and the class cannot be found.
+            const pluginClass = fetchedItem.value?.default;
+
+            if (!pluginClass) {
+                console.warn(`The plugin class for "${plugin.pluginName}" could not be found.`, fetchedItem);
+                return;
+            }
+
             const pluginName = plugin.pluginName;
             const pluginFromRegistry = this._registry.get(pluginName);
 

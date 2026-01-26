@@ -4,7 +4,7 @@
 
 ### Symfony 7.4 update
 
-All symfony packages have been updated to version 7.4. 
+All symfony packages have been updated to version 7.4.
 Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
 Especially note that Symfony now requires php-redis extension v6.1 or higher: https://github.com/symfony/symfony/blob/7.4/UPGRADE-7.4.md#cache.
 If you note compatibility issues with the Redis extension please check the installed version php-redis.
@@ -90,11 +90,11 @@ As part of this change, the following deprecations were made:
 If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
 
-### New `RequestParamHelper` 
+### New `RequestParamHelper`
 
 Symfony deprecated the "magic" `Request::get()` method, which was used to retrieve parameters from the request, by checking the `attribute`, `query` or `request` parameter bags.
 For easier backward compatibilty we backported the old behaviour in the new `RequestParamHelper` class, however, it should only be used in explicit cases, where the parameter could be in any of those parameter bags.
-The best practice is to check the explicit parameter bag, where you expect the parameter to be. 
+The best practice is to check the explicit parameter bag, where you expect the parameter to be.
 However, as we have a lot of API routes that support being called by `GET` and `POST` methods both, the helper is handy in such cases.
 
 Before:
@@ -106,9 +106,9 @@ After:
 $parameter = RequestParameterHelper::get($request, $parameterName, $default);
 ```
 
-To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first. 
+To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first.
 However, it should be possible to strictly differentiate between request attributes (which are generally controlled and set by the application itself) and input parameters (which are provided by the client, and based on how they are passed are either part of the query bag or the request bag) in the future.
-Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release. 
+Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release.
 When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
 In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
 
@@ -238,6 +238,20 @@ A new configuration option `Open offcanvas cart after adding a product` has been
 ## App System
 
 ## Hosting & Configuration
+
+### Deprecated HTTP cache reverse proxy configuration
+
+The following HTTP cache reverse proxy configuration options have been doing nothing since 6.7.0.0 and are therefore now deprecated. They will be removed in version 6.8.0.0:
+
+- `shopware.http_cache.reverse_proxy.use_varnish_xkey`
+- `shopware.http_cache.reverse_proxy.ban_method`
+- `shopware.http_cache.reverse_proxy.ban_headers`
+- `shopware.http_cache.reverse_proxy.purge_all`
+  - `shopware.http_cache.reverse_proxy.purge_all.ban_method`
+  - `shopware.http_cache.reverse_proxy.purge_all.ban_headers`
+  - `shopware.http_cache.reverse_proxy.purge_all.urls`
+
+If you are currently using any of these options, you can safely remove them from your configuration.
 
 ## Critical Fixes
 

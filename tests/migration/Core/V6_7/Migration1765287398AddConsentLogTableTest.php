@@ -7,14 +7,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_7\Migration1765287397AddConsentTable;
+use Shopware\Core\Migration\V6_7\Migration1765287398AddConsentLogTable;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(Migration1765287397AddConsentTable::class)]
-class Migration1765287397AddConsentTableTest extends TestCase
+#[CoversClass(Migration1765287398AddConsentLogTable::class)]
+class Migration1765287398AddConsentLogTableTest extends TestCase
 {
     private Connection $connection;
 
@@ -25,23 +25,23 @@ class Migration1765287397AddConsentTableTest extends TestCase
 
     public function testGetCreationTimestamp(): void
     {
-        $migration = new Migration1765287397AddConsentTable();
-        static::assertSame(1765287397, $migration->getCreationTimestamp());
+        $migration = new Migration1765287398AddConsentLogTable();
+        static::assertSame(1765287398, $migration->getCreationTimestamp());
     }
 
     public function testMigration(): void
     {
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `consent_state`;');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `consent_log`;');
 
-        $migration = new Migration1765287397AddConsentTable();
+        $migration = new Migration1765287398AddConsentLogTable();
 
         $migration->update($this->connection);
         $migration->update($this->connection);
 
         $sm = $this->connection->createSchemaManager();
-        static::assertTrue($sm->tablesExist(['consent_state']));
+        static::assertTrue($sm->tablesExist(['consent_log']));
 
-        $consentStateCols = $sm->listTableColumns('consent_state');
-        static::assertCount(6, $consentStateCols);
+        $consentLogCols = $sm->listTableColumns('consent_log');
+        static::assertCount(4, $consentLogCols);
     }
 }

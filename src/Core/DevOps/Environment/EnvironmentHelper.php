@@ -40,6 +40,9 @@ class EnvironmentHelper
         return \array_key_exists($key, $_SERVER) || \array_key_exists($key, $_ENV);
     }
 
+    /**
+     * @internal
+     */
     public static function isCiMode(): bool
     {
         return (bool) self::getVariable('CI');

@@ -140,6 +140,12 @@ export default {
 
             return 'name';
         },
+
+        showClearableButtonForDefault() {
+            // Hide clear button for languageId to prevent clearing a required field
+            // that gets auto-filled by the backend
+            return this.defaultPropertyName !== 'languageId';
+        },
     },
 
     methods: {

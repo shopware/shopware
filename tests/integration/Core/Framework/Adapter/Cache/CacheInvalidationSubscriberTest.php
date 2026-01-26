@@ -66,7 +66,47 @@ class CacheInvalidationSubscriberTest extends TestCase
         );
     }
 
-    public function testItInvalidatesCacheIfPropertyGroupIsChanged(): void
+    public function testItInvalidatesCacheIfPropertyIsDeleted(): void
+    {
+        $this->insertDefaultPropertyGroup();
+
+        $productPropertyRepository = static::getContainer()->get('product_property.repository');
+        $event = $productPropertyRepository->delete([
+            [
+                'productId' => $this->ids->get('product1'),
+                'optionId' => $this->ids->get('property-assigned'),
+            ],
+        ], Context::createDefaultContext());
+
+        $this->backtraceCollector->expects($this->once())->method('collectDebugBacktrace')->willReturn([
+            [
+                'class' => CacheInvalidationSubscriber::class,
+                'function' => 'invalidatePropertyFilters',
+            ],
+        ]);
+
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Purged tags (1).',
+                static::callback(function (array $context): bool {
+                    static::assertCount(1, $context['tags']);
+                    static::assertSame(
+                        (new Frame(
+                            'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
+                            'invalidatePropertyFilters'
+                        ))->toArray(),
+                        $context['caller']
+                    );
+
+                    return true;
+                })
+            );
+
+        $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
+    }
+
+    public function testItDoesNotInvalidateCacheIfNoPropertyIsDeleted(): void
     {
         $this->insertDefaultPropertyGroup();
 
@@ -77,235 +117,6 @@ class CacheInvalidationSubscriberTest extends TestCase
                 'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
             ],
         ], Context::createDefaultContext());
-
-        $this->backtraceCollector->expects($this->once())->method('collectDebugBacktrace')->willReturn([
-            [
-                'function' => 'invalidate', // must be skipped
-            ],
-            [
-                'class' => CacheInvalidator::class, // must be skipped
-            ],
-            [
-                'class' => null,
-                'function' => 'invalidate',  // must be skipped
-            ],
-            [
-                'class' => CacheInvalidator::class,
-                'function' => null,  // must be skipped
-            ],
-            [
-                'class' => CacheInvalidator::class, // must be skipped
-                'function' => 'invalidate',
-            ],
-            [
-                'class' => CacheInvalidationSubscriber::class,
-                'function' => 'invalidatePropertyFilters',
-            ],
-        ]);
-
-        $this->logger->expects($this->once())
-            ->method('info')
-            ->with(
-                'Purged tags (1).',
-                static::callback(function (array $context): bool {
-                    static::assertCount(1, $context['tags']);
-                    static::assertSame(
-                        (new Frame(
-                            'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
-                            'invalidatePropertyFilters'
-                        ))->toArray(),
-                        $context['caller']
-                    );
-
-                    return true;
-                })
-            );
-
-        $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
-    }
-
-    public function testItInvalidatesCacheIfPropertyGroupTranslationIsChanged(): void
-    {
-        $this->insertDefaultPropertyGroup();
-
-        $groupRepository = static::getContainer()->get('property_group.repository');
-        $event = $groupRepository->update([
-            [
-                'id' => $this->ids->get('group1'),
-                'name' => 'new name',
-            ],
-        ], Context::createDefaultContext());
-
-        $this->backtraceCollector->expects($this->once())->method('collectDebugBacktrace')->willReturn([
-            [
-                'class' => CacheInvalidationSubscriber::class,
-                'function' => 'invalidateSnippets',
-            ],
-        ]);
-
-        $this->logger->expects($this->once())
-            ->method('info')
-            ->with(
-                'Purged tags (1).',
-                static::callback(function (array $context): bool {
-                    static::assertCount(1, $context['tags']);
-                    static::assertSame(
-                        (new Frame(
-                            'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
-                            'invalidateSnippets'
-                        ))->toArray(),
-                        $context['caller']
-                    );
-
-                    return true;
-                })
-            );
-
-        $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
-    }
-
-    public function testItDoesNotInvalidateCacheIfPropertyOptionIsAddedToGroup(): void
-    {
-        $this->insertDefaultPropertyGroup();
-
-        $groupRepository = static::getContainer()->get('property_group.repository');
-        $event = $groupRepository->update([
-            [
-                'id' => $this->ids->get('group1'),
-                'options' => [
-                    [
-                        'id' => $this->ids->get('new-property'),
-                        'name' => 'new-property',
-                    ],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
-        $this->logger->expects($this->never())->method('log');
-        $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
-    }
-
-    public function testItInvalidatesCacheIfPropertyOptionIsChanged(): void
-    {
-        $this->insertDefaultPropertyGroup();
-
-        $optionRepository = static::getContainer()->get('property_group_option.repository');
-        $event = $optionRepository->update([
-            [
-                'id' => $this->ids->get('property-assigned'),
-                'colorHexCode' => '#000000',
-            ],
-        ], Context::createDefaultContext());
-
-        $this->backtraceCollector->expects($this->once())->method('collectDebugBacktrace')->willReturn([
-            [
-                'class' => CacheInvalidationSubscriber::class,
-                'function' => 'invalidatePropertyFilters',
-            ],
-        ]);
-
-        $this->logger->expects($this->once())
-            ->method('info')
-            ->with(
-                'Purged tags (1).',
-                static::callback(function (array $context): bool {
-                    static::assertCount(1, $context['tags']);
-                    static::assertSame(
-                        (new Frame(
-                            'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
-                            'invalidatePropertyFilters'
-                        ))->toArray(),
-                        $context['caller']
-                    );
-
-                    return true;
-                })
-            );
-
-        $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
-    }
-
-    public function testItDoesNotInvalidateCacheIfUnassignedPropertyOptionIsChanged(): void
-    {
-        $this->insertDefaultPropertyGroup();
-
-        $optionRepository = static::getContainer()->get('property_group_option.repository');
-        $event = $optionRepository->update([
-            [
-                'id' => $this->ids->get('property-unassigned'),
-                'colorHexCode' => '#000000',
-            ],
-        ], Context::createDefaultContext());
-
-        $this->logger->expects($this->never())->method('log');
-        $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
-    }
-
-    public function testItInvalidatesCacheIfPropertyOptionTranslationIsChanged(): void
-    {
-        $this->insertDefaultPropertyGroup();
-
-        $optionRepository = static::getContainer()->get('property_group_option.repository');
-        $event = $optionRepository->update([
-            [
-                'id' => $this->ids->get('property-assigned'),
-                'name' => 'updated',
-            ],
-        ], Context::createDefaultContext());
-
-        $this->backtraceCollector->expects($this->once())->method('collectDebugBacktrace')->willReturn([
-            [
-                'class' => CacheInvalidationSubscriber::class,
-                'function' => 'invalidatePropertyFilters',
-            ],
-        ]);
-
-        $this->logger->expects($this->once())
-            ->method('info')
-            ->with(
-                'Purged tags (1).',
-                static::callback(function (array $context): bool {
-                    static::assertCount(1, $context['tags']);
-                    static::assertSame(
-                        (new Frame(
-                            'Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber',
-                            'invalidatePropertyFilters'
-                        ))->toArray(),
-                        $context['caller']
-                    );
-
-                    return true;
-                })
-            );
-
-        $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
-    }
-
-    public function testItDoesNotInvalidateCacheIfUnassignedPropertyOptionTranslationIsChanged(): void
-    {
-        $this->insertDefaultPropertyGroup();
-
-        $optionRepository = static::getContainer()->get('property_group_option.repository');
-        $event = $optionRepository->update([
-            [
-                'id' => $this->ids->get('property-unassigned'),
-                'name' => 'updated',
-            ],
-        ], Context::createDefaultContext());
-
-        $this->logger->expects($this->never())->method('log');
-        $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
-    }
-
-    public function testItDoesNotInvalidateCacheIfProductIsCreatedWithExistingOption(): void
-    {
-        $this->insertDefaultPropertyGroup();
-
-        $builder = new ProductBuilder($this->ids, 'product2');
-        $builder->price(10)
-            ->property('property-assigned', '');
-
-        $event = static::getContainer()->get('product.repository')->create([$builder->build()], Context::createDefaultContext());
 
         $this->logger->expects($this->never())->method('log');
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);

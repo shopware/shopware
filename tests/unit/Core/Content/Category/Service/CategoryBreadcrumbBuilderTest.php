@@ -176,24 +176,22 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
                 static::assertTrue($criteria->hasEqualsFilter('visible'));
 
-                /** @var EqualsFilter|null $visibleFilter */
                 $visibleFilter = array_values(array_filter(
                     $criteria->getFilters(),
                     static fn (Filter $filter) => $filter instanceof EqualsFilter && $filter->getField() === 'visible'
                 ))[0] ?? null;
 
-                static::assertNotNull($visibleFilter);
+                static::assertInstanceOf(EqualsFilter::class, $visibleFilter);
                 static::assertTrue($visibleFilter->getValue());
 
                 static::assertTrue($criteria->hasEqualsFilter('active'));
 
-                /** @var EqualsFilter|null $activeFilter */
                 $activeFilter = array_values(array_filter(
                     $criteria->getFilters(),
                     static fn (Filter $filter) => $filter instanceof EqualsFilter && $filter->getField() === 'active'
                 ))[0] ?? null;
 
-                static::assertNotNull($activeFilter);
+                static::assertInstanceOf(EqualsFilter::class, $activeFilter);
                 static::assertTrue($activeFilter->getValue());
             });
 

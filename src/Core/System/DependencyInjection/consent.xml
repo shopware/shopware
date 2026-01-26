@@ -43,6 +43,8 @@
 
         <service id="Shopware\Core\System\Consent\Log\ConsentChangedSubscriber">
             <argument type="service" id="Shopware\Core\System\Consent\Log\ConsentLogInterface" on-invalid="null"/>
+
+            <tag name="kernel.event_subscriber" />
         </service>
     </services>
 </container>

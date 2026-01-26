@@ -24,8 +24,8 @@ class ConsentChangedSubscriberTest extends TestCase
         $events = ConsentChangedSubscriber::getSubscribedEvents();
 
         static::assertEquals([
-            ConsentAcceptedEvent::EVENT_NAME => 'onConsentAccepted',
-            ConsentRevokedEvent::EVENT_NAME => 'onConsentRevoked',
+            ConsentAcceptedEvent::class => 'onConsentAccepted',
+            ConsentRevokedEvent::class => 'onConsentRevoked',
         ], $events);
     }
 

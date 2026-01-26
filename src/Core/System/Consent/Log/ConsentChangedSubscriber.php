@@ -22,8 +22,8 @@ class ConsentChangedSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ConsentAcceptedEvent::EVENT_NAME => 'onConsentAccepted',
-            ConsentRevokedEvent::EVENT_NAME => 'onConsentRevoked',
+            ConsentAcceptedEvent::class => 'onConsentAccepted',
+            ConsentRevokedEvent::class => 'onConsentRevoked',
         ];
     }
 

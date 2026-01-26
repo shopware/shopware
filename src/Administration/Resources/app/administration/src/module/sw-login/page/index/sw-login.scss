@@ -115,6 +115,14 @@
         @media screen and (max-width: 52rem) {
             top: 0;
             right: 0;
+
+            height: 56px;
+            width: 56px;
+
+            svg {
+                width: 32px;
+                height: 32px;
+            }
         }
 
         @media screen and (max-width: 31.25rem) {
@@ -122,8 +130,8 @@
             width: 48px;
 
             svg {
-                width: 24px;
-                height: 24px;
+                width: 28px;
+                height: 28px;
             }
         }
     }

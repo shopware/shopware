@@ -25,7 +25,7 @@
       "messageAccessDenied": "Request denied by authorisation server.",
       "messageGeneralRequestError": "Something went wrong requesting \"{url}\".",
       "messageAuthThrottled": "Too many login attempts. Please wait {seconds} seconds before trying to log in again.",
-      "forgottenPasswordLink": "Forget your password?",
+      "forgottenPasswordLink": "Forgot your password?",
       "orContinueWith": "Or continue with"
     },
     "recovery" : {

@@ -33,7 +33,6 @@ export default class CmsGdprVideoElement extends Plugin {
      */
     init() {
         document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, this.checkConsentAndReplaceVideo.bind(this));
-        document.$emitter.subscribe(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO, this._replaceElementWithVideo.bind(this));
 
         this.checkConsentAndReplaceVideo();
 
@@ -105,6 +104,7 @@ export default class CmsGdprVideoElement extends Plugin {
 
         CookieStorageHelper.setItem(this.options.cookieName, '1', '30');
 
+        this._replaceElementWithVideo();
         document.$emitter.publish(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO);
 
         return true;

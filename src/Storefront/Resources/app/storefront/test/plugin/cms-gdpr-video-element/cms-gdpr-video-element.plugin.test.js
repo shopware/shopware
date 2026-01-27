@@ -1,6 +1,6 @@
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 import CmsGdprVideoElement, { CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO } from 'src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin';
-import { COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
+import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 
 /**
  * @sw-package discovery

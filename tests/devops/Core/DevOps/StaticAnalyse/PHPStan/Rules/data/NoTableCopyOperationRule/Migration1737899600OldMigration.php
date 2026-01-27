@@ -7,16 +7,16 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1769435680OldMigration extends MigrationStep
+class Migration1737899600OldMigration extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1769435679;
+        return 1737899600;
     }
 
     public function update(Connection $connection): void
     {
-        // This is before cutoff date - should not be caught
+        // This is before cutoff date (1737899680) - should not be caught
         $connection->executeStatement('
             ALTER TABLE `product`
             ADD COLUMN `states` JSON NULL,

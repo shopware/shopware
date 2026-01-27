@@ -21,7 +21,11 @@ class NoTableCopyOperationRule implements Rule
 {
     use InMigrationClassTrait;
 
-    private const CUTOFF_UNIX_TIMESTAMP = '2026-01-26 13:54:40';
+    /**
+     * Unix timestamp cutoff - migrations created after this timestamp are checked.
+     * Using integer to avoid timezone-dependent strtotime() parsing.
+     */
+    private const CUTOFF_UNIX_TIMESTAMP = 1737899680; // 2026-01-26 13:54:40 UTC
 
     public function getNodeType(): string
     {
@@ -61,24 +65,11 @@ class NoTableCopyOperationRule implements Rule
 
         $sql = $arg->value;
 
-        // Pattern 1: ADD COLUMN combined with ADD CONSTRAINT CHECK in same statement
+        // ADD COLUMN combined with ADD CONSTRAINT CHECK in same statement
         // This requires COPY algorithm because CHECK constraints can't use INSTANT/INPLACE
         if (preg_match('/ALTER\s+TABLE\s+.+?\s+ADD\s+COLUMN\s+.+?\s*,\s*ADD\s+CONSTRAINT\s+.+?\s+CHECK/i', $sql)) {
             return [
                 RuleErrorBuilder::message('Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumnInstant() for the column, then ADD CONSTRAINT separately.')
-                    ->identifier('shopware.tableCopyOperation')
-                    ->build(),
-            ];
-        }
-
-        // Pattern 2: MODIFY COLUMN with data type change (not just length increase)
-        // This is a heuristic - actual detection would require parsing the full SQL
-        // For now, we'll catch obvious type changes like INT to VARCHAR, etc.
-        if (preg_match('/ALTER\s+TABLE\s+.+?\s+MODIFY\s+COLUMN\s+.+?\s+(INT|BIGINT|SMALLINT|TINYINT|MEDIUMINT)\s+/i', $sql)
-            && preg_match('/MODIFY\s+COLUMN\s+.+?\s+(VARCHAR|CHAR|TEXT|BLOB|JSON|DATE|DATETIME|TIMESTAMP)/i', $sql)
-        ) {
-            return [
-                RuleErrorBuilder::message('MODIFY COLUMN with data type changes requires ALGORITHM=COPY and causes a full table rebuild. Consider if this is necessary or use a different approach.')
                     ->identifier('shopware.tableCopyOperation')
                     ->build(),
             ];
@@ -94,9 +85,8 @@ class NoTableCopyOperationRule implements Rule
 
         if (preg_match('/Migration(\d{10})/', $className, $matches)) {
             $migrationUnixTimestamp = (int) $matches[1];
-            $cutoffUnixTimestamp = strtotime(self::CUTOFF_UNIX_TIMESTAMP);
 
-            return $migrationUnixTimestamp > $cutoffUnixTimestamp;
+            return $migrationUnixTimestamp > self::CUTOFF_UNIX_TIMESTAMP;
         }
 
         return false;

@@ -22,7 +22,7 @@ class NoTableCopyOperationRuleTest extends RuleTestCase
         $this->analyse([
             __DIR__ . '/../data/NoTableCopyOperationRule/Migration1769435681ProblematicPattern.php',
             __DIR__ . '/../data/NoTableCopyOperationRule/Migration1769435682ValidPattern.php',
-            __DIR__ . '/../data/NoTableCopyOperationRule/Migration1769435680OldMigration.php',
+            __DIR__ . '/../data/NoTableCopyOperationRule/Migration1737899600OldMigration.php',
         ], [
             // Should catch ADD COLUMN combined with ADD CONSTRAINT CHECK
             [

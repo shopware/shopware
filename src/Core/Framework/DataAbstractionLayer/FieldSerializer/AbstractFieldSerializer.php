@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -14,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -42,6 +42,9 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         return $data;
     }
 
+    /**
+     * @param Constraint[] $constraints
+     */
     protected function validate(
         array $constraints,
         KeyValuePair $data,
@@ -83,14 +86,14 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
 
         if (\count($violationList)) {
-            throw new WriteConstraintViolationException($violationList, $path);
+            DataAbstractionLayerException::invalidWriteConstraintViolation($violationList, $path);
         }
     }
 
     protected function requiresValidation(
         Field $field,
         EntityExistence $existence,
-        $value,
+        mixed $value,
         WriteParameterBag $parameters
     ): bool {
         if ($value !== null) {
@@ -101,8 +104,9 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
             return false;
         }
 
-        if ($existence->hasEntityName()
-            && $this->definitionRegistry->getByEntityName($existence->getEntityName()) instanceof EntityTranslationDefinition
+        $entityName = $existence->getEntityName();
+        if ($entityName !== null
+            && $this->definitionRegistry->getByEntityName($entityName) instanceof EntityTranslationDefinition
             && $parameters->getCurrentWriteLanguageId() !== Defaults::LANGUAGE_SYSTEM
         ) {
             return false;
@@ -124,6 +128,10 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         $parent = $parameters->getDefinition()->getParentDefinition();
 
         $field = $parent->getFields()->get($field->getPropertyName());
+
+        if ($field === null) {
+            return false;
+        }
 
         return $field->is(Inherited::class);
     }

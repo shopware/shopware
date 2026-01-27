@@ -25,7 +25,7 @@ class StringFieldSerializerTest extends TestCase
      * Test that StringFieldSerializer strips HTML tags when AllowHtml flag is not set
      */
     #[DataProvider('stripTagsProvider')]
-    public function testStripsTagsWhenAllowHtmlNotSet(mixed $value, ?string $expected): void
+    public function testStripsTagsWhenAllowHtmlNotSet(string|int|null $value, ?string $expected): void
     {
         $validator = $this->createMock(ValidatorInterface::class);
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);

@@ -131,6 +131,36 @@
                         </div>
                     {% endblock %}
 
+                    {% if product.purchaseUnit %}
+                        {% block buy_widget_price_unit %}
+                            <div class="product-detail-price-unit">
+                                {% block buy_widget_price_unit_label %}
+                                    <span class="price-unit-label">
+                                        {{ 'detail.priceUnitName'|trans|sw_sanitize }}
+                                    </span>
+                                {% endblock %}
+
+                                {% block buy_widget_price_unit_content %}
+                                    <span class="price-unit-content">
+                                        {{ product.purchaseUnit }} {{ product.unit.translated.name }}
+                                    </span>
+                                {% endblock %}
+
+                                {% if product.calculatedPrices|length == 0 %}
+                                    {% set price = product.calculatedPrice %}
+
+                                    {% if price.referencePrice is not null %}
+                                        {% block buy_widget_price_unit_reference_content %}
+                                            <span class="price-unit-reference-content">
+                                                ({{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
+                                            </span>
+                                        {% endblock %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% endblock %}
+                    {% endif %}
+
                     {% block buy_widget_tax %}
                         <div class="product-detail-tax-container">
                             {% if context.taxState == 'gross' %}

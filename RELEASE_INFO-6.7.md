@@ -6,6 +6,8 @@
 
 All symfony packages have been updated to version 7.4. 
 Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
+Especially note that Symfony now requires php-redis extension v6.1 or higher: https://github.com/symfony/symfony/blob/7.4/UPGRADE-7.4.md#cache.
+If you note compatibility issues with the Redis extension please check the installed version php-redis.
 
 ### Changed maintenance mode redirect
 After maintenance ends, users are now redirected back to the page they were on before maintenance.
@@ -141,6 +143,11 @@ This affects the following exception factory methods:
 * `WebhookException::invalidDataMapping(...)`
 * `WebhookException::unknownEventDataType(...)`
 
+### Migration generator improvements
+
+The migration generator previously used a fixed format: `fk.<table-name>.<column>` for foreign key names. Doctrine does not support this format and creates broken migrations; therefore, we changed to the format `fk__<table-name>__<column>` for foreign key names.
+
+Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
 ### More fine-grained caching control in `HttpCacheCookieEvent`
 
 A new `doNotStore` property was added to the `HttpCacheCookieEvent` to allow fine-grained control over caching behavior.
@@ -174,6 +181,11 @@ The following deprecations apply to `sw-mail-template-index`:
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
 
 ## Storefront
+
+### Selling and packaging information in the product detail page
+
+* Display the selling and packaging information with the product that has advanced pricing.
+* Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
 
 ### Cookie consent now language-aware
 

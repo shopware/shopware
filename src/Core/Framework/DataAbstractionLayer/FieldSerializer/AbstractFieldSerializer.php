@@ -86,7 +86,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
 
         if (\count($violationList)) {
-            DataAbstractionLayerException::invalidWriteConstraintViolation($violationList, $path);
+            throw DataAbstractionLayerException::invalidWriteConstraintViolation($violationList, $path);
         }
     }
 

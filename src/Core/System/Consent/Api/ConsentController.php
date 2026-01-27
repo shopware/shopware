@@ -13,8 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @internal
- *
  * @experimental stableVersion:v6.8.0
  */
 #[Package('data-services')]

@@ -170,8 +170,8 @@ class EntityReaderTest extends TestCase
         static::assertSame('p1', $entity->get('name'));
         static::assertNull($entity->get('active'));
 
-        /** @var EntityCollection<PartialEntity> $collection */
         $collection = $entity->get('categories');
+        static::assertInstanceOf(EntityCollection::class, $collection);
 
         static::assertInstanceOf(PartialEntity::class, $collection->first());
         $collection->sortByIdArray([$ids->get('c1'), $ids->get('c2')]);
@@ -1636,8 +1636,8 @@ class EntityReaderTest extends TestCase
             ->setIds([$productId])
             ->addAssociation('categories');
 
-        /** @var ProductManufacturerEntity $manufacturer */
         $manufacturer = $manufacturerRepo->search($manufacturerCriteria, $context)->get($manufacturerId);
+        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         $products = $manufacturer->getProducts();
         static::assertNotNull($products);
 

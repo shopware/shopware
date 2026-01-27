@@ -245,6 +245,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 'part-a',
                 'part-b',
                 'product',
+                'physical',
                 'awesome product',
                 'part-a part-b',
             ],

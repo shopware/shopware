@@ -13,6 +13,8 @@
     },
     "list": {
       "textMailTemplateOverview": "E-Mail-Templates",
+      "tabMailTemplates": "Templates",
+      "tabHeaderFooter": "Kopf- und Fußzeilen",
       "titleMailTemplateList": "Templates",
       "titleMailFooterList": "Fußzeilen",
       "buttonAddMailTemplate": "E-Mail-Template hinzufügen",

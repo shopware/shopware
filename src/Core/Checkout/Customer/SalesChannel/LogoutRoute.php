@@ -17,6 +17,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -41,7 +42,15 @@ class LogoutRoute extends AbstractLogoutRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/logout', name: 'store-api.account.logout', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
+    #[Route(
+        path: '/store-api/account/logout',
+        name: 'store-api.account.logout',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
     {
         /** @var CustomerEntity $customer */

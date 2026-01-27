@@ -27,7 +27,12 @@ class LandingPageController extends StorefrontController
     {
     }
 
-    #[Route(path: '/landingPage/{landingPageId}', name: 'frontend.landing.page', defaults: ['_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/landingPage/{landingPageId}',
+        name: 'frontend.landing.page',
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->landingPageLoader->load($request, $context);

@@ -6,14 +6,16 @@
 {% set identifier = parent.cookie ? parent.cookie : name|replace({' ': '-'})|lower %}
 
 {% if name is not empty %}
-    <div class="form-check">
+    <div class="form-check form-switch">
         <input
             type="checkbox"
+            role="switch"
             class="form-check-input offcanvas-cookie-parent-input"
             id="cookie_{{ identifier }}"
             {% if parent.isRequired %}
                 checked="checked"
                 disabled="disabled"
+                aria-disabled="true"
                 data-cookie-required="true"
             {% endif %}
             {% if parent.cookie %}

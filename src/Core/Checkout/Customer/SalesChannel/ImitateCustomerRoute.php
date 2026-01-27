@@ -22,11 +22,17 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID], '_contextTokenRequired' => false])]
+#[Route(
+    defaults: [
+        PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => false,
+    ]
+)]
 #[Package('checkout')]
 class ImitateCustomerRoute extends AbstractImitateCustomerRoute
 {
@@ -63,7 +69,11 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
     /**
      * @deprecated tag:v6.8.0 - reason:parameter-name-change - The parameter `$requestDataBag` will be renamed to `$data` to align with abstract route
      */
-    #[Route(path: '/store-api/account/login/imitate-customer', name: 'store-api.account.imitate-customer-login', methods: ['POST'])]
+    #[Route(
+        path: '/store-api/account/login/imitate-customer',
+        name: 'store-api.account.imitate-customer-login',
+        methods: [Request::METHOD_POST]
+    )]
     public function imitateCustomerLogin(RequestDataBag $requestDataBag, SalesChannelContext $context): ContextTokenResponse
     {
         $tokenString = $requestDataBag->getString(self::TOKEN);

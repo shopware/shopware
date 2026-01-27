@@ -57,11 +57,14 @@ class AppRegistrationService
         } catch (RequestException $e) {
             if ($e->hasResponse() && $e->getResponse() !== null) {
                 $response = $e->getResponse();
-                $data = json_decode($response->getBody()->getContents(), true);
+                $responseBody = $response->getBody()->getContents();
+                $data = json_decode($responseBody, true);
 
                 if (isset($data['error']) && \is_string($data['error'])) {
                     throw AppException::registrationFailed($appName, $data['error']);
                 }
+
+                throw AppException::registrationFailed($appName, \sprintf('Got status code %d, with response: %s', $response->getStatusCode(), $responseBody));
             }
 
             throw AppException::registrationFailed($appName, $e->getMessage(), $e);

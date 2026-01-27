@@ -60,6 +60,12 @@
                     </div>
                 {% endblock %}
 
+                {% block base_add_to_cart_alert_template %}
+                    {% if not config('core.cart.openOffcanvasAfterAddToCart') %}
+                        {% sw_include '@Storefront/storefront/component/checkout/add-to-cart-alert-template.html.twig' %}
+                    {% endif %}
+                {% endblock %}
+
                 {% block base_main_inner %}
                     <div class="container">
                         {% block base_main_container %}

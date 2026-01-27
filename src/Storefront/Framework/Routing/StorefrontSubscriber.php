@@ -15,8 +15,10 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Event\MaintenanceRedirectEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -25,6 +27,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -40,6 +43,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         private readonly RouterInterface $router,
         private readonly MaintenanceModeResolver $maintenanceModeResolver,
         private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -173,9 +177,25 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function maintenanceResolver(RequestEvent $event): void
     {
-        if ($this->maintenanceModeResolver->shouldRedirect($event->getRequest())) {
+        $request = $event->getRequest();
+
+        if ($this->maintenanceModeResolver->shouldRedirect($request)) {
+            $parameters = [];
+            $route = $request->attributes->get('_route');
+            if ($route !== null) {
+                $parameters['redirectTo'] = $route;
+                $requestParameters = $this->getRequestParameters($request);
+
+                if ($requestParameters !== []) {
+                    $parameters['redirectParameters'] = json_encode($requestParameters, \JSON_THROW_ON_ERROR);
+                }
+            }
+
+            $redirectEvent = new MaintenanceRedirectEvent('frontend.maintenance.page', $parameters, Response::HTTP_TEMPORARY_REDIRECT);
+            $this->eventDispatcher->dispatch($redirectEvent);
+
             $event->setResponse(
-                new RedirectResponse($this->router->generate('frontend.maintenance.page'), Response::HTTP_TEMPORARY_REDIRECT)
+                new RedirectResponse($this->router->generate($redirectEvent->getRoute(), $redirectEvent->getParameters()), $redirectEvent->getStatus())
             );
         }
     }
@@ -243,5 +263,27 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         return false;
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    private function getRequestParameters(Request $request): array
+    {
+        $requestParameters = $request->query->all();
+        $routeParams = $request->attributes->get('_route_params');
+
+        if (\is_array($routeParams)) {
+            foreach ($routeParams as $key => $value) {
+                // we don't want any default route parameter, e.g. _httpCache or _store
+                if (\in_array($key, PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS, true)) {
+                    continue;
+                }
+
+                $requestParameters[$key] = $value;
+            }
+        }
+
+        return $requestParameters;
     }
 }

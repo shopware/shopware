@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1614765785ChangeDefaultValueOfAndLogicForSearchRankingConfig extends MigrationStep

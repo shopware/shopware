@@ -40,6 +40,9 @@
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="app.repository"/>
+            <argument type="service">
+                <service class="Symfony\Component\Finder\Finder"/>
+            </argument>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Command\LintTranslationFilesCommand">

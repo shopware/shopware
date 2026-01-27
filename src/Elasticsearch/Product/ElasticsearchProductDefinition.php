@@ -131,6 +131,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'coverId' => self::KEYWORD_FIELD,
             'weight' => self::FLOAT_FIELD,
             'width' => self::FLOAT_FIELD,
+            'type' => self::KEYWORD_FIELD,
             'states' => self::KEYWORD_FIELD,
             'customFields' => $this->fieldBuilder->customFields($this->getEntityDefinition()->getEntityName(), $context),
             ...$visibilities,
@@ -139,6 +140,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         if (Feature::isActive('v6.8.0.0')) {
             unset($properties['categoriesRo']);
             unset($properties['visibilities']);
+            unset($properties['states']);
         }
 
         $mapping = [
@@ -270,6 +272,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'width' => (float) $item['width'],
                 'length' => (float) $item['length'],
                 'height' => (float) $item['height'],
+                'type' => $item['type'],
                 'manufacturerId' => $item['productManufacturerId'],
                 'manufacturerNumber' => $item['manufacturerNumber'],
                 'deliveryTimeId' => $item['deliveryTimeId'],
@@ -330,6 +333,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             if (Feature::isActive('v6.8.0.0')) {
                 unset($documents[$id]['categoriesRo']);
                 unset($documents[$id]['visibilities']);
+                unset($documents[$id]['states']);
             }
         }
 
@@ -389,6 +393,60 @@ SELECT
     IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,
     LOWER(HEX(p.parent_id)) as parentId,
     p.child_count as childCount,
+    p.type
+
+FROM product p
+    LEFT JOIN product pp ON(p.parent_id = pp.id AND pp.version_id = :liveVersionId)
+    LEFT JOIN product_visibility ON(product_visibility.product_id = p.visibilities AND product_visibility.product_version_id = p.version_id)
+    LEFT JOIN product_tag ON (product_tag.product_id = p.tags AND product_tag.product_version_id = p.version_id)
+    LEFT JOIN tag ON tag.id = product_tag.tag_id
+
+WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR p.parent_id IS NOT NULL OR JSON_EXTRACT(`p`.`variant_listing_config`, "$.displayParent") = 1)
+
+GROUP BY p.id
+SQL;
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $baseSql = <<<'SQL'
+SELECT
+    LOWER(HEX(p.id)) AS id,
+    IFNULL(p.active, pp.active) AS active,
+    p.available AS available,
+    #tags#,
+    #visibilities#,
+    IFNULL(p.manufacturer_number, pp.manufacturer_number) AS manufacturerNumber,
+    IFNULL(p.available_stock, pp.available_stock) AS availableStock,
+    IFNULL(p.rating_average, pp.rating_average) AS ratingAverage,
+    p.product_number as productNumber,
+    pp.product_number as parentProductNumber,
+    p.sales,
+    LOWER(HEX(p.manufacturer)) AS productManufacturerId,
+    LOWER(HEX(p.delivery_time_id)) as deliveryTimeId,
+    IFNULL(p.shipping_free, pp.shipping_free) AS shippingFree,
+    IFNULL(p.is_closeout, pp.is_closeout) AS isCloseout,
+    LOWER(HEX(IFNULL(p.product_media_id, pp.product_media_id))) AS coverId,
+    IFNULL(p.weight, pp.weight) AS weight,
+    IFNULL(p.length, pp.length) AS length,
+    IFNULL(p.height, pp.height) AS height,
+    IFNULL(p.width, pp.width) AS width,
+    IFNULL(p.release_date, pp.release_date) AS releaseDate,
+    IFNULL(p.created_at, pp.created_at) AS createdAt,
+    IFNULL(p.category_tree, pp.category_tree) AS categoryTree,
+    IFNULL(p.category_ids, pp.category_ids) AS categoryIds,
+    IFNULL(p.option_ids, pp.option_ids) AS optionIds,
+    IFNULL(p.property_ids, pp.property_ids) AS propertyIds,
+    IFNULL(p.tag_ids, pp.tag_ids) AS tagIds,
+    IFNULL(p.stream_ids, pp.stream_ids) AS streamIds,
+    LOWER(HEX(IFNULL(p.tax_id, pp.tax_id))) AS taxId,
+    IFNULL(p.stock, pp.stock) AS stock,
+    IFNULL(p.ean, pp.ean) AS ean,
+    IFNULL(p.mark_as_topseller, pp.mark_as_topseller) AS markAsTopseller,
+    p.auto_increment as autoIncrement,
+    p.display_group as displayGroup,
+    IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,
+    LOWER(HEX(p.parent_id)) as parentId,
+    p.child_count as childCount,
+    p.type,
     p.states
 
 FROM product p
@@ -401,6 +459,7 @@ WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR
 
 GROUP BY p.id
 SQL;
+        }
 
         $baseMapping = [
             '#tags#' => SqlHelper::objectArray([

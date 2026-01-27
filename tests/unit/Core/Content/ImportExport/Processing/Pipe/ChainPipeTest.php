@@ -24,7 +24,7 @@ class ChainPipeTest extends TestCase
         $chainPipe = new ChainPipe([$outerPipe, $innerPipe]);
 
         $data = [
-            'foo' => 'bar',
+            'foo' => ['bar' => 'baz'],
         ];
         $config = new Config([], [], []);
 

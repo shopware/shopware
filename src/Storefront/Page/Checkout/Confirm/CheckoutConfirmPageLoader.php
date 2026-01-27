@@ -9,9 +9,11 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -63,8 +65,18 @@ class CheckoutConfirmPageLoader
         $this->validateCustomerAddresses($cart, $context);
         $page->setCart($cart);
 
-        $page->setShowRevocation($cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD));
-        $page->setHideShippingAddress(!$cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL));
+        $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_DIGITAL);
+        $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', function () use ($cart, &$isDownloadLineItem, &$isPhysicalLineItem): void {
+                $isDownloadLineItem = $isDownloadLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD);
+                $isPhysicalLineItem = $isPhysicalLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
+            });
+        }
+
+        $page->setShowRevocation($isDownloadLineItem);
+        $page->setHideShippingAddress(!$isPhysicalLineItem);
 
         $this->eventDispatcher->dispatch(
             new CheckoutConfirmPageLoadedEvent($page, $context, $request)

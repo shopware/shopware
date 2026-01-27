@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestCollection;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestStruct;
 
 /**
  * @internal

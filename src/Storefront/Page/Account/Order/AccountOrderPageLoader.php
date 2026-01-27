@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -43,7 +44,7 @@ class AccountOrderPageLoader
 
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOrderPage
     {
-        if (!$salesChannelContext->getCustomer() && $request->get('deepLinkCode', false) === false) {
+        if (!$salesChannelContext->getCustomer() && !$request->attributes->has('deepLinkCode')) {
             throw CartException::customerNotLoggedIn();
         }
 
@@ -56,7 +57,7 @@ class AccountOrderPageLoader
 
         $page->setOrders($orders);
 
-        $page->setDeepLinkCode($request->get('deepLinkCode'));
+        $page->setDeepLinkCode($request->attributes->get('deepLinkCode'));
 
         $this->eventDispatcher->dispatch(
             new AccountOrderPageLoadedEvent($page, $salesChannelContext, $request)
@@ -93,9 +94,9 @@ class AccountOrderPageLoader
         $apiRequest = $request->duplicate();
 
         // Add email and zipcode for guest customer verification in order view
-        if ($request->get('email', false) && $request->get('zipcode', false)) {
-            $apiRequest->query->set('email', $request->get('email'));
-            $apiRequest->query->set('zipcode', $request->get('zipcode'));
+        if (RequestParamHelper::get($request, 'email', false) && RequestParamHelper::get($request, 'zipcode', false)) {
+            $apiRequest->query->set('email', RequestParamHelper::get($request, 'email'));
+            $apiRequest->query->set('zipcode', RequestParamHelper::get($request, 'zipcode'));
             $apiRequest->query->set('login', true);
         }
 
@@ -110,7 +111,7 @@ class AccountOrderPageLoader
 
     private function createCriteria(Request $request): Criteria
     {
-        $page = $request->get('p');
+        $page = RequestParamHelper::get($request, 'p');
         $page = $page ? (int) $page : 1;
 
         $criteria = (new Criteria())
@@ -148,8 +149,8 @@ class AccountOrderPageLoader
         $criteria
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING));
 
-        if ($request->get('deepLinkCode')) {
-            $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));
+        if ($request->attributes->has('deepLinkCode')) {
+            $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->attributes->get('deepLinkCode')));
         }
 
         return $criteria;

@@ -426,7 +426,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         };
 
         // make it a download product which requires downloads
-        Shopware.Store.get('swProductDetail').creationStates = 'is-download';
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            Shopware.Store.get('swProductDetail').creationStates = 'is-download';
+        }
+
+        Shopware.Store.get('swProductDetail').creationType = 'digital';
 
         wrapper.vm.saveProduct = jest.fn(() => {
             return Promise.resolve();

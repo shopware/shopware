@@ -58,19 +58,19 @@ class ProductStreamFilterDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of product stream filter.'),
+            (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->addFlags(new Required())->setDescription('Unique identity of product stream.'),
             new ParentFkField(self::class),
-            (new StringField('type', 'type'))->addFlags(new Required()),
-            new StringField('field', 'field'),
-            new StringField('operator', 'operator'),
-            new LongTextField('value', 'value'),
-            new JsonField('parameters', 'parameters'),
-            new IntField('position', 'position'),
+            (new StringField('type', 'type'))->addFlags(new Required())->setDescription('Type is either `static` or `stream`.'),
+            (new StringField('field', 'field'))->setDescription('Filter by field.'),
+            (new StringField('operator', 'operator'))->setDescription('Filter by operator like >, ==, < , >=, etc.'),
+            (new LongTextField('value', 'value'))->setDescription('Filter by ProductStreamFilter value.'),
+            (new JsonField('parameters', 'parameters'))->setDescription('Additional parameters, such as specifying a date starting from a particular point.'),
+            (new IntField('position', 'position'))->setDescription('The order of the tabs of your defined product stream filter to be displayed.'),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
-            new ParentAssociationField(self::class, 'id'),
+            (new ParentAssociationField(self::class, 'id'))->setDescription('Unique identity of product stream filter.'),
             new ChildrenAssociationField(self::class, 'queries'),
-            new CustomFields(),
+            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
         ]);
     }
 }

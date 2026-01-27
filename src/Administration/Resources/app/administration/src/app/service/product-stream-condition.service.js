@@ -72,9 +72,13 @@ export default function conditionService() {
             'createdAt',
             'coverId',
             'markAsTopseller',
-            'states',
+            'type',
         ],
     };
+
+    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+        entityAllowedProperties.product.push('states');
+    }
 
     const allowedJsonAccessors = {
         cheapestPrice: {

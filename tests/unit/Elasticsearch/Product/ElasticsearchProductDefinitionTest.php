@@ -317,6 +317,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                 ],
                 'customSearchKeywords' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                'type' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'deliveryTimeId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
@@ -363,6 +364,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         if (Feature::isActive('v6.8.0.0')) {
             unset($expectedMapping['properties']['visibilities']);
             unset($expectedMapping['properties']['categoriesRo']);
+            unset($expectedMapping['properties']['states']);
         }
         static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));
     }
@@ -900,6 +902,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     'tagIds' => '["c3f9a1e2b5d64a8e9f7c3b2a1e5d4c8b", "d4e8b2f1c5a64d9e8c7b3a2f1e5d4c9a"]',
                     'categoryIds' => '["7f8d9e2c4b5a64f9e8d7c6b5a4e3d2c1", "8e9f3d4c5a6b7e8d9c7f6e5d4c3b2a1f"]',
                     'categoryTree' => '["7f8d9e2c4b5a64f9e8d7c6b5a4e3d2c1", "8e9f3d4c5a6b7e8d9c7f6e5d4c3b2a1f"]',
+                    'type' => ProductDefinition::TYPE_PHYSICAL,
                     'states' => '["9f7e6d5c4b3a2e1d9c8b7a6f5e4d3c2b"]',
                 ],
             ],
@@ -989,6 +992,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}]',
             'propertyIds' => '[]',
             'optionIds' => '[]',
+            'type' => ProductDefinition::TYPE_PHYSICAL,
         ];
 
         $translationData = [

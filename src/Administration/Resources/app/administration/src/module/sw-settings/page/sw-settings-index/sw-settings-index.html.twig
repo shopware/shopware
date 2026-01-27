@@ -3,23 +3,24 @@
     class="sw-settings-index"
     :show-smart-bar="false"
 >
-
     {% block sw_settings_content %}
     <template #content>
         <sw-card-view class="sw-settings-index__card-view">
             {% block sw_settings_content_card_view %}
-            <mt-card
-                hero
-                class="sw-settings__card--hero"
-                position-identifier="sw-settings-index"
-            >
+            <div class="sw-settings__card--hero">
+                <sw-extension-component-section
+                    position-identifier="sw-settings-index"
+                />
+
                 {% block sw_settings_content_card_view_header %}
                 <div class="sw-settings__content-header">
-                    <h1>
+                    <h1 class="sw-settings__content-header-title">
                         {{ $tc('sw-settings.index.title') }}
                     </h1>
+
                     <mt-search
                         v-model="searchQuery"
+                        class="sw-settings__content-header-search"
                         :placeholder="$t('sw-settings.index.search.placeholder')"
                         size="small"
                     />
@@ -34,8 +35,7 @@
                     closable
                     @close="onCloseSettingRenameBanner"
                 >
-                    <p v-html="$t('sw-settings.index.textSettingRenameBanner')">
-                    </p>
+                    <p v-html="$t('sw-settings.index.textSettingRenameBanner')"></p>
                 </mt-banner>
 
                 {% block sw_settings_content_card_content_grid %}
@@ -49,13 +49,12 @@
                         :key="settingsGroup"
                         class="sw-settings__content-group"
                     >
-                        <h2>
+                        <span class="sw-settings__content-group-title">
                             <sw-highlight-text
                                 :text="getGroupLabel(settingsGroup)"
                                 :search-term="searchQuery"
                             />
-                            {{''}} {# show eslint that there is content for h2 (which will be provided by sw-highlighted-text but it can't detect that) #}
-                        </h2>
+                        </span>
 
                         <sw-settings-item
                             v-for="settingsItem in settingsItems"
@@ -69,12 +68,14 @@
                                     :is="settingsItem.iconComponent"
                                     v-if="settingsItem.iconComponent"
                                 />
+
                                 <mt-icon
                                     v-else
                                     :name="settingsItem.icon"
                                     size="16px"
                                 />
                             </template>
+
                             <template #label>
                                 <sw-highlight-text
                                     :text="getLabel(settingsItem)"
@@ -84,6 +85,7 @@
                         </sw-settings-item>
                     </div>
                 </div>
+
                 <div class="sw-settings-index__empty-state">
                     <mt-empty-state
                         v-if="Object.keys(settingsGroups).length === 0"
@@ -94,7 +96,7 @@
                     />
                 </div>
                 {% endblock %}
-            </mt-card>
+            </div>
             {% endblock %}
         </sw-card-view>
     </template>

@@ -31,8 +31,6 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1536233560BasicData extends MigrationStep

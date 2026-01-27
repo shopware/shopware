@@ -28,26 +28,26 @@
                 @page-change="onPageChange"
             >
                 <template #column-name="{ item }">
-                    <a
+                    <mt-link
                         class="sw-flow-list-my-flows__content__update-flow-template-link"
-                        role="link"
+                        as="a"
                         tabindex="0"
                         @click="onEditFlow(item)"
                         @keydown.enter="onEditFlow(item)"
                     >
                         {{ item.name }}
-                    </a>
+                    </mt-link>
                 </template>
 
                 <template #column-createFlow="{ item }">
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                    <sw-internal-link
-                        :router-link="{ name: 'sw.flow.create', params: { flowTemplateId: item.id }}"
-                        :disabled="!acl.can('flow.creator')"
+                    <mt-link
                         class="sw-flow-list-my-flows__content__create-flow-link"
+                        :to="{ name: 'sw.flow.create', params: { flowTemplateId: item.id } }"
+                        :disabled="!acl.can('flow.creator')"
+                        type="internal"
                     >
                         {{ $tc('sw-flow.template.create') }}
-                    </sw-internal-link>
+                    </mt-link>
                 </template>
             </sw-entity-listing>
 

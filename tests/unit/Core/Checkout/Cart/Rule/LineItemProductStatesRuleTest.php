@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemProductStatesRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -31,6 +32,7 @@ class LineItemProductStatesRuleTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         $this->rule = new LineItemProductStatesRule();
     }
 

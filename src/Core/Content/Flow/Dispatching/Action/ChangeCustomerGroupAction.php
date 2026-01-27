@@ -65,6 +65,7 @@ class ChangeCustomerGroupAction extends FlowAction implements DelayableAction
             [
                 'id' => $customerId,
                 'groupId' => $customerGroupId,
+                'requestedGroupId' => null,
             ],
         ], $context);
     }

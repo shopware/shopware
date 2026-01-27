@@ -207,6 +207,9 @@ Fixes an issue on iOS Safari where the first tap does not trigger the desired ac
 The `touchmove` event listener was removed from `zoom-modal.plugin.js` because it stopped the tap/click event.
 A regular `click` event is used instead to open the Zoom-Modal. The browser itself can determine via the `click` event if the user is still scrolling or clicking/taping.
 
+### Image zoom on mobile devices
+There was an issue with the image zoom modal on mobile devices using touch gestures. Now the image can correctly be moved by touch gestures again. Also the active state of the zoom buttons is now updated correctly when switching between images.
+
 ### Google Analytics 4 Integration Update
 
 The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities.

@@ -22,7 +22,7 @@ export default class CmsGdprVideoElement extends Plugin {
         overlayText: null,
         backdropClasses: ['element-loader-backdrop', 'element-loader-backdrop-open'],
         confirmButtonText: null,
-        modalTriggerSelector: '[data-bs-toggle="modal"][data-url]',
+        modalTriggerSelector: '[data-ajax-modal][data-url]',
         urlAttribute: 'data-url',
     };
 
@@ -32,7 +32,7 @@ export default class CmsGdprVideoElement extends Plugin {
      * @returns {void|boolean}
      */
     init() {
-        document.$emitter.subscribe(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, this.checkConsentAndReplaceVideo.bind(this));
+        // document.$emitter.subscribe(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, this.checkConsentAndReplaceVideo.bind(this));
         document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, this.checkConsentAndReplaceVideo.bind(this));
         document.$emitter.subscribe(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO, this._replaceElementWithVideo.bind(this));
 
@@ -42,6 +42,7 @@ export default class CmsGdprVideoElement extends Plugin {
         this._client = new HttpClient();
         this.backdropElement = this.createElementBackdrop();
         this.el.appendChild(this.backdropElement);
+        window.PluginManager.initializePlugin('AjaxModal', this.options.modalTriggerSelector);
     }
 
     /**
@@ -52,10 +53,7 @@ export default class CmsGdprVideoElement extends Plugin {
     createElementBackdrop() {
         const backdropElement = document.createElement('div');
 
-        // Iterating over the classes for IE11 compatibility, see {@link https://caniuse.com/#feat=classlist}
-        this.options.backdropClasses.forEach((cls) => {
-            backdropElement.classList.add(cls);
-        });
+        backdropElement.classList.add(...this.options.backdropClasses);
 
         const childWrapper = document.createElement('div');
         childWrapper.appendChild(this.createTextOverlay());
@@ -87,11 +85,9 @@ export default class CmsGdprVideoElement extends Plugin {
         const buttonElement = document.createElement('button');
         buttonElement.innerHTML = this.options.confirmButtonText;
 
-        this.options.btnClasses.forEach((cls) => {
-            buttonElement.classList.add(cls);
-        });
+        buttonElement.classList.add(...this.options.btnClasses);
 
-        buttonElement.addEventListener('click', this.onReplaceElementWithVideo.bind(this), false, {
+        buttonElement.addEventListener('click', this.onReplaceElementWithVideo.bind(this), {
             once: true,
         });
 
@@ -132,9 +128,7 @@ export default class CmsGdprVideoElement extends Plugin {
         videoElement.setAttribute('title', this.options.iframeTitle);
         videoElement.setAttribute('allowfullscreen', 'allowfullscreen');
 
-        this.options.iframeClasses.forEach((cls) => {
-            videoElement.classList.add(cls);
-        });
+        videoElement.classList.add(...this.options.iframeClasses);
 
         const parentNode = this.el.parentNode;
         parentNode.appendChild(videoElement);

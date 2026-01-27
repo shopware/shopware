@@ -526,8 +526,7 @@ class PluginLifecycleServiceTest extends TestCase
         try {
             $dispatcher->addListener(PluginPostInstallEvent::class, $listener);
 
-            $this->expectException(\RuntimeException::class);
-            $this->expectExceptionMessage('Fail from post-install event');
+            $this->expectExceptionObject(new \RuntimeException('Fail from post-install event'));
 
             $plugin = $this->getPlugin($this->context);
             $this->pluginLifecycleService->installPlugin($plugin, $this->context);

@@ -167,11 +167,11 @@ class PluginLifecycleService
                 $this->executor->remove($plugin->getComposerName(), $plugin->getName());
             }
 
-            if ($plugin->getInstalledAt()) {
-                $this->uninstallPlugin($plugin, $shopwareContext);
-            }
-
             throw $e;
+        } finally {
+            if (isset($e) && $plugin->getInstalledAt()) {
+                $this->uninstallPlugin($plugin, $shopwareContext, true);
+            }
         }
 
         return $installContext;

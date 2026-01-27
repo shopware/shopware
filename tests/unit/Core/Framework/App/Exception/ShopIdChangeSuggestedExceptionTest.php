@@ -46,7 +46,7 @@ class ShopIdChangeSuggestedExceptionTest extends TestCase
         static::assertSame(500, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED', $e->getErrorCode());
         static::assertSame('Changes in your system were detected that suggest a change of the shop ID.', $e->getMessage());
-        static::assertSame($shopId, $e->shopId);
+        static::assertSame($shopId, $e->getShopId());
         static::assertSame($result, $e->comparisonResult);
     }
 }

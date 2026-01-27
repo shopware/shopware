@@ -35,7 +35,9 @@ framework:
     mailer:
         message_bus: false
         dsn: '%env(MAILER_DSN)%'
-    lock: '%env(LOCK_DSN)%'
+    lock:
+        default: '%env(LOCK_DSN)%'
+        doctrine: 'Doctrine\DBAL\Connection'
     php_errors:
         log: true
     cache:

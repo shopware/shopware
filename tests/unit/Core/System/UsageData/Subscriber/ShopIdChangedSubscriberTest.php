@@ -78,7 +78,10 @@ class ShopIdChangedSubscriberTest extends TestCase
         );
 
         $shopIdChangedSubscriber->handleShopIdChanged(
-            new ShopIdChangedEvent(ShopId::v2('newShopId'), ShopId::v2('oldShopId')),
+            new ShopIdChangedEvent(
+                ShopId::v2('newShopId'),
+                ShopId::v2('oldShopId')
+            ),
         );
     }
 
@@ -120,7 +123,10 @@ class ShopIdChangedSubscriberTest extends TestCase
         );
 
         $shopIdChangedSubscriber->handleShopIdChanged(
-            new ShopIdChangedEvent(ShopId::v2('newShopId'), ShopId::v2('newShopId')),
+            new ShopIdChangedEvent(
+                ShopId::v2('newShopId'),
+                ShopId::v2('newShopId')
+            ),
         );
     }
 }

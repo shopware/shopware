@@ -12,10 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-class ShopIdChangeSuggestedException extends AppException
+class ShopIdChangeSuggestedException extends AppException implements AppSystemMisconfigurationException
 {
     public function __construct(
-        public readonly ShopId $shopId,
+        private readonly ShopId $shopId,
         public readonly FingerprintComparisonResult $comparisonResult,
     ) {
         parent::__construct(
@@ -23,5 +23,10 @@ class ShopIdChangeSuggestedException extends AppException
             AppException::SHOP_ID_CHANGE_SUGGESTED,
             'Changes in your system were detected that suggest a change of the shop ID.'
         );
+    }
+
+    public function getShopId(): ShopId
+    {
+        return $this->shopId;
     }
 }

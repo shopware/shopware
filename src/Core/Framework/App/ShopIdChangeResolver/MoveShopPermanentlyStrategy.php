@@ -61,7 +61,7 @@ class MoveShopPermanentlyStrategy extends AbstractShopIdChangeStrategy
             // no resolution needed
             return;
         } catch (ShopIdChangeSuggestedException $e) {
-            $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);
+            $this->shopIdProvider->regenerateAndSetShopId($e->getShopId()->id);
         }
 
         $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {

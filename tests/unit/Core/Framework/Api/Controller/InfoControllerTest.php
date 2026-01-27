@@ -71,7 +71,8 @@ class InfoControllerTest extends TestCase
 
         $this->createInstance();
 
-        $this->shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
+        $shopId = ShopId::v2('shop-id');
+        $this->shopIdProvider->expects($this->once())->method('getShopId')->willReturn($shopId);
 
         $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();

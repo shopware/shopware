@@ -3,13 +3,10 @@
 namespace Shopware\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\RequestOptions;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier as CoreAppUrlVerifier;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -18,49 +15,23 @@ use Symfony\Component\HttpFoundation\Response;
 class AppUrlVerifier
 {
     public function __construct(
-        private readonly Client $guzzle,
         private readonly Connection $connection,
-        private readonly string $appEnv,
-        private readonly bool $appUrlCheckDisabled
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly CoreAppUrlVerifier $appUrlVerifier,
     ) {
     }
 
-    public function isAppUrlReachable(Request $request): bool
+    public function isAppUrlReachable(): bool
     {
-        if ($this->appEnv !== 'prod' || $this->appUrlCheckDisabled) {
-            // dev and test system are often not reachable and this is totally fine
-            // problems occur if a prod system can't be reached
-            // the check can be disabled manually e.g. for cloud
-            return true;
+        $status = $this->appUrlVerifier->getCurrentState();
+
+        if ($status) {
+            return $status->is(VerificationStatus::PASS);
         }
 
-        $appUrl = EnvironmentHelper::getVariable('APP_URL');
-        if (!\is_string($appUrl)) {
-            return false;
-        }
-
-        if (str_starts_with($request->getUri(), $appUrl)) {
-            // if the request was made to the same domain as the APP_URL we know that it can be reached
-            return true;
-        }
-
-        try {
-            $response = $this->guzzle->get(rtrim($appUrl, '/') . '/api/_info/version', [
-                'headers' => [
-                    'Authorization' => $request->headers->get('Authorization'),
-                ],
-                RequestOptions::TIMEOUT => 1,
-                RequestOptions::CONNECT_TIMEOUT => 1,
-            ]);
-
-            if ($response->getStatusCode() === Response::HTTP_OK) {
-                return true;
-            }
-        } catch (GuzzleException) {
-            return false;
-        }
-
-        return false;
+        return $this->appUrlVerifier->forceVerify(
+            $this->shopIdProvider->getShopId()
+        );
     }
 
     public function hasAppsThatNeedAppUrl(): bool

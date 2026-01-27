@@ -77,7 +77,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         $moveShopPermanentlyResolver->resolve($this->context);
 
-        static::assertSame($shopId, $this->shopIdProvider->getShopId());
+        static::assertSame($shopId, $this->shopIdProvider->getShopId()->id);
 
         // assert secret access key changed
         $updatedApp = $this->getInstalledApp($this->context);
@@ -110,7 +110,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 
         $moveShopPermanentlyResolver->resolve($this->context);
 
-        static::assertSame($shopId, $this->shopIdProvider->getShopId());
+        static::assertSame($shopId, $this->shopIdProvider->getShopId()->id);
     }
 
     private function changeAppUrl(bool $expectsToThrow = true): string
@@ -129,7 +129,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         }
         static::assertSame($expectsToThrow, $wasThrown);
 
-        return $shopId;
+        return $shopId->id;
     }
 
     private function getInstalledApp(Context $context): AppEntity

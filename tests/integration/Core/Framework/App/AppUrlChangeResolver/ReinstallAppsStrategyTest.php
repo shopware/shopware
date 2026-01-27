@@ -85,7 +85,7 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $reinstallAppsResolver->resolve($this->context);
 
-        static::assertNotSame($shopId, $this->shopIdProvider->getShopId());
+        static::assertNotSame($shopId, $this->shopIdProvider->getShopId()->id);
 
         // assert secret access key changed
         $updatedApp = $this->getInstalledApp($this->context);
@@ -123,7 +123,7 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $reinstallAppsResolver->resolve($this->context);
 
-        static::assertNotSame($shopId, $this->shopIdProvider->getShopId());
+        static::assertNotSame($shopId, $this->shopIdProvider->getShopId()->id);
     }
 
     private function changeAppUrl(bool $expectToThrow = true): string
@@ -142,7 +142,7 @@ class ReinstallAppsStrategyTest extends TestCase
         }
         static::assertSame($expectToThrow, $wasThrown);
 
-        return $shopId;
+        return $shopId->id;
     }
 
     private function getInstalledApp(Context $context): AppEntity

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
-use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\Exception\AppSystemMisconfigurationException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
@@ -192,8 +192,9 @@ class InfoController extends AbstractController
             'bundles' => $this->getBundles(),
             'settings' => [
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
-                'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
+                'appUrlReachable' => false,
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
+                'appUrlVerifyEnabled' => !$this->params->get('shopware.app.url_verify.disabled'),
                 'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
@@ -383,9 +384,9 @@ WHERE app.active = 1 AND app.base_app_url is not null');
     private function getShopId(): string
     {
         try {
-            return $this->shopIdProvider->getShopId();
-        } catch (ShopIdChangeSuggestedException $e) {
-            return $e->shopId->id;
+            return $this->shopIdProvider->getShopId()->id;
+        } catch (AppSystemMisconfigurationException $e) {
+            return $e->getShopId()->id;
         }
     }
 }

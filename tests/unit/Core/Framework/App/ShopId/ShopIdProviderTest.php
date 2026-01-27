@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 
@@ -59,11 +60,18 @@ class ShopIdProviderTest extends TestCase
                 return true;
             }));
 
+        $appUrlVerifier = $this->createMock(AppUrlVerifier::class);
+        $appUrlVerifier->expects($this->once())
+            ->method('verify')
+            ->willReturn(true);
+
         $provider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher = new CollectingEventDispatcher(),
             $this->createMock(Connection::class),
             $this->createMock(FingerprintGenerator::class),
+            $appUrlVerifier,
+            '',
         );
 
         $shopId = $provider->getShopId();
@@ -74,7 +82,7 @@ class ShopIdProviderTest extends TestCase
         static::assertInstanceOf(ShopIdChangedEvent::class, $shopIdChangedEvent);
         static::assertSame($shopIdV1Config['value'] ?? null, $shopIdChangedEvent->oldShopId?->id);
         static::assertSame($shopIdV1Config['app_url'] ?? null, $shopIdChangedEvent->oldShopId?->getFingerprint(AppUrl::IDENTIFIER) ?? null);
-        static::assertSame($shopId, $shopIdChangedEvent->newShopId->id);
+        static::assertSame($shopId->id, $shopIdChangedEvent->newShopId->id);
     }
 
     public function testUpgradesShopIdToV2IfShopIdInSystemConfigIsV1(): void
@@ -86,9 +94,14 @@ class ShopIdProviderTest extends TestCase
 
         $shopIdV2Config = [
             'id' => $shopIdV1Config['value'],
-            'fingerprints' => [],
+            'fingerprints' => [AppUrl::IDENTIFIER => 'https://foo.bar'],
             'version' => 2,
         ];
+
+        $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
+        $fingerprintGenerator->expects($this->any())
+            ->method('takeFingerprints')
+            ->willReturn([AppUrl::IDENTIFIER => 'https://foo.bar']);
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($matcher = $this->exactly(6))
@@ -110,17 +123,21 @@ class ShopIdProviderTest extends TestCase
             });
         $systemConfigService->expects($this->exactly(2))
             ->method('set')
-            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, static::callback(function (array $config) use ($shopIdV2Config): bool {
-                static::assertSame($shopIdV2Config, $config);
+            ->with(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $shopIdV2Config);
 
-                return true;
-            }));
+        $appUrlVerifier = $this->createMock(AppUrlVerifier::class);
+        $appUrlVerifier->expects($this->once())
+            ->method('verify')
+            ->with(static::callback(fn (ShopId $shopId) => $shopId->getFingerprint(AppUrl::IDENTIFIER) === 'https://foo.bar'))
+            ->willReturn(true);
 
         $provider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher = new CollectingEventDispatcher(),
             $this->createMock(Connection::class),
-            $this->createMock(FingerprintGenerator::class),
+            $fingerprintGenerator,
+            $appUrlVerifier,
+            '',
         );
 
         $upgradedShopId = $provider->getShopId();
@@ -131,7 +148,7 @@ class ShopIdProviderTest extends TestCase
         static::assertInstanceOf(ShopIdChangedEvent::class, $shopIdChangedEvent);
         static::assertSame($shopIdV1Config['value'], $shopIdChangedEvent->oldShopId?->id);
         static::assertSame($shopIdV1Config['value'], $shopIdChangedEvent->newShopId->id);
-        static::assertSame($shopIdV1Config['value'], $upgradedShopId);
+        static::assertSame($shopIdV1Config['value'], $upgradedShopId->id);
     }
 
     public function testThrowsIfFingerprintsHaveChangedAndHasAppsRegisteredAtAppServers(): void
@@ -169,6 +186,8 @@ class ShopIdProviderTest extends TestCase
             new CollectingEventDispatcher(),
             $connection,
             $fingerprintGenerator,
+            $this->createMock(AppUrlVerifier::class),
+            '',
         );
 
         static::expectException(ShopIdChangeSuggestedException::class);
@@ -177,9 +196,12 @@ class ShopIdProviderTest extends TestCase
 
     public function testUpdatesShopIdIfFingerprintsHaveChangedButHasNoAppsRegisteredAtAppServers(): void
     {
-        $shopId = ShopId::v2('1234567890', [
-            AppUrl::IDENTIFIER => 'https://old.url',
-        ]);
+        $shopId = ShopId::v2(
+            '1234567890',
+            [
+                AppUrl::IDENTIFIER => 'https://old.url',
+            ],
+        );
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->exactly(2))
@@ -213,14 +235,22 @@ class ShopIdProviderTest extends TestCase
                 AppUrl::IDENTIFIER => 'https://new.url',
             ]);
 
+        $appUrlVerifier = $this->createMock(AppUrlVerifier::class);
+        $appUrlVerifier->expects($this->once())
+            ->method('verify')
+            ->with(static::callback(fn (ShopId $shopId) => $shopId->getFingerprint(AppUrl::IDENTIFIER) === 'https://new.url'))
+            ->willReturn(true);
+
         $provider = new ShopIdProvider(
             $systemConfigService,
             new CollectingEventDispatcher(),
             $connection,
             $fingerprintGenerator,
+            $appUrlVerifier,
+            '',
         );
 
-        static::assertSame($shopId->id, $provider->getShopId());
+        static::assertSame($shopId->id, $provider->getShopId()->id);
     }
 
     public function testDeletesShopId(): void
@@ -243,6 +273,8 @@ class ShopIdProviderTest extends TestCase
             $eventDispatcher = new CollectingEventDispatcher(),
             $this->createMock(Connection::class),
             $this->createMock(FingerprintGenerator::class),
+            $this->createMock(AppUrlVerifier::class),
+            '',
         );
 
         $provider->deleteShopId();

@@ -45,7 +45,6 @@ describe('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin', () =
 
         cmsGdprVideoElement.init();
 
-        // expect(document.$emitter.subscribe).toHaveBeenCalledWith(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, expect.any(Function));
         expect(document.$emitter.subscribe).toHaveBeenCalledWith(COOKIE_CONFIGURATION_UPDATE, expect.any(Function));
         expect(CookieStorageHelper.getItem(cmsGdprVideoElement.options.cookieName)).toBe('1');
         expect(_replaceElementWithVideo).toHaveBeenCalled();

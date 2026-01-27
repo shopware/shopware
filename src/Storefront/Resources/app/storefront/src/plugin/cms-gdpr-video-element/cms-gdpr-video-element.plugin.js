@@ -1,5 +1,5 @@
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
-import { COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
+import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import Plugin from 'src/plugin-system/plugin.class';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
@@ -32,7 +32,6 @@ export default class CmsGdprVideoElement extends Plugin {
      * @returns {void|boolean}
      */
     init() {
-        // document.$emitter.subscribe(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, this.checkConsentAndReplaceVideo.bind(this));
         document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, this.checkConsentAndReplaceVideo.bind(this));
         document.$emitter.subscribe(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO, this._replaceElementWithVideo.bind(this));
 

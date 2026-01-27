@@ -143,7 +143,7 @@ class EntityReader implements EntityReaderInterface
             $rows,
             $definition->getEntityName(),
             $context,
-            $fieldsForPartialLoading
+            $fieldsForPartialLoading,
         );
 
         $collection = $this->fetchAssociations(
@@ -174,7 +174,7 @@ class EntityReader implements EntityReaderInterface
         QueryBuilder $query,
         FieldCollection $fields,
         ?Criteria $criteria = null,
-        array $fieldsForPartialLoading = []
+        array $fieldsForPartialLoading = [],
     ): void {
         $isPartial = $fieldsForPartialLoading !== [];
         $filtered = $fields->filter(static function (Field $field) use ($isPartial, $fieldsForPartialLoading) {
@@ -252,7 +252,7 @@ class EntityReader implements EntityReaderInterface
                     $query,
                     $basics,
                     $joinCriteria,
-                    $fieldsForPartialLoading[$field->getPropertyName()] ?? []
+                    $fieldsForPartialLoading[$field->getPropertyName()] ?? [],
                 );
 
                 continue;
@@ -330,7 +330,7 @@ class EntityReader implements EntityReaderInterface
                 $definition,
                 $query,
                 $context,
-                $fieldsForPartialLoading
+                $fieldsForPartialLoading,
             );
         }
     }
@@ -345,7 +345,7 @@ class EntityReader implements EntityReaderInterface
         EntityDefinition $definition,
         Context $context,
         FieldCollection $fields,
-        array $fieldsForPartialLoading = []
+        array $fieldsForPartialLoading = [],
     ): array {
         $table = $definition->getEntityName();
 
@@ -363,7 +363,7 @@ class EntityReader implements EntityReaderInterface
             $query,
             $fields,
             $criteria,
-            $fieldsForPartialLoading
+            $fieldsForPartialLoading,
         );
 
         if (!empty($criteria->getIds())) {

@@ -42,11 +42,11 @@ class ScriptRule extends Rule implements ContainerAwareRule
     protected ?string $identifier = null;
 
     // Following properties are set while unserialization in `configureDependencies()`
-    private ?ScriptTraces $traces = null;
+    protected ?ScriptTraces $traces = null;
 
-    private ?string $cacheDir = null;
+    protected ?string $cacheDir = null;
 
-    private bool $debug = true;
+    protected bool $debug = true;
 
     private ScriptEnvironmentFactory $scriptEnvironmentFactory;
 

@@ -32,8 +32,6 @@ class ScriptExecutor
     ];
 
     /**
-     * @param ExtensionInterface[] $twigExtensions
-     *
      * @internal
      */
     public function __construct(

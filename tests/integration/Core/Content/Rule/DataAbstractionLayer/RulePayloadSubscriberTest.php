@@ -46,9 +46,7 @@ class RulePayloadSubscriberTest extends TestCase
 
         $this->rulePayloadSubscriber = new RulePayloadSubscriber(
             $this->updater,
-            static::getContainer()->get(ScriptTraces::class),
-            static::getContainer()->getParameter('kernel.cache_dir'),
-            static::getContainer()->getParameter('kernel.debug')
+            static::getContainer()->get('service_container'),
         );
 
         $this->ruleDefinition = static::getContainer()->get(RuleDefinition::class);

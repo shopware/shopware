@@ -88,12 +88,6 @@ class RulePayloadSubscriber implements EventSubscriberInterface
         foreach ($conditions as $condition) {
             if ($condition instanceof ContainerAwareRule) {
                 $condition->configureDependencies($this->container);
-                $condition->assign([
-                    'traces' => $this->traces,
-                    'cacheDir' => $this->cacheDir,
-                    'debug' => $this->debug,
-                    'scriptEnvironmentFactory' => $this->scriptEnvironmentFactory,
-                ]);
 
                 continue;
             }

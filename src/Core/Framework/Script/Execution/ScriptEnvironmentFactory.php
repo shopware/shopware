@@ -15,7 +15,7 @@ use Twig\Extension\ExtensionInterface;
 class ScriptEnvironmentFactory
 {
     /**
-     * @param ExtensionInterface[] $twigExtensions
+     * @param iterable<ExtensionInterface> $twigExtensions
      *
      * @internal
      */

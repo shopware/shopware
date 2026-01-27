@@ -143,6 +143,11 @@ This affects the following exception factory methods:
 * `WebhookException::invalidDataMapping(...)`
 * `WebhookException::unknownEventDataType(...)`
 
+### Migration generator improvements
+
+The migration generator previously used a fixed format: `fk.<table-name>.<column>` for foreign key names. Doctrine does not support this format and creates broken migrations; therefore, we changed to the format `fk__<table-name>__<column>` for foreign key names.
+
+Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
 ### More fine-grained caching control in `HttpCacheCookieEvent`
 
 A new `doNotStore` property was added to the `HttpCacheCookieEvent` to allow fine-grained control over caching behavior.

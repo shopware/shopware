@@ -168,9 +168,9 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
 
         if (!$field->is(AllowHtml::class)) {
-            //  Sanitize first to remove any harmful code and protect non HTML fields like standalone < or >,
-            //  strip all HTML tags as initial functionality, and decode HTML entities to restore original characters
-            return htmlspecialchars_decode(strip_tags($sanitizer->sanitize((string) $data->getValue())), \ENT_QUOTES | \ENT_HTML5);
+            // Strip all HTML tags using string replacement to avoid too strict sanitization from strip_tags
+            // e.g. removing attributes like href from <a> tags, leaving <5g intact.
+            return (string) preg_replace('/<\/?[a-zA-Z][^>]*>/s', '', (string) $data->getValue());
         }
 
         $flag = $field->getFlag(AllowHtml::class);

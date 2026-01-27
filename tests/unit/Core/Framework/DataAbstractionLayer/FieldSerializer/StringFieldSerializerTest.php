@@ -68,12 +68,16 @@ class StringFieldSerializerTest extends TestCase
 
         yield 'text with script tag' => [
             'value' => 'Hello <script>alert("xss")</script>World',
-            'expected' => 'Hello World',
+            'expected' => 'Hello alert("xss")World',
         ];
 
         yield 'text with special characters like <3' => [
             'value' => 'I <3 cats',
             'expected' => 'I <3 cats',
+        ];
+        yield 'more complex case' => [
+            'value' => 'product <script>alert("go");</script> <5g -> product <5g',
+            'expected' => 'product alert("go"); <5g -> product <5g',
         ];
 
         yield 'text with self-closing tags' => [

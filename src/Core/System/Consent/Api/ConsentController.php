@@ -13,7 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @experimental stableVersion:v6.8.0
+ * @internal
+ *
+ * @experimental stableVersion:v6.8.0 feature:CONSENT_MANAGEMENT
  */
 #[Package('data-services')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]

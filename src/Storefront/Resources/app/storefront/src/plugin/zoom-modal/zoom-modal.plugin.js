@@ -358,7 +358,9 @@ export default class ZoomModalPlugin extends Plugin {
         } else {
             window.PluginManager.register('ImageZoom', ImageZoomPlugin, this.options.imageZoomInitSelector);
 
-            window.PluginManager.initializePlugin('ImageZoom', this.options.imageZoomInitSelector);
+            window.PluginManager.initializePlugin('ImageZoom', this.options.imageZoomInitSelector, {
+                activeClassSelector: false,
+            });
         }
 
         this.imageZoomRegistered = true;

@@ -136,12 +136,12 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _initHammer() {
         this._hammer = new Hammer(this._image, {
-            touchAction: 'none'
+            touchAction: 'none',
         });
         this._hammer.get('pinch').set({ enable: true });
         this._hammer.get('pan').set({ 
             direction: Hammer.DIRECTION_ALL,
-            threshold: 0
+            threshold: 0,
         });
     }
 
@@ -151,7 +151,7 @@ export default class ImageZoomPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this._hammer.on('panstart', event => {
+        this._hammer.on('panstart', () => {
             this._panStartTransform = new Vector3(this._storedTransform.x, this._storedTransform.y, this._storedTransform.z);
         });
         this._hammer.on('pan panend pancancel', event => this._onPan(event));
@@ -197,10 +197,10 @@ export default class ImageZoomPlugin extends Plugin {
                 this.$emitter.publish('onPan');
                 return;
             }
-            
+
             // Use the transform captured at panstart instead of storedTransform
             const baseTransform = this._panStartTransform || this._storedTransform;
-            
+
             this._transform = baseTransform.add(new Vector3(event.deltaX, event.deltaY, 0));
             this._unsetTransition();
             this._updateTransform();
@@ -552,7 +552,7 @@ export default class ImageZoomPlugin extends Plugin {
     _clampTransform() {
         const minVector = new Vector3(-this._translateRange.x, -this._translateRange.y, 1);
         const maxVector = new Vector3(this._translateRange.x, this._translateRange.y, this._getMaxZoomValue());
-        
+
         this._transform = this._transform.clamp(minVector, maxVector);
     }
 }

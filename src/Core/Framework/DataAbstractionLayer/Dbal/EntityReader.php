@@ -115,6 +115,8 @@ class EntityReader implements EntityReaderInterface
             return $collection;
         }
 
+        // Do not re-use `$isPartialLoading` here, as this method could be called for associations
+        // and only the initial call is relevant for marking the whole read as partial
         if ($fieldsForPartialLoading !== []) {
             $fields = $definition->getFields()->filter(function (Field $field) use (&$fieldsForPartialLoading) {
                 if ($field->getFlag(PrimaryKey::class)) {
@@ -685,6 +687,8 @@ class EntityReader implements EntityReaderInterface
 
         $ids = array_values($collection->getIds());
 
+        // Do not re-use `$isPartialLoading` here, as this method could be called for associations
+        // and only the initial call is relevant for marking the whole read as partial
         if ($fieldsForPartialLoading !== []) {
             // Make sure our collection index will be loaded
             $fieldsForPartialLoading[$association->getPropertyName()] = [];
@@ -1391,6 +1395,8 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
+            // Do not re-use `$isPartialLoading` here, as this method could be called for associations
+            // and only the initial call is relevant for marking the whole read as partial
             if ($fieldsForPartialLoading !== [] && !\array_key_exists($association->getPropertyName(), $fieldsForPartialLoading)) {
                 continue;
             }

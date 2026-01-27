@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Script\Execution\ScriptEnvironmentFactory;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptException;
-use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

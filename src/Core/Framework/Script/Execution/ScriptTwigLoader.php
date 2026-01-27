@@ -49,6 +49,9 @@ class ScriptTwigLoader implements LoaderInterface
             return false;
         }
 
+        var_dump($script->getLastModified()->getTimestamp());
+        var_dump($time);
+
         return $script->getLastModified()->getTimestamp() < $time;
     }
 

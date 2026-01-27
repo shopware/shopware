@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Rule;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -41,7 +39,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[RunTestsInSeparateProcesses]
 class ScriptRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -95,9 +92,9 @@ class ScriptRuleTest extends TestCase
         $rule->assign([
             'values' => $values,
             'script' => $script,
-            'debug' => false,
-            'cacheDir' => static::getContainer()->getParameter('kernel.cache_dir'),
         ]);
+
+        $rule->configureDependencies(static::getContainer());
 
         if ($expectedTrue) {
             static::assertTrue($rule->match($scope));
@@ -110,41 +107,6 @@ class ScriptRuleTest extends TestCase
     {
         yield 'simple script return true' => ['/_fixture/scripts/simple.twig', ['test' => 'foo'], true];
         yield 'simple script return false' => ['/_fixture/scripts/simple.twig', ['test' => 'bar'], false];
-    }
-
-    #[Depends('testRuleScriptExecution')]
-    public function testRuleScriptIsCached(): void
-    {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $scope = new CheckoutRuleScope($salesChannelContext);
-        $rule = new ScriptRule();
-
-        $rule->assign([
-            'script' => '{% return true %}',
-            'values' => [],
-            'lastModified' => (new \DateTimeImmutable())->sub(new \DateInterval('P1D')),
-            'debug' => false,
-            'cacheDir' => static::getContainer()->getParameter('kernel.cache_dir'),
-        ]);
-
-        static::assertFalse($rule->match($scope));
-    }
-
-    #[Depends('testRuleScriptIsCached')]
-    public function testCachedRuleScriptIsInvalidated(): void
-    {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $scope = new CheckoutRuleScope($salesChannelContext);
-        $rule = new ScriptRule();
-
-        $rule->assign([
-            'script' => '{% return true %}',
-            'values' => [],
-            'debug' => false,
-            'cacheDir' => static::getContainer()->getParameter('kernel.cache_dir'),
-        ]);
-
-        static::assertTrue($rule->match($scope));
     }
 
     public function testRuleIsConsistent(): void

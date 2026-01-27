@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Script\ServiceStubs;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use Twig\Extension\ExtensionInterface;
 
 /**
  * @codeCoverageIgnore This class is fully tested by @see \Shopware\Tests\Integration\Core\Framework\Script\Execution\ScriptExecutorTest

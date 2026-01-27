@@ -453,6 +453,9 @@ class PluginManagerSingleton {
         }
 
         return Array.from(selector).forEach(el => {
+            if (context && !context.contains(el)) {
+                return;
+            }
             PluginManagerSingleton._initializePluginOnElement(el, pluginClass, options, pluginName);
         });
     }

@@ -843,5 +843,60 @@ describe('Plugin manager', () => {
 
             PluginManager.deregister('ComplexPlugin', '.complex.test-class[data-plugin="true"]');
         });
+
+        it('should filter NodeList registrations to only initialize elements within parent', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="nodelist-plugin"></div>
+                    <div class="nodelist-plugin"></div>
+                </div>
+                <div class="nodelist-plugin"></div>
+                <div class="nodelist-plugin"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+            const allElements = document.querySelectorAll('.nodelist-plugin');
+
+            // Register with NodeList directly (not a string selector)
+            PluginManager.register('NodeListPlugin', FooPluginClass, allElements);
+
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            // Should only initialize 2 instances (inside parent), not 4 (total in NodeList)
+            expect(PluginManager.getPluginInstances('NodeListPlugin').length).toBe(2);
+
+            PluginManager.deregister('NodeListPlugin', allElements);
+        });
+
+        it('should not call update on NodeList registrations outside parent', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="nodelist-update"></div>
+                </div>
+                <div class="nodelist-update"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+            const allElements = document.querySelectorAll('.nodelist-update');
+
+            PluginManager.register('NodeListUpdatePlugin', FooPluginClass, allElements);
+
+            // First initialization
+            await PluginManager.initializePlugins();
+
+            expect(PluginManager.getPluginInstances('NodeListUpdatePlugin').length).toBe(2);
+
+            const instances = PluginManager.getPluginInstances('NodeListUpdatePlugin');
+            const updateSpies = instances.map(instance => jest.spyOn(instance, '_update'));
+
+            // Second initialization scoped to parent
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            // Only the instance inside parent should have _update called
+            expect(updateSpies[0]).toHaveBeenCalledTimes(1);
+            expect(updateSpies[1]).not.toHaveBeenCalled();
+
+            PluginManager.deregister('NodeListUpdatePlugin', allElements);
+        });
     });
 });

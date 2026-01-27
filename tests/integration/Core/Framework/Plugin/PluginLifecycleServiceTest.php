@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
@@ -512,6 +513,29 @@ class PluginLifecycleServiceTest extends TestCase
         }
 
         \ComposerAutoloaderInitPluginTestShipsVendorDirectory::getLoader()->unregister();
+    }
+
+    public function testPluginInstallFailureTriggersUninstall(): void
+    {
+        $dispatcher = $this->container->get('event_dispatcher');
+
+        $listener = static function (): void {
+            throw new \RuntimeException('Fail from post-install event');
+        };
+
+        try {
+            $dispatcher->addListener(PluginPostInstallEvent::class, $listener);
+
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessage('Fail from post-install event');
+
+            $plugin = $this->getPlugin($this->context);
+            $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+
+            static::assertNull($plugin->getInstalledAt());
+        } finally {
+            $dispatcher->removeListener(PluginPostInstallEvent::class, $listener);
+        }
     }
 
     private function installNotSupportedPlugin(string $name): PluginEntity

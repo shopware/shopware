@@ -15,6 +15,8 @@ class ConsentException extends HttpException
     final public const INVALID_CONSENT_STATUS = 'SYSTEM__CONSENT_INVALID_CONSENT_STATUS';
     final public const INVALID_SCOPE = 'SYSTEM__CONSENT_INVALID_SCOPE';
 
+    final public const CANNOT_RESOLVE_ACTOR = 'SYSTEM__CONSENT_CANNOT_RESOLVE_ACTOR';
+
     public static function notFound(string $name): self
     {
         return new self(
@@ -76,6 +78,16 @@ class ConsentException extends HttpException
             self::INVALID_SCOPE,
             'Scope with name "{{ scope }}" cannot be resolved with current context.',
             ['scope' => $scope]
+        );
+    }
+
+    public static function cannotResolveActor(string $id): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_RESOLVE_ACTOR,
+            'Cannot resolve actor with user id "{{ userId }}".',
+            ['userId' => $id],
         );
     }
 }

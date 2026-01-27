@@ -17,13 +17,13 @@ class DatabaseLog implements ConsentLogInterface
     {
     }
 
-    public function log(ConsentStatus $action, string $consentName, ?string $identifier, string $actorId): void
+    public function log(ConsentStatus $action, string $consentName, ?string $identifier, string $actor): void
     {
         $logEntry = [
             'consent-name' => $consentName,
             'action' => $action->value,
             'identifier' => $identifier,
-            'actor-id' => $actorId,
+            'actor' => $actor,
         ];
 
         $this->connection->insert('consent_log', [

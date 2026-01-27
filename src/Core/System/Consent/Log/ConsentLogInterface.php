@@ -8,5 +8,5 @@ use Shopware\Core\System\Consent\ConsentStatus;
 #[Package('data-services')]
 interface ConsentLogInterface
 {
-    public function log(ConsentStatus $action, string $consentName, ?string $identifier, string $actorId): void;
+    public function log(ConsentStatus $action, string $consentName, ?string $identifier, string $actor): void;
 }

@@ -27,7 +27,7 @@ class ConsentRepository
     public function fetchAllConsentStates(): array
     {
         $result = $this->connection->fetchAllAssociative(
-            'SELECT name, identifier, state, actor_id, updated_at FROM consent_state'
+            'SELECT name, identifier, state, actor, updated_at FROM consent_state'
         );
 
         return array_map(
@@ -35,7 +35,7 @@ class ConsentRepository
                 $row['name'],
                 $row['identifier'],
                 ConsentStatus::from($row['state']),
-                $row['actor_id'],
+                $row['actor'],
                 $row['updated_at']
             ),
             $result
@@ -50,19 +50,27 @@ class ConsentRepository
     ): ConsentState {
         $now = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
+        $actor = $this->connection->executeQuery('SELECT username from user WHERE id = :id', [
+            'id' => Uuid::fromHexToBytes($actorId),
+        ])->fetchOne();
+
+        if ($actor === false) {
+            throw ConsentException::cannotResolveActor($actorId);
+        }
+
         $this->connection->executeStatement('
-        INSERT INTO consent_state (id, name, identifier, state, actor_id, updated_at)
-        VALUES (:id, :consentName, :identifier, :state, :actorId, :updatedAt)
+        INSERT INTO consent_state (id, name, identifier, state, actor, updated_at)
+        VALUES (:id, :consentName, :identifier, :state, :actor, :updatedAt)
         ON DUPLICATE KEY UPDATE
             state = :state,
-            actor_id = :actorId,
+            actor = :actor,
             updated_at = :updatedAt
         ', [
             'id' => Uuid::randomBytes(),
             'consentName' => $consent->getName(),
             'identifier' => $scopeIdentifier,
             'state' => $state->value,
-            'actorId' => $actorId,
+            'actor' => $actor,
             'updatedAt' => $now,
         ], ['id' => 'binary']);
 
@@ -71,7 +79,7 @@ class ConsentRepository
             $consent->getScopeName(),
             $scopeIdentifier,
             $state,
-            $actorId,
+            $actor,
             $now
         );
     }

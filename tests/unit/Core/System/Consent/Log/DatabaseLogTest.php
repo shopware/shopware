@@ -27,7 +27,7 @@ class DatabaseLogTest extends TestCase
                     static::assertArrayIsEqualToArrayOnlyConsideringListOfKeys([
                         'consent_name' => 'test-consent',
                         'timestamp' => $this->anything(),
-                        'message' => '{"consent-name":"test-consent","action":"accepted","identifier":"identifier-123","actor-id":"actor-456"}',
+                        'message' => '{"consent-name":"test-consent","action":"accepted","identifier":"identifier-123","actor":"actor-456"}',
                     ], $data, ['consent_name', 'message']);
 
                     return true;

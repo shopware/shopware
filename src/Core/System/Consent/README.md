@@ -11,17 +11,18 @@
  - Consent Definition: A consent is a class-based definition representing something which requires consent. It is an implementation of the `ConsentDefinition` interface and consists of a unique name, a scope, and an available since date.
  - Scope: The scope of a consent describes who or what can perform consent actions, eg. accepting or revoking.
  - State: Each consent has a `status` of `requested`, `accepted`, or `revoked` for a given `identifier` within its scope. When there is no state for a consent/scope id combination in the storage, the status is interpreted as `requested`.
+ - Actor: The username of the Admin user who made the last change to a consent decision.
 
  Examples
  - Admin user scope
    - Consent: `dashboard_ai_insights` (Show insights from AI in dashboard)
    - admin-1 accepted; admin-2 revoked: different states per user.
-   - Note: both `identifier` and `actorId` = current admin user id.
+   - Note: the `identifier` is always the userId of the user who gave the consent.
 
  - System scope
    - Consent: `error_reporting` (Upload all errors to Shopware)
    - Accepted by admin-1, later revoked by admin-2: one shared state per system.
-   - Note: `identifier` is always `system`; `actorId` records who performed the last action.
+   - Note: `identifier` is always `system`.
 
  ## Interfaces
  ### ConsentDefinition

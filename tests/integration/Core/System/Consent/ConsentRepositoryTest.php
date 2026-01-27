@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\System\Consent;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\ConsentRepository;
@@ -21,49 +21,46 @@ class ConsentRepositoryTest extends TestCase
 
     private ConsentRepository $repository;
 
-    private Connection $connection;
-
     protected function setUp(): void
     {
-        $this->connection = static::getContainer()->get(Connection::class);
-        $this->repository = new ConsentRepository($this->connection);
+        $this->repository = $this->getContainer()->get(ConsentRepository::class);
     }
 
     public function testUpdateConsentState(): void
     {
         $productAnalytics = new ProductAnalytics();
 
-        $userId = Uuid::randomHex();
+        $userId = $this->createUser('test-user');
         $updatedState = $this->repository->updateConsentState($productAnalytics, $userId, ConsentStatus::ACCEPTED, $userId);
 
         $states = $this->repository->fetchAllConsentStates();
 
         static::assertCount(1, $states);
 
-        static::assertSame($userId, $states[0]->actorId);
+        static::assertSame('test-user', $states[0]->actor);
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
         static::assertSame($productAnalytics->getName(), $states[0]->name);
 
         static::assertSame($productAnalytics->getName(), $updatedState->name);
         static::assertSame($productAnalytics->getScopeName(), $updatedState->scopeName);
-        static::assertEquals($userId, $updatedState->actorId);
+        static::assertSame('test-user', $updatedState->actor);
         static::assertEquals(ConsentStatus::ACCEPTED, $updatedState->status);
-        static::assertEquals($userId, $updatedState->identifier);
+        static::assertSame($userId, $updatedState->identifier);
     }
 
     public function testUpdateSystemConsentState(): void
     {
         $backendData = new BackendData();
 
-        $userId = Uuid::randomHex();
+        $userId = $this->createUser('test-user');
         $this->repository->updateConsentState($backendData, 'system', ConsentStatus::ACCEPTED, $userId);
 
         $states = $this->repository->fetchAllConsentStates();
 
         static::assertCount(1, $states);
 
-        static::assertSame($userId, $states[0]->actorId);
+        static::assertSame('test-user', $states[0]->actor);
         static::assertSame('system', $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
         static::assertSame('backend_data', $states[0]->name);
@@ -73,14 +70,14 @@ class ConsentRepositoryTest extends TestCase
     {
         $tracking = new ProductAnalytics();
 
-        $userId = Uuid::randomHex();
+        $userId = $this->createUser('test-user');
         $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId);
 
         $states = $this->repository->fetchAllConsentStates();
 
         static::assertCount(1, $states);
 
-        static::assertSame($userId, $states[0]->actorId);
+        static::assertSame('test-user', $states[0]->actor);
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
 
@@ -90,7 +87,7 @@ class ConsentRepositoryTest extends TestCase
 
         static::assertCount(1, $states);
 
-        static::assertSame($userId, $states[0]->actorId);
+        static::assertSame('test-user', $states[0]->actor);
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::REVOKED, $states[0]->status);
     }
@@ -100,10 +97,10 @@ class ConsentRepositoryTest extends TestCase
         $productAnalytics = new ProductAnalytics();
         $backendData = new BackendData();
 
-        $user1 = Uuid::randomHex();
+        $user1 = $this->createUser('first-user');
         $this->repository->updateConsentState($backendData, 'system', ConsentStatus::ACCEPTED, $user1);
 
-        $user2 = Uuid::randomHex();
+        $user2 = $this->createUser('second-user');
         $this->repository->updateConsentState($productAnalytics, $user2, ConsentStatus::REVOKED, $user2);
 
         $result = $this->repository->fetchAllConsentStates();
@@ -113,12 +110,38 @@ class ConsentRepositoryTest extends TestCase
 
         static::assertSame('backend_data', $result[0]->name);
         static::assertSame('system', $result[0]->identifier);
-        static::assertSame($user1, $result[0]->actorId);
+        static::assertSame('first-user', $result[0]->actor);
         static::assertSame(ConsentStatus::ACCEPTED, $result[0]->status);
 
         static::assertSame($productAnalytics->getName(), $result[1]->name);
         static::assertSame($user2, $result[1]->identifier);
-        static::assertSame($user2, $result[1]->actorId);
+        static::assertSame('second-user', $result[1]->actor);
         static::assertSame(ConsentStatus::REVOKED, $result[1]->status);
+    }
+
+    private function createUser(string $name): string
+    {
+        $userId = Uuid::randomHex();
+        $userRepo = $this->getContainer()->get('user.repository');
+
+        $userRepo->create([
+            [
+                'id' => $userId,
+                'username' => $name,
+                'firstName' => 'Test',
+                'lastName' => 'User',
+                'email' => $name . '@example.com',
+                'password' => 'shopware',
+                'locale' => [
+                    'code' => 'locale-' . $name,
+                    'name' => 'Test Locale',
+                    'territory' => 'Test Territory',
+                ],
+                'title' => null,
+                'admin' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        return $userId;
     }
 }

@@ -29,15 +29,15 @@ class ConsentChangedSubscriber implements EventSubscriberInterface
 
     public function onConsentAccepted(ConsentAcceptedEvent $event): void
     {
-        $this->logConsentChange(ConsentStatus::ACCEPTED, $event->consentName, $event->identifier, $event->actorId);
+        $this->logConsentChange(ConsentStatus::ACCEPTED, $event->consentName, $event->identifier, $event->actor);
     }
 
     public function onConsentRevoked(ConsentRevokedEvent $event): void
     {
-        $this->logConsentChange(ConsentStatus::REVOKED, $event->consentName, $event->identifier, $event->actorId);
+        $this->logConsentChange(ConsentStatus::REVOKED, $event->consentName, $event->identifier, $event->actor);
     }
 
-    private function logConsentChange(ConsentStatus $consentStatus, string $consentName, string $identifier, string $actorId): void
+    private function logConsentChange(ConsentStatus $consentStatus, string $consentName, string $identifier, string $actor): void
     {
         if ($this->consentChangeLogger === null) {
             return;
@@ -47,7 +47,7 @@ class ConsentChangedSubscriber implements EventSubscriberInterface
             $consentStatus,
             $consentName,
             $identifier,
-            $actorId,
+            $actor,
         );
     }
 }

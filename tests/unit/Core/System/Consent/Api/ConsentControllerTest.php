@@ -36,12 +36,12 @@ class ConsentControllerTest extends TestCase
 
     public function testFetchConsents(): void
     {
-        $userId = 'user-123';
-        $source = new AdminApiSource($userId);
+        $actor = 'user-123';
+        $source = new AdminApiSource('user-id');
         $context = new Context($source);
 
         $consents = [
-            new ConsentState('consent-1', ConsentScope\AdminUser::NAME, $userId, ConsentStatus::ACCEPTED, $userId, '2025-12-31 23:59:59.0'),
+            new ConsentState('consent-1', ConsentScope\AdminUser::NAME, $actor, ConsentStatus::ACCEPTED, $actor, '2025-12-31 23:59:59.0'),
             new ConsentState('consent-2', ConsentScope\System::NAME, 'system', ConsentStatus::REQUESTED, null, null),
         ];
 
@@ -65,9 +65,9 @@ class ConsentControllerTest extends TestCase
         static::assertArrayHasKey('identifier', $content[0]);
         static::assertArrayHasKey('status', $content[0]);
         static::assertSame('consent-1', $content[0]['name']);
-        static::assertSame($userId, $content[0]['identifier']);
+        static::assertSame($actor, $content[0]['identifier']);
         static::assertSame('accepted', $content[0]['status']);
-        static::assertSame('user-123', $content[0]['actorId']);
+        static::assertSame('user-123', $content[0]['actor']);
         static::assertSame('2025-12-31 23:59:59.0', $content[0]['updatedAt']);
 
         static::assertIsArray($content[1]);
@@ -77,14 +77,14 @@ class ConsentControllerTest extends TestCase
         static::assertSame('consent-2', $content[1]['name']);
         static::assertSame('system', $content[1]['identifier']);
         static::assertSame('requested', $content[1]['status']);
-        static::assertNull($content[1]['actorId']);
+        static::assertNull($content[1]['actor']);
         static::assertNull($content[1]['updatedAt']);
     }
 
     public function testAcceptConsent(): void
     {
-        $userId = 'user-456';
-        $source = new AdminApiSource($userId);
+        $user = 'user-456';
+        $source = new AdminApiSource('user-id');
         $context = new Context($source);
 
         $this->consentService
@@ -94,9 +94,9 @@ class ConsentControllerTest extends TestCase
             ->willReturn(new ConsentState(
                 'test-consent',
                 ConsentScope\AdminUser::NAME,
-                $userId,
+                $user,
                 ConsentStatus::ACCEPTED,
-                $userId,
+                $user,
                 '2026-01-20 12:00:00.0'
             ));
 
@@ -113,9 +113,9 @@ class ConsentControllerTest extends TestCase
         static::assertSame([
             'name' => 'test-consent',
             'scopeName' => 'admin_user',
-            'identifier' => $userId,
+            'identifier' => $user,
             'status' => 'accepted',
-            'actorId' => $userId,
+            'actor' => $user,
             'updatedAt' => '2026-01-20 12:00:00.0',
         ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
     }
@@ -154,7 +154,7 @@ class ConsentControllerTest extends TestCase
             'scopeName' => 'admin_user',
             'identifier' => $userId,
             'status' => 'revoked',
-            'actorId' => $userId,
+            'actor' => $userId,
             'updatedAt' => '2026-01-20 12:00:00.0',
         ], \json_decode($content, true, flags: \JSON_THROW_ON_ERROR));
     }

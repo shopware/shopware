@@ -73,7 +73,7 @@ class ConsentService
                 scopeName: $consent->getScopeName(),
                 identifier: $this->getScope($consent)->resolveIdentifier($context),
                 status: ConsentStatus::REQUESTED,
-                actorId: null,
+                actor: null,
                 updatedAt: null,
             );
         }, $this->consentDefinitions);
@@ -94,8 +94,8 @@ class ConsentService
     {
         $updatedState = $this->updateState($name, ConsentStatus::ACCEPTED, $context);
 
-        \assert(\is_string($updatedState->actorId));
-        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actorId));
+        \assert(\is_string($updatedState->actor));
+        $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor));
 
         $this->invalidateState();
 
@@ -106,8 +106,8 @@ class ConsentService
     {
         $updatedState = $this->updateState($name, ConsentStatus::REVOKED, $context);
 
-        \assert(\is_string($updatedState->actorId));
-        $this->eventDispatcher->dispatch(new ConsentRevokedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actorId));
+        \assert(\is_string($updatedState->actor));
+        $this->eventDispatcher->dispatch(new ConsentRevokedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor));
 
         $this->invalidateState();
 

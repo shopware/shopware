@@ -11,7 +11,7 @@ readonly class ConsentRevokedEvent
         public string $consentName,
         public string $consentScope,
         public string $identifier,
-        public string $actorId
+        public string $actor,
     ) {
     }
 }

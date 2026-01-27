@@ -38,7 +38,7 @@ class DatabaseLogTest extends TestCase
             'consent-name' => 'test-consent',
             'action' => ConsentStatus::ACCEPTED->value,
             'identifier' => 'identifier-123',
-            'actor-id' => 'actor-456',
+            'actor' => 'actor-456',
         ], \json_decode($result[0]['message'], true, flags: \JSON_THROW_ON_ERROR));
     }
 }

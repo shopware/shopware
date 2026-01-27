@@ -116,7 +116,7 @@ class ConsentServiceTest extends TestCase
         static::assertSame(ConsentScope\System::NAME, $result->scopeName);
         static::assertSame(ConsentScope\System::NAME, $result->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $result->status);
-        static::assertSame('user-123', $result->actorId);
+        static::assertSame('user-123', $result->actor);
     }
 
     public function testGetConsentStatusReturnsRequestedStateByDefault(): void
@@ -137,7 +137,7 @@ class ConsentServiceTest extends TestCase
         static::assertSame('consent-1', $result->name);
         static::assertSame(ConsentStatus::REQUESTED, $result->status);
         static::assertSame(ConsentScope\System::NAME, $result->identifier);
-        static::assertNull($result->actorId);
+        static::assertNull($result->actor);
     }
 
     public function testGetConsentStatusThrowsExceptionWhenConsentNotFound(): void

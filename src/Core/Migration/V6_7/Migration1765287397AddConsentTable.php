@@ -25,7 +25,7 @@ class Migration1765287397AddConsentTable extends MigrationStep
                 `name` VARCHAR(100) NOT NULL,
                 `identifier` VARCHAR(100) NOT NULL,
                 `state` VARCHAR(20) NOT NULL,
-                `actor_id` VARCHAR(100) NOT NULL,
+                `actor` VARCHAR(255) NOT NULL,
                 `updated_at` DATETIME(3) NOT NULL,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `uniq.consent_state` (`name`, `identifier`)

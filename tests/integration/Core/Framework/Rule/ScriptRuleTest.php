@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Framework\Rule;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -90,6 +92,7 @@ class ScriptRuleTest extends TestCase
         $rule = new ScriptRule();
 
         $rule->assign([
+            'identifier' => Uuid::randomHex(),
             'values' => $values,
             'script' => $script,
         ]);
@@ -107,6 +110,71 @@ class ScriptRuleTest extends TestCase
     {
         yield 'simple script return true' => ['/_fixture/scripts/simple.twig', ['test' => 'foo'], true];
         yield 'simple script return false' => ['/_fixture/scripts/simple.twig', ['test' => 'bar'], false];
+    }
+
+    public function testRuleScriptCachingSetup(): void
+    {
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $scope = new CheckoutRuleScope($salesChannelContext);
+        $rule = new ScriptRule();
+        $rule->configureDependencies(static::getContainer());
+        $rule->assign([
+            'script' => '{% return false %}',
+            'values' => [],
+            // we need to overwrite debug to false to enable caching
+            'debug' => false,
+        ]);
+
+        static::assertFalse($rule->match($scope));
+
+        $rule->assign([
+            'script' => '{% return true %}',
+            'values' => [],
+            'lastModified' => (new \DateTimeImmutable())->sub(new \DateInterval('P1D')),
+        ]);
+
+        // assert false because the "old" script is cached
+        static::assertFalse($rule->match($scope));
+    }
+
+    #[Depends('testRuleScriptCachingSetup')]
+    #[RunInSeparateProcess] // we need to run in a separate process to work around the opcache
+    public function testRuleScriptIsCached(): void
+    {
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $scope = new CheckoutRuleScope($salesChannelContext);
+        $rule = new ScriptRule();
+        $rule->configureDependencies(static::getContainer());
+        $rule->assign([
+            'script' => '{% return true %}',
+            'values' => [],
+            'lastModified' => (new \DateTimeImmutable())->sub(new \DateInterval('P1D')),
+            // we need to overwrite debug to false to enable caching
+            'debug' => false,
+        ]);
+
+        // assert false because the initial script from `testRuleScriptIsCached()` is still cached, because lastModified is in the past
+        static::assertFalse($rule->match($scope));
+    }
+
+    #[Depends('testRuleScriptIsCached')]
+    #[RunInSeparateProcess] // we need to run in a separate process to work around the opcache
+    public function testCachedRuleScriptIsInvalidated(): void
+    {
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $scope = new CheckoutRuleScope($salesChannelContext);
+        $rule = new ScriptRule();
+        $rule->configureDependencies(static::getContainer());
+        $rule->assign([
+            'script' => '{% return true %}',
+            'values' => [],
+            'lastModified' => new \DateTimeImmutable(),
+            // we need to overwrite debug to false to enable caching
+            'debug' => false,
+        ]);
+
+        // assert that after setting last modified, the cache is invalidated and the new script is executed
+        static::assertTrue($rule->match($scope));
     }
 
     public function testRuleIsConsistent(): void

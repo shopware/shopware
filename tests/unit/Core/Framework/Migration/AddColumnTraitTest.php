@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Migration\AddColumnTrait;
 class AddColumnTraitTest extends TestCase
 {
     #[DataProvider('columnExistsScenarios')]
-    public function testReturnsFalseIfColumnExists(string $method): void
+    public function testReturnsFalseIfColumnExists(bool $useInstant): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchOne')->willReturn('states');
@@ -25,14 +25,16 @@ class AddColumnTraitTest extends TestCase
 
         $migration = new TestAddColumnMigration();
 
-        $result = $migration->{$method}($connection, 'product', 'states', 'JSON');
+        $result = $useInstant
+            ? $migration->callAddColumnInstant($connection, 'product', 'states', 'JSON')
+            : $migration->callAddColumn($connection, 'product', 'states', 'JSON');
 
         static::assertFalse($result);
     }
 
     #[DataProvider('columnDoesNotExistScenarios')]
     public function testExecutesStatementAndReturnsTrueIfColumnDoesNotExist(
-        string $method,
+        bool $useInstant,
         string $table,
         string $column,
         string $type,
@@ -48,21 +50,29 @@ class AddColumnTraitTest extends TestCase
 
         $migration = new TestAddColumnMigration();
 
-        $result = $migration->{$method}($connection, $table, $column, $type, $nullable, $default);
+        $result = $useInstant
+            ? $migration->callAddColumnInstant($connection, $table, $column, $type, $nullable, $default)
+            : $migration->callAddColumn($connection, $table, $column, $type, $nullable, $default);
 
         static::assertTrue($result);
     }
 
+    /**
+     * @return \Generator<string, array{bool}>
+     */
     public static function columnExistsScenarios(): \Generator
     {
-        yield 'addColumn' => ['callAddColumn'];
-        yield 'addColumnInstant' => ['callAddColumnInstant'];
+        yield 'addColumn' => [false];
+        yield 'addColumnInstant' => [true];
     }
 
+    /**
+     * @return \Generator<string, array{bool, string, string, string, bool, string, string}>
+     */
     public static function columnDoesNotExistScenarios(): \Generator
     {
         yield 'addColumn default nullable' => [
-            'callAddColumn',
+            false,
             'product',
             'states',
             'JSON',
@@ -72,7 +82,7 @@ class AddColumnTraitTest extends TestCase
         ];
 
         yield 'addColumn not nullable' => [
-            'callAddColumn',
+            false,
             'product',
             'active',
             'TINYINT(1)',
@@ -82,7 +92,7 @@ class AddColumnTraitTest extends TestCase
         ];
 
         yield 'addColumnInstant default nullable' => [
-            'callAddColumnInstant',
+            true,
             'product',
             'states',
             'JSON',
@@ -92,7 +102,7 @@ class AddColumnTraitTest extends TestCase
         ];
 
         yield 'addColumnInstant not nullable' => [
-            'callAddColumnInstant',
+            true,
             'order',
             'priority',
             'INT',

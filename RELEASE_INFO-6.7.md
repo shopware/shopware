@@ -161,6 +161,10 @@ Changing a property group or option will no longer automatically invalidate prod
 
 ## Administration
 
+### Refactored media modal from `sw-modal` to `mt-modal`
+
+The media modal in Shopping Experiences has been refactored from `sw-modal` to `mt-modal`. This fixes an issue where elements inside the "open media" modal could not be focused when the CMS extension was installed.
+
 ### Deprecations in mail template components
 
 The mail template index will be split into separate tabs for templates and headers/footers in v6.8.0.0.

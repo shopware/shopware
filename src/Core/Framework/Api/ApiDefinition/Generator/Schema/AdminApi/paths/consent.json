@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": [],
   "paths": {
-    "/consents": {
+    "\/consents": {
       "get": {
         "tags": [
           "Consent Management",
@@ -19,7 +19,7 @@
                 "schema": {
                   "type": "object",
                   "additionalProperties": {
-                    "$ref": "#/components/schemas/ConsentState"
+                    "$ref": "#\/components\/schemas\/ConsentState"
                   },
                   "example": {
                     "product_analytics": {
@@ -27,7 +27,7 @@
                       "scopeName": "admin_user",
                       "identifier": "userId-12345",
                       "status": "accepted",
-                      "actorId": "userId-12345",
+                      "actor": "userId-12345",
                       "updatedAt": "2024-01-15T10:20:30Z"
                     },
                     "backend_data": {
@@ -35,7 +35,7 @@
                       "scopeName": "system",
                       "identifier": "system",
                       "status": "requested",
-                      "actorId": null,
+                      "actor": null,
                       "updatedAt": null
                     }
                   }
@@ -49,7 +49,7 @@
         }
       }
     },
-    "/consents/accept": {
+    "\/consents\/accept": {
       "post": {
         "tags": [
           "Consent Management",
@@ -60,7 +60,7 @@
         "operationId": "acceptConsent",
         "requestBody": {
             "content": {
-              "application/json": {
+              "application\/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
@@ -81,9 +81,9 @@
           "200": {
             "description": "Consent status changed successfully. Returns the updated consent status.",
             "content": {
-              "application/json": {
+              "application\/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsentState"
+                  "$ref": "#\/components\/schemas\/ConsentState"
                 }
               }
             }
@@ -97,7 +97,7 @@
         }
       }
     },
-    "/consents/revoke": {
+    "\/consents\/revoke": {
       "post": {
         "tags": [
           "Consent Management",
@@ -108,7 +108,7 @@
         "operationId": "revokeConsent",
         "requestBody": {
           "content": {
-            "application/json": {
+            "application\/json": {
               "schema": {
                 "type": "object",
                 "properties": {
@@ -129,9 +129,9 @@
           "200": {
             "description": "Consent status changed successfully. Returns the updated consent status.",
             "content": {
-              "application/json": {
+              "application\/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsentState"
+                  "$ref": "#\/components\/schemas\/ConsentState"
                 }
               }
             }
@@ -155,7 +155,7 @@
           "scopeName",
           "identifier",
           "status",
-          "actorId",
+          "actor",
           "updatedAt"
         ],
         "properties": {
@@ -180,12 +180,12 @@
             ],
             "description": "The current status of the consent (requested, accepted, revoked)"
           },
-          "actorId": {
+          "actor": {
             "type": [
               "string",
               "null"
             ],
-            "description": "The ID of the actor (user) who made the consent decision. null if never updated"
+            "description": "The user name of the user who made the consent decision. null if never updated"
           },
           "updatedAt": {
             "type": [

@@ -92,6 +92,7 @@ class ScriptRuleTest extends TestCase
         $rule = new ScriptRule();
 
         $rule->assign([
+            // add a random id, to prevent twig opcache from interfering with the test
             'identifier' => Uuid::randomHex(),
             'values' => $values,
             'script' => $script,
@@ -130,10 +131,10 @@ class ScriptRuleTest extends TestCase
         $rule->assign([
             'script' => '{% return true %}',
             'values' => [],
-            'lastModified' => (new \DateTimeImmutable())->sub(new \DateInterval('P1D')),
+            'lastModified' => new \DateTimeImmutable(),
         ]);
 
-        // assert false because the "old" script is cached
+        // assert false because the "old" script is cached via Opcache, and therefore last Modified has no effect
         static::assertFalse($rule->match($scope));
     }
 

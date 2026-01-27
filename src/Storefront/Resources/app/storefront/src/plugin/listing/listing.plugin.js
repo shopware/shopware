@@ -532,13 +532,13 @@ export default class ListingPlugin extends Plugin {
      */
     _onWindowPopstate() {
         // Skip if this is just an anchor/hash navigation (not a filter/page change)
-        // Browser fire popstate for hash changes
+        // Browsers fire popstate for hash changes
         if (this.options.ignoreHashOnlyPopstate && this._lastPathWithoutHash) {
             const currentPathWithoutHash = this._getPathWithoutHash();
             if (this._lastPathWithoutHash === currentPathWithoutHash) {
                 return;
             }
-            this._lastPathWithoutHash = currentPathWithoutHash;
+
         }
 
         this.refreshRegistry();

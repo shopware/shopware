@@ -15,6 +15,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
@@ -370,6 +371,9 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(PartialEntity::class, $cover);
         $media = $cover->get('media');
         static::assertInstanceOf(PartialEntity::class, $media);
+        $thumbnails = $media->get('thumbnails');
+        static::assertInstanceOf(EntityCollection::class, $thumbnails);
+        static::assertNotInstanceOf(MediaThumbnailCollection::class, $thumbnails);
     }
 
     public function testTranslated(): void

@@ -190,7 +190,7 @@
 
         {% block sw_product_detail_base_media_modal %}
         <sw-media-modal-v2
-            v-if="showMediaModal"
+            :is-open="showMediaModal"
             :initial-folder-id="mediaDefaultFolderId"
             :entity-context="product.getEntityName()"
             @media-modal-selection-change="onAddMedia"

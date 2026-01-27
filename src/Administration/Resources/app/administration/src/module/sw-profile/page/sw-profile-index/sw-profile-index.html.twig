@@ -107,7 +107,7 @@
 
         {% block sw_profile_index_media_upload_actions_media_modal %}
         <sw-media-modal-v2
-            v-if="showMediaModal"
+            :is-open="showMediaModal"
             :allow-multi-select="false"
             :initial-folder-id="mediaDefaultFolderId"
             :entity-context="user.getEntityName()"

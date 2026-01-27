@@ -719,7 +719,7 @@
 
             {% block sw_theme_manager_detail_media_modal %}
                 <sw-media-modal-v2
-                    v-if="showMediaModal"
+                    :is-open="showMediaModal"
                     :initial-folder-id="defaultMediaFolderId"
                     :allow-multi-select="false"
                     @media-modal-selection-change="onMediaChange"

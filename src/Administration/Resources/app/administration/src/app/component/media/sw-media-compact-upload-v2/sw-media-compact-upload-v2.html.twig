@@ -203,7 +203,7 @@
                             </mt-button>
 
                             <sw-media-modal-v2
-                                v-if="mediaModalIsOpen"
+                                :is-open="mediaModalIsOpen"
                                 :allow-multi-select="false"
                                 @modal-close="closeModal()"
                                 @media-modal-selection-change="onModalClosed"

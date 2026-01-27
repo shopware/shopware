@@ -494,7 +494,7 @@
 
     {% block sw_media_quickinfo_cover_modal %}
     <sw-media-modal-v2
-        v-if="showCoverSelectionModal"
+        :is-open="showCoverSelectionModal"
         :allow-multi-select="false"
         file-accept="image/*"
         @modal-close="closeCoverSelectionModal"

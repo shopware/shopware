@@ -68,7 +68,7 @@
 
                 {% block sw_cms_element_image_slider_config_media_modal %}
                 <sw-media-modal-v2
-                    v-if="mediaModalIsOpen"
+                    :is-open="mediaModalIsOpen"
                     variant="full"
                     :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
                     :entity-context="cmsPageState.entityName"

@@ -21,7 +21,7 @@ class AddColumnTraitTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchOne')->willReturn('states');
-        $connection->expects(static::never())->method('executeStatement');
+        $connection->expects($this->never())->method('executeStatement');
 
         $migration = new TestAddColumnMigration();
 
@@ -42,7 +42,7 @@ class AddColumnTraitTest extends TestCase
     ): void {
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchOne')->willReturn(false);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('executeStatement')
             ->with($expectedSql);
 
@@ -77,8 +77,8 @@ class AddColumnTraitTest extends TestCase
             'active',
             'TINYINT(1)',
             false,
-            "'1'",
-            "ALTER TABLE `product` ADD COLUMN `active` TINYINT(1) NOT NULL DEFAULT '1';",
+            '\'1\'',
+            'ALTER TABLE `product` ADD COLUMN `active` TINYINT(1) NOT NULL DEFAULT \'1\';',
         ];
 
         yield 'addColumnInstant default nullable' => [
@@ -97,8 +97,8 @@ class AddColumnTraitTest extends TestCase
             'priority',
             'INT',
             false,
-            "'0'",
-            "ALTER TABLE `order` ADD COLUMN `priority` INT NOT NULL DEFAULT '0', ALGORITHM=INSTANT;",
+            '\'0\'',
+            'ALTER TABLE `order` ADD COLUMN `priority` INT NOT NULL DEFAULT \'0\', ALGORITHM=INSTANT;',
         ];
     }
 }

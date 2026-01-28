@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractFieldSerializer implements FieldSerializerInterface
 {
     /**
-     * @var array<list<Constraint>>
+     * @var array<string, list<Constraint>>
      */
     private array $cachedConstraints = [];
 

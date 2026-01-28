@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractFieldSerializer implements FieldSerializerInterface
 {
     /**
-     * @var array<Constraint[]>
+     * @var array<list<Constraint>>
      */
     private array $cachedConstraints = [];
 
@@ -43,7 +43,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @param Constraint[] $constraints
+     * @param list<Constraint> $constraints
      */
     protected function validate(
         array $constraints,
@@ -90,10 +90,13 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
     }
 
-    protected function requiresValidation(
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $value type will be changed from nothing to `mixed`
+     */
+    protected function requiresValidation(/* @phpstan-ignore missingType.parameter */
         Field $field,
         EntityExistence $existence,
-        mixed $value,
+        $value,
         WriteParameterBag $parameters
     ): bool {
         if ($value !== null) {
@@ -148,7 +151,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @return Constraint[]
+     * @return list<Constraint>
      */
     protected function getConstraints(Field $field): array
     {
@@ -156,7 +159,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @return Constraint[]
+     * @return list<Constraint>
      */
     protected function getCachedConstraints(Field $field): array
     {

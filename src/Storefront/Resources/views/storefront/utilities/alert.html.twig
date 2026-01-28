@@ -83,12 +83,37 @@ To display a dismissible button set the value of "dismissible" to true.
         dismissible: true
     } %}
 
+*Trigger Screenreader on page load
+When the alert is rendered on initial payload this option can be used to make the alert message read by the screenreader.
+The role="alert" and aria-live attributes are then set by JavaScript to trigger the screenreader.
+
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type: "primary",
+        content: "An important message on initial page load",
+        triggerScreenreader: true
+    } %}
+
 #}
 
+{% if ariaLive is not defined %}
+    {% set ariaLive = 'polite' %}
+{% endif %}
+
 {% block utilities_alert %}
-    <div role="alert"
-         aria-live="polite"
-         class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != 'error' %} d-flex align-items-center{% endif %}">
+    {% set alertMessageOptions = {
+        ariaLive: ariaLive,
+    } %}
+
+    <div
+        {% if triggerScreenreader %}
+            data-alert-message="true"
+            data-alert-message-options="{{ alertMessageOptions|json_encode }}"
+        {% else %}
+            role="alert"
+            aria-live="{{ ariaLive }}"
+        {% endif %}
+        class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != 'error' %} d-flex align-items-center{% endif %}"
+    >
 
         {% block utilities_alert_icon %}
             {% if icon != 'false' %}

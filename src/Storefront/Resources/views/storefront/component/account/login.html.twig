@@ -45,7 +45,8 @@
                             {% else %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: 'danger',
-                                    content: 'account.loginBadCredentials'|trans|sw_sanitize
+                                    content: 'account.loginBadCredentials'|trans|sw_sanitize,
+                                    triggerScreenreader: true,
                                 } %}
                             {% endif %}
                         {% endif %}

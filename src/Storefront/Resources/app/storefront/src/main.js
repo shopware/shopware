@@ -104,6 +104,7 @@ PluginManager.register('BuyBox', () => import('src/plugin/buy-box/buy-box.plugin
 PluginManager.register('BasicCaptcha', () => import('src/plugin/captcha/basic-captcha.plugin'), '[data-basic-captcha]');
 PluginManager.register('QuantitySelector', () => import('src/plugin/quantity-selector/quantity-selector.plugin'), '[data-quantity-selector]');
 PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-modal.plugin'), '[data-ajax-modal][data-url]');
+PluginManager.register('AlertMessage', () => import('src/plugin/alert-message/alert-message.plugin'), '[data-alert-message]');
 
 /**
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES

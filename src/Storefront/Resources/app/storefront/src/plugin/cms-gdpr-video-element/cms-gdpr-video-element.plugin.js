@@ -33,8 +33,14 @@ export default class CmsGdprVideoElement extends Plugin {
      */
     init() {
         document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, this.checkConsentAndReplaceVideo.bind(this));
+        document.$emitter.subscribe(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO, this._replaceElementWithVideo.bind(this));
 
         this.checkConsentAndReplaceVideo();
+
+        // When cookie is already set, do not add the backdrop overlay.
+        if (CookieStorageHelper.getItem(this.options.cookieName)) {
+            return;
+        }
 
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
@@ -104,7 +110,6 @@ export default class CmsGdprVideoElement extends Plugin {
 
         CookieStorageHelper.setItem(this.options.cookieName, '1', '30');
 
-        this._replaceElementWithVideo();
         document.$emitter.publish(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO);
 
         return true;
@@ -119,6 +124,11 @@ export default class CmsGdprVideoElement extends Plugin {
     _replaceElementWithVideo() {
         // Check if the cookie for this specific video type is set
         if (!CookieStorageHelper.getItem(this.options.cookieName)) {
+            return false;
+        }
+
+        // When video was already replaced, do not create the iframe.
+        if (this.el.parentNode === null) {
             return false;
         }
 

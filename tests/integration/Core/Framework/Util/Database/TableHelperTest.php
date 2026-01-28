@@ -217,7 +217,7 @@ class TableHelperTest extends TestCase
         return UtilException::databaseTableHelperException(
             'getSchemaManager',
             new ConnectionException(
-                new Exception('SQLSTATE[HY000] [1045] Access denied for user \'\'@\'localhost\' (using password: YES)'),
+                new Exception('SQLSTATE[HY000]'),
                 null
             )
         );

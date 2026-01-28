@@ -114,7 +114,7 @@ export default {
         },
 
         propertyEntityName() {
-            return this.propertyCollection ? this.propertyCollection.entity : null;
+            return this.propertyCollection?.entity ?? null;
         },
 
         propertyNameKebabCase() {

@@ -4,6 +4,7 @@
 
 import template from './sw-sales-channel-create.html.twig';
 
+const { Context } = Shopware;
 const utils = Shopware.Utils;
 
 const insertIdIntoRoute = (to, from, next) => {
@@ -45,7 +46,9 @@ export default {
             this.salesChannel.active = false;
 
             // Set default language from admin context
-            this.salesChannel.languageId = Shopware.Store.get('context').api.languageId;
+            const defaultLanguageId = Shopware.Store.get('context').api.languageId;
+            this.salesChannel.languageId = defaultLanguageId;
+            this.ensureDefaultLanguageInCollection(defaultLanguageId);
 
             this.setMeasurementUnits()
                 .catch(() => {
@@ -84,6 +87,30 @@ export default {
 
         getMeasurementUnits() {
             return this.systemConfigApiService.getValues('core.measurementUnits');
+        },
+
+        ensureDefaultLanguageInCollection(languageId) {
+            if (!languageId || !this.salesChannel?.languages) {
+                return;
+            }
+
+            if (this.salesChannel.languages.has(languageId)) {
+                return;
+            }
+
+            const languageRepository = this.repositoryFactory.create('language');
+            languageRepository.get(languageId, Context.api).then((language) => {
+                if (!language || this.salesChannel.languages.has(languageId)) {
+                    return;
+                }
+
+                if (typeof this.salesChannel.languages.add === 'function') {
+                    this.salesChannel.languages.add(language);
+                    return;
+                }
+
+                this.salesChannel.languages = this.salesChannel.languages.concat([language]);
+            });
         },
     },
 };

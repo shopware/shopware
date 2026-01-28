@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractFieldSerializer implements FieldSerializerInterface
 {
     /**
-     * @var array<list<Constraint>>
+     * @var array<Constraint[]>
      */
     private array $cachedConstraints = [];
 
@@ -43,7 +43,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @param list<Constraint> $constraints
+     * @param Constraint[] $constraints
      */
     protected function validate(
         array $constraints,
@@ -159,7 +159,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @return list<Constraint>
+     * @return Constraint[]
      */
     protected function getCachedConstraints(Field $field): array
     {

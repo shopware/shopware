@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -115,10 +116,15 @@ class AbstractFieldSerializerTest extends TestCase
         $entityName = $isTranslation ? 'test_translation' : 'test';
         $existence = new EntityExistence($entityName, $primaryKey, true, $isChild, false, []);
 
+        // Mock the definition for isInheritanceAware() call
+        $definition = $this->createMock(EntityDefinition::class);
+        $definition->method('isInheritanceAware')->willReturn($hasInheritedFlag && $isChild);
+
         $parameters = $this->createMock(WriteParameterBag::class);
         $parameters->method('getPath')->willReturn($hasInheritedFlag ? '/test' : '');
         $parameters->method('getContext')->willReturn(WriteContext::createFromContext(Context::createDefaultContext()));
         $parameters->method('getCurrentWriteLanguageId')->willReturn(Uuid::randomHex());
+        $parameters->method('getDefinition')->willReturn($definition);
 
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         if ($isTranslation) {
@@ -158,6 +164,14 @@ class AbstractFieldSerializerTest extends TestCase
             false,
             false,
         ];
+        yield 'When entity is child but field is not inherited and has Required flag, validation is required' => [
+            null,
+            true,
+            false,
+            false,
+            true,
+            true,
+        ];
         yield 'When value is null, entity is translation and language is not system, validation is not required' => [
             null,
             false,
@@ -182,6 +196,48 @@ class AbstractFieldSerializerTest extends TestCase
             false,
             false,
         ];
+    }
+
+    /**
+     * @param array<Field> $parentFields
+     */
+    #[DataProvider('isInheritedProvider')]
+    public function testIsInherited(array $parentFields, bool $expected): void
+    {
+        $field = new StringField('test', 'test');
+        $field->addFlags(new Inherited());
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+
+        $parent = new TestParentDefinition($parentFields);
+        $parent->compile($registry);
+
+        $translationDefinition = new TestTranslationDefinition($parent);
+        $translationDefinition->compile($registry);
+
+        $parameters = $this->createMock(WriteParameterBag::class);
+        $parameters->method('getDefinition')->willReturn($translationDefinition);
+
+        $serializer = new TestFieldSerializer(
+            $this->createMock(ValidatorInterface::class),
+            $registry
+        );
+
+        $result = $serializer->publicIsInherited($field, $parameters);
+
+        static::assertSame($expected, $result);
+    }
+
+    /**
+     * @return iterable<string, array{array<Field>, bool}>
+     */
+    public static function isInheritedProvider(): iterable
+    {
+        yield 'field not found in parent definition' => [[], false];
+
+        $inheritedField = new StringField('test', 'test');
+        $inheritedField->addFlags(new Inherited());
+        yield 'parent field has Inherited flag' => [[$inheritedField], true];
     }
 }
 
@@ -209,10 +265,70 @@ class TestFieldSerializer extends AbstractFieldSerializer
         return $this->requiresValidation($field, $existence, $value, $parameters);
     }
 
+    public function publicIsInherited(Field $field, WriteParameterBag $parameters): bool
+    {
+        return $this->isInherited($field, $parameters);
+    }
+
     protected function getConstraints(Field $field): array
     {
         ++$this->getConstraintsCallCounter;
 
         return [new NotBlank()];
+    }
+}
+
+/**
+ * @internal
+ */
+class TestParentDefinition extends EntityDefinition
+{
+    /**
+     * @param array<Field> $testFields
+     */
+    public function __construct(private readonly array $testFields)
+    {
+        parent::__construct();
+    }
+
+    public function getEntityName(): string
+    {
+        return 'parent_test';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection($this->testFields);
+    }
+}
+
+/**
+ * @internal
+ */
+class TestTranslationDefinition extends EntityTranslationDefinition
+{
+    public function __construct(private readonly EntityDefinition $parentDef)
+    {
+        parent::__construct();
+    }
+
+    public function getEntityName(): string
+    {
+        return 'test_translation';
+    }
+
+    public function isInheritanceAware(): bool
+    {
+        return false;
+    }
+
+    public function getParentDefinition(): EntityDefinition
+    {
+        return $this->parentDef;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([new StringField('test', 'test')]);
     }
 }

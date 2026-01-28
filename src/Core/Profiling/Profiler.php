@@ -28,7 +28,7 @@ class Profiler
     private static array $tags = [];
 
     /**
-     * @var array<string>
+     * @var array<bool|string>
      */
     private static array $openTraces = [];
 

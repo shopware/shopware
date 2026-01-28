@@ -61,7 +61,7 @@ EOF
             'In clustered environments or when web and CLI use different plugins, consider using "cache:clear" instead.',
         ]);
 
-        if (!$input->getOption('force') && $this->ttyDetector->isStdinTty()) {
+        if (!$input->getOption('force') && $input->isInteractive() && $this->ttyDetector->isStdinTty()) {
             if (!$io->confirm('Do you want to continue?', false)) {
                 $io->caution('Aborting due to user input.');
 

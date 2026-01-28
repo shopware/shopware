@@ -109,6 +109,20 @@ class CacheClearAllCommandTest extends TestCase
         static::assertStringNotContainsString('Do you want to continue?', $commandTester->getDisplay());
     }
 
+    public function testExecuteWithNoInteractionInTtySkipsConfirmation(): void
+    {
+        $cacheClearer = $this->createMock(CacheClearer::class);
+        $cacheClearer->expects($this->once())->method('clear');
+
+        $command = $this->createCommand($cacheClearer, isTty: true);
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([], ['interactive' => false]);
+
+        $commandTester->assertCommandIsSuccessful();
+        static::assertStringContainsString('was successfully', $commandTester->getDisplay());
+        static::assertStringNotContainsString('Do you want to continue?', $commandTester->getDisplay());
+    }
+
     private function createCommand(
         ?CacheClearer $cacheClearer = null,
         bool $isTty = false,

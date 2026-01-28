@@ -159,12 +159,12 @@ export default {
         },
 
         getComponentWidth() {
-            const contentElement = this.$refs.modalContent;
-            if (!contentElement) {
+            // during teleportation the $el doesn't have a bounding client rect yet
+            const componentWidth = this.$el.getBoundingClientRect?.().width;
+            if (!componentWidth) {
                 return;
             }
 
-            const componentWidth = contentElement.getBoundingClientRect().width;
             this.compact = componentWidth <= 900;
         },
 

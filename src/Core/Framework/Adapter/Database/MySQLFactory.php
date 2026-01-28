@@ -4,10 +4,11 @@ namespace Shopware\Core\Framework\Adapter\Database;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
+use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection as ReconnectConnection;
+use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\PrimaryReadReplicaConnection;
 use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
@@ -79,6 +80,8 @@ class MySQLFactory
             $parameters['driverOptions'][Mysql::ATTR_COMPRESS] = true;
         }
 
+        $parameters['driverOptions']['x_reconnect_attempts'] = 3;
+
         if ($replicaUrl) {
             if (!isset($parameters['wrapperClass'])) {
                 $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
@@ -100,6 +103,8 @@ class MySQLFactory
                 ], $replicaParams);
                 $parameters['replica'][$i]['driverOptions'] = $parameters['driverOptions'] + ($replicaParams['driverOptions'] ?? []);
             }
+        } elseif (!isset($parameters['wrapperClass'])) {
+            $parameters['wrapperClass'] = ReconnectConnection::class;
         }
 
         return DriverManager::getConnection($parameters, $config);

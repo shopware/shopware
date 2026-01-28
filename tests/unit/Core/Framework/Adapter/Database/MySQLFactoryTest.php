@@ -2,10 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Database;
 
-use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\Connection as ReconnectConnection;
+use Facile\DoctrineMySQLComeBack\Doctrine\DBAL\PrimaryReadReplicaConnection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
@@ -24,6 +25,26 @@ class MySQLFactoryTest extends TestCase
         $conn = MySQLFactory::create([new MyMiddleware()]);
 
         static::assertInstanceOf(MyDriver::class, $conn->getDriver());
+    }
+
+    public function testReconnectWrapperClassIsUsed(): void
+    {
+        $connection = MySQLFactory::create();
+        $params = $connection->getParams();
+
+        static::assertArrayHasKey('wrapperClass', $params);
+        static::assertSame(ReconnectConnection::class, $params['wrapperClass']);
+        static::assertInstanceOf(ReconnectConnection::class, $connection);
+    }
+
+    public function testReconnectAttemptsAreConfigured(): void
+    {
+        $connection = MySQLFactory::create();
+        $params = $connection->getParams();
+
+        static::assertArrayHasKey('driverOptions', $params);
+        static::assertArrayHasKey('x_reconnect_attempts', $params['driverOptions']);
+        static::assertSame(3, $params['driverOptions']['x_reconnect_attempts']);
     }
 
     public function testReplicaConfigurationParsesDsnParameters(): void

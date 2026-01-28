@@ -51,9 +51,9 @@ readonly class CachePolicy
     }
 
     /**
-     * Fallback no-cache policy when policy cannot be resolved
+     * Fallback no-store policy when policy cannot be resolved or NO_STORE is enforced.
      */
-    public static function noCache(): self
+    public static function noStore(): self
     {
         return new self(
             cacheControl: new CacheControlDirectives(
@@ -61,7 +61,6 @@ readonly class CachePolicy
                 noCache: true,
                 mustRevalidate: true,
                 maxAge: 0,
-                sMaxAge: 0,
             )
         );
     }

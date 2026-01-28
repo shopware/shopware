@@ -71,9 +71,24 @@ export default class VueAdapter extends ViewAdapter {
         this.i18n = undefined;
         this.resolvedComponentConfigs = new Map();
         this.vueComponents = {};
+
         this.app = createApp({
             name: 'ShopwareAdministration',
             template: '<sw-admin />',
+            mounted() {
+                // `DELAY` matches animation-delay that is used in `administration/index.html`
+                const DELAY = 2000;
+                const MIN_VISIBLE_TIME = 300;
+
+                const startTime = window._pageLoadTime_;
+                const elapsedTime = Date.now() - startTime;
+                // prevent flickering, show loading indicator longer than necessary:
+                const buffer = elapsedTime < DELAY ? 0 : Math.max(DELAY + MIN_VISIBLE_TIME - elapsedTime, 0);
+
+                setTimeout(() => {
+                    document.getElementById('page-loading-screen')?.remove();
+                }, buffer);
+            },
         });
     }
 

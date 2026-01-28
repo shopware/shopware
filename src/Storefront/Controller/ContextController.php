@@ -69,7 +69,7 @@ class ContextController extends StorefrontController
             throw RoutingException::languageNotFound($languageId);
         }
 
-        $params = $request->get('redirectParameters', '[]');
+        $params = $request->request->all()['redirectParameters'] ?? '[]';
         if (\is_string($params)) {
             $params = json_decode($params, true);
         }

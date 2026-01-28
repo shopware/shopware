@@ -2,7 +2,7 @@ name: Generate Release Info
 
 on:
   release:
-    types: [published,edited] # edited does not trigger if it's not published yet
+    types: [published, edited] # edited does not trigger if it's not published yet
   workflow_dispatch:
 
 permissions:
@@ -11,94 +11,93 @@ permissions:
 
 jobs:
   release:
-      runs-on: ubuntu-24.04
-      if: github.repository == 'shopware/shopware'
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # 4
 
-        - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # 1
-          with:
-            deno-version: 1.29.1
+      - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # 1
+        with:
+          deno-version: 1.29.1
 
-        - name: Generate Release Info
-          run: |
-            mkdir generated
-            cd generated
-            deno run --allow-read --allow-write --allow-net --allow-env ../.github/release_info_generator.ts
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate Release Info
+        run: |
+          mkdir generated
+          cd generated
+          deno run --allow-read --allow-write --allow-net --allow-env ../.github/release_info_generator.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: AWS Deploy
-          run: aws s3 sync generated s3://releases.s3.shopware.com/changelog
-          env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.RELEASE_INFO_KEY }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.RELEASE_INFO_SECRET }}
-            AWS_DEFAULT_REGION: eu-west-1
+      - name: Get AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-1
+          role-session-name: github-actions
+          role-to-assume: ${{ secrets.CHANGELOG_UPDATE_ROLE_ARN }}
 
-        - name: Invalidate CloudFront
-          run: aws cloudfront create-invalidation --distribution-id ECVXLYHJ64DVV --paths "/changelog/*"
-          env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.RELEASE_INFO_KEY }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.RELEASE_INFO_SECRET }}
-            AWS_DEFAULT_REGION: eu-west-1
+      - name: AWS Deploy
+        run: aws s3 sync generated s3://releases.s3.shopware.com/changelog
 
-        - uses: shopware/octo-sts-action@main
-          if: github.event.action == 'published'
-          id: sts-store-api-reference
-          with:
-            scope: shopware/store-api-reference
-            identity: release
+      - name: Invalidate CloudFront
+        run: aws cloudfront create-invalidation --distribution-id ECVXLYHJ64DVV --paths "/changelog/*"
 
-        - name: Trigger Store API schema build
-          if: github.event.action == 'published'
-          continue-on-error: true
-          run: |
-            curl \
-            -X POST \
-            -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Authorization: Bearer ${{ steps.sts-store-api-reference.outputs.token }}" \
-            -H "Content-Type: application/json" \
-            https://api.github.com/repos/shopware/store-api-reference/actions/workflows/manual_versioning.yml/dispatches \
-            -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
+      - uses: shopware/octo-sts-action@main
+        if: github.event.action == 'published'
+        id: sts-store-api-reference
+        with:
+          scope: shopware/store-api-reference
+          identity: release
 
-        - uses: shopware/octo-sts-action@main
-          if: github.event.action == 'published'
-          id: sts-admin-api-reference
-          with:
-            scope: shopware/admin-api-reference
-            identity: release
+      - name: Trigger Store API schema build
+        if: github.event.action == 'published'
+        continue-on-error: true
+        run: |
+          curl \
+          -X POST \
+          -H "Accept: application/vnd.github.everest-preview+json" \
+          -H "Authorization: Bearer ${{ steps.sts-store-api-reference.outputs.token }}" \
+          -H "Content-Type: application/json" \
+          https://api.github.com/repos/shopware/store-api-reference/actions/workflows/manual_versioning.yml/dispatches \
+          -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
 
-        - name: Trigger Admin API schema build
-          if: github.event.action == 'published'
-          continue-on-error: true
-          run: |
-            curl \
-            -X POST \
-            -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Authorization: Bearer ${{ steps.sts-admin-api-reference.outputs.token }}" \
-            -H "Content-Type: application/json" \
-            https://api.github.com/repos/shopware/admin-api-reference/actions/workflows/manual_versioning.yml/dispatches \
-            -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
+      - uses: shopware/octo-sts-action@main
+        if: github.event.action == 'published'
+        id: sts-admin-api-reference
+        with:
+          scope: shopware/admin-api-reference
+          identity: release
 
-        - uses: shopware/octo-sts-action@main
-          if: github.event.action == 'published'
-          id: sts-production
-          with:
-            scope: shopware/template
-            identity: release
+      - name: Trigger Admin API schema build
+        if: github.event.action == 'published'
+        continue-on-error: true
+        run: |
+          curl \
+          -X POST \
+          -H "Accept: application/vnd.github.everest-preview+json" \
+          -H "Authorization: Bearer ${{ steps.sts-admin-api-reference.outputs.token }}" \
+          -H "Content-Type: application/json" \
+          https://api.github.com/repos/shopware/admin-api-reference/actions/workflows/manual_versioning.yml/dispatches \
+          -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
 
-        - name: Trigger shopware/template build
-          if: github.event.action == 'published'
-          continue-on-error: true
-          run: |
-            curl \
-            -X POST \
-            -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Authorization: Bearer ${{ steps.sts-production.outputs.token }}" \
-            -H "Content-Type: application/json" \
-            https://api.github.com/repos/shopware/template/actions/workflows/update.yml/dispatches \
-            -d '{"ref": "trunk"}'
+      - uses: shopware/octo-sts-action@main
+        if: github.event.action == 'published'
+        id: sts-production
+        with:
+          scope: shopware/template
+          identity: release
+
+      - name: Trigger shopware/template build
+        if: github.event.action == 'published'
+        continue-on-error: true
+        run: |
+          curl \
+          -X POST \
+          -H "Accept: application/vnd.github.everest-preview+json" \
+          -H "Authorization: Bearer ${{ steps.sts-production.outputs.token }}" \
+          -H "Content-Type: application/json" \
+          https://api.github.com/repos/shopware/template/actions/workflows/update.yml/dispatches \
+          -d '{"ref": "trunk"}'
 
   publish-sbp-release:
     if: github.repository == 'shopware/shopware'
@@ -127,5 +126,5 @@ jobs:
     steps:
       - name: Post slack message
         run: |
-            SLACK_PAYLOAD=$(jq --null-input --arg version "${{ github.ref_name }}" '{"version": $version, "github_url": "https://github.com/shopware/shopware/releases/tag/\($version)"}');
-            curl --silent --request POST --url "${{ secrets.SLACK_RELEASE_WORKFLOW_URL }}" --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"
+          SLACK_PAYLOAD=$(jq --null-input --arg version "${{ github.ref_name }}" '{"version": $version, "github_url": "https://github.com/shopware/shopware/releases/tag/\($version)"}');
+          curl --silent --request POST --url "${{ secrets.SLACK_RELEASE_WORKFLOW_URL }}" --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"

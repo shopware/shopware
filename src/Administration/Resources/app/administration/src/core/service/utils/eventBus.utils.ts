@@ -14,7 +14,7 @@ interface Events extends Record<string | symbol, unknown> {
     'sw-sales-channel-detail-sales-channel-change': undefined;
     'sw-sales-channel-detail-base-sales-channel-change': undefined;
     'sw-sales-channel-list-add-new-channel': undefined;
-    'sw-media-library-item-updated': undefined;
+    'sw-media-library-item-updated': string;
     telemetry: TelemetryEvent<TelemetryEventTypes>;
 }
 

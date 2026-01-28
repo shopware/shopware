@@ -7,6 +7,7 @@
       "buttonSave": "Speichern",
       "messageSaveSuccess": "Konfiguration gespeichert.",
       "messageSaveError": "Die Konfiguration konnte nicht gelöscht werden. \"{message}\"",
+      "messageSaveDefaultValuesEmpty": "Standardwert ist erforderlich",
       "labelDefaultSorting": "Standard-Sortierung",
       "labelDefaultSearchResultSorting": "Standard-Sortierung der Suchergebnisse",
       "placeholderDefaultSorting": "Wähle eine Standard-Sortierung ...",

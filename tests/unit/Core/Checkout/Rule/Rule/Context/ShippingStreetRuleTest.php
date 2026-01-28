@@ -153,7 +153,7 @@ class ShippingStreetRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
         $operators = $ruleConstraints['operator'];
         static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
 
         static::assertArrayHasKey('streetName', $ruleConstraints, 'Constraint streetName not found in Rule');
         $streetName = $ruleConstraints['streetName'];

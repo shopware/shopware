@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  *
- * @phpstan-type CustomFieldSetArray array{name: string, global: bool, config: array<string, mixed>, relations: array<array<string, string>>, appId: string, customFields: list<array<string, mixed>>}
+ * @phpstan-type CustomFieldSetArray array{id?: string, name?: string, global: bool, config: array<string, mixed>, relations: array<array<string, string>>, appId: string, customFields: list<array<string, mixed>>}
  */
 #[Package('framework')]
 class CustomFieldSet extends XmlElement
@@ -47,10 +47,17 @@ class CustomFieldSet extends XmlElement
      * @param array<string, string> $existingRelations passed by reference, as still configured relations are removed, thus this array consist only obsolete relations after the call
      * @param array<string, string> $existingFields passed by reference, as still configured fields are removed, thus this array consist only obsolete fields after the call
      *
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - Parameter $existingId will be added as fourth argument
+     *
      * @return CustomFieldSetArray
      */
-    public function toEntityArray(string $appId, array &$existingRelations, array &$existingFields): array
+    public function toEntityArray(string $appId, array &$existingRelations, array &$existingFields/* , ?string $existingSetId */): array
     {
+        /** @var string|null $existingSetId */
+        $existingSetId = \func_num_args() > 3
+            ? func_get_arg(3)
+            : null;
+
         $relations = array_map(static function (string $entity) use (&$existingRelations): array {
             $relationData = ['entityName' => $entity];
             if (\array_key_exists($entity, $existingRelations)) {
@@ -67,14 +74,16 @@ class CustomFieldSet extends XmlElement
             if (\array_key_exists($field->getName(), $existingFields)) {
                 $fieldData['id'] = $existingFields[$field->getName()];
 
+                // custom_fields.name and custom_fields.type is immutable, thus only set if the set is new
+                unset($fieldData['name']);
+                unset($fieldData['type']);
                 unset($existingFields[$field->getName()]);
             }
 
             return $fieldData;
         }, $this->fields);
 
-        return [
-            'name' => $this->name,
+        $set = [
             'global' => $this->global,
             'config' => [
                 'label' => $this->label,
@@ -84,6 +93,15 @@ class CustomFieldSet extends XmlElement
             'appId' => $appId,
             'customFields' => $customFields,
         ];
+
+        if ($existingSetId) {
+            $set['id'] = $existingSetId;
+        } else {
+            // custom_field_set.name is immutable, thus only set if the set is new
+            $set['name'] = $this->name;
+        }
+
+        return $set;
     }
 
     /**

@@ -61,7 +61,7 @@ class Migration1728040169AddPrimaryOrderDelivery extends MigrationStep
                             FROM `order_delivery`
                             WHERE `order_delivery`.`order_id` = `order`.`id`
                             AND `order_delivery`.`order_version_id` = `order`.`version_id`
-                            ORDER BY `order_delivery`.`created_at` DESC
+                            ORDER BY JSON_EXTRACT(`order_delivery`.`shipping_costs`, \'$.unitPrice\') DESC
                             LIMIT 1
                         )
                     SET `order`.`primary_order_delivery_id` = `primary_order_delivery`.`id`,

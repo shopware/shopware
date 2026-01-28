@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractAccountNewsletterRecipi
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -70,7 +71,7 @@ class NewsletterAccountPageletLoader
         CustomerEntity $customer
     ): NewsletterAccountPagelet {
         $subscribeOptions = [NewsletterSubscribeRoute::OPTION_DIRECT, NewsletterSubscribeRoute::OPTION_SUBSCRIBE];
-        $doSubscribe = \in_array($request->get('option', false), $subscribeOptions, true);
+        $doSubscribe = \in_array(RequestParamHelper::get($request, 'option', false), $subscribeOptions, true);
 
         if (!$doSubscribe) {
             $dataBag->set('option', NewsletterSubscribeRoute::OPTION_UNSUBSCRIBE);

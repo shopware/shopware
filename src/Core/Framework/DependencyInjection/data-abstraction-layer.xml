@@ -125,6 +125,11 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder">
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CachedCompressedCriteriaDecoder" decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder">
+            <argument type="service" id=".inner"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator"/>

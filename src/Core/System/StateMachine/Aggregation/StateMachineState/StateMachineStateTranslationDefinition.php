@@ -24,6 +24,11 @@ class StateMachineStateTranslationDefinition extends EntityTranslationDefinition
         return StateMachineStateTranslationEntity::class;
     }
 
+    public function getCollectionClass(): string
+    {
+        return StateMachineStateTranslationCollection::class;
+    }
+
     public function since(): ?string
     {
         return '6.0.0.0';

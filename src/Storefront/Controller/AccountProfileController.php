@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRo
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -45,7 +46,15 @@ class AccountProfileController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/account', name: 'frontend.account.home.page', defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/account',
+        name: 'frontend.account.home.page',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->overviewPageLoader->load($request, $context, $customer);
@@ -55,7 +64,15 @@ class AccountProfileController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/account/profile', name: 'frontend.account.profile.page', defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
+    #[Route(
+        path: '/account/profile',
+        name: 'frontend.account.profile.page',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->profilePageLoader->load($request, $context);
@@ -64,12 +81,17 @@ class AccountProfileController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/profile/index.html.twig', [
             'page' => $page,
-            'passwordFormViolation' => $request->get('passwordFormViolation'),
-            'emailFormViolation' => $request->get('emailFormViolation'),
+            'passwordFormViolation' => $request->attributes->get('passwordFormViolation'),
+            'emailFormViolation' => $request->attributes->get('emailFormViolation'),
         ]);
     }
 
-    #[Route(path: '/account/profile', name: 'frontend.account.profile.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/account/profile',
+        name: 'frontend.account.profile.save',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function saveProfile(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
@@ -86,7 +108,12 @@ class AccountProfileController extends StorefrontController
         return $this->redirectToRoute('frontend.account.profile.page');
     }
 
-    #[Route(path: '/account/profile/email', name: 'frontend.account.profile.email.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/account/profile/email',
+        name: 'frontend.account.profile.email.save',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function saveEmail(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
@@ -109,7 +136,12 @@ class AccountProfileController extends StorefrontController
         return $this->redirectToRoute('frontend.account.profile.page');
     }
 
-    #[Route(path: '/account/profile/password', name: 'frontend.account.profile.password.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/account/profile/password',
+        name: 'frontend.account.profile.password.save',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer, Request $request): Response
     {
         try {
@@ -126,14 +158,19 @@ class AccountProfileController extends StorefrontController
             return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'passwordFormViolation' => true]);
         }
 
-        if ($request->get('redirectTo') || $request->get('forwardTo')) {
+        if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'forwardTo')) {
             return $this->createActionResponse($request);
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
     }
 
-    #[Route(path: '/account/profile/delete', name: 'frontend.account.profile.delete', defaults: ['_loginRequired' => true], methods: ['POST'])]
+    #[Route(
+        path: '/account/profile/delete',
+        name: 'frontend.account.profile.delete',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function deleteProfile(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
@@ -144,7 +181,7 @@ class AccountProfileController extends StorefrontController
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
-        if ($request->get('redirectTo') || $request->get('forwardTo')) {
+        if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'forwardTo')) {
             return $this->createActionResponse($request);
         }
 

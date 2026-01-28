@@ -48,14 +48,19 @@
 
             {% block sw_flow_list_grid_columns_event_name %}
             <template #column-eventName="{ item }">
-                <div v-if="isValidTrigger(item.eventName)">
-                    <strong>
+                <div
+                    v-if="isValidTrigger(item.eventName)"
+                    class="sw-flow-list__event-name"
+                >
+                    <p class="sw-flow-list__event-name-label">
                         {{ getTranslatedEventName(item.eventName) }}
-                    </strong>
-                    <p>{{ item.eventName }}</p>
+                    </p>
                 </div>
+
                 <div v-else>
-                    <p>{{ $tc('sw-flow.list.unknownTrigger') }}</p>
+                    <p class="sw-flow-list__event-name-unknown">
+                        {{ $tc('sw-flow.list.unknownTrigger') }}
+                    </p>
                 </div>
             </template>
             {% endblock %}
@@ -63,7 +68,6 @@
 
             {% block sw_flow_list_grid_actions %}
             <template #actions="{ item }">
-
                 {% block sw_flow_list_grid_actions_duplicate %}
                 <sw-context-menu-item
                     class="sw-flow-list__item-duplicate"

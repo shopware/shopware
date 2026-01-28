@@ -79,6 +79,10 @@ module.exports = {
     settings: {
         'import/resolver': {
             node: {},
+            typescript: {
+                alwaysTryTypes: true,
+                project: './tsconfig.json',
+            },
 
             // This plugin supports to load the actual vite config
             // But the import resolver is not able to resolve the alias find regex

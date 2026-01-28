@@ -192,7 +192,10 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                 },
             },
         };
-        store.creationStates = 'is-physical';
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            store.creationStates = 'is-physical';
+        }
+        store.creationType = 'physical';
     });
 
     it('should display a customized empty state if there are neither variants nor properties', async () => {

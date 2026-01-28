@@ -45,6 +45,10 @@ class Content extends Bundle
         $loader->load('flow.xml');
         $loader->load('measurement_system.xml');
 
+        if ($container->getParameter('kernel.environment') === 'test') {
+            $loader->load('media_test.xml');
+        }
+
         $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 }

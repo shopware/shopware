@@ -57,7 +57,13 @@ const defaultSalesChannelData = {
 };
 
 describe('module/sw-product/page/sw-product-detail', () => {
-    async function createWrapper(searchFunction = () => Promise.resolve([]), productId = '1234') {
+    async function createWrapper(
+        searchFunction = () => Promise.resolve([]),
+        getFunction = () => {
+            return Promise.resolve({ variation: [] });
+        },
+        productId = '1234',
+    ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
                 mocks: {
@@ -90,11 +96,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                                 return {};
                             },
                             search: searchFunction,
-                            get: () => {
-                                return Promise.resolve({
-                                    variation: [],
-                                });
-                            },
+                            get: getFunction,
                             hasChanges: () => true,
                             save: () => Promise.resolve({}),
                         }),
@@ -424,7 +426,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         };
 
         // make it a download product which requires downloads
-        Shopware.Store.get('swProductDetail').creationStates = 'is-download';
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            Shopware.Store.get('swProductDetail').creationStates = 'is-download';
+        }
+
+        Shopware.Store.get('swProductDetail').creationType = 'digital';
 
         wrapper.vm.saveProduct = jest.fn(() => {
             return Promise.resolve();
@@ -796,5 +802,95 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         expect(wrapper.vm.ignoreFieldsValidation).not.toContain('name');
         expect(spyValidationService).toHaveBeenCalledWith(wrapper.vm.product, expect.anything(), []);
+    });
+
+    it('should handle the purchase price if its not set', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+    });
+
+    it('should handle the purchase price if its null', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    purchasePrices: null,
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+    });
+
+    it('should handle the purchase price if its undefined', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    purchasePrices: undefined,
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+    });
+
+    it('should ignore purchase price if its set', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    purchasePrices: [
+                        {
+                            currencyId: undefined,
+                            net: 10,
+                            gross: 19,
+                            linked: false,
+                        },
+                    ],
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 10, linked: false, gross: 19 }]);
     });
 });

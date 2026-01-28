@@ -12,8 +12,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class Migration1660814397UpdateOrderCancelledMailTemplate extends MigrationStep

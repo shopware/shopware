@@ -48,11 +48,11 @@ class TemplateDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new LongTextField('template', 'template'))->addFlags(new Required(), new AllowHtml(false), new AllowEmptyString()),
-            (new StringField('path', 'path', 1024))->addFlags(new Required()),
-            (new BoolField('active', 'active'))->addFlags(new Required()),
-            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of App template.'),
+            (new LongTextField('template', 'template'))->addFlags(new Required(), new AllowHtml(false), new AllowEmptyString())->setDescription('Template for an app.'),
+            (new StringField('path', 'path', 1024))->addFlags(new Required())->setDescription('A relative URL to the app template.'),
+            (new BoolField('active', 'active'))->addFlags(new Required())->setDescription('When boolean value is `true`, defined app templates are available for selection.'),
+            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required())->setDescription('Unique identity of app.'),
             new StringField('hash', 'hash', 32),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);

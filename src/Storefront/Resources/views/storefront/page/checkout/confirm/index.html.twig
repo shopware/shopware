@@ -34,7 +34,9 @@
             {% endblock %}
         {% endblock %}
 
+        {# @deprecated tag:v6.8.0 - Will be removed - Will be moved to the bottom of the page #}
         {% block page_checkout_confirm_tos %}
+            {% if not feature('v6.8.0.0') %}
             <div class="confirm-tos">
                 <div class="card checkout-card">
                     <div class="card-body">
@@ -58,24 +60,25 @@
                         {% endblock %}
 
                         {% block page_checkout_confirm_tos_control %}
+                            {% set tosModalTagOpen = '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
+                            {% set tosModalTagClose = '</button>' %}
+
                             <div class="form-check">
                                 {% block page_checkout_confirm_tos_control_checkbox %}
                                     <input type="checkbox"
-                                           class="checkout-confirm-tos-checkbox form-check-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
-                                           required="required"
-                                           id="tos"
-                                           form="confirmOrderForm"
-                                           name="tos">
+                                        class="checkout-confirm-tos-checkbox form-check-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
+                                        required="required"
+                                        id="tos"
+                                        form="confirmOrderForm"
+                                        name="tos">
                                 {% endblock %}
 
                                 {% block page_checkout_confirm_tos_control_label %}
-                                    {% set tosSnippetKey = 'checkout.confirmTermsTextModal' %}
-                                    {% set cmsPath = 'frontend.cms.page' %}
                                     <label for="tos"
-                                           class="checkout-confirm-tos-label custom-control-label">
-                                        {{ tosSnippetKey|trans({
-                                            '%tosModalTagOpen%': '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
-                                            '%tosModalTagClose%': '</button>'
+                                        class="checkout-confirm-tos-label custom-control-label">
+                                        {{ 'checkout.confirmTermsTextModal'|trans({
+                                            '%tosModalTagOpen%': tosModalTagOpen,
+                                            '%tosModalTagClose%': tosModalTagClose,
                                         })|raw }}
                                     </label>
                                 {% endblock %}
@@ -106,6 +109,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         {% endblock %}
 
         {% block page_checkout_confirm_address %}
@@ -171,6 +175,38 @@
             } %}
         {% endblock %}
     {% endblock %}
+
+    {% if feature('v6.8.0.0') and page.showRevocation() %}
+        <div class="confirm-tos-bottom">
+        {% block page_checkout_confirm_revocation_section %}
+        {% block page_checkout_confirm_revocation_section_header %}
+            <div class="card-title">
+                {{ 'checkout.confirmDigitalContentHeader'|trans|sw_sanitize }}
+            </div>
+        {% endblock %}
+
+        {% block page_checkout_confirm_revocation_section_control %}
+        <div class="form-check mt-2 mb-4">
+            {% block page_checkout_confirm_revocation_section_control_bottom %}
+                <input type="checkbox"
+                       class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"
+                       required="required"
+                       id="revocation"
+                       form="confirmOrderForm"
+                       name="revocation">
+            {% endblock %}
+
+            {% block page_checkout_confirm_revocation_section_control_label_bottom %}
+                <label for="revocation"
+                       class="checkout-confirm-revocation-label custom-control-label">
+                    {{ 'checkout.confirmRevocationTerms'|trans() }}
+                </label>
+            {% endblock %}
+        </div>
+        {% endblock %}
+        {% endblock %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block page_checkout_additional %}
@@ -220,6 +256,69 @@
 {% set confirmOrderFormAction = path('frontend.checkout.finish.order') %}
 
 {% block page_checkout_aside_actions %}
+    {% block page_checkout_confirm_tos_auto_confirmed %}
+        {% if feature('v6.8.0.0') %}
+            {% if config('core.cart.showTosCheckbox') %}
+                <div class="confirm-tos">
+                    {% block page_checkout_confirm_tos_auto_confirmed_revocation_notice_bottom %}
+                        {% set cmsPath = 'frontend.cms.page' %}
+                        <p class="revocation-notice mb-0 mt-4">
+                            {% set revocationSnippetKey = 'checkout.confirmRevocationNoticeModal' %}
+
+                            {{ revocationSnippetKey|trans({
+                                '%revocationModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.revocationPage') }) ~ '">',
+                                '%revocationModalTagClose%': '</button>'
+                            })|raw }}
+                            </p>
+                    {% endblock %}
+
+                    {% block page_checkout_confirm_tos_auto_confirmed_bottom %}
+                        {% set tosModalTagOpen = '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
+                        {% set tosModalTagClose = '</button>' %}
+
+                        <div class="form-check mt-2 ">
+                            {% block page_checkout_confirm_tos_auto_confirmed_checkbox_bottom %}
+                                <input type="checkbox"
+                                       class="checkout-confirm-tos-checkbox form-check-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
+                                       required="required"
+                                       id="tos"
+                                       form="confirmOrderForm"
+                                       name="tos">
+                            {% endblock %}
+
+                            {% block page_checkout_confirm_tos_auto_confirmed_label_bottom %}
+                                <label for="tos"
+                                       class="checkout-confirm-tos-label custom-control-label">
+                                    {{ 'checkout.confirmTermsTextModal'|trans({
+                                        '%tosModalTagOpen%': tosModalTagOpen,
+                                        '%tosModalTagClose%': tosModalTagClose,
+                                    })|raw }}
+                                </label>
+                            {% endblock %}
+                            </div>
+                    {% endblock %}
+                </div>
+            {% else %}
+                {% set tosModalTagOpen = '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
+                {% set tosModalTagClose = '</button>' %}
+
+                {% set revocationModalTagOpen = '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.revocationPage') }) ~ '">' %}
+                {% set revocationModalTagClose = '</button>' %}
+
+                {% block page_checkout_confirm_tos_auto_confirmed_text %}
+                    <div class="checkout-confirm-tos-information my-3 fs-6">
+                        {{ 'checkout.autoConfirmTermsText'|trans({
+                            '%tosModalTagOpen%': tosModalTagOpen,
+                            '%tosModalTagClose%': tosModalTagClose,
+                            '%revocationModalTagOpen%': revocationModalTagOpen,
+                            '%revocationModalTagClose%': revocationModalTagClose,
+                        })|raw }}
+                    </div>
+                {% endblock %}
+            {% endif %}
+        {% endif %}
+    {% endblock %}
+
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ confirmOrderFormAction }}"

@@ -45,8 +45,19 @@ export default {
             return Shopware.Store.get('swProductDetail').showModeSetting;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `productType` instead.
+         */
         productStates() {
             return Shopware.Store.get('swProductDetail').productStates;
+        },
+
+        productType() {
+            return Shopware.Store.get('swProductDetail').productType;
+        },
+
+        isDigitalProduct() {
+            return this.productType === 'digital' || this.productStates.includes('is-download');
         },
 
         customFieldsExists() {

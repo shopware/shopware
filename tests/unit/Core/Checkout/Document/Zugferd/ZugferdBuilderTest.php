@@ -234,10 +234,7 @@ class ZugferdBuilderTest extends TestCase
         return $position . $lineItem->getPosition();
     }
 
-    /**
-     * @param string[] $states
-     */
-    private function buildOrderLineItemEntity(string $id, string $type, ?OrderLineItemEntity $parent = null, int $quantity = 1, array $states = []): OrderLineItemEntity
+    private function buildOrderLineItemEntity(string $id, string $type, ?OrderLineItemEntity $parent = null, int $quantity = 1): OrderLineItemEntity
     {
         $orderLineItemEntity = new OrderLineItemEntity();
         $orderLineItemEntity->setId($id);
@@ -249,7 +246,6 @@ class ZugferdBuilderTest extends TestCase
         $orderLineItemEntity->setRemovable(true);
         $orderLineItemEntity->setStackable(false);
         $orderLineItemEntity->setQuantity($quantity);
-        $orderLineItemEntity->setStates($states);
         $orderLineItemEntity->setChildren(new OrderLineItemCollection());
         $orderLineItemEntity->setParent($parent);
 

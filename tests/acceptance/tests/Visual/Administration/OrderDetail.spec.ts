@@ -44,6 +44,7 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
             '.dp__input_reg',
             'input[aria-label="Email"]',
             'div.sw-field[label="Sales channel"] .sw-entity-single-select__selection-text',
+            '.dp__input_icon_pad',
         ]);
 
         await assertScreenshot(AdminOrderDetail.page, 'Order-Detail-Details-Tab.png');

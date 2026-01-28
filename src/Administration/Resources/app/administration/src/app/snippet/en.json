@@ -465,7 +465,7 @@
       "buttonSwitchToUrlUpload": "Upload file from URL",
       "buttonOpenMedia": "Open media",
       "snackbar": {
-        "message": "Uploading file | Uploading files",
+        "message": "Uploading file | Uploading files ({processed}/{total})",
         "errorMessage": "File could not be uploaded. | Some files could not be uploaded."
       },
       "notification": {
@@ -490,6 +490,12 @@
         },
         "requestCanceled": {
           "message": "The upload has been cancelled."
+        },
+        "payloadTooLarge": {
+          "message": "File is too large. Please reduce the file size or check the server configuration."
+        },
+        "transportError": {
+          "message": "Upload failed due to a connection or server timeout. Please check your connection or server limits."
         }
       },
       "caption": "Drag files here to upload"
@@ -824,6 +830,7 @@
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
         "lineItemProductStates": "Item with product state",
+        "lineItemProductType": "Item with product type",
         "numberOfReviews": "Number of approved reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
@@ -909,6 +916,14 @@
           "options": {
             "is-download": "Digital",
             "is-physical": "Physical"
+          }
+        }
+      },
+      "cartLineItemProductType": {
+        "productType": {
+          "options": {
+            "digital": "Digital",
+            "physical": "Physical"
           }
         }
       },
@@ -1083,6 +1098,7 @@
       "customer_group_registration_accepted": "Customer group registration request accepted",
       "customer_group_registration_declined": "Customer group registration request declined",
       "customer_recovery_request": "Customer requests new password",
+      "customer_password_changed": "Customer password changed",
       "mail_after_create_message": "Email created",
       "mail_before_send": "Email is being sent",
       "mail_sent": "Email sent",

@@ -57,17 +57,17 @@ class ProductPriceDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of the product\'s price.'),
             new VersionField(),
-            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required())->setDescription('Unique identity of the product.'),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
-            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required()),
-            (new PriceField('price', 'price'))->addFlags(new Required()),
-            (new IntField('quantity_start', 'quantityStart'))->addFlags(new Required()),
-            new IntField('quantity_end', 'quantityEnd'),
+            (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new Required())->setDescription('Unique identity of the rule.'),
+            (new PriceField('price', 'price'))->addFlags(new Required())->setDescription('Price of the Product.'),
+            (new IntField('quantity_start', 'quantityStart'))->addFlags(new Required())->setDescription('Starting range of quantity of an item.'),
+            (new IntField('quantity_end', 'quantityEnd'))->setDescription('Ending range of quantity of an item.'),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false))->addFlags(new ReverseInherited('prices')),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
-            new CustomFields(),
+            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
         ]);
     }
 }

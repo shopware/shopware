@@ -65,14 +65,14 @@ class NotificationDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('status', 'status'))->addFlags(new Required()),
-            (new LongTextField('message', 'message'))->addFlags(new Required()),
-            new BoolField('admin_only', 'adminOnly'),
-            new ListField('required_privileges', 'requiredPrivileges'),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of notification.'),
+            (new StringField('status', 'status'))->addFlags(new Required())->setDescription('When status is set, the Notification is made visible.'),
+            (new LongTextField('message', 'message'))->addFlags(new Required())->setDescription('Indicates text or content of a notification message.'),
+            (new BoolField('admin_only', 'adminOnly'))->setDescription('Parameter within a notification configuration that determines whether a notification is intended for administrators only.'),
+            (new ListField('required_privileges', 'requiredPrivileges'))->setDescription('Parameter within a notification configuration that specifies the required user privileges or permissions to access or view a particular notification.'),
 
-            new FkField('created_by_integration_id', 'createdByIntegrationId', IntegrationDefinition::class),
-            new FkField('created_by_user_id', 'createdByUserId', UserDefinition::class),
+            (new FkField('created_by_integration_id', 'createdByIntegrationId', IntegrationDefinition::class))->setDescription('Unique identity of createdByIntegration.'),
+            (new FkField('created_by_user_id', 'createdByUserId', UserDefinition::class))->setDescription('Unique identity of createdByUser.'),
 
             new ManyToOneAssociationField('createdByIntegration', 'created_by_integration_id', IntegrationDefinition::class, 'id', false),
             new ManyToOneAssociationField('createdByUser', 'created_by_user_id', UserDefinition::class, 'id', false),

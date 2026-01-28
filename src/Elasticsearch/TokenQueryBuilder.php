@@ -44,7 +44,8 @@ class TokenQueryBuilder
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly CustomFieldService $customFieldService,
         private readonly AbstractKeyValueStorage $storage,
-        private readonly int $minGram = 4
+        private readonly int $minGram = 4,
+        private readonly bool $useLanguageAnalyzer = true
     ) {
     }
 
@@ -133,25 +134,41 @@ class TokenQueryBuilder
             $maxExpansions = $this->getMaxExpansions($lastWord);
 
             // apply fuzzy search
-            $queries[] = new MatchQuery($searchField, $token, [
+            $matchQueryParams = [
                 'boost' => 0.8,
                 'fuzziness' => $config->getFuzziness($token),
                 'operator' => $operator,
                 'fuzzy_transpositions' => true, // treats "ab" and "ba" as a single edit
                 'max_expansions' => $maxExpansions, // limit the number of variations
                 'prefix_length' => 1, // reduce noise
-            ]);
+            ];
+
+            if (!$this->useLanguageAnalyzer) {
+                $matchQueryParams['analyzer'] = 'sw_whitespace_analyzer';
+            }
+
+            $queries[] = new MatchQuery($searchField, $token, $matchQueryParams);
 
             // apply match phrase prefix for compound tokens
             if ($config->usePrefixMatch()) {
                 // apply prefix search on a single token or match phrase prefix on multiple tokens
-                $queries[] = $tokenCount > 1 ? new MatchPhrasePrefixQuery($searchField, $token, [
-                    'boost' => 0.6,
-                    'slop' => 3,
-                    'max_expansions' => $maxExpansions,
-                ]) : new PrefixQuery($config->getField(), $token, [
-                    'boost' => 0.4,
-                ]);
+                if ($tokenCount > 1) {
+                    $matchPhrasePrefixParams = [
+                        'boost' => 0.6,
+                        'slop' => 3,
+                        'max_expansions' => $maxExpansions,
+                    ];
+
+                    if (!$this->useLanguageAnalyzer) {
+                        $matchPhrasePrefixParams['analyzer'] = 'sw_whitespace_analyzer';
+                    }
+
+                    $queries[] = new MatchPhrasePrefixQuery($searchField, $token, $matchPhrasePrefixParams);
+                } else {
+                    $queries[] = new PrefixQuery($config->getField(), $token, [
+                        'boost' => 0.4,
+                    ]);
+                }
             }
 
             $tokenLength = mb_strlen($token);

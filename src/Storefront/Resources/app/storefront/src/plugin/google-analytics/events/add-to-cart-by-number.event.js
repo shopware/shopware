@@ -1,4 +1,5 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class AddToCartByNumberEvent extends AnalyticsEvent
 {
@@ -21,14 +22,20 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
         addToCartForm.addEventListener('submit', this._formSubmit.bind(this));
     }
 
+    /**
+     * Note: When adding by product number, we only have the product number available.
+     * Full product data (name, brand, price, categories) is not available at this point.
+     */
     _formSubmit(event) {
         if (!this.active) {
             return;
         }
 
         const input = event.currentTarget.querySelector('.form-control');
+        const additionalProperties = LineItemHelper.getAdditionalProperties();
 
         gtag('event', 'add_to_cart', {
+            'currency': additionalProperties.currency,
             'items': [
                 {
                     'id': input.value,

@@ -20,7 +20,7 @@ class EnvironmentHelperTest extends TestCase
     protected function tearDown(): void
     {
         // to prevent side effects delete test env var after each testcase
-        unset($_SERVER['foo'], $_ENV['foo']);
+        unset($_SERVER['foo'], $_ENV['foo'], $_SERVER['CI'], $_ENV['CI']);
     }
 
     public function testGetVariableReadsEnvVarFromServerSuperGlobal(): void
@@ -82,6 +82,22 @@ class EnvironmentHelperTest extends TestCase
         unset($_SERVER['foo'], $_ENV['foo']);
 
         static::assertFalse(EnvironmentHelper::hasVariable('foo'));
+    }
+
+    public function testIsCiModeReturnsTrueWhenEnabled(): void
+    {
+        $_SERVER['CI'] = '1';
+        unset($_ENV['CI']);
+
+        static::assertTrue(EnvironmentHelper::isCiMode());
+    }
+
+    public function testIsCiModeReturnsFalseWhenDisabled(): void
+    {
+        $_SERVER['CI'] = '0';
+        unset($_ENV['CI']);
+
+        static::assertFalse(EnvironmentHelper::isCiMode());
     }
 
     public function testVariableTransformerVariableChangeWorks(): void

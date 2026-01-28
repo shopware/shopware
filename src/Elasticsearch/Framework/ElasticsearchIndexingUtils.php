@@ -55,6 +55,8 @@ SELECT
 FROM custom_field_set_relation
     INNER JOIN custom_field ON(custom_field.set_id = custom_field_set_relation.set_id)
 WHERE custom_field_set_relation.entity_name = :entity
+    AND custom_field.include_in_search = 1
+    AND custom_field.active = 1
 ', ['entity' => $entity]) + $customFieldsMapping;
 
         $event = new ElasticsearchCustomFieldsMappingEvent($entity, $mappings, $context);

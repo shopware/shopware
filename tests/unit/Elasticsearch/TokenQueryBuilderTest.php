@@ -456,6 +456,48 @@ class TokenQueryBuilderTest extends TestCase
         ];
     }
 
+    public function testBuildWithLanguageAnalyzerDisabled(): void
+    {
+        $storage = new ArrayKeyValueStorage([ElasticsearchOptimizeSwitch::FLAG => true]);
+        $tokenQueryBuilder = new TokenQueryBuilder(
+            $this->getRegistry(),
+            new CustomFieldServiceMock([
+                'evolvesInt' => new IntField('evolvesInt', 'evolvesInt'),
+                'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
+                'evolvesText' => new StringField('evolvesText', 'evolvesText'),
+            ]),
+            $storage,
+            4,
+            false
+        );
+
+        $context = Context::createDefaultContext();
+        $context->assign([
+            'languageIdChain' => [Defaults::LANGUAGE_SYSTEM],
+        ]);
+
+        $config = [
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+        ];
+
+        $term = 'foo bar';
+        $query = $tokenQueryBuilder->build('product', $term, $config, $context);
+
+        static::assertNotNull($query);
+        $queryArray = $query->toArray();
+
+        $matchQuery = $queryArray['dis_max']['queries'][1]['match'] ?? null;
+        static::assertNotNull($matchQuery);
+        $searchField = 'name.' . Defaults::LANGUAGE_SYSTEM . '.search';
+        static::assertArrayHasKey($searchField, $matchQuery);
+        static::assertSame('sw_whitespace_analyzer', $matchQuery[$searchField]['analyzer'] ?? null);
+
+        $matchPhrasePrefixQuery = $queryArray['dis_max']['queries'][2]['match_phrase_prefix'] ?? null;
+        static::assertNotNull($matchPhrasePrefixQuery);
+        static::assertArrayHasKey($searchField, $matchPhrasePrefixQuery);
+        static::assertSame('sw_whitespace_analyzer', $matchPhrasePrefixQuery[$searchField]['analyzer'] ?? null);
+    }
+
     public function testDecoration(): void
     {
         $builder = new ProductSearchQueryBuilder(
@@ -543,7 +585,7 @@ class TokenQueryBuilderTest extends TestCase
     /**
      * @return array<mixed>
      */
-    private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = null, string $operator = 'or', ?int $maxExpansions = null): array
+    private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = null, string $operator = 'or', ?int $maxExpansions = null, ?string $analyzer = null): array
     {
         $payload = [
             'query' => $query,
@@ -553,6 +595,7 @@ class TokenQueryBuilderTest extends TestCase
             'fuzzy_transpositions' => true,
             'max_expansions' => $maxExpansions,
             'prefix_length' => 1,
+            'analyzer' => $analyzer,
         ];
 
         return [
@@ -614,16 +657,19 @@ class TokenQueryBuilderTest extends TestCase
     /**
      * @return array{match_phrase_prefix: array<string, array{query: string|int|float, boost: float, slop: int}>}
      */
-    private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop = 3, int $maxExpansion = 10): array
+    private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop = 3, int $maxExpansion = 10, ?string $analyzer = null): array
     {
+        $payload = [
+            'query' => $query,
+            'boost' => $boost,
+            'slop' => $slop,
+            'max_expansions' => $maxExpansion,
+            'analyzer' => $analyzer,
+        ];
+
         return [
             'match_phrase_prefix' => [
-                $field => [
-                    'query' => $query,
-                    'boost' => $boost,
-                    'slop' => $slop,
-                    'max_expansions' => $maxExpansion,
-                ],
+                $field => array_filter($payload, static fn ($value) => $value !== null),
             ],
         ];
     }

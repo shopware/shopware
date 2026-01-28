@@ -40,7 +40,7 @@
 
     {% block sw_category_detail_menu_media_modal %}
     <sw-media-modal-v2
-        :is-open="showMediaModal"
+        v-if="showMediaModal"
         :allow-multi-select="false"
         :entity-context="category.getEntityName()"
         @media-modal-selection-change="onMediaSelectionChange"

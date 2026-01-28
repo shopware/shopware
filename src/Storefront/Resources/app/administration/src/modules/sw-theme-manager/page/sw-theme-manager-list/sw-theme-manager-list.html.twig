@@ -286,13 +286,13 @@
 
                     {% block sw_theme_list_media_modal %}
                         <sw-media-modal-v2
-                            :is-open="showMediaModal"
+                            v-if="showMediaModal"
                             :caption="$t('sw-theme-manager.general.captionMediaUpload')"
                             entityContext="theme"
                             :allowMultiSelect="false"
                             @media-modal-selection-change="onPreviewImageChange"
                             @modal-close="onModalClose"
-                        />
+                        ></sw-media-modal-v2>
                     {% endblock %}
 
                     {% block sw_theme_list_delete_modal %}

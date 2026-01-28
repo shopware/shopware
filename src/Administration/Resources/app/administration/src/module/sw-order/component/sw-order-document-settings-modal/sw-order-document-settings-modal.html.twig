@@ -72,7 +72,7 @@
 
     {% block sw_order_document_settings_modal_media_modal %}
     <sw-media-modal-v2
-        :is-open="showMediaModal"
+        v-if="showMediaModal"
         :allow-multi-select="false"
         :file-accept="features.fileAcceptTypes"
         @media-modal-selection-change="onAddMediaFromLibrary"

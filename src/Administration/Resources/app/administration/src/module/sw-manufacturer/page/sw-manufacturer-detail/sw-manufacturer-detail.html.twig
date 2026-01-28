@@ -128,7 +128,7 @@
                         />
 
                         <sw-media-modal-v2
-                            :is-open="showMediaModal"
+                            v-if="showMediaModal"
                             :allow-multi-select="false"
                             :initial-folder-id="mediaDefaultFolderId"
                             :entity-context="manufacturer.getEntityName()"

@@ -179,7 +179,7 @@
 
         {% block sw_media_media_item_cover_modal %}
         <sw-media-modal-v2
-            :is-open="showCoverSelectionModal && allowEdit && isVideoMedia"
+            v-if="showCoverSelectionModal && allowEdit && isVideoMedia"
             :allow-multi-select="false"
             file-accept="image/*"
             @modal-close="closeCoverSelectionModal"

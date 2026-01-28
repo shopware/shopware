@@ -193,7 +193,7 @@
 
     {% block sw_product_variants_media_upload_actions_media_modal %}
     <sw-media-modal-v2
-        :is-open="showMediaModal"
+        v-if="showMediaModal"
         :initial-folder-id="mediaDefaultFolderId"
         :entity-context="product.getEntityName()"
         @modal-close="showMediaModal = false"

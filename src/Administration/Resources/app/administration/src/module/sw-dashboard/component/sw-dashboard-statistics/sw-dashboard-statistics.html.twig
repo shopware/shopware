@@ -107,15 +107,12 @@
                 :series="orderCountSeries"
                 :options="chartOptionsOrderCount"
                 :fill-empty-values="ordersDateRange.aggregate"
+                :card-title="$tc('sw-dashboard.monthStats.orderNumber')"
                 type="line"
                 sort
                 position-identifier=""
                 @sw-chart-card-range-update="onOrdersRangeUpdate"
             >
-                <template #header-title>
-                    {{ $tc('sw-dashboard.monthStats.orderNumber') }}
-                </template>
-
                 <template #range-option="{ range }">
                     {{ $tc(`sw-dashboard.monthStats.dateRanges.${range}`) }}
                 </template>
@@ -128,19 +125,13 @@
                 :series="orderSumSeries"
                 :options="chartOptionsOrderSum"
                 :fill-empty-values="turnoverDateRange.aggregate"
+                :card-title="$tc('sw-dashboard.monthStats.turnover')"
+                :help-text="$tc('sw-dashboard.monthStats.helperText')"
                 type="line"
                 sort
                 position-identifier=""
                 @sw-chart-card-range-update="onTurnoverRangeUpdate"
             >
-                <template #header-title>
-                    {{ $tc('sw-dashboard.monthStats.turnover') }}
-                    <sw-help-text
-                        class="sw-dashboard-index__help-text"
-                        :text="$tc('sw-dashboard.monthStats.helperText')"
-                    />
-                </template>
-
                 <template #range-option="{ range }">
                     {{ $tc(`sw-dashboard.monthStats.dateRanges.${range}`) }}
                 </template>

@@ -211,6 +211,10 @@ export default {
         },
 
         previewUrl() {
+            if (!this.trueSource) {
+                return '';
+            }
+
             if (this.isFile) {
                 this.getDataUrlFromFile();
                 return this.dataUrl;
@@ -297,6 +301,13 @@ export default {
             this.imagePreviewFailed = false;
             this.fetchSourceIfNecessary();
         },
+        previewUrl(newUrl, oldUrl) {
+            if (!newUrl || newUrl === oldUrl) {
+                return;
+            }
+
+            this.reloadMediaElement();
+        },
     },
 
     created() {
@@ -361,6 +372,20 @@ export default {
             }
 
             this.dataUrl = await fileReader.readAsDataURL(this.trueSource);
+        },
+
+        reloadMediaElement() {
+            if (!this.isPlayable || (this.mimeTypeGroup !== 'video' && this.mimeTypeGroup !== 'audio')) {
+                return;
+            }
+
+            this.$nextTick(() => {
+                const element = this.$refs.mediaElement;
+
+                if (typeof element?.load === 'function') {
+                    element.load();
+                }
+            });
         },
 
         removeUrlPreview() {

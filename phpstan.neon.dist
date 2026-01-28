@@ -134,6 +134,10 @@ parameters:
                 - src/**/Test/**
                 - tests/**
 
+        # implementation of symfony flashbag interface which does not define iterable types
+        - identifier: missingType.iterableValue
+          path: src/Core/Framework/Adapter/Session/StatefulFlashBag.php
+
         # ArrayFacadeTest explicitly tests array access on object, so it works from twig scripts
         - identifier: offsetAssign.dimType
           path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
@@ -194,3 +198,6 @@ parameters:
         - # RedisArray has missing methods in the stub. See https://github.com/phpredis/phpredis/discussions/2736
             message: '#Call to an undefined method Predis\\ClientInterface\|Redis\|RedisArray\|RedisCluster\|Relay\\Cluster\|Relay\\Relay::#'
             identifier: method.notFound
+
+        - # XML config format will be migrated step by step, so we ignore errors for now, see https://github.com/shopware/shopware/issues/13072
+            message: '#deprecated class Symfony\\Component\\DependencyInjection\\Loader\\XmlFileLoader#'

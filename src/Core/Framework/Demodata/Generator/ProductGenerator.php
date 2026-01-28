@@ -467,7 +467,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             throw DemodataException::wrongExecutionOrder();
         }
 
-        $tax = $taxes->get(array_rand($taxIds));
+        $tax = $taxes->get((string) array_rand($taxIds));
         if (!$tax instanceof TaxEntity) {
             throw DemodataException::wrongExecutionOrder();
         }

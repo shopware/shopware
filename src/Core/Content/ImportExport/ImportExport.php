@@ -490,8 +490,19 @@ class ImportExport
                     continue;
                 }
 
-                $value = (string) $value;
-                $mappedRecord[$key] = $value;
+                if (!\is_scalar($value)) {
+                    if (!$allowErrors) {
+                        $exportExceptions[$key] = ImportExportException::fieldCannotBeExported(\gettype($value));
+
+                        continue;
+                    }
+
+                    $mappedRecord[$key] = '#ERROR#';
+
+                    continue;
+                }
+
+                $mappedRecord[$key] = (string) $value;
             }
 
             if ($exportExceptions) {

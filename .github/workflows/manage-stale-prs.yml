@@ -27,9 +27,10 @@ jobs:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN_PRODUCT_NOTIFICATIONS }}
           STALE_PR_THRESHOLD_DAYS: ${{ vars.STALE_PR_THRESHOLD_DAYS }}
           STALE_PR_CLOSE: ${{ vars.STALE_PR_CLOSE }}
+          EXCLUDED_REPOSITORIES: ${{ vars.STALE_PR_EXCLUDED_REPOSITORIES || '[]' }}
           DRY_RUN: ${{ vars.STALE_PR_DRY_RUN || 'true' }}
         with:
           github-token: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts.outputs.token }}
           script: |
             const { manageOldPullRequests } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
-            await manageOldPullRequests({github, core, context, fetch}, "shopware", parseInt(process.env.STALE_PR_THRESHOLD_DAYS), process.env.STALE_PR_CLOSE === "true")
+            await manageOldPullRequests({github, core, context, fetch}, "shopware", parseInt(process.env.STALE_PR_THRESHOLD_DAYS), process.env.STALE_PR_CLOSE === "true", JSON.parse(process.env.EXCLUDED_REPOSITORIES))

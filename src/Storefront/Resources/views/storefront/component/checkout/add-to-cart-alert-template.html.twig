@@ -1,0 +1,18 @@
+{#
+Hidden template for add-to-cart success message.
+Used by JavaScript when offcanvas auto-open is disabled.
+
+@sw-package checkout
+#}
+
+{% block component_add_to_cart_alert_template %}
+    <template class="js-add-to-cart-alert-template">
+        <div class="alert alert-success fade d-flex align-items-center mt-2 mb-0 py-2"
+             role="alert"
+             aria-live="polite">
+            {% sw_icon 'checkmark-circle' style {size: 'xs'} %}
+            <span class="ms-2">{{ 'checkout.addToCartSuccess'|trans({'%count%': 1})|sw_sanitize }}</span>
+        </div>
+    </template>
+{% endblock %}
+

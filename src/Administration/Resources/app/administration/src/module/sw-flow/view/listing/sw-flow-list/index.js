@@ -98,12 +98,6 @@ export default {
                     allowResize: true,
                     multiLine: true,
                 },
-                {
-                    property: 'description',
-                    label: this.$tc('sw-flow.list.labelColumnDescription'),
-                    allowResize: true,
-                    sortable: false,
-                },
             ];
         },
 

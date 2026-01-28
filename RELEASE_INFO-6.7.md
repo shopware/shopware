@@ -27,6 +27,24 @@ Also, the generator now sets `CASCADE DELETE` on foreign keys for the translatio
 
 ## Critical Fixes
 
+### Session deadlock fix for file-based sessions
+
+A new configuration option `shopware.cache.disable_stampede_protection` has been added to prevent deadlocks when using file-based sessions with Symfony's cache stampede protection.
+
+**Problem**: A deadlock (ABBA pattern) can occur when:
+- Process 1: Acquires Session File Lock → Needs Cache → Tries to acquire Cache Lock
+- Process 2: Acquires Cache Lock (stampede protection) → Needs Session → Tries to acquire Session File Lock
+
+**Solution**: Set `shopware.cache.disable_stampede_protection: true` in your configuration to disable file-based cache locking when file-based sessions are in use.
+
+```yaml
+shopware:
+    cache:
+        disable_stampede_protection: true
+```
+
+**Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
+
 # 6.7.7.0
 
 ## Features

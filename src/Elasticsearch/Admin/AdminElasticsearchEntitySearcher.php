@@ -58,6 +58,10 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
             return false;
         }
 
+        if (!$criteria->getTerm()) {
+            return false; // debatable? less performance gains when not search by term but more traffic to opensearch server
+        }
+
         if (!empty($criteria->getIds())) {
             return false;
         }
@@ -67,7 +71,6 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
         }
 
         if (!$this->registry->hasIndexer($definition->getEntityName())) {
-
             return false;
         }
 

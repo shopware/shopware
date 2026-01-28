@@ -28,6 +28,8 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 #[Package('inventory')]
 class AdminSearcher
 {
+    public const LOADED_BY_OPENSEARCH = 'loaded-by-opensearch';
+
     public function __construct(
         private readonly Client $client,
         private readonly AdminSearchRegistry $registry,
@@ -127,12 +129,16 @@ class AdminSearcher
 
         $result = $this->client->search($request);
 
-        return $this->hydrator->hydrate(
+        $ids = $this->hydrator->hydrate(
             $this->definitionInstanceRegistry->getByEntityName($entityName),
             $criteria,
             $context,
             $result
         );
+
+        $ids->addState(self::LOADED_BY_OPENSEARCH);
+
+        return $ids;
     }
 
     private function buildSearchPayload(string $entityName, string $term, int $limit): array

@@ -4,7 +4,8 @@
     {% if page.cart.lineItems.count is same as(0) %}
         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
             type: 'info',
-            content: 'checkout.cartEmpty'|trans|sw_sanitize
+            content: 'checkout.cartEmpty'|trans|sw_sanitize,
+            triggerScreenreader: true
         } %}
 
         {% set messages = app.flashes %}

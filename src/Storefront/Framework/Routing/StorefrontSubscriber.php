@@ -116,6 +116,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         $contextToken = $session->get($tokenKey);
+
+        // Always keep the default key in sync with the current channel's token for backward compatibility
+        if ($bindingEnabled && $tokenKey !== PlatformRequest::HEADER_CONTEXT_TOKEN) {
+            $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+        }
+
         $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
 
         $currentRequest = $this->requestStack->getCurrentRequest();

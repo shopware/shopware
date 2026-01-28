@@ -151,7 +151,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @return list<Constraint>
+     * @return Constraint[]
      */
     protected function getConstraints(Field $field): array
     {

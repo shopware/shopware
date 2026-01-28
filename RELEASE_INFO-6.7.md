@@ -14,6 +14,10 @@ Also, the generator now sets `CASCADE DELETE` on foreign keys for the translatio
 
 ## Administration
 
+### Help text support for color picker custom fields
+
+The color picker type for custom fields now supports adding a help text. When creating or editing a custom field of type "Colorpicker" in Settings > Content > Custom fields, you can now specify a help text that will be displayed to users in the Administration.
+
 ## Storefront
 
 ### Selling and packaging information in the product detail page

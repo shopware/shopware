@@ -205,15 +205,6 @@ export default {
         },
     },
 
-    watch: {
-        defaultCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -426,7 +417,10 @@ export default {
 
         updateCriteria(criteria) {
             this.page = 1;
+
             this.filterCriteria = criteria;
+
+            this.getList();
         },
 
         async onBulkEditItems() {

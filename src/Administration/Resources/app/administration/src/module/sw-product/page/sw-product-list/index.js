@@ -290,14 +290,6 @@ export default {
         },
     },
 
-    watch: {
-        productCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
-        },
-    },
 
     beforeRouteLeave(to, from, next) {
         const goingToProductDetailPage = to.name === 'sw.product.detail.base';
@@ -421,6 +413,8 @@ export default {
             this.page = 1;
 
             this.filterCriteria = criteria;
+
+            this.getList();
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {

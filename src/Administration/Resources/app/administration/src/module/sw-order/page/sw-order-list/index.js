@@ -305,15 +305,6 @@ export default {
         },
     },
 
-    watch: {
-        orderCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -543,6 +534,8 @@ export default {
             this.page = 1;
 
             this.filterCriteria = criteria;
+
+            this.getList();
         },
 
         getStatusCriteria(value) {

@@ -47,17 +47,19 @@ class MaintenanceControllerTest extends TestCase
 
         static::assertSame(503, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MaintenancePageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testMaintenancePageLoadedHookScriptsAreExecutedForSinglePage(): void
     {
-        $response = $this->request('GET', '/maintenance/singlepage/' . $this->ids->get('page'), []);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/maintenance/singlepage/' . $this->ids->get('page'));
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MaintenancePageLoadedHook::HOOK_NAME, $traces);
     }

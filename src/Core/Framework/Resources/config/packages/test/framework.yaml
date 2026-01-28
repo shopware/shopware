@@ -25,3 +25,12 @@ framework:
                 adapter: cache.adapter.array
             cache.property_access:
                 adapter: cache.adapter.array
+            # Rate limiter needs persistent storage because ArrayAdapter is reset between requests
+            cache.rate_limiter:
+                adapter: cache.adapter.filesystem
+            # HTTP and object caches need persistent storage because ArrayAdapter is reset between requests
+            # This ensures cache hit/miss tests work correctly with service reset enabled
+            cache.http:
+                adapter: cache.adapter.filesystem
+            cache.object:
+                adapter: cache.adapter.filesystem

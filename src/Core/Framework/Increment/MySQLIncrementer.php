@@ -119,8 +119,13 @@ class MySQLIncrementer extends AbstractIncrementer
             ];
         }
 
-        /** @var array<string, array{count: int, key: string, cluster: string, pool: string}> $result */
+        /** @var array<string, array{count: string, key: string, cluster: string, pool: string}> $result */
         $result = $this->connection->fetchAllAssociativeIndexed($sql, $payload, $types);
+
+        // Cast count to int for consistency with ArrayIncrementer
+        foreach ($result as $key => $row) {
+            $result[$key]['count'] = max(0, (int) $row['count']);
+        }
 
         return $result;
     }

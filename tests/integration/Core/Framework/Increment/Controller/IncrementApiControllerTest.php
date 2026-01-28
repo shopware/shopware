@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -21,18 +22,10 @@ class IncrementApiControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
     use IntegrationTestBehaviour;
 
-    private AbstractIncrementer $gateway;
-
     private string $userId;
 
     protected function setUp(): void
     {
-        $gatewayRegistry = static::getContainer()->get('shopware.increment.gateway.registry');
-
-        $gateway = $gatewayRegistry->get(IncrementGatewayRegistry::USER_ACTIVITY_POOL);
-
-        $this->gateway = $gateway;
-
         /** @var Context $context */
         $context = $this->getBrowser()->getServerParameter(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
 
@@ -41,17 +34,19 @@ class IncrementApiControllerTest extends TestCase
         static::assertNotNull($source->getUserId());
         $this->userId = Uuid::fromBytesToHex($source->getUserId());
 
-        $this->gateway->reset($this->userId, 'foo');
+        $this->getGateway($this->getBrowser())->reset($this->userId, 'foo');
     }
 
     public function testListEndpoint(): void
     {
-        $this->gateway->increment($this->userId, 'foo');
-        $this->gateway->increment($this->userId, 'foo');
-        $this->gateway->increment($this->userId, 'bar');
+        $client = $this->getBrowser();
+        $gateway = $this->getGateway($client);
+
+        $gateway->increment($this->userId, 'foo');
+        $gateway->increment($this->userId, 'foo');
+        $gateway->increment($this->userId, 'bar');
 
         $url = '/api/_action/increment/user_activity?cluster=' . $this->userId;
-        $client = $this->getBrowser();
         $client->request('GET', $url);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
@@ -111,7 +106,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertTrue($entries['success']);
 
-        $entries = $this->gateway->list($this->userId);
+        $entries = $this->getGateway($client)->list($this->userId);
 
         static::assertArrayHasKey('foo', $entries);
         static::assertSame(1, $entries['foo']['count']);
@@ -119,16 +114,18 @@ class IncrementApiControllerTest extends TestCase
 
     public function testDecrementEndpoint(): void
     {
-        $this->gateway->increment($this->userId, 'foo');
+        $client = $this->getBrowser();
+        $gateway = $this->getGateway($client);
 
-        $entries = $this->gateway->list($this->userId);
+        $gateway->increment($this->userId, 'foo');
+
+        $entries = $gateway->list($this->userId);
 
         static::assertArrayHasKey('foo', $entries);
         static::assertSame(1, $entries['foo']['count']);
 
         $url = '/api/_action/decrement/user_activity';
 
-        $client = $this->getBrowser();
         $client->request('POST', $url, [
             'key' => 'foo',
             'cluster' => $this->userId,
@@ -140,7 +137,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertTrue($entries['success']);
 
-        $entries = $this->gateway->list($this->userId);
+        $entries = $this->getGateway($client)->list($this->userId);
 
         static::assertArrayHasKey('foo', $entries);
         static::assertSame(0, $entries['foo']['count']);
@@ -148,11 +145,14 @@ class IncrementApiControllerTest extends TestCase
 
     public function testResetEndpoint(): void
     {
-        $this->gateway->increment($this->userId, 'foo');
-        $this->gateway->increment($this->userId, 'foo');
-        $this->gateway->increment($this->userId, 'bar');
+        $client = $this->getBrowser();
+        $gateway = $this->getGateway($client);
 
-        $entries = $this->gateway->list($this->userId);
+        $gateway->increment($this->userId, 'foo');
+        $gateway->increment($this->userId, 'foo');
+        $gateway->increment($this->userId, 'bar');
+
+        $entries = $gateway->list($this->userId);
 
         static::assertArrayHasKey('foo', $entries);
         static::assertArrayHasKey('bar', $entries);
@@ -161,7 +161,6 @@ class IncrementApiControllerTest extends TestCase
 
         $url = '/api/_action/reset-increment/user_activity';
 
-        $client = $this->getBrowser();
         $client->request('POST', $url, [
             'cluster' => $this->userId,
         ]);
@@ -172,7 +171,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertTrue($entries['success']);
 
-        $entries = $this->gateway->list($this->userId);
+        $entries = $this->getGateway($client)->list($this->userId);
 
         static::assertArrayHasKey('foo', $entries);
         static::assertArrayHasKey('bar', $entries);
@@ -183,11 +182,13 @@ class IncrementApiControllerTest extends TestCase
     public function testIncrementEndpointWithCustomCluster(): void
     {
         $clusterName = 'customer-cluster';
-        $this->gateway->reset($clusterName, 'foo');
+        $client = $this->getBrowser();
+        $gateway = $this->getGateway($client);
+
+        $gateway->reset($clusterName, 'foo');
 
         $url = '/api/_action/increment/user_activity';
 
-        $client = $this->getBrowser();
         $client->request('POST', $url, [
             'key' => 'foo',
             'cluster' => $clusterName,
@@ -199,14 +200,13 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertTrue($entries['success']);
 
-        $entries = $this->gateway->list($clusterName);
+        $entries = $this->getGateway($client)->list($clusterName);
 
         static::assertArrayHasKey('foo', $entries);
         static::assertSame(1, $entries['foo']['count']);
 
         $url = '/api/_action/increment/user_activity?cluster=' . $clusterName;
 
-        $client = $this->getBrowser();
         $client->request('GET', $url);
 
         $entries = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -236,19 +236,21 @@ class IncrementApiControllerTest extends TestCase
 
     public function testDeleteEndpointWithKeys(): void
     {
-        $this->gateway->reset($this->userId);
+        $client = $this->getBrowser();
+        $gateway = $this->getGateway($client);
 
-        $this->gateway->increment($this->userId, 'foo');
-        $this->gateway->increment($this->userId, 'baz');
-        $this->gateway->increment($this->userId, 'bar');
+        $gateway->reset($this->userId);
 
-        $entries = $this->gateway->list($this->userId);
+        $gateway->increment($this->userId, 'foo');
+        $gateway->increment($this->userId, 'baz');
+        $gateway->increment($this->userId, 'bar');
+
+        $entries = $gateway->list($this->userId);
 
         static::assertCount(3, $entries);
 
         $url = '/api/_action/delete-increment/user_activity';
 
-        $client = $this->getBrowser();
         $client->request('DELETE', $url, [
             'cluster' => $this->userId,
             'keys' => ['foo', 'bar'],
@@ -256,7 +258,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
 
-        $entries = $this->gateway->list($this->userId);
+        $entries = $this->getGateway($client)->list($this->userId);
 
         static::assertCount(1, $entries);
 
@@ -267,29 +269,38 @@ class IncrementApiControllerTest extends TestCase
 
     public function testDeleteEndpointWithOnlyCluster(): void
     {
-        $this->gateway->reset($this->userId);
+        $client = $this->getBrowser();
+        $gateway = $this->getGateway($client);
 
-        $this->gateway->increment($this->userId, 'foo');
-        $this->gateway->increment($this->userId, 'baz');
-        $this->gateway->increment($this->userId, 'bar');
+        $gateway->reset($this->userId);
 
-        $entries = $this->gateway->list($this->userId);
+        $gateway->increment($this->userId, 'foo');
+        $gateway->increment($this->userId, 'baz');
+        $gateway->increment($this->userId, 'bar');
+
+        $entries = $gateway->list($this->userId);
 
         static::assertCount(3, $entries);
 
-        $this->gateway->reset($this->userId, 'foo');
+        $gateway->reset($this->userId, 'foo');
 
         $url = '/api/_action/delete-increment/user_activity';
 
-        $client = $this->getBrowser();
         $client->request('DELETE', $url, [
             'cluster' => $this->userId,
         ]);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
 
-        $entries = $this->gateway->list($this->userId);
+        $entries = $this->getGateway($client)->list($this->userId);
 
         static::assertEmpty($entries);
+    }
+
+    private function getGateway(KernelBrowser $browser): AbstractIncrementer
+    {
+        $gatewayRegistry = $browser->getContainer()->get('shopware.increment.gateway.registry');
+
+        return $gatewayRegistry->get(IncrementGatewayRegistry::USER_ACTIVITY_POOL);
     }
 }

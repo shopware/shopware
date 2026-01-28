@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
@@ -23,13 +22,6 @@ class ConsumeMessagesControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
     use QueueTestBehaviour;
-
-    private AbstractIncrementer $incrementer;
-
-    protected function setUp(): void
-    {
-        $this->incrementer = static::getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
-    }
 
     public function testConsumeMessages(): void
     {
@@ -57,7 +49,6 @@ class ConsumeMessagesControllerTest extends TestCase
 
         // consume the queued task
         $url = '/api/_action/message-queue/consume';
-        $client = $this->getBrowser();
         $client->request('POST', $url, ['receiver' => 'async']);
 
         $response = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -69,21 +60,23 @@ class ConsumeMessagesControllerTest extends TestCase
 
     public function testMessageStatsDecrement(): void
     {
-        $messageBus = static::getContainer()->get('messenger.default_bus');
+        $client = $this->getBrowser();
+
+        $messageBus = $client->getContainer()->get('messenger.default_bus');
         $message = new ProductIndexingMessage([Uuid::randomHex()]);
         $messageBus->dispatch($message);
 
-        $gateway = static::getContainer()->get('shopware.increment.gateway.registry');
+        $gateway = $client->getContainer()->get('shopware.increment.gateway.registry');
         $entries = $gateway->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL)->list('message_queue_stats');
 
         static::assertArrayHasKey(ProductIndexingMessage::class, $entries);
         static::assertGreaterThan(0, $entries[ProductIndexingMessage::class]['count']);
 
         $url = '/api/_action/message-queue/consume';
-        $client = $this->getBrowser();
         $client->request('POST', $url, ['receiver' => 'async']);
 
-        $entries = $this->incrementer->list('message_queue_stats');
+        $incrementer = $client->getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        $entries = $incrementer->list('message_queue_stats');
 
         static::assertArrayHasKey(ProductIndexingMessage::class, $entries);
         static::assertSame(0, $entries[ProductIndexingMessage::class]['count']);

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -31,30 +32,36 @@ class CmsControllerTest extends TestCase
 
     public function testCmsPageLoadedHookScriptsAreExecuted(): void
     {
-        $response = $this->request('GET', '/widgets/cms/' . $this->ids->get('page'), []);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/widgets/cms/' . $this->ids->get('page'));
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testCmsPageLoadedHookScriptsAreExecutedForFullPage(): void
     {
-        $response = $this->request('GET', '/page/cms/' . $this->ids->get('page'), []);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/page/cms/' . $this->ids->get('page'));
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testCmsPageLoadedHookScriptsAreExecutedForCategory(): void
     {
-        $response = $this->request('GET', '/widgets/cms/navigation/' . $this->ids->get('category'), []);
-        static::assertSame(200, $response->getStatusCode());
+        $browser = $this->createStorefrontBrowser();
+        $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/widgets/cms/navigation/' . $this->ids->get('category'));
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
+
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CmsPageLoadedHook::HOOK_NAME, $traces);
     }

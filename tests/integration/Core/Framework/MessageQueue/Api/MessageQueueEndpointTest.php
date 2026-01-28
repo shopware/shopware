@@ -19,7 +19,9 @@ class MessageQueueEndpointTest extends TestCase
 
     public function testEndpoint(): void
     {
-        $gatewayRegistry = static::getContainer()->get('shopware.increment.gateway.registry');
+        $client = $this->getBrowser();
+
+        $gatewayRegistry = $client->getContainer()->get('shopware.increment.gateway.registry');
 
         $gateway = $gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
 
@@ -30,7 +32,6 @@ class MessageQueueEndpointTest extends TestCase
         $gateway->increment('message_queue_stats', 'bar');
 
         $url = '/api/_info/queue.json';
-        $client = $this->getBrowser();
         $client->request('GET', $url);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());

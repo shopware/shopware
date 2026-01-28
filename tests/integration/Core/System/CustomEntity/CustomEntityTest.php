@@ -995,7 +995,7 @@ class CustomEntityTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
-        $traces = $this->getScriptTraces();
+        $traces = $this->getScriptTraces($browser->getContainer());
         static::assertArrayHasKey('store-api-blog::response', $traces);
         static::assertCount(1, $traces['store-api-blog::response']);
         static::assertSame('some debug information', $traces['store-api-blog::response'][0]['output'][0]);

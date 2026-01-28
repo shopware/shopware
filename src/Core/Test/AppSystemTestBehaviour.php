@@ -59,9 +59,9 @@ trait AppSystemTestBehaviour
     /**
      * @return array<string, mixed>
      */
-    protected function getScriptTraces(): array
+    protected function getScriptTraces(?ContainerInterface $container = null): array
     {
-        return static::getContainer()
+        return ($container ?? static::getContainer())
             ->get(ScriptTraces::class)
             ->getTraces();
     }

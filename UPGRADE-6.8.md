@@ -875,6 +875,11 @@ The error handling for the route `/account/order/document/{documentId}/{deepLink
 - `406` (Not Acceptable) for invalid/unsupported `fileType` values
 - `404` (Not Found) when no generated document exists for the requested `fileType`.
 
+## Removed block `buy_widget_price_unit` from `@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig`
+
+The block `buy_widget_price_unit` and its childrens has been moved into `@Storefront/storefront/component/buy-widget/buy-widget.html.twig`.
+Instead of overwriting any of those blocks inside `@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig`, extend the new `@Storefront/storefront/component/buy-widget/buy-widget.html.twig` file using the same blocks.
+
 
 </details>
 

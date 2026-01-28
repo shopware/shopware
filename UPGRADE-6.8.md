@@ -982,7 +982,7 @@ With this change, Cache-Control headers defined by cache policies are sent direc
 
 ### Removed HTTP cache reverse proxy configuration options
 
-The following HTTP cache reverse proxy configuration options have been removed. They were deprecated as they had no effect anymore:
+The following HTTP cache reverse proxy configuration options have been removed as they had no effect anymore:
 
 - `shopware.http_cache.reverse_proxy.use_varnish_xkey`
 - `shopware.http_cache.reverse_proxy.ban_method`

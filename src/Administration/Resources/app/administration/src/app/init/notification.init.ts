@@ -1,4 +1,6 @@
 import type { NotificationVariant } from 'src/app/store/notification.store';
+import useSession from 'src/app/composables/use-session';
+
 /**
  * @sw-package framework
  *
@@ -7,10 +9,10 @@ import type { NotificationVariant } from 'src/app/store/notification.store';
 export default function initializeNotifications(): void {
     // Handle incoming notifications from the ExtensionAPI
     Shopware.ExtensionAPI.handle('notificationDispatch', (notificationOptions) => {
-        // @ts-expect-error - t is callable
-        const message = notificationOptions.message ?? Shopware.Snippet.tc('global.notification.noMessage');
-        // @ts-expect-error - tc is callable
-        const title = notificationOptions.title ?? Shopware.Snippet.tc('global.notification.noTitle');
+        // Store translation keys directly in title/message fields
+        // If no title/message provided, use the translation key (template will translate)
+        const message = notificationOptions.message ?? 'global.notification.noMessage';
+        const title = notificationOptions.title ?? 'global.notification.noTitle';
         const actions = notificationOptions.actions ?? [];
         const appearance = notificationOptions.appearance ?? 'notification';
         const growl = notificationOptions.growl ?? true;
@@ -47,5 +49,13 @@ export default function initializeNotifications(): void {
             actions: actions,
             system: appearance === 'system',
         });
+    });
+
+    // Watch for locale changes and re-translate all notifications
+    Shopware.Vue.watch(useSession().currentLocale, () => {
+        const notificationStore = Shopware.Store.get('notification');
+        if (notificationStore.retranslateAllNotifications) {
+            notificationStore.retranslateAllNotifications();
+        }
     });
 }

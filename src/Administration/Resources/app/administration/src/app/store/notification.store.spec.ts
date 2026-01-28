@@ -283,4 +283,31 @@ describe('notifications.store', () => {
             }),
         );
     });
+
+    it('retranslateAllNotifications triggers save for reactivity', () => {
+        const notification = Shopware.Store.get('notification');
+
+        // Create notifications with translation keys stored directly in title/message
+        notification.notifications = {
+            a: {
+                uuid: 'a',
+                title: 'global.default.success',
+                message: 'test.message.key',
+            },
+            b: {
+                uuid: 'b',
+                title: 'Plain text title',
+                message: 'Plain text message',
+            },
+        };
+
+        // retranslateAllNotifications should trigger a save to ensure reactivity
+        notification.retranslateAllNotifications();
+
+        // Notifications should remain unchanged (translation happens in template)
+        expect(notification.notifications.a.title).toBe('global.default.success');
+        expect(notification.notifications.a.message).toBe('test.message.key');
+        expect(notification.notifications.b.title).toBe('Plain text title');
+        expect(notification.notifications.b.message).toBe('Plain text message');
+    });
 });

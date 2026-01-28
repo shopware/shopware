@@ -322,6 +322,12 @@ const notificationStore = Shopware.Store.register({
         registerTransformer(key: string, transformer: (notification: NotificationType) => NotificationType) {
             this.transformers[key] = transformer;
         },
+
+        retranslateAllNotifications() {
+            // Trigger reactivity by saving notifications.
+            // The template will automatically translate keys based on the current locale.
+            _saveNotifications(this.notifications);
+        },
     },
 });
 

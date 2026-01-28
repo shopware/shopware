@@ -188,6 +188,10 @@ The `getChangedPropertyFilterTags` method has been removed from `CacheInvalidati
 
 Changing a property group or option will no longer automatically invalidate product and product list caches. It's recommended to rely on TTLs for bigger shops. If you experience issues after changing a property group, a manual cache clear may be required.
 
+### Confirmation prompt for `cache:clear:all`
+
+The command now warns and asks for confirmation in interactive terminals, since it deletes other kernel cache directories which may cause errors on running web instances with different plugin configurations. Use `--force` to skip. Non-interactive environments (cron, CI) are unaffected.
+
 ## Administration
 
 ### Deprecations in mail template components

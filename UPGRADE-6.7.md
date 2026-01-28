@@ -1,3 +1,9 @@
+# 6.7.7.0
+
+## `cache:clear:all` command now prompts for confirmation
+
+The command now shows a warning and asks for confirmation in interactive terminals (TTY). Use `--force` to skip. Non-interactive environments (cron, CI, scripts) are unaffected.
+
 # 6.7.4.1
 
 The `Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute` now deletes customer recovery links after a customer has changed their email address.

@@ -414,7 +414,14 @@ export default {
 
             this.filterCriteria = criteria;
 
-            this.getList();
+            if (this.disableRouteParams) {
+                this.getList();
+                return;
+            }
+
+            this.updateRoute({
+                page: 1,
+            });
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {

@@ -6,6 +6,7 @@ test(
         tag: ['@Product, @Variant', '@Storefront'],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail, SalesChannelBaseConfig }) => {
+        await TestDataService.setCleanUp(false);
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
         const prices = [
             {

@@ -104,7 +104,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         // When customer binding is enabled, store tokens per sales channel to prevent
         // bound customers from being logged out when visiting other channels
-        $bindingEnabled = $this->systemConfigService->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+        $bindingEnabled = $this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
         $tokenKey = $bindingEnabled
             ? PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId
             : PlatformRequest::HEADER_CONTEXT_TOKEN;
@@ -163,7 +163,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $session->set('sessionId', $session->getId());
 
         // When customer binding is enabled, store tokens per sales channel
-        $bindingEnabled = $this->systemConfigService->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+        $bindingEnabled = $this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
         if ($bindingEnabled) {
             $salesChannelId = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
             if ($salesChannelId) {
@@ -273,7 +273,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         // When using per-channel tokens (binding enabled), we don't renew based on channel change
         // because each channel has its own token. We only renew if token doesn't exist for this key.
-        if ($this->systemConfigService->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel')) {
+        if ($this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel')) {
             // If we're checking a channel-specific key, token existence was already checked above
             if ($tokenKey !== null && $tokenKey !== PlatformRequest::HEADER_CONTEXT_TOKEN) {
                 return false;

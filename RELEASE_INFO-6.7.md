@@ -14,6 +14,10 @@ Also, the generator now sets `CASCADE DELETE` on foreign keys for the translatio
 
 ## Administration
 
+### Fixed custom field language inheritance display
+
+Custom fields now properly display values inherited from fallback languages when editing entities in non-default languages. Previously, switching languages in the Administration would show empty custom fields instead of the inherited values from the default language. The fix distinguishes between variant inheritance (from parent entity) and language inheritance (from translation chain), with variant inheritance taking priority. (Issue #8498)
+
 ## Storefront
 
 ### Selling and packaging information in the product detail page

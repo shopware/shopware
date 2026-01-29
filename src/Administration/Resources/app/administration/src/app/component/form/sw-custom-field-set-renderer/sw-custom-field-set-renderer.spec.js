@@ -1897,50 +1897,179 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
     );
 
     it.each([
-        { name: 'default', customFields: { field1: 'de' }, expected: 'de' },
-        { name: 'empty', customFields: { field: null }, expected: '' },
-    ])(
-        'should not use the custom field translation as a fallback for input fields: $name',
-        async ({ customFields, expected }) => {
-            const props = {
-                entity: {
-                    customFields,
-                    translated: {
-                        customFields: {
-                            field1: 'en',
-                        },
+        { name: 'with local value', customFields: { field1: 'de' }, expected: 'de' },
+        { name: 'with inherited value', customFields: { field: null }, expected: 'en' },
+    ])('should show correct custom field value based on inheritance: $name', async ({ customFields, expected }) => {
+        const props = {
+            entity: {
+                customFields,
+                translated: {
+                    customFields: {
+                        field1: 'en',
                     },
                 },
-                sets: createEntityCollection([
-                    {
-                        id: 'set1',
-                        name: 'set1',
-                        config: {
-                            label: {
-                                'en-GB': 'Set 1 Label GB',
-                                'de-DE': 'Set 1 Label DE',
+            },
+            sets: createEntityCollection([
+                {
+                    id: 'set1',
+                    name: 'set1',
+                    config: {
+                        label: {
+                            'en-GB': 'Set 1 Label GB',
+                            'de-DE': 'Set 1 Label DE',
+                        },
+                    },
+                    customFields: [
+                        {
+                            name: 'field1',
+                            type: 'text',
+                            config: {
+                                label: 'field1Label',
                             },
                         },
+                    ],
+                },
+            ]),
+        };
+
+        wrapper = await createWrapper(props);
+        await flushPromises();
+
+        const inputField = wrapper.find('.sw-form-field-renderer-field__field1 input');
+        expect(inputField.exists()).toBe(true);
+
+        expect(inputField.attributes('value')).toBe(expected);
+    });
+
+    describe('language inheritance (without parentEntity)', () => {
+        it.each([
+            { scenario: 'customFields is empty', customFields: {} },
+            { scenario: 'customFields value is null', customFields: { field1: null } },
+        ])(
+            'should inherit from fallback language when $scenario',
+            async ({ customFields }) => {
+                wrapper = await createWrapper({
+                    entity: {
+                        customFields,
+                        translated: { customFields: { field1: 'inherited-value' } },
+                    },
+                    sets: [
+                        {
+                            id: uuid.get('custom_first_tab'),
+                            name: 'custom_first_tab',
+                            position: 1,
+                            config: { label: { 'en-GB': 'First tab' } },
+                            customFields: [
+                                {
+                                    active: true,
+                                    name: 'field1',
+                                    type: 'text',
+                                    config: {
+                                        customFieldPosition: 1,
+                                        customFieldType: 'text',
+                                        type: 'text',
+                                        componentName: 'sw-text-field',
+                                        label: { 'en-GB': 'Field 1' },
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                });
+
+                await flushPromises();
+
+                expect(wrapper.vm.hasParent).toBe(true);
+                expect(wrapper.vm.getInheritedCustomField('field1')).toBe('inherited-value');
+            },
+        );
+
+        it('should not inherit from fallback language when customFields has explicit value', async () => {
+            wrapper = await createWrapper({
+                entity: {
+                    customFields: { field1: 'german-specific' },
+                    translated: { customFields: { field1: 'english-fallback' } },
+                },
+                sets: [
+                    {
+                        id: uuid.get('custom_first_tab'),
+                        name: 'custom_first_tab',
+                        position: 1,
+                        config: { label: { 'en-GB': 'First tab' } },
                         customFields: [
                             {
+                                active: true,
                                 name: 'field1',
                                 type: 'text',
                                 config: {
-                                    label: 'field1Label',
+                                    customFieldPosition: 1,
+                                    customFieldType: 'text',
+                                    type: 'text',
+                                    componentName: 'sw-text-field',
+                                    label: { 'en-GB': 'Field 1' },
                                 },
                             },
                         ],
                     },
-                ]),
-            };
+                ],
+            });
 
-            wrapper = await createWrapper(props);
             await flushPromises();
 
-            const inputField = wrapper.find('.sw-form-field-renderer-field__field1 input');
-            expect(inputField.exists()).toBe(true);
+            expect(wrapper.vm.hasParent).toBe(false);
+            expect(wrapper.vm.getInheritedCustomField('field1')).toBe('');
+        });
 
-            expect(inputField.attributes('value')).toBe(expected);
-        },
-    );
+        it('should prioritize variant inheritance (parentEntity) over language inheritance', async () => {
+            wrapper = await createWrapper({
+                entity: {
+                    customFields: { field1: null },
+                    translated: {
+                        customFields: {
+                            field1: 'language-inherited',
+                        },
+                    },
+                },
+                parentEntity: {
+                    id: uuid.get('parentEntity'),
+                    translated: {
+                        customFields: {
+                            field1: 'variant-inherited',
+                        },
+                    },
+                },
+                sets: [
+                    {
+                        id: uuid.get('custom_first_tab'),
+                        name: 'custom_first_tab',
+                        position: 1,
+                        config: { label: { 'en-GB': 'First tab' } },
+                        customFields: [
+                            {
+                                active: true,
+                                name: 'field1',
+                                type: 'text',
+                                config: {
+                                    customFieldPosition: 1,
+                                    customFieldType: 'text',
+                                    type: 'text',
+                                    componentName: 'sw-text-field',
+                                    label: { 'en-GB': 'Field 1' },
+                                },
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            await flushPromises();
+
+            // hasParent is true due to parentEntity
+            expect(wrapper.vm.hasParent).toBe(true);
+
+            // Variant inheritance takes priority
+            expect(wrapper.vm.getInheritedCustomField('field1')).toBe('variant-inherited');
+        });
+
+    });
 });

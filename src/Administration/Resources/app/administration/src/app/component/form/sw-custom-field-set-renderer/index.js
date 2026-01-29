@@ -110,8 +110,33 @@ export default {
     },
 
     computed: {
+        hasVariantParent() {
+            return !!this.parentEntity?.id;
+        },
+
+        hasLanguageInheritance() {
+            const translatedCustomFields = this.entity?.translated?.customFields;
+            const rawCustomFields = this.entity?.customFields;
+
+            if (!translatedCustomFields) {
+                return false;
+            }
+
+            // Check if any field in translated doesn't exist in raw (= inherited from fallback language)
+            return Object.keys(translatedCustomFields).some((key) => {
+                const translatedValue = translatedCustomFields[key];
+                const rawValue = rawCustomFields?.[key];
+
+                return (
+                    translatedValue !== undefined &&
+                    translatedValue !== null &&
+                    (rawValue === undefined || rawValue === null)
+                );
+            });
+        },
+
         hasParent() {
-            return this.parentEntity ? !!this.parentEntity.id : false;
+            return this.hasVariantParent || this.hasLanguageInheritance;
         },
 
         visibleCustomFieldSets() {
@@ -211,12 +236,25 @@ export default {
         },
 
         getInheritedCustomField(customFieldName) {
-            const value = this.parentEntity?.translated?.customFields?.[customFieldName] ?? null;
+            // First: Check variant inheritance (parentEntity)
+            const parentValue = this.parentEntity?.translated?.customFields?.[customFieldName] ?? null;
 
-            if (value) {
-                return value;
+            if (parentValue) {
+                return parentValue;
             }
 
+            // Second: Check language inheritance (translated vs raw customFields)
+            // If entity.translated.customFields has a value that entity.customFields doesn't have,
+            // it means the value is inherited from a fallback language
+            const translatedValue = this.entity?.translated?.customFields?.[customFieldName];
+            const rawValue = this.entity?.customFields?.[customFieldName];
+
+            // Value exists in translated but not in raw = inherited from fallback language
+            if (translatedValue !== undefined && translatedValue !== null && (rawValue === undefined || rawValue === null)) {
+                return translatedValue;
+            }
+
+            // Fallback to type-specific defaults
             const customFieldInformation = this.getCustomFieldInformation(customFieldName);
             const customFieldType = customFieldInformation.type;
 

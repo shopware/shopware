@@ -518,21 +518,23 @@ class PluginLifecycleServiceTest extends TestCase
     public function testPluginInstallFailureTriggersUninstall(): void
     {
         $dispatcher = $this->container->get('event_dispatcher');
+        $plugin = $this->getPlugin($this->context);
+        $expectedException = new \RuntimeException('Fail from post-install event');
 
-        $listener = static function (): void {
-            throw new \RuntimeException('Fail from post-install event');
+        $listener = static function () use ($expectedException): void {
+            throw $expectedException;
         };
+        $dispatcher->addListener(PluginPostInstallEvent::class, $listener);
 
         try {
-            $dispatcher->addListener(PluginPostInstallEvent::class, $listener);
-
-            $this->expectExceptionObject(new \RuntimeException('Fail from post-install event'));
-
-            $plugin = $this->getPlugin($this->context);
             $this->pluginLifecycleService->installPlugin($plugin, $this->context);
-
+        } catch (\Throwable $actualException) {
+            static::assertEquals($expectedException, $actualException);
             static::assertNull($plugin->getInstalledAt());
         } finally {
+            /** * Cleanup: Ensure the listener is removed regardless of test success or failure
+             * to prevent side effects on later tests in the suite.
+             */
             $dispatcher->removeListener(PluginPostInstallEvent::class, $listener);
         }
     }

@@ -251,6 +251,7 @@ export default {
     methods: {
         async createdComponent() {
             this.setRouteMetaModule();
+            this.resetOrderDocumentsIsChanged();
 
             this.isLoading = true;
 
@@ -560,6 +561,10 @@ export default {
                 type,
                 isChanged,
             });
+        },
+
+        resetOrderDocumentsIsChanged() {
+            Shopware.Store.get('swBulkEdit').resetOrderDocumentsIsChanged();
         },
     },
 };

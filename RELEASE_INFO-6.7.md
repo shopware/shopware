@@ -272,6 +272,17 @@ A new configuration option `Open offcanvas cart after adding a product` has been
 
 **Recommended for accurate funnel tracking:** Disable "Open offcanvas cart after adding a product" and enable "Track offcanvas cart". This ensures `view_cart` events only fire when users intentionally click the cart button, providing accurate funnel metrics.
 
+#### Default theme breakpoints now available in theme config
+
+The default layout breakpoints in the Storefront were hard-coded before and couldn't easily be overriden. Now you will find new theme config fields in the default config, which serve as the default values. The fields are hidden in the visual configuration, so they serve as a feature for theme developers for now. You can override the following config fields in your custom `theme.json` file to change the default breakpoints. The fields are mapped to the existing hard-coded configuration.
+
+*  `sw-breakpoint-xs`
+*  `sw-breakpoint-sm`
+*  `sw-breakpoint-md`
+*  `sw-breakpoint-lg`
+*  `sw-breakpoint-xl`
+*  `sw-breakpoint-xxl`
+
 ## App System
 
 ## Hosting & Configuration

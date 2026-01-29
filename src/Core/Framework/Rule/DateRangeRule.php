@@ -39,7 +39,10 @@ class DateRangeRule extends Rule
         if (\is_string($this->toDate)) {
             $this->toDate = new \DateTime($this->toDate);
         }
-        if (\is_string($this->timezone)) {
+
+        if (!isset($this->timezone)) {
+            $this->timezone = null;
+        } elseif (\is_string($this->timezone)) {
             $this->timezone = new \DateTimeZone($this->timezone);
         }
     }

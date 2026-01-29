@@ -12,6 +12,7 @@ use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -343,6 +344,9 @@ class SchemaBuilder
                 $delete = 'CASCADE';
             } elseif ($field->is(RestrictDelete::class)) {
                 $delete = 'RESTRICT';
+            } elseif ($definition instanceof EntityTranslationDefinition) {
+                // When a foreign key is used in a translation definition, cascade deletion should be applied so that related records are deleted when the main entity is removed, including translations.
+                $delete = 'CASCADE';
             } else {
                 $delete = 'SET NULL';
             }
@@ -355,7 +359,7 @@ class SchemaBuilder
                     'onUpdate' => $update,
                     'onDelete' => $delete,
                 ],
-                \sprintf('fk.%s.%s', $definition->getEntityName(), $field->getStorageName())
+                \substr(\sprintf('fk__%s__%s', $definition->getEntityName(), $field->getStorageName()), 0, 64)
             );
         }
     }

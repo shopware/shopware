@@ -22,7 +22,8 @@ class FinishController extends InstallerController
     public function __construct(
         private readonly SystemLocker $systemLocker,
         private readonly Client $client,
-        private readonly string $appUrl
+        private readonly string $appUrl,
+        private readonly string $adminPathName = 'admin'
     ) {
     }
 
@@ -49,7 +50,7 @@ class FinishController extends InstallerController
 
         $session->clear();
 
-        $redirect = $this->redirect($this->appUrl . '/admin');
+        $redirect = $this->redirect($this->appUrl . $this->adminPathName);
 
         try {
             $loginResponse = $this->client->post($this->appUrl . '/api/oauth/token', [
@@ -68,8 +69,18 @@ class FinishController extends InstallerController
                 return $redirect;
             }
 
+            $cookiePath = ($appUrlInfo['path'] ?? '') . '/' . $this->adminPathName;
+
             $redirect->headers->setCookie(
-                Cookie::create('bearerAuth', json_encode($loginTokenData, \JSON_THROW_ON_ERROR), time() + $data['expires_in'], ($appUrlInfo['path'] ?? '') . '/admin', $appUrlInfo['host'], null, false)
+                Cookie::create(
+                    'bearerAuth',
+                    json_encode($loginTokenData, \JSON_THROW_ON_ERROR),
+                    time() + $data['expires_in'],
+                    $cookiePath,
+                    $appUrlInfo['host'],
+                    null,
+                    false
+                )
             );
         } catch (TransferException) {
             // ignore and don't automatically log in

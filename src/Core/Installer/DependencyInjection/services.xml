@@ -244,6 +244,7 @@
             <argument type="service" id="Shopware\Core\Installer\Finish\SystemLocker"/>
             <argument type="service" id="GuzzleHttp\Client"/>
             <argument>%env(string:APP_URL)%</argument>
+            <argument>%env(default::SHOPWARE_ADMINISTRATION_PATH_NAME)%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

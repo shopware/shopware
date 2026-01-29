@@ -45,12 +45,6 @@ async function createWrapper(props = defaultProps) {
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-colorpicker', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should provide correct property names for translations', async () => {
         const wrapper = await createWrapper();
 

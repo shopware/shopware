@@ -69,7 +69,8 @@ export default {
                 return this.showClearableButton;
             }
 
-            // Default: clearable when not required ('' case is for empty attribute like <form-field required> which should be treated as true)
+            // Default: clearable when not required
+            // '' case is for empty attribute like <form-field required> which should be treated as true
             return !this.$attrs.required && this.$attrs.required !== '';
         },
     },

@@ -117,10 +117,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $contextToken = $session->get($tokenKey);
 
-        // Always keep the default key in sync with the current channel's token for backward compatibility
-        if ($bindingEnabled && $tokenKey !== PlatformRequest::HEADER_CONTEXT_TOKEN) {
-            $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
-        }
+        // Always keep the default key in sync with the current token for backward compatibility
+        // This ensures code that relies on the default key (e.g., anonymous users) still works
+        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
 
         $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
 
@@ -276,7 +275,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
         if ($this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel')) {
             // If we're checking a channel-specific key, token existence was already checked above
             if ($tokenKey !== null && $tokenKey !== PlatformRequest::HEADER_CONTEXT_TOKEN) {
-                return false;
+                $expectedTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+                // Don't renew if the token key matches the current channel (token already exists for this channel)
+                return $tokenKey !== $expectedTokenKey;
             }
 
             // For backward compatibility with default key, check if channel changed

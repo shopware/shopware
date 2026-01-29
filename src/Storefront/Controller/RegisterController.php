@@ -250,6 +250,16 @@ class RegisterController extends StorefrontController
     )]
     public function confirmRegistration(SalesChannelContext $context, QueryDataBag $queryDataBag): Response
     {
+        /*
+         * Because some email-clients try to fetch previews for links in mails, they send a HEAD-request.
+         * But because Symfony is routing HEAD-requests as GET-requests, a subscriber would be confirmed without
+         * clicking the link, only by the HEAD-request.
+         * Beware: $request->getMethod() or $request->getRealMethod() will both return "GET"
+         */
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'HEAD') {
+            return new Response(status: Response::HTTP_NO_CONTENT);
+        }
+
         try {
             $customerId = $this->registerConfirmRoute
                 ->confirm($queryDataBag->toRequestDataBag(), $context)

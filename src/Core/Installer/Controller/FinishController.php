@@ -50,7 +50,7 @@ class FinishController extends InstallerController
 
         $session->clear();
 
-        $redirect = $this->redirect($this->appUrl . $this->adminPathName);
+        $redirect = $this->redirect($this->appUrl . '/' . $this->adminPathName);
 
         try {
             $loginResponse = $this->client->post($this->appUrl . '/api/oauth/token', [
@@ -69,7 +69,7 @@ class FinishController extends InstallerController
                 return $redirect;
             }
 
-            $cookiePath = ($appUrlInfo['path'] ?? '') . '/' . $this->adminPathName;
+            $cookiePath = rtrim($appUrlInfo['path'] ?? '', '/') . '/' . $this->adminPathName;
 
             $redirect->headers->setCookie(
                 Cookie::create(

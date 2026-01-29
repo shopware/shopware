@@ -290,7 +290,6 @@ export default {
         },
     },
 
-
     beforeRouteLeave(to, from, next) {
         const goingToProductDetailPage = to.name === 'sw.product.detail.base';
 

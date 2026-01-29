@@ -306,61 +306,61 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     describe('pagination behavior on filter change', () => {
         it('should reset page to 1 when updateCriteria is called', async () => {
-            const wrapper = await createWrapper();
-            await wrapper.setData({
+            const testWrapper = await createWrapper();
+            await testWrapper.setData({
                 page: 5,
             });
 
             const newCriteria = new Criteria(1, 25);
-            wrapper.vm.updateCriteria(newCriteria);
+            testWrapper.vm.updateCriteria(newCriteria);
 
-            expect(wrapper.vm.page).toBe(1);
+            expect(testWrapper.vm.page).toBe(1);
         });
 
         it('should call updateRoute with page 1 when updateCriteria is called', async () => {
-            const wrapper = await createWrapper();
-            await wrapper.setData({
+            const testWrapper = await createWrapper();
+            await testWrapper.setData({
                 page: 5,
                 disableRouteParams: false,
             });
 
-            wrapper.vm.updateRoute = jest.fn();
+            testWrapper.vm.updateRoute = jest.fn();
 
             const newCriteria = new Criteria(1, 25);
-            wrapper.vm.updateCriteria(newCriteria);
+            testWrapper.vm.updateCriteria(newCriteria);
 
-            expect(wrapper.vm.updateRoute).toHaveBeenCalledWith({ page: 1 });
+            expect(testWrapper.vm.updateRoute).toHaveBeenCalledWith({ page: 1 });
 
-            wrapper.vm.updateRoute.mockRestore();
+            testWrapper.vm.updateRoute.mockRestore();
         });
 
         it('should call getList directly when updateCriteria is called and disableRouteParams is true', async () => {
-            const wrapper = await createWrapper();
-            await wrapper.setData({
+            const testWrapper = await createWrapper();
+            await testWrapper.setData({
                 page: 5,
                 disableRouteParams: true,
             });
 
-            wrapper.vm.getList = jest.fn();
-            wrapper.vm.updateRoute = jest.fn();
+            testWrapper.vm.getList = jest.fn();
+            testWrapper.vm.updateRoute = jest.fn();
 
             const newCriteria = new Criteria(1, 25);
-            wrapper.vm.updateCriteria(newCriteria);
+            testWrapper.vm.updateCriteria(newCriteria);
 
-            expect(wrapper.vm.getList).toHaveBeenCalled();
-            expect(wrapper.vm.updateRoute).not.toHaveBeenCalled();
+            expect(testWrapper.vm.getList).toHaveBeenCalled();
+            expect(testWrapper.vm.updateRoute).not.toHaveBeenCalled();
 
-            wrapper.vm.getList.mockRestore();
-            wrapper.vm.updateRoute.mockRestore();
+            testWrapper.vm.getList.mockRestore();
+            testWrapper.vm.updateRoute.mockRestore();
         });
 
         it('should set filterCriteria when updateCriteria is called', async () => {
-            const wrapper = await createWrapper();
+            const testWrapper = await createWrapper();
 
             const newCriteria = new Criteria(1, 25);
-            wrapper.vm.updateCriteria(newCriteria);
+            testWrapper.vm.updateCriteria(newCriteria);
 
-            expect(wrapper.vm.filterCriteria).toStrictEqual(newCriteria);
+            expect(testWrapper.vm.filterCriteria).toStrictEqual(newCriteria);
         });
     });
 });

@@ -44,7 +44,7 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $record1 = new ConsentStateRecord('consent-1', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00');
-        $record2 = new ConsentStateRecord('consent-2', 'user-123', ConsentStatus::REQUESTED, 'user-123', '2026-01-26 00:00:00');
+        $record2 = new ConsentStateRecord('consent-2', 'user-123', ConsentStatus::UNSET, 'user-123', '2026-01-26 00:00:00');
         $record3 = new ConsentStateRecord('consent-2', 'user-456', ConsentStatus::ACCEPTED, 'user-456', '2026-01-26 00:00:00');
 
         $this->consentRepository
@@ -61,7 +61,7 @@ class ConsentServiceTest extends TestCase
         static::assertSame('consent-1', $result['consent-1']->name);
         static::assertSame(ConsentStatus::ACCEPTED, $result['consent-1']->status);
         static::assertSame('consent-2', $result['consent-2']->name);
-        static::assertSame(ConsentStatus::REQUESTED, $result['consent-2']->status);
+        static::assertSame(ConsentStatus::UNSET, $result['consent-2']->status);
     }
 
     public function testListCachesConsents(): void
@@ -135,7 +135,7 @@ class ConsentServiceTest extends TestCase
         $result = $service->getConsentState('consent-1', $context);
 
         static::assertSame('consent-1', $result->name);
-        static::assertSame(ConsentStatus::REQUESTED, $result->status);
+        static::assertSame(ConsentStatus::UNSET, $result->status);
         static::assertSame(ConsentScope\System::NAME, $result->identifier);
         static::assertNull($result->actor);
     }

@@ -72,7 +72,7 @@ class ConsentService
                 name: $consent->getName(),
                 scopeName: $consent->getScopeName(),
                 identifier: $this->getScope($consent)->resolveIdentifier($context),
-                status: ConsentStatus::REQUESTED,
+                status: ConsentStatus::UNSET,
                 actor: null,
                 updatedAt: null,
             );

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('data-services')]
 enum ConsentStatus: string
 {
-    case REQUESTED = 'requested';
+    case UNSET = 'unset';
     case ACCEPTED = 'accepted';
     case REVOKED = 'revoked';
 }

@@ -42,7 +42,7 @@ class ConsentControllerTest extends TestCase
 
         $consents = [
             new ConsentState('consent-1', ConsentScope\AdminUser::NAME, $actor, ConsentStatus::ACCEPTED, $actor, '2025-12-31 23:59:59.0'),
-            new ConsentState('consent-2', ConsentScope\System::NAME, 'system', ConsentStatus::REQUESTED, null, null),
+            new ConsentState('consent-2', ConsentScope\System::NAME, 'system', ConsentStatus::UNSET, null, null),
         ];
 
         $this->consentService
@@ -76,7 +76,7 @@ class ConsentControllerTest extends TestCase
         static::assertArrayHasKey('status', $content[1]);
         static::assertSame('consent-2', $content[1]['name']);
         static::assertSame('system', $content[1]['identifier']);
-        static::assertSame('requested', $content[1]['status']);
+        static::assertSame('unset', $content[1]['status']);
         static::assertNull($content[1]['actor']);
         static::assertNull($content[1]['updatedAt']);
     }

@@ -174,7 +174,7 @@
           "status": {
             "type": "string",
             "enum": [
-              "requested",
+              "unset",
               "accepted",
               "revoked"
             ],

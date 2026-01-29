@@ -799,12 +799,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\AbstractFieldSerializer\:\:validate\(\) has parameter \$constraints with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php
-
-		-
 			message: '#^Parameter \#1 \$entityName of method Shopware\\Core\\Framework\\DataAbstractionLayer\\DefinitionInstanceRegistry\:\:getByEntityName\(\) expects string, string\|null given\.$#'
 			identifier: argument.type
 			count: 1

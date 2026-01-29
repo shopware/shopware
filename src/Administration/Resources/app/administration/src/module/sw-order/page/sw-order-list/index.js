@@ -530,19 +530,12 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-
-            this.filterCriteria = criteria;
-
-            if (this.disableRouteParams) {
-                this.getList();
-                return;
-            }
-
-            this.updateRoute({
-                page: 1,
-            });
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         getStatusCriteria(value) {

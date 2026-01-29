@@ -471,4 +471,68 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             }),
         );
     });
+
+    describe('pagination behavior on filter change', () => {
+        beforeEach(() => {
+            global.activeAclRoles = [];
+        });
+
+        it('should reset page to 1 when updateCriteria is called', async () => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                page: 5,
+            });
+
+            const newCriteria = new Criteria(1, 25);
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.page).toBe(1);
+        });
+
+        it('should call updateRoute with page 1 when updateCriteria is called', async () => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                page: 5,
+                disableRouteParams: false,
+            });
+
+            wrapper.vm.updateRoute = jest.fn();
+
+            const newCriteria = new Criteria(1, 25);
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.updateRoute).toHaveBeenCalledWith({ page: 1 });
+
+            wrapper.vm.updateRoute.mockRestore();
+        });
+
+        it('should call getList directly when updateCriteria is called and disableRouteParams is true', async () => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                page: 5,
+                disableRouteParams: true,
+            });
+
+            wrapper.vm.getList = jest.fn();
+            wrapper.vm.updateRoute = jest.fn();
+
+            const newCriteria = new Criteria(1, 25);
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.getList).toHaveBeenCalled();
+            expect(wrapper.vm.updateRoute).not.toHaveBeenCalled();
+
+            wrapper.vm.getList.mockRestore();
+            wrapper.vm.updateRoute.mockRestore();
+        });
+
+        it('should set filterCriteria when updateCriteria is called', async () => {
+            const wrapper = await createWrapper();
+
+            const newCriteria = new Criteria(1, 25);
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.filterCriteria).toStrictEqual(newCriteria);
+        });
+    });
 });

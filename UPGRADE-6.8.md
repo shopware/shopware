@@ -448,6 +448,31 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 
 <details>
 
+## Deprecation of `items` prop in `sw-entity-listing` component
+
+The `items` prop in the `sw-entity-listing` component has been deprecated and will be removed in v6.8.0.
+Please use the `dataSource` prop instead to align with the parent `sw-data-grid` component.
+
+**Before (deprecated):**
+```html
+<sw-entity-listing
+    :items="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
+**After (recommended):**
+```html
+<sw-entity-listing
+    :data-source="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
+The component will continue to work with the `items` prop for backward compatibility, but you will see a deprecation warning in the browser console.
+
 ## Axios v1 is now the default HTTP client
 
 Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2. This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.

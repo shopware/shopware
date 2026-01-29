@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
@@ -61,7 +62,14 @@ class CacheInvalidator
 
                 return;
             } catch (\Throwable $e) {
-                $this->logger->error('Failed to store cache invalidation tags, invalidating immediately. Error: ' . $e->getMessage());
+                $message = 'Failed to store cache invalidation tags, invalidating immediately. Error: ' . $e->getMessage();
+
+                if (EnvironmentHelper::isCiMode()) {
+                    $message = 'Failed to store cache invalidation tags (CI mode; storage may be unavailable), invalidating immediately. Error: ' . $e->getMessage();
+                    $this->logger->warning($message);
+                } else {
+                    $this->logger->error($message);
+                }
             }
         }
 

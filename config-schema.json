@@ -587,6 +587,11 @@
                     "default": "gzip",
                     "description": "Controls the cache compression method"
                 },
+                "disable_stampede_protection": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Disables Symfony's cache stampede protection when using file-based sessions. Enable this ONLY if you experience session deadlocks (ABBA pattern) in environments using file-based sessions. This is a workaround for cases when Redis is not available. Trade-off: disabling stampede protection may cause increased backend load under high concurrency when cache entries expire simultaneously (cache stampede)."
+                },
                 "invalidation": {
                     "$ref": "#/definitions/cache_invalidation"
                 },

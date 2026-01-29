@@ -303,5 +303,4 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         const manualLabel = wrapper.find('.sw-customer-list__created-by-admin-label');
         expect(manualLabel).toBeTruthy();
     });
-
 });

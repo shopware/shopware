@@ -476,6 +476,5 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         beforeEach(() => {
             global.activeAclRoles = [];
         });
-
     });
 });

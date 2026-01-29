@@ -722,5 +722,4 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(products).toHaveLength(1);
         expect(products[0].productNumber).toBe('SW10001');
     });
-
 });

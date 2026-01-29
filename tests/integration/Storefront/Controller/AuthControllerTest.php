@@ -134,7 +134,7 @@ class AuthControllerTest extends TestCase
 
         // Verify the channel-specific token is still preserved
         static::assertSame($loginChannelToken, $session->get($loginChannelTokenKey), 'Channel token should be preserved across requests');
-        
+
         // Verify default token is still synced
         static::assertSame($loginChannelToken, $session->get('sw-context-token'), 'Default token should remain synced');
     }

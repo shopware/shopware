@@ -276,6 +276,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             // If we're checking a channel-specific key, token existence was already checked above
             if ($tokenKey !== null && $tokenKey !== PlatformRequest::HEADER_CONTEXT_TOKEN) {
                 $expectedTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+
                 // Don't renew if the token key matches the current channel (token already exists for this channel)
                 return $tokenKey !== $expectedTokenKey;
             }

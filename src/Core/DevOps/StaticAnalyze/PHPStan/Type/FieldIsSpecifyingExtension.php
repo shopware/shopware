@@ -6,6 +6,8 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\SpecifiedTypes;
@@ -54,8 +56,9 @@ class FieldIsSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeS
             // case for $field->is(Some\Flag\Class::class), more complex cases are not supported
             || (
                 $value instanceof ClassConstFetch
+                && $value->name instanceof Identifier
                 && $value->name->toString() === 'class'
-                && !$value->class instanceof Variable
+                && $value->class instanceof Name
             );
     }
 
@@ -77,6 +80,8 @@ class FieldIsSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeS
         if ($value instanceof String_) {
             $className = $value->value;
         } else {
+            // value->class was checked in isMethodSupported()
+            \assert($value->class instanceof Name);
             $className = $value->class->toString();
         }
 

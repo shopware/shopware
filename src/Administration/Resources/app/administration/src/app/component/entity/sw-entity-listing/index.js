@@ -217,8 +217,8 @@ export default {
             if (this.items !== null && this.items !== undefined) {
                 console.warn(
                     '[Deprecation] sw-entity-listing: The "items" prop is deprecated and will be removed in v6.8.0. ' +
-                    'Please use "dataSource" instead to align with the parent sw-data-grid component. ' +
-                    'Migration: Change :items="data" to :data-source="data"',
+                        'Please use "dataSource" instead to align with the parent sw-data-grid component. ' +
+                        'Migration: Change :items="data" to :data-source="data"',
                     this,
                 );
             }

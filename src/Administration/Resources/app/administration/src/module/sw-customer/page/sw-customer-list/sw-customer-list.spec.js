@@ -100,7 +100,10 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-search-bar': true,
                 'sw-entity-listing': {
-                    props: ['items', 'dataSource'],
+                    props: [
+                        'items',
+                        'dataSource',
+                    ],
                     template: `
                         <div>
                             <template v-for="item in (dataSource || items)">

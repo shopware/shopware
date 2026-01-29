@@ -239,12 +239,15 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     it('should show deprecation warning when items prop is used', async () => {
         const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-        await createWrapper({
-            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
-                { id: 'id1', name: 'item1' },
-            ]),
-            dataSource: null,
-        }, { suppressWarnings: false });
+        await createWrapper(
+            {
+                items: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                    { id: 'id1', name: 'item1' },
+                ]),
+                dataSource: null,
+            },
+            { suppressWarnings: false },
+        );
 
         expect(consoleWarnSpy).toHaveBeenCalledWith(
             expect.stringContaining('[Deprecation] sw-entity-listing: The "items" prop is deprecated'),
@@ -280,16 +283,19 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     it('should not show deprecation warning when dataSource is used', async () => {
         const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-        await createWrapper({
-            dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
-                { id: 'id1', name: 'item1' },
-            ]),
-            items: null,
-        }, { suppressWarnings: false });
+        await createWrapper(
+            {
+                dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                    { id: 'id1', name: 'item1' },
+                ]),
+                items: null,
+            },
+            { suppressWarnings: false },
+        );
 
         // Check that no deprecation warning for items prop was shown
         const deprecationCalls = consoleWarnSpy.mock.calls.filter(
-            call => call[0] && call[0].includes('[Deprecation] sw-entity-listing'),
+            (call) => call[0] && call[0].includes('[Deprecation] sw-entity-listing'),
         );
         expect(deprecationCalls).toHaveLength(0);
 
@@ -340,9 +346,6 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         // Test that doSearch uses internalDataSource
         await wrapper.vm.doSearch();
-        expect(wrapper.vm.repository.search).toHaveBeenCalledWith(
-            dataSource.criteria,
-            dataSource.context,
-        );
+        expect(wrapper.vm.repository.search).toHaveBeenCalledWith(dataSource.criteria, dataSource.context);
     });
 });

@@ -122,7 +122,10 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'sw-entity-listing': {
-                        props: ['items', 'dataSource'],
+                        props: [
+                            'items',
+                            'dataSource',
+                        ],
                         template: `
                     <div>
                         <template v-for="item in (dataSource || items)">

@@ -168,6 +168,7 @@
                     'frontend.gateway.context': '{{ path('frontend.gateway.context') }}',
                     'frontend.cookie.consent.offcanvas': '{{ path('frontend.cookie.consent.offcanvas') }}',
                     'frontend.account.login.page': '{{ path('frontend.account.login.page') }}',
+                    'base-url': '{{ app.request.attributes.get('sw-sales-channel-base-url') }}',
                     };
                 window.salesChannelId = '{{ context.salesChannelId }}';
                 window.currencyIsoCode = '{{ context.currency.isoCode }}';

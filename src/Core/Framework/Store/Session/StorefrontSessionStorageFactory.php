@@ -25,13 +25,17 @@ class StorefrontSessionStorageFactory implements SessionStorageFactoryInterface
     {
         $storage = $this->decorated->createStorage($request);
 
-        if ($request !== null && $storage instanceof NativeSessionStorage) {
-            $baseUrl = $request->attributes->get('sw-sales-channel-base-url') ?: '/';
-
-            $storage->setOptions([
-                'cookie_path' => $baseUrl,
-            ]);
+        if ($request === null) {
+            return $storage;
         }
+
+        if (!$storage instanceof NativeSessionStorage) {
+            return $storage;
+        }
+
+        $storage->setOptions([
+            'cookie_path' => $request->attributes->get('sw-sales-channel-base-url') ?: '/',
+        ]);
 
         return $storage;
     }

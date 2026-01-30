@@ -309,7 +309,7 @@
         <service id="Shopware\Core\Framework\Store\Session\StorefrontSessionStorageFactory"
                  decorates="session.storage.factory.native"
                  public="false">
-            <argument type="service" id="Shopware\Core\Framework\Store\Session\StorefrontSessionStorageFactory.inner" />
+            <argument type="service" id=".inner" />
         </service>
     </services>
 </container>

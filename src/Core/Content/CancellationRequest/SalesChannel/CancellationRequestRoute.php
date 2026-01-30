@@ -108,7 +108,7 @@ class CancellationRequestRoute extends AbstractCancellationRequestRoute
 
             if ($categoryEntity instanceof CategoryEntity && !empty($categoryEntity->getSlotConfig()[$slotId])) {
                 $categoryEntityConfig = $categoryEntity->getSlotConfig()[$slotId];
-                $mailConfig['receivers'] = $categoryEntityConfig['mailReceiver']['value'];
+                $mailConfig['receivers'] = $categoryEntityConfig['mailReceiver']['value'] ?? null;
                 $mailConfig['message'] = $categoryEntityConfig['confirmationText']['value'] ?? '';
             }
         }
@@ -135,9 +135,9 @@ class CancellationRequestRoute extends AbstractCancellationRequestRoute
     }
 
     /**
-     * @param array{receivers: array<string, string>, message?: array<string>|null} $config
+     * @param array<string, mixed> $config
      *
-     * @return array{receivers: array<string, string>, message?: array<string>|null}
+     * @return array{receivers: array<string>, message?: array<int, string>|null}
      */
     private function createDefaultConfig(SalesChannelContext $context, array $config): array
     {

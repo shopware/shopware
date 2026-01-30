@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\CancellationRequest\SalesChannel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<CancellationRequestFormRouteResponseStruct>
+ */
 #[Package('after-sales')]
 class CancellationRequestRouteResponse extends StoreApiResponse
 {

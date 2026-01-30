@@ -140,6 +140,9 @@ class Migration1768545320CancellationRequestCmsFormTest extends TestCase
         return $result;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getCmsSlot(string $cmsBlock_byteId): array
     {
         $result = $this->connection->executeQuery(

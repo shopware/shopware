@@ -93,7 +93,7 @@ class Migration1768545321CancellationRequestFlow extends MigrationStep
         );
 
         if ($result === false) {
-            throw new \RuntimeException('Could not find mail template id for technical ' . $technicalName);
+            return '';
         }
 
         return $result;

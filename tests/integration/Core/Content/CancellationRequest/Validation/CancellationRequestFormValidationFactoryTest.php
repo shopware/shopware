@@ -38,7 +38,7 @@ class CancellationRequestFormValidationFactoryTest extends TestCase
 
         $validator = static::getContainer()->get(DataValidator::class);
 
-        static::assertSame($expectedViolationCount, $validator->getViolations($formData, $validation)->count());
+        static::assertCount($expectedViolationCount, $validator->getViolations($formData, $validation));
     }
 
     public static function createTestData(): \Generator
@@ -120,12 +120,12 @@ class CancellationRequestFormValidationFactoryTest extends TestCase
         ];
     }
 
-    private function createSalesChannelContextMock(): SalesChannelContext|MockObject
+    private function createSalesChannelContextMock(): SalesChannelContext&MockObject
     {
         return $this->createMock(SalesChannelContext::class);
     }
 
-    private function createSystemConfigServiceMock(?bool $returns = true): SystemConfigService|MockObject
+    private function createSystemConfigServiceMock(?bool $returns = true): SystemConfigService&MockObject
     {
         $mock = $this->createMock(SystemConfigService::class);
         $mock->expects($this->exactly(2))->method('get')
@@ -134,7 +134,7 @@ class CancellationRequestFormValidationFactoryTest extends TestCase
         return $mock;
     }
 
-    private function createEventDispatcherMock(): EventDispatcherInterface|MockObject
+    private function createEventDispatcherMock(): EventDispatcherInterface&MockObject
     {
         $mock = $this->createMock(EventDispatcherInterface::class);
         $mock->expects($this->once())->method('dispatch');

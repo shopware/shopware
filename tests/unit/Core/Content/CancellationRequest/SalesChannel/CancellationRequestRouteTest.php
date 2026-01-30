@@ -6,12 +6,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\CancellationRequest\SalesChannel\CancellationRequestRoute;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -123,7 +126,7 @@ class CancellationRequestRouteTest extends TestCase
         static::assertSame($successMessage, $result->getObject()->getIndividualSuccessMessage());
     }
 
-    public function createValidatorMock(): DataValidator|MockObject
+    public function createValidatorMock(): DataValidator&MockObject
     {
         $validatorMock = $this->createMock(DataValidator::class);
 
@@ -151,20 +154,22 @@ class CancellationRequestRouteTest extends TestCase
         return $validatorMock;
     }
 
-    public function createRequestStackMock(bool $hasMainRequest): RequestStack|MockObject
+    public function createRequestStackMock(bool $hasMainRequest): RequestStack&MockObject
     {
         $requestStackMock = $this->createMock(RequestStack::class);
         if (!$hasMainRequest) {
             return $requestStackMock;
         }
 
-        $requestMock = $this->createMock(Request::class);
-        $requestMock->method('getClientIp')->willReturn('0.0.0.0');
-        $requestStackMock->method('getMainRequest')->willReturn($requestMock);
+        $requestStackMock->method('getMainRequest')->willReturn(new Request());
 
         return $requestStackMock;
     }
 
+    /**
+     * @param array<int, CmsSlotEntity>|null $slotEntities
+     * @param array<int, CategoryEntity>|null $categoryEntities
+     */
     private function createCancellationRequestRoute(bool $hasMainRequest, ?array $slotEntities = [], ?array $categoryEntities = []): CancellationRequestRoute
     {
         $validatorFactoryMock = $this->createMock(DataValidationFactoryInterface::class);
@@ -177,7 +182,9 @@ class CancellationRequestRouteTest extends TestCase
         $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
 
+        /** @var StaticEntityRepository<CmsSlotCollection> */
         $cmsSlotRepository = new StaticEntityRepository([$slotEntities], new CmsSlotDefinition());
+        /** @var StaticEntityRepository<CategoryCollection> */
         $categoryRepository = new StaticEntityRepository([$categoryEntities], new CategoryDefinition());
 
         return new CancellationRequestRoute(
@@ -221,8 +228,8 @@ class CancellationRequestRouteTest extends TestCase
      *     email: string,
      *     contractNumber: string,
      *     comment: string,
-     *     slotId: string,
-     *     navigationId: string,
+     *     slotId?: string,
+     *     navigationId?: string,
      * }
      */
     private function createValidFormData(?string $cmsSlotId = null, ?string $navigationId = null): array

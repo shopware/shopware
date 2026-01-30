@@ -33,6 +33,6 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
 
         $output = $template->render(['value' => 1234567.891]);
 
-        static::assertEquals('$ 1234567.89', $output);
+        static::assertEquals("\$\u{a0}1234567.89", $output);
     }
 }

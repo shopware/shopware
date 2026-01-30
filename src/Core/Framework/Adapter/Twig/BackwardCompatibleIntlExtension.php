@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Feature;
 use Twig\Extension\AbstractExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\TwigFilter;
-use ValueError;
 
 /**
  * @internal

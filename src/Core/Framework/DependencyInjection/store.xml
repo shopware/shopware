@@ -307,8 +307,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Session\StorefrontSessionStorageFactory"
-                 decorates="session.storage.factory.native"
-                 public="false">
+                 decorates="session.storage.factory.native">
             <argument type="service" id=".inner" />
         </service>
     </services>

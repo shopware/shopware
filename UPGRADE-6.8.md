@@ -757,6 +757,11 @@ This method was moved to FocusHandler Helper. Use this instead.
 const lastFocusableEl = window.focusHandler.getLastFocusableElement();
 ```
 
+## Invalid locale codes no longer supported
+
+Passing invalid locale codes (esp non localized two letter codes like "US") to the default `format_number` and `format_currency` twig filters will now throw an error.
+Please use the proper localized codes like "en-US" instead. Additionally, you should use the shopware specific `currency`, instead of the native `format_currency` filter, to already handle configured rounding etc.
+
 ## Remove route `widgets.account.order.detail`
 
 Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly

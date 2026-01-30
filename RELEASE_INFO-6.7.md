@@ -6,6 +6,18 @@
 
 ## Core
 
+### Database table helper class
+
+A new helper class `\Shopware\Core\Framework\Util\Database\TableHelper` was introduced,
+which could be used to check the table for existence, columns, indexes, and foreign keys.
+
+#### Deprecation of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
+
+As consequence of the introduction of the new table helper class following methods are deprecated and will be removed with the next major version:
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnExists
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
+
 ### Migration generator improvements
 
 The migration generator previously used a fixed format: `fk.<table-name>.<column>` for foreign key names. Doctrine does not support this format and creates broken migrations; therefore, we changed to the format `fk__<table-name>__<column>` for foreign key names.
@@ -51,7 +63,7 @@ shopware:
 
 ### Symfony 7.4 update
 
-All symfony packages have been updated to version 7.4. 
+All symfony packages have been updated to version 7.4.
 Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
 Especially note that Symfony now requires php-redis extension v6.1 or higher: https://github.com/symfony/symfony/blob/7.4/UPGRADE-7.4.md#cache.
 If you note compatibility issues with the Redis extension please check the installed version php-redis.
@@ -61,25 +73,29 @@ After maintenance ends, users are now redirected back to the page they were on b
 Previously, users were always redirected to the shop homepage.
 
 ### Support of media paths with up to 2046 characters
-Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the
-database field already supported up to 2046 characters. This limitation has now been lifted and media paths can be up to
-2046 characters long.
+
+Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the database field already supported up to 2046 characters.
+This limitation has now been lifted, and media paths can be up to 2046 characters long.
 
 ### Configurable Custom Field Searchability
 
-Custom fields are now **not searchable by default**. To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields. This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
+Custom fields are now **not searchable by default**.
+To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields.
+This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
 
 **Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
 
 ### Media Model Viewer
 
-From now on you are able to inspect your 3D models directly in the Media module in the Administration. Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right. This new component is called `sw-model-viewer`.
+From now on you are able to inspect your 3D models directly in the Media module in the Administration.
+Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right.
+This new component is called `sw-model-viewer`.
 
 ## API
 
-### Improved tagged based cache invalidation
+### Improved tagged-based cache invalidation
 
-Next routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
+The following routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
 * `/store-api/breadcrumb/{id}`
 * `/store-api/media`
 * `/store-api/product/{productId}/find-variant`
@@ -106,7 +122,10 @@ Previously, the generated query would `LEFT JOIN` `order_line_item` multiple tim
 
 ### Introduce Immutable DAL flag
 
-A new `Immutable` flag is available for Data Abstraction Layer fields. Fields marked as immutable can be set during entity creation but cannot be updated later. This prevents accidental renames of technical identifiers that other subsystems rely on. Core entities now using the flag include:
+A new `Immutable` flag is available for Data Abstraction Layer fields.
+Fields marked as immutable can be set during entity creation but cannot be updated later.
+This prevents accidental renames of technical identifiers that other subsystems rely on.
+Core entities now using the flag include:
 
 * `custom_field.name`
 * `custom_field.type`
@@ -137,11 +156,11 @@ As part of this change, the following deprecations were made:
 If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
 
-### New `RequestParamHelper` 
+### New `RequestParamHelper`
 
 Symfony deprecated the "magic" `Request::get()` method, which was used to retrieve parameters from the request, by checking the `attribute`, `query` or `request` parameter bags.
 For easier backward compatibilty we backported the old behaviour in the new `RequestParamHelper` class, however, it should only be used in explicit cases, where the parameter could be in any of those parameter bags.
-The best practice is to check the explicit parameter bag, where you expect the parameter to be. 
+The best practice is to check the explicit parameter bag, where you expect the parameter to be.
 However, as we have a lot of API routes that support being called by `GET` and `POST` methods both, the helper is handy in such cases.
 
 Before:
@@ -153,9 +172,9 @@ After:
 $parameter = RequestParameterHelper::get($request, $parameterName, $default);
 ```
 
-To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first. 
+To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first.
 However, it should be possible to strictly differentiate between request attributes (which are generally controlled and set by the application itself) and input parameters (which are provided by the client, and based on how they are passed are either part of the query bag or the request bag) in the future.
-Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release. 
+Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release.
 When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
 In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
 
@@ -539,7 +558,7 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 
 ### Automatic indexer execution for plugin migrations
 
-The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+The `IndexerQueuer` now runs automatically during plugin install, update, and uninstall events.
 This ensures that registered indexers are executed when plugin migrations have run.
 
 ### Improved Store API OpenAPI documentation with field descriptions

@@ -133,6 +133,19 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
+## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
+
+Following helper methods have been removed from the `EntityDefinitionQueryHelper`:
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnExists
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
+
+## Thrown exception changed in migration helper traits
+
+Instead of `\Doctrine\DBAL\Exception\TableNotFoundException`, a `\Shopware\Core\Framework\Util\UtilException` is now thrown in the following methods:
+- \Shopware\Core\Framework\Migration\AddColumnTrait::addColumn
+- \Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists
+
 ## Cache improvements
 
 ### Only rules relevant for product prices are considered in the `sw-cache-hash`

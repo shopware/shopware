@@ -124,8 +124,6 @@ class SendMailActionTest extends TestCase
         static::assertSame('action.mail.send', SendMailAction::getName());
     }
 
-    // todo: here
-
     #[DataProvider('mailTemplateTypeProvider')]
     public function testUpdateMailTemplateType(MailTemplateTypeUpdateProvider $provider): void
     {

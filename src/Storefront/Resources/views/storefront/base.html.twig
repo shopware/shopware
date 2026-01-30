@@ -79,11 +79,19 @@
                         {% block base_main_container %}
                             <div class="container-main">
                                 {% block base_breadcrumb %}
-                                    {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
-                                        context: context,
-                                        themeIconConfig: themeIconConfig,
-                                        categoryId: shopware.navigation.id,
-                                    } only %}
+                                    {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+                                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                                            context: context,
+                                            themeIconConfig: themeIconConfig,
+                                            breadcrumb: page.breadcrumb
+                                        } only %}
+                                    {% else %}
+                                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                                            context: context,
+                                            themeIconConfig: themeIconConfig,
+                                            categoryId: shopware.navigation.id,
+                                        } only %}
+                                    {% endif %}
                                 {% endblock %}
 
                                 {% block base_content %}{% endblock %}

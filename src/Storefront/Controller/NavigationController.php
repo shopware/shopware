@@ -9,14 +9,11 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
-use Shopware\Storefront\Pagelet\Breadcrumb\BreadcrumbPageletLoadedHook;
-use Shopware\Storefront\Pagelet\Breadcrumb\BreadcrumbPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedHook;
@@ -44,10 +41,8 @@ class NavigationController extends StorefrontController
         private readonly MenuOffcanvasPageletLoaderInterface $offcanvasLoader,
         private readonly HeaderPageletLoaderInterface $headerLoader,
         private readonly FooterPageletLoaderInterface $footerLoader,
-        private readonly BreadcrumbPageletLoaderInterface $breadcrumbLoader,
         private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
-        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -163,24 +158,6 @@ class NavigationController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', [
             'footer' => $footer,
             'footerParameters' => $request->query->all()['footerParameters'] ?? [],
-        ]);
-    }
-
-    #[Route(
-        path: '/_esi/global/breadcrumb',
-        name: 'frontend.breadcrumb',
-        defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true],
-        methods: ['GET'],
-    )]
-    public function breadcrumb(Request $request, SalesChannelContext $context): Response
-    {
-        $breadcrumb = $this->breadcrumbLoader->load($request, $context);
-
-        $this->hook(new BreadcrumbPageletLoadedHook($breadcrumb, $context));
-
-        return $this->renderStorefront('@Storefront/storefront/layout/breadcrumb.html.twig', [
-            'breadcrumb' => $breadcrumb,
-            'breadcrumbParameters' => $request->get('breadcrumbParameters') ?? [],
         ]);
     }
 }

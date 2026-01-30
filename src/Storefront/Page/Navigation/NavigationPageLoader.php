@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Navigation;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -27,7 +28,8 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCategoryRoute $cmsPageRoute,
-        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
     }
 
@@ -49,6 +51,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         $this->loadMetaData($category, $page, $context->getSalesChannel());
         $page->setNavigationId($category->getId());
         $page->setCategory($category);
+        $page->setBreadcrumb($this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel()));
 
         if ($category->getCmsPage()) {
             $page->setCmsPage($category->getCmsPage());

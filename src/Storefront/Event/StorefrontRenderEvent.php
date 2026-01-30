@@ -30,7 +30,6 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
             'context' => $context,
             'headerParameters' => [],
             'footerParameters' => [],
-            'breadcrumbParameters' => [],
         ], $parameters);
     }
 

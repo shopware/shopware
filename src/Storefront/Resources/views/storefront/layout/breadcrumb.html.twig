@@ -2,8 +2,8 @@
 
 {% block layout_breadcrumb_inner %}
     {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
-        {% if breadcrumb.breadcrumbCollection and breadcrumb.breadcrumbCollection|length > 0 %}
-            {% set breadcrumbCollection = breadcrumb.breadcrumbCollection %}
+        {% if breadcrumb and breadcrumb|length > 0 %}
+            {% set breadcrumbCollection = breadcrumb %}
         {% elseif not breadcrumbCollection or breadcrumbCollection|length == 0 %}
             {% return %}
         {% endif %}

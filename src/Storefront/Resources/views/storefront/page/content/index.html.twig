@@ -11,9 +11,11 @@
             {% block cms_breadcrumb %}
                 <div class="cms-breadcrumb container">
                     {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
-                        {% block cms_breadcrumb_esi %}
-                            {{ render_esi(path('frontend.breadcrumb', { id: shopware.navigation.id, type: 'category', breadcrumbParameters: breadcrumbParameters }), { ignore_errors: false } ) }}
-                        {% endblock %}
+                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                            context: context,
+                            themeIconConfig: themeIconConfig,
+                            breadcrumb: page.breadcrumb
+                        } only %}
                     {% else %}
                         {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                             context: context,

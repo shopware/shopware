@@ -273,11 +273,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
         </service>
 
-        <service id="Shopware\Storefront\Pagelet\Breadcrumb\BreadcrumbPageletLoader">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRoute"/>
-        </service>
-
         <service id="Shopware\Storefront\Page\GenericPageLoader">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
@@ -296,6 +291,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument type="service" id="product_review.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader">

@@ -174,9 +174,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
             return strip_tags((string) $data->getValue());
         }
 
-        $flag = $field->getFlag(AllowHtml::class);
-
-        if ($flag instanceof AllowHtml && $flag->isSanitized()) {
+        if ($field->getFlag(AllowHtml::class)->isSanitized()) {
             $fieldKey = \sprintf('%s.%s', (string) $existence->getEntityName(), $field->getPropertyName());
 
             return $sanitizer->sanitize((string) $data->getValue(), [], false, $fieldKey);

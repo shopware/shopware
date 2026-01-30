@@ -22,7 +22,7 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
 
         $output = $template->render(['value' => 1234567.891]);
 
-        static::assertEquals('1234567.9', $output);
+        static::assertSame('1234567.9', $output);
     }
 
     public function testCurrencyFormatWithInvalidLocaleFallsBackToDefault(): void
@@ -33,6 +33,6 @@ class BackwardCompatibleIntlExtensionTest extends TestCase
 
         $output = $template->render(['value' => 1234567.891]);
 
-        static::assertEquals("\$\u{a0}1234567.89", $output);
+        static::assertSame("\$\u{a0}1234567.89", $output);
     }
 }

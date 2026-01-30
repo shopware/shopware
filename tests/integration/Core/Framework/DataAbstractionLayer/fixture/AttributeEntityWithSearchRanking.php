@@ -34,7 +34,7 @@ class AttributeEntityWithSearchRanking extends EntityStruct
     #[ManyToOne(entity: 'currency')]
     public ?CurrencyEntity $currency = null;
 
-    #[SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)]
+    #[SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)]
     #[Field(type: FieldType::STRING)]
     public ?string $middleRankedString = null;
 
@@ -42,7 +42,7 @@ class AttributeEntityWithSearchRanking extends EntityStruct
     #[Field(type: FieldType::STRING)]
     public ?string $lowRankedString = null;
 
-    #[SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)]
+    #[SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false)]
     #[Field(type: FieldType::STRING)]
     public ?string $highRankedString = null;
 }

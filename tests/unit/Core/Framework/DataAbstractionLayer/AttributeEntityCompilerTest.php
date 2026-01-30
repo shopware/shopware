@@ -201,28 +201,28 @@ class AttributeEntityCompilerTest extends TestCase
         static::assertArrayHasKey(SearchRankingFlag::class, $currencyField['flags'], 'currency should have SearchRanking flag');
         static::assertIsArray($currencyField['flags'][SearchRankingFlag::class]);
         static::assertSame(SearchRankingFlag::class, $currencyField['flags'][SearchRankingFlag::class]['class']);
-        static::assertSame(['ranking' => SearchRanking::ASSOCIATION_SEARCH_RANKING, 'tokenize' => true], $currencyField['flags'][SearchRankingFlag::class]['args']);
+        static::assertSame(['ranking' => (float)SearchRanking::ASSOCIATION_SEARCH_RANKING, 'tokenize' => true], $currencyField['flags'][SearchRankingFlag::class]['args']);
 
         // Verify middle ranked string field has SearchRanking flag with correct class and args
         static::assertNotNull($middleRankedStringField, 'middle ranked string field not found');
-        static::assertArrayHasKey(SearchRankingFlag::class, $middleRankedStringField['flags'], 'currency should have SearchRanking flag');
+        static::assertArrayHasKey(SearchRankingFlag::class, $middleRankedStringField['flags'], 'middle ranked string field should have SearchRanking flag');
         static::assertIsArray($middleRankedStringField['flags'][SearchRankingFlag::class]);
         static::assertSame(SearchRankingFlag::class, $middleRankedStringField['flags'][SearchRankingFlag::class]['class']);
-        static::assertSame(['ranking' => SearchRanking::MIDDLE_SEARCH_RANKING, 'tokenize' => false], $middleRankedStringField['flags'][SearchRankingFlag::class]['args']);
+        static::assertSame(['ranking' => (float)SearchRanking::MIDDLE_SEARCH_RANKING, 'tokenize' => false], $middleRankedStringField['flags'][SearchRankingFlag::class]['args']);
 
         // Verify low ranked string field has SearchRanking flag with correct class and args
         static::assertNotNull($lowRankedStringField, 'low ranked string field not found');
-        static::assertArrayHasKey(SearchRankingFlag::class, $lowRankedStringField['flags'], 'currency should have SearchRanking flag');
+        static::assertArrayHasKey(SearchRankingFlag::class, $lowRankedStringField['flags'], 'low ranked string field should have SearchRanking flag');
         static::assertIsArray($lowRankedStringField['flags'][SearchRankingFlag::class]);
         static::assertSame(SearchRankingFlag::class, $lowRankedStringField['flags'][SearchRankingFlag::class]['class']);
-        static::assertSame(['ranking' => SearchRanking::LOW_SEARCH_RANKING, 'tokenize' => true], $lowRankedStringField['flags'][SearchRankingFlag::class]['args']);
+        static::assertSame(['ranking' => (float)SearchRanking::LOW_SEARCH_RANKING, 'tokenize' => true], $lowRankedStringField['flags'][SearchRankingFlag::class]['args']);
 
         // Verify high ranked string field has SearchRanking flag with correct class and args
-        static::assertNotNull($highRankedStringField, 'high ranked string');
-        static::assertArrayHasKey(SearchRankingFlag::class, $highRankedStringField['flags'], 'currency should have SearchRanking flag');
+        static::assertNotNull($highRankedStringField, 'high ranked string field not found');
+        static::assertArrayHasKey(SearchRankingFlag::class, $highRankedStringField['flags'], 'high ranked string field should have SearchRanking flag');
         static::assertIsArray($highRankedStringField['flags'][SearchRankingFlag::class]);
         static::assertSame(SearchRankingFlag::class, $highRankedStringField['flags'][SearchRankingFlag::class]['class']);
-        static::assertSame(['ranking' => SearchRanking::HIGH_SEARCH_RANKING, 'tokenize' => false], $highRankedStringField['flags'][SearchRankingFlag::class]['args']);
+        static::assertSame(['ranking' => (float)SearchRanking::HIGH_SEARCH_RANKING, 'tokenize' => false], $highRankedStringField['flags'][SearchRankingFlag::class]['args']);
     }
 
     /**

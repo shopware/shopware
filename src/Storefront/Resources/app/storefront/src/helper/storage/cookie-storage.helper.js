@@ -71,7 +71,7 @@ export default class CookieStorageHelper {
      * * @returns {string} The base URL from the router configuration, or a default slash.
      */
     static getPath() {
-        return window.router['base-url'] || '/';
+        return window.salesChannelBaseUrl || '/';
     }
 
     /**

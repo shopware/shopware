@@ -72,7 +72,7 @@ describe('cookie-storage.helper.js', () => {
     });
 
     test('it sets the cookie with a custom path from window.router', () => {
-        window.router = {'base-url': '/custom-sales-channel-path'};
+        window.salesChannelBaseUrl = '/custom-sales-channel-path';
 
         const cookieSpy = jest.spyOn(document, 'cookie', 'set');
 

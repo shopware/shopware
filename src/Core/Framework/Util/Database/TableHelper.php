@@ -153,6 +153,50 @@ class TableHelper
 
     /**
      * @param non-empty-string $table
+     * @param list<string> $localColumns
+     * @param list<string> $foreignColumns
+     *
+     * @throws TableHelperException
+     */
+    public static function foreignKeyExistsByColumns(
+        Connection $connection,
+        string $table,
+        array $localColumns,
+        string $foreignTable,
+        array $foreignColumns
+    ): bool {
+        try {
+            $foreignKeys = self::getSchemaManager($connection)->listTableForeignKeys($table);
+
+            foreach ($foreignKeys as $foreignKey) {
+                $referencingColumns = array_map(
+                    static fn (UnqualifiedName $col): string => $col->getIdentifier()->getValue(),
+                    $foreignKey->getReferencingColumnNames()
+                );
+                $referencedColumns = array_map(
+                    static fn (UnqualifiedName $col): string => $col->getIdentifier()->getValue(),
+                    $foreignKey->getReferencedColumnNames()
+                );
+                $referencedTable = $foreignKey->getReferencedTableName()->getUnqualifiedName()->getValue();
+
+                if ($referencingColumns === $localColumns
+                    && $referencedTable === $foreignTable
+                    && $referencedColumns === $foreignColumns
+                ) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (TableHelperException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
+        }
+    }
+
+    /**
+     * @param non-empty-string $table
      *
      * @throws TableHelperException
      */

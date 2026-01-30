@@ -152,9 +152,10 @@ class NoDropStatementInUpdateRule implements Rule
     private function inspectMethodCall(MethodCall $statement, Identifier $name, ClassMethod $node, array $errors): array
     {
         if (\in_array($name->name, self::$disallowedMethodCalls, true)) {
-            $message = $name->name === 'dropForeignKeyIfExists'
-                ? 'Usage of "dropForeignKeyIfExists" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks. Dropping FKs is OK if immediately re-added, or if not breaking old app version validation. Use @phpstan-ignore shopware.dropStatement if intentional.'
-                : \sprintf('Usage of method "%s" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', $name->name);
+            $message = \sprintf('Usage of method "%s" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', $name->name);
+            if ($name->name === 'dropForeignKeyIfExists') {
+                $message .= ' Dropping FKs is OK if immediately re-added, or if not breaking old app version validation. Use @phpstan-ignore shopware.dropStatement if intentional.';
+            }
 
             $errors[] = RuleErrorBuilder::message($message)
                 ->identifier('shopware.dropStatement')

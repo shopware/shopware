@@ -26,7 +26,7 @@ class NoDropStatementInUpdateRuleTest extends RuleTestCase
         ], [
             // Helper method calls
             ['Usage of method "dropColumnIfExists" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', 19],
-            ['Usage of "dropForeignKeyIfExists" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks. Dropping FKs is OK if immediately re-added, or if not breaking old app version validation. Use @phpstan-ignore shopware.dropStatement if intentional.', 20],
+            ['Usage of method "dropForeignKeyIfExists" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks. Dropping FKs is OK if immediately re-added, or if not breaking old app version validation. Use @phpstan-ignore shopware.dropStatement if intentional.', 20],
             ['Usage of method "dropTableIfExists" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', 21],
 
             // SQL statements

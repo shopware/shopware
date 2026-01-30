@@ -14,13 +14,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
 
 /**
+ * Covered by {@see \Shopware\Tests\Integration\Core\Framework\Util\Database\TableHelperTest}
+ *
  * @final
  *
  * @internal
  *
  * @template TPlatform of AbstractPlatform
- *
- * @codeCoverageIgnore Cannot be reasonable unit-tested. Covered by {@see \Shopware\Tests\Integration\Core\Framework\Util\Database\TableHelperTest}
  */
 #[Package('framework')]
 class TableHelper

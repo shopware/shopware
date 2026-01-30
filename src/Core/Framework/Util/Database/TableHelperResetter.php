@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @codeCoverageIgnore
- *
  * @internal
  */
 #[Package('framework')]

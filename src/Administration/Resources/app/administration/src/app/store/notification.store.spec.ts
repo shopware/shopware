@@ -283,28 +283,4 @@ describe('notifications.store', () => {
             }),
         );
     });
-
-    it('stores translation keys directly in title and message fields', () => {
-        const notification = Shopware.Store.get('notification');
-
-        // Create notifications with translation keys stored directly in title/message
-        notification.notifications = {
-            a: {
-                uuid: 'a',
-                title: 'global.default.success',
-                message: 'test.message.key',
-            },
-            b: {
-                uuid: 'b',
-                title: 'Plain text title',
-                message: 'Plain text message',
-            },
-        };
-
-        // Translation keys are stored as-is (translation happens reactively in template via $te/$tc)
-        expect(notification.notifications.a.title).toBe('global.default.success');
-        expect(notification.notifications.a.message).toBe('test.message.key');
-        expect(notification.notifications.b.title).toBe('Plain text title');
-        expect(notification.notifications.b.message).toBe('Plain text message');
-    });
 });

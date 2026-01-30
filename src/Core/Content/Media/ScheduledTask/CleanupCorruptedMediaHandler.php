@@ -38,6 +38,7 @@ final class CleanupCorruptedMediaHandler extends ScheduledTaskHandler
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('fileSize', null));
+        $criteria->addFilter(new EqualsFilter('path', null));
 
         $ids = $this->mediaRepository->searchIds($criteria, $context)->getIds();
 

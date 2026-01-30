@@ -86,9 +86,9 @@ describe('src/app/init/notification.init.ts', () => {
         });
     });
 
-    it('should handle notificationDispatch requests with fallback for null title', async () => {
+    it('should handle notificationDispatch requests with fallback for undefined title', async () => {
         await notification.dispatch({
-            title: null,
+            title: undefined,
             message: 'Custom message',
         });
 

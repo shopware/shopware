@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
@@ -13,6 +14,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 class BackwardCompatibleIntlExtensionTest extends TestCase
 {
     use KernelTestBehaviour;
+
+    protected function setUp(): void
+    {
+        if (Feature::isActive('v6.8.0.0')) {
+            static::markTestSkipped('This test is only relevant for versions before v6.8.0');
+        }
+    }
 
     public function testNumberFormatWithInvalidLocaleFallsBackToDefault(): void
     {

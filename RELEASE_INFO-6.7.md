@@ -45,14 +45,6 @@ shopware:
 
 **Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
 
-### CleanupCorruptedMediaTask deleting valid media with path
-
-Fixed an issue where `CleanupCorruptedMediaTask` deleted valid media files with file_size `null` if they have a `path` provided.
-
-**Problem**: The task incorrectly identified media files with `file_size` as `null` but with a valid `path` as corrupted, leading to their deletion.
-
-**Solution**: The task now only deletes media files that have both `file_size` and `path` as `null`, ensuring that valid (cdn) media files are preserved.
-
 # 6.7.7.0
 
 ## Features

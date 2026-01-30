@@ -4,8 +4,17 @@
 
 import template from './sw-cms-el-form-cancellation-request.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @sw-package discovery
+ * @private
+ */
 export default {
     template,
-    props: ['formSettings'],
+    props: {
+        formSettings: {
+            type: Object,
+            required: true,
+            default: null,
+        },
+    },
 };

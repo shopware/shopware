@@ -251,6 +251,7 @@ const missingTests = [
     'src/module/sw-cms/elements/index.ts',
     'src/module/sw-cms/elements/location-renderer/index.ts',
     'src/module/sw-cms/elements/form/component/templates/form-contact/index.js',
+    'src/module/sw-cms/elements/form/component/templates/form-cancellation-request/index.js',
     'src/module/sw-cms/elements/form/component/templates/form-newsletter/index.js',
     '/src/module/sw-cms/elements/cross-selling/preview/index.js',
     'src/module/sw-cms/elements/image-gallery/preview/index.js',

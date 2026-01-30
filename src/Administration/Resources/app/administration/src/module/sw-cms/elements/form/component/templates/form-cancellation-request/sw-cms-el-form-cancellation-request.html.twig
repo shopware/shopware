@@ -1,13 +1,13 @@
 {% block sw_cms_el_form_cancellation_request %}
 <div class="sw-cms-el-form-cancellation-request">
     <h3
-        v-if="formSettings.title.value.length > 0"
+        v-if="formSettings.title.value"
         class="sw-cms-el-form-headline"
     >
         {{ formSettings.title.value }}
     </h3>
 
-    <div class="sw-cms-el-form-contact-form-group two-items">
+    <div class="sw-cms-el-form-cancellation-request__form-group two-items">
         <mt-text-field
             :label="$tc('sw-cms.elements.form.element.label.firstName')"
             :model-value="$tc('sw-cms.elements.form.element.placeholder.firstName')"
@@ -37,11 +37,11 @@
     <h4>{{ $t('sw-cms.elements.form.element.label.privacy') }}</h4>
 
     <p
-        class="sw-cms-el-form-cancellation-request-_privacy"
+        class="sw-cms-el-form-cancellation-request__privacy"
         v-html="$t('sw-cms.general.privacyNotice')"
     ></p>
 
-    <p class="sw-cms-el-form-cancellation-request-_note">
+    <p class="sw-cms-el-form-cancellation-request__note">
         {{ $t('sw-cms.elements.form.element.helpText.requiredFields') }}
     </p>
 

@@ -529,7 +529,7 @@ class PluginLifecycleServiceTest extends TestCase
         try {
             $this->pluginLifecycleService->installPlugin($plugin, $this->context);
         } catch (\Throwable $actualException) {
-            static::assertEquals($expectedException, $actualException);
+            static::assertSame($expectedException, $actualException);
             static::assertNull($plugin->getInstalledAt());
         } finally {
             /** * Cleanup: Ensure the listener is removed regardless of test success or failure

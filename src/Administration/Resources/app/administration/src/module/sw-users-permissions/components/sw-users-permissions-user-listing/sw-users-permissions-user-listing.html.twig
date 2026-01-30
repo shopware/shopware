@@ -73,7 +73,7 @@
             <sw-context-menu-item
                 class="sw-settings-user-list__user-view-action"
                 :disabled="!acl.can('users_and_permissions.editor') || undefined"
-                :router-link="{ name: 'sw.users.permissions.user.sso.detail', params: { id: item.id } }"
+                :router-link="{ name: 'sw.users.permissions.user.detail', params: { id: item.id } }"
             >
                 {{ $tc('sw-users-permissions.users.user-grid.contextMenuEdit') }}
             </sw-context-menu-item>

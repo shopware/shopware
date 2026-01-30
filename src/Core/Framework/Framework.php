@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
+use Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
@@ -159,5 +160,9 @@ class Framework extends Bundle
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
         CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
         Feature::$emitDeprecations = $this->container->getParameter('kernel.debug');
+
+        /** @var StampedeProtectionConfigurator $stampedeProtectionConfigurator */
+        $stampedeProtectionConfigurator = $this->container->get(StampedeProtectionConfigurator::class);
+        $stampedeProtectionConfigurator->apply();
     }
 }

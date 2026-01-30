@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,7 +20,7 @@ class Migration1760438732AddConsumedToPaymentToken extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'payment_token', 'consumed')) {
+        if (!TableHelper::columnExists($connection, 'payment_token', 'consumed')) {
             $this->addColumn($connection, 'payment_token', 'consumed', 'tinyint(1)', default: '0');
         }
     }

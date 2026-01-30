@@ -162,4 +162,64 @@ class FormControllerTest extends TestCase
         static::assertSame('danger', $type);
         static::assertSame(2, $messageCount);
     }
+
+    public function testSendCancellationRequest(): void
+    {
+        $formData = [
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'email' => 'max@muster.com',
+            'contractNumber' => 'SW123456789',
+            'comment' => 'This is a simple comment',
+        ];
+
+        $response = $this->request(
+            'POST',
+            '/form/cancellation/request',
+            $this->tokenize('frontend.form.cancellation.request', $formData)
+        );
+
+        static::assertInstanceOf(JsonResponse::class, $response);
+        static::assertSame(200, $response->getStatusCode());
+
+        $jsonResponse = $response->getContent();
+        $response = (array) json_decode((string) $jsonResponse, true, 512, \JSON_THROW_ON_ERROR);
+        $content = \array_shift($response);
+
+        static::assertArrayHasKey('type', $content);
+        static::assertSame('success', $content['type']);
+        static::assertArrayHasKey('alert', $content);
+        static::assertSame('We have received your cancellation request and will process it as soon as possible.', $content['alert']);
+    }
+
+    public function testSendCancellationRequestWithInvalidData(): void
+    {
+        // invalid formData
+        $formData = [
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'email' => 'invalid email', // invalid email address
+            'contractNumber' => '', // Empty contract number
+            'comment' => 'This is a simple comment',
+        ];
+
+        $response = $this->request(
+            'POST',
+            '/form/cancellation/request',
+            $this->tokenize('frontend.form.cancellation.request', $formData)
+        );
+
+        static::assertInstanceOf(JsonResponse::class, $response);
+        static::assertSame(200, $response->getStatusCode());
+
+        $jsonResponse = $response->getContent();
+        $response = (array) json_decode((string) $jsonResponse, true, 512, \JSON_THROW_ON_ERROR);
+        $content = \array_shift($response);
+
+        static::assertArrayHasKey('type', $content);
+        static::assertSame('danger', $content['type']);
+
+        $invalidFieldCount = mb_substr_count((string) $content['alert'], '<li>');
+        static::assertSame(2, $invalidFieldCount);
+    }
 }

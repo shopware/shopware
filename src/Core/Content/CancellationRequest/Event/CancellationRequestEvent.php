@@ -18,7 +18,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('after-sales')]
 final class CancellationRequestEvent extends Event implements SalesChannelAware, MailAware, ScalarValuesAware, FlowEventAware
 {
-    public const EVENT_NAME = 'cancellation_request.send';
+    public const EVENT_NAME = 'cancellation_request.sent';
 
     /**
      * @var array<int|string, mixed>

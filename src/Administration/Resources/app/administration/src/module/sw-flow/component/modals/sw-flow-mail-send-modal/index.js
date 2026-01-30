@@ -111,6 +111,16 @@ export default {
             ];
         },
 
+        recipientCancellationRequestFormMail() {
+            return [
+                {
+                    value: 'cancellationRequestCustomerFormMail',
+                    label: this.$tc('sw-flow.modals.mail.labelContactFormMail'),
+                },
+            ];
+        },
+
+
         entityAware() {
             return [
                 'CustomerAware',
@@ -143,6 +153,16 @@ export default {
                     ...this.recipientCustom,
                 ];
             }
+
+            if (this.triggerEvent.name === 'cancellation_request.sent') {
+                return [
+                    ...this.recipientDefault,
+                    ...this.recipientCancellationRequestFormMail,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
+
             if (
                 [
                     'newsletter.confirm',

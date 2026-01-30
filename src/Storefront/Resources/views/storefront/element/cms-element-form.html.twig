@@ -48,6 +48,25 @@
                                         }
                                     %}
                                 {% endblock %}
+                            {% elseif element.config.type.value is same as('cancellationRequest') %}
+                                {% block element_form_cancellation_request_form_title %}
+                                    <div class="card-title mb-4">
+                                        {% if element.config.title.value %}
+                                            {{ element.config.title.value }}
+                                        {% else %}
+                                            {{ 'cancellationRequest.headline'|trans }}
+                                        {% endif %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block element_form_cancellation_request_form_form %}
+                                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-types/online-cancellation-request-form.html.twig'
+                                        with {
+                                        action: 'frontend.form.cancellation.request',
+                                        submitText: 'cancellationRequest.formSubmit'
+                                    }
+                                    %}
+                                {% endblock %}
                             {% endif %}
                         {% endblock %}
                     </div>

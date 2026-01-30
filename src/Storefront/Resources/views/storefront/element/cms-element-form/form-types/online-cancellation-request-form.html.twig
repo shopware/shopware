@@ -1,0 +1,108 @@
+{% block cms_form_ocr %}
+    {% set formPrefix = 'cms-form-online-cancellation-request' %}
+    <form action="{{ path(action) }}"
+          method="post"
+          data-form-handler="true"
+          data-form-cms-handler="true"
+          data-form-preserver="true"
+          id="{{ formPrefix }}"
+          aria-label="{{ element.config.title.value ? element.config.title.value : 'cancellationRequest.headline'|trans }}">
+
+        <div class="form-content">
+            <div class="row g-2">
+                {% block cms_form_ocr_input_first_name %}
+                    {% set firstNameFieldRequired = config('core.basicInformation.firstNameFieldRequired') == true %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                        with {
+                        fieldName: 'firstName',
+                        autocomplete: 'section-personal given-name',
+                        required: firstNameFieldRequired,
+                        additionalClass: 'col-md-6',
+                        label: 'cancellationRequest.firstNameLabel',
+                        placeholder: 'cancellationRequest.firstNamePlaceholder'
+                    } %}
+                {% endblock %}
+
+                {% block cms_form_ocr_input_last_name %}
+                    {% set lastNameFieldRequired = config('core.basicInformation.lastNameFieldRequired') == true %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                        with {
+                        fieldName: 'lastName',
+                        autocomplete: 'section-personal family-name',
+                        required: lastNameFieldRequired,
+                        additionalClass: 'col-md-6',
+                        label: 'cancellationRequest.lastNameLabel',
+                        placeholder: 'cancellationRequest.lastNamePlaceholder'
+                    } %}
+                {% endblock %}
+            </div>
+
+            <div class="row g-2">
+                {% block cms_form_ocr_input_email %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                        with {
+                        fieldName: 'email',
+                        autocomplete: 'email',
+                        type: 'email',
+                        required: true,
+                        additionalClass: 'col-md-12',
+                        label: 'cancellationRequest.eMailLabel',
+                        placeholder: 'cancellationRequest.eMailPlaceholder'
+                    } %}
+                {% endblock %}
+            </div>
+
+            {% block cms_form_ocr_input_contract_number %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                    with {
+                    fieldName: 'contractNumber',
+                    required: true,
+                    additionalClass: 'col-md-12',
+                    label: 'cancellationRequest.contractNumberLabel',
+                    placeholder: 'cancellationRequest.contractNumberPlaceholder'
+                } %}
+            {% endblock %}
+
+            <div class="row g-2">
+                <div class="row g-2">
+                    {% block cms_form_ocr_comment_textarea %}
+                        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-textarea.html.twig'
+                            with {
+                            rows: 5,
+                            required: true,
+                            fieldName: 'comment',
+                            additionalClass: 'col-12',
+                            label: 'cancellationRequest.commentLabel',
+                            placeholder: 'cancellationRequest.commentPlaceholder'
+                        }
+                        %}
+                    {% endblock %}
+                </div>
+            </div>
+
+            {% block cms_form_ocr_captcha %}
+                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { additionalClass : 'col-md-12' } %}
+            {% endblock %}
+
+            {% block cms_form_ocr_privacy %}
+                {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' %}
+            {% endblock %}
+
+            {% block cms_form_ocr_required_fields_info %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-info-required.html.twig' %}
+            {% endblock %}
+
+            {% block cms_form_ocr_submit %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' %}
+            {% endblock %}
+        </div>
+
+        {% block cms_form_ocr_hidden_fields %}
+            <div class="form-hidden-fields">
+                <input type="hidden" id="{{ formPrefix }}-navigationId" name="navigationId" value="{{ shopware.navigation.id }}">
+                <input type="hidden" id="{{ formPrefix }}-slotId" name="slotId" value="{{ element.id }}">
+                <input type="submit" class="submit--hidden d-none">
+            </div>
+        {% endblock %}
+    </form>
+{% endblock %}

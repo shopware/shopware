@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  */
 #[Package('after-sales')]
-class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
+class Migration1768545319CancellationRequestMailTemplate extends MigrationStep
 {
     public const MERCHANT_DIRECTORY = 'cancellation_request.merchant';
     public const CUSTOMER_DIRECTORY = 'cancellation_request.customer';
@@ -74,7 +74,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
 
     public function getCreationTimestamp(): int
     {
-        return 1764939915;
+        return 1768545319;
     }
 
     public function update(Connection $connection): void
@@ -89,7 +89,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             $enLanguageByteId,
             $deLanguageByteId
         );
-        $merchantMailStruct = $this->createMailStruct(self::MERCHANT_DIRECTORY);
+        $merchantMailStruct = $this->createMailStruct(self::MERCHANT_DIRECTORY, MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT);
         $this->createMailTemplate(
             $connection,
             $merchantMailTemplateTypeByteId,
@@ -106,7 +106,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             $enLanguageByteId,
             $deLanguageByteId
         );
-        $customerMailStruct = $this->createMailStruct(self::CUSTOMER_DIRECTORY);
+        $customerMailStruct = $this->createMailStruct(self::CUSTOMER_DIRECTORY, MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_CUSTOMER);
         $this->createMailTemplate(
             $connection,
             $customerMailTemplateTypeByteId,
@@ -180,11 +180,11 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
         }
     }
 
-    private function createMailStruct(string $directory): MailStruct
+    private function createMailStruct(string $directory, string $mailType): MailStruct
     {
         $filesystem = new Filesystem();
 
-        $mailStruct = new MailStruct(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT);
+        $mailStruct = new MailStruct($mailType);
         $mailStruct->setEnHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/en-html.html.twig'));
         $mailStruct->setEnPlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/en-plain.txt.twig'));
         $mailStruct->setDeHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/de-html.html.twig'));

@@ -501,6 +501,7 @@
             "type": "Form type",
             "typeContact": "Contact",
             "typeNewsletter": "Newsletter",
+            "typeCancellationRequest": "Cancellation",
             "confirmationText": "Confirmation text"
           },
           "placeholder": {
@@ -520,7 +521,9 @@
             "salutation": "Salutation*",
             "salutationUndisclosed": "Prefer not to disclose",
             "subject": "Subject line*",
-            "subscribeToNewsletter": "Subscribe to newsletter"
+            "subscribeToNewsletter": "Subscribe to newsletter",
+            "contractNumber": "Contract number (order number, subscription number, ...)",
+            "comment": "Comment"
           },
           "placeholder": {
             "firstName": "John",
@@ -528,7 +531,9 @@
             "email": "john{'@'}doe.com",
             "phone": "+4920 3920173",
             "subject": "Lorem ipsum dolor sit amet.",
-            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.",
+            "contractNumber": "SW123456789",
+            "comment": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
           },
           "helpText": {
             "requiredFields": "Fields marked with asterisks (*) are required."

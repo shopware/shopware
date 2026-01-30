@@ -73,6 +73,8 @@ merge 16.11.2020
 
     <body>
 
+    {{ block('footer') }}
+
     <main>
         {% block document_body %}
             {% set position = 1 %}
@@ -94,8 +96,6 @@ merge 16.11.2020
             {{ block('shipping_address')  }}
         {% endblock %}
     </main>
-
-    {{ block('footer') }}
 
     </body>
     </html>

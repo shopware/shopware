@@ -60,6 +60,14 @@
                     </div>
                 {% endblock %}
 
+{#                <div class="container">#}
+{#                    Central <code>aria-live</code> region:#}
+
+{#                    <div class="aria-live-region border border-warning p-2 bg-warning-subtle" aria-live="polite" data-alert-aria-live="true">#}
+
+{#                    </div>#}
+{#                </div>#}
+
                 {% block base_add_to_cart_alert_template %}
                     {% if not config('core.cart.openOffcanvasAfterAddToCart') %}
                         {% sw_include '@Storefront/storefront/component/checkout/add-to-cart-alert-template.html.twig' %}

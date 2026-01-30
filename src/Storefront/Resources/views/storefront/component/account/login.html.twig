@@ -48,7 +48,8 @@
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: 'danger',
                                     content: 'account.loginBadCredentials'|trans|sw_sanitize,
-                                    triggerScreenreader: true
+                                    triggerScreenreader: true,
+                                    ariaLive: 'assertive'
                                 } %}
                             {% endif %}
                         {% endif %}

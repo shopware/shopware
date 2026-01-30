@@ -49,6 +49,8 @@ new ViewportDetection();
 /*
 register plugins
 */
+PluginManager.register('AlertAriaLive', () => import('src/plugin/alert-aria/alert-aria-live.plugin'), '[data-alert-aria-live]');
+PluginManager.register('AlertAria', () => import('src/plugin/alert-aria/alert-aria.plugin'), '[data-alert-aria]');
 PluginManager.register('DateFormat', () => import('src/plugin/date-format/date-format.plugin'), '[data-date-format]');
 PluginManager.register('ScrollUp', () => import('src/plugin/scroll-up/scroll-up.plugin'), '[data-scroll-up]');
 PluginManager.register('SearchWidget', () => import('src/plugin/header/search-widget.plugin'), '[data-search-widget]');
@@ -103,7 +105,6 @@ PluginManager.register('BuyBox', () => import('src/plugin/buy-box/buy-box.plugin
 PluginManager.register('BasicCaptcha', () => import('src/plugin/captcha/basic-captcha.plugin'), '[data-basic-captcha]');
 PluginManager.register('QuantitySelector', () => import('src/plugin/quantity-selector/quantity-selector.plugin'), '[data-quantity-selector]');
 PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-modal.plugin'), '[data-ajax-modal][data-url]');
-PluginManager.register('AlertMessage', () => import('src/plugin/alert-message/alert-message.plugin'), '[data-alert-message]');
 PluginManager.register('CmsGdprVideoElement', () => import('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin'), '[data-cms-gdpr-video-element]');
 
 /**

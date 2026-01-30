@@ -5,14 +5,19 @@
         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
             type: 'info',
             content: 'checkout.cartEmpty'|trans|sw_sanitize,
-            triggerScreenreader: true
+            triggerScreenreader: true,
         } %}
 
         {% set messages = app.flashes %}
 
         {% if messages.danger|length > 0 %}
             <div class="flashbags">
-                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: 'danger', list: messages.danger } %}
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                    type: 'danger',
+                    list: messages.danger,
+                    triggerScreenreader: true,
+                    ariaLive: 'assertive'
+                } %}
             </div>
         {% endif %}
 

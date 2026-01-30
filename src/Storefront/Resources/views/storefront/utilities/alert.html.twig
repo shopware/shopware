@@ -100,14 +100,18 @@ The role="alert" and aria-live attributes are then set by JavaScript to trigger 
 {% endif %}
 
 {% block utilities_alert %}
-    {% set alertMessageOptions = {
+    {% set alertAriaJsOptions = {
         ariaLive: ariaLive,
     } %}
-
+    {% if screenReaderDelay %}
+        {% set alertAriaJsOptions = alertAriaJsOptions|merge({ screenReaderDelay: screenReaderDelay }) %}
+    {% endif %}
     <div
         {% if triggerScreenreader %}
-            data-alert-message="true"
-            data-alert-message-options="{{ alertMessageOptions|json_encode }}"
+            data-alert-aria="true"
+            data-alert-aria-options="{{ alertAriaJsOptions|json_encode }}"
+            role="alert"
+            aria-live="{{ ariaLive }}"
         {% else %}
             role="alert"
             aria-live="{{ ariaLive }}"
@@ -139,7 +143,7 @@ The role="alert" and aria-live attributes are then set by JavaScript to trigger 
         {% endblock %}
 
         {% block utilities_alert_content_container %}
-            <div class="alert-content-container">
+            <div class="alert-content-container"{% if triggerScreenreader %} aria-hidden="true"{% endif %}>
                 {% block utilities_alert_heading %}
                     {% if heading %}
                         <div class="alert-heading h5">
@@ -163,18 +167,18 @@ The role="alert" and aria-live attributes are then set by JavaScript to trigger 
                         {{ content|sw_sanitize }}
                     {% endif %}
                 {% endblock %}
-
-                {% block utilities_alert_dismissible %}
-                    {% if dismissible %}
-                        <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="alert"
-                                aria-label="{{ 'global.default.close'|trans|striptags }}">
-                            <span aria-hidden="true"></span>
-                        </button>
-                    {% endif %}
-                {% endblock %}
             </div>
+
+            {% block utilities_alert_dismissible %}
+                {% if dismissible %}
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="{{ 'global.default.close'|trans|striptags }}">
+                        <span aria-hidden="true"></span>
+                    </button>
+                {% endif %}
+            {% endblock %}
         {% endblock %}
     </div>
 {% endblock %}

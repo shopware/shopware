@@ -471,10 +471,4 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             }),
         );
     });
-
-    describe('pagination behavior on filter change', () => {
-        beforeEach(() => {
-            global.activeAclRoles = [];
-        });
-    });
 });

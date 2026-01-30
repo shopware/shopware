@@ -120,7 +120,6 @@ export default {
             ];
         },
 
-
         entityAware() {
             return [
                 'CustomerAware',

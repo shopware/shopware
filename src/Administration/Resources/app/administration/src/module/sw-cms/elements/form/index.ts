@@ -32,7 +32,6 @@ Shopware.Component.register(
     () => import('./component/templates/form-cancellation-request'),
 );
 
-
 /**
  * @private
  * @sw-package discovery

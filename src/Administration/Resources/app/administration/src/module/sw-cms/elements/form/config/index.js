@@ -53,7 +53,7 @@ export default {
             return [
                 'contact',
                 'cancellationRequest',
-            ].includes(this.element.config.type.value)
+            ].includes(this.element.config.type.value);
         },
     },
 

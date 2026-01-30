@@ -6,6 +6,9 @@ namespace Shopware\Core\Framework\Util\Database;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 final readonly class Table
 {

@@ -152,10 +152,11 @@ class NoDropStatementInUpdateRule implements Rule
     private function inspectMethodCall(MethodCall $statement, Identifier $name, ClassMethod $node, array $errors): array
     {
         if (\in_array($name->name, self::$disallowedMethodCalls, true)) {
-            $errors[] = RuleErrorBuilder::message(\sprintf(
-                'Usage of method "%s" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.',
-                $name->name
-            ))
+            $message = $name->name === 'dropForeignKeyIfExists'
+                ? 'Usage of "dropForeignKeyIfExists" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks. Dropping FKs is OK if immediately re-added, or if not breaking old app version validation. Use @phpstan-ignore shopware.dropStatement if intentional.'
+                : \sprintf('Usage of method "%s" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', $name->name);
+
+            $errors[] = RuleErrorBuilder::message($message)
                 ->identifier('shopware.dropStatement')
                 ->line($statement->getStartLine())
                 ->build();
@@ -209,7 +210,7 @@ class NoDropStatementInUpdateRule implements Rule
         }
 
         if (preg_match(self::DROP_FOREIGN_KEY_REGEX_PATTERN, $sqlStatementToCheck) === 1) {
-            $errors[] = RuleErrorBuilder::message('Usage of "DROP FOREIGN KEY" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.')
+            $errors[] = RuleErrorBuilder::message('Usage of "DROP FOREIGN KEY" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks. Dropping FKs is OK if immediately re-added, or if not breaking old app version validation. Use @phpstan-ignore shopware.dropStatement if intentional.')
                 ->identifier('shopware.dropStatement')
                 ->line($statement->getStartLine())
                 ->build();

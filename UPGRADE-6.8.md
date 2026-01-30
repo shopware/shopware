@@ -450,10 +450,10 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 
 ## Removal of `items` prop in `sw-entity-listing` component
 
-The `items` prop in the `sw-entity-listing` component has been deprecated and will be removed in v6.8.0.
+The `items` prop in the `sw-entity-listing` component has been removed.
 Please use the `dataSource` prop instead to align with the parent `sw-data-grid` component.
 
-**Before (deprecated):**
+**Before:**
 ```html
 <sw-entity-listing
     :items="entityList"
@@ -462,7 +462,7 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 />
 ```
 
-**After (recommended):**
+**After:**
 ```html
 <sw-entity-listing
     :data-source="entityList"

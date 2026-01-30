@@ -58,7 +58,7 @@ class HealthCheckController
     #[Route(path: '/api/_info/system-health-check', name: 'api.info.system-health.check', defaults: ['auth_required' => true], methods: ['GET'])]
     public function health(Request $request): Response
     {
-        $verbose = filter_var($request->get('verbose', false), \FILTER_VALIDATE_BOOL);
+        $verbose = filter_var($request->query->get('verbose'), \FILTER_VALIDATE_BOOL);
 
         $result = $this->systemChecker->check(SystemCheckExecutionContext::WEB);
 

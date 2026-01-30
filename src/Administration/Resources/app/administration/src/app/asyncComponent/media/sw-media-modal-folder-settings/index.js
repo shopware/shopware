@@ -230,6 +230,8 @@ export default {
         },
 
         async onChangeInheritance(value) {
+            this.mediaFolder.useParentConfiguration = value;
+
             if (value === true) {
                 this.originalConfiguration = this.configuration;
                 this.configuration = this.parent.configuration;
@@ -251,6 +253,10 @@ export default {
                 newConfiguration[key] = this.configuration[key];
             });
             this.configuration = newConfiguration;
+        },
+
+        onChangeCreateThumbnails(value) {
+            this.configuration.createThumbnails = value;
         },
 
         async onClickSave() {

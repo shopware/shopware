@@ -230,21 +230,21 @@ class CustomerProfileValidationFactoryTest extends TestCase
             ->add('salutationId', new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $context->getContext()]))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
-            ->add('accountType', new Choice($this->accountTypes))
-            ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]));
+            ->add('accountType', new Choice(choices: $this->accountTypes))
+            ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE));
 
         if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
             $definition
-                ->add('firstName', new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
-                ->add('lastName', new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]));
+                ->add('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
+                ->add('lastName', new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME));
         }
     }
 
     private function addConstraintsBirthday(DataValidationDefinition $definition): void
     {
         $definition
-            ->add('birthdayDay', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 31]))
-            ->add('birthdayMonth', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 12]))
-            ->add('birthdayYear', new GreaterThanOrEqual(['value' => 1900]), new LessThanOrEqual(['value' => date('Y')]));
+            ->add('birthdayDay', new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 31))
+            ->add('birthdayMonth', new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 12))
+            ->add('birthdayYear', new GreaterThanOrEqual(value: 1900), new LessThanOrEqual(value: date('Y')));
     }
 }

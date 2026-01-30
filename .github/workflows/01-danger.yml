@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: Clone
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Danger
         uses: docker://ghcr.io/shyim/danger-php:latest

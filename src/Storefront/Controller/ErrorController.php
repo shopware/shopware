@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -103,7 +104,7 @@ class ErrorController extends StorefrontController
         $formViolations = new ConstraintViolationException($violations, []);
         if (!$request->isXmlHttpRequest()) {
             $errorRoute = (string) $request->request->get('errorRoute');
-            $route = $errorRoute !== '' ? $errorRoute : (($fallback = (string) $request->get('_route')) !== '' ? $fallback : 'frontend.home.page');
+            $route = $errorRoute !== '' ? $errorRoute : (($fallback = $request->attributes->getString('_route')) !== '' ? $fallback : 'frontend.home.page');
 
             return $this->forwardToRoute($route, ['formViolations' => $formViolations]);
         }
@@ -131,7 +132,7 @@ class ErrorController extends StorefrontController
                  * @deprecated tag:v6.7.0 - Storefront implementation changed. The response no longer needs the rendered input.
                  */
                 'input' => $this->renderView('@Storefront/storefront/component/captcha/basicCaptchaFields.html.twig', [
-                    'formId' => $request->get('formId'),
+                    'formId' => RequestParamHelper::get($request, 'formId'),
                     'formViolations' => $formViolations,
                 ]),
             ];

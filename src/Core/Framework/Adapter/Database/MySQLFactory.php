@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\DriverManager;
+use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 
@@ -41,19 +42,19 @@ class MySQLFactory
         ];
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_CA] = $sslCa;
         }
 
         if ($sslCert = EnvironmentHelper::getVariable('DATABASE_SSL_CERT')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $sslCert;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_CERT] = $sslCert;
         }
 
         if ($sslCertKey = EnvironmentHelper::getVariable('DATABASE_SSL_KEY')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $sslCertKey;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_KEY] = $sslCertKey;
         }
 
         if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 
         if (EnvironmentHelper::getVariable('DATABASE_PERSISTENT_CONNECTION')) {
@@ -61,7 +62,7 @@ class MySQLFactory
         }
 
         if (EnvironmentHelper::getVariable('DATABASE_PROTOCOL_COMPRESSION')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_COMPRESS] = true;
+            $parameters['driverOptions'][Mysql::ATTR_COMPRESS] = true;
         }
 
         if ($replicaUrl) {

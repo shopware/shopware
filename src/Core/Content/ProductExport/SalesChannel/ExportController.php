@@ -47,8 +47,8 @@ class ExportController
 
         $criteria = new Criteria();
         $criteria
-            ->addFilter(new EqualsFilter('fileName', $request->get('fileName')))
-            ->addFilter(new EqualsFilter('accessKey', $request->get('accessKey')))
+            ->addFilter(new EqualsFilter('fileName', $request->attributes->getString('fileName')))
+            ->addFilter(new EqualsFilter('accessKey', $request->attributes->getString('accessKey')))
             ->addFilter(new EqualsFilter('salesChannel.active', true))
             ->addAssociation('salesChannelDomain');
 
@@ -56,7 +56,7 @@ class ExportController
         $productExport = $this->productExportRepository->search($criteria, $context)->first();
 
         if ($productExport === null) {
-            $exportNotFoundException = new ExportNotFoundException(null, $request->get('fileName'));
+            $exportNotFoundException = new ExportNotFoundException(null, $request->attributes->getString('fileName'));
             $this->logException($context, $exportNotFoundException, Level::Warning);
 
             throw $exportNotFoundException;

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
@@ -127,7 +128,7 @@ class SalesChannelProxyController extends AbstractController
 
         $this->persistPermissions($request, $salesChannelContext);
 
-        $this->updateCustomerToContext($request->get(self::CUSTOMER_ID), $salesChannelContext);
+        $this->updateCustomerToContext(RequestParamHelper::get($request, self::CUSTOMER_ID), $salesChannelContext);
 
         $content = json_encode([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken(),
@@ -397,7 +398,8 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $payload = $this->contextPersister->load($contextToken, $salesChannelId);
-        $requestPermissions = $request->get(SalesChannelContextService::PERMISSIONS);
+        /** @var array<mixed>|null $requestPermissions */
+        $requestPermissions = $request->request->all()[SalesChannelContextService::PERMISSIONS] ?? null;
 
         if (\in_array(SalesChannelContextService::PERMISSIONS, $payload, true) && !$requestPermissions) {
             return;
@@ -412,22 +414,28 @@ class SalesChannelProxyController extends AbstractController
 
     private function parseCalculatedPriceByRequest(Request $request): CalculatedPrice
     {
-        $this->validateShippingCostsParameters($request);
-
-        $shippingCosts = $request->get('shippingCosts');
+        $shippingCosts = $this->validateShippingCostsParameters($request);
 
         return new CalculatedPrice($shippingCosts['unitPrice'], $shippingCosts['totalPrice'], new CalculatedTaxCollection(), new TaxRuleCollection());
     }
 
-    private function validateShippingCostsParameters(Request $request): void
+    /**
+     * @return array{unitPrice: float, totalPrice: float}
+     */
+    private function validateShippingCostsParameters(Request $request): array
     {
         if (!$request->request->has('shippingCosts')) {
             throw ApiException::shippingCostsParameterIsMissing();
         }
 
         $validation = new DataValidationDefinition('shipping-cost');
-        $validation->add('unitPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(['value' => 0]));
-        $validation->add('totalPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(['value' => 0]));
+        $validation->add('unitPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(value: 0));
+        $validation->add('totalPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(value: 0));
         $this->validator->validate($request->request->all('shippingCosts'), $validation);
+
+        /** @var array{unitPrice: float, totalPrice: float} $shippingCosts otherwise validator would have thrown */
+        $shippingCosts = $request->request->all('shippingCosts');
+
+        return $shippingCosts;
     }
 }

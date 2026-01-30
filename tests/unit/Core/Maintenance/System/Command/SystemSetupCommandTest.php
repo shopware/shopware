@@ -167,7 +167,7 @@ class SystemSetupCommandTest extends TestCase
 
         $application = new Application();
         $application->setAutoExit(false);
-        $application->add(
+        $application->addCommand(
             new SystemSetupCommand(
                 __DIR__,
                 new JwtCertificateGenerator(),
@@ -175,7 +175,7 @@ class SystemSetupCommandTest extends TestCase
             )
         );
 
-        $application->add($dumpCommand);
+        $application->addCommand($dumpCommand);
 
         return new ApplicationTester(
             $application,

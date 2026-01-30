@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -35,7 +36,7 @@ class CaptchaController extends StorefrontController
     #[Route(path: '/basic-captcha', name: 'frontend.captcha.basic-captcha.load', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function loadBasicCaptcha(Request $request, SalesChannelContext $context): Response
     {
-        $formId = $request->get('formId');
+        $formId = $request->query->get('formId');
         $page = $this->basicCaptchaPageletLoader->load($request, $context);
         $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $page->getCaptcha()->getCode());
 
@@ -49,13 +50,13 @@ class CaptchaController extends StorefrontController
     public function validate(Request $request): JsonResponse
     {
         $response = [];
-        $formId = $request->get('formId');
+        $formId = RequestParamHelper::get($request, 'formId');
         if (!$formId) {
             throw RoutingException::missingRequestParameter('formId');
         }
 
         if ($this->basicCaptcha->isValid($request, [])) {
-            $fakeSession = $request->get(BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
+            $fakeSession = RequestParamHelper::get($request, BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
             $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
 
             return new JsonResponse(['session' => $fakeSession]);
@@ -77,7 +78,7 @@ class CaptchaController extends StorefrontController
                  * @deprecated tag:v6.7.0 - Storefront implementation changed. The response no longer needs the rendered input.
                  */
                 'input' => $this->renderView('@Storefront/storefront/component/captcha/basicCaptchaFields.html.twig', [
-                    'formId' => $request->get('formId'),
+                    'formId' => $formId,
                     'formViolations' => $formViolations,
                 ]),
             ];

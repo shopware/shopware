@@ -26,6 +26,10 @@ return [
         // Will be typed in Symfony 8 (maybe)
         'Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure\(\) changed from no type to void',
 
+        // False positive, when an object extends Symfony Command and has its own constructor
+        '.* was added to Method __construct\(\) of class Symfony\\\\Component\\\\Console\\\\Command\\\\Command',
+        preg_quote('Symfony\Component\Console\Command\Command#__construct()', '/'),
+
         'An enum expression .* is not supported in .*', // Cannot be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
 
         // Criteria is @final so changing from void should be fine

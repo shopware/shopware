@@ -73,7 +73,7 @@ class AddressValidationFactory implements DataValidationFactoryInterface
         }
 
         if ($this->systemConfigService->get('core.loginRegistration.showPhoneNumberField', $salesChannelId)) {
-            $definition->add('phoneNumber', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_PHONE_NUMBER], null, null, null, null, null, 'VIOLATION::PHONE_NUMBER_IS_TOO_LONG'));
+            $definition->add('phoneNumber', new Length(max: CustomerAddressDefinition::MAX_LENGTH_PHONE_NUMBER, exactMessage: 'VIOLATION::PHONE_NUMBER_IS_TOO_LONG'));
         }
 
         /**
@@ -81,10 +81,10 @@ class AddressValidationFactory implements DataValidationFactoryInterface
          */
         if (Feature::isActive('ADDRESS_SELECTION_REWORK')) {
             $definition
-                ->add('firstName', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME], null, null, null, null, null, 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
-                ->add('lastName', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_LAST_NAME], null, null, null, null, null, 'VIOLATION::LAST_NAME_IS_TOO_LONG'))
-                ->add('title', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_TITLE], null, null, null, null, null, 'VIOLATION::TITLE_IS_TOO_LONG'))
-                ->add('zipcode', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_ZIPCODE], null, null, null, null, null, 'VIOLATION::ZIPCODE_IS_TOO_LONG'));
+                ->add('firstName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
+                ->add('lastName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG'))
+                ->add('title', new Length(max: CustomerAddressDefinition::MAX_LENGTH_TITLE, exactMessage: 'VIOLATION::TITLE_IS_TOO_LONG'))
+                ->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE, exactMessage: 'VIOLATION::ZIPCODE_IS_TOO_LONG'));
         }
 
         return $definition;

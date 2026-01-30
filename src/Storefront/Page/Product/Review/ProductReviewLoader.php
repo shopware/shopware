@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Product\Review;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader as CoreProductReviewLoader;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -35,12 +36,12 @@ class ProductReviewLoader
     {
         Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', CoreProductReviewLoader::class));
 
-        $productId = $request->get('productId');
+        $productId = RequestParamHelper::get($request, 'productId');
         if (!\is_string($productId)) {
             throw RoutingException::missingRequestParameter('productId');
         }
 
-        $reviews = $this->productReviewLoader->load($request, $context, $productId, $request->get('parentId'));
+        $reviews = $this->productReviewLoader->load($request, $context, $productId, RequestParamHelper::get($request, 'parentId'));
         /** @var StorefrontSearchResult<ProductReviewCollection> $storefrontReviews */
         $storefrontReviews = new StorefrontSearchResult(
             $reviews->getEntity(),

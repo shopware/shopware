@@ -157,3 +157,7 @@ devenv.local.nix
 
 # danger.php
 danger.phar
+
+# 6.7 Vite deps - added to make switching branches easier
+**/.tmp/vite/*
+**/build/vite-plugins/*

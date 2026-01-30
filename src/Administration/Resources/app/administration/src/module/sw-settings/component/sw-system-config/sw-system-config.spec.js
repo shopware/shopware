@@ -777,6 +777,19 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(error).toBeInstanceOf(ShopwareError);
     });
 
+    it('should disable meteor fields when inherited', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = createConfig()[0].elements.find(({ type }) => type === 'single-select');
+        const bind = wrapper.vm.getMeteorElementBind(element, {
+            currentValue: element.config.defaultValue,
+            isInherited: true,
+        });
+
+        expect(bind.config.disabled).toBe(true);
+    });
+
     createConfig()[0].elements.forEach(({ name, type, config, _test }) => {
         it(`should render field with type "${type || name}" with the default value and should be able to change it`, async () => {
             const domValue = _test.defaultValueDom || config.defaultValue;

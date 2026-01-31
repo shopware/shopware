@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
@@ -195,26 +196,99 @@ class TableHelperTest extends TestCase
         TableHelper::getForeignKeyOfTable($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, 'fk.product.parent_id');
     }
 
-    public function testForeignKeyExistsByColumns(): void
-    {
-        static::assertTrue(TableHelper::foreignKeyExistsByColumns(
-            $this->connection,
-            ProductDefinition::ENTITY_NAME,
-            ['parent_id', 'parent_version_id'],
-            ProductDefinition::ENTITY_NAME,
-            ['id', 'version_id']
-        ));
+    /**
+     * @param list<string> $localColumns
+     * @param list<string> $foreignColumns
+     */
+    #[DataProvider('foreignKeyExistsByColumnsProvider')]
+    public function testForeignKeyExistsByColumns(
+        array $localColumns,
+        string $foreignTable,
+        array $foreignColumns,
+        bool $ignoreColumnOrder,
+        bool $expectedResult
+    ): void {
+        static::assertSame(
+            $expectedResult,
+            TableHelper::foreignKeyExistsByColumns(
+                $this->connection,
+                ProductDefinition::ENTITY_NAME,
+                $localColumns,
+                $foreignTable,
+                $foreignColumns,
+                $ignoreColumnOrder
+            )
+        );
     }
 
-    public function testForeignKeyDoesNotExistByColumns(): void
+    /**
+     * @return iterable<string, array{list<string>, string, list<string>, bool, bool}>
+     */
+    public static function foreignKeyExistsByColumnsProvider(): iterable
     {
-        static::assertFalse(TableHelper::foreignKeyExistsByColumns(
-            $this->connection,
+        yield 'strict: existing FK with columns in definition order' => [
+            ['parent_id', 'parent_version_id'],
             ProductDefinition::ENTITY_NAME,
+            ['id', 'version_id'],
+            false,
+            true,
+        ];
+
+        yield 'strict: reversed local columns do not match' => [
+            ['parent_version_id', 'parent_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['id', 'version_id'],
+            false,
+            false,
+        ];
+
+        yield 'strict: reversed foreign columns do not match' => [
+            ['parent_id', 'parent_version_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['version_id', 'id'],
+            false,
+            false,
+        ];
+
+        yield 'ignoreOrder: reversed local columns match' => [
+            ['parent_version_id', 'parent_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['id', 'version_id'],
+            true,
+            true,
+        ];
+
+        yield 'ignoreOrder: reversed foreign columns match' => [
+            ['parent_id', 'parent_version_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['version_id', 'id'],
+            true,
+            true,
+        ];
+
+        yield 'non-existing FK with unknown local columns' => [
             [self::UNKNOWN_NAME],
             ProductDefinition::ENTITY_NAME,
-            ['id']
-        ));
+            ['id'],
+            false,
+            false,
+        ];
+
+        yield 'non-existing FK with wrong foreign table' => [
+            ['parent_id', 'parent_version_id'],
+            self::UNKNOWN_NAME,
+            ['id', 'version_id'],
+            false,
+            false,
+        ];
+
+        yield 'non-existing FK with partial local columns' => [
+            ['parent_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['id', 'version_id'],
+            false,
+            false,
+        ];
     }
 
     public function testResetSchemaManager(): void

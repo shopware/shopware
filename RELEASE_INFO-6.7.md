@@ -11,7 +11,9 @@
 A new helper class `\Shopware\Core\Framework\Util\Database\TableHelper` was introduced,
 which could be used to check the table for existence, columns, indexes, and foreign keys.
 
-The `foreignKeyExistsByColumns()` method was added to check foreign key existence by column relationships rather than by foreign key name.
+The `foreignKeyExistsByColumns()` method was added to check foreign key existence by column relationships rather than by foreign key name. An optional `$ignoreColumnOrder` parameter controls matching behavior:
+- `false` (default): Column order must match FK definition (positional mapping). Use when verifying a specific column mapping exists.
+- `true`: Only checks if columns participate in any FK relationship. Use when checking if columns are already constrained, regardless of mapping.
 
 #### Deprecation of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
 

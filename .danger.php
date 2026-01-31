@@ -274,12 +274,24 @@ return (new Config())
         $unitTestsName = [];
 
         // prepare phpunit code coverage exclude lists
-        $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
         $excludedDirs = [];
         $excludedFiles = [];
         $dom = new DOMDocument();
 
-        if ($dom->load($phpUnitConfig)) {
+        $phpUnitConfigFromPullRequest = $context->platform->pullRequest->getFiles()
+            ->matches('phpunit.xml.dist')
+            ->first();
+
+        if (!$phpUnitConfigFromPullRequest) {
+            $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
+            $domLoad = $dom->load($phpUnitConfig);
+        } else {
+            $phpUnitConfig = $phpUnitConfigFromPullRequest->name;
+            $domLoad = $dom->loadXML($phpUnitConfigFromPullRequest->getContent());
+        }
+
+
+        if ($domLoad) {
             $xpath = new DOMXPath($dom);
             foreach ($xpath->query('//source/exclude/directory') as $dirDomElement) {
                 $excludedDirs[] = [

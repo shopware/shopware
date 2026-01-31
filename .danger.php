@@ -282,13 +282,10 @@ return (new Config())
             ->matches('phpunit.xml.dist')
             ->first();
 
-        if (!$phpUnitConfigFromPullRequest) {
-            $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
-            $domLoad = $dom->load($phpUnitConfig);
-        } else {
-            $phpUnitConfig = $phpUnitConfigFromPullRequest->name;
-            $domLoad = $dom->loadXML($phpUnitConfigFromPullRequest->getContent());
-        }
+        $phpUnitConfig = $phpUnitConfigFromPullRequest?->name ?? __DIR__ . '/phpunit.xml.dist';
+        $domLoad = $phpUnitConfigFromPullRequest
+            ? $dom->loadXML($phpUnitConfigFromPullRequest->getContent())
+            : $dom->load($phpUnitConfig);
 
 
         if ($domLoad) {
@@ -481,13 +478,10 @@ return (new Config())
             ->matches('phpunit.xml.dist')
             ->first();
 
-        if (!$phpUnitConfigFromPullRequest) {
-            $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
-            $domLoad = $dom->load($phpUnitConfig);
-        } else {
-            $phpUnitConfig = $phpUnitConfigFromPullRequest->name;
-            $domLoad = $dom->loadXML($phpUnitConfigFromPullRequest->getContent());
-        }
+        $phpUnitConfig = $phpUnitConfigFromPullRequest?->name ?? __DIR__ . '/phpunit.xml.dist';
+        $domLoad = $phpUnitConfigFromPullRequest
+            ? $dom->loadXML($phpUnitConfigFromPullRequest->getContent())
+            : $dom->load($phpUnitConfig);
 
         if ($domLoad === false) {
             $context->failure(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));

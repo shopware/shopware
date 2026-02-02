@@ -291,6 +291,18 @@ class TableHelperTest extends TestCase
         ];
     }
 
+    public function testForeignKeyExistsByColumnsThrowsExceptionWhileGettingSchemaManager(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
+        TableHelper::foreignKeyExistsByColumns(
+            $this->getInvalidConnection(),
+            ProductDefinition::ENTITY_NAME,
+            ['parent_id', 'parent_version_id'],
+            ProductDefinition::ENTITY_NAME,
+            ['id', 'version_id'],
+        );
+    }
+
     public function testResetSchemaManager(): void
     {
         static::assertTrue(TableHelper::tableExists($this->connection, ProductDefinition::ENTITY_NAME));

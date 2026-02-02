@@ -41,7 +41,7 @@ class SystemIsInstalledCommand extends Command
 
                 return self::SUCCESS;
             }
-        } catch (\Exception) {
+        } catch (\Throwable) {
         }
 
         $io->error('Shopware is not installed');

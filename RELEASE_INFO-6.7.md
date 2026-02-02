@@ -24,6 +24,10 @@ The migration generator previously used a fixed format: `fk.<table-name>.<column
 
 Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
 
+### New `internal` column in `product_stream` table
+
+A new boolean column `internal` has been added to the `product_stream` table. This column can be used to mark product streams as internal, allowing you to differentiate between public and internal product streams.
+
 ## Administration
 
 ## Storefront

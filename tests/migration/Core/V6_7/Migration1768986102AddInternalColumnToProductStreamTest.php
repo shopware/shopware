@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1768986102AddInternalColumnToProductStream;
 
 /**
@@ -34,15 +35,12 @@ class Migration1768986102AddInternalColumnToProductStreamTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $existingColumns = $this->connection->createSchemaManager()->listTableColumns('product_stream');
-        static::assertArrayHasKey('internal', $existingColumns);
+        static::assertTrue(TableHelper::columnExists($this->connection, 'product_stream', 'internal'));
     }
 
     private function rollback(): void
     {
-        $existingColumns = $this->connection->createSchemaManager()->listTableColumns('product_stream');
-
-        if (\array_key_exists('internal', $existingColumns)) {
+        if (TableHelper::columnExists($this->connection, 'product_stream', 'internal')) {
             $this->connection->executeStatement('ALTER TABLE `product_stream` DROP COLUMN `internal`;');
         }
     }

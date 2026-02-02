@@ -84,13 +84,13 @@ To display a dismissible button set the value of "dismissible" to true.
     } %}
 
 *Trigger Screenreader on page load
-When the alert is rendered on initial payload this option can be used to make the alert message read by the screenreader.
+When the alert is rendered on initial page load this option can be used to make the alert message read by the screenreader.
 The role="alert" and aria-live attributes are then set by JavaScript to trigger the screenreader.
 
     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
         type: "primary",
         content: "An important message on initial page load",
-        triggerScreenreader: true
+        announceOnLoad: true
     } %}
 
 #}
@@ -107,15 +107,12 @@ The role="alert" and aria-live attributes are then set by JavaScript to trigger 
         {% set alertAriaJsOptions = alertAriaJsOptions|merge({ screenReaderDelay: screenReaderDelay }) %}
     {% endif %}
     <div
-        {% if triggerScreenreader %}
+        {% if announceOnLoad %}
             data-alert-aria="true"
             data-alert-aria-options="{{ alertAriaJsOptions|json_encode }}"
-            role="alert"
-            aria-live="{{ ariaLive }}"
-        {% else %}
-            role="alert"
-            aria-live="{{ ariaLive }}"
         {% endif %}
+        role="alert"
+        aria-live="{{ ariaLive }}"
         class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != 'error' %} d-flex align-items-center{% endif %}"
     >
 
@@ -143,7 +140,7 @@ The role="alert" and aria-live attributes are then set by JavaScript to trigger 
         {% endblock %}
 
         {% block utilities_alert_content_container %}
-            <div class="alert-content-container"{% if triggerScreenreader %} aria-hidden="true"{% endif %}>
+            <div class="alert-content-container">
                 {% block utilities_alert_heading %}
                     {% if heading %}
                         <div class="alert-heading h5">

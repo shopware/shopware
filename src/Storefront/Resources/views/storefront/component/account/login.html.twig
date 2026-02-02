@@ -36,19 +36,19 @@
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: 'danger',
                                     content: errorSnippet|trans|sw_sanitize({}, true),
-                                    triggerScreenreader: true
+                                    announceOnLoad: true
                                 } %}
                             {% elseif waitTime != null %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: 'info',
                                     content: 'account.loginThrottled'|trans({'%seconds%': waitTime|number_format})|sw_sanitize,
-                                    triggerScreenreader: true
+                                    announceOnLoad: true
                                 } %}
                             {% else %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: 'danger',
                                     content: 'account.loginBadCredentials'|trans|sw_sanitize,
-                                    triggerScreenreader: true,
+                                    announceOnLoad: true,
                                     ariaLive: 'assertive'
                                 } %}
                             {% endif %}

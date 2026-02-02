@@ -5,7 +5,7 @@
         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
             type: 'info',
             content: 'checkout.cartEmpty'|trans|sw_sanitize,
-            triggerScreenreader: true,
+            announceOnLoad: true,
         } %}
 
         {% set messages = app.flashes %}
@@ -15,7 +15,7 @@
                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                     type: 'danger',
                     list: messages.danger,
-                    triggerScreenreader: true,
+                    announceOnLoad: true,
                     ariaLive: 'assertive'
                 } %}
             </div>

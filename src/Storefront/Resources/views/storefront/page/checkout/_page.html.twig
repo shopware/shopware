@@ -19,7 +19,7 @@
                                         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                             type: type,
                                             list: messages,
-                                            triggerScreenreader: true,
+                                            announceOnLoad: true,
                                         } %}
                                     {% endfor %}
                                 </div>

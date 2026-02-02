@@ -8,31 +8,18 @@ export default class AlertAriaPlugin extends window.PluginBaseClass {
     init() {
         this._container = this.el.querySelector('.alert-content-container');
 
-        if (this.options.central) {
-            this._publishAriaLiveUpdate();
-        } else {
-            this._createAriaLiveElement();
-        }
+        this._announceAlert();
     }
 
-    _publishAriaLiveUpdate() {
-        document.$emitter.publish('AlertAriaLive/Update', {
-            message: this._container.innerHTML,
-            ariaLive: this.options.ariaLive,
-        });
-    }
+    _announceAlert() {
+        const delay = this.options.ariaLive === 'assertive' ? 1000 : 1500;
 
-    _createAriaLiveElement() {
-        const delay = this.options.ariaLive === 'assertive' ? 900 : 1000;
+        // Initially hide the alert content from screenreader.
+        this._container.setAttribute('aria-hidden', 'true');
 
-        console.log(delay, this._container.innerHTML.trim());
-
+        // After timeout, disable aria-hidden to trigger the parent aria-live region.
         setTimeout(() => {
-            const ariaLiveElement = document.createElement('div');
-            ariaLiveElement.setAttribute('class', 'visually-hidden');
-            ariaLiveElement.innerHTML = this._container.innerHTML;
-
-            this.el.insertAdjacentElement('afterbegin', ariaLiveElement);
+            this._container.setAttribute('aria-hidden', 'false');
         }, delay);
     }
 }

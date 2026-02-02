@@ -71,7 +71,6 @@ jobs:
             NIGHTLY=${{ inputs.nightly }}
 
 mergeability-check:
-    if: always()
     name: Downstream Mergeability Check
     runs-on: ubuntu-latest
     steps:

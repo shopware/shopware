@@ -128,14 +128,14 @@ jobs:
               }
 
               if (prDetail.data.mergeable === false) {
-                failures.push(`${r.repo} PR #${pr.number} is not mergeable`);
+                failures.push(`${r.repo} PR #${pr.number} is not mergeable - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 
               // Check head SHA
               const headSha = pr.head && pr.head.sha;
               if (!headSha) {
-                failures.push(`${r.repo} PR #${pr.number} has no head SHA`);
+                failures.push(`${r.repo} PR #${pr.number} has no head SHA - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 
@@ -149,7 +149,7 @@ jobs:
                 const state = status && status.data && status.data.state;
                 core.info(`${r.repo} PR #${pr.number} combined status: ${state}`);
                 if (state !== 'success') {
-                  failures.push(`${r.repo} PR #${pr.number} checks are not green (combined status: ${state})`);
+                  failures.push(`${r.repo} PR #${pr.number} checks are not green (combined status: ${state}) - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                   continue;
                 }
 
@@ -173,14 +173,14 @@ jobs:
               // After polling, evaluate check-run conclusions
               const stillPending = checkRuns.some(c => c.status !== 'completed');
               if (stillPending) {
-                failures.push(`${r.repo} PR #${pr.number} timeout waiting for check-runs to complete (head: ${headSha})`);
+                failures.push(`${r.repo} PR #${pr.number} timeout waiting for check-runs to complete (head: ${headSha}) - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 
               const failingRuns = checkRuns.filter(c => !allowedConclusions.has((c.conclusion || '').toLowerCase()));
               if (failingRuns.length > 0) {
                 const details = failingRuns.map(c => `${c.name} (${c.conclusion})`).join(', ');
-                failures.push(`${r.repo} PR #${pr.number} failing checks: ${details}`);
+                failures.push(`${r.repo} PR #${pr.number} failing checks: ${details} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 
@@ -188,13 +188,13 @@ jobs:
               const reviews = await github.rest.pulls.listReviews({ owner: r.owner, repo: r.repo, pull_number: pr.number });
               const hasChangeRequests = reviews.data && reviews.data.some(rv => (rv.state || '').toUpperCase() === 'CHANGES_REQUESTED' || (rv.state || '').toUpperCase() === 'REQUEST_CHANGES');
               if (hasChangeRequests) {
-                failures.push(`${r.repo} PR #${pr.number} has one or more change requests`);
+                failures.push(`${r.repo} PR #${pr.number} has one or more change requests - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 
               const approved = reviews.data && reviews.data.some(rv => (rv.state || '').toUpperCase() === 'APPROVED');
               if (!approved) {
-                failures.push(`${r.repo} PR #${pr.number} has no approval`);
+                failures.push(`${r.repo} PR #${pr.number} has no approval - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 

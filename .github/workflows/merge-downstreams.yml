@@ -66,10 +66,10 @@ jobs:
                 if (mergeResp && mergeResp.data && mergeResp.data.merged) {
                   core.info(`Merged ${r.repo} PR #${pr.number} successfully`);
                 } else {
-                  failures.push(`${r.repo} PR #${pr.number} could not be merged`);
+                  failures.push(`${r.repo} PR #${pr.number} could not be merged - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 }
               } catch (err) {
-                failures.push(`${r.repo} PR #${pr.number} merge failed: ${err.message}`);
+                failures.push(`${r.repo} PR #${pr.number} merge failed: ${err.message} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
             }

@@ -68,7 +68,23 @@ inputs:
         default: "ats"
         description: "Prefix for the artifact name"
 
+    playwright-role-arn:
+        required: false
+        description: "Role ARN to assume for uploading traces (pass as secret)"
+    playwright-traces-domain:
+        required: false
+        description: "Playwright traces domain for report URLs"
+    s3-bucket:
+        required: false
+        default: "shopware-ci-playwright-traces"
+        description: "S3 bucket name"
+    report-prefix:
+        required: false
+        default: "playwright-reports"
+        description: "S3 prefix for reports"
+
 runs:
+
   using: "composite"
   steps:
         - uses: shopware/octo-sts-action@main
@@ -177,6 +193,68 @@ runs:
               path: ${{ inputs.directory }}/test-results/
               retention-days: 3
           continue-on-error: true
+
+
+        - name: Check if this run should attempt AWS operations
+          id: check-aws-allowed
+          if: ${{ github.repository_owner == 'shopware' &&
+              (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+          shell: bash
+          run: |
+              if [ -z "${{ inputs.playwright-role-arn }}" ]; then
+                echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+                echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
+              else
+                echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+              fi
+
+        - name: Configure AWS credentials
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-region: eu-central-1
+            role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+            role-to-assume: ${{ inputs.playwright-role-arn }}
+
+        - name: Upload Playwright HTML report to S3
+          working-directory: ${{ inputs.directory }}
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+          shell: bash
+          run: |
+                set -euo pipefail
+                RANDOM_STR=$(openssl rand -hex 6)
+
+                # build the destination prefix and export it for subsequent steps
+                REPORT_DEST="${{ inputs.report-prefix }}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+
+                aws s3 cp "playwright-report" "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/" --recursive
+
+                echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
+                echo "Uploaded to s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/"
+
+        - name: Publish S3 Static Website URL
+          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+          shell: bash
+          run: |
+                set -euo pipefail
+
+                if [ -z "${REPORT_DEST:-}" ]; then
+                echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+                exit 0
+                fi
+
+                if ! aws s3 ls "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
+                echo "Index file not found ... skipping publish." >&2
+                exit 0
+                fi
+
+                DOMAIN="${{ inputs.playwright-traces-domain }}"
+                URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+                echo "${URL}"
+
+                echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
+                echo "" >> "$GITHUB_STEP_SUMMARY"
+                echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
 
         - name: Check for changes
           id: diff

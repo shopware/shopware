@@ -31,6 +31,8 @@ class ProductStreamEntity extends Entity
 
     protected bool $invalid;
 
+    protected bool $internal;
+
     protected ?ProductStreamTranslationCollection $translations = null;
 
     protected ?ProductExportCollection $productExports = null;
@@ -93,6 +95,16 @@ class ProductStreamEntity extends Entity
     public function setInvalid(bool $invalid): void
     {
         $this->invalid = $invalid;
+    }
+
+    public function isInternal(): bool
+    {
+        return $this->internal;
+    }
+
+    public function setInternal(bool $internal): void
+    {
+        $this->internal = $internal;
     }
 
     public function getTranslations(): ?ProductStreamTranslationCollection

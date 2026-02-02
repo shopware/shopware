@@ -67,11 +67,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
     #[DataProvider('dataProviderValidatesVatIdsCorrectly')]
     public function testValidatesVatIdsCorrectly(string $iso, array $vatIds): void
     {
-        $constraint = new CustomerVatIdentification([
-            'message' => 'Invalid VAT ID',
-            'countryId' => $this->countries[$iso],
-            'shouldCheck' => true,
-        ]);
+        $constraint = new CustomerVatIdentification(
+            countryId: $this->countries[$iso],
+            shouldCheck: true,
+            message: 'Invalid VAT ID'
+        );
 
         $this->validator->validate($vatIds, $constraint);
 
@@ -84,11 +84,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
     #[DataProvider('dataProviderValidatesVatIdsInCorrectly')]
     public function testValidateVatIdsInCorrectly(string $iso, int $count, array $vatIds): void
     {
-        $constraint = new CustomerVatIdentification([
-            'message' => 'Invalid VAT ID',
-            'countryId' => $this->countries[$iso],
-            'shouldCheck' => true,
-        ]);
+        $constraint = new CustomerVatIdentification(
+            countryId: $this->countries[$iso],
+            shouldCheck: true,
+            message: 'Invalid VAT ID'
+        );
 
         $this->validator->validate($vatIds, $constraint);
 
@@ -107,11 +107,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
     public function testDoesNotValidateWhenVatIdsIsNull(): void
     {
-        $constraint = new CustomerVatIdentification([
-            'message' => 'Invalid VAT ID',
-            'countryId' => $this->countries['DE'],
-            'shouldCheck' => true,
-        ]);
+        $constraint = new CustomerVatIdentification(
+            countryId: $this->countries['DE'],
+            shouldCheck: true,
+            message: 'Invalid VAT ID',
+        );
 
         $this->validator->validate(null, $constraint);
 
@@ -120,11 +120,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
     public function testDoesNotValidateWhenShouldCheckIsFalse(): void
     {
-        $constraint = new CustomerVatIdentification([
-            'message' => 'Invalid VAT ID',
-            'countryId' => $this->countries['DE'],
-            'shouldCheck' => false,
-        ]);
+        $constraint = new CustomerVatIdentification(
+            countryId: $this->countries['DE'],
+            shouldCheck: false,
+            message: 'Invalid VAT ID',
+        );
 
         $this->validator->validate(['DE123456789'], $constraint);
 

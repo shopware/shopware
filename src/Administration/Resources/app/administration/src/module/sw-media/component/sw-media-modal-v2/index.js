@@ -23,6 +23,13 @@ export default {
     ],
 
     props: {
+        isOpen: {
+            type: Boolean,
+            required: false,
+            // eslint-disable-next-line vue/no-boolean-default
+            default: true,
+        },
+
         initialFolderId: {
             type: String,
             required: false,
@@ -152,13 +159,24 @@ export default {
         },
 
         getComponentWidth() {
-            const componentWidth = this.$el.getBoundingClientRect().width;
+            // during teleportation the $el doesn't have a bounding client rect yet
+            const componentWidth = this.$el.getBoundingClientRect?.().width;
+            if (!componentWidth) {
+                return;
+            }
+
             this.compact = componentWidth <= 900;
         },
 
         /*
          * v-model
          */
+        onModalRootChange(isOpen) {
+            if (!isOpen) {
+                this.$emit('modal-close');
+            }
+        },
+
         onEmitModalClosed() {
             this.$emit('modal-close');
         },

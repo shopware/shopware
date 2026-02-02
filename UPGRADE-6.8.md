@@ -133,6 +133,19 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
+## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
+
+Following helper methods have been removed from the `EntityDefinitionQueryHelper`:
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnExists
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
+
+## Thrown exception changed in migration helper traits
+
+Instead of `\Doctrine\DBAL\Exception\TableNotFoundException`, a `\Shopware\Core\Framework\Util\UtilException` is now thrown in the following methods:
+- \Shopware\Core\Framework\Migration\AddColumnTrait::addColumn
+- \Shopware\Core\Framework\Migration\ColumnExistsTrait::columnExists
+
 ## Cache improvements
 
 ### Only rules relevant for product prices are considered in the `sw-cache-hash`
@@ -744,6 +757,11 @@ This method was moved to FocusHandler Helper. Use this instead.
 const lastFocusableEl = window.focusHandler.getLastFocusableElement();
 ```
 
+## Invalid locale codes no longer supported
+
+Passing invalid locale codes (esp non localized two letter codes like "US") to the default `format_number` and `format_currency` twig filters will now throw an error.
+Please use the proper localized codes like "en-US" instead. Additionally, you should use the shopware specific `currency`, instead of the native `format_currency` filter, to already handle configured rounding etc.
+
 ## Remove route `widgets.account.order.detail`
 
 Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
@@ -874,6 +892,11 @@ The error handling for the route `/account/order/document/{documentId}/{deepLink
 The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}` has been updated. Instead of returning `204`, the route now returns:
 - `406` (Not Acceptable) for invalid/unsupported `fileType` values
 - `404` (Not Found) when no generated document exists for the requested `fileType`.
+
+## Removed block `buy_widget_price_unit` from `@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig`
+
+The block `buy_widget_price_unit` and its childrens has been moved into `@Storefront/storefront/component/buy-widget/buy-widget.html.twig`.
+Instead of overwriting any of those blocks inside `@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig`, extend the new `@Storefront/storefront/component/buy-widget/buy-widget.html.twig` file using the same blocks.
 
 
 </details>

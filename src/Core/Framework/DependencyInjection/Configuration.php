@@ -416,6 +416,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                ->booleanNode('disable_stampede_protection')->defaultFalse()->end()
                 ->arrayNode('twig')
                     ->children()
                         ->scalarNode('string_template_renderer_cache_dir')->end()
@@ -440,6 +441,9 @@ class Configuration implements ConfigurationInterface
                             ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as cache states will be removed.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
+                        ->end()
+                        ->booleanNode('tag_invalidation_log_enabled')
+                            ->defaultFalse()
                         ->end()
                         // @deprecated tag:v6.8.0 - remove all route specific invalidation options
                         ->arrayNode('product_listing_route')

@@ -465,7 +465,7 @@
       "buttonSwitchToUrlUpload": "Upload file from URL",
       "buttonOpenMedia": "Open media",
       "snackbar": {
-        "message": "Uploading file | Uploading files",
+        "message": "Uploading file | Uploading files ({processed}/{total})",
         "errorMessage": "File could not be uploaded. | Some files could not be uploaded."
       },
       "notification": {
@@ -490,6 +490,12 @@
         },
         "requestCanceled": {
           "message": "The upload has been cancelled."
+        },
+        "payloadTooLarge": {
+          "message": "File is too large. Please reduce the file size or check the server configuration."
+        },
+        "transportError": {
+          "message": "Upload failed due to a connection or server timeout. Please check your connection or server limits."
         }
       },
       "caption": "Drag files here to upload"

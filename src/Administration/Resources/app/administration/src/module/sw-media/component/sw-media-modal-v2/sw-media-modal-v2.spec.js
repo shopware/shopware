@@ -14,7 +14,8 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-modal': true,
+                    'mt-modal': true,
+                    'mt-modal-root': true,
                     'sw-tabs': {
                         template: '<div><slot name="content" active="upload"></slot></div>',
                     },

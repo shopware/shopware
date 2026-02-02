@@ -3,24 +3,28 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+/**
+ * @internal
+ *
+ * @final
+ */
 #[Package('framework')]
 class AttributeEntityDefinition extends EntityDefinition
 {
-    /**
-     * @param array<string, mixed> $meta
-     */
-    public function __construct(private readonly array $meta = [])
+    private readonly CamelCaseToSnakeCaseNameConverter $converter;
+
+    public function __construct(private readonly EntityMetadata $meta)
     {
+        $this->converter = new CamelCaseToSnakeCaseNameConverter();
     }
 
     public function since(): ?string
     {
-        return $this->meta['since'] ?? null;
+        return $this->meta->since;
     }
 
     /**
@@ -28,12 +32,12 @@ class AttributeEntityDefinition extends EntityDefinition
      */
     public function getEntityClass(): string
     {
-        return $this->meta['entity_class'];
+        return $this->meta->entityClass;
     }
 
     public function getEntityName(): string
     {
-        return $this->meta['entity_name'];
+        return $this->meta->entityName;
     }
 
     /**
@@ -41,7 +45,7 @@ class AttributeEntityDefinition extends EntityDefinition
      */
     public function getCollectionClass(): string
     {
-        return $this->meta['collection_class'];
+        return $this->meta->collectionClass;
     }
 
     /**
@@ -49,42 +53,38 @@ class AttributeEntityDefinition extends EntityDefinition
      */
     public function getHydratorClass(): string
     {
-        return $this->meta['hydrator_class'];
+        return $this->meta->hydratorClass;
     }
 
     protected function getParentDefinitionClass(): ?string
     {
-        return $this->meta['parent'] ?? null;
+        return $this->meta->parent;
     }
 
     protected function defineFields(): FieldCollection
     {
         $fields = [];
 
-        foreach ($this->meta['fields'] as $field) {
-            if (!isset($field['class'])) {
+        foreach ($this->meta->fields as $fieldMeta) {
+            if ($fieldMeta->attribute->translated) {
+                $fields[] = new TranslatedField($fieldMeta->propertyName);
                 continue;
             }
 
-            if ($field['translated']) {
-                $fields[] = new TranslatedField($field['name']);
-                continue;
+            $column = $this->converter->normalize($fieldMeta->propertyName);
+
+            $field = $fieldMeta->attribute->createField(
+                $fieldMeta->propertyName,
+                $column,
+                $fieldMeta->entityName,
+                $fieldMeta->propertyType,
+            );
+
+            foreach ($fieldMeta->flags as $flagMeta) {
+                $field->addFlags($flagMeta->createFlag());
             }
 
-            $instance = new $field['class'](...$field['args']);
-            if (!$instance instanceof Field) {
-                continue;
-            }
-
-            foreach ($field['flags'] ?? [] as $flag) {
-                $flagInstance = new $flag['class'](...$flag['args'] ?? []);
-
-                if ($flagInstance instanceof Flag) {
-                    $instance->addFlags($flagInstance);
-                }
-            }
-
-            $fields[] = $instance;
+            $fields[] = $field;
         }
 
         return new FieldCollection($fields);

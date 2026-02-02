@@ -283,4 +283,61 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame('FRAMEWORK__INVALID_COMPRESSED_CRITERIA_PARAMETER', $e->getErrorCode());
     }
+
+    public function testCanNotFindAttribute(): void
+    {
+        $e = DataAbstractionLayerException::canNotFindAttribute('Field', 'productName');
+
+        static::assertSame('Can not find attribute "Field" for property productName', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::ATTRIBUTE_NOT_FOUND, $e->getErrorCode());
+    }
+
+    public function testInvalidFieldMetadataClass(): void
+    {
+        $e = DataAbstractionLayerException::invalidFieldMetadataClass('InvalidClass');
+
+        static::assertSame('FieldMetadata requires a Field subclass, got "InvalidClass".', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::INVALID_FIELD_METADATA_CLASS, $e->getErrorCode());
+    }
+
+    public function testInvalidFlagMetadataClass(): void
+    {
+        $e = DataAbstractionLayerException::invalidFlagMetadataClass('InvalidFlag');
+
+        static::assertSame('FlagMetadata requires a Flag subclass, got "InvalidFlag".', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::INVALID_FLAG_METADATA_CLASS, $e->getErrorCode());
+    }
+
+    public function testUnknownFieldAttributeType(): void
+    {
+        $e = DataAbstractionLayerException::unknownFieldAttributeType('invalid_type');
+
+        static::assertSame(
+            'Unknown field attribute type "invalid_type". Use a FieldType constant, a DAL Field class, or override getFieldClass().',
+            $e->getMessage()
+        );
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::UNKNOWN_FIELD_ATTRIBUTE_TYPE, $e->getErrorCode());
+    }
+
+    public function testInvalidEntityMetadata(): void
+    {
+        $e = DataAbstractionLayerException::invalidEntityMetadata('corrupted_data');
+
+        static::assertSame('Failed to deserialize EntityMetadata: "corrupted_data".', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::INVALID_ENTITY_METADATA, $e->getErrorCode());
+    }
+
+    public function testInvalidMappingMetadata(): void
+    {
+        $e = DataAbstractionLayerException::invalidMappingMetadata('bad_mapping_data');
+
+        static::assertSame('Failed to deserialize MappingMetadata: "bad_mapping_data".', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::INVALID_MAPPING_METADATA, $e->getErrorCode());
+    }
 }

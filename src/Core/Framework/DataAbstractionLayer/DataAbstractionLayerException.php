@@ -135,6 +135,11 @@ class DataAbstractionLayerException extends HttpException
     public const DBAL_EXPECTED_ASSOCIATION_FIELD_IN_FIRST_LEVEL_OF_JOIN_GROUP = 'FRAMEWORK__DBAL_EXPECTED_ASSOCIATION_FIELD_IN_FIRST_LEVEL_OF_JOIN_GROUP';
     public const ENTITY_INDEXER_NOT_FOUND = 'FRAMEWORK__ENTITY_INDEXER_NOT_FOUND';
     public const INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__DAL_INVALID_SYNC_OPERATION';
+    public const INVALID_FIELD_METADATA_CLASS = 'FRAMEWORK__INVALID_FIELD_METADATA_CLASS';
+    public const INVALID_FLAG_METADATA_CLASS = 'FRAMEWORK__INVALID_FLAG_METADATA_CLASS';
+    public const INVALID_ENTITY_METADATA = 'FRAMEWORK__INVALID_ENTITY_METADATA';
+    public const INVALID_MAPPING_METADATA = 'FRAMEWORK__INVALID_MAPPING_METADATA';
+    public const UNKNOWN_FIELD_ATTRIBUTE_TYPE = 'FRAMEWORK__UNKNOWN_FIELD_ATTRIBUTE_TYPE';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -1167,6 +1172,56 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_COMPRESSED_CRITERIA_PARAMETER,
             'Invalid _criteria parameter: {{ message }}',
             ['message' => $message]
+        );
+    }
+
+    public static function invalidFieldMetadataClass(string $class): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_FIELD_METADATA_CLASS,
+            'FieldMetadata requires a Field subclass, got "{{ class }}".',
+            ['class' => $class]
+        );
+    }
+
+    public static function invalidFlagMetadataClass(string $class): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_FLAG_METADATA_CLASS,
+            'FlagMetadata requires a Flag subclass, got "{{ class }}".',
+            ['class' => $class]
+        );
+    }
+
+    public static function unknownFieldAttributeType(string $type): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNKNOWN_FIELD_ATTRIBUTE_TYPE,
+            'Unknown field attribute type "{{ type }}". Use a FieldType constant, a DAL Field class, or override getFieldClass().',
+            ['type' => $type]
+        );
+    }
+
+    public static function invalidEntityMetadata(string $serialized): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_ENTITY_METADATA,
+            'Failed to deserialize EntityMetadata: "{{ serialized }}".',
+            ['serialized' => substr($serialized, 0, 100)]
+        );
+    }
+
+    public static function invalidMappingMetadata(string $serialized): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_MAPPING_METADATA,
+            'Failed to deserialize MappingMetadata: "{{ serialized }}".',
+            ['serialized' => substr($serialized, 0, 100)]
         );
     }
 }

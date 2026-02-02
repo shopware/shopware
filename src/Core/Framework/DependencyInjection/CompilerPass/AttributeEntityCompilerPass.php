@@ -8,8 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingMetadata;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -21,6 +23,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * @internal
+ *
+ * @final
+ */
 #[Package('framework')]
 class AttributeEntityCompilerPass implements CompilerPassInterface
 {
@@ -34,42 +41,67 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
 
         foreach ($services as $class => $_) {
             /** @var class-string<Entity> $class */
-            $definitions = $this->compiler->compile($class);
+            $compiled = $this->compiler->compile($class);
 
-            foreach ($definitions as $definition) {
-                if ($definition['type'] === 'entity') {
-                    $this->definition($definition, $container, $definition['entity_name']);
+            if ($compiled->isEmpty()) {
+                continue;
+            }
 
-                    $this->repository($container, $definition['entity_name']);
+            if ($compiled->entity !== null) {
+                $this->definition($compiled->entity, $container);
+                $this->repository($container, $compiled->entity->entityName);
 
-                    $this->translation($definition, $container, $definition['entity_name']);
-
-                    continue;
+                if ($compiled->entity->hasTranslation()) {
+                    $this->translation($compiled->entity, $container);
                 }
+            }
 
-                if ($definition['type'] === 'mapping') {
-                    $this->mapping($definition, $container);
-                }
+            foreach ($compiled->mappings as $mapping) {
+                $this->mapping($mapping, $container);
             }
         }
     }
 
-    /**
-     * @param array<string, mixed> $meta
-     */
-    public function definition(array $meta, ContainerBuilder $container, string $entity): void
+    public function definition(EntityMetadata $meta, ContainerBuilder $container): void
     {
-        $definition = new Definition(AttributeEntityDefinition::class);
-        $definition->addArgument($meta);
+        $this->registerDefinition($container, AttributeEntityDefinition::class, $meta, $meta->entityName);
+    }
+
+    private function translation(EntityMetadata $meta, ContainerBuilder $container): void
+    {
+        $entityName = $meta->entityName . '_translation';
+        $this->registerDefinition($container, AttributeTranslationDefinition::class, $meta, $entityName);
+        $this->repository($container, $entityName);
+    }
+
+    private function mapping(MappingMetadata $meta, ContainerBuilder $container): void
+    {
+        $this->registerDefinition($container, AttributeMappingDefinition::class, $meta, $meta->entityName);
+        $this->repository($container, $meta->entityName);
+    }
+
+    /**
+     * @param class-string<AttributeEntityDefinition|AttributeTranslationDefinition|AttributeMappingDefinition> $definitionClass
+     */
+    private function registerDefinition(
+        ContainerBuilder $container,
+        string $definitionClass,
+        EntityMetadata|MappingMetadata $meta,
+        string $entityName
+    ): void {
+        $serviceId = $entityName . '.definition';
+
+        $definition = new Definition($definitionClass);
+        $definition->addArgument($meta->toDefinition());
         $definition->setPublic(true);
         $definition->addTag('shopware.entity.definition');
-        $container->setDefinition($entity . '.definition', $definition);
+        $container->setDefinition($serviceId, $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
         $salesChannelRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
 
-        $registry->addMethodCall('register', [new Reference($entity . '.definition'), $entity . '.definition']);
-        $salesChannelRegistry->addMethodCall('register', [new Reference($entity . '.definition'), 'sales_channel_definition.' . $entity . '.definition']);
+        $registry->addMethodCall('register', [new Reference($serviceId), $serviceId]);
+        $salesChannelRegistry->addMethodCall('register', [new Reference($serviceId), 'sales_channel_definition.' . $serviceId]);
     }
 
     private function repository(ContainerBuilder $container, string $entity): void
@@ -89,64 +121,5 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $repository->setPublic(true);
 
         $container->setDefinition($entity . '.repository', $repository);
-    }
-
-    /**
-     * @param array<string, mixed> $meta
-     */
-    private function translation(array $meta, ContainerBuilder $container, string $entity): void
-    {
-        if (!$this->hasTranslation($meta)) {
-            return;
-        }
-
-        $definition = new Definition(AttributeTranslationDefinition::class);
-        $definition->addArgument($meta);
-        $definition->setPublic(true);
-        $definition->addTag('shopware.entity.definition');
-        $container->setDefinition($entity . '_translation.definition', $definition);
-
-        $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
-        $salesChannelRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
-
-        $registry->addMethodCall('register', [new Reference($entity . '_translation.definition'), $entity . '_translation.definition']);
-        $salesChannelRegistry->addMethodCall('register', [new Reference($entity . '_translation.definition'), 'sales_channel_definition.' . $entity . '_translation.definition']);
-
-        $this->repository($container, $entity . '_translation');
-    }
-
-    /**
-     * @param array<string, mixed> $meta
-     */
-    private function hasTranslation(array $meta): bool
-    {
-        /** @var array<string, mixed> $field */
-        foreach ($meta['fields'] as $field) {
-            if (isset($field['translated']) && $field['translated']) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param array<string, mixed> $meta
-     */
-    private function mapping(array $meta, ContainerBuilder $container): void
-    {
-        $definition = new Definition(AttributeMappingDefinition::class);
-        $definition->addArgument($meta);
-        $definition->setPublic(true);
-        $definition->addTag('shopware.entity.definition');
-        $container->setDefinition($meta['entity_name'] . '.definition', $definition);
-
-        $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
-        $salesChannelRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
-
-        $registry->addMethodCall('register', [new Reference($meta['entity_name'] . '.definition'), $meta['entity_name'] . '.definition']);
-        $salesChannelRegistry->addMethodCall('register', [new Reference($meta['entity_name'] . '.definition'), 'sales_channel_definition.' . $meta['entity_name'] . '.definition']);
-
-        $this->repository($container, $meta['entity_name']);
     }
 }

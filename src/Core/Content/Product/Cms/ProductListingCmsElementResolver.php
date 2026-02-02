@@ -145,7 +145,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
     private function restrictFilters(CmsSlotEntity $slot, Request $request): void
     {
-        $config = $slot->get('config');
+        $config = $slot->getTranslation('config');
 
         $enabledFilters = $config['filters']['value'] ?? null;
 

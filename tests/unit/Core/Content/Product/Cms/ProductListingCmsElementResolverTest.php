@@ -150,6 +150,48 @@ class ProductListingCmsElementResolverTest extends TestCase
         $this->assertRequestPayload($request);
     }
 
+    public function testRestrictFiltersReadsFromTranslatedConfig(): void
+    {
+        $slot = new CmsSlotEntity();
+        $slot->setId('slot-1');
+        // Only set the translated config (simulating category-level override)
+        // Do NOT call setConfig() to simulate the scenario where the translated
+        // config differs from the base config
+        $slot->setTranslated([
+            'config' => [
+                'filters' => [
+                    'value' => '', // All filters disabled
+                ],
+                'propertyWhitelist' => [
+                    'value' => [],
+                ],
+            ],
+        ]);
+
+        $request = new Request();
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), $request);
+        $data = new ElementDataCollection();
+
+        $expectedResult = $this->createMock(ProductListingResult::class);
+        $response = new ProductListingRouteResponse($expectedResult);
+
+        $route = $this->createMock(AbstractProductListingRoute::class);
+        $route->expects($this->once())->method('load')->willReturn($response);
+
+        /** @var StaticEntityRepository<ProductSortingCollection> */
+        $repository = new StaticEntityRepository([]);
+
+        $resolver = new ProductListingCmsElementResolver($route, $repository);
+        $resolver->enrich($slot, $context, $data);
+
+        // All filters should be disabled since we set filters.value to empty string
+        static::assertFalse($request->request->get('manufacturer-filter'));
+        static::assertFalse($request->request->get('rating-filter'));
+        static::assertFalse($request->request->get('shipping-free-filter'));
+        static::assertFalse($request->request->get('price-filter'));
+        static::assertFalse($request->request->get('property-filter'));
+    }
+
     private function assertRequestPayload(Request $request): void
     {
         static::assertNull($request->request->get('property-whitelist'));

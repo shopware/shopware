@@ -70,7 +70,7 @@ jobs:
           env:
             NIGHTLY=${{ inputs.nightly }}
 
-mergeability-check:
+  mergeability-check:
     name: Downstream Mergeability Check
     runs-on: ubuntu-latest
     steps:
@@ -133,7 +133,7 @@ mergeability-check:
             // Polling configuration for check-runs
             const pollIntervalMs = 10000; // 10s
             const maxAttempts = 30; // ~5 minutes
-            const allowedConclusions = new Set(['success']); // adjust if you want to allow 'skipped' or 'neutral'
+            const allowedConclusions = new Set(['success']); // adjust if you want to allow 'skipped' or 'neutral')
 
             for (const r of repos) {
               core.info(`Checking ${r.owner}/${r.repo} for branch ${branch}`);

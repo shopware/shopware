@@ -90,15 +90,17 @@
                 {% set snippet = 'account.addressesTitleDefaultBillingAddress' %}
             {% endif %}
 
-            {% if defaultShipping or defaultBilling %}
-                {% block address_item_badge %}
-                    <div class="mt-auto d-flex justify-content-end">
-                        <span class="address-item-default-badge fs-6 fw-semibold px-4 py-1 rounded-pill text-bg-info">
-                            {{ snippet|trans|sw_sanitize }}
-                        </span>
-                    </div>
-               {% endblock %}
-            {% endif %}
+            {% block address_item_badge_content %}
+                {% if defaultShipping or defaultBilling %}
+                    {% block address_item_badge %}
+                        <div class="mt-auto d-flex justify-content-end">
+                            <span class="address-item-default-badge fs-6 fw-semibold px-4 py-1 rounded-pill text-bg-info">
+                                {{ snippet|trans|sw_sanitize }}
+                            </span>
+                        </div>
+                    {% endblock %}
+                {% endif %}
+            {% endblock %}
         </div>
     </div>
 </li>

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -53,7 +54,7 @@ class CancellationRequestRoute extends AbstractCancellationRequestRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/cancellation-request-form', name: 'store-api.cancellation-request.form', methods: ['POST'])]
+    #[Route(path: '/store-api/cancellation-request-form', name: 'store-api.cancellation-request.form', methods: [Request::METHOD_POST])]
     public function request(RequestDataBag $dataBag, SalesChannelContext $context): CancellationRequestRouteResponse
     {
         EmailIdnConverter::encodeDataBag($dataBag);

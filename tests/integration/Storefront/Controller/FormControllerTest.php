@@ -36,7 +36,7 @@ class FormControllerTest extends TestCase
         ];
 
         $response = $this->request(
-            'POST',
+            Request::METHOD_POST,
             '/form/newsletter',
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
@@ -61,7 +61,7 @@ class FormControllerTest extends TestCase
         ];
 
         $response = $this->request(
-            'POST',
+            Request::METHOD_POST,
             '/form/newsletter',
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
@@ -118,7 +118,7 @@ class FormControllerTest extends TestCase
         static::getContainer()->get('request_stack')->pop();
 
         $response = $this->request(
-            'POST',
+            Request::METHOD_POST,
             '/form/contact',
             $token
         );
@@ -146,7 +146,7 @@ class FormControllerTest extends TestCase
         ];
 
         $response = $this->request(
-            'POST',
+            Request::METHOD_POST,
             '/form/contact',
             $this->tokenize('frontend.form.contact.send', $data)
         );
@@ -174,7 +174,7 @@ class FormControllerTest extends TestCase
         ];
 
         $response = $this->request(
-            'POST',
+            Request::METHOD_POST,
             '/form/cancellation/request',
             $this->tokenize('frontend.form.cancellation.request', $formData)
         );
@@ -204,7 +204,7 @@ class FormControllerTest extends TestCase
         ];
 
         $response = $this->request(
-            'POST',
+            Request::METHOD_POST,
             '/form/cancellation/request',
             $this->tokenize('frontend.form.cancellation.request', $formData)
         );

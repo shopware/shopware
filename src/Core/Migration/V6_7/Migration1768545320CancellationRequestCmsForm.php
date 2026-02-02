@@ -16,7 +16,7 @@ class Migration1768545320CancellationRequestCmsForm extends MigrationStep
 {
     public const CMS_PAGE_TRANSLATIONS = [
         'en_name' => 'Default shop page layout with Cancellation request form',
-        'de_name' => 'Standard Shopseiten-Layout mit Kündigung Antragsformular',
+        'de_name' => 'Standard Shopseiten-Layout mit Formular für Widerrufsanträge',
     ];
 
     public const CMS_SLOT_TYPE = 'cancellationRequest';

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -53,7 +54,7 @@ class CancellationRequestRouteTest extends TestCase
 
         $this->browser
             ->request(
-                'POST',
+                Request::METHOD_POST,
                 '/store-api/cancellation-request-form',
                 [
                     'firstName' => 'Max',
@@ -85,7 +86,7 @@ class CancellationRequestRouteTest extends TestCase
 
         $this->browser
             ->request(
-                'POST',
+                Request::METHOD_POST,
                 '/store-api/cancellation-request-form',
                 [
                     'firstName' => '',

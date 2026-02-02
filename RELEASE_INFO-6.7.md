@@ -4,6 +4,10 @@
 
 ## API
 
+### Newsletter subscribe route returns subscription status
+
+The Store API route `/store-api/newsletter/subscribe` now returns a JSON response containing the subscription status (`notSet`, `optIn`, `optOut`, or `direct`). This allows integrations to immediately know the result of the subscription request without an additional API call.
+
 ## Core
 
 ### Internal product streams

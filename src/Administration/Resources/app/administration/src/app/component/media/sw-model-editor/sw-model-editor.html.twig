@@ -1,0 +1,13 @@
+{% block sw_model_editor %}
+<div class="sw-model-editor">
+    <mt-loader
+        v-if="isLoading"
+        class="sw-model-editor-loader"
+    />
+    <div class="sw-model-editor-content">
+        <div class="sw-model-editor-canvas-wrapper">
+            <canvas class="sw-model-editor-canvas"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}

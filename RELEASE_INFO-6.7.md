@@ -147,8 +147,7 @@ The domain part of email addresses may now contain internationalized domain name
 
 ### BuyBox JavaScript Plugin
 
-Removed the `_initModalTriggerEvent()` and `_openTaxInfoModal()` functions from `buy-box.plugin.js`, as the Ajax modal reinitializes event handlers via `initializePlugins()` after the request.
-This resolves an issue where changing a product variant in the buy box was not possible when the cms-element was used in a shopping experience.
+The options `modalTriggerSelector` and `urlAttribute` as well as the former private methods `_initModalTriggerEvent()` and `_openTaxInfoModal()` have been removed from `buy-box.plugin.js` and have no effect anymore. The Ajax modal now reinitializes event handlers via `initializePlugins()` after the request, which also resolves an issue where changing a product variant in the buy box was not possible when the cms-element was used in a shopping experience.
 
 ## App System
 

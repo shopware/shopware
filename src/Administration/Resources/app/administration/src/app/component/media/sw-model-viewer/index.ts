@@ -33,10 +33,12 @@ export default Shopware.Component.wrapComponentConfig({
             canvas: null,
             isLoading: false,
             modelEntity: null,
+            quickView: null,
         } as {
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
             modelEntity: EntitySchema.Entity<'media'> | null;
+            quickView: QuickView | null;
         };
     },
 
@@ -68,6 +70,8 @@ export default Shopware.Component.wrapComponentConfig({
         beforeUnmountedComponent(): void {
             // eslint-disable-next-line @typescript-eslint/unbound-method
             EventBus.off('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
+
+            this.quickView?.dispose();
         },
 
         mountedComponent(): void {
@@ -81,22 +85,25 @@ export default Shopware.Component.wrapComponentConfig({
             this.initializeQuickView();
         },
 
-        initializeQuickView(): void {
+        async initializeQuickView(): Promise<void> {
             if (!this.canvas || !this.modelEntity?.url) {
-                return;
+                return Promise.reject();
             }
 
             this.isLoading = true;
 
-            QuickView(this.modelEntity.url, {
+            this.quickView = await QuickView(this.modelEntity.url, {
                 canvas: this.canvas,
             })
                 .catch((error) => {
                     console.error(error);
+                    return Promise.reject(error);
                 })
                 .finally(() => {
                     this.isLoading = false;
                 });
+
+            return Promise.resolve();
         },
 
         onMediaLibraryItemUpdated(mediaId: string): void {

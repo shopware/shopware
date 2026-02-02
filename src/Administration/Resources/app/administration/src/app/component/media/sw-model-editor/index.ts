@@ -1,4 +1,7 @@
+import { type DIVEModel, type DIVEScene } from '@shopware-ag/dive';
+import { type OrbitController } from '@shopware-ag/dive/orbitcontroller';
 import { QuickView } from '@shopware-ag/dive/quickview';
+import { Toolbox } from '@shopware-ag/dive/toolbox';
 import template from './sw-model-editor.html.twig';
 import './sw-model-editor.scss';
 
@@ -33,10 +36,14 @@ export default Shopware.Component.wrapComponentConfig({
             canvas: null,
             isLoading: false,
             modelEntity: null,
+            quickView: null,
+            toolbox: null,
         } as {
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
             modelEntity: EntitySchema.Entity<'media'> | null;
+            quickView: QuickView | null;
+            toolbox: Toolbox | null;
         };
     },
 
@@ -68,6 +75,9 @@ export default Shopware.Component.wrapComponentConfig({
         beforeUnmountedComponent(): void {
             // eslint-disable-next-line @typescript-eslint/unbound-method
             EventBus.off('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
+
+            this.toolbox?.dispose();
+            this.quickView?.dispose();
         },
 
         mountedComponent(): void {
@@ -81,22 +91,32 @@ export default Shopware.Component.wrapComponentConfig({
             this.initializeQuickView();
         },
 
-        initializeQuickView(): void {
+        async initializeQuickView(): Promise<void> {
             if (!this.canvas || !this.modelEntity?.url) {
-                return;
+                return Promise.reject();
             }
 
             this.isLoading = true;
 
-            QuickView(this.modelEntity.url, {
+            this.quickView = await QuickView(this.modelEntity.url, {
                 canvas: this.canvas,
             })
                 .catch((error) => {
                     console.error(error);
+                    return Promise.reject(error);
                 })
                 .finally(() => {
                     this.isLoading = false;
                 });
+
+            this.toolbox = new Toolbox(this.quickView.scene as DIVEScene, this.quickView.orbitController as OrbitController);
+
+            this.toolbox.enableTool('transform');
+
+            const model = this.quickView.scene.root.children.find((child) => 'isDIVEModel' in child) as DIVEModel;
+            this.toolbox.selectionState.select(model);
+
+            return Promise.resolve();
         },
 
         onMediaLibraryItemUpdated(mediaId: string): void {

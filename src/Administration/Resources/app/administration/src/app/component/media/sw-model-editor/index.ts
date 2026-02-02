@@ -58,9 +58,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
-        source() {
+        async source(): Promise<void> {
             this.modelEntity = this.source as EntitySchema.Entity<'media'>;
-            this.initializeQuickView();
+            await this.disposeQuickView();
+            return this.initializeQuickView();
         },
     },
 
@@ -82,12 +83,11 @@ export default Shopware.Component.wrapComponentConfig({
             EventBus.on('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
         },
 
-        beforeUnmountedComponent(): void {
+        async beforeUnmountedComponent(): Promise<void> {
             // eslint-disable-next-line @typescript-eslint/unbound-method
             EventBus.off('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
 
-            this.toolbox?.dispose();
-            this.quickView?.dispose();
+            return this.disposeQuickView();
         },
 
         mountedComponent(): void {
@@ -129,6 +129,11 @@ export default Shopware.Component.wrapComponentConfig({
             this.toolbox.selectionState.select(model);
 
             return Promise.resolve();
+        },
+
+        async disposeQuickView(): Promise<void> {
+            this.toolbox?.dispose();
+            await this.quickView?.dispose();
         },
 
         onMediaLibraryItemUpdated(mediaId: string): void {

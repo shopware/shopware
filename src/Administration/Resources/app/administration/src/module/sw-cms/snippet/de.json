@@ -813,6 +813,7 @@
           "404Page": "404-Seiten",
           "maintenancePage": "Wartungsseiten",
           "contactPage": "Kontaktformulare",
+          "cancellationRequestPage": "Widerrufsantragsformular",
           "newsletterPage": "Newsletterseiten"
         },
         "products": {

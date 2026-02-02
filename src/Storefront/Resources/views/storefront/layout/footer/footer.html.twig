@@ -74,6 +74,35 @@
                                         '%url%': contactUrl
                                     })|raw }}
                                 </div>
+
+                                <div class="footer-contact-form">
+                                    {% set cancellationRequestSnippetKey = 'footer.serviceCancellationRequestTextPage' %}
+                                    {% set cancellationRequestCmsPageId = config('core.basicInformation.cancellationRequestPage') %}
+
+                                    {% if cancellationRequestCmsPageId %}
+                                        {% set cancellationRequestUrl = cancellationRequestCmsPageId ? path(cmsPath, { id: cancellationRequestCmsPageId }) : '#' %}
+
+                                        {# Check for seoUrl and use it if present #}
+                                        {% for serviceMenuItem in footer.serviceMenu %}
+                                            {% if serviceMenuItem.cmsPageId == cancellationRequestCmsPageId and serviceMenuItem.seoUrl %}
+                                                {% set contactUrl = serviceMenuItem.seoUrl %}
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {# Check footer navigation #}
+                                        {% if footer.navigation and footer.navigation.tree %}
+                                            {% for footerItem in footer.navigation.tree %}
+                                                {% if footerItem.category.cmsPageId == cancellationRequestCmsPageId and footerItem.category.seoUrl %}
+                                                    {% set contactUrl = footerItem.category.seoUrl %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+
+                                        {{ cancellationRequestSnippetKey|trans({
+                                            '%url%': cancellationRequestUrl
+                                        })|raw }}
+                                    {% endif %}
+                                </div>
                             </div>
                         {% endblock %}
                     </div>

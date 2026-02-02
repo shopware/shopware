@@ -145,6 +145,16 @@
         </component>
 
         <component name="sw-cms-page-select">
+            <name>cancellationRequestPage</name>
+            <entity>cms_page</entity>
+            <pageType>page</pageType>
+            <label>Shop page layout for cancellation request pages</label>
+            <label lang="de-DE">Shopseiten-Layout für Widerrufsantrag Seite</label>
+            <placeholder>Assign layout...</placeholder>
+            <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
+        </component>
+
+        <component name="sw-cms-page-select">
             <name>newsletterPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>

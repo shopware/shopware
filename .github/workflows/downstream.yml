@@ -70,38 +70,52 @@ jobs:
           env:
             NIGHTLY=${{ inputs.nightly }}
 
-  downstream-check:
+mergeability-check:
     if: always()
-    needs:
-    - rufus
-    - commercial
-
-    runs-on: Ubuntu-latest
-    steps:
-    - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
-      with:
-        allowed-skips: rufus, commercial
-        jobs: ${{ toJSON(needs) }}
-
-  mergeability-check:
-    if: always()
-    needs:
-      - rufus
-      - commercial
+    name: Downstream Mergeability Check
     runs-on: ubuntu-latest
     steps:
       - id: sts
-        continue-on-error: true
         uses: shopware/octo-sts-action@main
         with:
           scope: shopware
           identity: ShopwareDownstream
 
+      - name: Require STS token
+        run: |
+          if [ -z "${{ steps.sts.outputs.token }}" ]; then
+            echo "STS token missing; cannot access downstream repositories. Failing to avoid 403 errors.";
+            exit 1;
+          fi
+
+      - name: Debug STS token access
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.sts.outputs.token }}
+          script: |
+            try {
+              const who = await github.rest.users.getAuthenticated();
+              core.info(`Authenticated as: ${who.data.login}`);
+            } catch (err) {
+              core.error(`Failed to authenticate with STS token: ${err.status} ${err.message}`);
+              core.setFailed('STS token cannot authenticate');
+              return;
+            }
+
+            try {
+              const repoInfo = await github.rest.repos.get({ owner: 'shopware', repo: 'rufus' });
+              core.info(`Able to access repo shopware/rufus (private: ${repoInfo.data.private})`);
+            } catch (err) {
+              // Do not print token
+              core.error(`Access check to shopware/rufus failed: ${err.status} ${err.message}`);
+              core.setFailed('STS token cannot access downstream repository (403)');
+              return;
+            }
+
       - name: Check downstream mergeability
         uses: actions/github-script@v6
         with:
-          github-token: ${{ steps.sts.outputs.token || secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.sts.outputs.token }}
           script: |
             const branch = process.env.GITHUB_HEAD_REF && process.env.GITHUB_HEAD_REF.length ? process.env.GITHUB_HEAD_REF : (process.env.GITHUB_REF || '').replace('refs/heads/','');
             if (!branch) {
@@ -218,3 +232,18 @@ jobs:
             } else {
               core.info('All downstream mergeability checks passed');
             }
+
+  downstream-check:
+    if: always()
+    needs:
+    - rufus
+    - commercial
+    - mergeability-check
+
+    runs-on: Ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+      with:
+        allowed-skips: rufus, commercial
+        jobs: ${{ toJSON(needs) }}

@@ -16,6 +16,9 @@ on:
 permissions:
   contents: read
   id-token: write
+  pull-requests: read
+  checks: read
+  statuses: read
 
 jobs:
   rufus:
@@ -80,3 +83,138 @@ jobs:
       with:
         allowed-skips: rufus, commercial
         jobs: ${{ toJSON(needs) }}
+
+  mergeability-check:
+    if: always()
+    needs:
+      - rufus
+      - commercial
+    runs-on: ubuntu-latest
+    steps:
+      - id: sts
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ShopwareDownstream
+
+      - name: Check downstream mergeability
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.sts.outputs.token || secrets.GITHUB_TOKEN }}
+          script: |
+            const branch = process.env.GITHUB_HEAD_REF && process.env.GITHUB_HEAD_REF.length ? process.env.GITHUB_HEAD_REF : (process.env.GITHUB_REF || '').replace('refs/heads/','');
+            if (!branch) {
+              core.setFailed('Could not determine branch name from environment');
+              return;
+            }
+
+            const repos = [
+              { owner: 'shopware', repo: 'rufus' },
+              { owner: 'shopware', repo: 'SwagCommercial' }
+            ];
+
+            const failures = [];
+            const wait = ms => new Promise(r => setTimeout(r, ms));
+
+            // Polling configuration for check-runs
+            const pollIntervalMs = 10000; // 10s
+            const maxAttempts = 30; // ~5 minutes
+            const allowedConclusions = new Set(['success']); // adjust if you want to allow 'skipped' or 'neutral'
+
+            for (const r of repos) {
+              core.info(`Checking ${r.owner}/${r.repo} for branch ${branch}`);
+
+              // Look for an open PR from owner:branch
+              const pulls = await github.rest.pulls.list({ owner: r.owner, repo: r.repo, head: `${r.owner}:${branch}`, state: 'open' });
+
+              if (!pulls || !pulls.data || pulls.data.length === 0) {
+                core.info(`No open PR found for ${r.owner}/${r.repo} with branch ${branch} — considered OK`);
+                continue;
+              }
+
+              const pr = pulls.data[0];
+
+              // Ensure mergeable flag is computed (may be null initially)
+              let prDetail = await github.rest.pulls.get({ owner: r.owner, repo: r.repo, pull_number: pr.number });
+              let tries = 0;
+              while (prDetail.data.mergeable === null && tries < 6) {
+                core.info(`mergeable=null for ${r.repo}#${pr.number}, waiting...`);
+                await wait(2000);
+                prDetail = await github.rest.pulls.get({ owner: r.owner, repo: r.repo, pull_number: pr.number });
+                tries++;
+              }
+
+              if (prDetail.data.mergeable === false) {
+                failures.push(`${r.repo} PR #${pr.number} is not mergeable`);
+                continue;
+              }
+
+              // Check for at least one approval
+              const reviews = await github.rest.pulls.listReviews({ owner: r.owner, repo: r.repo, pull_number: pr.number });
+              const approved = reviews.data && reviews.data.some(rv => rv.state === 'APPROVED');
+              if (!approved) {
+                failures.push(`${r.repo} PR #${pr.number} has no approval`);
+                continue;
+              }
+
+              // Check head SHA
+              const headSha = pr.head && pr.head.sha;
+              if (!headSha) {
+                failures.push(`${r.repo} PR #${pr.number} has no head SHA`);
+                continue;
+              }
+
+              // First, try the Checks API for check-runs
+              let checkRunsResp = await github.rest.checks.listForRef({ owner: r.owner, repo: r.repo, ref: headSha });
+              let checkRuns = (checkRunsResp && checkRunsResp.data && checkRunsResp.data.check_runs) || [];
+
+              if (checkRuns.length === 0) {
+                core.info(`${r.repo} PR #${pr.number}: no check-runs found, falling back to combined status`);
+                const status = await github.rest.repos.getCombinedStatusForRef({ owner: r.owner, repo: r.repo, ref: headSha });
+                const state = status && status.data && status.data.state;
+                core.info(`${r.repo} PR #${pr.number} combined status: ${state}`);
+                if (state !== 'success') {
+                  failures.push(`${r.repo} PR #${pr.number} checks are not green (combined status: ${state})`);
+                  continue;
+                }
+
+                core.info(`${r.repo} PR #${pr.number} looks mergeable (combined status)`);
+                continue;
+              }
+
+              // If check-runs exist, poll until all are completed or timeout
+              let attempts = 0;
+              while (attempts < maxAttempts) {
+                const incomplete = checkRuns.filter(c => c.status !== 'completed');
+                if (incomplete.length === 0) break;
+
+                core.info(`${r.repo} PR #${pr.number} waiting for ${incomplete.length} check-runs to complete (attempt ${attempts + 1}/${maxAttempts})`);
+                await wait(pollIntervalMs);
+                attempts++;
+                checkRunsResp = await github.rest.checks.listForRef({ owner: r.owner, repo: r.repo, ref: headSha });
+                checkRuns = (checkRunsResp && checkRunsResp.data && checkRunsResp.data.check_runs) || [];
+              }
+
+              // After polling, evaluate check-run conclusions
+              const stillPending = checkRuns.some(c => c.status !== 'completed');
+              if (stillPending) {
+                failures.push(`${r.repo} PR #${pr.number} timeout waiting for check-runs to complete (head: ${headSha})`);
+                continue;
+              }
+
+              const failingRuns = checkRuns.filter(c => !allowedConclusions.has((c.conclusion || '').toLowerCase()));
+              if (failingRuns.length > 0) {
+                const details = failingRuns.map(c => `${c.name} (${c.conclusion})`).join(', ');
+                failures.push(`${r.repo} PR #${pr.number} failing checks: ${details}`);
+                continue;
+              }
+
+              core.info(`${r.repo} PR #${pr.number} looks mergeable (checks OK)`);
+            }
+
+            if (failures.length > 0) {
+              throw new Error('Mergeability check failed:\n' + failures.join('\n'));
+            } else {
+              core.info('All downstream mergeability checks passed');
+            }

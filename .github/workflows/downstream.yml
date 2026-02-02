@@ -132,14 +132,6 @@ jobs:
                 continue;
               }
 
-              // Check for at least one approval
-              const reviews = await github.rest.pulls.listReviews({ owner: r.owner, repo: r.repo, pull_number: pr.number });
-              const approved = reviews.data && reviews.data.some(rv => rv.state === 'APPROVED');
-              if (!approved) {
-                failures.push(`${r.repo} PR #${pr.number} has no approval`);
-                continue;
-              }
-
               // Check head SHA
               const headSha = pr.head && pr.head.sha;
               if (!headSha) {
@@ -189,6 +181,20 @@ jobs:
               if (failingRuns.length > 0) {
                 const details = failingRuns.map(c => `${c.name} (${c.conclusion})`).join(', ');
                 failures.push(`${r.repo} PR #${pr.number} failing checks: ${details}`);
+                continue;
+              }
+
+              // Check for at least one approval
+              const reviews = await github.rest.pulls.listReviews({ owner: r.owner, repo: r.repo, pull_number: pr.number });
+              const hasChangeRequests = reviews.data && reviews.data.some(rv => (rv.state || '').toUpperCase() === 'CHANGES_REQUESTED' || (rv.state || '').toUpperCase() === 'REQUEST_CHANGES');
+              if (hasChangeRequests) {
+                failures.push(`${r.repo} PR #${pr.number} has one or more change requests`);
+                continue;
+              }
+
+              const approved = reviews.data && reviews.data.some(rv => (rv.state || '').toUpperCase() === 'APPROVED');
+              if (!approved) {
+                failures.push(`${r.repo} PR #${pr.number} has no approval`);
                 continue;
               }
 

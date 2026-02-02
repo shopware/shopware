@@ -40,7 +40,7 @@
             display: flex;
             justify-content: space-between;
             border-bottom: 1px solid var(--color-border-primary-default);
-            padding: var(--scale-size-18) var(--scale-size-20);
+            padding: var(--scale-size-18) var(--scale-size-24);
         }
 
         .sw-notification-center__title {
@@ -57,7 +57,7 @@
         }
 
         .sw-notification-center__empty-text {
-            padding: var(--scale-size-18) var(--scale-size-20);
+            padding: var(--scale-size-18) var(--scale-size-24);
             font-size: var(--font-size-xs);
         }
     }

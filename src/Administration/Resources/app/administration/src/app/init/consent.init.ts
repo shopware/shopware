@@ -1,20 +1,19 @@
 /**
  * @sw-package framework:fundamentals
  */
-import useConsentStore from 'src/core/consent/consent.store';
-import ConsentApiService from '../../core/consent/consent.api.service';
+import useConsentStore, { type ConsentDTO } from 'src/core/consent/consent.store';
+import ConsentApiService from 'src/core/consent/consent.api.service';
 
 type ConsentChangedMessage = {
-    consent: string,
-    state: 'accepted' | 'revoked',
-}
+    updatedConsent: ConsentDTO;
+};
 
 function isConsentChangedMessage(message: unknown): message is ConsentChangedMessage {
     if (typeof message !== 'object' || message === null) {
         return false;
     }
 
-    return 'consent' in message && 'state' in message;
+    return 'updatedConsent' in message;
 }
 
 /**
@@ -24,13 +23,9 @@ export default async function initConsentStore(): Promise<void> {
     /**
      * @private
      */
-    Shopware.Service().register('consentApiService',(serviceContainer) => {
-        return new ConsentApiService(
-            Shopware.Application.getContainer('init').httpClient,
-            serviceContainer.loginService,
-        );
+    Shopware.Service().register('consentApiService', (serviceContainer) => {
+        return new ConsentApiService(Shopware.Application.getContainer('init').httpClient, serviceContainer.loginService);
     });
-
 
     const consentStore = useConsentStore();
 
@@ -42,25 +37,27 @@ export default async function initConsentStore(): Promise<void> {
 
     const bc = new BroadcastChannel('shopware-consent-channel');
 
-    bc.onmessage  = ({ data }) => {
+    bc.onmessage = ({ data }) => {
         if (!isConsentChangedMessage(data)) {
             return;
         }
 
-        const { consent, state } = data;
+        const { updatedConsent } = data;
 
-        if (consentStore.consents[consent]) {
-            consentStore.consents[consent].status = state;
+        if (consentStore.consents[updatedConsent.name]) {
+            consentStore.consents[updatedConsent.name] = updatedConsent;
         }
-    }
+    };
 
-    consentStore.$onAction(({ name, args, after}) => {
+    consentStore.$onAction(({ store, name, args, after }) => {
         if (name !== 'accept' && name !== 'revoke') {
             return;
         }
 
         after(() => {
-            bc.postMessage({ consent: args[0], state: name === 'accept' ? 'accepted' : 'revoked' })
+            const consent = store.consents[args[0]];
+
+            bc.postMessage({ updatedConsent: { ...consent } });
         });
-    })
+    });
 }

@@ -3,19 +3,22 @@
  * @sw-package framework:fundamentals
  */
 export type ConsentDTO = {
-    readonly name: string,
-    readonly identifier: string,
-    status: 'accepted' | 'revoked' | 'requested',
-}
+    readonly name: string;
+    readonly identifier: string;
+    readonly scopeName: 'system' | 'admin_user';
+    readonly actor: string;
+    readonly status: 'accepted' | 'revoked' | 'unset';
+    readonly updated_at: string;
+};
 
 type ConsentStoreState = {
     consents: Record<string, ConsentDTO>;
-}
+};
 
 /**
  * @private
  */
-export default Shopware.Store.register('consent',{
+export default Shopware.Store.register('consent', {
     state: (): ConsentStoreState => ({
         consents: {},
     }),
@@ -36,9 +39,9 @@ export default Shopware.Store.register('consent',{
                 return;
             }
 
-            await Shopware.Service('consentApiService').accept(name);
+            const { data: updatedConsent } = await Shopware.Service('consentApiService').accept(name);
 
-            this.consents[name].status = 'accepted';
+            this.consents[name] = updatedConsent;
         },
 
         async revoke(name: string): Promise<void> {
@@ -50,9 +53,9 @@ export default Shopware.Store.register('consent',{
                 return;
             }
 
-            await Shopware.Service('consentApiService').revoke(name);
+            const { data: updatedConsent } = await Shopware.Service('consentApiService').revoke(name);
 
-            this.consents[name].status = 'revoked';
+            this.consents[name] = updatedConsent;
         },
 
         isAccepted(name: string): boolean {

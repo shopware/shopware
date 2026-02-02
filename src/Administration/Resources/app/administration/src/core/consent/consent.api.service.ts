@@ -15,30 +15,32 @@ export default class ConsentApiService extends ApiService {
     }
 
     list() {
-        return this.httpClient.get<Record<string, ConsentDTO>>(
-            this.getApiBasePath(), {
+        return this.httpClient.get<Record<string, ConsentDTO>>(this.getApiBasePath(), {
+            headers: this.getBasicHeaders(),
+        });
+    }
+
+    accept(consent: string) {
+        return this.httpClient.post<ConsentDTO>(
+            `${this.getApiBasePath()}/accept`,
+            {
+                consent,
+            },
+            {
                 headers: this.getBasicHeaders(),
             },
         );
-    };
-
-    accept(name: string): Promise<void> {
-        return this.httpClient.post(
-            `${this.getApiBasePath()}/${name}/accept`,
-            {},
-            {
-                headers: this.getBasicHeaders(),
-            },
-        )
     }
 
-    revoke(name: string): Promise<void> {
-        return this.httpClient.post(
-            `${this.getApiBasePath()}/${name}/revoke`,
-            {},
+    revoke(consent: string) {
+        return this.httpClient.post<ConsentDTO>(
+            `${this.getApiBasePath()}/revoke`,
+            {
+                consent,
+            },
             {
                 headers: this.getBasicHeaders(),
             },
-        )
+        );
     }
 }

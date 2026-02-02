@@ -29,7 +29,6 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -99,7 +98,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     }
 
     #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
-    public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NoContentResponse
+    public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NewsletterSubscribeRouteResponse
     {
         $doubleOptInDomain = $this->systemConfigService->getString(
             'core.newsletter.doubleOptInDomain',
@@ -147,7 +146,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             // If the user was previously subscribed but has unsubscribed now, the `getConfirmedAt()`
             // will still be set. So we need to check for the status as well.
             if ($recipient->getStatus() !== self::STATUS_OPT_OUT && $recipient->getConfirmedAt()) {
-                return new NoContentResponse();
+                return new NewsletterSubscribeRouteResponse($recipient->getStatus() ?? self::STATUS_NOT_SET);
             }
         }
 
@@ -171,7 +170,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannelId());
             $this->eventDispatcher->dispatch($event);
 
-            return new NoContentResponse();
+            return new NewsletterSubscribeRouteResponse($recipient->getStatus() ?? self::STATUS_NOT_SET);
         }
 
         $hashedEmail = Hasher::hash($data['email'], 'sha1');
@@ -180,7 +179,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
-        return new NoContentResponse();
+        return new NewsletterSubscribeRouteResponse($recipient->getStatus() ?? self::STATUS_NOT_SET);
     }
 
     /**

@@ -456,8 +456,41 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('status', $response);
+        static::assertSame('direct', $response['status']);
+
         $count = (int) static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT COUNT(*) FROM newsletter_recipient WHERE email = \'test@xn--exmple-cua.com\' AND status = \'direct\''
+        );
+        static::assertSame(1, $count);
+    }
+
+    public function testSubscribeReturnsNotSetStatusWithDoubleOptIn(): void
+    {
+        $this->systemConfig->set('core.newsletter.doubleOptIn', true);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/newsletter/subscribe',
+                [
+                    'email' => 'doi-test@example.com',
+                    'option' => 'subscribe',
+                    'storefrontUrl' => 'http://localhost',
+                    'firstName' => 'John',
+                    'lastName' => 'Doe',
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('status', $response);
+        static::assertSame('notSet', $response['status']);
+
+        $count = (int) static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT COUNT(*) FROM newsletter_recipient WHERE email = \'doi-test@example.com\' AND status = \'notSet\''
         );
         static::assertSame(1, $count);
     }

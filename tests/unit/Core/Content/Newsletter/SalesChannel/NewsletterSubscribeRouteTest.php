@@ -14,6 +14,7 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRouteResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -67,6 +68,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity = new NewsletterRecipientEntity();
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
+        $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_OPT_IN);
 
         /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
@@ -101,7 +103,9 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $response = $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+
+        static::assertSame(NewsletterSubscribeRoute::STATUS_OPT_IN, $response->getStatus());
     }
 
     public function testSubscribeWithDOIDisabled(): void
@@ -119,6 +123,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity = new NewsletterRecipientEntity();
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
+        $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_DIRECT);
 
         /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
@@ -153,7 +158,9 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $response = $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+
+        static::assertSame(NewsletterSubscribeRoute::STATUS_DIRECT, $response->getStatus());
     }
 
     /**

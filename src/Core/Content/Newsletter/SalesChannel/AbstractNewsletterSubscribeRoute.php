@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -18,5 +17,5 @@ abstract class AbstractNewsletterSubscribeRoute
 {
     abstract public function getDecorated(): AbstractNewsletterSubscribeRoute;
 
-    abstract public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): NoContentResponse;
+    abstract public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): NewsletterSubscribeRouteResponse;
 }

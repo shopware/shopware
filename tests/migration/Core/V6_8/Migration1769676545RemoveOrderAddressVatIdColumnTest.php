@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Migration\Core\V6_8;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_8\Migration1769676545RemoveOrderAddressVatIdColumn;
 
 /**
@@ -32,21 +32,15 @@ class Migration1769676545RemoveOrderAddressVatIdColumnTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse($this->getOrderAddressTable()->hasColumn('vat_id'));
+        static::assertFalse(TableHelper::columnExists($this->connection, 'order_address', 'vat_id'));
     }
 
     private function ensureVatIdColumnExists(): void
     {
-        $table = $this->getOrderAddressTable();
-        if ($table->hasColumn('vat_id')) {
+        if (TableHelper::columnExists($this->connection, 'order_address', 'vat_id')) {
             return;
         }
 
         $this->connection->executeStatement('ALTER TABLE `order_address` ADD COLUMN `vat_id` VARCHAR(50) NULL');
-    }
-
-    private function getOrderAddressTable(): Table
-    {
-        return $this->connection->createSchemaManager()->introspectTable('order_address');
     }
 }

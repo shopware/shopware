@@ -113,6 +113,7 @@ class ScriptRuleTest extends TestCase
         yield 'simple script return false' => ['/_fixture/scripts/simple.twig', ['test' => 'bar'], false];
     }
 
+    #[Depends('testRuleScriptExecution')] // fix the execution order, so the twig cache won't get overwritten
     public function testRuleScriptCachingSetup(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

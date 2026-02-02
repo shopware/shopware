@@ -28,7 +28,7 @@ class Migration1768545319CancellationRequestMailTemplate extends MigrationStep
      */
     public const MAIL_TEMPLATE_TYPE_MERCHANT_TRANSLATIONS = [
         'en_name' => 'Cancellation request received',
-        'de_name' => 'Wiederrufsantrag erhalten',
+        'de_name' => 'Widerrufsantrag erhalten',
     ];
 
     /**
@@ -39,7 +39,7 @@ class Migration1768545319CancellationRequestMailTemplate extends MigrationStep
      */
     public const MAIL_TEMPLATE_TYPE_CUSTOMER_TRANSLATIONS = [
         'en_name' => 'Cancellation request requested',
-        'de_name' => 'Wiederrufsantrag gestellt',
+        'de_name' => 'Widerrufsantrag gestellt',
     ];
 
     /**
@@ -52,9 +52,9 @@ class Migration1768545319CancellationRequestMailTemplate extends MigrationStep
      */
     public const MAIL_TEMPLATE_TRANSLATIONS_MERCHANT = [
         'en_subject' => 'Cancellation request received',
-        'de_subject' => 'Wiederrufsantrag erhalten',
+        'de_subject' => 'Widerrufsantrag erhalten',
         'en_description' => 'Received cancellation request from customer',
-        'de_description' => 'Wiederrufsantrag von Kunden erhalten',
+        'de_description' => 'Widerrufsantrag von Kunden erhalten',
     ];
 
     /**
@@ -67,9 +67,9 @@ class Migration1768545319CancellationRequestMailTemplate extends MigrationStep
      */
     public const MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER = [
         'en_subject' => 'Cancellation request sent',
-        'de_subject' => 'Wiederrufsantrag gesendet',
+        'de_subject' => 'Widerrufsantrag gesendet',
         'en_description' => 'Confirmation receipt of customers cancellation request',
-        'de_description' => 'Empfangsbestätigung für Wiederrufsantrag des Kunden',
+        'de_description' => 'Empfangsbestätigung für Widerrufsantrag des Kunden',
     ];
 
     public function getCreationTimestamp(): int

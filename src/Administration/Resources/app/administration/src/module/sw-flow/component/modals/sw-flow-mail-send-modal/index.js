@@ -115,7 +115,7 @@ export default {
             return [
                 {
                     value: 'cancellationRequestCustomerFormMail',
-                    label: this.$tc('sw-flow.modals.mail.labelContactFormMail'),
+                    label: this.$tc('sw-flow.modals.mail.labelCancellationRequestFormMail'),
                 },
             ];
         },

@@ -64,20 +64,18 @@
             {% endblock %}
 
             <div class="row g-2">
-                <div class="row g-2">
-                    {% block cms_form_ocr_comment_textarea %}
-                        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-textarea.html.twig'
-                            with {
-                            rows: 5,
-                            required: true,
-                            fieldName: 'comment',
-                            additionalClass: 'col-12',
-                            label: 'cancellationRequest.commentLabel',
-                            placeholder: 'cancellationRequest.commentPlaceholder'
-                        }
-                        %}
-                    {% endblock %}
-                </div>
+                {% block cms_form_ocr_comment_textarea %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-textarea.html.twig'
+                        with {
+                        rows: 5,
+                        required: true,
+                        fieldName: 'comment',
+                        additionalClass: 'col-12',
+                        label: 'cancellationRequest.commentLabel',
+                        placeholder: 'cancellationRequest.commentPlaceholder'
+                    }
+                    %}
+                {% endblock %}
             </div>
 
             {% block cms_form_ocr_captcha %}

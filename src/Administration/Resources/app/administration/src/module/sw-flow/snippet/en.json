@@ -250,6 +250,7 @@
         "labelAdmin": "Admin",
         "labelCustom": "Custom",
         "labelContactFormMail": "Inquirer",
+        "labelCancellationRequestFormMail": "Inquirer",
         "labelRecipient": "Recipient",
         "placeholderRecipient": "Select email recipient...",
         "useDifferentReplyToLabel": "Sender",

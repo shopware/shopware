@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\CancellationRequest\SalesChannel;
 
+use phpseclib3\File\ASN1\Maps\HoldInstructionCode;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\CancellationRequest\Event\CancellationRequestEvent;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -67,7 +68,7 @@ class CancellationRequestRoute extends AbstractCancellationRequestRoute
 
         $mailConfig = $this->getMailConfig($context, $dataBag);
 
-        $merchantMailRecipientStruct = new MailRecipientStruct($mailConfig);
+        $merchantMailRecipientStruct = new MailRecipientStruct($mailConfig['receivers']);
         $merchantEvent = new CancellationRequestEvent($context->getContext(), $context->getSalesChannelId(), $merchantMailRecipientStruct, $dataBag);
         $this->eventDispatcher->dispatch($merchantEvent, CancellationRequestEvent::EVENT_NAME);
 
@@ -108,7 +109,7 @@ class CancellationRequestRoute extends AbstractCancellationRequestRoute
 
             if ($categoryEntity instanceof CategoryEntity && !empty($categoryEntity->getSlotConfig()[$slotId])) {
                 $categoryEntityConfig = $categoryEntity->getSlotConfig()[$slotId];
-                $mailConfig['receivers'] = $categoryEntityConfig['mailReceiver']['value'] ?? null;
+                $this->addReceivers($mailConfig, $categoryEntityConfig);
                 $mailConfig['message'] = $categoryEntityConfig['confirmationText']['value'] ?? '';
             }
         }
@@ -124,7 +125,7 @@ class CancellationRequestRoute extends AbstractCancellationRequestRoute
             return $this->createDefaultConfig($context, $mailConfig);
         }
 
-        $mailConfig['receivers'] = $slotEntity->getTranslated()['config']['mailReceiver']['value'] ?? null;
+        $this->addReceivers($mailConfig, $slotEntity->getTranslated()['config']);
         $mailConfig['message'] = $slotEntity->getTranslated()['config']['confirmationText']['value'] ?? '';
 
         if (empty($mailConfig['receivers'])) {
@@ -144,5 +145,20 @@ class CancellationRequestRoute extends AbstractCancellationRequestRoute
         $config['receivers'][$this->systemConfigService->get('core.basicInformation.email', $context->getSalesChannelId())] = 'Admin';
 
         return $config;
+    }
+
+    /**
+     * @param array<string, mixed> $mailConfig
+     * @param array<string, mixed> $slotConfig
+     */
+    private function addReceivers(array &$mailConfig, array $slotConfig): void
+    {
+        $receivers = $slotConfig['mailReceiver']['value'] ?? null;
+
+        if (\is_array($receivers)) {
+            foreach ($receivers as $receiver) {
+                $mailConfig['receivers'][$receiver] = $receiver;
+            }
+        }
     }
 }

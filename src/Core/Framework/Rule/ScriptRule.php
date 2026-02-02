@@ -21,7 +21,7 @@ use Twig\Error\SyntaxError;
  * @final
  */
 #[Package('fundamentals@after-sales')]
-class ScriptRule extends Rule implements ContainerAwareRule
+class ScriptRule extends Rule
 {
     final public const RULE_NAME = 'scriptRule';
 

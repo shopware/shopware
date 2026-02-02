@@ -8,8 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
-use Shopware\Core\Framework\Rule\ContainerAwareRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\ScriptRule;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -86,7 +86,7 @@ class RulePayloadSubscriber implements EventSubscriberInterface
     private function enrichConditions(array $conditions): void
     {
         foreach ($conditions as $condition) {
-            if ($condition instanceof ContainerAwareRule) {
+            if ($condition instanceof ScriptRule) {
                 $condition->configureDependencies($this->container);
 
                 continue;

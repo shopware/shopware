@@ -123,30 +123,19 @@
             {% endif %}
         {% endblock %}
 
-        {% if product.purchaseUnit %}
-            {% block buy_widget_price_unit %}
-                <div class="product-detail-price-unit">
-                    {% block buy_widget_price_unit_label %}
-                        <span class="price-unit-label">
-                            {{ 'detail.priceUnitName'|trans|sw_sanitize }}
-                        </span>
-                    {% endblock %}
-
-                    {% block buy_widget_price_unit_content %}
-                        <span class="price-unit-content">
-                            {{ product.purchaseUnit }} {{ product.unit.translated.name }}
-                        </span>
-                    {% endblock %}
-
-                    {% if price.referencePrice is not null %}
-                        {% block buy_widget_price_unit_reference_content %}
-                            <span class="price-unit-reference-content">
-                                ({{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
-                            </span>
-                        {% endblock %}
-                    {% endif %}
-                </div>
+        <!-- @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig -->
+        {% block buy_widget_price_unit %}
+            <!-- @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig -->
+            {% block buy_widget_price_unit_label %}
             {% endblock %}
-        {% endif %}
+
+            <!-- @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig -->
+            {% block buy_widget_price_unit_content %}
+            {% endblock %}
+
+            <!-- @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig -->
+            {% block buy_widget_price_unit_reference_content %}
+            {% endblock %}
+        {% endblock %}
     {% endif %}
 {% endblock %}

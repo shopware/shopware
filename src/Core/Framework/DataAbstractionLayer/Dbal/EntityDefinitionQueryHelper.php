@@ -22,7 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -45,8 +47,18 @@ class EntityDefinitionQueryHelper
         return '`' . $string . '`';
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see TableHelper::columnExists} instead
+     *
+     * @param non-empty-string $table
+     */
     public static function columnExists(Connection $connection, string $table, string $column): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use TableHelper::columnExists instead')
+        );
+
         $exists = $connection->fetchOne(
             'SHOW COLUMNS FROM ' . self::escape($table) . ' WHERE `Field` LIKE :column',
             ['column' => $column]
@@ -55,8 +67,16 @@ class EntityDefinitionQueryHelper
         return !empty($exists);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed as it is unused
+     */
     public static function columnIsNullable(Connection $connection, string $table, string $column): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $exists = $connection->fetchOne(
             'SHOW COLUMNS FROM ' . self::escape($table) . ' WHERE `Field` LIKE :column AND `Null` = "YES"',
             ['column' => $column]
@@ -65,8 +85,16 @@ class EntityDefinitionQueryHelper
         return !empty($exists);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see TableHelper::tableExists} instead
+     */
     public static function tableExists(Connection $connection, string $table): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use TableHelper::tableExists instead')
+        );
+
         return !empty(
             $connection->fetchOne(
                 'SHOW TABLES LIKE :table',

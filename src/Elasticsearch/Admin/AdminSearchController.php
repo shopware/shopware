@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -44,7 +45,7 @@ final readonly class AdminSearchController
             throw ElasticsearchAdminException::missingTermParameter();
         }
 
-        $limit = $request->get('limit', 10);
+        $limit = RequestParamHelper::get($request, 'limit', 10);
 
         $results = $this->searcher->search($term, $entities, $context, $limit);
 

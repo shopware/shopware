@@ -24,12 +24,12 @@ final class StateValidator
     public function validateRequest(Request $request): void
     {
         $this->validateState(
-            $request->get('rdm'),
+            $request->query->get('rdm'),
             $request->getSession()->get(self::SESSION_KEY),
         );
 
         $request->request->set('grant_type', 'shopware_grant');
-        $request->request->set('code', $request->get('code'));
+        $request->request->set('code', $request->query->get('code'));
     }
 
     public function createRandom(Request $request): string

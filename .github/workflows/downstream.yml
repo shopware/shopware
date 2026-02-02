@@ -80,37 +80,6 @@ jobs:
           scope: shopware
           identity: ShopwareDownstream
 
-      - name: Require STS token
-        run: |
-          if [ -z "${{ steps.sts.outputs.token }}" ]; then
-            echo "STS token missing; cannot access downstream repositories. Failing to avoid 403 errors.";
-            exit 1;
-          fi
-
-      - name: Debug STS token access
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ steps.sts.outputs.token }}
-          script: |
-            try {
-              const who = await github.rest.users.getAuthenticated();
-              core.info(`Authenticated as: ${who.data.login}`);
-            } catch (err) {
-              core.error(`Failed to authenticate with STS token: ${err.status} ${err.message}`);
-              core.setFailed('STS token cannot authenticate');
-              return;
-            }
-
-            try {
-              const repoInfo = await github.rest.repos.get({ owner: 'shopware', repo: 'rufus' });
-              core.info(`Able to access repo shopware/rufus (private: ${repoInfo.data.private})`);
-            } catch (err) {
-              // Do not print token
-              core.error(`Access check to shopware/rufus failed: ${err.status} ${err.message}`);
-              core.setFailed('STS token cannot access downstream repository (403)');
-              return;
-            }
-
       - name: Check downstream mergeability
         uses: actions/github-script@v6
         with:

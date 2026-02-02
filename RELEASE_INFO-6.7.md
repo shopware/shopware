@@ -6,6 +6,12 @@
 
 ## Core
 
+### Internal product streams
+
+A new boolean field `internal` has been added to product streams with a default value of `false`. This allows you to mark product streams as internal for system or plugin use, preventing them from appearing in merchant-facing selection lists throughout the Administration (e.g., in categories, cross-selling, CMS elements, or sales channels).
+
+Use this feature when you need to create product streams programmatically that should not be modified or selected by shop administrators.
+
 ### Database table helper class
 
 A new helper class `\Shopware\Core\Framework\Util\Database\TableHelper` was introduced,

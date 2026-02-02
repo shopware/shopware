@@ -202,7 +202,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(firstRow.find('.sw-data-grid__cell--delivery').text()).toBe('Open');
         expect(firstRow.find('.sw-data-grid__cell--transaction').text()).toBe('Open');
         expect(firstRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
-        expect(firstRow.find('.sw-data-grid__cell--internalComment').find('.mt-icon')).toBeFalsy();
+        expect(firstRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(false);
 
         const secondRow = stateHistoryRows.at(1);
         expect(secondRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_delivery');
@@ -210,7 +210,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(secondRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
         expect(secondRow.find('.sw-data-grid__cell--transaction').text()).toBe('Open');
         expect(secondRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
-        expect(secondRow.find('.sw-data-grid__cell--internalComment').find('.mt-icon')).toBeTruthy();
+        expect(secondRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(true);
 
         const thirdRow = stateHistoryRows.at(2);
         expect(thirdRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_transaction 1');
@@ -218,7 +218,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(thirdRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
         expect(thirdRow.find('.sw-data-grid__cell--transaction').text()).toBe('In progress');
         expect(thirdRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
-        expect(thirdRow.find('.sw-data-grid__cell--internalComment').find('.mt-icon')).toBeTruthy();
+        expect(thirdRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(true);
 
         const fourthRow = stateHistoryRows.at(3);
         expect(fourthRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_transaction 2');
@@ -226,7 +226,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(fourthRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
         expect(fourthRow.find('.sw-data-grid__cell--transaction').text()).toBe('Open');
         expect(fourthRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
-        expect(fourthRow.find('.sw-data-grid__cell--internalComment').find('.mt-icon')).toBeFalsy();
+        expect(fourthRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(false);
     });
 
     it('should error notification if loading state history failed', async () => {

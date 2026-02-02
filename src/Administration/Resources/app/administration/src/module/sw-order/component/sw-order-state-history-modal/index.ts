@@ -290,10 +290,7 @@ export default Component.wrapComponentConfig({
                 integration: 'integration' in entry ? entry.integration : undefined,
                 entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
                 referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
-                internalComment:
-                    entry.getEntityName() === 'state_machine_history' && 'internalComment' in entry
-                        ? entry.internalComment
-                        : undefined,
+                internalComment: 'internalComment' in entry ? entry.internalComment : undefined,
             };
         },
 

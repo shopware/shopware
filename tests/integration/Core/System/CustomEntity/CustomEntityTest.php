@@ -682,7 +682,7 @@ class CustomEntityTest extends TestCase
         $table = $schema->getTable($table);
 
         foreach ($columns as $column) {
-            static::assertTrue($table->hasColumn($column), 'Column ' . $column . ' not found in table ' . $table->getName());
+            static::assertTrue($table->hasColumn($column), 'Column ' . $column . ' not found in table ' . $table->getObjectName()->toString());
         }
     }
 

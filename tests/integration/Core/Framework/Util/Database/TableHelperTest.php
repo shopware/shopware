@@ -10,6 +10,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -150,6 +151,24 @@ class TableHelperTest extends TestCase
     {
         $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
         TableHelper::indexExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, 'idx.product.type');
+    }
+
+    public function testGetIndexOfTable(): void
+    {
+        $index = TableHelper::getIndexOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'idx.product.type');
+        static::assertSame(IndexType::REGULAR->name, $index->type);
+    }
+
+    public function testGetIndexFromUnknownTableThrowsException(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForNotExistingTable('getIndexOfTable'));
+        TableHelper::getIndexOfTable($this->connection, self::UNKNOWN_NAME, 'idx.product.type');
+    }
+
+    public function testGetIndexThrowsExceptionWhileGettingSchemaManager(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
+        TableHelper::getIndexOfTable($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, self::UNKNOWN_NAME);
     }
 
     public function testIndexSpansColumns(): void

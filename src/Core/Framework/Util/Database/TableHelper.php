@@ -49,12 +49,14 @@ class TableHelper
     }
 
     /**
+     * @param non-empty-string $tableName
+     *
      * @throws TableHelperException
      */
     public static function getTable(Connection $connection, string $tableName): Table
     {
         try {
-            $dbalTable = self::getSchemaManager($connection)->introspectTable($tableName);
+            $dbalTable = self::getSchemaManager($connection)->introspectTableByUnquotedName($tableName);
 
             return new Table(
                 columnNames: array_map(static function (DbalColumn $column): string {
@@ -76,7 +78,7 @@ class TableHelper
     public static function columnExists(Connection $connection, string $table, string $columnName): bool
     {
         try {
-            return self::getSchemaManager($connection)->introspectTable($table)->hasColumn($columnName);
+            return self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->hasColumn($columnName);
         } catch (TableHelperException $e) {
             throw $e;
         } catch (\Throwable $e) {
@@ -92,7 +94,7 @@ class TableHelper
     public static function getColumnOfTable(Connection $connection, string $table, string $columnName): Column
     {
         try {
-            $dbalColumn = self::getSchemaManager($connection)->introspectTable($table)->getColumn($columnName);
+            $dbalColumn = self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->getColumn($columnName);
 
             return new Column(
                 type: Type::lookupName($dbalColumn->getType()),
@@ -115,7 +117,27 @@ class TableHelper
     public static function indexExists(Connection $connection, string $table, string $indexName): bool
     {
         try {
-            return self::getSchemaManager($connection)->introspectTable($table)->hasIndex($indexName);
+            return self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->hasIndex($indexName);
+        } catch (TableHelperException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
+        }
+    }
+
+    /**
+     * @param non-empty-string $table
+     *
+     * @throws TableHelperException
+     */
+    public static function getIndexOfTable(Connection $connection, string $table, string $indexName): Index
+    {
+        try {
+            $dbalIndex = self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->getIndex($indexName);
+
+            return new Index(
+                type: $dbalIndex->getType()->name,
+            );
         } catch (TableHelperException $e) {
             throw $e;
         } catch (\Throwable $e) {
@@ -132,7 +154,7 @@ class TableHelper
     public static function indexSpansColumns(Connection $connection, string $table, string $indexName, array $spansColumns): bool
     {
         try {
-            return self::getSchemaManager($connection)->introspectTable($table)->getIndex($indexName)->spansColumns($spansColumns);
+            return self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->getIndex($indexName)->spansColumns($spansColumns);
         } catch (TableHelperException $e) {
             throw $e;
         } catch (\Throwable $e) {
@@ -140,10 +162,15 @@ class TableHelper
         }
     }
 
+    /**
+     * @param non-empty-string $table
+     *
+     * @throws TableHelperException
+     */
     public static function foreignKeyExists(Connection $connection, string $table, string $foreignKeyName): bool
     {
         try {
-            return self::getSchemaManager($connection)->introspectTable($table)->hasForeignKey($foreignKeyName);
+            return self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->hasForeignKey($foreignKeyName);
         } catch (TableHelperException $e) {
             throw $e;
         } catch (\Throwable $e) {
@@ -159,7 +186,7 @@ class TableHelper
     public static function getForeignKeyOfTable(Connection $connection, string $table, string $foreignKeyName): ForeignKey
     {
         try {
-            $dbalForeignKey = self::getSchemaManager($connection)->introspectTable($table)->getForeignKey($foreignKeyName);
+            $dbalForeignKey = self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->getForeignKey($foreignKeyName);
 
             return new ForeignKey(
                 referencingColumnNames: array_map(static function (UnqualifiedName $columnName): string {

@@ -56,13 +56,11 @@
                         "properties": {
                           "name": {
                             "type": "string",
-                            "description": "The name of the transition.",
-                            "nullable": true
+                            "description": "The name of the transition."
                           },
                           "technicalName": {
                             "type": "string",
-                            "description": "The technical name of the transition.",
-                            "nullable": true
+                            "description": "The technical name of the transition."
                           },
                           "actionName": {
                             "type": "string",
@@ -70,13 +68,11 @@
                           },
                           "fromStateName": {
                             "type": "string",
-                            "description": "The technical name of the state the transition starts from.",
-                            "nullable": true
+                            "description": "The technical name of the state the transition starts from."
                           },
                           "toStateName": {
                             "type": "string",
-                            "description": "The technical name of the state the transition goes to.",
-                            "nullable": true
+                            "description": "The technical name of the state the transition goes to."
                           },
                           "url": {
                             "type": "string",

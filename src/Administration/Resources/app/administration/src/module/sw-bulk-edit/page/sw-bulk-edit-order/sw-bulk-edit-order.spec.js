@@ -101,6 +101,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'mt-text-field': true,
                     'sw-field-copyable': true,
                     'sw-media-collapse': true,
+                    'sw-text-area': true,
                 },
                 provide: {
                     validationService: {},

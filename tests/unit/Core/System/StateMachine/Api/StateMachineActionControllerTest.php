@@ -87,7 +87,7 @@ class StateMachineActionControllerTest extends TestCase
             $this->createMock(DefinitionInstanceRegistry::class),
         );
 
-        $request = new Request(query: ['stateFieldName' => 'abc', 'internalComment' => 'def']);
+        $request = new Request(query: ['stateFieldName' => 'abc'], request: ['internalComment' => 'def']);
 
         $controller->transitionState(
             $request,

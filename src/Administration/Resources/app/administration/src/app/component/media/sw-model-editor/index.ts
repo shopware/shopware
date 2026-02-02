@@ -10,12 +10,14 @@ const { EventBus } = Shopware.Utils;
 /**
  * @status ready
  * @description The <u>sw-model-editor</u> component is used to edit model objects.
- * @sw-package discovery
+ * @sw-package innovation
  * @example-type code-only
  * @component-example
  * <sw-model-editor
  *      :source="mediaEntity"
  * </sw-model-editor>
+ *
+ * @experimental stableVersion:v6.8.0 feature:MODEL_EDITOR
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -38,12 +40,20 @@ export default Shopware.Component.wrapComponentConfig({
             modelEntity: null,
             quickView: null,
             toolbox: null,
+            currentEditMode: 'translate' as 'translate' | 'rotate' | 'scale',
+            isTranslatable: true,
+            isRotatable: true,
+            isScalable: false,
         } as {
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
             modelEntity: EntitySchema.Entity<'media'> | null;
             quickView: QuickView | null;
             toolbox: Toolbox | null;
+            currentEditMode: 'translate' | 'rotate' | 'scale';
+            isTranslatable: boolean;
+            isRotatable: boolean;
+            isScalable: boolean;
         };
     },
 
@@ -100,6 +110,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.quickView = await QuickView(this.modelEntity.url, {
                 canvas: this.canvas,
+                displayAxes: true,
+                displayGrid: true,
             })
                 .catch((error) => {
                     console.error(error);
@@ -124,6 +136,12 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.modelEntity?.id !== mediaId) return;
 
             this.initializeQuickView();
+        },
+
+        setGizmoMode(mode: 'translate' | 'rotate' | 'scale'): void {
+            this.currentEditMode = mode;
+
+            this.toolbox?.getTool('transform').setGizmoMode(mode);
         },
     },
 });

@@ -110,7 +110,12 @@
       "titleModal": "Save in media"
     },
     "sw-model-editor": {
-      "titleModal": "Model Editor"
+      "titleModal": "Model Editor",
+      "edit-options": {
+        "move-tooltip": "Move object",
+        "rotate-tooltip": "Rotate object",
+        "scale-tooltip": "Scale object"
+      }
     }
   },
   "sw-privileges": {

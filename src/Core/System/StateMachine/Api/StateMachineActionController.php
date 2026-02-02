@@ -86,7 +86,7 @@ class StateMachineActionController extends AbstractController
         $this->validatePrivilege($entityName, AclRoleDefinition::PRIVILEGE_UPDATE, $context);
 
         $stateFieldName = $request->query->getString('stateFieldName', 'stateId');
-        $internalComment = $request->query->getString('internalComment') ?: null;
+        $internalComment = $request->request->getString('internalComment') ?: null;
 
         $stateMachineStateCollection = $this->stateMachineRegistry->transition(
             new Transition(

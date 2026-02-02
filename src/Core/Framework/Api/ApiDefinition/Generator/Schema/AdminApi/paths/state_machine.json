@@ -9,7 +9,7 @@
         ],
         "summary": "Get available transitions for an entity",
         "description": "Retrieves the available state transitions for the specified entity.",
-        "operationId": "entityState",
+        "operationId": "getEntityState",
         "parameters": [
           {
             "name": "entityName",
@@ -56,11 +56,13 @@
                         "properties": {
                           "name": {
                             "type": "string",
-                            "description": "The name of the transition."
+                            "description": "The name of the transition.",
+                            "nullable": true
                           },
                           "technicalName": {
                             "type": "string",
-                            "description": "The technical name of the transition."
+                            "description": "The technical name of the transition.",
+                            "nullable": true
                           },
                           "actionName": {
                             "type": "string",
@@ -68,11 +70,13 @@
                           },
                           "fromStateName": {
                             "type": "string",
-                            "description": "The technical name of the state the transition starts from."
+                            "description": "The technical name of the state the transition starts from.",
+                            "nullable": true
                           },
                           "toStateName": {
                             "type": "string",
-                            "description": "The technical name of the state the transition goes to."
+                            "description": "The technical name of the state the transition goes to.",
+                            "nullable": true
                           },
                           "url": {
                             "type": "string",
@@ -80,15 +84,28 @@
                           }
                         },
                         "required": [
+                          "name",
+                          "technicalName",
                           "actionName",
+                          "fromStateName",
+                          "toStateName",
                           "url"
                         ]
                       }
                     }
-                  }
+                  },
+                  "required": [
+                    "transitions"
+                  ]
                 }
               }
             }
+          },
+          "400": {
+            "description": "Unable to read the entity or entity field."
+          },
+          "403": {
+            "description": "Forbidden. Missing privileges to access the entity."
           }
         }
       }
@@ -139,20 +156,33 @@
               "type": "string",
               "default": "stateId"
             }
-          },
-          {
-            "name": "internalComment",
-            "in": "query",
-            "description": "An optional internal comment that will be saved with the state transition.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
+        "requestBody": {
+          "description": "Optional internal comment for the state transition.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "internalComment": {
+                    "type": "string",
+                    "description": "An optional internal comment that will be saved with the state transition."
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "State transition applied successfully."
+          },
+          "400": {
+            "description": "Unable to read the entity or entity field, or invalid transition."
+          },
+          "403": {
+            "description": "Forbidden. Missing privileges to access the entity."
           }
         }
       }

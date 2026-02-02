@@ -3,7 +3,6 @@
 namespace Shopware\Elasticsearch\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -20,10 +19,6 @@ class Migration1689084023AdminElasticsearchIndexTask extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (EntityDefinitionQueryHelper::tableExists($connection, 'admin_elasticsearch_index_task')) {
-            return;
-        }
-
         $connection->executeStatement('
 CREATE TABLE IF NOT EXISTS `admin_elasticsearch_index_task` (
   `id` binary(16) NOT NULL,
@@ -34,9 +29,5 @@ CREATE TABLE IF NOT EXISTS `admin_elasticsearch_index_task` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

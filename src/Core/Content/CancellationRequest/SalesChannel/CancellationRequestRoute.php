@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\CancellationRequest\SalesChannel;
 
-use phpseclib3\File\ASN1\Maps\HoldInstructionCode;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\CancellationRequest\Event\CancellationRequestEvent;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -125,8 +124,9 @@ class CancellationRequestRoute extends AbstractCancellationRequestRoute
             return $this->createDefaultConfig($context, $mailConfig);
         }
 
-        $this->addReceivers($mailConfig, $slotEntity->getTranslated()['config']);
-        $mailConfig['message'] = $slotEntity->getTranslated()['config']['confirmationText']['value'] ?? '';
+        $slotConfig = $slotEntity->getTranslated()['config'];
+        $this->addReceivers($mailConfig, $slotConfig);
+        $mailConfig['message'] = $slotConfig['confirmationText']['value'] ?? '';
 
         if (empty($mailConfig['receivers'])) {
             return $this->createDefaultConfig($context, $mailConfig);

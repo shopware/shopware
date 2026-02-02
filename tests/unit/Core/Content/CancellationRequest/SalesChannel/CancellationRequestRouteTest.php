@@ -48,7 +48,7 @@ class CancellationRequestRouteTest extends TestCase
 
         $dataBag = new RequestDataBag($this->createValidFormData($slotId, Uuid::randomHex()));
 
-        $cancellationRequestRoute = $this->createCancellationRequestRoute(true, null, [$category]);
+        $cancellationRequestRoute = $this->createCancellationRequestRoute(true, categoryEntities: [$category]);
 
         $result = $cancellationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
@@ -117,6 +117,7 @@ class CancellationRequestRouteTest extends TestCase
 
         $cmsSlot = new CmsSlotEntity();
         $cmsSlot->setId($slotId);
+        $cmsSlot->setTranslated(['config' => []]);
 
         $cancellationRequestRoute = $this->createCancellationRequestRoute(true, [$cmsSlot]);
 
@@ -181,9 +182,9 @@ class CancellationRequestRouteTest extends TestCase
         $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
 
-        /** @var StaticEntityRepository<CmsSlotCollection> */
+        /** @var StaticEntityRepository<CmsSlotCollection> $cmsSlotRepository */
         $cmsSlotRepository = new StaticEntityRepository([$slotEntities], new CmsSlotDefinition());
-        /** @var StaticEntityRepository<CategoryCollection> */
+        /** @var StaticEntityRepository<CategoryCollection> $categoryRepository */
         $categoryRepository = new StaticEntityRepository([$categoryEntities], new CategoryDefinition());
 
         return new CancellationRequestRoute(

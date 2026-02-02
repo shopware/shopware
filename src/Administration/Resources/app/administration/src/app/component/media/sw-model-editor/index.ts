@@ -10,12 +10,14 @@ const { EventBus } = Shopware.Utils;
 /**
  * @status ready
  * @description The <u>sw-model-editor</u> component is used to edit model objects.
- * @sw-package discovery
+ * @sw-package innovation
  * @example-type code-only
  * @component-example
  * <sw-model-editor
  *      :source="mediaEntity"
  * </sw-model-editor>
+ *
+ * @experimental stableVersion:v6.8.0 feature:MODEL_EDITOR
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -38,19 +40,28 @@ export default Shopware.Component.wrapComponentConfig({
             modelEntity: null,
             quickView: null,
             toolbox: null,
+            currentEditMode: 'translate' as 'translate' | 'rotate' | 'scale',
+            isTranslatable: true,
+            isRotatable: true,
+            isScalable: false,
         } as {
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
             modelEntity: EntitySchema.Entity<'media'> | null;
             quickView: QuickView | null;
             toolbox: Toolbox | null;
+            currentEditMode: 'translate' | 'rotate' | 'scale';
+            isTranslatable: boolean;
+            isRotatable: boolean;
+            isScalable: boolean;
         };
     },
 
     watch: {
-        source() {
+        async source(): Promise<void> {
             this.modelEntity = this.source as EntitySchema.Entity<'media'>;
-            this.initializeQuickView();
+            await this.disposeQuickView();
+            return this.initializeQuickView();
         },
     },
 
@@ -72,12 +83,11 @@ export default Shopware.Component.wrapComponentConfig({
             EventBus.on('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
         },
 
-        beforeUnmountedComponent(): void {
+        async beforeUnmountedComponent(): Promise<void> {
             // eslint-disable-next-line @typescript-eslint/unbound-method
             EventBus.off('sw-media-library-item-updated', this.onMediaLibraryItemUpdated);
 
-            this.toolbox?.dispose();
-            this.quickView?.dispose();
+            return this.disposeQuickView();
         },
 
         mountedComponent(): void {
@@ -100,6 +110,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.quickView = await QuickView(this.modelEntity.url, {
                 canvas: this.canvas,
+                displayAxes: true,
+                displayGrid: true,
             })
                 .catch((error) => {
                     console.error(error);
@@ -119,11 +131,22 @@ export default Shopware.Component.wrapComponentConfig({
             return Promise.resolve();
         },
 
+        async disposeQuickView(): Promise<void> {
+            this.toolbox?.dispose();
+            await this.quickView?.dispose();
+        },
+
         onMediaLibraryItemUpdated(mediaId: string): void {
             if (!this.modelEntity?.id) return;
             if (this.modelEntity?.id !== mediaId) return;
 
             this.initializeQuickView();
+        },
+
+        setGizmoMode(mode: 'translate' | 'rotate' | 'scale'): void {
+            this.currentEditMode = mode;
+
+            this.toolbox?.getTool('transform').setGizmoMode(mode);
         },
     },
 });

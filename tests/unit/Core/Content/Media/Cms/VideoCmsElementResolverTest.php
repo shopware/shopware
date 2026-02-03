@@ -139,4 +139,34 @@ class VideoCmsElementResolverTest extends TestCase
         static::assertSame($defaultMedia, $data->getMedia());
         static::assertNull($data->getMediaId());
     }
+
+    public function testEnrichWithAriaLabel(): void
+    {
+        $config = new FieldConfigCollection([
+            new FieldConfig('media', FieldConfig::SOURCE_STATIC, 'media-1'),
+            new FieldConfig('ariaLabel', FieldConfig::SOURCE_STATIC, 'Video description for accessibility'),
+        ]);
+
+        $slot = new CmsSlotEntity();
+        $slot->setId('slot-1');
+        $slot->setFieldConfig($config);
+
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
+
+        $media = new MediaEntity();
+        $media->setId('media-1');
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('get')->with('media-1')->willReturn($media);
+
+        $data = new ElementDataCollection();
+        $data->add('media_slot-1', $result);
+
+        $resolver = new VideoCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver->enrich($slot, $context, $data);
+
+        $videoData = $slot->getData();
+        static::assertInstanceOf(VideoStruct::class, $videoData);
+        static::assertSame('Video description for accessibility', $videoData->getAriaLabel());
+    }
 }

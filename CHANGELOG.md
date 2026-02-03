@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.12
+*  [#14451 - Fix IAP decoding with old OpenSSL versions](./changelog/release-6-6-10-12/2025-10-20-fix-iap-decoding-with-old-openssl-versions.md)
+*  [13968 - Symfony 7.4 Update](./changelog/release-6-6-10-12/2026-01-23-symfony-7-4.md)
+
 ## 6.6.10.11
 *  [#14332 - Performance improvement for category denormalizer](./changelog/release-6-6-10-11/2026-01-14-category-denormalizer-performance-improvement.md)
 *  [#6912 - fix: require with minimum-stability stable (fixes: #6912) (#6914)](https://github.com/shopware/shopware/issues/6912)

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Exception\WebhookSendException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -11,6 +12,7 @@ class WebhookException extends HttpException
 {
     public const WEBHOOK_FAILED = 'FRAMEWORK__WEBHOOK_FAILED';
     public const APP_WEBHOOK_FAILED = 'FRAMEWORK__APP_WEBHOOK_FAILED';
+    public const WEBHOOK_SEND_FAILED = 'FRAMEWORK__WEBHOOK_SEND_FAILED';
     public const INVALID_DATA_MAPPING = 'FRAMEWORK__WEBHOOK_INVALID_DATA_MAPPING';
     public const UNKNOWN_DATA_TYPE = 'FRAMEWORK__WEBHOOK_UNKNOWN_DATA_TYPE';
 
@@ -33,6 +35,32 @@ class WebhookException extends HttpException
             'Webhook "{{ webhookId }}" from "{{ appId }}" failed with error: {{ error }}.',
             ['webhookId' => $webhookId, 'appId' => $appId, 'error' => $e->getMessage()],
             $e
+        );
+    }
+
+    /**
+     * @internal
+     *
+     * @param array<string, string[]>|null $responseHeaders
+     */
+    public static function sendFailed(
+        string $url,
+        \Throwable $previous,
+        ?int $responseStatusCode = null,
+        ?string $responseReasonPhrase = null,
+        ?array $responseHeaders = null,
+        mixed $responseBody = null,
+    ): WebhookSendException {
+        return new WebhookSendException(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::WEBHOOK_SEND_FAILED,
+            'Failed to send webhook request to "{{ url }}": {{ error }}',
+            ['url' => $url, 'error' => $previous->getMessage()],
+            $previous,
+            $responseStatusCode,
+            $responseReasonPhrase,
+            $responseHeaders,
+            $responseBody
         );
     }
 

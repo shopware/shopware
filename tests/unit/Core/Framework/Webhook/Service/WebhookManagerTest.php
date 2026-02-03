@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Webhook;
@@ -50,7 +51,7 @@ class WebhookManagerTest extends TestCase
 
     private MockHandler $clientMock;
 
-    private Client $client;
+    private WebhookClient $webhookClient;
 
     private HookableEventFactory&MockObject $eventFactory;
 
@@ -62,7 +63,8 @@ class WebhookManagerTest extends TestCase
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->connection = $this->createMock(Connection::class);
         $this->clientMock = new MockHandler([new Response(200)]);
-        $this->client = new Client(['handler' => HandlerStack::create($this->clientMock)]);
+        $guzzleClient = new Client(['handler' => HandlerStack::create($this->clientMock)]);
+        $this->webhookClient = new WebhookClient($guzzleClient);
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
     }
@@ -164,6 +166,7 @@ class WebhookManagerTest extends TestCase
         static::assertInstanceOf(Envelope::class, $envelop);
         $message = $envelop->getMessage();
         static::assertInstanceOf(WebhookEventMessage::class, $message);
+        static::assertSame([], $message->getWebhookHeaders());
     }
 
     public function testWebhooksAreNotDispatchedIfPrivilegesAreMissing(): void
@@ -422,7 +425,7 @@ class WebhookManagerTest extends TestCase
             $this->eventFactory,
             $this->createMock(AppLocaleProvider::class),
             $appPayloadServiceHelper,
-            $this->client,
+            $this->webhookClient,
             $this->bus,
             'https://example.com',
             '0.0.0',

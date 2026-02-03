@@ -1053,36 +1053,25 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             const inheritanceSwitch = field.find(inheritanceSwitchSelector);
             expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
 
-            // Verify field is disabled in DOM (public API)
+            // Verify field is disabled in DOM
             // Check for disabled state based on field type
             if (type === 'textarea') {
-                // Textarea fields use textarea element
                 const textareaElement = field.find('textarea').element;
                 expect(textareaElement.disabled).toBe(true);
             } else if (type === 'bool' || type === 'checkbox') {
-                // For checkbox/bool fields, check the input element
                 const inputElement = field.find('input[type="checkbox"]').element;
                 expect(inputElement.disabled).toBe(true);
             } else if (type === 'single-select' || type === 'multi-select') {
-                // For select fields, check the visible text input used for search/display
                 const inputElement = field.find('input[type="text"]').element;
                 expect(inputElement.disabled).toBe(true);
             } else if (config.componentName === 'sw-entity-single-select') {
-                // For entity-single-select, just verify the inheritance state is correct
-                // The disabled state is enforced through the component's internal logic
-                // We've already verified the inheritance switch state above
                 expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
             } else if (config.componentName === 'sw-media-field') {
-                // For media field, just verify the inheritance state is correct
-                // The disabled state is enforced through the component's internal logic
-                // We've already verified the inheritance switch state above
                 expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
             } else if (config.componentName === 'sw-text-editor') {
-                // For text editor, check input element
                 const inputElement = field.find('input').element;
                 expect(inputElement.disabled).toBe(true);
             } else {
-                // For standard input fields (text, url, password, int, float, date, datetime, time, colorpicker, etc.)
                 const inputElement = field.find('input').element;
                 expect(inputElement.disabled).toBe(true);
             }

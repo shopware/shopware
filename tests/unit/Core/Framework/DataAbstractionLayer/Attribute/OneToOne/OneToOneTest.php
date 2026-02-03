@@ -73,7 +73,7 @@ final class OneToOneTest extends TestCase
         static::assertSame(OneToOneAssociationField::class, $attribute->getFieldClass());
     }
 
-    public function testFromArray(): void
+    public function testFromArrayWithStringOnDelete(): void
     {
         $data = [
             'entity' => 'order_customer',
@@ -93,6 +93,29 @@ final class OneToOneTest extends TestCase
         static::assertSame(OnDelete::CASCADE, $attribute->onDelete);
         static::assertSame('id', $attribute->ref);
         static::assertTrue($attribute->nullable);
+    }
+
+    public function testFromArrayWithOnDeleteInstance(): void
+    {
+        $data = [
+            'entity' => 'order_customer',
+            'column' => 'custom_fk',
+            'onDelete' => OnDelete::RESTRICT,
+            'ref' => 'uuid',
+            'api' => true,
+            'nullable' => false,
+            'type' => OneToOne::TYPE,
+            'translated' => false,
+        ];
+
+        $attribute = OneToOne::fromArray($data);
+
+        static::assertSame('order_customer', $attribute->entity);
+        static::assertSame('custom_fk', $attribute->column);
+        static::assertSame(OnDelete::RESTRICT, $attribute->onDelete);
+        static::assertSame('uuid', $attribute->ref);
+        static::assertTrue($attribute->api);
+        static::assertFalse($attribute->nullable);
     }
 
     public function testToDefinition(): void

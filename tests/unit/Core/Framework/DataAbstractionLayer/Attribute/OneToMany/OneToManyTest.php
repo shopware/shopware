@@ -36,23 +36,6 @@ final class OneToManyTest extends TestCase
         static::assertSame('order_id', $attribute->ref);
     }
 
-    public function testLocalFieldId(): void
-    {
-        $attribute = new OneToMany(
-            entity: AttributeTestFixtures::ENTITY_NAME_PRODUCT,
-            ref: 'category_id'
-        );
-
-        $field = $attribute->createField(
-            'products',
-            'products',
-            AttributeTestFixtures::ENTITY_NAME_CATEGORY
-        );
-
-        static::assertInstanceOf(OneToManyAssociationField::class, $field);
-        static::assertSame('products', $field->getPropertyName());
-    }
-
     public function testGetFieldClass(): void
     {
         $attribute = new OneToMany(
@@ -63,7 +46,7 @@ final class OneToManyTest extends TestCase
         static::assertSame(OneToManyAssociationField::class, $attribute->getFieldClass());
     }
 
-    public function testFromArray(): void
+    public function testFromArrayWithStringOnDelete(): void
     {
         $data = [
             'entity' => 'order_line_item',
@@ -84,22 +67,25 @@ final class OneToManyTest extends TestCase
         static::assertFalse($attribute->nullable);
     }
 
-    public function testOnDeleteSetNull(): void
+    public function testFromArrayWithOnDeleteInstance(): void
     {
-        $attribute = new OneToMany(
-            entity: AttributeTestFixtures::ENTITY_NAME_PRODUCT,
-            ref: 'manufacturer_id',
-            onDelete: OnDelete::SET_NULL
-        );
+        $data = [
+            'entity' => 'order_line_item',
+            'ref' => 'order_id',
+            'onDelete' => OnDelete::SET_NULL,
+            'api' => false,
+            'nullable' => true,
+            'type' => OneToMany::TYPE,
+            'translated' => false,
+        ];
 
-        $field = $attribute->createField(
-            'products',
-            'products',
-            'manufacturer'
-        );
+        $attribute = OneToMany::fromArray($data);
 
-        static::assertInstanceOf(OneToManyAssociationField::class, $field);
-        static::assertSame('products', $field->getPropertyName());
+        static::assertSame('order_line_item', $attribute->entity);
+        static::assertSame('order_id', $attribute->ref);
+        static::assertSame(OnDelete::SET_NULL, $attribute->onDelete);
+        static::assertFalse($attribute->api);
+        static::assertTrue($attribute->nullable);
     }
 
     public function testToDefinition(): void

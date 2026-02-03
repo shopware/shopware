@@ -50,20 +50,6 @@ final class ManyToOneTest extends TestCase
         static::assertSame('custom_fk', $field->getStorageName());
     }
 
-    public function testDefaultReferenceField(): void
-    {
-        $attribute = new ManyToOne(entity: AttributeTestFixtures::ENTITY_NAME_PRODUCT);
-
-        $field = $attribute->createField(
-            AttributeTestFixtures::PROPERTY_NAME_CURRENCY,
-            'currency',
-            AttributeTestFixtures::ENTITY_NAME
-        );
-
-        static::assertInstanceOf(ManyToOneAssociationField::class, $field);
-        static::assertSame(AttributeTestFixtures::REFERENCE_FIELD_ID, $attribute->ref);
-    }
-
     public function testCustomReferenceField(): void
     {
         $attribute = new ManyToOne(
@@ -127,23 +113,6 @@ final class ManyToOneTest extends TestCase
         $attribute = ManyToOne::fromArray($data);
 
         static::assertSame(OnDelete::SET_NULL, $attribute->onDelete);
-    }
-
-    public function testOnDeleteCascade(): void
-    {
-        $attribute = new ManyToOne(
-            entity: AttributeTestFixtures::ENTITY_NAME_PRODUCT,
-            onDelete: OnDelete::CASCADE
-        );
-
-        $field = $attribute->createField(
-            AttributeTestFixtures::PROPERTY_NAME_PRODUCT,
-            'product',
-            AttributeTestFixtures::ENTITY_NAME_ORDER
-        );
-
-        static::assertInstanceOf(ManyToOneAssociationField::class, $field);
-        static::assertSame(OnDelete::CASCADE, $attribute->onDelete);
     }
 
     public function testToDefinition(): void

@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
+use Shopware\Core\Framework\DataAbstractionLayer\CompiledDefinitions;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited as InheritedFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited as ReverseInheritedFlag;
@@ -22,8 +24,20 @@ use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\Attri
  */
 #[Package('framework')]
 #[CoversClass(AttributeEntityCompiler::class)]
+#[CoversClass(CompiledDefinitions::class)]
 final class AttributeEntityCompilerTest extends TestCase
 {
+    public function testCompileWithoutEntityAttribute(): void
+    {
+        $compiler = new AttributeEntityCompiler();
+
+        $compiledResult = $compiler->compile(Entity::class);
+
+        static::assertTrue($compiledResult->isEmpty());
+        static::assertNull($compiledResult->entity);
+        static::assertSame([], $compiledResult->mappings);
+    }
+
     public function testCompile(): void
     {
         $compiler = new AttributeEntityCompiler();

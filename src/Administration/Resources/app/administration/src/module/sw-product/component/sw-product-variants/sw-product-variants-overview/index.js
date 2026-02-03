@@ -305,7 +305,11 @@ export default {
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
-                if (this.product.parentId) {
+                /**
+                 * if no product id or parent id, return early
+                 * prevents errors when the product is not loaded yet
+                 */
+                if (!this.product?.id || this.product.parentId) {
                     return;
                 }
 
@@ -718,17 +722,27 @@ export default {
 
                 this.updateVariantListingConfig(variantIds);
 
-                this.productRepository.syncDeleted(variantIds).then(() => {
-                    this.modalLoading = false;
-                    this.toBeDeletedVariantIds = [];
+                this.productRepository
+                    .syncDeleted(variantIds)
+                    .then(() => {
+                        this.modalLoading = false;
+                        this.toBeDeletedVariantIds = [];
 
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess'),
+                        this.createNotificationSuccess({
+                            message: this.$t('sw-product.variations.generatedListMessageDeleteSuccess'),
+                        });
+
+                        this.$refs.variantGrid.resetSelection();
+                        this.getList();
+                    })
+                    .catch(() => {
+                        this.modalLoading = false;
+                        this.toBeDeletedVariantIds = [];
+
+                        this.createNotificationError({
+                            message: this.$t('sw-product.variations.generatedListMessageDeleteError'),
+                        });
                     });
-
-                    this.$refs.variantGrid.resetSelection();
-                    this.getList();
-                });
             });
         },
 

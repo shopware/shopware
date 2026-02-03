@@ -237,4 +237,365 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             ],
         });
     });
+
+    describe('filterRestrictions', () => {
+        const mockCreateQueue = [
+            {
+                parentId: 'parent1',
+                options: [
+                    { id: 'option1' },
+                    { id: 'option2' },
+                ],
+            },
+            {
+                parentId: 'parent1',
+                options: [
+                    { id: 'option1' },
+                    { id: 'option3' },
+                ],
+            },
+            {
+                parentId: 'parent1',
+                options: [
+                    { id: 'option2' },
+                    { id: 'option3' },
+                ],
+            },
+        ];
+
+        it('should return createQueue when variantRestrictions is not an array', () => {
+            variantsGenerator.product = { variantRestrictions: null };
+            expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
+
+            variantsGenerator.product = { variantRestrictions: undefined };
+            expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
+
+            variantsGenerator.product = { variantRestrictions: {} };
+            expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
+
+            variantsGenerator.product = { variantRestrictions: 'invalid' };
+            expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
+        });
+
+        it('should return createQueue when variantRestrictions is empty array', () => {
+            variantsGenerator.product = { variantRestrictions: [] };
+            expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
+        });
+
+        it('should return createQueue when all restrictions have empty options', () => {
+            variantsGenerator.product = {
+                variantRestrictions: [
+                    {
+                        id: 'restriction1',
+                        values: [
+                            { id: 'value1', group: 'group1', options: [] },
+                        ],
+                    },
+                    {
+                        id: 'restriction2',
+                        values: [],
+                    },
+                ],
+            };
+            expect(variantsGenerator.filterRestrictions(mockCreateQueue)).toEqual(mockCreateQueue);
+        });
+
+        it('should filter out malformed restrictions and process valid ones', () => {
+            variantsGenerator.product = {
+                variantRestrictions: [
+                    // Invalid: empty options
+                    {
+                        id: 'invalid1',
+                        values: [{ id: 'value1', group: 'group1', options: [] }],
+                    },
+                    // Invalid: no values
+                    {
+                        id: 'invalid2',
+                        values: [],
+                    },
+                    // Invalid: null restriction
+                    null,
+                    // Valid restriction: exclude option1 + option2 combination
+                    {
+                        id: 'valid1',
+                        values: [
+                            { id: 'value1', group: 'group1', options: ['option1'] },
+                            { id: 'value2', group: 'group2', options: ['option2'] },
+                        ],
+                    },
+                ],
+            };
+
+            const result = variantsGenerator.filterRestrictions(mockCreateQueue);
+
+            // Should filter out variant with option1 + option2
+            expect(result).toEqual([
+                {
+                    parentId: 'parent1',
+                    options: [
+                        { id: 'option1' },
+                        { id: 'option3' },
+                    ],
+                },
+                {
+                    parentId: 'parent1',
+                    options: [
+                        { id: 'option2' },
+                        { id: 'option3' },
+                    ],
+                },
+            ]);
+        });
+
+        it('should filter variants matching valid restrictions', () => {
+            variantsGenerator.product = {
+                variantRestrictions: [
+                    {
+                        id: 'restriction1',
+                        values: [
+                            { id: 'value1', group: 'group1', options: ['option1'] },
+                            { id: 'value2', group: 'group2', options: ['option3'] },
+                        ],
+                    },
+                ],
+            };
+
+            const result = variantsGenerator.filterRestrictions(mockCreateQueue);
+
+            // Should filter out variant with option1 + option3
+            expect(result).toEqual([
+                {
+                    parentId: 'parent1',
+                    options: [
+                        { id: 'option1' },
+                        { id: 'option2' },
+                    ],
+                },
+                {
+                    parentId: 'parent1',
+                    options: [
+                        { id: 'option2' },
+                        { id: 'option3' },
+                    ],
+                },
+            ]);
+        });
+    });
+
+    describe('saveConfiguratorSettings', () => {
+        it('should resolve immediately when configuratorSettings is null', async () => {
+            const result = await variantsGenerator.saveConfiguratorSettings(null);
+            expect(result).toBeUndefined();
+        });
+
+        it('should resolve immediately when configuratorSettings is empty', async () => {
+            const result = await variantsGenerator.saveConfiguratorSettings([]);
+            expect(result).toBeUndefined();
+        });
+
+        it('should call syncService.sync with upsert action and cloned settings', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = {
+                id: 'product-123',
+            };
+
+            const mockSettings = [
+                {
+                    id: 'setting-1',
+                    optionId: 'option-1',
+                    mediaId: 'media-1',
+                    position: 1,
+                    price: { gross: 10, net: 8.4 },
+                    customFields: { foo: 'bar' },
+                },
+                {
+                    id: 'setting-2',
+                    optionId: 'option-2',
+                },
+            ];
+
+            await variantsGenerator.saveConfiguratorSettings(mockSettings);
+
+            // Verify sync was called with correct structure
+            expect(syncSpy).toHaveBeenCalledWith(
+                [
+                    {
+                        entity: 'product_configurator_setting',
+                        action: 'upsert',
+                        payload: expect.arrayContaining([
+                            expect.objectContaining({
+                                id: 'setting-1',
+                                productId: 'product-123',
+                                optionId: 'option-1',
+                            }),
+                            expect.objectContaining({
+                                id: 'setting-2',
+                                productId: 'product-123',
+                                optionId: 'option-2',
+                            }),
+                        ]),
+                    },
+                ],
+                {},
+                { 'single-operation': 1 },
+            );
+
+            syncSpy.mockRestore();
+        });
+
+        it('should always set productId to current product', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = {
+                id: 'current-product-id',
+            };
+
+            const mockSettings = [
+                {
+                    id: 'setting-1',
+                    optionId: 'option-1',
+                    productId: 'old-product-id', // Should be overwritten
+                },
+            ];
+
+            await variantsGenerator.saveConfiguratorSettings(mockSettings);
+
+            const calledPayload = syncSpy.mock.calls[0][0][0].payload[0];
+            expect(calledPayload.productId).toBe('current-product-id');
+
+            syncSpy.mockRestore();
+        });
+
+        it('should clone settings to avoid mutating original data', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = {
+                id: 'product-123',
+            };
+
+            const originalSettings = [
+                {
+                    id: 'setting-1',
+                    optionId: 'option-1',
+                    productId: 'original-product-id',
+                },
+            ];
+
+            await variantsGenerator.saveConfiguratorSettings(originalSettings);
+
+            // Original data should not be mutated
+            expect(originalSettings[0].productId).toBe('original-product-id');
+
+            syncSpy.mockRestore();
+        });
+
+        it('should filter out falsely new settings not in createQueue', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = {
+                id: 'product-123',
+            };
+
+            // Setting marked as _isNew but option is NOT in createQueue (user deselected and re-selected)
+            const mockSettings = [
+                {
+                    id: 'setting-1',
+                    optionId: 'existing-option',
+                    _isNew: true, // Falsely marked as new
+                },
+                {
+                    id: 'setting-2',
+                    optionId: 'real-existing-option',
+                    _isNew: false, // Not marked as new, should be included
+                },
+            ];
+
+            // createQueue has no variants (no new options)
+            const createQueue = [];
+
+            await variantsGenerator.saveConfiguratorSettings(mockSettings, createQueue);
+
+            const calledPayload = syncSpy.mock.calls[0][0][0].payload;
+
+            // Only setting-2 should be included (not marked as _isNew)
+            expect(calledPayload).toHaveLength(1);
+            expect(calledPayload[0].optionId).toBe('real-existing-option');
+
+            syncSpy.mockRestore();
+        });
+
+        it('should include truly new settings that are in createQueue', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = {
+                id: 'product-123',
+            };
+
+            const mockSettings = [
+                {
+                    id: 'setting-1',
+                    optionId: 'new-option-1',
+                    _isNew: true, // Truly new
+                },
+                {
+                    id: 'setting-2',
+                    optionId: 'new-option-2',
+                    _isNew: true, // Truly new
+                },
+                {
+                    id: 'setting-3',
+                    optionId: 'existing-option',
+                    _isNew: false, // Existing
+                },
+            ];
+
+            // createQueue has variants with new options
+            const createQueue = [
+                {
+                    options: [
+                        { id: 'new-option-1' },
+                        { id: 'new-option-2' },
+                    ],
+                },
+            ];
+
+            await variantsGenerator.saveConfiguratorSettings(mockSettings, createQueue);
+
+            const calledPayload = syncSpy.mock.calls[0][0][0].payload;
+
+            // All three should be included
+            expect(calledPayload).toHaveLength(3);
+
+            syncSpy.mockRestore();
+        });
+
+        it('should resolve immediately when all settings are filtered out', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = {
+                id: 'product-123',
+            };
+
+            // All settings are falsely marked as new
+            const mockSettings = [
+                {
+                    id: 'setting-1',
+                    optionId: 'existing-option',
+                    _isNew: true,
+                },
+            ];
+
+            // No new variants in createQueue
+            const createQueue = [];
+
+            const result = await variantsGenerator.saveConfiguratorSettings(mockSettings, createQueue);
+
+            // Should not call sync API
+            expect(syncSpy).not.toHaveBeenCalled();
+            expect(result).toBeUndefined();
+
+            syncSpy.mockRestore();
+        });
+    });
 });

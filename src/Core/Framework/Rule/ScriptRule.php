@@ -2,11 +2,6 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
-use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
-use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
-use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
-use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
 use Shopware\Core\Framework\Log\Package;
@@ -14,13 +9,13 @@ use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
-use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
+use Shopware\Core\Framework\Script\Execution\ScriptEnvironmentFactory;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\Constraint;
 use Twig\Cache\FilesystemCache;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use Twig\Extension\DebugExtension;
 
 /**
  * @final
@@ -46,11 +41,14 @@ class ScriptRule extends Rule
 
     protected ?string $identifier = null;
 
+    // Following properties are set while unserialization in `configureDependencies()`
     protected ?ScriptTraces $traces = null;
 
     protected ?string $cacheDir = null;
 
     protected bool $debug = true;
+
+    private ScriptEnvironmentFactory $scriptEnvironmentFactory;
 
     public function match(RuleScope $scope): bool
     {
@@ -79,21 +77,7 @@ class ScriptRule extends Rule
         }
         $script->setTwigOptions($twigOptions);
 
-        $twig = new TwigEnvironment(
-            new ScriptTwigLoader($script),
-            $script->getTwigOptions()
-        );
-
-        $twig->addExtension(new PhpSyntaxExtension());
-        $twig->addExtension(new ComparisonExtension());
-        $twig->addExtension(new PcreExtension());
-        $twig->addExtension(new ReplaceRecursiveFilter());
-
-        if ($this->debug) {
-            $twig->addExtension(new DebugExtension());
-        }
-
-        $twig->addExtension(new SecurityExtension([]));
+        $twig = $this->scriptEnvironmentFactory->initEnv($script);
 
         $hook = new AppScriptConditionHook($scope->getContext());
 
@@ -136,6 +120,14 @@ class ScriptRule extends Rule
     public function getValues(): array
     {
         return $this->values;
+    }
+
+    public function configureDependencies(ContainerInterface $container): void
+    {
+        $this->scriptEnvironmentFactory = $container->get(ScriptEnvironmentFactory::class);
+        $this->traces = $container->get(ScriptTraces::class);
+        $this->cacheDir = $container->getParameter('twig.cache');
+        $this->debug = $container->getParameter('kernel.debug');
     }
 
     /**

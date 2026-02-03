@@ -6,9 +6,9 @@ export type ConsentDTO = {
     readonly name: string;
     readonly identifier: string;
     readonly scopeName: 'system' | 'admin_user';
-    readonly actor: string;
+    readonly actor: string | null;
     readonly status: 'accepted' | 'revoked' | 'unset';
-    readonly updated_at: string;
+    readonly updated_at: string | null;
 };
 
 type ConsentStoreState = {

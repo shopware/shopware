@@ -18,7 +18,12 @@ export default async function initConsentStore(): Promise<void> {
 
     const consentStore = useConsentStore();
 
-    await consentStore.update();
+    try {
+        await consentStore.update();
+    } catch {
+        // keep empty store and wait for next update interval
+    }
+
 
     setInterval(() => {
         void consentStore.update();

@@ -17,6 +17,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\Column;
+use Shopware\Core\Framework\Util\Database\Index;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Util\Database\TableHelperException;
 use Shopware\Core\Framework\Util\UtilException;
@@ -72,8 +74,12 @@ class TableHelperTest extends TestCase
     public function testGetTable(): void
     {
         $table = TableHelper::getTable($this->connection, ProductDefinition::ENTITY_NAME);
-        static::assertIsList($table->columnNames);
-        static::assertContainsOnlyString($table->columnNames);
+
+        static::assertIsList($table->columns);
+        static::assertContainsOnlyInstancesOf(Column::class, $table->columns);
+
+        static::assertIsList($table->indexes);
+        static::assertContainsOnlyInstancesOf(Index::class, $table->indexes);
     }
 
     public function testGetTableFromUnknownTableThrowsException(): void

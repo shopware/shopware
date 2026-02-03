@@ -41,7 +41,7 @@ class Migration1765287398AddConsentLogTableTest extends TestCase
 
         static::assertTrue(TableHelper::tableExists($this->connection, 'consent_log'));
 
-        $consentStateColumns = TableHelper::getTable($this->connection, 'consent_log')->columnNames;
+        $consentStateColumns = TableHelper::getTable($this->connection, 'consent_log')->columns;
         static::assertCount(4, $consentStateColumns);
     }
 }

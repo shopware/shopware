@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column as DbalColumn;
+use Doctrine\DBAL\Schema\Index as DbalIndex;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
 use Shopware\Core\Framework\Log\Package;
@@ -59,9 +60,12 @@ class TableHelper
             $dbalTable = self::getSchemaManager($connection)->introspectTableByUnquotedName($tableName);
 
             return new Table(
-                columnNames: array_map(static function (DbalColumn $column): string {
-                    return $column->getObjectName()->getIdentifier()->getValue();
-                }, $dbalTable->getColumns())
+                columns: array_map(static function (DbalColumn $dbalColumn): Column {
+                    return Column::createFromDbalColumn($dbalColumn);
+                }, $dbalTable->getColumns()),
+                indexes: array_values(array_map(static function (DbalIndex $dbalIndex): Index {
+                    return Index::createFromDbalIndex($dbalIndex);
+                }, $dbalTable->getIndexes()))
             );
         } catch (TableHelperException $e) {
             throw $e;
@@ -96,12 +100,7 @@ class TableHelper
         try {
             $dbalColumn = self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->getColumn($columnName);
 
-            return new Column(
-                type: Type::lookupName($dbalColumn->getType()),
-                length: $dbalColumn->getLength(),
-                isNotNull: $dbalColumn->getNotnull(),
-                defaultValue: $dbalColumn->getDefault(),
-            );
+            return Column::createFromDbalColumn($dbalColumn);
         } catch (TableHelperException $e) {
             throw $e;
         } catch (\Throwable $e) {
@@ -135,9 +134,7 @@ class TableHelper
         try {
             $dbalIndex = self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->getIndex($indexName);
 
-            return new Index(
-                type: $dbalIndex->getType()->name,
-            );
+            return Index::createFromDbalIndex($dbalIndex);
         } catch (TableHelperException $e) {
             throw $e;
         } catch (\Throwable $e) {

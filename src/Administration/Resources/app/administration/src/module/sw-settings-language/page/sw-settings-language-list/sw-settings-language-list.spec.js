@@ -87,13 +87,14 @@ async function createWrapper(privileges = []) {
                         inject: ['detailPageLinkText'],
                         props: [
                             'items',
+                            'dataSource',
                             'allowEdit',
                             'allowView',
                             'detailRoute',
                         ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="detail-action" v-bind="{ item }">
                                 <sw-context-menu-item
                                     v-if="detailRoute"

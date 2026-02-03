@@ -30,7 +30,7 @@
             class="sw-mail-templates-list-grid"
             detail-route="sw.mail.template.detail_head_foot"
             identifier="sw-mail-header-footer-list"
-            :items="mailHeaderFooters"
+            :data-source="mailHeaderFooters"
             :columns="getListColumns()"
             :repository="mailHeaderFooterRepository"
             :full-page="false"

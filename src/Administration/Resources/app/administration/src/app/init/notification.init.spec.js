@@ -43,13 +43,75 @@ describe('src/app/init/notification.init.ts', () => {
         });
     });
 
-    it('should handle notificationDispatch requests with fallback', async () => {
+    it('should handle notificationDispatch requests with fallback for both title and message', async () => {
         await notification.dispatch({});
 
         const growlNotificationKey = Object.keys(Shopware.Store.get('notification').growlNotifications)[0];
         expect(Shopware.Store.get('notification').growlNotifications).toEqual({
             [growlNotificationKey]: expect.objectContaining({
                 title: 'global.notification.noTitle',
+                message: 'global.notification.noMessage',
+                variant: 'info',
+            }),
+        });
+    });
+
+    it('should handle notificationDispatch requests with fallback for missing title', async () => {
+        await notification.dispatch({
+            message: 'Custom message',
+        });
+
+        const growlNotificationKey = Object.keys(Shopware.Store.get('notification').growlNotifications)[0];
+        expect(Shopware.Store.get('notification').growlNotifications).toEqual({
+            [growlNotificationKey]: expect.objectContaining({
+                title: 'global.notification.noTitle',
+                message: 'Custom message',
+                variant: 'info',
+            }),
+        });
+    });
+
+    it('should handle notificationDispatch requests with fallback for missing message', async () => {
+        await notification.dispatch({
+            title: 'Custom title',
+        });
+
+        const growlNotificationKey = Object.keys(Shopware.Store.get('notification').growlNotifications)[0];
+        expect(Shopware.Store.get('notification').growlNotifications).toEqual({
+            [growlNotificationKey]: expect.objectContaining({
+                title: 'Custom title',
+                message: 'global.notification.noMessage',
+                variant: 'info',
+            }),
+        });
+    });
+
+    it('should handle notificationDispatch requests with fallback for undefined title', async () => {
+        await notification.dispatch({
+            title: undefined,
+            message: 'Custom message',
+        });
+
+        const growlNotificationKey = Object.keys(Shopware.Store.get('notification').growlNotifications)[0];
+        expect(Shopware.Store.get('notification').growlNotifications).toEqual({
+            [growlNotificationKey]: expect.objectContaining({
+                title: 'global.notification.noTitle',
+                message: 'Custom message',
+                variant: 'info',
+            }),
+        });
+    });
+
+    it('should handle notificationDispatch requests with fallback for undefined message', async () => {
+        await notification.dispatch({
+            title: 'Custom title',
+            message: undefined,
+        });
+
+        const growlNotificationKey = Object.keys(Shopware.Store.get('notification').growlNotifications)[0];
+        expect(Shopware.Store.get('notification').growlNotifications).toEqual({
+            [growlNotificationKey]: expect.objectContaining({
+                title: 'Custom title',
                 message: 'global.notification.noMessage',
                 variant: 'info',
             }),

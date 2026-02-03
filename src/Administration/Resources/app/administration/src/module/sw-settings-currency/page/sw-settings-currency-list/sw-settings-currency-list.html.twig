@@ -67,7 +67,7 @@
                 v-if="isLoading || currency"
                 ref="swSettingsCurrencyGrid"
                 class="sw-settings-currency-list-grid"
-                :items="currency"
+                :data-source="currency"
                 :columns="getCurrencyColumns()"
                 :repository="currencyRepository"
                 :full-page="false"

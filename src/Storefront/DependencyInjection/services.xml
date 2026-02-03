@@ -568,5 +568,11 @@
         <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">
             <tag name="shopware.route_scope_whitelist"/>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Product\Subscriber\CustomFieldSearchableSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%elasticsearch.enabled%</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

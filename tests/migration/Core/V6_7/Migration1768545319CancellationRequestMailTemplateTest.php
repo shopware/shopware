@@ -9,14 +9,14 @@ use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1764939915CancellationRequestMailTemplate;
+use Shopware\Core\Migration\V6_7\Migration1768545319CancellationRequestMailTemplate;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(Migration1764939915CancellationRequestMailTemplate::class)]
-class Migration1764939915CancellationRequestMailTemplateTest extends TestCase
+#[CoversClass(Migration1768545319CancellationRequestMailTemplate::class)]
+class Migration1768545319CancellationRequestMailTemplateTest extends TestCase
 {
     private Connection $connection;
 
@@ -30,7 +30,7 @@ class Migration1764939915CancellationRequestMailTemplateTest extends TestCase
         $this->removePreinstalled(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT);
         $this->removePreinstalled(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_CUSTOMER);
 
-        $migration = new Migration1764939915CancellationRequestMailTemplate();
+        $migration = new Migration1768545319CancellationRequestMailTemplate();
         $migration->update($this->connection);
         $migration->update($this->connection);
 

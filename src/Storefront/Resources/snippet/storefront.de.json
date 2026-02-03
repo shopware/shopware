@@ -617,6 +617,21 @@
     "formSubmit": "Abschicken",
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."
   },
+  "cancellationRequest": {
+    "headline": "Widerruf",
+    "firstNameLabel": "Vorname",
+    "firstNamePlaceholder": "Vornamen eingeben ...",
+    "lastNameLabel": "Nachname",
+    "lastNamePlaceholder": "Nachnamen eingeben ...",
+    "eMailLabel": "E-Mail-Adresse",
+    "eMailPlaceholder": "E-Mail-Adresse eingeben ...",
+    "contractNumberLabel": "Vertragsnummer (Bestellnummer, Abonnementnummer, ...)",
+    "contractNumberPlaceholder": "Vertragsnummer eingeben ...",
+    "commentLabel": "Kommentar",
+    "commentPlaceholder": "Kommentar eingeben ...",
+    "formSubmit": "Absenden",
+    "success": "Wir haben Ihren Widerrufsantrag erhalten und werden ihn schnellstmöglich bearbeiten."
+  },
   "search": {
     "headline": "{0} Zu \"%searchTerm%\" wurde kein Produkt gefunden | {1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden | [0,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden",
     "metaTitle": "Suchergebnis"

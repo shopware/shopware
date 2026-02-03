@@ -41,7 +41,19 @@ export default {
                     value: 'newsletter',
                     label: this.$tc('sw-cms.elements.form.config.label.typeNewsletter'),
                 },
+                {
+                    id: 4,
+                    value: 'cancellationRequest',
+                    label: this.$tc('sw-cms.elements.form.config.label.typeCancellationRequest'),
+                },
             ];
+        },
+
+        requireConfigTab() {
+            return [
+                'contact',
+                'cancellationRequest',
+            ].includes(this.element.config.type.value);
         },
     },
 

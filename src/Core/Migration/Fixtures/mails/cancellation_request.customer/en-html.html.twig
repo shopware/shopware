@@ -1,22 +1,22 @@
 <div style="font-family: arial; font-size: 12px;">
     <p>
-        We have received your cancellation request for the contract with the number {{ cancellationFormData.contractNumber }}
+        We have received your cancellation request for the contract with the number {{ cancellationRequestFormData.contractNumber }}
     </p>
     <p>
         Further information:
         <br/>
-        First name: {{ cancellationFormData.firstName }}
+        First name: {{ cancellationRequestFormData.firstName }}
         <br/>
-        Last name: {{ cancellationFormData.lastName }}
+        Last name: {{ cancellationRequestFormData.lastName }}
         <br/>
-        Email address: {{ cancellationFormData.email }}
+        Email address: {{ cancellationRequestFormData.email }}
         <br/>
-        Contract number (order number, subscription number, ...): {{ cancellationFormData.contractNumber }}
+        Contract number (order number, subscription number, ...): {{ cancellationRequestFormData.contractNumber }}
         <br/>
         Comment:<br/>
-        {{ cancellationFormData.comment }}
+        {{ cancellationRequestFormData.comment }}
     </p>
     <p>
-        The form was submitted at {{ cancellationFormData.submitTime|format_datetime('medium', 'short', locale='en-GB') }}
+        The form was submitted at {{ cancellationRequestFormData.submitTime|format_datetime('medium', 'short', locale='en-GB') }}
     </p>
 </div>

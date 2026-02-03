@@ -617,6 +617,21 @@
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
   },
+  "cancellationRequest": {
+    "headline": "Cancellation",
+    "firstNameLabel": "First name",
+    "firstNamePlaceholder": "Enter first name...",
+    "lastNameLabel": "Last name",
+    "lastNamePlaceholder": "Enter last name...",
+    "eMailLabel": "Email address",
+    "eMailPlaceholder": "Enter email address...",
+    "contractNumberLabel": "Contract number (order number, subscription number, ...)",
+    "contractNumberPlaceholder": "Enter contract number...",
+    "commentLabel": "Comment",
+    "commentPlaceholder": "Enter comment...",
+    "formSubmit": "Submit",
+    "success": "We have received your cancellation request and will process it as soon as possible."
+  },
   "search": {
     "headline": "{0} 0 products found for \"%searchTerm%\" | {1} One product found for \"%searchTerm%\" | [0,Inf[ %count% products found for \"%searchTerm%\"",
     "metaTitle": "Search results"

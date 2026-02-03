@@ -57,6 +57,11 @@ describe('module/sw-cms/elements/form/component', () => {
         expect(wrapper.vm.selectedForm).toBe('sw-cms-el-form-template-newsletter');
     });
 
+    it('should return correct selectedForm for type "cancellationRequest', async () => {
+        const wrapper = await createWrapper('cancellationRequest');
+        expect(wrapper.find('sw-cms-el-form-template-cancellation-request').exists()).toBe(true);
+    });
+
     it('should return the type value for unknown types', async () => {
         const wrapper = await createWrapper('custom-type');
         expect(wrapper.vm.selectedForm).toBe('custom-type');

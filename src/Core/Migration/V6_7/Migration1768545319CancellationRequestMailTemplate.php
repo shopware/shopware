@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  */
 #[Package('after-sales')]
-class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
+class Migration1768545319CancellationRequestMailTemplate extends MigrationStep
 {
     public const MERCHANT_DIRECTORY = 'cancellation_request.merchant';
     public const CUSTOMER_DIRECTORY = 'cancellation_request.customer';
@@ -28,7 +28,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
      */
     public const MAIL_TEMPLATE_TYPE_MERCHANT_TRANSLATIONS = [
         'en_name' => 'Cancellation request received',
-        'de_name' => 'Wiederrufsantrag erhalten',
+        'de_name' => 'Widerrufsantrag erhalten',
     ];
 
     /**
@@ -39,7 +39,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
      */
     public const MAIL_TEMPLATE_TYPE_CUSTOMER_TRANSLATIONS = [
         'en_name' => 'Cancellation request requested',
-        'de_name' => 'Wiederrufsantrag gestellt',
+        'de_name' => 'Widerrufsantrag gestellt',
     ];
 
     /**
@@ -52,9 +52,9 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
      */
     public const MAIL_TEMPLATE_TRANSLATIONS_MERCHANT = [
         'en_subject' => 'Cancellation request received',
-        'de_subject' => 'Wiederrufsantrag erhalten',
+        'de_subject' => 'Widerrufsantrag erhalten',
         'en_description' => 'Received cancellation request from customer',
-        'de_description' => 'Wiederrufsantrag von Kunden erhalten',
+        'de_description' => 'Widerrufsantrag von Kunden erhalten',
     ];
 
     /**
@@ -67,14 +67,14 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
      */
     public const MAIL_TEMPLATE_TRANSLATIONS_CUSTOMER = [
         'en_subject' => 'Cancellation request sent',
-        'de_subject' => 'Wiederrufsantrag gesendet',
+        'de_subject' => 'Widerrufsantrag gesendet',
         'en_description' => 'Confirmation receipt of customers cancellation request',
-        'de_description' => 'Empfangsbestätigung für Wiederrufsantrag des Kunden',
+        'de_description' => 'Empfangsbestätigung für Widerrufsantrag des Kunden',
     ];
 
     public function getCreationTimestamp(): int
     {
-        return 1764939915;
+        return 1768545319;
     }
 
     public function update(Connection $connection): void
@@ -89,7 +89,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             $enLanguageByteId,
             $deLanguageByteId
         );
-        $merchantMailStruct = $this->createMailStruct(self::MERCHANT_DIRECTORY);
+        $merchantMailStruct = $this->createMailStruct(self::MERCHANT_DIRECTORY, MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT);
         $this->createMailTemplate(
             $connection,
             $merchantMailTemplateTypeByteId,
@@ -106,7 +106,7 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
             $enLanguageByteId,
             $deLanguageByteId
         );
-        $customerMailStruct = $this->createMailStruct(self::CUSTOMER_DIRECTORY);
+        $customerMailStruct = $this->createMailStruct(self::CUSTOMER_DIRECTORY, MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_CUSTOMER);
         $this->createMailTemplate(
             $connection,
             $customerMailTemplateTypeByteId,
@@ -180,11 +180,11 @@ class Migration1764939915CancellationRequestMailTemplate extends MigrationStep
         }
     }
 
-    private function createMailStruct(string $directory): MailStruct
+    private function createMailStruct(string $directory, string $mailType): MailStruct
     {
         $filesystem = new Filesystem();
 
-        $mailStruct = new MailStruct(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_MERCHANT);
+        $mailStruct = new MailStruct($mailType);
         $mailStruct->setEnHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/en-html.html.twig'));
         $mailStruct->setEnPlain($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/en-plain.txt.twig'));
         $mailStruct->setDeHtml($filesystem->readFile(__DIR__ . '/../Fixtures/mails/' . $directory . '/de-html.html.twig'));

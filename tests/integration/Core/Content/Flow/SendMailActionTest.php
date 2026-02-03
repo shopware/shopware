@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\CancellationRequest\Event\CancellationRequestEvent;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
@@ -35,6 +36,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTy
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
@@ -464,6 +466,59 @@ class SendMailActionTest extends TestCase
 
         static::assertIsNotObject($mailFilterEvent);
         static::assertSame(0, $mailService->calls);
+    }
+
+    public function testSendCancellationRequestFormMailType(): void
+    {
+        $email = 'max@muster.com';
+        $mailTemplateId = $this->getMailTemplateId(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_CUSTOMER);
+        $config = [
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => [
+                'type' => 'cancellationRequestCustomerFormMail',
+            ],
+        ];
+
+        $mailRecipientStruct = new MailRecipientStruct(['' => '']);
+        $context = Generator::generateSalesChannelContext();
+        $dataBag = new DataBag([
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'email' => $email,
+        ]);
+        $event = new CancellationRequestEvent(
+            $context->getContext(),
+            $context->getSalesChannelId(),
+            $mailRecipientStruct,
+            $dataBag
+        );
+
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig($config);
+
+        $mailService = new TestEmailService();
+        $subscriber = new SendMailAction(
+            $mailService,
+            static::getContainer()->get('mail_template.repository'),
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get(Translator::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            true
+        );
+
+        $subscriber->handleFlow($flow);
+
+        static::assertIsArray($mailService->data);
+        static::assertArrayHasKey('recipients', $mailService->data);
+        $recipients = $mailService->data['recipients'];
+        static::assertArrayHasKey($email, $recipients);
+        static::assertSame('Max Mustermann', $recipients[$email]);
     }
 
     /**
@@ -1067,6 +1122,40 @@ class SendMailActionTest extends TestCase
         static::assertInstanceOf(DocumentEntity::class, $document);
 
         return $document->getSent();
+    }
+
+    private function getMailTemplateId(string $technicalName): ?string
+    {
+        $mailTemplateTypeId = $this->getMailTemplateTypeId($technicalName);
+        static::assertNotEmpty($mailTemplateTypeId);
+
+        $result = $this->connection->fetchOne(
+            'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId',
+            ['mailTemplateTypeId' => $mailTemplateTypeId]
+        );
+
+        if ($result === false) {
+            return null;
+        }
+
+        $result = Uuid::fromBytesToHex($result);
+        static::assertTrue(Uuid::isValid($result));
+
+        return $result;
+    }
+
+    private function getMailTemplateTypeId(string $technicalName): ?string
+    {
+        $result = $this->connection->fetchOne(
+            'SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName',
+            ['technicalName' => $technicalName]
+        );
+
+        if ($result === false) {
+            return null;
+        }
+
+        return $result;
     }
 }
 

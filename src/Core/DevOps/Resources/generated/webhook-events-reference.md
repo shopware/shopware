@@ -2,7 +2,7 @@
 
 | Event | Description | Permissions needed | Payload
 | :--- | :--- | :--- | :--- |
-|`cancellation_request.send` | __EMPTY__ | - | {"cancellationRequestFormData":"object"}
+|`cancellation_request.sent` | __EMPTY__ | - | {"cancellationRequestFormData":"object"}
 |`checkout.customer.before.login` | Triggers as soon as a customer logs in | - | {"email":"string"}
 |`checkout.customer.deleted` | Triggers if a customer gets deleted | `customer:read` | {"entity":"customer"}
 |`checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | `customer:read` | {"entity":"customer","confirmUrl":"string"}

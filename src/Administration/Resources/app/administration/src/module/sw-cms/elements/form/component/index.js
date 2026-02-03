@@ -22,6 +22,9 @@ export default {
             if (this.element.config.type.value === 'newsletter') {
                 return 'sw-cms-el-form-template-newsletter';
             }
+            if (this.element.config.type.value === 'cancellationRequest') {
+                return 'sw-cms-el-form-template-cancellation-request';
+            }
             return this.element.config.type.value;
         },
     },

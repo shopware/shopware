@@ -9,6 +9,10 @@ trait AddColumnTrait
     use ColumnExistsTrait;
 
     /**
+     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see \Shopware\Core\Framework\Util\UtilException} instead of {@see \Doctrine\DBAL\Exception\TableNotFoundException}
+     *
+     * @param non-empty-string $table
+     *
      * @return bool true if the column was created, false if it already exists
      */
     protected function addColumn(

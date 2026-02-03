@@ -83,6 +83,7 @@
                             <sw-entity-single-select
                                 v-model:value="element.config.products.value"
                                 entity="product_stream"
+                                :criteria="productStreamCriteria"
                                 class="sw-cms-el-config-product-slider__tab-content-product-stream-select"
                                 :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamChoice')"
                                 :disabled="isInherited"

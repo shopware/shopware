@@ -99,7 +99,7 @@ class ProductStreamEntity extends Entity
 
     public function isInternal(): bool
     {
-        return $this->internal ?: false;
+        return $this->internal;
     }
 
     public function setInternal(bool $internal): void

@@ -240,10 +240,7 @@ EOD;
      */
     private function fetchRelationData(string $tableName): array
     {
-        $databaseName = $this->connection->fetchOne('SELECT DATABASE()');
-        if (!\is_string($databaseName)) {
-            throw MigrationException::logicError('Could not select database name');
-        }
+        $databaseName = $this->connection->fetchOne('SELECT DATABASE()') ?: '';
         $query = \sprintf(self::FIND_RELATIONSHIPS_QUERY, $databaseName, $tableName);
 
         /* @phpstan-ignore return.type (PHPStan cannot properly determine the array type from the DB) */

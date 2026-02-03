@@ -91,13 +91,13 @@ class CustomEntitySchemaUpdater
     {
         foreach ($schema->getTables() as $table) {
             if ($table->getComment() === self::COMMENT) {
-                $schema->dropTable($table->getObjectName()->toString());
+                $schema->dropTable($table->getObjectName()->getUnqualifiedName()->getValue());
 
                 continue;
             }
 
             foreach ($table->getForeignKeys() as $foreignKey) {
-                $foreignKeyName = $foreignKey->getObjectName()?->toString();
+                $foreignKeyName = $foreignKey->getObjectName()?->getIdentifier()->getValue();
                 if ($foreignKeyName === null) {
                     continue;
                 }
@@ -108,7 +108,7 @@ class CustomEntitySchemaUpdater
 
             foreach ($table->getColumns() as $column) {
                 if ($column->getComment() === self::COMMENT) {
-                    $table->dropColumn($column->getObjectName()->toString());
+                    $table->dropColumn($column->getObjectName()->getIdentifier()->getValue());
                 }
             }
         }

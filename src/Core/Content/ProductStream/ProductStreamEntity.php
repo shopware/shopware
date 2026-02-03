@@ -31,7 +31,7 @@ class ProductStreamEntity extends Entity
 
     protected bool $invalid;
 
-    protected bool $internal;
+    protected bool $internal = false;
 
     protected ?ProductStreamTranslationCollection $translations = null;
 
@@ -99,7 +99,7 @@ class ProductStreamEntity extends Entity
 
     public function isInternal(): bool
     {
-        return $this->internal;
+        return $this->internal ?: false;
     }
 
     public function setInternal(bool $internal): void

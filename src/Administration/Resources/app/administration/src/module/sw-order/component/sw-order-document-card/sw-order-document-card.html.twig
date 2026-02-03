@@ -50,7 +50,7 @@
             v-if="!documentsEmpty"
             class="sw-order-document-card__grid"
             :repository="documentRepository"
-            :items="documents"
+            :data-source="documents"
             :is-loading="documentsLoading"
             :columns="getDocumentColumns"
             :show-settings="false"

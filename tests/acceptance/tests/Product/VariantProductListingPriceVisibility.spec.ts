@@ -5,7 +5,17 @@ test(
     {
         tag: ['@Product, @Variant', '@Storefront'],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail, SalesChannelBaseConfig }) => {
+    async ({
+        ShopCustomer,
+        TestDataService,
+        StorefrontHome,
+        StorefrontProductDetail,
+        SalesChannelBaseConfig,
+        InstanceMeta,
+    }) => {
+        await test.skip(InstanceMeta.isSaaS, 'Skipping on SaaS instances due to instability in variant creation.');
+        // TODO: https://github.com/shopware/shopware/issues/14608
+
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
         const prices = [
             {

@@ -7,10 +7,8 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
-use Shopware\Core\Content\Shared\MailFlow\OrderCriteriaBuilder;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
@@ -28,7 +26,7 @@ class OrderStorer extends FlowStorer
     public function __construct(
         private readonly EntityRepository $orderRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly OrderCriteriaBuilder $orderCriteriaBuilder,
+        private readonly OrderProvider $orderProvider,
     ) {
     }
 
@@ -64,29 +62,26 @@ class OrderStorer extends FlowStorer
             return null;
         }
 
-        $criteria = $this->orderCriteriaBuilder->getCriteria($id, $storableFlow->getContext());
-
-        return $this->loadOrder($criteria, $storableFlow->getContext(), $id);
-    }
-
-    private function loadOrder(Criteria $criteria, Context $context, string $orderId): ?OrderEntity
-    {
         if (!Feature::isActive('v6.8.0.0')) {
+            $criteria = $this->orderProvider->getCriteria($id, $storableFlow->getContext());
+
             $event = new BeforeLoadStorableFlowDataEvent(
                 OrderDefinition::ENTITY_NAME,
                 $criteria,
-                $context,
+                $storableFlow->getContext(),
             );
 
             $this->dispatcher->dispatch($event, $event->getName());
+
+            $order = $this->orderRepository->search($criteria, $storableFlow->getContext())->getEntities()->get($id);
+
+            if ($order) {
+                return $order;
+            }
+
+            return null;
         }
 
-        $order = $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
-
-        if ($order) {
-            return $order;
-        }
-
-        return null;
+        return $this->orderProvider->getData($id, $storableFlow->getContext());
     }
 }

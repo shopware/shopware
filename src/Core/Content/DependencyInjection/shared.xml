@@ -6,20 +6,61 @@
 
     <services>
 
-        <service id="Shopware\Core\Content\Shared\MailFlow\OrderCriteriaBuilder">
+        <!-- Mail & Flow Data Providers -->
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider">
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="order"/>
         </service>
 
-        <service id="Shopware\Core\Content\Shared\MailFlow\CustomerCriteriaBuilder">
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider">
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="customer"/>
         </service>
 
-        <service id="Shopware\Core\Content\Shared\MailFlow\CustomerRecoveryCriteriaBuilder">
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider">
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="customer_group"/>
         </service>
 
-        <service id="Shopware\Core\Content\Shared\MailFlow\UserRecoveryCriteriaBuilder">
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider">
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="product"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerRecoveryProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="customer_recovery"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\NewsletterRecipientProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="newsletter_recipient"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="order_transaction"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\UserRecoveryProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="user_recovery"/>
         </service>
 
     </services>

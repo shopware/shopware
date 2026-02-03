@@ -4,10 +4,8 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
-use Shopware\Core\Content\Shared\MailFlow\UserRecoveryCriteriaBuilder;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\UserRecoveryProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\UserAware;
 use Shopware\Core\Framework\Feature;
@@ -28,7 +26,7 @@ class UserStorer extends FlowStorer
     public function __construct(
         private readonly EntityRepository $userRecoveryRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly UserRecoveryCriteriaBuilder $userRecoveryCriteriaBuilder,
+        private readonly UserRecoveryProvider $userRecoveryProvider,
     ) {
     }
 
@@ -62,29 +60,26 @@ class UserStorer extends FlowStorer
             return null;
         }
 
-        $criteria = $this->userRecoveryCriteriaBuilder->getCriteria($id, $storableFlow->getContext());
-
-        return $this->loadUserRecovery($criteria, $storableFlow->getContext(), $id);
-    }
-
-    private function loadUserRecovery(Criteria $criteria, Context $context, string $id): ?UserRecoveryEntity
-    {
         if (!Feature::isActive('v6.8.0.0')) {
+            $criteria = $this->userRecoveryProvider->getCriteria($id, $storableFlow->getContext());
+
             $event = new BeforeLoadStorableFlowDataEvent(
                 UserRecoveryDefinition::ENTITY_NAME,
                 $criteria,
-                $context,
+                $storableFlow->getContext(),
             );
 
             $this->dispatcher->dispatch($event, $event->getName());
+
+            $userRecovery = $this->userRecoveryRepository->search($criteria, $storableFlow->getContext())->getEntities()->get($id);
+
+            if ($userRecovery) {
+                return $userRecovery;
+            }
+
+            return null;
         }
 
-        $user = $this->userRecoveryRepository->search($criteria, $context)->getEntities()->get($id);
-
-        if ($user) {
-            return $user;
-        }
-
-        return null;
+        return $this->userRecoveryProvider->getData($id, $storableFlow->getContext());
     }
 }

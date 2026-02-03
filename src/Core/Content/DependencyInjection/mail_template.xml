@@ -44,63 +44,6 @@
             </call>
         </service>
 
-        <!-- Mail Data Providers -->
-        <service id="Shopware\Core\Content\MailTemplate\DataProvider\OrderProvider">
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\OrderCriteriaBuilder"/>
-
-            <tag name="shopware.mail.data_provider" key="order"/>
-        </service>
-
-        <service id="Shopware\Core\Content\MailTemplate\DataProvider\CustomerProvider">
-            <argument type="service" id="customer.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\CustomerCriteriaBuilder"/>
-
-            <tag name="shopware.mail.data_provider" key="customer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\MailTemplate\DataProvider\CustomerGroupProvider">
-            <argument type="service" id="customer_group.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-
-            <tag name="shopware.mail.data_provider" key="customer_group"/>
-        </service>
-
-        <service id="Shopware\Core\Content\MailTemplate\DataProvider\ProductProvider">
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-
-            <tag name="shopware.mail.data_provider" key="product"/>
-        </service>
-
-        <service id="Shopware\Core\Content\MailTemplate\DataProvider\CustomerRecoveryProvider">
-            <argument type="service" id="customer_recovery.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\CustomerRecoveryCriteriaBuilder"/>
-
-            <tag name="shopware.mail.data_provider" key="customer_recovery"/>
-        </service>
-
-        <service id="Shopware\Core\Content\MailTemplate\DataProvider\NewsletterRecipientProvider">
-            <argument type="service" id="customer_recovery.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-
-            <tag name="shopware.mail.data_provider" key="newsletter_recipient"/>
-        </service>
-
-        <service id="Shopware\Core\Content\MailTemplate\DataProvider\OrderTransactionProvider">
-            <argument type="service" id="customer_recovery.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-
-            <tag name="shopware.mail.data_provider" key="order_transaction"/>
-        </service>
-
-        <service id="Shopware\Core\Content\MailTemplate\DataProvider\UserRecoveryProvider">
-            <argument type="service" id="customer_recovery.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\UserRecoveryCriteriaBuilder"/>
-
-            <tag name="shopware.mail.data_provider" key="user_recovery"/>
-        </service>
-
         <service id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider">
             <argument type="tagged" tag="shopware.mail.data_provider" index-by="key"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>

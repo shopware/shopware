@@ -1,26 +1,27 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Shared\MailFlow;
+namespace Shopware\Core\Content\Shared\MailFlow\DataProvider;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @method CustomerEntity|null getData(string $entityId, Context $context)
  */
 #[Package('after-sales')]
-class CustomerCriteriaBuilder
+class CustomerProvider extends AbstractProvider
 {
-    public function __construct(private readonly EventDispatcherInterface $dispatcher)
+    public function getEntityName(): string
     {
+        return CustomerDefinition::ENTITY_NAME;
     }
 
-    public function getCriteria(string $entityId, Context $context): Criteria
+    protected function constructCriteria(string $entityId): Criteria
     {
         $criteria = new Criteria([$entityId]);
 
@@ -33,14 +34,6 @@ class CustomerCriteriaBuilder
             'defaultShippingAddress.countryState',
             'defaultShippingAddress.salutation',
         ]);
-
-        $event = new MailFlowDataCriteriaEvent(
-            CustomerDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
-
-        $this->dispatcher->dispatch($event, $event->getName());
 
         return $criteria;
     }

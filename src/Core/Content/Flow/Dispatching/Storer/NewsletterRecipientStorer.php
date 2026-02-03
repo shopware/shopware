@@ -8,10 +8,8 @@ use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
-use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\NewsletterRecipientProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -27,7 +25,8 @@ class NewsletterRecipientStorer extends FlowStorer
      */
     public function __construct(
         private readonly EntityRepository $newsletterRecipientRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly NewsletterRecipientProvider $newsletterRecipientProvider,
     ) {
     }
 
@@ -66,35 +65,26 @@ class NewsletterRecipientStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
-
-        return $this->loadNewsletterRecipient($criteria, $storableFlow->getContext(), $id);
-    }
-
-    private function loadNewsletterRecipient(Criteria $criteria, Context $context, string $id): ?NewsletterRecipientEntity
-    {
         if (!Feature::isActive('v6.8.0.0')) {
+            $criteria = $this->newsletterRecipientProvider->getCriteria($id, $storableFlow->getContext());
+
             $event = new BeforeLoadStorableFlowDataEvent(
                 NewsletterRecipientDefinition::ENTITY_NAME,
                 $criteria,
-                $context,
+                $storableFlow->getContext(),
             );
-        } else {
-            $event = new MailFlowDataCriteriaEvent(
-                NewsletterRecipientDefinition::ENTITY_NAME,
-                $criteria,
-                $context,
-            );
+
+            $this->dispatcher->dispatch($event, $event->getName());
+
+            $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $storableFlow->getContext())->getEntities()->get($id);
+
+            if ($newsletterRecipient) {
+                return $newsletterRecipient;
+            }
+
+            return null;
         }
 
-        $this->dispatcher->dispatch($event, $event->getName());
-
-        $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->get($id);
-
-        if ($newsletterRecipient) {
-            return $newsletterRecipient;
-        }
-
-        return null;
+        return $this->newsletterRecipientProvider->getData($id, $storableFlow->getContext());
     }
 }

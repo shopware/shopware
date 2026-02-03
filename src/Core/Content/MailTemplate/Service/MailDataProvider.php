@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
-use Shopware\Core\Content\MailTemplate\DataProvider\DataProvider;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -18,12 +18,12 @@ use Shopware\Core\Framework\Log\Package;
 class MailDataProvider
 {
     /**
-     * @var array<string, DataProvider> $dataProviders
+     * @var array<string, AbstractProvider> $dataProviders
      */
     private array $dataProviders;
 
     /**
-     * @param iterable<string, DataProvider> $dataProviders
+     * @param iterable<string, AbstractProvider> $dataProviders
      */
     public function __construct(
         iterable $dataProviders,

@@ -8,10 +8,8 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
-use Shopware\Core\Content\Shared\MailFlow\CustomerCriteriaBuilder;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
@@ -29,7 +27,7 @@ class CustomerStorer extends FlowStorer
     public function __construct(
         private readonly EntityRepository $customerRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly CustomerCriteriaBuilder $customerCriteriaBuilder,
+        private readonly CustomerProvider $customerProvider,
     ) {
     }
 
@@ -73,29 +71,26 @@ class CustomerStorer extends FlowStorer
             return null;
         }
 
-        $criteria = $this->customerCriteriaBuilder->getCriteria($id, $storableFlow->getContext());
-
-        return $this->loadCustomer($criteria, $storableFlow->getContext(), $id);
-    }
-
-    private function loadCustomer(Criteria $criteria, Context $context, string $id): ?CustomerEntity
-    {
         if (!Feature::isActive('v6.8.0.0')) {
+            $criteria = $this->customerProvider->getCriteria($id, $storableFlow->getContext());
+
             $event = new BeforeLoadStorableFlowDataEvent(
                 CustomerDefinition::ENTITY_NAME,
                 $criteria,
-                $context,
+                $storableFlow->getContext(),
             );
 
             $this->dispatcher->dispatch($event, $event->getName());
+
+            $customer = $this->customerRepository->search($criteria, $storableFlow->getContext())->getEntities()->get($id);
+
+            if ($customer) {
+                return $customer;
+            }
+
+            return null;
         }
 
-        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($id);
-
-        if ($customer) {
-            return $customer;
-        }
-
-        return null;
+        return $this->customerProvider->getData($id, $storableFlow->getContext());
     }
 }

@@ -1,27 +1,28 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Shared\MailFlow;
+namespace Shopware\Core\Content\Shared\MailFlow\DataProvider;
 
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @method OrderEntity|null getData(string $entityId, Context $context)
  */
 #[Package('after-sales')]
-class OrderCriteriaBuilder
+class OrderProvider extends AbstractProvider
 {
-    public function __construct(private readonly EventDispatcherInterface $dispatcher)
+    public function getEntityName(): string
     {
+        return OrderDefinition::ENTITY_NAME;
     }
 
-    public function getCriteria(string $entityId, Context $context): Criteria
+    protected function constructCriteria(string $entityId): Criteria
     {
         $criteria = new Criteria([$entityId]);
 
@@ -47,14 +48,6 @@ class OrderCriteriaBuilder
         ]);
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
-
-        $event = new MailFlowDataCriteriaEvent(
-            OrderDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
-
-        $this->dispatcher->dispatch($event, $event->getName());
 
         return $criteria;
     }

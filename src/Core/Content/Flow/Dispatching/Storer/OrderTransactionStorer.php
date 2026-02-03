@@ -8,10 +8,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
-use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -27,7 +25,8 @@ class OrderTransactionStorer extends FlowStorer
      */
     public function __construct(
         private readonly EntityRepository $orderTransactionRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly OrderTransactionProvider $orderTransactionProvider,
     ) {
     }
 
@@ -66,35 +65,26 @@ class OrderTransactionStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
-
-        return $this->loadOrderTransaction($criteria, $storableFlow->getContext(), $id);
-    }
-
-    private function loadOrderTransaction(Criteria $criteria, Context $context, string $id): ?OrderTransactionEntity
-    {
         if (!Feature::isActive('v6.8.0.0')) {
+            $criteria = $this->orderTransactionProvider->getCriteria($id, $storableFlow->getContext());
+
             $event = new BeforeLoadStorableFlowDataEvent(
                 OrderTransactionDefinition::ENTITY_NAME,
                 $criteria,
-                $context,
+                $storableFlow->getContext(),
             );
-        } else {
-            $event = new MailFlowDataCriteriaEvent(
-                OrderTransactionDefinition::ENTITY_NAME,
-                $criteria,
-                $context,
-            );
+
+            $this->dispatcher->dispatch($event, $event->getName());
+
+            $orderTransaction = $this->orderTransactionRepository->search($criteria, $storableFlow->getContext())->getEntities()->get($id);
+
+            if ($orderTransaction) {
+                return $orderTransaction;
+            }
+
+            return null;
         }
 
-        $this->dispatcher->dispatch($event, $event->getName());
-
-        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->get($id);
-
-        if ($orderTransaction) {
-            return $orderTransaction;
-        }
-
-        return null;
+        return $this->orderTransactionProvider->getData($id, $storableFlow->getContext());
     }
 }

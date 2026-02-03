@@ -6,6 +6,12 @@
 
 ## Core
 
+### Internal product streams
+
+A new boolean field `internal` has been added to product streams with a default value of `false`. This allows you to mark product streams as internal for system or plugin use, preventing them from appearing in merchant-facing selection lists throughout the Administration (e.g., in categories, cross-selling, CMS elements, or sales channels).
+
+Use this feature when you need to create product streams programmatically that should not be modified or selected by shop administrators.
+
 ### Database table helper class
 
 A new helper class `\Shopware\Core\Framework\Util\Database\TableHelper` was introduced,
@@ -25,6 +31,20 @@ The migration generator previously used a fixed format: `fk.<table-name>.<column
 Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
 
 ## Administration
+
+### Help text support for color picker custom fields
+
+The color picker type for custom fields now supports adding a help text. When creating or editing a custom field of type "Colorpicker" in Settings > Content > Custom fields, you can now specify a help text that will be displayed to users in the Administration.
+
+### `sw-select-base` clearable button default behavior changed
+
+The `showClearableButton` prop in `sw-select-base` now defaults based on the `required` attribute:
+- When `required` is `false` or not set: clearable button is shown by default
+- When `required` is `true`: clearable button is hidden by default
+
+Previously, the clearable button was always hidden by default (`showClearableButton: false`).
+
+**Migration:** If you relied on the previous behavior where the clearable button was hidden by default, explicitly set `:show-clearable-button="false"` on your select components.
 
 ## Storefront
 

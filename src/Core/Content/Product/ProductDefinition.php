@@ -39,6 +39,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -66,6 +68,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
@@ -80,6 +83,10 @@ class ProductDefinition extends EntityDefinition
     final public const ENTITY_NAME = 'product';
 
     final public const CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT = 'core.cms.default_product_cms_page';
+
+    final public const TYPE_PHYSICAL = 'physical';
+
+    final public const TYPE_DIGITAL = 'digital';
 
     public function getEntityName(): string
     {
@@ -102,7 +109,7 @@ class ProductDefinition extends EntityDefinition
     }
 
     /**
-     * @return array<string, bool|int|null>
+     * @return array{isCloseout: false, minPurchase: 1, purchaseSteps: 1, shippingFree: false, restockTime: null, active: true, markAsTopseller: false, type: 'physical'}
      */
     public function getDefaults(): array
     {
@@ -114,6 +121,7 @@ class ProductDefinition extends EntityDefinition
             'restockTime' => null,
             'active' => true,
             'markAsTopseller' => false,
+            'type' => self::TYPE_PHYSICAL,
         ];
     }
 
@@ -129,7 +137,7 @@ class ProductDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the product.'),
             (new VersionField())->addFlags(new ApiAware()),
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
@@ -187,7 +195,6 @@ class ProductDefinition extends EntityDefinition
             (new ChildCountField())->addFlags(new ApiAware()),
             (new BoolField('custom_field_set_selection_active', 'customFieldSetSelectionActive'))->addFlags(new Inherited())->setDescription('When boolean value is `true`, the customFieldSetSelection for products gets enabled.'),
             (new IntField('sales', 'sales'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Frequency of the product sales.'),
-            (new ListField('states', 'states', StringField::class))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Internal field.'),
             (new OneToManyAssociationField('downloads', ProductDownloadDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Downloadable files associated with the product (e.g., manuals, digital content)'),
 
             (new TranslatedField('metaDescription'))->addFlags(new ApiAware(), new Inherited()),
@@ -261,5 +268,22 @@ class ProductDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
         ]);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $fields->add(
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Required())->setDescription('The type of the product, e.g., physical or digital.'),
+            );
+        } else {
+            $fields->add(
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable())->setDescription('The type of the product, e.g., physical or digital.'),
+            );
+
+            $fields->add(
+                (new ListField('states', 'states', StringField::class))
+                    ->addFlags(new ApiAware(), new WriteProtected(), new Deprecated('v6.7.6.0', 'v6.8.0.0', 'type'))->setDescription('Internal field.'),
+            );
+        }
+
+        return $fields;
     }
 }

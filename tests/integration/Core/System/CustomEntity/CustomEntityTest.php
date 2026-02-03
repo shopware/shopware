@@ -45,6 +45,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
@@ -469,6 +470,8 @@ class CustomEntityTest extends TestCase
             )
             ->build();
 
+        unset($product['type']);
+
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
@@ -614,6 +617,8 @@ class CustomEntityTest extends TestCase
                     ->build()
             )
             ->build();
+
+        unset($product['type']);
 
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
@@ -1127,7 +1132,7 @@ class CustomEntityTest extends TestCase
         static::assertSame('0', $count, 'Custom entity table should be empty after app uninstall');
 
         static::assertFalse(
-            $connection->createSchemaManager()->tablesExist(['custom_entity_blog']),
+            TableHelper::tableExists($connection, 'custom_entity_blog'),
             'Custom entity table should not exist after app uninstall'
         );
 

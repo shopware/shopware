@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
@@ -49,7 +51,14 @@ class AddressValidatorTest extends TestCase
     public function testValidateShippingAddressWithMixedItems(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('a', 'test'))->setStates([State::IS_DOWNLOAD]));
+
+        $lineItem = (new LineItem('a', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_DOWNLOAD]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -71,7 +80,13 @@ class AddressValidatorTest extends TestCase
 
         static::assertCount(0, $errorCollection);
 
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
+        $lineItem = (new LineItem('b', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
 
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
@@ -82,7 +97,14 @@ class AddressValidatorTest extends TestCase
     public function testValidateShippingAddressWithOnlyPhysicalItems(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
+
+        $lineItem = (new LineItem('a', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -108,7 +130,14 @@ class AddressValidatorTest extends TestCase
     public function testValidateShippingAddressWithOnlyDownloadItems(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_DOWNLOAD]));
+
+        $lineItem = (new LineItem('a', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_DOWNLOAD]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -134,7 +163,13 @@ class AddressValidatorTest extends TestCase
     public function testValidateShippingAddressWithoutSalutation(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
+        $lineItem = (new LineItem('b', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -187,7 +222,13 @@ class AddressValidatorTest extends TestCase
     public function testValidateAddressWithoutState(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
+        $lineItem = (new LineItem('b', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -243,7 +284,14 @@ class AddressValidatorTest extends TestCase
     public function testValidateAddressWithState(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
+
+        $lineItem = (new LineItem('b', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());

@@ -1,5 +1,6 @@
 .sw-settings-rule-detail-base {
-    &__product-stream-warning {
+    &__product-stream-warning,
+    &__product-type-warning {
         padding: var(--scale-size-24) var(--scale-size-24) 0 var(--scale-size-24);
     }
 

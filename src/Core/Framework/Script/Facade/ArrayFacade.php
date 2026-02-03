@@ -84,7 +84,6 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 
         if ($index !== false) {
             $this->removeBy($index);
-            $this->update();
         }
     }
 
@@ -93,9 +92,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      */
     public function reset(): void
     {
-        foreach (\array_keys($this->items) as $key) {
-            unset($this->items[$key]);
-        }
+        $this->items = [];
         $this->update();
     }
 

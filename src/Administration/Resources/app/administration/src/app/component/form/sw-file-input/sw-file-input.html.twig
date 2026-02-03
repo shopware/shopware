@@ -1,6 +1,5 @@
 {% block sw_file_input %}
 <div class="sw-file-input">
-
     {% block sw_file_input_regular %}
     {% block sw_file_input_regular_header %}
     <div class="sw-file-input__header">
@@ -23,13 +22,16 @@
         class="sw-file-input__dropzone"
         :class="isDragActiveClass"
     >
-
         {% block sw_file_input_caption %}
         <div
             v-if="selectedFile === null"
             class="sw-file-input__upload-caption"
         >
-            <mt-icon name="regular-cloud-upload" />
+            <mt-icon
+                name="regular-cloud-upload"
+                size="18px"
+            />
+
             <slot name="caption-label">
                 {{ $tc('global.sw-file-input.caption') }}
             </slot>
@@ -41,7 +43,6 @@
             class="sw-file-input__actions"
             :class="{ 'has--source': selectedFile }"
         >
-
             <div
                 v-if="selectedFile"
                 class="sw-file-input__file-info"
@@ -49,10 +50,11 @@
                 <span class="sw-file-input__file-headline">
                     {{ selectedFile.name }}
                 </span>
+
                 <mt-icon
                     class="sw-file-input__remove-icon"
                     name="regular-times-xs"
-                    size="16px"
+                    size="12px"
                     @click="onRemoveIconClick"
                 />
             </div>
@@ -69,7 +71,6 @@
                 {{ $tc('global.sw-file-input.buttonChoose') }}
             </mt-button>
             {% endblock %}
-
         </div>
         {% endblock %}
     </div>

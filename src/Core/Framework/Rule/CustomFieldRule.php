@@ -38,7 +38,7 @@ class CustomFieldRule
             'operator' => [
                 new NotBlank(),
                 new Choice(
-                    [
+                    choices: [
                         Rule::OPERATOR_NEQ,
                         Rule::OPERATOR_GTE,
                         Rule::OPERATOR_LTE,

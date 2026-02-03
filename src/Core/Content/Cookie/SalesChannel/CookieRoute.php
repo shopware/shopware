@@ -44,7 +44,7 @@ class CookieRoute extends AbstractCookieRoute
         $hash = $this->generateCookieConfigurationHash($cookieGroups);
         $this->setCookieConfigHashValue($cookieGroups, $hash);
 
-        return new CookieRouteResponse($cookieGroups, $hash);
+        return new CookieRouteResponse($cookieGroups, $hash, $salesChannelContext->getLanguageId());
     }
 
     /**

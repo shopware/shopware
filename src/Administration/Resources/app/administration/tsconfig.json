@@ -7,6 +7,7 @@
     "baseUrl": "./",
     "paths": {
       "src": ["src"],
+      "@shopware-ag/dive/quickview": ["./node_modules/@shopware-ag/dive/build/plugins/quickview/index.d.ts"],
     },
     "types": [
       "vite/client",

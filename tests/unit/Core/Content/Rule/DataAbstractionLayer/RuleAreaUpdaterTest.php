@@ -12,6 +12,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -38,6 +39,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -54,6 +56,8 @@ class RuleAreaUpdaterTest extends TestCase
     private MockObject&RuleConditionRegistry $conditionRegistry;
 
     private RuleAreaUpdater $areaUpdater;
+
+    private MockClock $clock;
 
     protected function setUp(): void
     {
@@ -80,12 +84,14 @@ class RuleAreaUpdaterTest extends TestCase
         $this->definition = $entityDefinition;
 
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $this->clock = new MockClock('2026-01-13 11:00:00');
         $this->areaUpdater = new RuleAreaUpdater(
             $this->connection,
             $this->definition,
             $this->conditionRegistry,
             $cacheInvalidator,
-            $registry
+            $registry,
+            $this->clock,
         );
     }
 
@@ -118,6 +124,7 @@ class RuleAreaUpdaterTest extends TestCase
         $params = [
             ['areas', json_encode([RuleAreas::PRODUCT_AREA, RuleAreas::PROMOTION_AREA, RuleAreas::PAYMENT_AREA, RuleAreas::SHIPPING_AREA])],
             ['id', Uuid::fromHexToBytes($id)],
+            ['updatedAt', $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
         ];
         $matcher = $this->exactly(\count($params));
         $statement->expects($matcher)

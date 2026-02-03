@@ -64,6 +64,7 @@
                 {% block sw_flow_tabs_header_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
+
             <mt-banner
                 v-if="isTemplate"
                 variant="attention"
@@ -71,6 +72,7 @@
             >
                 {{ $tc('sw-flow.flowNotification.messageWarningSave') }}
             </mt-banner>
+
             {% block sw_flow_tabs_content %}
             <template v-if="isLoading">
                 <sw-skeleton />

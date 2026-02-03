@@ -236,6 +236,7 @@
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductTypeRegistry"/>
             <tag name="messenger.message_handler" />
         </service>
 

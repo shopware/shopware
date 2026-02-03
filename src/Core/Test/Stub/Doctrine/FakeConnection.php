@@ -40,8 +40,18 @@ class FakeConnection extends Connection
         return FakeResultFactory::createResult($this->dbRows, $this);
     }
 
+    public function update(string $table, array $data, array $criteria = [], array $types = []): int|string
+    {
+        return 1;
+    }
+
     public function createQueryBuilder(): QueryBuilder|FakeQueryBuilder
     {
         return new FakeQueryBuilder($this, $this->dbRows);
+    }
+
+    public function transactional(\Closure $func): mixed
+    {
+        return $func($this);
     }
 }

@@ -1,9 +1,9 @@
 .sw-rule-modal {
-    .sw-modal__dialog {
-        .sw-modal__body {
-            .sw-condition-tree > .sw-condition-or-container > .sw-condition-or-container__condition-content {
-                padding: 0;
-            }
-        }
+    .sw-condition-tree > .sw-condition-or-container > .sw-condition-or-container__condition-content {
+        padding: 0;
+    }
+
+    .sw-condition-tree > .condition-tree-node:first-child {
+        padding: 0;
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -24,7 +25,7 @@ class Migration1742199551SalesChannelDomainMeasurementUnits extends MigrationSte
 
     private function addMeasurementUnitsColumn(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'sales_channel_domain', 'measurement_units')) {
+        if (TableHelper::columnExists($connection, 'sales_channel_domain', 'measurement_units')) {
             return;
         }
 

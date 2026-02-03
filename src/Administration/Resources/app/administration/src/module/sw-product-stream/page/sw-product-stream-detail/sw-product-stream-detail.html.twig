@@ -175,6 +175,15 @@
                         </mt-banner>
                     </div>
 
+                    <div
+                        v-if="showProductStatesFilterWarning"
+                        class="sw-product-stream-detail__product-type-warning"
+                    >
+                        <mt-banner variant="attention">
+                            {{ $t('sw-product-stream.detail.productStatesFilterWarning') }}
+                        </mt-banner>
+                    </div>
+
                     {% block sw_product_stream_detail_filter_tree %}
                     <sw-condition-tree
                         v-if="productStream"

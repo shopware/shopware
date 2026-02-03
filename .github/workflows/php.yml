@@ -55,7 +55,7 @@ jobs:
         run: composer run ecs
 
       - name: Lint Snippets
-        run: composer run lint:snippets
+        run: bin/console translation:validate
 
   phpstan:
     runs-on: ubuntu-24.04

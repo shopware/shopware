@@ -57,11 +57,15 @@ class SnippetApiService extends ApiService {
                         // Adding snippets to the locale factory
                         localeFactory[fnName](localeKey, snippets);
 
-                        // Adding snippets to current i18n instance
-                        // when already instantiated
-                        if (Shopware.Snippet?.setLocaleMessage) {
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                            Shopware.Snippet.setLocaleMessage?.(localeKey, snippets);
+                        // Only update i18n instance when using register
+                        // (extend already handles this internally)
+                        if (fnName === 'register' && Shopware.Snippet?.setLocaleMessage) {
+                            // Get the merged new messages from the locale registry
+                            const allMessagesForLocale = registry.get(localeKey) || {};
+
+                            // Set empty messages first to trigger reactivity update
+                            Shopware.Snippet.setLocaleMessage?.(localeKey, {});
+                            Shopware.Snippet.setLocaleMessage?.(localeKey, allMessagesForLocale);
                         }
                     },
                 );

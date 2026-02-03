@@ -49,6 +49,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class AdministrationController extends AbstractController
 {
+    public const CACHE_ID_HEADER = 'X-Shopware-Cache-Id';
+    public const CACHE_ID_ADMINISTRATION = 'administration';
+
     private const UNAUTHENTICATED_SNIPPET_NAMESPACES = [
         'sw-login',
         'global',
@@ -116,7 +119,7 @@ class AdministrationController extends AbstractController
         $refreshTokenInterval = new \DateInterval($this->refreshTokenTtl);
         $refreshTokenTtl = $refreshTokenInterval->s + $refreshTokenInterval->i * 60 + $refreshTokenInterval->h * 3600 + $refreshTokenInterval->d * 86400;
 
-        return $this->render($template, [
+        $response = $this->render($template, [
             'features' => Feature::getAll(),
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
@@ -132,6 +135,14 @@ class AdministrationController extends AbstractController
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
             'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
         ]);
+
+        $response->setPublic();
+        $response->setMaxAge(0);
+        $response->setSharedMaxAge(0);
+        $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
+        $response->headers->set(self::CACHE_ID_HEADER, self::CACHE_ID_ADMINISTRATION);
+
+        return $response;
     }
 
     #[Route(
@@ -220,7 +231,11 @@ class AdministrationController extends AbstractController
             'Content-Security-Policy' => 'script-src * \'unsafe-eval\' \'unsafe-inline\'',
             PlatformRequest::HEADER_FRAME_OPTIONS => 'sameorigin',
         ]);
-        $response->setSharedMaxAge(3600);
+        $response->setPublic();
+        $response->setMaxAge(0);
+        $response->setSharedMaxAge(0);
+        $response->headers->addCacheControlDirective('stale-while-revalidate', '86400');
+        $response->headers->set(self::CACHE_ID_HEADER, self::CACHE_ID_ADMINISTRATION);
 
         return $response;
     }

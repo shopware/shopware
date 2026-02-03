@@ -27,20 +27,6 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 ## Changed returned status code for `/store-api/document/download/` when no documents are found
 The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
-## Newsletter subscribe route returns subscription status
-
-The Store API route `/store-api/newsletter/subscribe` now returns a `200 OK` response with a JSON body containing the subscription status, instead of a `204 No Content` response.
-
-**Before:**
-- Status: `204 No Content`
-- Body: empty
-
-**After:**
-- Status: `200 OK`
-- Body: `{"status": "notSet|optIn|optOut|direct"}`
-
-If your integration checked for a `204` status code, update it to expect `200` and optionally use the `status` field in the response.
-
 # Core
 
 <details>

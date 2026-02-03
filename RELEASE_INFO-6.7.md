@@ -6,7 +6,17 @@
 
 ### Newsletter subscribe route returns subscription status
 
-The Store API route `/store-api/newsletter/subscribe` now returns a JSON response containing the subscription status (`notSet`, `optIn`, `optOut`, or `direct`). This allows integrations to immediately know the result of the subscription request without an additional API call.
+The Store API route `/store-api/newsletter/subscribe` now returns a `200 OK` response with a JSON body containing the subscription status, instead of a `204 No Content` response.
+
+**Before:**
+- Status: `204 No Content`
+- Body: empty
+
+**After:**
+- Status: `200 OK`
+- Body: `{"status": "notSet|optIn|optOut|direct"}`
+
+If your integration checked for a `204` status code, update it to expect `200` and optionally use the `status` field in the response.
 
 ## Core
 

@@ -33,6 +33,13 @@ class ProductStreamDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'internal' => false,
+        ];
+    }
+
     public function getCollectionClass(): string
     {
         return ProductStreamCollection::class;

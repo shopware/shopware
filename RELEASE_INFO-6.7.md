@@ -32,6 +32,9 @@ Also, the generator now sets `CASCADE DELETE` on foreign keys for the translatio
 
 ## Administration
 
+### Notification translations now update when language changes
+
+Notifications now store translation keys directly in their title and message fields instead of translating them immediately. The template checks if the text is a translation key and translates it reactively, allowing notifications to update automatically when the user changes the interface language.
 ### Help text support for color picker custom fields
 
 The color picker type for custom fields now supports adding a help text. When creating or editing a custom field of type "Colorpicker" in Settings > Content > Custom fields, you can now specify a help text that will be displayed to users in the Administration.

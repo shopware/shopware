@@ -9,6 +9,7 @@
             @change-sales-channel-id="onSalesChannelChanged"
         />
     </div>
+
     {% block sw_system_config_content_card %}
     <mt-card
         v-for="card, index in config"
@@ -26,6 +27,7 @@
             name="beforeElements"
             v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"
         ></slot>
+
         <template
             v-if="salesChannelSwitchable && config.length === 1"
             #toolbar
@@ -35,14 +37,15 @@
                 @change-sales-channel-id="onSalesChannelChanged"
             />
         </template>
+
         <template v-if="hasCssFields">
             {% block sw_system_config_content_compile_notice %}
             <mt-banner variant="attention">
                 {{ $tc('sw-settings.system-config.compileNotice') }}
             </mt-banner>
-
             {% endblock %}
         </template>
+
         <template v-if="!isLoading">
             <template v-for="element in card.elements">
                 <slot
@@ -66,6 +69,7 @@
                             </template>
                         </sw-inherit-wrapper>
                     </template>
+
                     <template v-else>
                     {% block sw_system_config_content_card_field %}
                         <sw-inherit-wrapper
@@ -92,6 +96,7 @@
             </template>
             <slot name="card-element-last"></slot>
         </template>
+
         <slot
             name="afterElements"
             v-bind="{ card, config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null }"

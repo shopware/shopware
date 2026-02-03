@@ -48,12 +48,12 @@ trait AddColumnTrait
      *
      * Requirements:
      * - MySQL 8.0.12+ or MariaDB 10.3.2+ (Shopware minimum: MySQL 8.0.22, MariaDB 10.11)
-     * - Column must be added at the end of the table (no AFTER clause)
+     * - Column must be added at the end of the table (no AFTER clause, enforced by PHPStan rule)
      * - Table must not have a hidden FTS_DOC_ID column (from fulltext indexes)
      *
      * @param Connection $connection The database connection
-     * @param string $table The table name
-     * @param string $column The column name
+     * @param non-empty-string $table The table name
+     * @param non-empty-string $column The column name
      * @param string $type The column type (e.g., 'JSON', 'VARCHAR(255)')
      * @param bool $nullable Whether the column is nullable
      * @param string $default The default value (e.g., 'NULL', "'default'")

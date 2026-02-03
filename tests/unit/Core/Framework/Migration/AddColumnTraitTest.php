@@ -50,6 +50,9 @@ class AddColumnTraitTest extends TestCase
 
         $migration = new TestAddColumnMigration();
 
+        \assert($table !== '');
+        \assert($column !== '');
+
         $result = $useInstant
             ? $migration->callAddColumnInstant($connection, $table, $column, $type, $nullable, $default)
             : $migration->callAddColumn($connection, $table, $column, $type, $nullable, $default);
@@ -120,6 +123,10 @@ class TestAddColumnMigration
 {
     use AddColumnTrait;
 
+    /**
+     * @param non-empty-string $table
+     * @param non-empty-string $column
+     */
     public function callAddColumn(
         Connection $connection,
         string $table,
@@ -131,6 +138,10 @@ class TestAddColumnMigration
         return $this->addColumn($connection, $table, $column, $type, $nullable, $default);
     }
 
+    /**
+     * @param non-empty-string $table
+     * @param non-empty-string $column
+     */
     public function callAddColumnInstant(
         Connection $connection,
         string $table,

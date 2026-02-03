@@ -26,6 +26,12 @@ class AddColumnRule implements Rule
 {
     use InMigrationClassTrait;
 
+    /**
+     * Unix timestamp cutoff - migrations created after this timestamp are checked.
+     * Using integer to avoid timezone-dependent strtotime() parsing.
+     */
+    private const CUTOFF_UNIX_TIMESTAMP = 1737899680; // 2026-01-26 13:54:40 UTC
+
     public function getNodeType(): string
     {
         return MethodCall::class;
@@ -98,11 +104,21 @@ class AddColumnRule implements Rule
             return [];
         }
 
-        // ADD CONSTRAINT CHECK combined with ADD COLUMN requires COPY algorithm and should be caught
-        // Only allow ADD CONSTRAINT when it's NOT combined with ADD COLUMN
-        $pattern = '/ALTER TABLE .* ADD CONSTRAINT.*/m';
-        if (preg_match($pattern, $arg->value) && !preg_match('/ALTER TABLE .* ADD COLUMN.*ADD CONSTRAINT/m', $arg->value)) {
-            return [];
+        // ADD CONSTRAINT checks need special handling
+        $hasAddConstraint = preg_match('/ALTER TABLE .* ADD CONSTRAINT.*/m', $arg->value);
+        if ($hasAddConstraint === 1) {
+            $hasAddColumnWithConstraint = preg_match('/ALTER TABLE .* ADD COLUMN.*ADD CONSTRAINT/m', $arg->value);
+            if ($hasAddColumnWithConstraint === 1 && $this->isRecentMigration($scope)) {
+                return [
+                    RuleErrorBuilder::message('Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumnInstant() for the column, then ADD CONSTRAINT separately.')
+                        ->identifier('shopware.tableCopyOperation')
+                        ->build(),
+                ];
+            }
+
+            if ($hasAddColumnWithConstraint !== 1) {
+                return [];
+            }
         }
 
         $pattern = '/ALTER TABLE .* ADD INDEX.*/m';
@@ -129,5 +145,19 @@ class AddColumnRule implements Rule
         }
 
         return [];
+    }
+
+    private function isRecentMigration(Scope $scope): bool
+    {
+        $className = $scope->getClassReflection()?->getName() ?? '';
+        $className = substr($className, (int) strrpos($className, '\\') + 1);
+
+        if (preg_match('/Migration(\d{10})/', $className, $matches)) {
+            $migrationUnixTimestamp = (int) $matches[1];
+
+            return $migrationUnixTimestamp > self::CUTOFF_UNIX_TIMESTAMP;
+        }
+
+        return false;
     }
 }

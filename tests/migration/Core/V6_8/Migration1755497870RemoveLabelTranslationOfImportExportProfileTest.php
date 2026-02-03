@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_8\Migration1755497870RemoveLabelTranslationOfImportExportProfile;
 
 /**
@@ -28,17 +29,17 @@ class Migration1755497870RemoveLabelTranslationOfImportExportProfileTest extends
 
     public function testUpdate(): void
     {
-        if (!$this->tableExists()) {
+        if (!TableHelper::tableExists($this->connection, 'import_export_profile_translation')) {
             $this->addTable();
         }
 
-        static::assertTrue($this->tableExists());
+        static::assertTrue(TableHelper::tableExists($this->connection, 'import_export_profile_translation'));
 
         $migration = new Migration1755497870RemoveLabelTranslationOfImportExportProfile();
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse($this->tableExists());
+        static::assertFalse(TableHelper::tableExists($this->connection, 'import_export_profile_translation'));
     }
 
     private function addTable(): void
@@ -50,14 +51,5 @@ class Migration1755497870RemoveLabelTranslationOfImportExportProfileTest extends
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;'
         );
-    }
-
-    private function tableExists(): bool
-    {
-        $exists = $this->connection->fetchOne(
-            'SHOW TABLES LIKE "import_export_profile_translation"'
-        );
-
-        return !empty($exists);
     }
 }

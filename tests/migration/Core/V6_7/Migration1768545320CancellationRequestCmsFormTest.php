@@ -26,22 +26,22 @@ class Migration1768545320CancellationRequestCmsFormTest extends TestCase
 
     public function testUpdate(): void
     {
-        $cmsPage_byteId = $this->getCmsPageId();
-        $cmsSection_byteId = $this->getCmsSectionId($cmsPage_byteId);
-        $cmsBlock_byteId = $this->getCmsBlockId();
+        $cmsPageByteId = $this->getCmsPageId();
+        $cmsSectionByteId = $this->getCmsSectionId($cmsPageByteId);
+        $cmsBlockByteId = $this->getCmsBlockId();
 
-        if ($cmsPage_byteId !== null) {
-            $this->connection->delete('cms_page', ['id' => $cmsPage_byteId]);
-            $this->connection->delete('cms_section', ['cms_page_id' => $cmsPage_byteId]);
+        if ($cmsPageByteId !== null) {
+            $this->connection->delete('cms_page', ['id' => $cmsPageByteId]);
+            $this->connection->delete('cms_section', ['cms_page_id' => $cmsPageByteId]);
         }
 
-        if ($cmsSection_byteId !== null) {
-            $this->connection->delete('cms_block', ['cms_section_id' => $cmsSection_byteId]);
+        if ($cmsSectionByteId !== null) {
+            $this->connection->delete('cms_block', ['cms_section_id' => $cmsSectionByteId]);
         }
 
-        if ($cmsBlock_byteId !== null) {
-            $this->connection->delete('cms_block', ['id' => $cmsBlock_byteId]);
-            $this->connection->delete('cms_slot', ['cms_block_id' => $cmsPage_byteId]);
+        if ($cmsBlockByteId !== null) {
+            $this->connection->delete('cms_block', ['id' => $cmsBlockByteId]);
+            $this->connection->delete('cms_slot', ['cms_block_id' => $cmsPageByteId]);
         }
 
         $migration = new Migration1768545320CancellationRequestCmsForm();
@@ -90,18 +90,18 @@ class Migration1768545320CancellationRequestCmsFormTest extends TestCase
      */
     private function getCmsPage(): array
     {
-        $cmsPage_byteId = $this->getCmsPageId();
-        static::assertIsString($cmsPage_byteId);
+        $cmsPageByteId = $this->getCmsPageId();
+        static::assertIsString($cmsPageByteId);
 
         $result = $this->connection->executeQuery(
             'SELECT * FROM `cms_page` WHERE `cms_page`.`id` = :id',
-            ['id' => $cmsPage_byteId]
+            ['id' => $cmsPageByteId]
         )->fetchAssociative();
         static::assertIsArray($result);
 
         $translationResult = $this->connection->executeQuery(
             'SELECT * FROM `cms_page_translation` WHERE `cms_page_id` = :cmsPageId',
-            ['cmsPageId' => $cmsPage_byteId]
+            ['cmsPageId' => $cmsPageByteId]
         )->fetchAllAssociative();
         static::assertIsArray($translationResult);
 
@@ -113,11 +113,11 @@ class Migration1768545320CancellationRequestCmsFormTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getCmsSection(string $cmsPage_byteId): array
+    private function getCmsSection(string $cmsPageByteId): array
     {
         $result = $this->connection->executeQuery(
             'SELECT * FROM `cms_section` WHERE `cms_page_id` = :cmsPageId',
-            ['cmsPageId' => $cmsPage_byteId]
+            ['cmsPageId' => $cmsPageByteId]
         )->fetchAssociative();
 
         static::assertIsArray($result);
@@ -128,11 +128,11 @@ class Migration1768545320CancellationRequestCmsFormTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getCmsBlock(string $cmsSection_byteId): array
+    private function getCmsBlock(string $cmsSectionByteId): array
     {
         $result = $this->connection->executeQuery(
             'SELECT * FROM `cms_block` WHERE `cms_section_id` = :cmsSectionId',
-            ['cmsSectionId' => $cmsSection_byteId]
+            ['cmsSectionId' => $cmsSectionByteId]
         )->fetchAssociative();
 
         static::assertIsArray($result);
@@ -143,11 +143,11 @@ class Migration1768545320CancellationRequestCmsFormTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getCmsSlot(string $cmsBlock_byteId): array
+    private function getCmsSlot(string $cmsBlockByteId): array
     {
         $result = $this->connection->executeQuery(
             'SELECT * FROM `cms_slot` WHERE `cms_block_id` = :cmsBlockId',
-            ['cmsBlockId' => $cmsBlock_byteId]
+            ['cmsBlockId' => $cmsBlockByteId]
         )->fetchAssociative();
 
         static::assertIsArray($result);
@@ -175,43 +175,43 @@ INNER JOIN `cms_page_translation` AS `page_translation` ON `page`.`id` = `page_t
 WHERE page_translation.name = :name
 SQL;
 
-        $cmsPage_byteId = $this->connection->executeQuery(
+        $cmsPageByteId = $this->connection->executeQuery(
             $sql,
             ['name' => Migration1768545320CancellationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name']]
         )->fetchOne();
 
-        if (!\is_string($cmsPage_byteId)) {
+        if (!\is_string($cmsPageByteId)) {
             return null;
         }
 
-        return $cmsPage_byteId;
+        return $cmsPageByteId;
     }
 
-    private function getCmsSectionId(?string $cmsPage_byteId): ?string
+    private function getCmsSectionId(?string $cmsPageByteId): ?string
     {
-        $cmsSection_byteId = $this->connection->executeQuery(
+        $cmsSectionByteId = $this->connection->executeQuery(
             'SELECT `id` FROM `cms_section` WHERE `cms_page_id` = :cmsPageId',
-            ['cmsPageId' => $cmsPage_byteId]
+            ['cmsPageId' => $cmsPageByteId]
         )->fetchOne();
 
-        if (!Uuid::isValid(Uuid::fromBytesToHex($cmsSection_byteId))) {
+        if (!Uuid::isValid(Uuid::fromBytesToHex($cmsSectionByteId))) {
             return null;
         }
 
-        return $cmsSection_byteId;
+        return $cmsSectionByteId;
     }
 
     private function getCmsBlockId(): ?string
     {
-        $cmsBlock_byteId = $this->connection->executeQuery(
+        $cmsBlockByteId = $this->connection->executeQuery(
             'SELECT `id` FROM `cms_block` WHERE `name` = :cmsBlockName',
             ['cmsBlockName' => Migration1768545320CancellationRequestCmsForm::CMS_BLOCK_NAME]
         )->fetchOne();
 
-        if (!Uuid::isValid(Uuid::fromBytesToHex($cmsBlock_byteId))) {
+        if (!Uuid::isValid(Uuid::fromBytesToHex($cmsBlockByteId))) {
             return null;
         }
 
-        return $cmsBlock_byteId;
+        return $cmsBlockByteId;
     }
 }

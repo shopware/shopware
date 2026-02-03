@@ -318,12 +318,7 @@ class CriteriaPartResolver
             return self::escape($field->getReferenceField());
         }
 
-        $flag = $field->getFlag(ReverseInherited::class);
-        if ($flag === null) {
-            return self::escape($field->getReferenceField());
-        }
-
-        return self::escape($flag->getReversedPropertyName());
+        return self::escape($field->getFlag(ReverseInherited::class)->getReversedPropertyName());
     }
 
     private function buildMappingVersionWhere(EntityDefinition $definition, AssociationField $field): string

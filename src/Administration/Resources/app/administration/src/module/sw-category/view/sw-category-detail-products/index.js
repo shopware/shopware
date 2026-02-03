@@ -80,6 +80,12 @@ export default {
             return new Criteria(1, 10).addAssociation('options.group').addAssociation('manufacturer');
         },
 
+        productStreamCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('internal', false));
+            return criteria;
+        },
+
         productStreamInvalidError() {
             if (this.productStreamInvalid) {
                 return new ShopwareError({

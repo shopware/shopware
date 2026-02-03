@@ -529,6 +529,7 @@
             show-clearable-button
             :disabled="!acl.can('sales_channel.editor') || undefined"
             entity="product_stream"
+            :criteria="productStreamCriteria"
             :error="productExportProductStreamIdError"
         />
         {% endblock %}

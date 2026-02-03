@@ -48,7 +48,7 @@ class CancellationRequestRouteTest extends TestCase
 
         $dataBag = new RequestDataBag($this->createValidFormData($slotId, Uuid::randomHex()));
 
-        $cancellationRequestRoute = $this->createCancellationRequestRoute(true, categoryEntities: [$category]);
+        $cancellationRequestRoute = $this->createCancellationRequestRoute(categoryEntities: [$category]);
 
         $result = $cancellationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
@@ -69,7 +69,7 @@ class CancellationRequestRouteTest extends TestCase
         $formData = $this->createValidFormData($slotId);
         $dataBag = new RequestDataBag($formData);
 
-        $cancellationRequestRoute = $this->createCancellationRequestRoute(true, [$cmsSlot]);
+        $cancellationRequestRoute = $this->createCancellationRequestRoute([$cmsSlot]);
 
         $result = $cancellationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
@@ -83,7 +83,7 @@ class CancellationRequestRouteTest extends TestCase
         $formData = $this->createValidFormData();
         $dataBag = new RequestDataBag($formData);
 
-        $cancellationRequestRoute = $this->createCancellationRequestRoute(true);
+        $cancellationRequestRoute = $this->createCancellationRequestRoute();
 
         $result = $cancellationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
@@ -99,7 +99,7 @@ class CancellationRequestRouteTest extends TestCase
         $formData = $this->createValidFormData($slotId);
         $dataBag = new RequestDataBag($formData);
 
-        $cancellationRequestRoute = $this->createCancellationRequestRoute(true);
+        $cancellationRequestRoute = $this->createCancellationRequestRoute();
 
         $result = $cancellationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
@@ -119,7 +119,7 @@ class CancellationRequestRouteTest extends TestCase
         $cmsSlot->setId($slotId);
         $cmsSlot->setTranslated(['config' => []]);
 
-        $cancellationRequestRoute = $this->createCancellationRequestRoute(true, [$cmsSlot]);
+        $cancellationRequestRoute = $this->createCancellationRequestRoute([$cmsSlot]);
 
         $result = $cancellationRequestRoute->request($dataBag, $this->createSalesChannelContext());
 
@@ -154,13 +154,9 @@ class CancellationRequestRouteTest extends TestCase
         return $validatorMock;
     }
 
-    public function createRequestStackMock(bool $hasMainRequest): RequestStack&MockObject
+    public function createRequestStackMock(): RequestStack&MockObject
     {
         $requestStackMock = $this->createMock(RequestStack::class);
-        if (!$hasMainRequest) {
-            return $requestStackMock;
-        }
-
         $requestStackMock->method('getMainRequest')->willReturn(new Request());
 
         return $requestStackMock;
@@ -170,13 +166,13 @@ class CancellationRequestRouteTest extends TestCase
      * @param array<int, CmsSlotEntity>|null $slotEntities
      * @param array<int, CategoryEntity>|null $categoryEntities
      */
-    private function createCancellationRequestRoute(bool $hasMainRequest, ?array $slotEntities = [], ?array $categoryEntities = []): CancellationRequestRoute
+    private function createCancellationRequestRoute(?array $slotEntities = [], ?array $categoryEntities = []): CancellationRequestRoute
     {
         $validatorFactoryMock = $this->createMock(DataValidationFactoryInterface::class);
 
         $validatorMock = $this->createValidatorMock();
 
-        $requestStackMock = $this->createRequestStackMock($hasMainRequest);
+        $requestStackMock = $this->createRequestStackMock();
 
         $rateLimiterMock = $this->createMock(RateLimiter::class);
         $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);

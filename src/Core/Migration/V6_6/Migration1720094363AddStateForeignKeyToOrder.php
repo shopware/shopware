@@ -26,10 +26,12 @@ class Migration1720094363AddStateForeignKeyToOrder extends MigrationStep
             WHERE `state_id` NOT IN (SELECT `id` FROM `state_machine_state` WHERE `state_machine_id` = (SELECT `id` FROM `state_machine` WHERE `technical_name` = 'order.state'));
         SQL);
 
-        $manager = $connection->createSchemaManager();
-        $columns = $manager->listTableForeignKeys('order');
+        $foreignKeys = $connection->createSchemaManager()->listTableForeignKeys('order');
 
-        if (\array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getReferencedTableName()->toString() === 'state_machine_state' && $column->getReferencingColumnNames()[0]->toString() === 'state_id' && $column->getReferencedColumnNames()[0]->toString() === 'id')) {
+        if (\array_filter($foreignKeys, static fn (ForeignKeyConstraint $foreignKey) => $foreignKey->getReferencedTableName()->getUnqualifiedName()->getValue() === 'state_machine_state'
+            && $foreignKey->getReferencingColumnNames()[0]->getIdentifier()->getValue() === 'state_id'
+            && $foreignKey->getReferencedColumnNames()[0]->getIdentifier()->getValue() === 'id')
+        ) {
             return;
         }
 

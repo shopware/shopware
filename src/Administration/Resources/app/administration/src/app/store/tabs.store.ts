@@ -25,10 +25,20 @@ const tabsStore = Shopware.Store.register({
                 this.tabItems[positionId] = [];
             }
 
-            this.tabItems[positionId].push({
+            const store = Shopware.Store.get('extensionOrderTracker');
+            
+            store.insert(this.tabItems[positionId], {
                 label,
                 componentSectionId,
             });
+        },
+
+        /**
+         * Flush all tab items for the current extension context from all position IDs.
+         */
+        flushByCurrentExtension(): void {
+            const store = Shopware.Store.get('extensionOrderTracker');
+            store.flushMap(this.tabItems);
         },
     },
 });

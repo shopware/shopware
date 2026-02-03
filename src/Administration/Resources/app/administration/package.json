@@ -53,7 +53,7 @@
   "dependencies": {
     "@amplitude/analytics-browser": "2.24.2",
     "@shopware-ag/dive": "2.2.20",
-    "@shopware-ag/meteor-admin-sdk": "6.4.0",
+    "@shopware-ag/meteor-admin-sdk": "file:../../../../../../meteor/packages/admin-sdk",
     "@shopware-ag/meteor-component-library": "4.24.0",
     "@shopware-ag/meteor-icon-kit": "5.4.0",
     "@swc/core": "1.10.7",

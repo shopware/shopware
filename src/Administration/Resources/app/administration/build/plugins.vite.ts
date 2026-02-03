@@ -26,6 +26,7 @@ import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
+import HmrFlushPlugin from './vite-plugins/hmr-flush-plugin';
 import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
@@ -86,9 +87,14 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
             }),
             ExternalsPlugin(),
 
-            // Prod plugins
+            // Dev plugins - HMR flush for automatic cleanup before hot reload
             ...(isDev
-                ? []
+                ? [
+                      HmrFlushPlugin({
+                          extensionName: extension.technicalName,
+                          extensionType: extension.isPlugin ? 'plugin' : 'app',
+                      }),
+                  ]
                 : [
                       symfonyPlugin(),
                   ]),
@@ -207,6 +213,13 @@ const main = async () => {
                 server = await createServer({
                     root: extension.path,
                     base: `/_internal_ext/${extension.technicalName}/`,
+                    plugins: [
+                        // HMR flush for automatic cleanup before hot reload
+                        HmrFlushPlugin({
+                            extensionName: extension.technicalName,
+                            extensionType: 'app',
+                        }),
+                    ],
                     server: {
                         host: '127.0.0.1',
                         port: extensionPorts[extension.technicalName],

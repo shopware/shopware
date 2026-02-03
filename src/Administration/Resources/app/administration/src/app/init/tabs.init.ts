@@ -5,6 +5,9 @@
 // eslint-disable-next-line import/no-named-default
 import type { Router, RouteRecordRaw } from 'vue-router';
 
+// Register store
+import 'src/app/store/tabs.store';
+
 /**
  * @private
  */

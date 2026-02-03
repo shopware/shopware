@@ -122,6 +122,7 @@ import type { SidebarStore } from './app/store/sidebar.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
 import type { TabsStore } from './app/store/tabs.store';
+import type { ExtensionOrderTrackerStore } from './app/store/extension-order-tracker.store';
 import type { UsageData } from './app/store/usage-data.store';
 import type { SessionStore } from './app/store/session.store';
 import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
@@ -420,6 +421,7 @@ declare global {
         menuItem: MenuItemStore;
         notification: NotificationStore;
         tabs: TabsStore;
+        extensionOrderTracker: ExtensionOrderTrackerStore;
         usageData: UsageData;
         session: SessionStore;
         swCategoryDetail: SwCategoryDetailStore;

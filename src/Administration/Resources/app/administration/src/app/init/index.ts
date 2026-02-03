@@ -21,6 +21,7 @@ import initializeNotifications from 'src/app/init/notification.init';
 import initializeContext from 'src/app/init/context.init';
 import initializeWindow from 'src/app/init/window.init';
 import initializeExtensionComponentSections from 'src/app/init/extension-component-sections.init';
+import initializeExtensionOrderTracker from 'src/app/init/extension-order-tracker.init';
 import initTabs from 'src/app/init/tabs.init';
 import initCms from './cms.init';
 import initMenu from './menu-item.init';
@@ -35,6 +36,7 @@ import initializeInAppPurchaseCheckout from './in-app-purchase-checkout.init';
 import initializeTopBarButtons from './topbar-button.init';
 import initializeTeaserPopovers from './teaser-popover.init';
 import initializeMediaModal from './media-modal.init';
+import initializeFlushExtension from './flush-extension.init';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -55,6 +57,7 @@ export default {
     context: initializeContext,
     window: initializeWindow,
     extensionComponentSections: initializeExtensionComponentSections,
+    extensionOrderTracker: initializeExtensionOrderTracker,
     tabs: initTabs,
     cms: initCms,
     menu: initMenu,
@@ -69,4 +72,5 @@ export default {
     topbarButton: initializeTopBarButtons,
     teaserPopover: initializeTeaserPopovers,
     mediaModal: initializeMediaModal,
+    flushExtension: initializeFlushExtension,
 };

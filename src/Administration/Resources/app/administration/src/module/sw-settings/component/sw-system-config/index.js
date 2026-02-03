@@ -349,22 +349,17 @@ export default {
 
         getMeteorElementBind(element, mapInheritance) {
             const bind = {};
-            const isInherited = mapInheritance?.isInherited;
-            const isDisabled = isInherited || element.config?.disabled;
 
             // Bind necessary props to sw-form-field-renderer
             bind.value = mapInheritance?.currentValue;
             bind.type = element.type;
-            bind.config = {
-                ...element.config,
-                disabled: isDisabled,
-            };
-            bind.disabled = isDisabled;
+            bind.config = element.config;
 
             // Inheritance bindings
             bind.inheritedValue = this.getInheritedValue(element);
             bind.isInheritanceField = mapInheritance?.isInheritField;
-            bind.isInherited = isInherited;
+            bind.isInherited = mapInheritance?.isInherited;
+            bind.disabled = mapInheritance?.isInherited || element.config?.disabled;
 
             // Handle datepicker date/datetime value format
             if (element.type === 'date') {

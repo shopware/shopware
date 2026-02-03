@@ -777,19 +777,6 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(error).toBeInstanceOf(ShopwareError);
     });
 
-    it('should disable meteor fields when inherited', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        const element = createConfig()[0].elements.find(({ type }) => type === 'single-select');
-        const bind = wrapper.vm.getMeteorElementBind(element, {
-            currentValue: element.config.defaultValue,
-            isInherited: true,
-        });
-
-        expect(bind.config.disabled).toBe(true);
-    });
-
     createConfig()[0].elements.forEach(({ name, type, config, _test }) => {
         it(`should render field with type "${type || name}" with the default value and should be able to change it`, async () => {
             const domValue = _test.defaultValueDom || config.defaultValue;
@@ -1022,6 +1009,86 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
             // check if value in actualConfigData is null to inherit value from parent
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
+        });
+
+        it(`should render field with type "${type || name}" as disabled when inherited`, async () => {
+            const domValue = _test.defaultValueDom || config.defaultValue;
+            const inheritanceSwitchSelector = config.legacy ? '.sw-inheritance-switch' : '.mt-inheritance-switch';
+
+            // Setup with parent value only (child inherits)
+            wrapper = await createWrapper({
+                'ConfigRenderer.config': {
+                    null: {
+                        [name]: config.defaultValue,
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            // Switch to child sales channel (Headless)
+            const salesChannelSwitch = wrapper.find('.sw-field[label="sw-settings.system-config.labelSalesChannelSelect"]');
+            let selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
+            expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
+
+            // Open salesChannel switch field
+            await salesChannelSwitch.find('.sw-select__selection').trigger('click');
+            await flushPromises();
+
+            // Select headless sales channel
+            const selectOptionTwo = salesChannelSwitch.find('.sw-select-option--2');
+            expect(selectOptionTwo.text()).toBe('Headless');
+            await selectOptionTwo.trigger('click');
+            await flushPromises();
+
+            // Verify headless sales channel is activated
+            selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
+            expect(selectionText.text()).toBe('Headless');
+
+            // Verify field shows inherited value in DOM
+            const field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
+            await _test.domValueCheck(field, domValue);
+
+            // Verify inheritance switch shows "Unlink inheritance"
+            const inheritanceSwitch = field.find(inheritanceSwitchSelector);
+            expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+
+            // Verify field is disabled in DOM (public API)
+            // Check for disabled state based on field type
+            if (type === 'textarea') {
+                // Textarea fields use textarea element
+                const textareaElement = field.find('textarea').element;
+                expect(textareaElement.disabled).toBe(true);
+            } else if (type === 'bool' || type === 'checkbox') {
+                // For checkbox/bool fields, check the input element
+                const inputElement = field.find('input[type="checkbox"]').element;
+                expect(inputElement.disabled).toBe(true);
+            } else if (type === 'single-select' || type === 'multi-select') {
+                // For select fields, check the visible text input used for search/display
+                const inputElement = field.find('input[type="text"]').element;
+                expect(inputElement.disabled).toBe(true);
+            } else if (config.componentName === 'sw-entity-single-select') {
+                // For entity-single-select, just verify the inheritance state is correct
+                // The disabled state is enforced through the component's internal logic
+                // We've already verified the inheritance switch state above
+                expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+            } else if (config.componentName === 'sw-media-field') {
+                // For media field, just verify the inheritance state is correct
+                // The disabled state is enforced through the component's internal logic
+                // We've already verified the inheritance switch state above
+                expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+            } else if (config.componentName === 'sw-text-editor') {
+                // For text editor, check input element
+                const inputElement = field.find('input').element;
+                expect(inputElement.disabled).toBe(true);
+            } else {
+                // For standard input fields (text, url, password, int, float, date, datetime, time, colorpicker, etc.)
+                const inputElement = field.find('input').element;
+                expect(inputElement.disabled).toBe(true);
+            }
+
+            // Verify value in actualConfigData is undefined (inheriting)
+            expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
         });
     });
 

@@ -30,7 +30,15 @@ export default class CmsVideoPlugin extends Plugin {
     }
 
     _applyStoredVolume() {
-        const storedVolume = window.localStorage.getItem(this.options.storageKey);
+        let storedVolume = null;
+
+        try {
+            storedVolume = window.localStorage.getItem(this.options.storageKey);
+        } catch (error) {
+            // localStorage might be unavailable (e.g., in private browsing mode or quota exceeded)
+            console.warn('Failed to read from localStorage:', error);
+        }
+
         let volume = parseFloat(storedVolume);
 
         if (Number.isNaN(volume) || volume < 0 || volume > 1) {
@@ -81,7 +89,12 @@ export default class CmsVideoPlugin extends Plugin {
     }
 
     _onVolumeChange() {
-        window.localStorage.setItem(this.options.storageKey, String(this._video.volume));
+        try {
+            window.localStorage.setItem(this.options.storageKey, String(this._video.volume));
+        } catch (error) {
+            // localStorage might be unavailable (e.g., in private browsing mode or quota exceeded)
+            console.warn('Failed to write to localStorage:', error);
+        }
     }
 
     _registerToggleEvent() {

@@ -20,10 +20,9 @@ class AddColumnTraitTest extends TestCase
     public function testReturnsFalseIfColumnExists(bool $useInstant): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')->willReturn('states');
         $connection->expects($this->never())->method('executeStatement');
 
-        $migration = new TestAddColumnMigration();
+        $migration = new TestAddColumnMigration(columnExists: true);
 
         $result = $useInstant
             ? $migration->callAddColumnInstant($connection, 'product', 'states', 'JSON')
@@ -43,12 +42,11 @@ class AddColumnTraitTest extends TestCase
         string $expectedSql
     ): void {
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')->willReturn(false);
         $connection->expects($this->once())
             ->method('executeStatement')
             ->with($expectedSql);
 
-        $migration = new TestAddColumnMigration();
+        $migration = new TestAddColumnMigration(columnExists: false);
 
         \assert($table !== '');
         \assert($column !== '');
@@ -122,6 +120,16 @@ class AddColumnTraitTest extends TestCase
 class TestAddColumnMigration
 {
     use AddColumnTrait;
+
+    public function __construct(
+        private readonly bool $columnExists = false
+    ) {
+    }
+
+    protected function columnExists(Connection $connection, string $table, string $column): bool
+    {
+        return $this->columnExists;
+    }
 
     /**
      * @param non-empty-string $table

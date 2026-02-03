@@ -139,12 +139,12 @@ jobs:
                 continue;
               }
 
-              // First, try the Checks API for check-runs
-              let checkRunsResp = await github.rest.checks.listForRef({ owner: r.owner, repo: r.repo, ref: headSha });
-              let checkRuns = (checkRunsResp && checkRunsResp.data && checkRunsResp.data.check_runs) || [];
+              // Use Actions API to check workflow runs for the head SHA (more accurate than aggregated check-runs)
+              let runsResp = await github.rest.actions.listWorkflowRunsForRepo({ owner: r.owner, repo: r.repo, head_sha: headSha, per_page: 100 });
+              let runs = (runsResp && runsResp.data && runsResp.data.workflow_runs) || [];
 
-              if (checkRuns.length === 0) {
-                core.info(`${r.repo} PR #${pr.number}: no check-runs found, falling back to combined status`);
+              if (runs.length === 0) {
+                core.info(`${r.repo} PR #${pr.number}: no workflow runs found for head ${headSha}, falling back to combined status`);
                 const status = await github.rest.repos.getCombinedStatusForRef({ owner: r.owner, repo: r.repo, ref: headSha });
                 const state = status && status.data && status.data.state;
                 core.info(`${r.repo} PR #${pr.number} combined status: ${state}`);
@@ -157,30 +157,45 @@ jobs:
                 continue;
               }
 
-              // If check-runs exist, poll until all are completed or timeout
+              // Poll workflow runs until all are completed or we hit timeout
               let attempts = 0;
               while (attempts < maxAttempts) {
-                const incomplete = checkRuns.filter(c => c.status !== 'completed');
+                const incomplete = runs.filter(w => w.status !== 'completed');
                 if (incomplete.length === 0) break;
 
-                core.info(`${r.repo} PR #${pr.number} waiting for ${incomplete.length} check-runs to complete (attempt ${attempts + 1}/${maxAttempts})`);
+                core.info(`${r.repo} PR #${pr.number} waiting for ${incomplete.length} workflow runs to complete (attempt ${attempts + 1}/${maxAttempts})`);
                 await wait(pollIntervalMs);
                 attempts++;
-                checkRunsResp = await github.rest.checks.listForRef({ owner: r.owner, repo: r.repo, ref: headSha });
-                checkRuns = (checkRunsResp && checkRunsResp.data && checkRunsResp.data.check_runs) || [];
+                runsResp = await github.rest.actions.listWorkflowRunsForRepo({ owner: r.owner, repo: r.repo, head_sha: headSha, per_page: 100 });
+                runs = (runsResp && runsResp.data && runsResp.data.workflow_runs) || [];
               }
 
-              // After polling, evaluate check-run conclusions
-              const stillPending = checkRuns.some(c => c.status !== 'completed');
+              // After polling, evaluate workflow run conclusions
+              const stillPending = runs.some(w => w.status !== 'completed');
               if (stillPending) {
-                failures.push(`${r.repo} PR #${pr.number} timeout waiting for check-runs to complete (head: ${headSha}) - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+                failures.push(`${r.repo} PR #${pr.number} timeout waiting for workflow runs to complete (head: ${headSha}) - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 
-              const failingRuns = checkRuns.filter(c => !allowedConclusions.has((c.conclusion || '').toLowerCase()));
-              if (failingRuns.length > 0) {
-                const details = failingRuns.map(c => `${c.name} (${c.conclusion})`).join(', ');
-                failures.push(`${r.repo} PR #${pr.number} failing checks: ${details} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+              // Only consider the latest run per workflow (avoid older runs for the same ref)
+              const latestByWorkflow = {};
+              for (const w of runs) {
+                const key = String(w.workflow_id || w.name || w.id || 'unknown');
+                const curDate = new Date(w.updated_at || w.run_started_at || w.created_at || 0);
+                if (!latestByWorkflow[key]) latestByWorkflow[key] = w;
+                else {
+                  const prev = latestByWorkflow[key];
+                  const prevDate = new Date(prev.updated_at || prev.run_started_at || prev.created_at || 0);
+                  if (curDate > prevDate) latestByWorkflow[key] = w;
+                }
+              }
+
+              const latestRuns = Object.values(latestByWorkflow);
+              const failingLatest = latestRuns.filter(w => !allowedConclusions.has((w.conclusion || '').toLowerCase()));
+              if (failingLatest.length > 0) {
+                const details = failingLatest.map(w => `${w.name || w.workflow_id} (${w.conclusion})`).join(', ');
+                const urls = failingLatest.map(w => w.html_url).filter(Boolean).join(', ');
+                failures.push(`${r.repo} PR #${pr.number} failing workflows (latest per workflow): ${details} - ${urls} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 

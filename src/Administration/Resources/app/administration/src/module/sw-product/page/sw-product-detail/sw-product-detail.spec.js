@@ -893,4 +893,66 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.id).toBe('test');
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 10, linked: false, gross: 19 }]);
     });
+
+    it('should reset mode settings to default when creating a new product', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () => Promise.resolve({}),
+            null,
+        );
+
+        await flushPromises();
+
+        expect(wrapper.vm.modeSettings).toEqual([
+            'general_information',
+            'prices',
+            'deliverability',
+            'visibility_structure',
+            'media',
+            'labelling',
+            'measurement',
+            'selling_packaging',
+            'properties',
+            'essential_characteristics',
+            'custom_fields',
+        ]);
+    });
+
+    it('should load mode settings from user config when editing existing product', async () => {
+        const mockSettings = {
+            first: () => ({
+                value: {
+                    advancedMode: {
+                        label: 'sw-product.general.textAdvancedMode',
+                        enabled: true,
+                    },
+                    settings: [
+                        {
+                            key: 'prices',
+                            label: 'sw-product.detailBase.cardTitlePrices',
+                            enabled: true,
+                            name: 'general',
+                        },
+                    ],
+                },
+            }),
+            total: 1,
+        };
+
+        wrapper = await createWrapper(
+            (criteria) => {
+                if (criteria.filters.some((f) => f.field === 'key')) {
+                    return Promise.resolve(mockSettings);
+                }
+                return Promise.resolve([]);
+            },
+            () => Promise.resolve({}),
+            '1234',
+        );
+
+        await flushPromises();
+
+        expect(wrapper.vm.modeSettings).toContain('prices');
+        expect(wrapper.vm.modeSettings.length).toBeGreaterThan(1);
+    });
 });

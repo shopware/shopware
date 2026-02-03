@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook\Service;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
@@ -45,7 +46,7 @@ final readonly class WebhookClient
 
         try {
             $response = $this->guzzle->send($request, $options);
-        } catch (RequestException $e) {
+        } catch (TransferException $e) {
             throw $this->createSendException($message->getUrl(), $e);
         }
 
@@ -83,8 +84,12 @@ final readonly class WebhookClient
         $pool->promise()->wait();
     }
 
-    private function createSendException(string $url, RequestException $e): WebhookSendException
+    private function createSendException(string $url, TransferException $e): WebhookSendException
     {
+        if (!$e instanceof RequestException) {
+            return WebhookException::sendFailed($url, $e);
+        }
+
         $response = $e->getResponse();
 
         if ($response === null) {

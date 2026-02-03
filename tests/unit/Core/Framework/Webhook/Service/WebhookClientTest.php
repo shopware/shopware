@@ -224,7 +224,10 @@ class WebhookClientTest extends TestCase
     {
         static::assertTrue($request->hasHeader(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
 
-        $payload = $request->getBody()->getContents();
+        $body = $request->getBody();
+        $payload = $body->getContents();
+        $body->rewind();
+
         $expectedSignature = hash_hmac('sha256', $payload, 'test-secret');
 
         static::assertSame($expectedSignature, $request->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
@@ -232,8 +235,11 @@ class WebhookClientTest extends TestCase
 
     private function assertRequestHasValidPayload(RequestInterface $request): void
     {
-        $body = $request->getBody()->getContents();
-        $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
+        $body = $request->getBody();
+        $contents = $body->getContents();
+        $body->rewind();
+
+        $payload = json_decode($contents, true, flags: \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('data', $payload);
         static::assertSame('payload', $payload['data']);

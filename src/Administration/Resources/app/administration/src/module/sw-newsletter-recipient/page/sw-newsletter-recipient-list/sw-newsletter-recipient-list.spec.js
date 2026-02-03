@@ -133,6 +133,7 @@ async function createWrapper(options = {}, customStubs = {}) {
                 'sw-entity-listing': {
                     props: [
                         'items',
+                        'dataSource',
                         'allowView',
                         'allowEdit',
                         'allowDelete',
@@ -145,7 +146,7 @@ async function createWrapper(options = {}, customStubs = {}) {
                     },
                     template: `
                     <div>
-                    <template v-for="item in items">
+                    <template v-for="item in (dataSource || items)">
 
                         <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">
 

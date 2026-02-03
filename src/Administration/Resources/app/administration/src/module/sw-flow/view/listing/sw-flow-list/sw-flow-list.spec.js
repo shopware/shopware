@@ -51,10 +51,13 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 `,
                 },
                 'sw-entity-listing': {
-                    props: ['items'],
+                    props: [
+                        'items',
+                        'dataSource',
+                    ],
                     template: `
                     <div class="sw-data-grid">
-                        <div class="sw-data-grid__row" v-for="item in items">
+                        <div class="sw-data-grid__row" v-for="item in (dataSource || items)">
                             <slot name="column-eventName" v-bind="{ item }"></slot>
                             <slot name="actions" v-bind="{ item }"></slot>
                         </div>

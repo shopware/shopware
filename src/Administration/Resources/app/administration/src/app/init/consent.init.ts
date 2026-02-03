@@ -24,7 +24,6 @@ export default async function initConsentStore(): Promise<void> {
         // keep empty store and wait for next update interval
     }
 
-
     setInterval(() => {
         void consentStore.update();
     }, 300000); // every 5 minutes

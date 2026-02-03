@@ -126,11 +126,6 @@ class TestAddColumnMigration
     ) {
     }
 
-    protected function columnExists(Connection $connection, string $table, string $column): bool
-    {
-        return $this->columnExists;
-    }
-
     /**
      * @param non-empty-string $table
      * @param non-empty-string $column
@@ -159,5 +154,10 @@ class TestAddColumnMigration
         string $default = 'NULL'
     ): bool {
         return $this->addColumnInstant($connection, $table, $column, $type, $nullable, $default);
+    }
+
+    protected function columnExists(Connection $connection, string $table, string $column): bool
+    {
+        return $this->columnExists;
     }
 }

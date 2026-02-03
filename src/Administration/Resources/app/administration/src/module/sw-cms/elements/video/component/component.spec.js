@@ -68,7 +68,7 @@ async function createWrapper() {
                     },
                     muted: {
                         source: 'static',
-                        value: false,
+                        value: true,
                     },
                     loop: {
                         source: 'static',

@@ -15,7 +15,7 @@ General styling for cms elements
         max-width: 100%;
     }
 
-    .cms-video {
+    .cms-video:not([controls]) {
         cursor: pointer;
     }
 

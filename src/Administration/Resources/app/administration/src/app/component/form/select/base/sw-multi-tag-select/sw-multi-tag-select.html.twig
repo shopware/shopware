@@ -52,11 +52,11 @@
             v-if="hasFocus"
             class="sw-multi-tag-select-validation sw-select-result-list"
         >
-            <sw-popover
-                class="sw-select-result-list-popover"
-                popover-class="sw-multi-tag-select-validation-popover"
+            <mt-floating-ui
+                :is-opened="true"
+                class="sw-select-result-list-popover sw-multi-tag-select-validation-popover"
                 :z-index="1100"
-                :resize-width="true"
+                :match-reference-width="true"
             >
                 <div class="sw-select-result-list__content">
                     {% block sw_multi_tag_select_validation_valid %}
@@ -87,7 +87,7 @@
                     </div>
                     {% endblock %}
                 </div>
-            </sw-popover>
+            </mt-floating-ui>
         </div>
     </template>
     {% endblock %}

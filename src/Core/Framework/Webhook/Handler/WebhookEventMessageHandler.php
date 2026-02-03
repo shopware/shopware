@@ -49,8 +49,13 @@ final class WebhookEventMessageHandler
 
         $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
 
-        $headers = ['Content-Type' => 'application/json',
-            'sw-version' => $shopwareVersion, ];
+        $headers = array_merge(
+            [
+                'Content-Type' => 'application/json',
+                'sw-version' => $shopwareVersion,
+            ],
+            $message->getWebhookHeaders()
+        );
 
         // LanguageId and UserLocale will be required from 6.5.0 onward
         if ($message->getLanguageId() && $message->getUserLocale()) {

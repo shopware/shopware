@@ -146,6 +146,10 @@ class WebhookManager implements ResetInterface
                 continue;
             }
 
+            $webhookHeaders = $event instanceof AppFlowActionEvent
+                ? $event->getWebhookHeaders()
+                : [];
+
             $webhookEventMessage = new WebhookEventMessage(
                 $webhookData['source']['eventId'],
                 $webhookData,
@@ -155,7 +159,8 @@ class WebhookManager implements ResetInterface
                 $webhook->url,
                 $webhook->appSecret,
                 $languageId,
-                $userLocale
+                $userLocale,
+                $webhookHeaders
             );
 
             $this->logWebhookWithEvent($webhook, $webhookEventMessage);

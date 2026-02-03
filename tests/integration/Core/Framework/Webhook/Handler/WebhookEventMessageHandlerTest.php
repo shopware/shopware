@@ -198,7 +198,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
-        static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
+        static::assertEquals($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
     }
 
     public function testNonJsonErrorResponse(): void

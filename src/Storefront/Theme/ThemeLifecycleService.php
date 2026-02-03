@@ -153,6 +153,7 @@ class ThemeLifecycleService
         $ids = [...array_values($dependentThemes->getIds()), ...[$theme->getId()]];
 
         $this->removeOldMedia($technicalName, $context);
+        $this->runtimeConfigService->deleteByTechnicalName($technicalName);
         $this->themeRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), $context);
     }
 

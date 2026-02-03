@@ -58,6 +58,7 @@
                     value-property="id"
                     label-property="name"
                     :label="$tc('sw-settings-rule.detail.labelType')"
+                    :placeholder="$tc('sw-settings-rule.detail.placeholderType')"
                     :disabled="!acl.can('rule.editor') || undefined"
                     :options="availableModuleTypes"
                 >

@@ -63,6 +63,7 @@ export default {
             defaultArPlacement: 'horizontal',
             arPlacementOptions: [],
             showCoverSelectionModal: false,
+            showModelViewerModal: false,
         };
     },
 
@@ -417,6 +418,14 @@ export default {
                 mimeType,
                 fileSize,
             });
+        },
+
+        openModelViewerModal() {
+            this.showModelViewerModal = true;
+        },
+
+        closeModelViewerModal() {
+            this.showModelViewerModal = false;
         },
     },
 };

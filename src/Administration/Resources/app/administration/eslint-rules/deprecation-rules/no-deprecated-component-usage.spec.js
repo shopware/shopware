@@ -18,6 +18,7 @@ const { mtEmailFieldValidTests, mtEmailFieldInvalidTests } = require('./no-depre
 const { mtPasswordFieldValidTests, mtPasswordFieldInvalidTests } = require('./no-deprecated-component-usage-checks/mt-password-field.check');
 const { mtProgressBarValidTests, mtProgressBarInvalidTests } = require('./no-deprecated-component-usage-checks/mt-progress-bar.check');
 const { mtFloatingUiValidTests, mtFloatingUiInvalidTests } = require("./no-deprecated-component-usage-checks/mt-floating-ui.check");
+const { swEntityListingValidChecks, swEntityListingInvalidChecks } = require("./no-deprecated-component-usage-checks/sw-entity-listing.check");
 
 const tester = new RuleTester({
     parser: require.resolve('vue-eslint-parser'),
@@ -49,6 +50,7 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtPasswordFieldValidTests,
         ...mtProgressBarValidTests,
         ...mtFloatingUiValidTests,
+        ...swEntityListingValidChecks,
     ],
     invalid: [
         ...mtButtonInvalidChecks,
@@ -69,5 +71,6 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtPasswordFieldInvalidTests,
         ...mtProgressBarInvalidTests,
         ...mtFloatingUiInvalidTests,
+        ...swEntityListingInvalidChecks,
     ]
 })

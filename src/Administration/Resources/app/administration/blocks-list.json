@@ -3374,6 +3374,7 @@
  "sw_modal_slot_header",
  "sw_modals_renderer",
  "sw_model_viewer",
+ "sw_model_viewer_modal",
  "sw_multi_select",
  "sw_multi_select_base",
  "sw_multi_select_base_results",

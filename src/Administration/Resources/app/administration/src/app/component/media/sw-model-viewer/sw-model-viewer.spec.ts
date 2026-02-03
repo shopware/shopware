@@ -11,30 +11,6 @@ jest.mock('@shopware-ag/dive/quickview', () => ({
     QuickView: (...args: QuickViewSettings[]) => mockQuickView(...args),
 }));
 
-// Mock ResizeObserver
-const mockResizeObserverDisconnect = jest.fn();
-const mockResizeObserverObserve = jest.fn();
-const mockResizeObserverCallback = jest.fn();
-
-class MockResizeObserver {
-    callback: ResizeObserverCallback;
-
-    constructor(callback: ResizeObserverCallback) {
-        this.callback = callback;
-        mockResizeObserverCallback.mockImplementation((entries: ResizeObserverEntry[]) => {
-            this.callback(entries, this);
-        });
-    }
-
-    observe = mockResizeObserverObserve;
-
-    disconnect = mockResizeObserverDisconnect;
-
-    unobserve = jest.fn();
-}
-
-global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
-
 const createMediaEntity = (overrides: Partial<EntitySchema.Entity<'media'>> = {}) => {
     return {
         getEntityName: () => 'media',
@@ -70,9 +46,6 @@ describe('src/app/component/media/sw-model-viewer', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockQuickView.mockResolvedValue({});
-        mockResizeObserverDisconnect.mockClear();
-        mockResizeObserverObserve.mockClear();
-        mockResizeObserverCallback.mockClear();
     });
 
     describe('Component Initialization', () => {
@@ -293,126 +266,6 @@ describe('src/app/component/media/sw-model-viewer', () => {
             expect(consoleErrorSpy).toHaveBeenCalled();
 
             consoleErrorSpy.mockRestore();
-        });
-    });
-
-    describe('ResizeObserver', () => {
-        it('should initialize ResizeObserver on mount', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            expect(wrapper.vm.resizeObserver).toBeTruthy();
-            expect(wrapper.vm.canvasWrapper).toBeTruthy();
-            expect(mockResizeObserverObserve).toHaveBeenCalled();
-        });
-
-        it('should observe the canvas wrapper element', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            const canvasWrapper = wrapper.find('.sw-model-viewer-canvas-wrapper').element;
-            expect(mockResizeObserverObserve).toHaveBeenCalledWith(canvasWrapper);
-        });
-
-        it('should set height equal to width when resize is observed', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            const canvasWrapper = wrapper.find('.sw-model-viewer-canvas-wrapper').element as HTMLElement;
-
-            // Simulate a resize event
-            const mockEntry = {
-                target: canvasWrapper,
-                contentRect: { width: 400 },
-            } as unknown as ResizeObserverEntry;
-
-            mockResizeObserverCallback([mockEntry]);
-
-            expect(canvasWrapper.style.height).toBe('400px');
-        });
-
-        it('should handle multiple resize entries', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            const canvasWrapper = wrapper.find('.sw-model-viewer-canvas-wrapper').element as HTMLElement;
-
-            // Simulate resize with different width
-            const mockEntry1 = {
-                target: canvasWrapper,
-                contentRect: { width: 200 },
-            } as unknown as ResizeObserverEntry;
-
-            mockResizeObserverCallback([mockEntry1]);
-            expect(canvasWrapper.style.height).toBe('200px');
-
-            // Simulate another resize
-            const mockEntry2 = {
-                target: canvasWrapper,
-                contentRect: { width: 600 },
-            } as unknown as ResizeObserverEntry;
-
-            mockResizeObserverCallback([mockEntry2]);
-            expect(canvasWrapper.style.height).toBe('600px');
-        });
-
-        it('should not initialize ResizeObserver if canvasWrapper is null', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            // Reset mocks and manually test initResizeObserver with null wrapper
-            mockResizeObserverObserve.mockClear();
-            await wrapper.setData({ canvasWrapper: null, resizeObserver: null });
-
-            /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
-                @typescript-eslint/no-explicit-any,
-                @typescript-eslint/no-unsafe-member-access
-            */
-            (wrapper.vm as any).initResizeObserver();
-
-            expect(wrapper.vm.resizeObserver).toBeNull();
-        });
-
-        it('should disconnect ResizeObserver on unmount', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            expect(wrapper.vm.resizeObserver).toBeTruthy();
-
-            wrapper.unmount();
-
-            expect(mockResizeObserverDisconnect).toHaveBeenCalled();
-        });
-
-        it('should set resizeObserver to null after disconnect', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            const resizeObserver = wrapper.vm.resizeObserver;
-            expect(resizeObserver).toBeTruthy();
-
-            /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
-                @typescript-eslint/no-explicit-any,
-                @typescript-eslint/no-unsafe-member-access
-            */
-            (wrapper.vm as any).beforeUnmountedComponent();
-
-            expect(wrapper.vm.resizeObserver).toBeNull();
-        });
-
-        it('should handle beforeUnmountedComponent when resizeObserver is null', async () => {
-            const wrapper = await createWrapper();
-            await flushPromises();
-
-            await wrapper.setData({ resizeObserver: null });
-
-            // Should not throw
-            /* eslint-disable-next-line @typescript-eslint/no-unsafe-call,
-                @typescript-eslint/no-explicit-any,
-                @typescript-eslint/no-unsafe-member-access,
-                @typescript-eslint/no-unsafe-return
-            */
-            expect(() => (wrapper.vm as any).beforeUnmountedComponent()).not.toThrow();
         });
     });
 

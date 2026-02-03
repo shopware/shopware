@@ -36,7 +36,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         $page = $this->genericLoader->load($request, $context);
         $page = NavigationPage::createFrom($page);
 
-        $navigationId = $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+        $navigationId = $request->attributes->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
 
         $category = $this->cmsPageRoute
             ->load($navigationId, $request, $context)

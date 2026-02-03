@@ -13,7 +13,6 @@
         gap="0px 32px"
     >
         {% block sw_rule_modal_basic_info_name %}
-
         <mt-text-field
             v-model="rule.name"
             name="sw-field--rule-name"
@@ -23,6 +22,7 @@
             required
         />
         {% endblock %}
+
         {% block sw_rule_modal_basic_info_priority %}
         <mt-number-field
             v-model="rule.priority"

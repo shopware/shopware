@@ -91,7 +91,6 @@ const missingTests = [
     'src/app/component/utils/sw-color-badge/index.js',
     'src/app/component/utils/sw-ignore-class/index.js',
     'src/app/component/utils/sw-license-violation/index.js',
-    'src/app/component/utils/sw-notification-center-item/index.js',
     'src/app/component/utils/sw-notifications/index.js',
     'src/app/component/utils/sw-overlay/index.js',
     'src/app/component/utils/sw-popover-deprecated/index.js',

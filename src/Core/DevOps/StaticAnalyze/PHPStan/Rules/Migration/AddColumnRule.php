@@ -109,17 +109,23 @@ class AddColumnRule implements Rule
         $hasAddConstraint = preg_match('/ALTER TABLE .* ADD CONSTRAINT.*/s', $arg->value);
         if ($hasAddConstraint === 1) {
             $hasAddColumnWithConstraint = preg_match('/ALTER TABLE .* ADD COLUMN.*ADD CONSTRAINT/s', $arg->value);
-            if ($hasAddColumnWithConstraint === 1 && $this->isRecentMigration($scope)) {
-                return [
-                    RuleErrorBuilder::message('Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumnInstant() for the column, then ADD CONSTRAINT separately.')
-                        ->identifier('shopware.tableCopyOperation')
-                        ->build(),
-                ];
-            }
 
-            if ($hasAddColumnWithConstraint !== 1) {
+            // ADD COLUMN + ADD CONSTRAINT combined: only error for recent migrations
+            if ($hasAddColumnWithConstraint === 1) {
+                if ($this->isRecentMigration($scope)) {
+                    return [
+                        RuleErrorBuilder::message('Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumnInstant() for the column, then ADD CONSTRAINT separately.')
+                            ->identifier('shopware.tableCopyOperation')
+                            ->build(),
+                    ];
+                }
+
+                // Old migration with combined pattern - skip (already deployed)
                 return [];
             }
+
+            // ADD CONSTRAINT alone - skip (doesn't require COPY algorithm)
+            return [];
         }
 
         $pattern = '/ALTER TABLE .* ADD INDEX.*/m';

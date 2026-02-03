@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  * @final
  */
 #[Package('framework')]
-class AttributeMappingDefinition extends MappingEntityDefinition
+class AttributeMappingDefinition extends MappingEntityDefinition implements AttributeBasedEntityDefinition
 {
     private readonly CamelCaseToSnakeCaseNameConverter $converter;
 

@@ -2,19 +2,12 @@
 
 namespace Shopware\Core\System\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AbstractField;
-use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeBasedEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldMetadata;
 use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
-use Shopware\Core\Framework\DataAbstractionLayer\FlagMetadata;
-use Shopware\Core\Framework\DataAbstractionLayer\MappingMetadata;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -154,28 +147,21 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         foreach ($taggedServiceIds as $serviceId => $tags) {
             $service = $container->getDefinition($serviceId);
 
-            /** @var string $class */
+            /** @var class-string<EntityDefinition> $class */
             $class = $service->getClass();
 
-            if (\in_array($class, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
-                if (empty($service->getArguments())) {
+            // Attribute entities store entity name in tag, avoiding metadata reconstruction
+            if (is_a($class, AttributeBasedEntityDefinition::class, true)) {
+                if (!isset($tags[0]['entity'])) {
                     continue;
                 }
 
-                $arg = $service->getArguments()[0];
-
-                // Handle inline Definition for metadata (EntityMetadata or MappingMetadata)
-                if ($arg instanceof Definition) {
-                    $arg = $this->resolveMetadataDefinition($arg);
-                }
-
-                $instance = new $class($arg);
+                $entityName = $tags[0]['entity'];
             } else {
                 $instance = new $class();
+                $entityName = $instance->getEntityName();
             }
 
-            /** @var EntityDefinition $instance */
-            $entityName = $instance->getEntityName();
             $result[$serviceId]['entityName'] = $entityName;
 
             if (isset($tags[0]['entity'])) {
@@ -222,71 +208,6 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $service->addMethodCall('compile', [
             new Reference(SalesChannelDefinitionInstanceRegistry::class),
         ]);
-    }
-
-    /**
-     * Recursively resolves nested Definitions (FieldMetadata, FlagMetadata, AbstractField subclasses).
-     */
-    private function resolveMetadataDefinition(Definition $definition): EntityMetadata|MappingMetadata
-    {
-        $args = $this->resolveDefinitionArguments(array_values($definition->getArguments()));
-
-        /** @var class-string<EntityMetadata|MappingMetadata> $class */
-        $class = $definition->getClass();
-
-        return new $class(...$args);
-    }
-
-    /**
-     * Uses fromArray() for AbstractField subclasses to handle enum reconstruction from serialized values.
-     */
-    private function resolveDefinition(Definition $definition): mixed
-    {
-        $class = $definition->getClass();
-        $args = $definition->getArguments();
-
-        // Field attributes store all their data in a single array arg and use fromArray()
-        if (\is_string($class) && is_a($class, AbstractField::class, true)) {
-            /** @var array<string, mixed> $data */
-            $data = $args[0];
-
-            return $class::fromArray($data);
-        }
-
-        if ($class === FlagMetadata::class) {
-            return new FlagMetadata(...$args);
-        }
-
-        // FieldMetadata contains nested Definitions that need recursive resolution
-        if ($class === FieldMetadata::class) {
-            $resolvedArgs = $this->resolveDefinitionArguments(array_values($args));
-
-            return new FieldMetadata(...$resolvedArgs);
-        }
-
-        $resolvedArgs = $this->resolveDefinitionArguments(array_values($args));
-
-        return new $class(...$resolvedArgs);
-    }
-
-    /**
-     * @param list<mixed> $args
-     *
-     * @return list<mixed>
-     */
-    private function resolveDefinitionArguments(array $args): array
-    {
-        return array_values(array_map(
-            fn (mixed $arg) => match (true) {
-                $arg instanceof Definition => $this->resolveDefinition($arg),
-                \is_array($arg) => array_values(array_map(
-                    fn (mixed $a) => $a instanceof Definition ? $this->resolveDefinition($a) : $a,
-                    $arg
-                )),
-                default => $arg,
-            },
-            $args
-        ));
     }
 
     /**

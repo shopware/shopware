@@ -180,7 +180,7 @@ class DefinitionValidator
             if (preg_match('/.*\\\\Tests?\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
                 continue;
             }
-            if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+            if (is_a($definitionClass, AttributeBasedEntityDefinition::class, true)) {
                 continue;
             }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeBasedEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
@@ -81,7 +82,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param class-string<AttributeEntityDefinition|AttributeTranslationDefinition|AttributeMappingDefinition> $definitionClass
+     * @param class-string<AttributeBasedEntityDefinition> $definitionClass
      */
     private function registerDefinition(
         ContainerBuilder $container,
@@ -94,7 +95,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $definition = new Definition($definitionClass);
         $definition->addArgument($meta->toDefinition());
         $definition->setPublic(true);
-        $definition->addTag('shopware.entity.definition');
+        $definition->addTag('shopware.entity.definition', ['entity' => $entityName]);
         $container->setDefinition($serviceId, $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);

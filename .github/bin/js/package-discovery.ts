@@ -53,7 +53,8 @@ export const EXPECTED_PACKAGE_JSON_FILES: readonly PackageInfo[] = [
   },
   {
     path: './tests/acceptance/package.json',
-    name: 'Tests Acceptance'
+    name: 'Tests Acceptance',
+    hasCustomAuditScript: true,
   }
 ] as const;
 

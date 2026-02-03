@@ -428,6 +428,12 @@ frame-ancestors 'none';
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\BackwardCompatibleIntlExtension">
+            <argument type="service" id="twig.extension.intl"/>
+            <tag name="twig.extension"/>
+        </service>
+
+
         <service id="Shopware\Core\Framework\Adapter\Twig\SecurityExtension">
             <argument>%shopware.twig.allowed_php_functions%</argument>
             <tag name="twig.extension"/>
@@ -600,6 +606,10 @@ frame-ancestors 'none';
             <argument>%shopware.html_sanitizer.fields%</argument>
             <argument>%shopware.html_sanitizer.enabled%</argument>
 
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Util\Database\TableHelperResetter">
             <tag name="kernel.reset" method="reset"/>
         </service>
 

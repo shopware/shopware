@@ -251,6 +251,7 @@ export default {
     methods: {
         async createdComponent() {
             this.setRouteMetaModule();
+            Shopware.Store.get('swBulkEdit').resetOrderDocumentsIsChanged();
 
             this.isLoading = true;
 

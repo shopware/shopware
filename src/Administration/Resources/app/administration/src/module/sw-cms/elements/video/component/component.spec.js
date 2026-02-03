@@ -84,7 +84,7 @@ async function createWrapper() {
                     },
                     showCover: {
                         source: 'static',
-                        value: true,
+                        value: false,
                     },
                 },
             },

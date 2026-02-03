@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
- * @phpstan-type StateData array{machine: string, scopes: array<string>, api: bool|array{admin-api: bool, store-api: bool}, column: string|null, nullable: bool, type: string, translated: bool}
+ * @phpstan-type StateData array{machine: string, scopes: list<string>, api: bool|array{admin-api: bool, store-api: bool}, column: string|null, nullable: bool, type: string, translated: bool}
  */
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
@@ -18,7 +18,7 @@ final class State extends Field
     public const TYPE = 'state';
 
     /**
-     * @param array<string> $scopes
+     * @param list<string> $scopes
      */
     public function __construct(
         public string $machine,
@@ -31,7 +31,7 @@ final class State extends Field
 
     public static function fromArray(array $data): State
     {
-        /** @var array<string> $scopes */
+        /** @var list<string> $scopes */
         $scopes = $data['scopes'];
 
         $instance = new State(

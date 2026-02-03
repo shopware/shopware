@@ -78,10 +78,6 @@ export default Component.wrapComponentConfig({
                 return this.assetFilter(`/administration/administration/static/img/cms/${fileName}`);
             }
 
-            if (elementData?.id) {
-                return elementData.url ?? null;
-            }
-
             if (elementData?.url) {
                 return elementData.url ?? null;
             }

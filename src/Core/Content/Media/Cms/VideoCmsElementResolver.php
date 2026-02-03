@@ -59,6 +59,11 @@ class VideoCmsElementResolver extends AbstractCmsElementResolver
         $video = new VideoStruct();
         $slot->setData($video);
 
+        $ariaLabelConfig = $config->get('ariaLabel');
+        if ($ariaLabelConfig !== null) {
+            $video->setAriaLabel($ariaLabelConfig->getStringValue());
+        }
+
         $mediaConfig = $config->get('media');
         if ($mediaConfig && $mediaConfig->getValue()) {
             $this->addMediaEntity($slot, $video, $result, $mediaConfig, $resolverContext);

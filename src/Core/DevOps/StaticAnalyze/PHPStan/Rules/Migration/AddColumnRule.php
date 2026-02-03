@@ -105,9 +105,10 @@ class AddColumnRule implements Rule
         }
 
         // ADD CONSTRAINT checks need special handling
-        $hasAddConstraint = preg_match('/ALTER TABLE .* ADD CONSTRAINT.*/m', $arg->value);
+        // Use /s modifier to match across newlines in multi-line SQL statements
+        $hasAddConstraint = preg_match('/ALTER TABLE .* ADD CONSTRAINT.*/s', $arg->value);
         if ($hasAddConstraint === 1) {
-            $hasAddColumnWithConstraint = preg_match('/ALTER TABLE .* ADD COLUMN.*ADD CONSTRAINT/m', $arg->value);
+            $hasAddColumnWithConstraint = preg_match('/ALTER TABLE .* ADD COLUMN.*ADD CONSTRAINT/s', $arg->value);
             if ($hasAddColumnWithConstraint === 1 && $this->isRecentMigration($scope)) {
                 return [
                     RuleErrorBuilder::message('Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumnInstant() for the column, then ADD CONSTRAINT separately.')

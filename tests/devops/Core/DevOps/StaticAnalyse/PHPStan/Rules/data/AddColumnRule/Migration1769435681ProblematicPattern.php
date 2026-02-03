@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_8;
+namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\AddColumnRule;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;

@@ -5,7 +5,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
 export default class CmsVideoPlugin extends Plugin {
-
     static options = {
         storageKey: 'sw-cms-video-volume',
         defaultVolume: 0,
@@ -23,12 +22,19 @@ export default class CmsVideoPlugin extends Plugin {
         this._registerVolumeEvents();
         this._registerPlaybackEvents();
         this._updatePlayingState();
+        this._primeFirstFrame();
 
         if (!this._video.hasAttribute('controls')) {
             this._registerToggleEvent();
         }
     }
 
+    /**
+     * Apply stored volume from localStorage or fallback to default.
+     *
+     * @private
+     * @returns {void}
+     */
     _applyStoredVolume() {
         let storedVolume = null;
 
@@ -48,16 +54,67 @@ export default class CmsVideoPlugin extends Plugin {
         this._video.volume = volume;
     }
 
+    /**
+     * Register volume change listener to persist volume.
+     *
+     * @private
+     * @returns {void}
+     */
     _registerVolumeEvents() {
         this._video.addEventListener('volumechange', this._onVolumeChange.bind(this));
     }
 
+    /**
+     * Register playback state listeners to update UI state.
+     *
+     * @private
+     * @returns {void}
+     */
     _registerPlaybackEvents() {
         this._video.addEventListener('play', this._onPlay.bind(this));
         this._video.addEventListener('pause', this._updatePlayingState.bind(this, { delay: 0 }));
         this._video.addEventListener('ended', this._updatePlayingState.bind(this, { delay: 0 }));
     }
 
+    /**
+     * Forces Safari to render the first frame when no poster is set.
+     *
+     * @see https://webkit.org/blog/6784/new-video-policies-for-ios/
+     *
+     * @private
+     * @returns {void}
+     */
+    _primeFirstFrame() {
+        if (this._video.hasAttribute('poster')) {
+            return;
+        }
+
+        const trySeek = () => {
+            if (this._video.currentTime > 0) {
+                return;
+            }
+
+            try {
+                this._video.currentTime = 0.001;
+            } catch (error) {
+                // Ignore seek errors (e.g., insufficient data yet).
+            }
+        };
+
+        if (this._video.readyState >= 2) {
+            trySeek();
+            return;
+        }
+
+        this._video.addEventListener('loadeddata', trySeek, { once: true });
+    }
+
+    /**
+     * Handle play event and trigger tap animation when resuming.
+     *
+     * @private
+     * @returns {void}
+     */
     _onPlay() {
         this._updatePlayingState({ delay: 180 });
 
@@ -66,6 +123,14 @@ export default class CmsVideoPlugin extends Plugin {
         }
     }
 
+    /**
+     * Toggle playing/paused state classes with optional delay.
+     *
+     * @private
+     * @param {Object} [options]
+     * @param {number} [options.delay=0]
+     * @returns {void}
+     */
     _updatePlayingState({ delay = 0 } = {}) {
         const isPlaying = !this._video.paused && !this._video.ended;
         const isPaused = this._video.paused || this._video.ended;
@@ -88,6 +153,12 @@ export default class CmsVideoPlugin extends Plugin {
         this.el.classList.toggle('is-paused', isPaused);
     }
 
+    /**
+     * Persist current volume to localStorage.
+     *
+     * @private
+     * @returns {void}
+     */
     _onVolumeChange() {
         try {
             window.localStorage.setItem(this.options.storageKey, String(this._video.volume));
@@ -97,10 +168,22 @@ export default class CmsVideoPlugin extends Plugin {
         }
     }
 
+    /**
+     * Register click toggle for play/pause when controls are hidden.
+     *
+     * @private
+     * @returns {void}
+     */
     _registerToggleEvent() {
         this.el.addEventListener('click', this._onToggleClick.bind(this));
     }
 
+    /**
+     * Toggle play/pause state on click.
+     *
+     * @private
+     * @returns {void}
+     */
     _onToggleClick() {
         this._triggerTapAnimation();
 
@@ -117,6 +200,12 @@ export default class CmsVideoPlugin extends Plugin {
         this._video.pause();
     }
 
+    /**
+     * Trigger the tap animation for the play icon.
+     *
+     * @private
+     * @returns {void}
+     */
     _triggerTapAnimation() {
         this.el.classList.remove('is-animating');
         // Force reflow to restart the animation on repeated clicks.

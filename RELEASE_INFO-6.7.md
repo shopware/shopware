@@ -2,6 +2,10 @@
 
 ## Critical Fixes
 
+### Core: Dependency on Elasticsearch Bundle
+
+Removed dependency of the Core bundle to the Elasticsearch bundle, so that the Core bundle can be used without Elasticsearch again.
+
 ### Storefront: Fix loading of customer account pages
 
 Fixed errors when loading edit order and edit adress pages in the customer account.

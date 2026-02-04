@@ -58,11 +58,14 @@ class JsonApiEncodingResult implements \JsonSerializable
     {
         $key = $entity->getId() . '-' . $entity->getType();
 
-        $this->data[$key] = $entity;
-
+        // Merge existing data (because it can have additional associations) with new entity
         if (isset($this->included[$key])) {
+            $this->mergeRecords($entity, $this->included[$key]);
+
             unset($this->included[$key]);
         }
+
+        $this->data[$key] = $entity;
 
         $this->keyCollection[$key] = 1;
     }
@@ -71,8 +74,16 @@ class JsonApiEncodingResult implements \JsonSerializable
     {
         $key = $entity->getId() . '-' . $entity->getType();
 
-        if ($this->contains($entity->getId(), $entity->getType())) {
+        // If it is already in included merge the records
+        if ($this->containsInIncluded($entity->getId(), $entity->getType())) {
             $this->mergeRecords($this->included[$key], $entity);
+
+            return;
+        }
+
+        // If it is already in data merge the records into data because it has to stay in data
+        if ($this->containsInData($entity->getId(), $entity->getType())) {
+            $this->mergeRecords($this->data[$key], $entity);
 
             return;
         }
@@ -152,14 +163,14 @@ class JsonApiEncodingResult implements \JsonSerializable
         }
 
         foreach ($recordB->getRelationships() as $key => $value) {
-            if ($value['data'] === null) {
+            if (empty($value['data'])) {
                 continue;
             }
             $recordA->addRelationship($key, $value);
         }
 
         foreach ($recordB->getExtensions() as $key => $value) {
-            if ($value['data'] === null) {
+            if (empty($value['data'])) {
                 continue;
             }
             $recordA->addExtension((string) $key, $value);

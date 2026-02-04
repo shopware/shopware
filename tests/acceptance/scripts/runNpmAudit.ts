@@ -1,25 +1,22 @@
 #!/usr/bin/env node
-import { execSync } from "child_process";
+import { execSync } from 'child_process';
 
 // IDs of advisories to ignore
 const ignored: number[] = [
-  1112030, // Elliptic Uses a Cryptographic Primitive with a Risky Implementation (low severity)
-  1112686, // ESlint, moderate severity, major update necessary
-  1112455, // lodash, moderate severity
-  1112453, // lodash-es, moderate severity
+    1112686, // ESlint, moderate severity, major update necessary
 ];
-let auditRaw = "";
+let auditRaw = '';
 
 try {
   // Capture stdout even if npm audit exits with code 1
-  auditRaw = execSync("npm audit --json", {
-    encoding: "utf8"
+  auditRaw = execSync('npm audit --json', {
+    encoding: 'utf8',
   });
 } catch (err: any) {
   if (err.stdout) {
     auditRaw = err.stdout.toString();
   } else {
-    console.error("Error running npm audit:", err.message);
+    console.error('Error running npm audit:', err.message);
     process.exit(1);
   }
 }
@@ -58,7 +55,7 @@ try {
     }
   }
 
-  const remaining = Object.values(audit.vulnerabilities).reduce(
+  const remaining = Object.values(audit.vulnerabilities).reduce<number>(
     (sum: number, pkg: any) => sum + (pkg.via.length > 0 ? 1 : 0),
     0
   );
@@ -91,9 +88,9 @@ try {
       });
     process.exit(1);
   } else {
-    console.log("✅ No vulnerabilities (ignored IDs excluded).");
+    console.log('✅ No vulnerabilities (ignored IDs excluded).');
   }
 } catch (err: any) {
-  console.error("Failed to parse npm audit JSON:", err.message);
+  console.error('Failed to parse npm audit JSON:', err.message);
   process.exit(1);
 }

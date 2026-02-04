@@ -53,7 +53,7 @@
                 detail-route="sw.review.detail"
                 :repository="repository"
                 :columns="columns"
-                :items="items"
+                :data-source="items"
                 :allow-edit="acl.can('review.editor')"
                 :allow-delete="acl.can('review.deleter')"
                 :show-selection="acl.can('review.deleter')"

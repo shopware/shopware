@@ -32,6 +32,33 @@ Also, the generator now sets `CASCADE DELETE` on foreign keys for the translatio
 
 ## Administration
 
+### Deprecation of `items` prop in `sw-entity-listing` component
+
+The `items` prop in the `sw-entity-listing` component has been deprecated and will be removed in v6.8.0.
+Please use the `dataSource` prop instead to align with the parent `sw-data-grid` component.
+
+**Before (deprecated):**
+```html
+<sw-entity-listing
+    :items="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
+**After (recommended):**
+```html
+<sw-entity-listing
+    :data-source="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
+The component will continue to work with the `items` prop for backward compatibility, but you will see a deprecation warning in the browser console.
+### Notification translations now update when language changes
+
+Notifications now store translation keys directly in their title and message fields instead of translating them immediately. The template checks if the text is a translation key and translates it reactively, allowing notifications to update automatically when the user changes the interface language.
 ### Help text support for color picker custom fields
 
 The color picker type for custom fields now supports adding a help text. When creating or editing a custom field of type "Colorpicker" in Settings > Content > Custom fields, you can now specify a help text that will be displayed to users in the Administration.
@@ -54,6 +81,10 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 * Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
 
 ## App System
+
+### Fixed custom headers for app flow action webhooks in async mode
+
+Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
 
 ## Hosting & Configuration
 

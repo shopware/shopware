@@ -31,7 +31,7 @@ class ProductStreamEntity extends Entity
 
     protected bool $invalid;
 
-    protected bool $internal;
+    protected bool $internal = false;
 
     protected ?ProductStreamTranslationCollection $translations = null;
 

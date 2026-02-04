@@ -384,6 +384,8 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension">
             <tag name="twig.extension" />
+            <tag name="shopware.seo_url.twig.extension"/>
+            <tag name="shopware.app_script.twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension">
@@ -398,8 +400,15 @@ frame-ancestors 'none';
             <tag name="twig.extension"/>
         </service>
 
+        <service class="Symfony\Bridge\Twig\Extension\TranslationExtension" id="twig.extension.trans">
+            <argument type="service" id="translator"/>
+            <tag name="twig.extension"/>
+            <tag name="shopware.app_script.twig.extension"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension">
             <tag name="twig.extension"/>
+            <tag name="shopware.app_script.twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\InstanceOfExtension">
@@ -422,10 +431,16 @@ frame-ancestors 'none';
         <service id="Cocur\Slugify\Bridge\Twig\SlugifyExtension">
             <argument type="service" id="slugify"/>
             <tag name="twig.extension"/>
+            <tag name="shopware.seo_url.twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter">
             <tag name="twig.extension"/>
+            <tag name="shopware.app_script.twig.extension"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension">
+            <tag name="shopware.app_script.twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\BackwardCompatibleIntlExtension">
@@ -437,6 +452,8 @@ frame-ancestors 'none';
         <service id="Shopware\Core\Framework\Adapter\Twig\SecurityExtension">
             <argument>%shopware.twig.allowed_php_functions%</argument>
             <tag name="twig.extension"/>
+            <tag name="shopware.seo_url.twig.extension"/>
+            <tag name="shopware.app_script.twig.extension"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\InAppPurchaseExtension">

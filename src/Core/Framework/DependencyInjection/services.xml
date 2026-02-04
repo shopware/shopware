@@ -603,7 +603,8 @@ frame-ancestors 'none';
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Util\Database\TableHelperResetter">
+        <service id="Shopware\Core\Framework\Util\Database\TableHelperResetter" public="true">
+            <!-- Is not used anywhere, so marking it as public, otherwise it would be removed from the container -->
             <tag name="kernel.reset" method="reset"/>
         </service>
 

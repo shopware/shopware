@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\CancellationRequest\SalesChannel\AbstractCancellationRequestRoute;
+use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
@@ -39,7 +39,7 @@ class FormController extends StorefrontController
         private readonly AbstractContactFormRoute $contactFormRoute,
         private readonly AbstractNewsletterSubscribeRoute $subscribeRoute,
         private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute,
-        private readonly AbstractCancellationRequestRoute $cancellationRequestRoute,
+        private readonly AbstractRevocationRequestRoute $abstractRevocationRequestRoute,
     ) {
     }
 
@@ -117,25 +117,25 @@ class FormController extends StorefrontController
     }
 
     #[Route(
-        path: '/form/cancellation/request',
-        name: 'frontend.form.cancellation.request',
+        path: '/form/revocation/request',
+        name: 'frontend.form.revocation.request',
         defaults: [
             'XmlHttpRequest' => true,
             PlatformRequest::ATTRIBUTE_CAPTCHA => true,
         ],
         methods: [Request::METHOD_POST]
     )]
-    public function sendCancellationRequest(RequestDataBag $data, SalesChannelContext $context): JsonResponse
+    public function sendRevocationRequest(RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
         $response = [];
 
         try {
-            $message = $this->cancellationRequestRoute->request($data->toRequestDataBag(), $context)
+            $message = $this->abstractRevocationRequestRoute->request($data->toRequestDataBag(), $context)
                 ->getResult()
                 ->getIndividualSuccessMessage();
 
             if (!$message) {
-                $message = $this->trans('cancellationRequest.success');
+                $message = $this->trans('revocationRequest.success');
             }
 
             $response[] = [

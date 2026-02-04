@@ -23,7 +23,6 @@ use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Content\CancellationRequest\Event\CancellationRequestEvent;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
@@ -39,6 +38,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
@@ -468,14 +468,14 @@ class SendMailActionTest extends TestCase
         static::assertSame(0, $mailService->calls);
     }
 
-    public function testSendCancellationRequestFormMailType(): void
+    public function testSendRevocationRequestFormMailType(): void
     {
         $email = 'max@muster.com';
-        $mailTemplateId = $this->getMailTemplateId(MailTemplateTypes::MAILTYPE_CANCELLATION_REQUEST_CUSTOMER);
+        $mailTemplateId = $this->getMailTemplateId(MailTemplateTypes::MAILTYPE_REVOCATION_REQUEST_CUSTOMER);
         $config = [
             'mailTemplateId' => $mailTemplateId,
             'recipient' => [
-                'type' => 'cancellationRequestCustomerFormMail',
+                'type' => 'revocationRequestCustomerFormMail',
             ],
         ];
 
@@ -486,7 +486,7 @@ class SendMailActionTest extends TestCase
             'lastName' => 'Mustermann',
             'email' => $email,
         ]);
-        $event = new CancellationRequestEvent(
+        $event = new RevocationRequestEvent(
             $context->getContext(),
             $context->getSalesChannelId(),
             $mailRecipientStruct,

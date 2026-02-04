@@ -617,8 +617,8 @@
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
   },
-  "cancellationRequest": {
-    "headline": "Cancellation",
+  "revocationRequest": {
+    "headline": "Revocation",
     "firstNameLabel": "First name",
     "firstNamePlaceholder": "Enter first name...",
     "lastNameLabel": "Last name",
@@ -630,7 +630,7 @@
     "commentLabel": "Comment",
     "commentPlaceholder": "Enter comment...",
     "formSubmit": "Submit",
-    "success": "We have received your cancellation request and will process it as soon as possible."
+    "success": "We have received your revocation request and will process it as soon as possible."
   },
   "search": {
     "headline": "{0} 0 products found for \"%searchTerm%\" | {1} One product found for \"%searchTerm%\" | [0,Inf[ %count% products found for \"%searchTerm%\"",

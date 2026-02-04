@@ -2,12 +2,12 @@
     "openapi": "3.1.0",
     "info": [],
     "paths": {
-        "/cancellation-request-form": {
+        "/revocation-request-form": {
             "post": {
                 "tags": ["Content"],
-                "summary": "Submit a cancellation request form message",
-                "description": "Used for submitting cancellation requests forms. Be aware that there can be more required fields, depending on the system settings.",
-                "operationId": "sendCancellationRequestMail",
+                "summary": "Submit a revocation request form message",
+                "description": "Used for submitting revocation requests forms. Be aware that there can be more required fields, depending on the system settings.",
+                "operationId": "sendRevocationRequestMail",
                 "parameters": [
                     {
                         "name": "sw-language-id",
@@ -44,7 +44,7 @@
                                         "type": "string"
                                     },
                                     "comment": {
-                                        "description": "The message of the cancellation request form",
+                                        "description": "The message of the revocation request form",
                                         "type": "string"
                                     },
                                     "navigationId": {

@@ -205,7 +205,6 @@ class TableHelperTest extends TestCase
         array $localColumns,
         string $foreignTable,
         array $foreignColumns,
-        bool $ignoreColumnOrder,
         bool $expectedResult
     ): void {
         static::assertSame(
@@ -215,62 +214,41 @@ class TableHelperTest extends TestCase
                 ProductDefinition::ENTITY_NAME,
                 $localColumns,
                 $foreignTable,
-                $foreignColumns,
-                $ignoreColumnOrder
+                $foreignColumns
             )
         );
     }
 
     /**
-     * @return iterable<string, array{list<string>, string, list<string>, bool, bool}>
+     * @return iterable<string, array{list<string>, string, list<string>, bool}>
      */
     public static function foreignKeyExistsByColumnsProvider(): iterable
     {
-        yield 'strict: existing FK with columns in definition order' => [
+        yield 'existing FK with columns in definition order' => [
             ['parent_id', 'parent_version_id'],
             ProductDefinition::ENTITY_NAME,
             ['id', 'version_id'],
-            false,
             true,
         ];
 
-        yield 'strict: reversed local columns do not match' => [
+        yield 'reversed local columns do not match' => [
             ['parent_version_id', 'parent_id'],
             ProductDefinition::ENTITY_NAME,
             ['id', 'version_id'],
             false,
-            false,
         ];
 
-        yield 'strict: reversed foreign columns do not match' => [
+        yield 'reversed foreign columns do not match' => [
             ['parent_id', 'parent_version_id'],
             ProductDefinition::ENTITY_NAME,
             ['version_id', 'id'],
             false,
-            false,
-        ];
-
-        yield 'ignoreOrder: reversed local columns match' => [
-            ['parent_version_id', 'parent_id'],
-            ProductDefinition::ENTITY_NAME,
-            ['id', 'version_id'],
-            true,
-            true,
-        ];
-
-        yield 'ignoreOrder: reversed foreign columns match' => [
-            ['parent_id', 'parent_version_id'],
-            ProductDefinition::ENTITY_NAME,
-            ['version_id', 'id'],
-            true,
-            true,
         ];
 
         yield 'non-existing FK with unknown local columns' => [
             [self::UNKNOWN_NAME],
             ProductDefinition::ENTITY_NAME,
             ['id'],
-            false,
             false,
         ];
 
@@ -279,14 +257,12 @@ class TableHelperTest extends TestCase
             self::UNKNOWN_NAME,
             ['id', 'version_id'],
             false,
-            false,
         ];
 
         yield 'non-existing FK with partial local columns' => [
             ['parent_id'],
             ProductDefinition::ENTITY_NAME,
             ['id', 'version_id'],
-            false,
             false,
         ];
     }

@@ -157,10 +157,6 @@ class TableHelper
      * @param non-empty-string $table
      * @param list<string> $localColumns
      * @param list<string> $foreignColumns
-     * @param bool $ignoreColumnOrder When false (default), column order must match FK definition (positional mapping).
-     *                                Use when verifying a specific column mapping exists (e.g., a→x, b→y).
-     *                                When true, only checks if columns participate in any FK relationship.
-     *                                Use when checking if columns are already constrained, regardless of mapping.
      *
      * @throws TableHelperException
      */
@@ -169,16 +165,10 @@ class TableHelper
         string $table,
         array $localColumns,
         string $foreignTable,
-        array $foreignColumns,
-        bool $ignoreColumnOrder = false
+        array $foreignColumns
     ): bool {
         try {
             $foreignKeys = self::getSchemaManager($connection)->listTableForeignKeys($table);
-
-            if ($ignoreColumnOrder) {
-                sort($localColumns);
-                sort($foreignColumns);
-            }
 
             foreach ($foreignKeys as $foreignKey) {
                 $referencingColumns = array_map(
@@ -190,11 +180,6 @@ class TableHelper
                     $foreignKey->getReferencedColumnNames()
                 );
                 $referencedTable = $foreignKey->getReferencedTableName()->getUnqualifiedName()->getValue();
-
-                if ($ignoreColumnOrder) {
-                    sort($referencingColumns);
-                    sort($referencedColumns);
-                }
 
                 if ($referencingColumns === $localColumns
                     && $referencedTable === $foreignTable

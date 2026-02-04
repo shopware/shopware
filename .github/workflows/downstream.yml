@@ -132,56 +132,31 @@ jobs:
                 continue;
               }
 
-              // Use Actions API to check workflow runs for the branch
-              let runsResp = await github.rest.actions.listWorkflowRunsForRepo({ owner: r.owner, repo: r.repo, branch: branch, per_page: 100 });
-              let runs = (runsResp && runsResp.data && runsResp.data.workflow_runs) || [];
+              // Prefer checking only the branch protection's required status-check contexts
+              let requiredContexts = [];
+              const protection = await github.rest.repos.getBranchProtection({ owner: r.owner, repo: r.repo, branch: pr.base.ref });
+              requiredContexts = (protection && protection.data && protection.data.required_status_checks && protection.data.required_status_checks.contexts) || [];
+              core.info(`${r.repo} required status check contexts: ${JSON.stringify(requiredContexts)}`);
 
-              if (runs.length === 0) {
-                failures.push(`${r.repo} PR #${pr.number}: no workflow runs found for branch ${branch}`);
+
+              // Use combined status to inspect the specific required contexts for the commit
+              const status = await github.rest.repos.getCombinedStatusForRef({ owner: r.owner, repo: r.repo, ref: pr.head.sha });
+              const statuses = (status && status.data && status.data.statuses) || [];
+              // Check each required context is present and successful
+              const missingOrFailing = [];
+              for (const ctx of requiredContexts) {
+                const s = statuses.find(ss => ss.context === ctx);
+                if (!s) missingOrFailing.push(`${ctx}: missing`);
+                else if ((s.state || '').toLowerCase() !== 'success') missingOrFailing.push(`${ctx}: ${s.state}`);
+              }
+
+              if (missingOrFailing.length > 0) {
+                failures.push(`${r.repo} PR #${pr.number} required contexts failing or missing: ${missingOrFailing.join(', ')} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 
-              // Poll workflow runs until all are completed or we hit timeout
-              let attempts = 0;
-              while (attempts < maxAttempts) {
-                const incomplete = runs.filter(w => w.status !== 'completed');
-                if (incomplete.length === 0) break;
+              core.info(`${r.repo} PR #${pr.number} required contexts all green`);
 
-                core.info(`${r.repo} PR #${pr.number} waiting for ${incomplete.length} workflow runs to complete (attempt ${attempts + 1}/${maxAttempts})`);
-                await wait(pollIntervalMs);
-                attempts++;
-                runsResp = await github.rest.actions.listWorkflowRunsForRepo({ owner: r.owner, repo: r.repo, branch: branch, per_page: 100 });
-                runs = (runsResp && runsResp.data && runsResp.data.workflow_runs) || [];
-              }
-
-              // After polling, evaluate workflow run conclusions
-              const stillPending = runs.some(w => w.status !== 'completed');
-              if (stillPending) {
-                failures.push(`${r.repo} PR #${pr.number} timeout waiting for workflow runs to complete (branch: ${branch}) - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
-                continue;
-              }
-
-              // Only consider the latest run per workflow (avoid older runs for the same ref)
-              const latestByWorkflow = {};
-              for (const w of runs) {
-                const key = String(w.workflow_id || w.name || w.id || 'unknown');
-                const curDate = new Date(w.updated_at || w.run_started_at || w.created_at || 0);
-                if (!latestByWorkflow[key]) latestByWorkflow[key] = w;
-                else {
-                  const prev = latestByWorkflow[key];
-                  const prevDate = new Date(prev.updated_at || prev.run_started_at || prev.created_at || 0);
-                  if (curDate > prevDate) latestByWorkflow[key] = w;
-                }
-              }
-
-              const latestRuns = Object.values(latestByWorkflow);
-              const failingLatest = latestRuns.filter(w => !allowedConclusions.has((w.conclusion || '').toLowerCase()));
-              if (failingLatest.length > 0) {
-                const details = failingLatest.map(w => `${w.name || w.workflow_id} (${w.conclusion})`).join(', ');
-                const urls = failingLatest.map(w => w.html_url).filter(Boolean).join(', ');
-                failures.push(`${r.repo} PR #${pr.number} failing workflows (latest per workflow): ${details} - ${urls} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
-                continue;
-              }
 
               // Check for at least one approval
               const reviews = await github.rest.pulls.listReviews({ owner: r.owner, repo: r.repo, pull_number: pr.number });

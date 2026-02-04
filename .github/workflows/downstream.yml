@@ -19,6 +19,7 @@ permissions:
   pull-requests: read
   checks: read
   statuses: read
+  administration: read
 
 jobs:
   rufus:
@@ -140,22 +141,55 @@ jobs:
 
 
               // Use combined status to inspect the specific required contexts for the commit
-              const status = await github.rest.repos.getCombinedStatusForRef({ owner: r.owner, repo: r.repo, ref: pr.head.sha });
-              const statuses = (status && status.data && status.data.statuses) || [];
-              // Check each required context is present and successful
-              const missingOrFailing = [];
-              for (const ctx of requiredContexts) {
-                const s = statuses.find(ss => ss.context === ctx);
-                if (!s) missingOrFailing.push(`${ctx}: missing`);
-                else if ((s.state || '').toLowerCase() !== 'success') missingOrFailing.push(`${ctx}: ${s.state}`);
+              // If any required context is pending, poll until it reaches a final state (or timeout)
+              let attemptsCtx = 0;
+              let missingContexts = [];
+              let success = false;
+
+              while (attemptsCtx < maxAttempts) {
+                const status = await github.rest.repos.getCombinedStatusForRef({ owner: r.owner, repo: r.repo, ref: pr.head.sha });
+                const statuses = (status && status.data && status.data.statuses) || [];
+
+                missingContexts = [];
+
+                for (const ctx of requiredContexts) {
+                  const s = statuses.find(ss => ss.context === ctx);
+                  if (!s) {
+                    // Missing context likely means the check was never reported — fail immediately
+                    failures.push(`${r.repo} PR #${pr.number} required check missing: ${ctx}} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+                    break;
+                  } else {
+                    const st = (s.state || '').toLowerCase();
+                    if (st === 'pending') pendingContexts.push(ctx);
+                    else if (st !== 'success') {
+                      failures.push(`${r.repo} PR #${pr.number} required check failing: ${ctx}: ${s.state}} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+                      break;
+                    }
+                  }
+                }
+
+                if (pendingContexts.length === 0) {
+                  success = true;
+                  core.info(`${r.repo} PR #${pr.number} required contexts all green`);
+                  break;
+                }
+
+                // There are pending contexts — wait and retry
+                core.info(`${r.repo} PR #${pr.number} pending required contexts: ${pendingContexts.join(', ')} (attempt ${attemptsCtx + 1}/${maxAttempts}), waiting ${pollIntervalMs}ms`);
+                await wait(pollIntervalMs);
+                attemptsCtx++;
               }
 
-              if (missingOrFailing.length > 0) {
-                failures.push(`${r.repo} PR #${pr.number} required contexts failing or missing: ${missingOrFailing.join(', ')} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+              // After polling, if we still have pending contexts, treat as timeout/failure
+              if (pendingContexts.length > 0 && attemptsCtx >= maxAttempts) {
+                failures.push(`${r.repo} PR #${pr.number} timeout waiting for required contexts: ${pendingContexts.join(', ')} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 
-              core.info(`${r.repo} PR #${pr.number} required contexts all green`);
+              if (!success) {
+                // failure already pushed in the loop, continue with next repo
+                continue;
+              }
 
 
               // Check for at least one approval

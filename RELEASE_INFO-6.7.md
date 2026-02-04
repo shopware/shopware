@@ -1,4 +1,12 @@
-# 6.7.7.0 (upcoming)
+# 6.7.7.1
+
+## Critical Fixes
+
+### Storefront: Fix loading of customer account pages
+
+Fixed errors when loading edit order and edit adress pages in the customer account.
+
+# 6.7.7.0
 
 ## Features
 

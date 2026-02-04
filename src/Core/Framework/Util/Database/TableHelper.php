@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column as DbalColumn;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\Index as DbalIndex;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Shopware\Core\Framework\Log\Package;
@@ -84,6 +85,8 @@ class TableHelper
             return self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->hasColumn($columnName);
         } catch (TableHelperException $e) {
             throw $e;
+        } catch (TableDoesNotExist) {
+            return false;
         } catch (\Throwable $e) {
             throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
@@ -118,6 +121,8 @@ class TableHelper
             return self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->hasIndex($indexName);
         } catch (TableHelperException $e) {
             throw $e;
+        } catch (TableDoesNotExist) {
+            return false;
         } catch (\Throwable $e) {
             throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
@@ -153,6 +158,8 @@ class TableHelper
             return self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->getIndex($indexName)->spansColumns($spansColumns);
         } catch (TableHelperException $e) {
             throw $e;
+        } catch (TableDoesNotExist) {
+            return false;
         } catch (\Throwable $e) {
             throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
@@ -169,7 +176,10 @@ class TableHelper
             return self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->hasForeignKey($foreignKeyName);
         } catch (TableHelperException $e) {
             throw $e;
+        } catch (TableDoesNotExist) {
+            return false;
         } catch (\Throwable $e) {
+            dd($e);
             throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
     }

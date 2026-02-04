@@ -157,6 +157,25 @@
         </sw-cms-inherit-wrapper>
     </div>
 
+    {% block sw_cms_element_video_config_aria_label %}
+    <div class="sw-cms-el-config-video__aria-label">
+        <sw-cms-inherit-wrapper
+            field="ariaLabel"
+            :element="element"
+            :label="$t('sw-cms.elements.video.config.label.ariaLabel')"
+        >
+            <template #default="{ isInherited }">
+                <mt-text-field
+                    v-model="element.config.ariaLabel.value"
+                    class="sw-cms-el-config-video__aria-label"
+                    :placeholder="$t('sw-cms.elements.video.config.placeholder.ariaLabel')"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+    </div>
+    {% endblock %}
+
     {% block sw_cms_element_video_config_display_mode %}
     <sw-cms-inherit-wrapper
         field="displayMode"
@@ -233,24 +252,5 @@
         </sw-cms-inherit-wrapper>
         {% endblock %}
     </sw-container>
-
-    {% block sw_cms_element_video_config_aria_label %}
-    <div class="sw-cms-el-config-video__aria-label">
-        <sw-cms-inherit-wrapper
-            field="ariaLabel"
-            :element="element"
-            :label="$t('sw-cms.elements.video.config.label.ariaLabel')"
-        >
-            <template #default="{ isInherited }">
-                <mt-text-field
-                    v-model="element.config.ariaLabel.value"
-                    class="sw-cms-el-config-video__aria-label"
-                    :placeholder="$t('sw-cms.elements.video.config.placeholder.ariaLabel')"
-                    :disabled="isInherited"
-                />
-            </template>
-        </sw-cms-inherit-wrapper>
-    </div>
-    {% endblock %}
 </div>
 {% endblock %}

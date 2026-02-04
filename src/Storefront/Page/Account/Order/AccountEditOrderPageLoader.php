@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -123,11 +124,10 @@ class AccountEditOrderPageLoader
 
     private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        if ($request->query->get('orderId')) {
-            $criteria = new Criteria([$request->query->get('orderId')]);
-        } else {
-            $criteria = new Criteria();
-        }
+        $orderId = RequestParamHelper::get($request, 'orderId');
+
+        $criteria = new Criteria($orderId);
+
         $criteria
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.country')

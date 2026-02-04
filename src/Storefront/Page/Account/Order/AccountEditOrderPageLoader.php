@@ -128,7 +128,7 @@ class AccountEditOrderPageLoader
             throw OrderException::invalidUuid($orderId);
         }
 
-        $criteria = new Criteria([$orderId])
+        $criteria = (new Criteria([$orderId]))
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.countryState')

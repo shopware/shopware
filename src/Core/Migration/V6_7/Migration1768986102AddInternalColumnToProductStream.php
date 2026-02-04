@@ -20,7 +20,7 @@ class Migration1768986102AddInternalColumnToProductStream extends MigrationStep
     public function update(Connection $connection): void
     {
         if (!$this->columnExists($connection, 'product_stream', 'internal')) {
-            $this->addColumn($connection, 'product_stream', 'internal', 'TINYINT(1) NOT NULL DEFAULT 0');
+            $this->addColumn($connection, 'product_stream', 'internal', 'TINYINT(1)', false, '0');
         }
     }
 }

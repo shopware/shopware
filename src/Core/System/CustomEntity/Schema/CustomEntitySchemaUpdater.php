@@ -13,6 +13,8 @@ use Symfony\Component\Lock\LockFactory;
  * @internal
  *
  * @phpstan-import-type CustomEntityField from SchemaUpdater
+ *
+ * @codeCoverageIgnore - Tested with integration test {@see \Shopware\Tests\Integration\Core\System\CustomEntity\CustomEntityTest}
  */
 #[Package('framework')]
 class CustomEntitySchemaUpdater

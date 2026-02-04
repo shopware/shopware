@@ -62,7 +62,7 @@
                                 >
                                     {% block element_video_media_sources %}
                                         <source
-                                            src="{{ element.data.media.url }}"
+                                            src="{{ element.data.media.url|sw_encode_url }}"
                                             type="{{ element.data.media.mimeType }}"
                                         >
                                     {% endblock %}

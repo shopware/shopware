@@ -2,10 +2,10 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
+use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;

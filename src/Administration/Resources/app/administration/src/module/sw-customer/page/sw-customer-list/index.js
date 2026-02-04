@@ -293,12 +293,21 @@ export default {
                     this.getList();
                 })
                 .catch((errorResponse) => {
-                    errorResponse?.response?.data?.errors?.forEach((error) => {
-                        this.createNotificationError({
-                            title: error.title,
-                            message: error.detail,
+                    const errors = errorResponse?.response?.data?.errors;
+
+                    if (Array.isArray(errors) && errors.length > 0) {
+                        errors.forEach((error) => {
+                            this.createNotificationError({
+                                title: error.title,
+                                message: error.detail,
+                            });
                         });
-                    });
+                    } else {
+                        this.createNotificationError({
+                            title: this.$tc('global.default.error'),
+                            message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        });
+                    }
                 });
         },
 

@@ -149,14 +149,16 @@ class TableHelper
 
     /**
      * @param non-empty-string $table
-     * @param list<string> $spansColumns
+     * @param list<string> $columns
      *
      * @throws TableHelperException
      */
-    public static function indexSpansColumns(Connection $connection, string $table, string $indexName, array $spansColumns): bool
+    public static function indexSpansColumns(Connection $connection, string $table, string $indexName, array $columns): bool
     {
         try {
-            return self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->getIndex($indexName)->spansColumns($spansColumns);
+            $dbalIndex = self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->getIndex($indexName);
+
+            return Index::createFromDbalIndex($dbalIndex)->spansColumns($columns);
         } catch (TableHelperException $e) {
             throw $e;
         } catch (TableDoesNotExist) {

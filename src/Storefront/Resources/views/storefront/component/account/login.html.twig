@@ -36,7 +36,8 @@
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: 'danger',
                                     content: errorSnippet|trans|sw_sanitize({}, true),
-                                    announceOnLoad: true
+                                    announceOnLoad: true,
+                                    ariaLive: 'assertive'
                                 } %}
                             {% elseif waitTime != null %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {

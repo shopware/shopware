@@ -21,6 +21,25 @@ Also, the generator now sets `CASCADE DELETE` on foreign keys for the translatio
 * Display the selling and packaging information with the product that has advanced pricing.
 * Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
 
+### Make static alerts announced in the screenreader
+
+Static alert boxes that are rendered in the DOM on page load were previously not read out by screenreaders.
+The `role="alert"` did not have an effect. Only `role="alerts"` added to the DOM by JavaScript were read out.
+
+To solve the screenreader issue with static alerts, we introduced a new parameter `announceOnLoad`.
+When `announceOnLoad` is set to true, the alert box content will be announced in the screenreader right after the page is loaded.
+The alert box will apply an additional JavaScript plugin that attempts to trigger the screenreader.
+This is done by changing the DOM within the `aria-live` region after a short delay, which tells the screenreader to read it.
+
+```
+{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+    type: "primary",
+    content: "An important message on initial page load",
+    announceOnLoad: true
+    ariaLive: 'assertive' {# Define the priority of the alert #}
+} %}
+```
+
 ## App System
 
 ## Hosting & Configuration
@@ -51,7 +70,7 @@ shopware:
 
 ### Symfony 7.4 update
 
-All symfony packages have been updated to version 7.4. 
+All symfony packages have been updated to version 7.4.
 Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
 Especially note that Symfony now requires php-redis extension v6.1 or higher: https://github.com/symfony/symfony/blob/7.4/UPGRADE-7.4.md#cache.
 If you note compatibility issues with the Redis extension please check the installed version php-redis.
@@ -137,11 +156,11 @@ As part of this change, the following deprecations were made:
 If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
 
-### New `RequestParamHelper` 
+### New `RequestParamHelper`
 
 Symfony deprecated the "magic" `Request::get()` method, which was used to retrieve parameters from the request, by checking the `attribute`, `query` or `request` parameter bags.
 For easier backward compatibilty we backported the old behaviour in the new `RequestParamHelper` class, however, it should only be used in explicit cases, where the parameter could be in any of those parameter bags.
-The best practice is to check the explicit parameter bag, where you expect the parameter to be. 
+The best practice is to check the explicit parameter bag, where you expect the parameter to be.
 However, as we have a lot of API routes that support being called by `GET` and `POST` methods both, the helper is handy in such cases.
 
 Before:
@@ -153,9 +172,9 @@ After:
 $parameter = RequestParameterHelper::get($request, $parameterName, $default);
 ```
 
-To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first. 
+To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first.
 However, it should be possible to strictly differentiate between request attributes (which are generally controlled and set by the application itself) and input parameters (which are provided by the client, and based on how they are passed are either part of the query bag or the request bag) in the future.
-Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release. 
+Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release.
 When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
 In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
 

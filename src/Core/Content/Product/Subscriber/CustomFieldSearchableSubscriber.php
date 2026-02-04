@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -18,7 +19,7 @@ class CustomFieldSearchableSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly bool $esEnabled
+        private readonly ParameterBagInterface $parameterBag
     ) {
     }
 
@@ -31,7 +32,7 @@ class CustomFieldSearchableSubscriber implements EventSubscriberInterface
 
     public function onCustomFieldWritten(EntityWrittenContainerEvent $containerEvent): void
     {
-        if ($this->esEnabled) {
+        if ($this->parameterBag->has('elasticsearch.enabled') && $this->parameterBag->get('elasticsearch.enabled')) {
             return;
         }
 

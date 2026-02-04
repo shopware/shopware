@@ -70,7 +70,7 @@ class EditOrderPageTest extends TestCase
         $event = null;
         $this->catchEvent(AccountEditOrderPageLoadedEvent::class, $event);
 
-        $request->request->set('orderId', $orderId);
+        $request->attributes->set('orderId', $orderId);
         $page = $this->getPageLoader()->load($request, $context);
 
         self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
@@ -89,7 +89,7 @@ class EditOrderPageTest extends TestCase
             $context->getContext()
         );
 
-        $request->request->set('orderId', $orderId);
+        $request->attributes->set('orderId', $orderId);
         $page = $this->getPageLoader()->load($request, $context);
 
         self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
@@ -106,7 +106,7 @@ class EditOrderPageTest extends TestCase
 
         $this->expectException(OrderException::class);
 
-        $request->request->set('orderId', $orderId);
+        $request->attributes->set('orderId', $orderId);
         $this->getPageLoader()->load($request, $context);
     }
 

@@ -107,6 +107,7 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
 
         const plugin = initPlugin();
         plugin.init();
+        video.volume = 0.7;
         plugin._onVolumeChange();
 
         expect(setItemSpy).toHaveBeenCalledWith('sw-cms-video-volume', '0.7');
@@ -143,13 +144,14 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         jest.useFakeTimers();
 
         const video = document.querySelector('video');
-        definePausedState(video, { paused: false, ended: false });
+        definePausedState(video, { paused: true, ended: false });
         defineReadyState(video, 2);
         video.setAttribute('poster', 'https://example.com/poster.jpg');
 
         const plugin = initPlugin();
         plugin.init();
 
+        definePausedState(video, { paused: false, ended: false });
         plugin._updatePlayingState({ delay: 180 });
 
         expect(plugin.el.classList.contains('is-playing')).toBe(false);

@@ -124,11 +124,16 @@ class AccountEditOrderPageLoader
     private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
         $orderId = $request->attributes->getString('orderId');
-        if (!$orderId) {
-            throw OrderException::invalidUuid($orderId);
+        if ($orderId) {
+            $criteria = new Criteria([$orderId]);
+        } else {
+            if (Feature::isActive('v6.8.0.0')) {
+                throw OrderException::invalidUuid($orderId);
+            }
+            $criteria = new Criteria();
         }
 
-        $criteria = (new Criteria([$orderId]))
+        $criteria
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.countryState')

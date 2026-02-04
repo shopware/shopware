@@ -212,7 +212,7 @@
                 {% block sw_integration_list_grid %}
                 <sw-entity-listing
                     v-if="integrations && integrations.length > 0"
-                    :items="integrations"
+                    :data-source="integrations"
                     :columns="integrationColumns"
                     :repository="integrationRepository"
                     :full-page="false"

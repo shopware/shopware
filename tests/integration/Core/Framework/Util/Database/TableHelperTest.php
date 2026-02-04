@@ -104,10 +104,9 @@ class TableHelperTest extends TestCase
         static::assertFalse(TableHelper::columnExists($this->connection, ProductDefinition::ENTITY_NAME, self::UNKNOWN_NAME));
     }
 
-    public function testColumnExistsFromUnknownTableThrowsException(): void
+    public function testColumnExistsFromUnknownTableReturnsFalse(): void
     {
-        $this->expectExceptionObject($this->createUtilExceptionForNotExistingTable('columnExists'));
-        TableHelper::columnExists($this->connection, self::UNKNOWN_NAME, 'id');
+        static::assertFalse(TableHelper::columnExists($this->connection, self::UNKNOWN_NAME, 'id'));
     }
 
     public function testColumnExistsThrowsExceptionWhileGettingSchemaManager(): void
@@ -147,10 +146,9 @@ class TableHelperTest extends TestCase
         static::assertFalse(TableHelper::indexExists($this->connection, ProductDefinition::ENTITY_NAME, self::UNKNOWN_NAME));
     }
 
-    public function testIndexExistsFromUnknownTableThrowsException(): void
+    public function testIndexExistsFromUnknownTableReturnsFalse(): void
     {
-        $this->expectExceptionObject($this->createUtilExceptionForNotExistingTable('indexExists'));
-        TableHelper::indexExists($this->connection, self::UNKNOWN_NAME, 'idx.product.type');
+        static::assertFalse(TableHelper::indexExists($this->connection, self::UNKNOWN_NAME, 'idx.product.type'));
     }
 
     public function testIndexExistsThrowsExceptionWhileGettingSchemaManager(): void
@@ -187,10 +185,9 @@ class TableHelperTest extends TestCase
         static::assertFalse(TableHelper::indexSpansColumns($this->connection, ProductDefinition::ENTITY_NAME, 'idx.product.type', [self::UNKNOWN_NAME]));
     }
 
-    public function testIndexSpansColumnsFromUnknownTableThrowsException(): void
+    public function testIndexSpansColumnsFromUnknownTableReturnsFalse(): void
     {
-        $this->expectExceptionObject($this->createUtilExceptionForNotExistingTable('indexSpansColumns'));
-        TableHelper::indexSpansColumns($this->connection, self::UNKNOWN_NAME, 'idx.product.type', ['type']);
+        static::assertFalse(TableHelper::indexSpansColumns($this->connection, self::UNKNOWN_NAME, 'idx.product.type', ['type']));
     }
 
     public function testIndexSpansColumnsThrowsExceptionWhileGettingSchemaManager(): void
@@ -218,6 +215,27 @@ class TableHelperTest extends TestCase
     {
         $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
         TableHelper::getForeignKeyOfTable($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, 'fk.product.parent_id');
+    }
+
+    public function testForeignKeyExists(): void
+    {
+        static::assertTrue(TableHelper::foreignKeyExists($this->connection, ProductDefinition::ENTITY_NAME, 'fk.product.parent_id'));
+    }
+
+    public function testForeignKeyDoesExist(): void
+    {
+        static::assertFalse(TableHelper::foreignKeyExists($this->connection, ProductDefinition::ENTITY_NAME, self::UNKNOWN_NAME));
+    }
+
+    public function testForeignKeyExistsFromUnknownTableReturnsFalse(): void
+    {
+        self::assertFalse(TableHelper::foreignKeyExists($this->connection, self::UNKNOWN_NAME, 'fk.product.parent_id'));
+    }
+
+    public function testForeignKeyExistsThrowsExceptionWhileGettingSchemaManager(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
+        TableHelper::foreignKeyExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, 'fk.product.parent_id');
     }
 
     public function testResetSchemaManager(): void

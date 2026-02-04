@@ -179,7 +179,6 @@ class TableHelper
         } catch (TableDoesNotExist) {
             return false;
         } catch (\Throwable $e) {
-            dd($e);
             throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }
     }

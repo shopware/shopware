@@ -133,17 +133,19 @@ jobs:
               }
 
               // Check only the branch protection's required status-check contexts
-              const rulesetsRes = await github.request('GET /repos/{owner}/{repo}/rules/branches/{branch}', { owner: r.owner, repo: r.repo, branch: branch });
+              const rulesetsRes = await github.request('GET /repos/{owner}/{repo}/rules/branches/{branch}', { owner: r.owner, repo: r.repo, branch: pr.base.ref });
               const rulesets = rulesetsRes.data || [];
               core.info(`found ${rulesets.length} rulesets for ${r.owner}/${r.repo}`);
 
               let requiredContexts = [];
 
               for (const ruleset of rulesets) {
+                if (ruleset.type !== 'required_status_checks') continue;
+
                 core.info(`${JSON.stringify(ruleset)}`);
 
                 requiredContexts = requiredContexts.concat(
-                  ruleset?.required_status_checks?.contexts ?? []
+                  ruleset.parameters.required_status_checks.map(check => check.context);
                 );
               }
               core.info(`${r.repo} required status check contexts: ${JSON.stringify(requiredContexts)}`);

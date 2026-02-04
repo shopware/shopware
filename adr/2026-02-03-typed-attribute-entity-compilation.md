@@ -13,11 +13,12 @@ The goal of this refactoring is to improve type safety during compilation, make 
 
 ## Domains
 
-This ADR touches four areas:
+This ADR touches five areas:
 
 - DAL compilation pipeline (attribute parsing and metadata creation)
 - DI container integration (service definition serialization)
 - Entity definition identification (how compiler passes detect definition types)
+- Entity tag contract enforcement (ensuring tag attributes are present)
 - Field type resolution (mapping attribute declarations to DAL fields)
 
 ## Problems
@@ -72,6 +73,10 @@ $definition->addTag('shopware.entity.definition', ['entity' => $entityName]);
 
 A marker interface was chosen over a base class because attribute-based definitions already extend `AttributeEntityDefinition`. Using an interface avoids diamond inheritance issues and keeps the type hierarchy simple.
 
+### Tag Contract Enforcement
+
+`AttributeEntityTagCheckCompilerPass` (priority 50) validates that all `AttributeBasedEntityDefinition` implementations have the `entity` attribute on their tag. This ensures the contract is enforced regardless of how definitions are registered.
+
 ### Strict Field Type Validation
 
 Unknown field types now throw `DataAbstractionLayerException::unknownFieldAttributeType()`. Silent fallbacks to `StringField` would defer bugs to runtime where they are harder to diagnose. Failing early during container compilation makes the error obvious and provides a clear message about what field type is missing.
@@ -92,6 +97,7 @@ New files:
 - `src/Core/Framework/DataAbstractionLayer/FieldMetadata.php`
 - `src/Core/Framework/DataAbstractionLayer/FlagMetadata.php`
 - `src/Core/Framework/DataAbstractionLayer/MappingMetadata.php`
+- `src/Core/Framework/DependencyInjection/CompilerPass/AttributeEntityTagCheckCompilerPass.php`
 
 Modified files:
 
@@ -100,11 +106,13 @@ Modified files:
 - `src/Core/Framework/DataAbstractionLayer/AttributeTranslationDefinition.php`
 - `src/Core/Framework/DataAbstractionLayer/AttributeMappingDefinition.php`
 - `src/Core/Framework/DataAbstractionLayer/DataAbstractionLayerException.php`
+- `src/Core/Framework/DependencyInjection/DependencyInjectionException.php`
 - `src/Core/Framework/DataAbstractionLayer/DefinitionValidator.php`
 - `src/Core/Framework/DataAbstractionLayer/Attribute/AbstractField.php`
 - `src/Core/Framework/DataAbstractionLayer/Attribute/Field.php`
 - All field attributes (`ManyToOne.php`, `OneToMany.php`, `ManyToMany.php`, `OneToOne.php`, `ForeignKey.php`, `Serialized.php`, `State.php`, `Translations.php`, `AutoIncrement.php`, `CustomFields.php`, `Version.php`, `ReferenceVersion.php`)
 - `src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php`
+- `src/Core/Framework/Framework.php`
 
 ## Extendability
 
@@ -144,7 +152,9 @@ AttributeEntityCompilerPass::process(container)
             )
             metadata.fields.add(fieldMetadata)
 
-        container.setDefinition(entityName, metadata.toDefinition())
+        definition = metadata.toDefinition()
+        definition.addTag('shopware.entity.definition', ['entity' => entityName])
+        container.setDefinition(entityName, definition)
 ```
 
 Runtime phase:

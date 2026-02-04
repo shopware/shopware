@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityTagCheckCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\CreateGeneratorScaffoldingCommandPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
@@ -105,6 +106,8 @@ class Framework extends Bundle
 
         /** Needs to run after @see RegisterAutoconfigureAttributesPass (priority 100) to include all services that are autoconfigured */
         $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_OPTIMIZATION, 99);
+        /** Checks AttributeBasedEntityDefinition services have required tag data, runs after AttributeEntityCompilerPass */
+        $container->addCompilerPass(new AttributeEntityTagCheckCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 50);
         // make sure to remove services behind a feature flag, before some other compiler passes may reference them, therefore the high priority
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new EntityCompilerPass());

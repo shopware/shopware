@@ -116,6 +116,11 @@ shopware:
 
 Removed dependency of the Core bundle to the Elasticsearch bundle, so that the Core bundle can be used without Elasticsearch again.
 
+### Fixed broke account/order/edit page.
+
+The account/order/edit page was broken due to the Symfony 7.4 update. After the Update the order was loaded from the query parameter which does not exists in the URL.
+
+
 # 6.7.7.0
 
 ## Features

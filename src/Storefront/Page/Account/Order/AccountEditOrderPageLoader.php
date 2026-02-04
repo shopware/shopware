@@ -126,7 +126,12 @@ class AccountEditOrderPageLoader
     {
         $orderId = RequestParamHelper::get($request, 'orderId');
 
-        $criteria = new Criteria($orderId);
+        $criteria = new Criteria();
+
+        if($orderId !== null){
+            $criteria = new Criteria([$orderId]);
+        }
+
 
         $criteria
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')

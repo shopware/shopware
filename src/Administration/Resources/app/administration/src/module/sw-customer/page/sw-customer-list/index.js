@@ -287,16 +287,19 @@ export default {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.customerRepository.delete(id).then(() => {
-                this.getList();
-            }).catch((errorResponse) => {
-                errorResponse?.response?.data?.errors?.forEach((error) => {
-                    this.createNotificationError({
-                        title: error.title,
-                        message: error.detail,
+            return this.customerRepository
+                .delete(id)
+                .then(() => {
+                    this.getList();
+                })
+                .catch((errorResponse) => {
+                    errorResponse?.response?.data?.errors?.forEach((error) => {
+                        this.createNotificationError({
+                            title: error.title,
+                            message: error.detail,
+                        });
                     });
                 });
-            });
         },
 
         async onChangeLanguage() {

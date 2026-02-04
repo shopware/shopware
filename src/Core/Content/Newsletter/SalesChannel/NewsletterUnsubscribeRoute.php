@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -45,7 +45,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
     }
 
     #[Route(path: '/store-api/newsletter/unsubscribe', name: 'store-api.newsletter.unsubscribe', methods: ['POST'])]
-    public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse
+    public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         $data = $dataBag->only('email');
 
@@ -66,7 +66,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         $event = new NewsletterUnsubscribeEvent($context->getContext(), $recipient, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
-        return new NoContentResponse();
+        return new SuccessResponse();
     }
 
     private function getNewsletterRecipient(string $email, SalesChannelContext $context): NewsletterRecipientEntity

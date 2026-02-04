@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -47,7 +47,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     }
 
     #[Route(path: '/store-api/newsletter/confirm', name: 'store-api.newsletter.confirm', methods: ['POST'])]
-    public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse
+    public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         $recipient = $this->getNewsletterRecipient('hash', $dataBag->get('hash', ''), $context->getContext());
 
@@ -68,7 +68,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
         $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
-        return new NoContentResponse();
+        return new SuccessResponse();
     }
 
     private function getNewsletterRecipient(string $identifier, string $value, Context $context): NewsletterRecipientEntity

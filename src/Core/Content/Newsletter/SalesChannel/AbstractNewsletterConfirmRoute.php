@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 
 /**
  * This route is used to confirm the newsletter registration
@@ -16,5 +16,5 @@ abstract class AbstractNewsletterConfirmRoute
 {
     abstract public function getDecorated(): AbstractNewsletterConfirmRoute;
 
-    abstract public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse;
+    abstract public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse;
 }

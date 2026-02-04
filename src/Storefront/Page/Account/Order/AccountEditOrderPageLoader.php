@@ -127,9 +127,6 @@ class AccountEditOrderPageLoader
         if ($orderId) {
             $criteria = new Criteria([$orderId]);
         } else {
-            if (Feature::isActive('v6.8.0.0')) {
-                throw OrderException::invalidUuid($orderId);
-            }
             $criteria = new Criteria();
         }
 

@@ -25,6 +25,9 @@
         {% set alignmentClass = 'align-self-end' %}
     {% endif %}
 
+    {% set ariaLabel = (config.ariaLabel.value ?? element.data.media.translated.alt)|trim %}
+    {% set mediaTitle = (config.ariaLabel.value ?? element.data.media.translated.title)|trim %}
+
     {% block element_video_wrapper %}
     <div
         class="{{ wrapperClasses|join(' ') }}"
@@ -51,8 +54,8 @@
                                 <video
                                     class="cms-video"
                                     preload="metadata"
-                                    aria-label="{{ config.ariaLabel.value ?? element.data.media.translated.alt }}"
-                                    title="{{ config.ariaLabel.value ?? element.data.media.translated.title }}"
+                                    {% if ariaLabel is not empty %}aria-label="{{ ariaLabel }}"{% endif %}
+                                    {% if mediaTitle is not empty %}title="{{ mediaTitle }}"{% endif %}
                                     {% if config.showCover.value and element.data.media.extensions.videoCoverMedia %}poster="{{ element.data.media.extensions.videoCoverMedia.url }}"{% endif %}
                                     {% if config.autoPlay.value and not config.showCover.value %}autoplay{% endif %}
                                     {% if config.muted.value or config.autoPlay.value %}muted{% endif %}

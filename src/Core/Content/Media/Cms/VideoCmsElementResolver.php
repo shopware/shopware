@@ -83,6 +83,8 @@ class VideoCmsElementResolver extends AbstractCmsElementResolver
             if ($media) {
                 $video->setMedia($media);
             }
+
+            return;
         }
 
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
@@ -92,6 +94,8 @@ class VideoCmsElementResolver extends AbstractCmsElementResolver
                 $video->setMediaId($media->getUniqueIdentifier());
                 $video->setMedia($media);
             }
+
+            return;
         }
 
         if ($config->isStatic()) {

@@ -16,11 +16,7 @@ function isPromise<T = any>(value: any): value is Promise<T> {
     return value !== null && typeof value === 'object' && typeof value.then === 'function';
 }
 
-let globalExtensionId: string | null = null;
 
-export function getCurrentExtensionId(): string | null {
-    return globalExtensionId;       
-}
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -29,25 +25,20 @@ export default {
         type: MESSAGE_TYPE,
         method: HandleMethod<MESSAGE_TYPE>,
     ): ReturnType<typeof sdkHandle> => {
-        const wrappedMethod = (
-            data: MessageDataType<MESSAGE_TYPE> & BaseMessageOptions,
-            additionalInformation: { _event_: MessageEvent<string> },
-        ): ReturnType<HandleMethod<MESSAGE_TYPE>> => {
-            const previousExtensionId = globalExtensionId;
-            globalExtensionId = additionalInformation._event_.origin;
-            const result = method(data, additionalInformation);
-            globalExtensionId = previousExtensionId;
-            return result;
-        }
+        const { wrapWithExtensionContext } = Shopware.Store.get('extensionContext');
         
         const aclHook = (
             data: MessageDataType<MESSAGE_TYPE> & BaseMessageOptions,
             additionalInformation: { _event_: MessageEvent<string> },
         ): ReturnType<HandleMethod<MESSAGE_TYPE>> => {
+            const context = { id: additionalInformation._event_.origin };
             // No privileges to check early return by calling original method
             if (!data.privileges || data.privileges.length === 0) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return wrappedMethod(data, additionalInformation);
+                return wrapWithExtensionContext(
+                    context,
+                    () => method(data, additionalInformation)
+                );
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -57,7 +48,11 @@ export default {
                 if (missingPrivileges.length > 0) {
                     reject(new MissingPrivilegesError(type, missingPrivileges));
                 } else {
-                    const result = wrappedMethod(data, additionalInformation);
+                    const result = wrapWithExtensionContext(
+                        context,
+                        () => method(data, additionalInformation)
+                    );
+
 
                     if (isPromise<ShopwareMessageTypes[MESSAGE_TYPE]['responseType']>(result)) {
                         void result.then((rsp) => resolve(rsp)).catch(reject);

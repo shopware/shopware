@@ -13,9 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
-/**
- * @covers \Shopware\Core\Installer\Controller\FinishController
- */
+#[CoversClass(FinishController::class)]
 class FinishControllerTest extends TestCase
 {
     private SystemLocker $systemLocker;

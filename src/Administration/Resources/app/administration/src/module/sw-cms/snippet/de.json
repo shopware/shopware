@@ -501,7 +501,7 @@
             "type": "Formulartyp",
             "typeContact": "Kontakt",
             "typeNewsletter": "Newsletter",
-            "typeCancellationRequest": "Widerruf",
+            "typeRevocationRequest": "Widerruf",
             "confirmationText": "Bestätigungstext"
           },
           "placeholder": {

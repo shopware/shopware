@@ -43,8 +43,8 @@ export default {
                 },
                 {
                     id: 4,
-                    value: 'cancellationRequest',
-                    label: this.$tc('sw-cms.elements.form.config.label.typeCancellationRequest'),
+                    value: 'revocationRequest',
+                    label: this.$tc('sw-cms.elements.form.config.label.typeRevocationRequest'),
                 },
             ];
         },
@@ -52,7 +52,7 @@ export default {
         requireConfigTab() {
             return [
                 'contact',
-                'cancellationRequest',
+                'revocationRequest',
             ].includes(this.element.config.type.value);
         },
     },

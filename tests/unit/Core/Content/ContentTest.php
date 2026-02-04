@@ -53,7 +53,7 @@ class ContentTest extends TestCase
             'delivery_time',
             'import_export',
             'contact_form',
-            'cancellation_request_form',
+            'revocation_request_form',
             'sitemap',
             'landing_page',
             'flow',

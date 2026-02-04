@@ -145,7 +145,7 @@ jobs:
                 core.info(`${JSON.stringify(ruleset)}`);
 
                 requiredContexts = requiredContexts.concat(
-                  ruleset.parameters.required_status_checks.map(check => check.context);
+                  ruleset.parameters.required_status_checks.map(check => check.context)
                 );
               }
               core.info(`${r.repo} required status check contexts: ${JSON.stringify(requiredContexts)}`);

@@ -140,6 +140,8 @@ jobs:
               let requiredContexts = [];
 
               for (const ruleset of rulesets) {
+                core.info(`${JSON.stringify(ruleset)}`);
+
                 requiredContexts = requiredContexts.concat(
                   ruleset?.required_status_checks?.contexts ?? []
                 );

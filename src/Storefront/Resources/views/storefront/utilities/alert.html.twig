@@ -103,9 +103,6 @@ The role="alert" and aria-live attributes are then set by JavaScript to trigger 
     {% set alertAriaJsOptions = {
         ariaLive: ariaLive,
     } %}
-    {% if screenReaderDelay %}
-        {% set alertAriaJsOptions = alertAriaJsOptions|merge({ screenReaderDelay: screenReaderDelay }) %}
-    {% endif %}
     <div
         {% if announceOnLoad %}
             data-alert-aria="true"

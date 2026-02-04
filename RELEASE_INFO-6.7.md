@@ -1,121 +1,14 @@
-# 6.7.7.0 (upcoming)
-# 6.7.8.0 (upcoming)
-
-## Features
-
-## API
-
-## Core
-
-### Internal product streams
-
-A new boolean field `internal` has been added to product streams with a default value of `false`. This allows you to mark product streams as internal for system or plugin use, preventing them from appearing in merchant-facing selection lists throughout the Administration (e.g., in categories, cross-selling, CMS elements, or sales channels).
-
-Use this feature when you need to create product streams programmatically that should not be modified or selected by shop administrators.
-
-### Database table helper class
-
-A new helper class `\Shopware\Core\Framework\Util\Database\TableHelper` was introduced,
-which could be used to check the table for existence, columns, indexes, and foreign keys.
-
-#### Deprecation of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
-
-As consequence of the introduction of the new table helper class following methods are deprecated and will be removed with the next major version:
-- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnExists
-- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
-- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
-
-### Migration generator improvements
-
-The migration generator previously used a fixed format: `fk.<table-name>.<column>` for foreign key names. Doctrine does not support this format and creates broken migrations; therefore, we changed to the format `fk__<table-name>__<column>` for foreign key names.
-
-Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
-
-## Administration
-
-### Deprecation of `items` prop in `sw-entity-listing` component
-
-The `items` prop in the `sw-entity-listing` component has been deprecated and will be removed in v6.8.0.
-Please use the `dataSource` prop instead to align with the parent `sw-data-grid` component.
-
-**Before (deprecated):**
-```html
-<sw-entity-listing
-    :items="entityList"
-    :repository="entityRepository"
-    :columns="columns"
-/>
-```
-
-**After (recommended):**
-```html
-<sw-entity-listing
-    :data-source="entityList"
-    :repository="entityRepository"
-    :columns="columns"
-/>
-```
-
-The component will continue to work with the `items` prop for backward compatibility, but you will see a deprecation warning in the browser console.
-### Notification translations now update when language changes
-
-Notifications now store translation keys directly in their title and message fields instead of translating them immediately. The template checks if the text is a translation key and translates it reactively, allowing notifications to update automatically when the user changes the interface language.
-### Help text support for color picker custom fields
-
-The color picker type for custom fields now supports adding a help text. When creating or editing a custom field of type "Colorpicker" in Settings > Content > Custom fields, you can now specify a help text that will be displayed to users in the Administration.
-
-### `sw-select-base` clearable button default behavior changed
-
-The `showClearableButton` prop in `sw-select-base` now defaults based on the `required` attribute:
-- When `required` is `false` or not set: clearable button is shown by default
-- When `required` is `true`: clearable button is hidden by default
-
-Previously, the clearable button was always hidden by default (`showClearableButton: false`).
-
-**Migration:** If you relied on the previous behavior where the clearable button was hidden by default, explicitly set `:show-clearable-button="false"` on your select components.
-
-## Storefront
-
-### Selling and packaging information in the product detail page
-
-* Display the selling and packaging information with the product that has advanced pricing.
-* Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
-
-## App System
-
-### Fixed custom headers for app flow action webhooks in async mode
-
-Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
-
-## Hosting & Configuration
+# 6.7.7.1
 
 ## Critical Fixes
 
-### Session deadlock fix for file-based sessions
-
-A new configuration option `shopware.cache.disable_stampede_protection` has been added to prevent deadlocks when using file-based sessions with Symfony's cache stampede protection.
-
-**Problem**: A deadlock (ABBA pattern) can occur when:
-- Process 1: Acquires Session File Lock → Needs Cache → Tries to acquire Cache Lock
-- Process 2: Acquires Cache Lock (stampede protection) → Needs Session → Tries to acquire Session File Lock
-
-**Solution**: Set `shopware.cache.disable_stampede_protection: true` in your configuration to disable file-based cache locking when file-based sessions are in use.
-
-```yaml
-shopware:
-    cache:
-        disable_stampede_protection: true
-```
-
-**Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
-
-# 6.7.7.1
-
-## Core
-
-### Dependency on Elasticsearch Bundle
+### Core: Dependency on Elasticsearch Bundle
 
 Removed dependency of the Core bundle to the Elasticsearch bundle, so that the Core bundle can be used without Elasticsearch again.
+
+### Storefront: Fix loading of customer account pages
+
+Fixed errors when loading edit order and edit adress pages in the customer account.
 
 # 6.7.7.0
 

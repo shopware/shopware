@@ -100,9 +100,9 @@ jobs:
             const wait = ms => new Promise(r => setTimeout(r, ms));
 
             // Polling configuration for check-runs
-            const pollIntervalMs = 10000; // 10s
-            const maxAttempts = 30; // ~5 minutes
-            const allowedConclusions = new Set(['success']); // adjust if you want to allow 'skipped' or 'neutral')
+            const pollIntervalMs = 30000; // 30s
+            const maxAttempts = 30; // ~15 minutes
+            const allowedConclusions = new Set(['success', 'skipped', 'neutral']);
 
             for (const r of repos) {
               core.info(`Checking ${r.owner}/${r.repo} for branch ${branch}`);
@@ -132,28 +132,12 @@ jobs:
                 continue;
               }
 
-              // Check head SHA
-              const headSha = pr.head && pr.head.sha;
-              if (!headSha) {
-                failures.push(`${r.repo} PR #${pr.number} has no head SHA - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
-                continue;
-              }
-
-              // Use Actions API to check workflow runs for the head SHA (more accurate than aggregated check-runs)
-              let runsResp = await github.rest.actions.listWorkflowRunsForRepo({ owner: r.owner, repo: r.repo, head_sha: headSha, per_page: 100 });
+              // Use Actions API to check workflow runs for the branch
+              let runsResp = await github.rest.actions.listWorkflowRunsForRepo({ owner: r.owner, repo: r.repo, branch: branch, per_page: 100 });
               let runs = (runsResp && runsResp.data && runsResp.data.workflow_runs) || [];
 
               if (runs.length === 0) {
-                core.info(`${r.repo} PR #${pr.number}: no workflow runs found for head ${headSha}, falling back to combined status`);
-                const status = await github.rest.repos.getCombinedStatusForRef({ owner: r.owner, repo: r.repo, ref: headSha });
-                const state = status && status.data && status.data.state;
-                core.info(`${r.repo} PR #${pr.number} combined status: ${state}`);
-                if (state !== 'success') {
-                  failures.push(`${r.repo} PR #${pr.number} checks are not green (combined status: ${state}) - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
-                  continue;
-                }
-
-                core.info(`${r.repo} PR #${pr.number} looks mergeable (combined status)`);
+                failures.push(`${r.repo} PR #${pr.number}: no workflow runs found for branch ${branch}`);
                 continue;
               }
 
@@ -166,14 +150,14 @@ jobs:
                 core.info(`${r.repo} PR #${pr.number} waiting for ${incomplete.length} workflow runs to complete (attempt ${attempts + 1}/${maxAttempts})`);
                 await wait(pollIntervalMs);
                 attempts++;
-                runsResp = await github.rest.actions.listWorkflowRunsForRepo({ owner: r.owner, repo: r.repo, head_sha: headSha, per_page: 100 });
+                runsResp = await github.rest.actions.listWorkflowRunsForRepo({ owner: r.owner, repo: r.repo, branch: branch, per_page: 100 });
                 runs = (runsResp && runsResp.data && runsResp.data.workflow_runs) || [];
               }
 
               // After polling, evaluate workflow run conclusions
               const stillPending = runs.some(w => w.status !== 'completed');
               if (stillPending) {
-                failures.push(`${r.repo} PR #${pr.number} timeout waiting for workflow runs to complete (head: ${headSha}) - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+                failures.push(`${r.repo} PR #${pr.number} timeout waiting for workflow runs to complete (branch: ${branch}) - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 

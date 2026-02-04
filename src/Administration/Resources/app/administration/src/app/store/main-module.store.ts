@@ -3,31 +3,29 @@
  * @sw-package framework
  */
 
+import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type MainModule = {
     extensionName: string;
     moduleId: string;
 };
 
-interface MainModuleState {
-    mainModules: MainModule[];
-}
+const extensionMainModules = Shopware.Store.register('extensionMainModules', () => {
+    const mainModulesOrdered = useExtensionOrderedArray<MainModule>();
 
-const extensionMainModules = Shopware.Store.register({
-    id: 'extensionMainModules',
+    const addMainModule = ({ extensionName, moduleId }: MainModule) => {
+        mainModulesOrdered.push({
+            extensionName,
+            moduleId,
+        });
+    };
 
-    state: (): MainModuleState => ({
-        mainModules: [],
-    }),
-
-    actions: {
-        addMainModule({ extensionName, moduleId }: MainModule) {
-            this.mainModules.push({
-                extensionName,
-                moduleId,
-            });
-        },
-    },
+    return {
+        mainModules: mainModulesOrdered.items,
+        addMainModule,
+        flushByCurrentExtension: mainModulesOrdered.flushByCurrentExtension,
+    };
 });
 
 /**

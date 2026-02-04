@@ -2,46 +2,40 @@
  * @sw-package framework
  */
 import type { uiComponentSectionRenderer } from '@shopware-ag/meteor-admin-sdk/es/ui/component-section';
-import { reactive } from 'vue';
+import { computed, unref } from 'vue';
+import { useExtensionOrdereredArrayMap } from '../composables/use-extension-ordered-container';
 
 // eslint-disable-next-line max-len,sw-deprecation-rules/private-feature-declarations
 export type ComponentSectionEntry = Omit<uiComponentSectionRenderer, 'responseType' | 'positionId'> & {
     extensionName: string;
 };
 
-interface ExtensionComponentSectionsState {
-    identifier: {
-        [positionId: string]: ComponentSectionEntry[];
-    };
-}
+const ExtensionComponentSectionsStore = Shopware.Store.register('extensionComponentSections', () => {
+    const sectionsByPosition = useExtensionOrdereredArrayMap<ComponentSectionEntry>();
+    const identifier = sectionsByPosition.items;
 
-const ExtensionComponentSectionsStore = Shopware.Store.register({
-    id: 'extensionComponentSections',
-
-    state: (): ExtensionComponentSectionsState => ({
-        identifier: {},
-    }),
-
-    actions: {
-        addSection({
+    const addSection = ({
+        component,
+        positionId,
+        src,
+        props,
+        extensionName,
+    }: Omit<uiComponentSectionRenderer, 'responseType'> & { extensionName: string }) => {
+        const positionArray = sectionsByPosition.get(positionId);
+        positionArray.push({
             component,
-            positionId,
             src,
             props,
             extensionName,
-        }: Omit<uiComponentSectionRenderer, 'responseType'> & { extensionName: string }) {
-            if (!this.identifier[positionId]) {
-                this.identifier[positionId] = reactive([]);
-            }
+        });
+    };
 
-            this.identifier[positionId].push({
-                component,
-                src,
-                props,
-                extensionName,
-            });
-        },
-    },
+    return {
+        identifier,
+        addSection,
+        clear: sectionsByPosition.clear,
+        flushByCurrentExtension: sectionsByPosition.flushByCurrentExtension,
+    };
 });
 
 /**

@@ -17,13 +17,17 @@ function handleFlushExtension(origin: string, data: FlushExtensionData): void {
     console.debug(
         `[FlushExtension] Flushing ${data.extensionType || 'extension'} "${data.extensionName}" before HMR reload`);
 
-    // Clear tabs registered by this extension
-    const tabsStore = Shopware.Store.get('tabs');
-    if (tabsStore) {
-        tabsStore.flushByCurrentExtension();
-    }
-
-    // TODO: flush other stores as needed
+    Shopware.Store.get('tabs').flushByCurrentExtension();
+    Shopware.Store.get('menuItem').flushByCurrentExtension();
+    Shopware.Store.get('settingsItems').flushByCurrentExtension();
+    Shopware.Store.get('actionButtons').flushByCurrentExtension();
+    Shopware.Store.get('extensionMainModules').flushByCurrentExtension();
+    Shopware.Store.get('sidebar').flushByCurrentExtension();
+    Shopware.Store.get('topBarButton').flushByCurrentExtension();
+    Shopware.Store.get('extensionComponentSections').flushByCurrentExtension();
+    Shopware.Store.get('extensionSdkModules').flushByCurrentExtension();
+    Shopware.Store.get('modals').flushByCurrentExtension();
+    Shopware.Store.get('extensionEntryRoutes').removeByExtensionName(data.extensionName);
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

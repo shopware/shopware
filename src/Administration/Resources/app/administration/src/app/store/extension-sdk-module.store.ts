@@ -3,6 +3,7 @@
  * @private
  */
 import type { smartBarButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/main-module/';
+import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ExtensionSdkModule = {
@@ -15,77 +16,76 @@ export type ExtensionSdkModule = {
     displayLanguageSwitch: boolean;
 };
 
-interface ExtensionSdkModuleState {
-    modules: ExtensionSdkModule[];
+const extensionSdkModules = Shopware.Store.register('extensionSdkModules', () => {
+    const modulesOrdered = useExtensionOrderedArray<ExtensionSdkModule>();
+    const smartBarButtonsOrdered = useExtensionOrderedArray<Omit<smartBarButtonAdd, 'responseType'>>();
+    const hiddenSmartBarsOrdered = useExtensionOrderedArray<string>();
 
-    smartBarButtons: Omit<smartBarButtonAdd, 'responseType'>[];
-
-    hiddenSmartBars: string[];
-}
-
-const extensionSdkModules = Shopware.Store.register({
-    id: 'extensionSdkModules',
-
-    state: (): ExtensionSdkModuleState => ({
-        modules: [],
-        smartBarButtons: [],
-        hiddenSmartBars: [],
-    }),
-
-    actions: {
-        addModule({
+    const addModule = ({
+        heading,
+        locationId,
+        displaySearchBar,
+        displaySmartBar,
+        displayLanguageSwitch,
+        baseUrl,
+    }: {
+        heading: ExtensionSdkModule['heading'];
+        locationId: ExtensionSdkModule['locationId'];
+        displaySearchBar: ExtensionSdkModule['displaySearchBar'];
+        displaySmartBar?: ExtensionSdkModule['displaySmartBar'];
+        displayLanguageSwitch?: ExtensionSdkModule['displayLanguageSwitch'];
+        baseUrl: ExtensionSdkModule['baseUrl'];
+    }): Promise<string> => {
+        const staticElements = {
             heading,
             locationId,
             displaySearchBar,
             displaySmartBar,
             displayLanguageSwitch,
             baseUrl,
-        }: {
-            heading: ExtensionSdkModule['heading'];
-            locationId: ExtensionSdkModule['locationId'];
-            displaySearchBar: ExtensionSdkModule['displaySearchBar'];
-            displaySmartBar?: ExtensionSdkModule['displaySmartBar'];
-            displayLanguageSwitch?: ExtensionSdkModule['displayLanguageSwitch'];
-            baseUrl: ExtensionSdkModule['baseUrl'];
-        }): Promise<string> {
-            const staticElements = {
-                heading,
-                locationId,
-                displaySearchBar,
-                displaySmartBar,
-                displayLanguageSwitch,
-                baseUrl,
-            };
+        };
 
-            const id = Shopware.Utils.format.md5(JSON.stringify(staticElements));
+        const id = Shopware.Utils.format.md5(JSON.stringify(staticElements));
+        const modules = modulesOrdered.items.value;
 
-            // Only push the module if it does not exist yet
-            if (!this.modules.some((module) => module.id === id)) {
-                this.modules.push({
-                    id,
-                    ...staticElements,
-                } as ExtensionSdkModule);
-            }
+        if (!modules.some((module) => module.id === id)) {
+            modulesOrdered.push({
+                id,
+                ...staticElements,
+            } as ExtensionSdkModule);
+        }
 
-            return Promise.resolve(id);
-        },
+        return Promise.resolve(id);
+    };
 
-        addSmartBarButton(button: Omit<smartBarButtonAdd, 'responseType'>) {
-            this.smartBarButtons.push(button);
-        },
+    const addSmartBarButton = (button: Omit<smartBarButtonAdd, 'responseType'>) => {
+        smartBarButtonsOrdered.push(button);
+    };
 
-        addHiddenSmartBar(locationId: string) {
-            this.hiddenSmartBars.push(locationId);
-        },
-    },
+    const addHiddenSmartBar = (locationId: string) => {
+        hiddenSmartBarsOrdered.push(locationId);
+    };
 
-    getters: {
-        getRegisteredModuleInformation:
-            (state) =>
-            (baseUrl: string): ExtensionSdkModule[] => {
-                return state.modules.filter((module) => module.baseUrl.startsWith(baseUrl));
-            },
-    },
+    const getRegisteredModuleInformation = (baseUrl: string): ExtensionSdkModule[] => {
+        return modulesOrdered.items.value.filter((module) => module.baseUrl.startsWith(baseUrl));
+    };
+
+    const flushByCurrentExtension = () => {
+        modulesOrdered.flushByCurrentExtension();
+        smartBarButtonsOrdered.flushByCurrentExtension();
+        hiddenSmartBarsOrdered.flushByCurrentExtension();
+    };
+
+    return {
+        modules: modulesOrdered.items,
+        smartBarButtons: smartBarButtonsOrdered.items,
+        hiddenSmartBars: hiddenSmartBarsOrdered.items,
+        addModule,
+        addSmartBarButton,
+        addHiddenSmartBar,
+        getRegisteredModuleInformation,
+        flushByCurrentExtension,
+    };
 });
 
 /**

@@ -1,6 +1,7 @@
 import Store from 'src/app/store';
 import '../store/admin-menu.store';
 import '../store/block-override.store';
+import 'src/app/store/extension-context.store';
 import 'src/app/store/extension-entry-routes.store';
 import 'src/app/store/extension-sdk-module.store';
 import 'src/app/store/extensions.store';
@@ -17,7 +18,6 @@ import 'src/app/store/system.store';
 import 'src/app/store/modals.store';
 import 'src/app/store/sidebar.store';
 import 'src/app/store/menu-item.store';
-import 'src/app/store/extension-context.store';
 import 'src/app/store/tabs.store';
 import 'src/app/store/usage-data.store';
 import 'src/app/store/session.store';

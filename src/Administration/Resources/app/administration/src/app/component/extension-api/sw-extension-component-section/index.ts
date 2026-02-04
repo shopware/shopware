@@ -53,7 +53,7 @@ export default Shopware.Component.wrapComponentConfig({
         componentSections(): ComponentSectionEntry[] {
             const sections = Shopware.Store.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [];
             if (sections.length && this.deprecated) {
-                sections.forEach((section) => {
+                sections.forEach((section: ComponentSectionEntry) => {
                     const debugArgs = [
                         'CORE',
                         // eslint-disable-next-line max-len

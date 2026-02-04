@@ -3,14 +3,19 @@
  */
 import type { uiTabsAddTabItem } from '@shopware-ag/meteor-admin-sdk/es/ui/tabs';
 import { useExtensionOrdereredArrayMap } from '../composables/use-extension-ordered-container';
-import { computed, ref } from 'vue';
+import { computed, unref } from 'vue';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type TabItemEntry = Omit<uiTabsAddTabItem, 'responseType' | 'positionId'>;
 
 const tabsStore = Shopware.Store.register(`tabs`, () => {
     const tabs = useExtensionOrdereredArrayMap<TabItemEntry>();
-    const tabItems = tabs.items
+    const tabItems = computed(() => {
+        const record = unref(tabs.items);
+        return Object.fromEntries(
+            Object.entries(record).map(([key, itemRef]) => [key, unref(itemRef) ?? []] as const),
+        ) as Record<string, TabItemEntry[]>;
+    });
 
     const addTabItem = ({ label, componentSectionId, positionId }: Omit<uiTabsAddTabItem, 'responseType'>): void => {
         const tabsForPositionId = tabs.get(positionId);
@@ -18,7 +23,7 @@ const tabsStore = Shopware.Store.register(`tabs`, () => {
             label,
             componentSectionId,
         });
-    }
+    };
 
     return {
         tabItems,

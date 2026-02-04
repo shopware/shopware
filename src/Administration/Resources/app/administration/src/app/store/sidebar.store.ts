@@ -3,7 +3,8 @@
  */
 
 import type { uiSidebarAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/sidebar';
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
+import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type SidebarItemEntry = Omit<uiSidebarAdd, 'responseType'> & {
@@ -11,70 +12,67 @@ export type SidebarItemEntry = Omit<uiSidebarAdd, 'responseType'> & {
     active: boolean;
 };
 
-const sidebarsStore = Shopware.Store.register({
-    id: 'sidebar',
+const sidebarsStore = Shopware.Store.register('sidebar', () => {
+    const sidebarsOrdered = useExtensionOrderedArray<SidebarItemEntry>();
+    const sidebars = sidebarsOrdered.items;
 
-    state: () => ({
-        sidebars: [] as SidebarItemEntry[],
-    }),
+    const addSidebar = ({ locationId, title, icon, resizable, baseUrl }: SidebarItemEntry) => {
+        const sidebar = reactive({
+            title,
+            icon,
+            locationId,
+            baseUrl,
+            resizable,
+            active: false,
+        });
 
-    getters: {
-        getActiveSidebar(): SidebarItemEntry | null {
-            return (
-                this.sidebars.find((sidebar) => {
-                    return sidebar.active;
-                }) || null
-            );
-        },
-    },
+        sidebarsOrdered.push(sidebar as SidebarItemEntry);
+    };
 
-    actions: {
-        // Extension API message methods
-        addSidebar({ locationId, title, icon, resizable, baseUrl }: SidebarItemEntry) {
-            const sidebar = reactive({
-                title,
-                icon,
-                locationId,
-                baseUrl,
-                resizable,
-                active: false,
-            });
+    const closeSidebar = (locationId: string): void => {
+        const sidebars = sidebarsOrdered.items.value;
+        const sidebar = sidebars.find((item) => item.locationId === locationId);
 
-            this.sidebars.push(sidebar);
-        },
+        if (!sidebar) {
+            return;
+        }
+        sidebar.active = false;
+    };
 
-        closeSidebar(locationId: string): void {
-            const sidebar = this.sidebars.find((item) => {
-                return item.locationId === locationId;
-            });
+    const removeSidebar = (locationId: string): void => {
+        sidebarsOrdered.removeFirstWhere((sidebar) => sidebar.locationId === locationId);
+    };
 
-            if (!sidebar) {
-                return;
-            }
+    const setActiveSidebar = (locationId: string): void => {
+        const sidebars = sidebarsOrdered.items.value;
+
+        sidebars.forEach((sidebar) => {
             sidebar.active = false;
-        },
+        });
 
-        removeSidebar(locationId: string): void {
-            this.sidebars = this.sidebars.filter((sidebar) => {
-                return sidebar.locationId !== locationId;
-            });
-        },
+        const sidebar = sidebars.find((item) => item.locationId === locationId);
+        if (!sidebar) {
+            return;
+        }
 
-        // Store API
-        setActiveSidebar(locationId: string): void {
-            // reset all sidebars
-            this.sidebars.forEach((sidebar) => {
-                sidebar.active = false;
-            });
+        sidebar.active = true;
+    };
 
-            const sidebar = this.sidebars.find((item) => item.locationId === locationId);
-            if (!sidebar) {
-                return;
-            }
+    const getActiveSidebar = computed(() => {
+        return (
+            sidebarsOrdered.items.value.find((sidebar) => sidebar.active) ?? null
+        );
+    });
 
-            sidebar.active = true;
-        },
-    },
+    return {
+        sidebars,
+        getActiveSidebar,
+        addSidebar,
+        closeSidebar,
+        removeSidebar,
+        setActiveSidebar,
+        flushByCurrentExtension: sidebarsOrdered.flushByCurrentExtension,
+    };
 });
 
 /**

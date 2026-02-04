@@ -11,8 +11,6 @@ import 'src/app/store/topbar-button.store';
 export default function initializeTopBarButtons(): void {
     // @ts-expect-error - There are no types for this as it is private API
     Shopware.ExtensionAPI.handle('__upsellingMenuButton', (configuration) => {
-        const store = Shopware.Store.get('topBarButton');
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        store.buttons.push(configuration);
+        Shopware.Store.get('topBarButton').addButton(configuration);
     });
 }

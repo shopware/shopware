@@ -6,11 +6,12 @@ describe('extension-component-sections.store', () => {
 
     beforeEach(() => {
         store = Shopware.Store.get('extensionComponentSections');
-        store.identifier = {};
+        store.clear();
     });
 
     it('has initial state', () => {
-        expect(store.identifier).toStrictEqual({});
+        expect(store.identifier).toBeDefined();
+        expect(Object.keys(store.identifier)).toStrictEqual([]);
     });
 
     describe('addSection action', () => {

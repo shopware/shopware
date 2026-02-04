@@ -4,12 +4,21 @@
  * @description Apply for upselling service only, no public usage
  */
 
-const topBarButtonStore = Shopware.Store.register({
-    id: 'topBarButton',
+import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
-    state: () => ({
-        buttons: [] as unknown[],
-    }),
+const topBarButtonStore = Shopware.Store.register('topBarButton', () => {
+    const buttonsOrdered = useExtensionOrderedArray<unknown>();
+    const buttons = buttonsOrdered.items;
+
+    const addButton = (configuration: unknown) => {
+        buttonsOrdered.push(configuration);
+    };
+
+    return {
+        buttons,
+        addButton,
+        flushByCurrentExtension: buttonsOrdered.flushByCurrentExtension,
+    };
 });
 
 /**

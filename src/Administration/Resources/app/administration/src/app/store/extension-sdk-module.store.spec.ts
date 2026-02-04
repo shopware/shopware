@@ -10,9 +10,7 @@ describe('extensionSdkModules.store', () => {
 
     beforeEach(() => {
         store = Shopware.Store.get('extensionSdkModules');
-        store.modules = [];
-        store.smartBarButtons = [];
-        store.hiddenSmartBars = [];
+        store.flushByCurrentExtension();
     });
 
     it('has initial state', () => {
@@ -89,21 +87,21 @@ describe('extensionSdkModules.store', () => {
         ]);
     });
 
-    it('getRegisteredModuleInformation', () => {
-        const module: ExtensionSdkModule = {
-            id: 'test',
+    it('getRegisteredModuleInformation', async () => {
+        await store.addModule({
             heading: 'Test',
             locationId: 'test',
             displaySearchBar: true,
             displaySmartBar: true,
             displayLanguageSwitch: true,
             baseUrl: 'test',
-        };
+        });
 
-        store.modules.push(module);
-
-        expect(store.getRegisteredModuleInformation('test')).toEqual([
-            module,
-        ]);
+        expect(store.getRegisteredModuleInformation('test')).toHaveLength(1);
+        expect(store.getRegisteredModuleInformation('test')[0]).toMatchObject({
+            heading: 'Test',
+            locationId: 'test',
+            baseUrl: 'test',
+        });
     });
 });

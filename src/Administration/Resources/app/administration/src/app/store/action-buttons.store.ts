@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import type { actionButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/action-button';
+import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
 type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>;
 
@@ -9,25 +10,19 @@ type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>;
  * @private
  * @description Store for action buttons
  */
-const actionButtonsStore = Shopware.Store.register({
-    id: 'actionButtons',
+const actionButtonsStore = Shopware.Store.register('actionButtons', () => {
+    const buttonsOrdered = useExtensionOrderedArray<ActionButtonConfig>();
+    const buttons = buttonsOrdered.items;
 
-    state: () => ({
-        /**
-         * List of all action buttons
-         */
-        buttons: [] as ActionButtonConfig[],
-    }),
+    const add = (button: ActionButtonConfig): void => {
+        buttonsOrdered.push(button);
+    };
 
-    actions: {
-        /**
-         * Add a new action button
-         * @param button - The button to add
-         */
-        add(button: ActionButtonConfig): void {
-            this.buttons.push(button);
-        },
-    },
+    return {
+        buttons,
+        add,
+        flushByCurrentExtension: buttonsOrdered.flushByCurrentExtension,
+    };
 });
 
 /**

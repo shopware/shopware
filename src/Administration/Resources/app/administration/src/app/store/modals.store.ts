@@ -3,58 +3,61 @@
  */
 
 import type { uiModalOpen } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
+import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ModalItemEntry = Omit<uiModalOpen, 'responseType'> & {
     baseUrl: string;
 };
 
-const modalsStore = Shopware.Store.register({
-    id: 'modals',
+const modalsStore = Shopware.Store.register('modals', () => {
+    const modalsOrdered = useExtensionOrderedArray<ModalItemEntry>();
+    const modals = modalsOrdered.items;
 
-    state: () => ({
-        modals: [] as ModalItemEntry[],
-    }),
-
-    actions: {
-        openModal({
-            locationId,
+    const openModal = ({
+        locationId,
+        title,
+        closable,
+        showHeader,
+        showFooter,
+        variant,
+        baseUrl,
+        buttons,
+        textContent,
+    }: ModalItemEntry) => {
+        modalsOrdered.push({
             title,
             closable,
             showHeader,
             showFooter,
             variant,
+            locationId,
+            buttons: buttons ?? [],
             baseUrl,
-            buttons,
             textContent,
-        }: ModalItemEntry) {
-            this.modals.push({
-                title,
-                closable,
-                showHeader,
-                showFooter,
-                variant,
-                locationId,
-                buttons: buttons ?? [],
-                baseUrl,
-                textContent,
-            });
-        },
+        });
+    };
 
-        closeModal(locationId: string): void {
-            this.modals = this.modals.filter((modal) => {
-                return modal.locationId !== locationId;
-            });
-        },
+    const closeModal = (locationId: string): void => {
+        modalsOrdered.removeFirstWhere((modal) => modal.locationId === locationId);
+    };
 
-        closeLastModalWithoutLocationId(): void {
-            const lastModalWithoutLocationId = this.modals.filter((modal) => !modal.locationId).at(-1);
+    const closeLastModalWithoutLocationId = (): void => {
+        const modals = modalsOrdered.items.value;
+        const lastModalWithoutLocationId = modals.filter((modal) => !modal.locationId).at(-1);
 
-            if (lastModalWithoutLocationId) {
-                this.modals = this.modals.filter((modal) => modal !== lastModalWithoutLocationId);
-            }
-        },
-    },
+        if (lastModalWithoutLocationId) {
+            modalsOrdered.removeFirstWhere((modal) => modal === lastModalWithoutLocationId);
+        }
+    };
+
+    return {
+        modals,
+        openModal,
+        closeModal,
+        closeLastModalWithoutLocationId,
+        flushByCurrentExtension: modalsOrdered.flushByCurrentExtension,
+    };
 });
 
 /**

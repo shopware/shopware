@@ -1,8 +1,11 @@
-const { hasOwnProperty } = Shopware.Utils.object;
-
 /**
+ * @sw-package framework
  * @private
  */
+
+import { computed, unref } from 'vue';
+import { useExtensionOrdereredArrayMap } from '../composables/use-extension-ordered-container';
+
 export interface SettingsItem {
     name?: string;
     group: string | (() => string);
@@ -24,50 +27,48 @@ export interface SettingsItem {
  * @sw-package framework
  * @private
  */
-const settingsItems = Shopware.Store.register({
-    id: 'settingsItems',
+const settingsItems = Shopware.Store.register('settingsItems', () => {
+    const settingsByGroup = useExtensionOrdereredArrayMap<SettingsItem>();
+    const settingsGroups = settingsByGroup.items;
 
-    state: (): {
-        settingsGroups: Record<string, SettingsItem[]>;
-    } => {
-        return {
-            settingsGroups: {
-                general: [],
-                customer: [],
-                automation: [],
-                localization: [],
-                content: [],
-                commerce: [],
-                system: [],
-                account: [],
-                plugins: [],
-            },
-        };
-    },
+    const addItem = (settingsItem: SettingsItem) => {
+        let group = settingsItem.group;
 
-    actions: {
-        addItem(settingsItem: SettingsItem) {
-            let group = settingsItem.group;
+        if (typeof group === 'function') {
+            group = group();
+        }
 
-            if (typeof group === 'function') {
-                group = group();
-            }
+        if (!group || typeof group !== 'string') {
+            throw new Error('Group is undefined or invalid');
+        }
 
-            if (!group || typeof group !== 'string') {
-                throw new Error('Group is undefined or invalid');
-            }
+        const groupArray = settingsByGroup.get(group);
 
-            if (!hasOwnProperty(this.settingsGroups, group)) {
-                this.settingsGroups[group] = [];
-            }
+        // @ts-expect-error - the inferred type is incorrect
+        if (groupArray.items.some((setting) => setting.name === settingsItem.name)) {
+            return;
+        }
 
-            if (this.settingsGroups[group].some((setting) => setting.name === settingsItem.name)) {
-                return;
-            }
+        groupArray.push(settingsItem);
+    };
 
-            this.settingsGroups[group].push(settingsItem);
-        },
-    },
+    const defaultGroups = {
+        general: [],
+        customer: [],
+        automation: [],
+        localization: [],
+        content: [],
+        commerce: [],
+        system: [],
+        account: [],
+        plugins: [],
+    };
+
+    return {
+        settingsGroups,
+        addItem,
+        flushByCurrentExtension: settingsByGroup.flushByCurrentExtension,
+    };
 });
 
 /**

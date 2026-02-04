@@ -14,10 +14,21 @@ interface OrderItem {
     count: number;
 }
 
+/**
+ * Warning message for when push() is called before flushByCurrentExtension() has been invoked.
+ * This is to prevent duplicate or stale entries from appearing.
+ * If extensionId is null, the push comes from shopware core context which doesn't need to be flushed
+ */
+const PUSH_BEFORE_FLUSH_WARNING =
+    "[useExtensionOrderedContainer] push() was called before flushByCurrentExtension() has been invoked. " +
+    "When using the Vite dev server (HMR), the store must register a flush command in flush-extension.init.ts " +
+    "so that extension entries are cleared on re-execution. Otherwise, duplicate or stale entries may appear.";
 
 export const useExtensionOrderedArray = <T>() => {
     const internalArray: Ref<T[]> = ref([]);
     const order: Ref<OrderItem[]> = ref([]);
+    const hasBeenFlushed = ref(false);
+    let hasWarnedPushBeforeFlush = false;
 
     // returns index to insert at
     const getOrderItem = (extensionId: string | null): { startIndex: number, nextInsertIndex: number, orderItem: OrderItem } => {
@@ -38,6 +49,13 @@ export const useExtensionOrderedArray = <T>() => {
      */
     const push = (value: T) => {
         const extensionId = useCurrentExtensionId();
+        if (!hasBeenFlushed.value && !hasWarnedPushBeforeFlush && extensionId.value !== null) {
+            console.log('extensionId', extensionId.value);
+            hasWarnedPushBeforeFlush = true;
+            console.log('push hasBeenFlushed', hasBeenFlushed.value);
+            console.warn(PUSH_BEFORE_FLUSH_WARNING);
+            console.trace();
+        }
         const { nextInsertIndex, orderItem } = getOrderItem(extensionId.value);
         orderItem.count++;
         internalArray.value.splice(nextInsertIndex, 0, value);
@@ -47,18 +65,43 @@ export const useExtensionOrderedArray = <T>() => {
      * removes all entries for the current extension context from the array
      */
     const flushByCurrentExtension = () => {
+        hasBeenFlushed.value = true;
+        console.log('flush hasBeenFlushed', hasBeenFlushed.value);
+
         const extensionId = useCurrentExtensionId();
+        console.log('flushByCurrentExtension', extensionId.value);
         const {startIndex, orderItem} = getOrderItem(extensionId.value);
         internalArray.value.splice(startIndex, orderItem.count);
         orderItem.count = 0;
     }
+
+    /**
+     * removes the first entry that matches the predicate from the array (from any extension).
+     * Updates the order count for the segment the item belonged to.
+     */
+    const removeFirstWhere = (predicate: (item: T) => boolean) => {
+        const index = internalArray.value.findIndex(predicate);
+        if (index === -1) {
+            return;
+        }
+        let runningIndex = 0;
+        for (const item of order.value) {
+            if (index < runningIndex + item.count) {
+                item.count--;
+                internalArray.value.splice(index, 1);
+                return;
+            }
+            runningIndex += item.count;
+        }
+    };
 
     const items = computed(() => internalArray.value);
 
     return {
         items,
         push,
-        flushByCurrentExtension
+        flushByCurrentExtension,
+        removeFirstWhere,
     };
 }
 
@@ -77,6 +120,10 @@ export const useExtensionOrdereredArrayMap = <T>() => {
         .forEach(array => array.flushByCurrentExtension());
     }
 
+    const clear = () => {
+        internalMap.value = {};
+    };
+
     const items = computed(() =>
         Object.freeze(
             Object.fromEntries(
@@ -88,6 +135,7 @@ export const useExtensionOrdereredArrayMap = <T>() => {
     return {
         items,
         flushByCurrentExtension,
+        clear,
         get
     };
 }

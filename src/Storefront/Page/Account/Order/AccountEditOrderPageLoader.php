@@ -131,11 +131,6 @@ class AccountEditOrderPageLoader
         }
 
         $criteria
-            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')
-            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
-            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.countryState')
-            ->addAssociation('primaryOrderDelivery.stateMachineState')
-            ->addAssociation('primaryOrderTransaction.stateMachineState')
             ->addAssociation('lineItems.cover')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')

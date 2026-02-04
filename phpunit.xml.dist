@@ -107,6 +107,9 @@
             <directory suffix=".php">src/Storefront/Migration/V6_3</directory>
             <directory suffix=".php">src/Storefront/Migration/V6_4</directory>
             <directory suffix=".php">src/Storefront/Migration/V6_5</directory>
+
+            <!-- Helper class and its output DTOs and exception, which could not be unit tested -->
+            <directory suffix=".php">src/Core/Framework/Util/Database</directory>
         </exclude>
     </source>
     <php>

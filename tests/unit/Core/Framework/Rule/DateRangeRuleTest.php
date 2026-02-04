@@ -310,6 +310,26 @@ class DateRangeRuleTest extends TestCase
         static::assertTrue($result);
     }
 
+    public function testWakeupSetsTimezoneToNullWhenMissingInLegacySerializedData(): void
+    {
+        $legacySerialized = 'O:42:"Shopware\\Core\\Framework\\Rule\\DateRangeRule":5:{'
+            . "s:13:\"\0*\0extensions\";a:0:{}"
+            . "s:8:\"\0*\0_name\";s:9:\"dateRange\";"
+            . "s:11:\"\0*\0fromDate\";O:8:\"DateTime\":3:{s:4:\"date\";s:26:\"2026-01-01 00:00:00.000000\";s:13:\"timezone_type\";i:3;s:8:\"timezone\";s:3:\"UTC\";}"
+            . "s:9:\"\0*\0toDate\";O:8:\"DateTime\":3:{s:4:\"date\";s:26:\"2026-01-16 23:59:59.000000\";s:13:\"timezone_type\";i:3;s:8:\"timezone\";s:3:\"UTC\";}"
+            . "s:10:\"\0*\0useTime\";b:0;";
+
+        $unserializedRule = unserialize($legacySerialized . '}');
+        static::assertInstanceOf(DateRangeRule::class, $unserializedRule);
+
+        $timezone = (new \ReflectionProperty(DateRangeRule::class, 'timezone'))->getValue($unserializedRule);
+        static::assertNull($timezone);
+
+        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2026-01-10 12:00:00'));
+        static::assertTrue($unserializedRule->match($scopeMock));
+    }
+
     /**
      * @param array<string, string|bool|\DateTime> $options
      */

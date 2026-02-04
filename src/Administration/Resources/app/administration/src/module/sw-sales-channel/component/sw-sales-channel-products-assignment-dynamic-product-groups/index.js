@@ -74,6 +74,7 @@ export default {
         productStreamCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
+            criteria.addFilter(Criteria.equals('internal', false));
             if (this.term) {
                 criteria.setTerm(this.term);
             }

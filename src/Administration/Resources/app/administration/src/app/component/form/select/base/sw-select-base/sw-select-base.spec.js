@@ -6,8 +6,10 @@ import { mount } from '@vue/test-utils';
 
 import 'src/app/component/form/select/base/sw-single-select';
 
-const createWrapper = async () => {
+const createWrapper = async (props = {}, attrs = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-select-base', { sync: true }), {
+        props,
+        attrs,
         global: {
             stubs: {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -27,30 +29,43 @@ const createWrapper = async () => {
 };
 
 describe('components/sw-select-base', () => {
-    it('should not show the clearable icon in the select base when prop is not set', async () => {
+    it('should show the clearable icon by default when required is not set', async () => {
         const wrapper = await createWrapper();
+
+        const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
+        expect(clearableIcon.exists()).toBe(true);
+    });
+
+    it('should not show the clearable icon by default when required is true', async () => {
+        const wrapper = await createWrapper({}, { required: true });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
         expect(clearableIcon.exists()).toBe(false);
     });
 
-    it('should show the clearable icon in the select base when prop is set', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setProps({
-            showClearableButton: true,
-        });
+    it('should show the clearable icon when required is false', async () => {
+        const wrapper = await createWrapper({}, { required: false });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
-        expect(clearableIcon.isVisible()).toBe(true);
+        expect(clearableIcon.exists()).toBe(true);
+    });
+
+    it('should show the clearable icon when explicitly set to true even if required', async () => {
+        const wrapper = await createWrapper({ showClearableButton: true }, { required: true });
+
+        const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
+        expect(clearableIcon.exists()).toBe(true);
+    });
+
+    it('should not show the clearable icon when explicitly set to false even if not required', async () => {
+        const wrapper = await createWrapper({ showClearableButton: false }, { required: false });
+
+        const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
+        expect(clearableIcon.exists()).toBe(false);
     });
 
     it('should trigger clear event when user clicks on clearable icon', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setProps({
-            showClearableButton: true,
-        });
+        const wrapper = await createWrapper({ showClearableButton: true });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
 

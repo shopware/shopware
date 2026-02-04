@@ -36,6 +36,7 @@ export default {
             isDefaultSalesChannelLoading: false,
             customFields: [],
             hasDefaultSortingError: false,
+            hasDefaultSearchResultSortingError: false,
         };
     },
 
@@ -174,16 +175,29 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
             this.hasDefaultSortingError = false;
+            this.hasDefaultSearchResultSortingError = false;
 
-            const validateSalesChannelDefaultSortingOption = new Promise((resolve, reject) => {
+            const validateDefaultSortingConfigs = new Promise((resolve, reject) => {
                 if (!this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting']) {
                     this.hasDefaultSortingError = true;
-                    reject();
                 }
+
+                if (!this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSearchResultSorting']) {
+                    this.hasDefaultSearchResultSortingError = true;
+                }
+
+                if (this.hasDefaultSortingError || this.hasDefaultSearchResultSortingError) {
+                    /**
+                     * display both errors in the UI
+                     * instead of just one using reject() right after the first error
+                     */
+                    reject(new Error(this.$t('sw-settings-listing.general.messageSaveDefaultValuesEmpty')));
+                }
+
                 resolve();
             });
 
-            return validateSalesChannelDefaultSortingOption
+            return validateDefaultSortingConfigs
                 .then(async () => {
                     const saveSalesChannelConfig = this.$refs.systemConfig.saveAll();
 
@@ -212,7 +226,7 @@ export default {
                 })
                 .catch((e) => {
                     const options = {
-                        message: e?.response.data?.errors[0]?.detail || 'Unknown error',
+                        message: e?.response?.data?.errors[0]?.detail || e?.message || 'Unknown error',
                     };
                     this.createNotificationError({
                         message: this.$tc('sw-settings-listing.general.messageSaveError', options),

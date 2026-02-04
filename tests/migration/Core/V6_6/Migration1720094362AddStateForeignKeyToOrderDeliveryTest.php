@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
@@ -11,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1720094362AddStateForeignKeyToOrderDelivery;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
@@ -40,9 +40,11 @@ class Migration1720094362AddStateForeignKeyToOrderDeliveryTest extends TestCase
             $this->rollback();
 
             $initialState = static::getContainer()->get(InitialStateIdLoader::class)->get('order_delivery.state');
-            $otherState = static::getContainer()->get(StateMachineRegistry::class)->getStateMachine(OrderDeliveryStates::STATE_MACHINE, Context::createDefaultContext())->getStates()?->filter(function (StateMachineStateEntity $state) use ($initialState) {
-                return $state->getId() !== $initialState;
-            })->first()?->getId() ?? Uuid::randomHex();
+            $otherState = static::getContainer()->get(StateMachineRegistry::class)
+                ->getStateMachine(OrderDeliveryStates::STATE_MACHINE, Context::createDefaultContext())
+                ->getStates()?->filter(function (StateMachineStateEntity $state) use ($initialState) {
+                    return $state->getId() !== $initialState;
+                })->first()?->getId() ?? Uuid::randomHex();
             $invalidState = Uuid::randomHex();
 
             $this->createOrderDelivery($initialState);
@@ -142,9 +144,10 @@ class Migration1720094362AddStateForeignKeyToOrderDeliveryTest extends TestCase
 
     private function hasForeignKey(): bool
     {
-        $manager = $this->connection->createSchemaManager();
-        $columns = $manager->listTableForeignKeys('order_delivery');
+        $foreignKey = TableHelper::getForeignKeyOfTable($this->connection, 'order_delivery', 'fk.order_delivery.state_id');
 
-        return (bool) \array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getReferencedTableName()->toString() === 'state_machine_state' && $column->getReferencingColumnNames()[0]->toString() === 'state_id' && $column->getReferencedColumnNames()[0]->toString() === 'id');
+        return $foreignKey->referencedTableName === 'state_machine_state'
+            && $foreignKey->referencingColumnNames[0] === 'state_id'
+            && $foreignKey->referencedColumnNames[0] === 'id';
     }
 }

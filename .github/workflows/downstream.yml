@@ -123,8 +123,8 @@ jobs:
               }
 
               // use `mergeable_state` field as best effort to check if checks pass: https://docs.github.com/en/graphql/reference/enums#mergestatestatus
-              if (prDetail.data.mergeable === false && prDetail.data.mergeable_state !== 'clean') {
-                failures.push(`${r.repo} PR #${pr.number} is not mergeable - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+              if (prDetail.data.mergeable === false || prDetail.data.mergeable_state !== 'clean') {
+                failures.push(`${r.repo} PR #${pr.number} is not mergeable, state: ${prDetail.data.mergeable_state} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                 continue;
               }
 

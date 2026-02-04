@@ -36,7 +36,7 @@ class JsonApiEncoder
      *
      * @var array<string, true>
      */
-    protected array $processedEntityPaths = [];
+    private array $processedEntityPaths = [];
 
     /**
      * @template TEntityCollection of EntityCollection

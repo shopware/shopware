@@ -142,8 +142,6 @@ jobs:
               for (const ruleset of rulesets) {
                 if (ruleset.type !== 'required_status_checks') continue;
 
-                core.info(`${JSON.stringify(ruleset)}`);
-
                 requiredContexts = requiredContexts.concat(
                   ruleset.parameters.required_status_checks.map(check => check.context)
                 );
@@ -156,6 +154,7 @@ jobs:
               let pendingContexts = [];
               let success = false;
 
+              pollAttempt:
               while (attemptsCtx < maxAttempts) {
                 const status = await github.rest.repos.getCombinedStatusForRef({ owner: r.owner, repo: r.repo, ref: pr.head.sha });
                 const statuses = (status && status.data && status.data.statuses) || [];
@@ -167,13 +166,13 @@ jobs:
                   if (!s) {
                     // Missing context likely means the check was never reported — fail immediately
                     failures.push(`${r.repo} PR #${pr.number} required check missing: ${ctx} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
-                    break;
+                    break pollAttempt;
                   } else {
                     const st = (s.state || '').toLowerCase();
                     if (st === 'pending') pendingContexts.push(ctx);
                     else if (st !== 'success') {
                       failures.push(`${r.repo} PR #${pr.number} required check failing: ${ctx}: ${s.state} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
-                      break;
+                      break pollAttempt;
                     }
                   }
                 }
@@ -200,7 +199,6 @@ jobs:
                 // failure already pushed in the loop, continue with next repo
                 continue;
               }
-
 
               // Check for at least one approval
               const reviews = await github.rest.pulls.listReviews({ owner: r.owner, repo: r.repo, pull_number: pr.number });

@@ -7,7 +7,7 @@ tags: [dal, attribute-entity, type-safety, extensibility]
 
 ## Context
 
-The attribute-based entity system allows defining DAL entities using PHP 8 attributes instead of traditional `EntityDefinition` classes. This system is designed for plugin developers and will be considered for core usage once feature parity is reached.
+The attribute-based entity system allows defining DAL entities using PHP 8 attributes instead of class-based `EntityDefinition` classes. This system is designed for plugin developers and will be considered for core usage once feature parity is reached.
 
 The goal of this refactoring is to improve type safety during compilation, make the system easier to extend with new field types, and catch configuration errors at build time rather than runtime.
 
@@ -32,7 +32,7 @@ Symfony's container dumper cannot serialize arbitrary objects. The previous impl
 
 ### Entity Definition Identification
 
-Several compiler passes need to know the entity name for a definition. Traditional definitions can be instantiated (`new ProductDefinition()`) to call `getEntityName()`. Attribute-based definitions require `EntityMetadata` injection and cannot be instantiated during compilation. The current workaround checks class names directly, which is fragile.
+Several compiler passes need to know the entity name for a definition. Class-based definitions can be instantiated (`new ProductDefinition()`) to call `getEntityName()`. Attribute-based definitions require `EntityMetadata` injection and cannot be instantiated during compilation. The current workaround checks class names directly, which is fragile.
 
 ### Field Type Resolution
 
@@ -76,9 +76,9 @@ A marker interface was chosen over a base class because attribute-based definiti
 
 Unknown field types now throw `DataAbstractionLayerException::unknownFieldAttributeType()`. Silent fallbacks to `StringField` would defer bugs to runtime where they are harder to diagnose. Failing early during container compilation makes the error obvious and provides a clear message about what field type is missing.
 
-## Comparison with Traditional Definitions
+## Comparison with Class-Based Definitions
 
-Traditional definitions have no compilation phase. The container registers the class as a service, and `defineFields()` instantiates fields directly from hardcoded PHP.
+Class-based definitions have no compilation phase. The container registers the class as a service, and `defineFields()` instantiates fields directly from hardcoded PHP.
 
 Attribute-based definitions move configuration parsing to compilation. The container stores serialized metadata which is reconstructed at runtime to instantiate fields.
 

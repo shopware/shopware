@@ -6,9 +6,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @phpstan-type RelationData array{TABLE_NAME: string, COLUMN_NAME: string, CONSTRAINT_NAME: string, REFERENCED_TABLE_NAME: string, REFERENCED_COLUMN_NAME: string}
@@ -89,15 +89,12 @@ EOD;
         foreach ($keyStructures as $constraintName => $keyStructure) {
             $tableName = $this->ensureTableName($keyStructure);
 
-            $indexes = $this->schemaManager->introspectTableIndexesByUnquotedName($tableName);
+            $indexNames = TableHelper::getIndexNamesOfTable($this->connection, $tableName);
 
             $playbook[] = \sprintf(self::DROP_FOREIGN_KEY, $tableName, $constraintName);
 
-            foreach ($indexes as $index) {
-                $indexName = $index->getObjectName()->getIdentifier()->getValue();
-                if (strtolower($constraintName) === $indexName) {
-                    $playbook[] = \sprintf(self::DROP_KEY, $tableName, $constraintName);
-                }
+            if (\in_array(strtolower($constraintName), $indexNames, true)) {
+                $playbook[] = \sprintf(self::DROP_KEY, $tableName, $constraintName);
             }
         }
 
@@ -252,15 +249,12 @@ EOD;
      */
     private function createModifyPrimaryKeyQuery(string $tableName, string $newColumnName, string $defaultValue): string
     {
-        $primaryKeyColumns = $this->getPrimaryKeyColumns($tableName);
-        if (\count($primaryKeyColumns) !== 1) {
+        $primaryKeyColumnNames = TableHelper::getPrimaryKeyColumnNamesOfTable($this->connection, $tableName);
+        if (\count($primaryKeyColumnNames) !== 1) {
             throw MigrationException::multiColumnPrimaryKey();
         }
-        $primaryKeyColumn = array_first($primaryKeyColumns);
-        if (!$primaryKeyColumn instanceof UnqualifiedName) {
-            throw MigrationException::noPrimaryKey();
-        }
-        $primaryKeyColumnName = $primaryKeyColumn->getIdentifier()->getValue();
+
+        $primaryKeyColumnName = $primaryKeyColumnNames[0];
 
         return \sprintf(self::MODIFY_PRIMARY_KEY_IN_MAIN, $tableName, $newColumnName, $defaultValue, $primaryKeyColumnName, $primaryKeyColumnName, $newColumnName);
     }
@@ -350,14 +344,13 @@ EOD;
     private function determineModifyPrimaryKeySql(array $keyStructure, string $foreignKeyColumnName): ?string
     {
         $tableName = $this->ensureTableName($keyStructure);
-        $indexedColumns = $this->getPrimaryKeyColumns($tableName);
-        $indexedColumns = array_map(static fn (UnqualifiedName $column): string => $column->getIdentifier()->getValue(), $indexedColumns);
+        $primaryKeyColumnNames = TableHelper::getPrimaryKeyColumnNamesOfTable($this->connection, $tableName);
 
-        if (\count(array_intersect($indexedColumns, $keyStructure['COLUMN_NAME']))) {
+        if (\count(array_intersect($primaryKeyColumnNames, $keyStructure['COLUMN_NAME']))) {
             return \sprintf(
                 self::MODIFY_PRIMARY_KEY_IN_RELATION,
                 $tableName,
-                $this->implodeColumns($indexedColumns),
+                $this->implodeColumns($primaryKeyColumnNames),
                 $foreignKeyColumnName
             );
         }
@@ -378,20 +371,5 @@ EOD;
         }
 
         return $tableName;
-    }
-
-    /**
-     * @param non-empty-string $tableName
-     *
-     * @return non-empty-list<UnqualifiedName>
-     */
-    private function getPrimaryKeyColumns(string $tableName): array
-    {
-        $primaryKey = $this->schemaManager->introspectTablePrimaryKeyConstraint(OptionallyQualifiedName::unquoted($tableName));
-        if ($primaryKey === null) {
-            throw MigrationException::noPrimaryKey();
-        }
-
-        return $primaryKey->getColumnNames();
     }
 }

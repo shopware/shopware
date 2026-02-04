@@ -12,11 +12,13 @@ use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MakeVersionableMigrationHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 
@@ -26,6 +28,16 @@ use Shopware\Core\System\Unit\UnitDefinition;
 #[CoversClass(MakeVersionableMigrationHelper::class)]
 class MakeVersionableMigrationHelperTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        TableHelper::resetSchemaManager();
+    }
+
+    protected function tearDown(): void
+    {
+        TableHelper::resetSchemaManager();
+    }
+
     public function testCreateSql(): void
     {
         $helper = new MakeVersionableMigrationHelper($this->createConnection());
@@ -80,7 +92,7 @@ class MakeVersionableMigrationHelperTest extends TestCase
             ],
         ]);
 
-        $connection->expects($this->once())->method('createSchemaManager')->willReturn($this->createSchemaManager());
+        $connection->method('createSchemaManager')->willReturn($this->createSchemaManager());
 
         return $connection;
     }
@@ -144,28 +156,28 @@ class MakeVersionableMigrationHelperTest extends TestCase
                 ],
             ],
         ]);
-        $schemaManager->expects($this->exactly(2))->method('introspectTableIndexesByUnquotedName')->willReturnMap([
-            [
-                'unit_translation',
-                null,
-                [
+        // Mock for TableHelper::getIndexNamesOfTable and getPrimaryKeyColumnNamesOfTable
+        $schemaManager->method('introspectTableByUnquotedName')->willReturnCallback(function (string $tableName): Table {
+            $table = $this->createMock(Table::class);
+            $indexes = match ($tableName) {
+                'unit_translation' => [
                     Index::editor()
                         ->setQuotedName('fk.unit_translation.language_id')
                         ->setQuotedColumnNames('language_id')
                         ->create(),
                 ],
-            ],
-            [
-                'product',
-                null,
-                [
+                'product' => [
                     Index::editor()
                         ->setQuotedName('fk.product.unit_id')
                         ->setQuotedColumnNames('unit_id')
                         ->create(),
                 ],
-            ],
-        ]);
+                default => [],
+            };
+            $table->method('getIndexes')->willReturn($indexes);
+
+            return $table;
+        });
 
         return $schemaManager;
     }

@@ -197,6 +197,47 @@ class TableHelperTest extends TestCase
         TableHelper::indexSpansColumns($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, 'idx.product.type', ['type']);
     }
 
+    public function testGetIndexNamesOfTable(): void
+    {
+        $indexNames = TableHelper::getIndexNamesOfTable($this->connection, ProductDefinition::ENTITY_NAME);
+
+        static::assertIsList($indexNames);
+        static::assertContains('primary', $indexNames);
+        static::assertContains('idx.product.type', $indexNames);
+    }
+
+    public function testGetIndexNamesFromUnknownTableThrowsException(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForNotExistingTable('getIndexNamesOfTable'));
+        TableHelper::getIndexNamesOfTable($this->connection, self::UNKNOWN_NAME);
+    }
+
+    public function testGetIndexNamesThrowsExceptionWhileGettingSchemaManager(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
+        TableHelper::getIndexNamesOfTable($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME);
+    }
+
+    public function testGetPrimaryKeyColumnNamesOfTable(): void
+    {
+        $columnNames = TableHelper::getPrimaryKeyColumnNamesOfTable($this->connection, ProductDefinition::ENTITY_NAME);
+
+        static::assertIsList($columnNames);
+        static::assertSame(['id', 'version_id'], $columnNames);
+    }
+
+    public function testGetPrimaryKeyColumnNamesFromUnknownTableThrowsException(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForNotExistingTable('getPrimaryKeyColumnNamesOfTable'));
+        TableHelper::getPrimaryKeyColumnNamesOfTable($this->connection, self::UNKNOWN_NAME);
+    }
+
+    public function testGetPrimaryKeyColumnNamesThrowsExceptionWhileGettingSchemaManager(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
+        TableHelper::getPrimaryKeyColumnNamesOfTable($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME);
+    }
+
     public function testGetForeignKeyOfTable(): void
     {
         $foreignKey = TableHelper::getForeignKeyOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'fk.product.parent_id');

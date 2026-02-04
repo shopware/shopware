@@ -123,7 +123,7 @@ class AddressDetailPageLoader
     private function getAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): ?CustomerAddressEntity
     {
         if (!$addressId = $request->attributes->getString('addressId')) {
-            throw CustomerException::addressNotFound($addressId);
+            return null;
         }
 
         if (!Uuid::isValid($addressId)) {

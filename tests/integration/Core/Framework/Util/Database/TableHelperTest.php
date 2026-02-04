@@ -229,7 +229,7 @@ class TableHelperTest extends TestCase
 
     public function testForeignKeyExistsFromUnknownTableReturnsFalse(): void
     {
-        self::assertFalse(TableHelper::foreignKeyExists($this->connection, self::UNKNOWN_NAME, 'fk.product.parent_id'));
+        static::assertFalse(TableHelper::foreignKeyExists($this->connection, self::UNKNOWN_NAME, 'fk.product.parent_id'));
     }
 
     public function testForeignKeyExistsThrowsExceptionWhileGettingSchemaManager(): void

@@ -382,6 +382,14 @@
           }
         }
       },
+      "productHeading": {
+        "logo": {
+          "label": "Manufacturer logo"
+        },
+        "name": {
+          "label": "Product name"
+        }
+      },
       "productSlider": {
         "label": "Product slider",
         "config": {

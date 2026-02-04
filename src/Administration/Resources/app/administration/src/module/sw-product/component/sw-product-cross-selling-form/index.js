@@ -192,6 +192,12 @@ export default {
                 };
             });
         },
+
+        productStreamCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('internal', false));
+            return criteria;
+        },
     },
 
     watch: {

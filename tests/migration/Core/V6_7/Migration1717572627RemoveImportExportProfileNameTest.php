@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1717572627RemoveImportExportProfileName;
 
 /**
@@ -25,7 +26,7 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
 
     public function testUpdateDestructiveRemovesColumn(): void
     {
-        $exists = $this->columnExists();
+        $exists = TableHelper::columnExists($this->connection, 'import_export_profile', 'name');
 
         if (!$exists) {
             $this->addColumn();
@@ -35,7 +36,7 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse($this->columnExists());
+        static::assertFalse(TableHelper::columnExists($this->connection, 'import_export_profile', 'name'));
 
         if ($exists) {
             $this->addColumn();
@@ -47,14 +48,5 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
         $this->connection->executeStatement(
             'ALTER TABLE `import_export_profile` ADD COLUMN `name` VARCHAR(255) DEFAULT NULL'
         );
-    }
-
-    private function columnExists(): bool
-    {
-        $exists = $this->connection->fetchOne(
-            'SHOW COLUMNS FROM `import_export_profile` WHERE `Field` LIKE "name"',
-        );
-
-        return !empty($exists);
     }
 }

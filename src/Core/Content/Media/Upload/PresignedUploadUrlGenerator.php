@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Upload;
 
+use AsyncAws\S3\Input\HeadObjectRequest;
 use AsyncAws\S3\Input\PutObjectRequest;
 use AsyncAws\S3\S3Client;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
@@ -76,12 +77,6 @@ readonly class PresignedUploadUrlGenerator
     }
 
     /**
-     * Generate a presigned PUT URL for uploading a file to S3.
-     *
-     * Use cases:
-     * - Direct upload: Client uploads file body directly to the returned URL
-     * - Upload from URL: Client fetches remote file and streams it to the returned URL
-     *
      * @return array{url: string, path: string, s3Key: string, expiresAt: \DateTimeImmutable}
      */
     public function generate(MediaLocationStruct $location, string $mimeType): array
@@ -132,20 +127,66 @@ readonly class PresignedUploadUrlGenerator
         ];
     }
 
-    /**
-     * Check if presigned uploads are enabled via configuration.
-     */
     public function isEnabled(): bool
     {
         return $this->enabled;
     }
 
-    /**
-     * Check if presigned uploads are supported (enabled + S3 configured).
-     */
     public function isSupported(): bool
     {
         return $this->enabled && $this->s3Client !== null && $this->bucket !== null;
+    }
+
+    public function verifyUpload(string $path): bool
+    {
+        if ($this->s3Client === null || $this->bucket === null) {
+            return false;
+        }
+
+        try {
+            $s3Key = $this->ensureRootPrefix($path);
+
+            $request = new HeadObjectRequest([
+                'Bucket' => $this->bucket,
+                'Key' => $s3Key,
+            ]);
+
+            $this->s3Client->headObject($request)->resolve();
+
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * @return array{size: int, lastModified: \DateTimeImmutable}|null
+     */
+    public function getFileMetadata(string $path): ?array
+    {
+        if ($this->s3Client === null || $this->bucket === null) {
+            return null;
+        }
+
+        try {
+            $s3Key = $this->ensureRootPrefix($path);
+
+            $request = new HeadObjectRequest([
+                'Bucket' => $this->bucket,
+                'Key' => $s3Key,
+            ]);
+
+            $result = $this->s3Client->headObject($request);
+
+            $lastModified = $result->getLastModified();
+
+            return [
+                'size' => $result->getContentLength() ?? 0,
+                'lastModified' => $lastModified ?? new \DateTimeImmutable(),
+            ];
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**

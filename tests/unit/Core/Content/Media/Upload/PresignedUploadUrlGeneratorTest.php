@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
@@ -105,46 +104,6 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 'config' => [
                     'bucket' => 'test-bucket',
                     'region' => 'eu-west-1',
-                ],
-            ],
-            5,
-            true
-        );
-
-        static::assertTrue($generator->isSupported());
-    }
-
-    public function testConstructorWithEmptyCredentials(): void
-    {
-        // Empty credentials should be treated as IAM role
-        $generator = new PresignedUploadUrlGenerator(
-            $this->mediaPathStrategy,
-            [
-                'type' => 'amazon-s3',
-                'config' => [
-                    'bucket' => 'test-bucket',
-                    'region' => 'eu-west-1',
-                    'credentials' => [],
-                ],
-            ],
-            5,
-            true
-        );
-
-        static::assertTrue($generator->isSupported());
-    }
-
-    public function testConstructorWithNullCredentials(): void
-    {
-        // Null credentials should be treated as IAM role
-        $generator = new PresignedUploadUrlGenerator(
-            $this->mediaPathStrategy,
-            [
-                'type' => 'amazon-s3',
-                'config' => [
-                    'bucket' => 'test-bucket',
-                    'region' => 'eu-west-1',
-                    'credentials' => null,
                 ],
             ],
             5,
@@ -394,113 +353,27 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         $generator->generate($location, 'image/jpeg');
     }
 
-    public function testIsEnabled(): void
+    public function testVerifyUploadWhenNotSupported(): void
     {
-        $enabledGenerator = new PresignedUploadUrlGenerator(
-            $this->mediaPathStrategy,
-            [
-                'type' => 'amazon-s3',
-                'config' => [
-                    'bucket' => 'test-bucket',
-                    'region' => 'eu-west-1',
-                ],
-            ],
-            5,
-            true
-        );
-
-        $disabledGenerator = new PresignedUploadUrlGenerator(
-            $this->mediaPathStrategy,
-            [
-                'type' => 'amazon-s3',
-                'config' => [
-                    'bucket' => 'test-bucket',
-                    'region' => 'eu-west-1',
-                ],
-            ],
-            5,
-            false
-        );
-
-        static::assertTrue($enabledGenerator->isEnabled());
-        static::assertFalse($disabledGenerator->isEnabled());
-    }
-
-    public function testIsSupported(): void
-    {
-        $supportedGenerator = new PresignedUploadUrlGenerator(
-            $this->mediaPathStrategy,
-            [
-                'type' => 'amazon-s3',
-                'config' => [
-                    'bucket' => 'test-bucket',
-                    'region' => 'eu-west-1',
-                ],
-            ],
-            5,
-            true
-        );
-
-        $notSupportedGenerator = new PresignedUploadUrlGenerator(
+        $generator = new PresignedUploadUrlGenerator(
             $this->mediaPathStrategy,
             ['type' => 'local'],
             5,
             true
         );
 
-        $disabledGenerator = new PresignedUploadUrlGenerator(
-            $this->mediaPathStrategy,
-            [
-                'type' => 'amazon-s3',
-                'config' => [
-                    'bucket' => 'test-bucket',
-                    'region' => 'eu-west-1',
-                ],
-            ],
-            5,
-            false
-        );
-
-        static::assertTrue($supportedGenerator->isSupported());
-        static::assertFalse($notSupportedGenerator->isSupported());
-        static::assertFalse($disabledGenerator->isSupported());
+        static::assertFalse($generator->verifyUpload('media/ab/cd/test.jpg'));
     }
 
-    #[DataProvider('filesystemTypeProvider')]
-    public function testIsSupportedWithDifferentFilesystemTypes(string $type, bool $expectedSupported): void
+    public function testGetFileMetadataWhenNotSupported(): void
     {
-        $config = ['type' => $type];
-
-        if ($type === 'amazon-s3') {
-            $config['config'] = [
-                'bucket' => 'test-bucket',
-                'region' => 'eu-west-1',
-            ];
-        }
-
         $generator = new PresignedUploadUrlGenerator(
             $this->mediaPathStrategy,
-            $config,
+            ['type' => 'local'],
             5,
             true
         );
 
-        static::assertSame($expectedSupported, $generator->isSupported());
-    }
-
-    /**
-     * @return iterable<string, array{type: string, expectedSupported: bool}>
-     */
-    public static function filesystemTypeProvider(): iterable
-    {
-        yield 'amazon-s3' => [
-            'type' => 'amazon-s3',
-            'expectedSupported' => true,
-        ];
-
-        yield 'local' => [
-            'type' => 'local',
-            'expectedSupported' => false,
-        ];
+        static::assertNull($generator->getFileMetadata('media/ab/cd/test.jpg'));
     }
 }

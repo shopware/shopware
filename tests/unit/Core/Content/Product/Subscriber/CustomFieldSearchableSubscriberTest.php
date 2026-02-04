@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
@@ -39,7 +40,7 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 
     public function testOnCustomFieldWrittenReturnsEarlyWhenEsEnabled(): void
     {
-        $subscriber = new CustomFieldSearchableSubscriber($this->connection, true);
+        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag(['elasticsearch.enabled' => true]));
         $context = Context::createDefaultContext();
         $customFieldId = Uuid::randomHex();
 
@@ -60,7 +61,7 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 
     public function testOnCustomFieldWrittenIgnoresWhenSearchableNotInPayload(): void
     {
-        $subscriber = new CustomFieldSearchableSubscriber($this->connection, false);
+        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag());
         $context = Context::createDefaultContext();
         $customFieldId = Uuid::randomHex();
 
@@ -81,7 +82,7 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 
     public function testOnCustomFieldWrittenIgnoresWhenSearchableNotFalse(): void
     {
-        $subscriber = new CustomFieldSearchableSubscriber($this->connection, false);
+        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag());
         $context = Context::createDefaultContext();
         $customFieldId = Uuid::randomHex();
 
@@ -102,7 +103,7 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 
     public function testOnCustomFieldWrittenDeletesFromProductSearchConfigField(): void
     {
-        $subscriber = new CustomFieldSearchableSubscriber($this->connection, false);
+        $subscriber = new CustomFieldSearchableSubscriber($this->connection, new ParameterBag(['elasticsearch.enabled' => false]));
         $context = Context::createDefaultContext();
         $customFieldId1 = Uuid::randomHex();
         $customFieldId2 = Uuid::randomHex();

@@ -108,6 +108,14 @@ shopware:
 
 **Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
 
+# 6.7.7.1
+
+## Core
+
+### Dependency on Elasticsearch Bundle
+
+Removed dependency of the Core bundle to the Elasticsearch bundle, so that the Core bundle can be used without Elasticsearch again.
+
 # 6.7.7.0
 
 ## Features

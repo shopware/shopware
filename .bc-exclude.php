@@ -81,5 +81,37 @@ return [
         'The parameter $stateMachineState of Shopware\\\\.*\\\\OrderTransactionCaptureEntity#setStateMachineState() changed .* Shopware\\\\.*\\\\StateMachineStateEntity|null',
 
         preg_quote('CHANGED: Property Shopware\Core\Content\ProductStream\ProductStreamEntity#$internal changed default value from NULL to false', '/'),
+
+        // Attribute entity compilation classes - container compilation only, no plugin extension points
+        // These classes are used exclusively during DI container compilation, not at runtime.
+        // Plugin developers use #[Entity] attributes, never these internal compilation classes.
+
+        // AttributeEntityCompilerPass
+        preg_quote('CHANGED: Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass was marked "@internal"', '/'),
+        preg_quote('CHANGED: The parameter $meta of Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass#definition() changed from array to a non-contravariant Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata', '/'),
+        preg_quote('CHANGED: The parameter $meta of Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass#definition() changed from array to Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata', '/'),
+
+        // AttributeEntityCompiler
+        preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler was marked "@internal"', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler#compile() changed from array to the non-covariant Shopware\Core\Framework\DataAbstractionLayer\CompiledDefinitions', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler#compile() changed from array to Shopware\Core\Framework\DataAbstractionLayer\CompiledDefinitions', '/'),
+
+        // AttributeEntityDefinition
+        preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition was marked "@internal"', '/'),
+        preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition#__construct() increased from 0 to 1', '/'),
+        preg_quote('CHANGED: The parameter $meta of Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition#__construct() changed from array to a non-contravariant Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata', '/'),
+        preg_quote('CHANGED: The parameter $meta of Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition#__construct() changed from array to Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata', '/'),
+
+        // AttributeMappingDefinition
+        preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition was marked "@internal"', '/'),
+        preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition#__construct() increased from 0 to 1', '/'),
+        preg_quote('CHANGED: The parameter $meta of Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition#__construct() changed from array to a non-contravariant Shopware\Core\Framework\DataAbstractionLayer\MappingMetadata', '/'),
+        preg_quote('CHANGED: The parameter $meta of Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition#__construct() changed from array to Shopware\Core\Framework\DataAbstractionLayer\MappingMetadata', '/'),
+
+        // AttributeTranslationDefinition
+        preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition was marked "@internal"', '/'),
+        preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition#__construct() increased from 0 to 1', '/'),
+        preg_quote('CHANGED: The parameter $meta of Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition#__construct() changed from array to a non-contravariant Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata', '/'),
+        preg_quote('CHANGED: The parameter $meta of Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition#__construct() changed from array to Shopware\Core\Framework\DataAbstractionLayer\EntityMetadata', '/'),
     ],
 ];

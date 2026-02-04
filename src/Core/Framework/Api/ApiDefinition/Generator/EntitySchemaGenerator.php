@@ -133,7 +133,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @return array{type: string, flags: array<string, mixed>}
+     * @return array{type: string, flags: array<string, mixed>, description?: string}
      */
     private function parseField(EntityDefinition $definition, Field $field): array
     {
@@ -142,6 +142,26 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             $flags = array_replace_recursive($flags, iterator_to_array($flag->parse()));
         }
 
+        $property = $this->mapFieldType(
+            $definition,
+            $field,
+            $flags
+        );
+
+        if ($field->getDescription() !== '') {
+            $property['description'] = $field->getDescription();
+        }
+
+        return $property;
+    }
+
+    /**
+     * @param array<string, mixed> $flags
+     *
+     * @return array<string, mixed>
+     */
+    private function mapFieldType(EntityDefinition $definition, Field $field, array $flags): array
+    {
         switch (true) {
             case $field instanceof TranslatedField:
                 $property = $this->parseField(

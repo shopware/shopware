@@ -19,7 +19,6 @@ permissions:
   pull-requests: read
   checks: read
   statuses: read
-  administration: read
 
 jobs:
   rufus:
@@ -143,26 +142,26 @@ jobs:
               // Use combined status to inspect the specific required contexts for the commit
               // If any required context is pending, poll until it reaches a final state (or timeout)
               let attemptsCtx = 0;
-              let missingContexts = [];
+              let pendingContexts = [];
               let success = false;
 
               while (attemptsCtx < maxAttempts) {
                 const status = await github.rest.repos.getCombinedStatusForRef({ owner: r.owner, repo: r.repo, ref: pr.head.sha });
                 const statuses = (status && status.data && status.data.statuses) || [];
 
-                missingContexts = [];
+                pendingContexts = [];
 
                 for (const ctx of requiredContexts) {
                   const s = statuses.find(ss => ss.context === ctx);
                   if (!s) {
                     // Missing context likely means the check was never reported — fail immediately
-                    failures.push(`${r.repo} PR #${pr.number} required check missing: ${ctx}} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+                    failures.push(`${r.repo} PR #${pr.number} required check missing: ${ctx} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                     break;
                   } else {
                     const st = (s.state || '').toLowerCase();
                     if (st === 'pending') pendingContexts.push(ctx);
                     else if (st !== 'success') {
-                      failures.push(`${r.repo} PR #${pr.number} required check failing: ${ctx}: ${s.state}} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+                      failures.push(`${r.repo} PR #${pr.number} required check failing: ${ctx}: ${s.state} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
                       break;
                     }
                   }

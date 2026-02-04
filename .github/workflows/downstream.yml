@@ -132,12 +132,19 @@ jobs:
                 continue;
               }
 
-              // Prefer checking only the branch protection's required status-check contexts
-              let requiredContexts = [];
-              const protection = await github.rest.repos.getBranchProtection({ owner: r.owner, repo: r.repo, branch: pr.base.ref });
-              requiredContexts = (protection && protection.data && protection.data.required_status_checks && protection.data.required_status_checks.contexts) || [];
-              core.info(`${r.repo} required status check contexts: ${JSON.stringify(requiredContexts)}`);
+              // Check only the branch protection's required status-check contexts
+              const rulesetsRes = await github.request('GET /repos/{owner}/{repo}/rules/branches/{branch}', { owner: r.owner, repo: r.repo, branch: branch });
+              const rulesets = rulesetsRes.data || [];
+              core.info(`found ${rulesets.length} rulesets for ${r.owner}/${r.repo}`);
 
+              let requiredContexts = [];
+
+              for (const ruleset of rulesets) {
+                requiredContexts = requiredContexts.concat(
+                  ruleset?.required_status_checks?.contexts ?? []
+                );
+              }
+              core.info(`${r.repo} required status check contexts: ${JSON.stringify(requiredContexts)}`);
 
               // Use combined status to inspect the specific required contexts for the commit
               // If any required context is pending, poll until it reaches a final state (or timeout)

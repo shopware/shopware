@@ -5,17 +5,15 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
-use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
@@ -30,16 +28,17 @@ class CustomerStorerTest extends TestCase
 {
     private CustomerStorer $storer;
 
-    /** @var MockObject&EntityRepository<CustomerCollection> */
-    private MockObject&EntityRepository $repository;
-
-    private MockObject&EventDispatcherInterface $dispatcher;
+    private MockObject&CustomerProvider $customerProvider;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->storer = new CustomerStorer($this->repository, $this->dispatcher);
+        $this->customerProvider = $this->createMock(CustomerProvider::class);
+
+        $this->storer = new CustomerStorer(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->customerProvider,
+        );
     }
 
     public function testStoreWithAware(): void
@@ -92,10 +91,8 @@ class CustomerStorerTest extends TestCase
         $this->storer->restore($storable);
         $entity = new CustomerEntity();
         $entity->setId('id');
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('getEntities')->willReturn(new CustomerCollection([$entity]));
 
-        $this->repository->expects($this->once())->method('search')->willReturn($result);
+        $this->customerProvider->expects($this->once())->method('getData')->willReturn($entity);
         $res = $storable->getData('customer');
 
         static::assertSame($res, $entity);
@@ -105,10 +102,8 @@ class CustomerStorerTest extends TestCase
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => 'id'], []);
         $this->storer->restore($storable);
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('getEntities')->willReturn(new CustomerCollection());
 
-        $this->repository->expects($this->once())->method('search')->willReturn($result);
+        $this->customerProvider->expects($this->once())->method('getData')->willReturn(null);
         $res = $storable->getData('customer');
 
         static::assertNull($res);
@@ -121,20 +116,5 @@ class CustomerStorerTest extends TestCase
         $customerGroup = $storable->getData('customer');
 
         static::assertNull($customerGroup);
-    }
-
-    public function testDispatchBeforeLoadStorableFlowDataEvent(): void
-    {
-        $this->dispatcher
-            ->expects($this->once())
-            ->method('dispatch')
-            ->with(
-                static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),
-                'flow.storer.customer.criteria.event'
-            );
-
-        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => 'id'], []);
-        $this->storer->restore($storable);
-        $storable->getData('customer');
     }
 }

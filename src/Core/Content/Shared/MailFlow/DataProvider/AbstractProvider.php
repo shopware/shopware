@@ -40,7 +40,7 @@ abstract class AbstractProvider
         return $criteria;
     }
 
-    public function getData(string $entityId, Context $context): Entity
+    public function getData(string $entityId, Context $context): ?Entity
     {
         $criteria = $this->getCriteria($entityId, $context);
 

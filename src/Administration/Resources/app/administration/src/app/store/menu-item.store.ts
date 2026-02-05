@@ -12,6 +12,7 @@ export type MenuItemEntry = Omit<menuItemAdd, 'responseType' | 'locationId' | 'd
 
 const menuItemStore = Shopware.Store.register('menuItem', () => {
     const menuItemsOrdered = useExtensionOrderedArray<MenuItemEntry>();
+    const menuItems = menuItemsOrdered.items;
 
     const addMenuItem = ({ label, parent, position, moduleId }: MenuItemEntry) => {
         menuItemsOrdered.push({
@@ -23,7 +24,7 @@ const menuItemStore = Shopware.Store.register('menuItem', () => {
     };
 
     return {
-        menuItems: menuItemsOrdered.items,
+        menuItems,
         addMenuItem,
     };
 });

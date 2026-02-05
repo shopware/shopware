@@ -13,6 +13,7 @@ export type MainModule = {
 
 const extensionMainModules = Shopware.Store.register('extensionMainModules', () => {
     const mainModulesOrdered = useExtensionOrderedArray<MainModule>();
+    const mainModules = mainModulesOrdered.items;
 
     const addMainModule = ({ extensionName, moduleId }: MainModule) => {
         mainModulesOrdered.push({
@@ -22,7 +23,7 @@ const extensionMainModules = Shopware.Store.register('extensionMainModules', () 
     };
 
     return {
-        mainModules: mainModulesOrdered.items,
+        mainModules,
         addMainModule,
     };
 });

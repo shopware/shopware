@@ -3,7 +3,6 @@
  * @private
  */
 
-import { computed, unref } from 'vue';
 import { useExtensionOrdereredArrayMap } from '../composables/use-extension-ordered-container';
 
 export interface SettingsItem {

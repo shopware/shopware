@@ -117,54 +117,41 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
     private function resolveEffectiveLanguageIds(CustomerCollection $customers, ?string $salesChannelIdFromSource, Context $context): array
     {
         $salesChannelIds = [];
-        $pairsByCustomerId = [];
-
         foreach ($customers as $customer) {
             $scId = $salesChannelIdFromSource ?? $customer->getSalesChannelId();
-            $langId = $customer->getLanguageId();
-            if ($scId && $langId) {
+            if ($scId) {
                 $salesChannelIds[$scId] = true;
-                $pairsByCustomerId[$customer->getId()] = [$scId, $langId];
-            } else {
-                $pairsByCustomerId[$customer->getId()] = null;
             }
         }
 
         $salesChannelIds = array_keys($salesChannelIds);
-        if ($salesChannelIds === []) {
-            $result = [];
-            foreach ($pairsByCustomerId as $customerId => $pair) {
-                $result[$customerId] = null;
-            }
-
-            return $result;
-        }
-
-        $salesChannelCriteria = (new Criteria($salesChannelIds))
-            ->addAssociation('languages');
-        $salesChannelCriteria->getAssociation('languages')->addFields(['id']);
-
-        $salesChannels = $this->salesChannelRepository->search($salesChannelCriteria, $context)->getEntities();
-
         $availablePairs = [];
-        foreach ($salesChannels as $salesChannel) {
-            $scId = $salesChannel->getId();
-            $languages = $salesChannel->getLanguages();
-            if ($languages !== null) {
-                foreach ($languages as $language) {
-                    $availablePairs[$scId . '|' . $language->getId()] = true;
+        if ($salesChannelIds !== []) {
+            $salesChannelCriteria = (new Criteria($salesChannelIds))
+                ->addAssociation('languages');
+            $salesChannelCriteria->getAssociation('languages')->addFields(['id']);
+
+            $salesChannels = $this->salesChannelRepository->search($salesChannelCriteria, $context)->getEntities();
+            foreach ($salesChannels as $salesChannel) {
+                $scId = $salesChannel->getId();
+                $languages = $salesChannel->getLanguages();
+                if ($languages !== null) {
+                    foreach ($languages as $language) {
+                        $availablePairs[$scId . '|' . $language->getId()] = true;
+                    }
                 }
             }
         }
 
         $result = [];
-        foreach ($pairsByCustomerId as $customerId => $pair) {
-            if ($pair === null) {
-                $result[$customerId] = null;
-                continue;
+        foreach ($customers as $customer) {
+            $scId = $salesChannelIdFromSource ?? $customer->getSalesChannelId();
+            $langId = $customer->getLanguageId();
+            if ($scId && $langId && isset($availablePairs[$scId . '|' . $langId])) {
+                $result[$customer->getId()] = $langId;
+            } else {
+                $result[$customer->getId()] = null;
             }
-            [$scId, $langId] = $pair;
-            $result[$customerId] = isset($availablePairs[$scId . '|' . $langId]) ? $langId : null;
         }
 
         return $result;

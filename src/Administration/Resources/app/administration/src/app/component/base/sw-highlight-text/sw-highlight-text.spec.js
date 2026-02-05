@@ -32,4 +32,30 @@ describe('src/app/component/base/sw-highlight-text', () => {
         expect(wrapper.find('.sw-highlight-text__highlight').text()).toBe('example');
         expect(wrapper.text()).toContain('<article>example</article>');
     });
+
+    it('highlights text correctly when adminEsEnable is true', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+
+        const wrapper = await createWrapper({
+            text: 'This is a test. Testing, one, two, three.',
+            searchTerm: 'test',
+        });
+
+        expect(wrapper.findAll('.sw-highlight-text__highlight').length).toBe(2);
+        expect(wrapper.findAll('.sw-highlight-text__highlight')[0].text()).toBe('test');
+        expect(wrapper.findAll('.sw-highlight-text__highlight')[1].text()).toBe('Test');
+    });
+
+    it('highlights text with special characters correctly when adminEsEnable is true', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+
+        const wrapper = await createWrapper({
+            text: 'This is a test for order-number. Testing order-number, one, two, three.',
+            searchTerm: 'order-number',
+        });
+
+        expect(wrapper.findAll('.sw-highlight-text__highlight').length).toBe(2);
+        expect(wrapper.findAll('.sw-highlight-text__highlight')[0].text()).toBe('order-number');
+        expect(wrapper.findAll('.sw-highlight-text__highlight')[1].text()).toBe('order-number');
+    });
 });

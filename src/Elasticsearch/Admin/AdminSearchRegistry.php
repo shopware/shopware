@@ -130,7 +130,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        if (!$this->adminEsHelper->isEnabled() || !$this->isIndexedEntityWritten($event)) {
+        if (\count($this->indexer) === 0 || !$this->adminEsHelper->isEnabled() || !$this->isIndexedEntityWritten($event)) {
             return;
         }
 
@@ -146,7 +146,6 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
         /** @var array<string, string> $indices */
         $indices = $this->connection->fetchAllKeyValue('SELECT `alias`, `index` FROM admin_elasticsearch_index_task');
-
         if ($indices === []) {
             return;
         }
@@ -307,6 +306,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
             ];
         }
 
+        if (\count($indices) === 0) {
+            return $indices;
+        }
+
         $this->connection->executeStatement(
             'DELETE FROM admin_elasticsearch_index_task WHERE `entity` IN (:entities)',
             ['entities' => $entities],
@@ -322,8 +325,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     private function refreshIndices(): void
     {
+        $indexTasks = [];    
         $entities = [];
-        $indexTasks = [];
         foreach ($this->indexer as $indexer) {
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
 
@@ -344,6 +347,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 '`alias`' => $alias,
                 '`doc_count`' => $iterator->fetchCount(),
             ];
+        }
+
+        if (\count($entities) === 0) {
+            return;
         }
 
         $this->connection->executeStatement(

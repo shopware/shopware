@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -116,42 +117,61 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
      */
     private function resolveEffectiveLanguageIds(CustomerCollection $customers, ?string $salesChannelIdFromSource, Context $context): array
     {
-        $salesChannelIds = [];
+        $salesChannelIdSet = [];
+        $languageIdSet = [];
+
         foreach ($customers as $customer) {
             $scId = $salesChannelIdFromSource ?? $customer->getSalesChannelId();
             if ($scId) {
-                $salesChannelIds[$scId] = true;
+                $salesChannelIdSet[$scId] = true;
+            }
+
+            $langId = $customer->getLanguageId();
+            if ($langId) {
+                $languageIdSet[$langId] = true;
             }
         }
 
-        $salesChannelIds = array_keys($salesChannelIds);
-        $availablePairs = [];
-        if ($salesChannelIds !== []) {
-            $salesChannelCriteria = (new Criteria($salesChannelIds))
-                ->addAssociation('languages');
-            $salesChannelCriteria->getAssociation('languages')->addFields(['id']);
+        $salesChannelIds = array_keys($salesChannelIdSet);
+        $languageIds = array_keys($languageIdSet);
 
-            $salesChannels = $this->salesChannelRepository->search($salesChannelCriteria, $context)->getEntities();
+        $available = [];
+
+        if ($salesChannelIds !== [] && $languageIds !== []) {
+            $criteria = (new Criteria($salesChannelIds))->addAssociation('languages');
+            $criteria->getAssociation('languages')
+                ->addFields(['id'])
+                ->addFilter(new EqualsAnyFilter('id', $languageIds));
+
+            $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
+
             foreach ($salesChannels as $salesChannel) {
                 $scId = $salesChannel->getId();
                 $languages = $salesChannel->getLanguages();
-                if ($languages !== null) {
-                    foreach ($languages as $language) {
-                        $availablePairs[$scId . '|' . $language->getId()] = true;
-                    }
+
+                if ($languages === null || $languages->count() === 0) {
+                    continue;
+                }
+
+                foreach ($languages as $language) {
+                    $available[$scId][$language->getId()] = true;
                 }
             }
         }
 
         $result = [];
+
         foreach ($customers as $customer) {
+            $customerId = $customer->getId();
             $scId = $salesChannelIdFromSource ?? $customer->getSalesChannelId();
             $langId = $customer->getLanguageId();
-            if ($scId && $langId && isset($availablePairs[$scId . '|' . $langId])) {
-                $result[$customer->getId()] = $langId;
-            } else {
-                $result[$customer->getId()] = null;
+
+            if (!$scId || !$langId || !isset($available[$scId][$langId])) {
+                $result[$customerId] = null;
+                continue;
             }
+
+            $result[$customerId] = $langId;
         }
 
         return $result;

@@ -28,7 +28,7 @@
             class="sw-mail-templates-list-grid"
             detail-route="sw.mail.template.detail"
             identifier="sw-mail-template-list"
-            :items="mailTemplates"
+            :data-source="mailTemplates"
             :columns="getListColumns()"
             :repository="mailTemplateRepository"
             :full-page="false"

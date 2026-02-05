@@ -775,7 +775,7 @@ export default {
                     Shopware.Store.get('swProductDetail').product = product;
 
                     if (this.product.parentId) {
-                        this.loadParentProduct();
+                        await this.loadParentProduct();
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }

@@ -426,6 +426,7 @@ export default {
             'encoding',
             'fileName',
             'fileFormat',
+            'storefrontSalesChannelId',
             'salesChannelDomainId',
             'currencyId',
         ]),
@@ -496,6 +497,12 @@ export default {
 
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
+            return criteria;
+        },
+
+        productStreamCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('internal', false));
             return criteria;
         },
 

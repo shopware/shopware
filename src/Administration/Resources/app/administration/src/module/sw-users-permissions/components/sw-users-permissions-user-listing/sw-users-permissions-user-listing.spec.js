@@ -58,7 +58,15 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
 </div>
 `,
                     },
-                    'sw-context-menu-item': true,
+                    'sw-context-menu-item': {
+                        template:
+                            '<div class="sw-context-menu-item-stub" :disabled="disabled ? \'true\' : undefined"><slot /></div>',
+                        props: [
+                            'disabled',
+                            'routerLink',
+                            'variant',
+                        ],
+                    },
                     'sw-avatar': true,
                     'router-link': true,
                     'sw-pagination': true,
@@ -230,5 +238,31 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
         const addUserButton = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
         expect(addUserButton.find('span').text()).toBe('sw-users-permissions.sso.inviteButtonLabel');
+    });
+
+    it('should use the correct route for the Edit context menu item', async () => {
+        wrapper = await createWrapper(['users_and_permissions.editor']);
+        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            user: [
+                {
+                    id: '019bff8c86e773e79ec5538c7b1ed571',
+                    username: 'admin',
+                    firstName: 'Admin',
+                    lastName: 'User',
+                    email: 'admin@example.com',
+                },
+            ],
+        });
+        await wrapper.vm.$nextTick();
+
+        const contextMenuEdit = wrapper.findComponent('.sw-settings-user-list__user-view-action');
+        expect(contextMenuEdit.exists()).toBe(true);
+
+        // Check that the router-link prop uses the correct route name
+        const routerLinkProp = contextMenuEdit.vm.$props.routerLink;
+        expect(routerLinkProp).toBeDefined();
+        expect(routerLinkProp.name).toBe('sw.users.permissions.user.detail');
+        expect(routerLinkProp.params.id).toBe('019bff8c86e773e79ec5538c7b1ed571');
     });
 });

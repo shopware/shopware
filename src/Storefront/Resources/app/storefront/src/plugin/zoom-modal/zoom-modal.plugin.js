@@ -89,14 +89,11 @@ export default class ZoomModalPlugin extends Plugin {
 
         // Events for normal elements (images)
         this._triggers.forEach(element => {
-            element.removeEventListener(eventType, this._onClick.bind(this));
-            element.addEventListener(eventType, this._onClick.bind(this));
+            element.removeEventListener('click', this._onClick.bind(this));
+            element.addEventListener('click', this._onClick.bind(this));
 
             element.removeEventListener('keydown', this._onKeyDown.bind(this));
             element.addEventListener('keydown', this._onKeyDown.bind(this));
-
-            element.removeEventListener('touchmove', this._onTouchMove.bind(this));
-            element.addEventListener('touchmove', this._onTouchMove.bind(this));
         });
 
         // Events for canvas elements (product box)
@@ -149,13 +146,6 @@ export default class ZoomModalPlugin extends Plugin {
         this._openModal();
 
         this.$emitter.publish('onEnter');
-    }
-
-    /**
-     * @private
-     */
-    _onTouchMove() {
-        this._clickInterrupted = true;
     }
 
     /**
@@ -266,8 +256,6 @@ export default class ZoomModalPlugin extends Plugin {
         if (!this._showModalListener) {
             this._showModalListener = () => {
                 this._initSlider(modal);
-                this._registerImageZoom();
-
                 this.$emitter.publish('modalShow', { modal });
             };
         }
@@ -294,6 +282,8 @@ export default class ZoomModalPlugin extends Plugin {
         const slider = modal.querySelector(this.options.modalGallerySliderSelector);
 
         if (!slider) {
+            // No slider, but still need to register ImageZoom for single image
+            this._registerImageZoom();
             return;
         }
 
@@ -303,6 +293,9 @@ export default class ZoomModalPlugin extends Plugin {
         if (this.gallerySliderPlugin && this.gallerySliderPlugin._slider) {
             this.gallerySliderPlugin._slider.goTo(parentSliderIndex);
             window.focusHandler.setFocus(galleryImages.item(parentSliderIndex));
+
+            // Register ImageZoom if not already registered
+            this._registerImageZoom();
 
             return;
         }
@@ -333,6 +326,9 @@ export default class ZoomModalPlugin extends Plugin {
             this.gallerySliderPlugin._slider.goTo(parentSliderIndex);
             window.focusHandler.setFocus(galleryImages.item(parentSliderIndex));
 
+            // Register ImageZoom here after gallerySliderPlugin is ready
+            this._registerImageZoom();
+
             this.$emitter.publish('initSlider');
         });
     }
@@ -352,8 +348,13 @@ export default class ZoomModalPlugin extends Plugin {
 
             window.PluginManager.initializePlugin('ImageZoom', this.options.activeSlideSelector + ' ' + this.options.imageZoomInitSelector);
 
-            this.gallerySliderPlugin._slider.events.off('indexChanged', this._updateImageZoom.bind(this));
-            this.gallerySliderPlugin._slider.events.on('indexChanged',this._updateImageZoom.bind(this));
+            // Create bound function once and store it
+            if (!this._boundUpdateImageZoom) {
+                this._boundUpdateImageZoom = this._updateImageZoom.bind(this);
+            }
+
+            this.gallerySliderPlugin._slider.events.off('indexChanged', this._boundUpdateImageZoom);
+            this.gallerySliderPlugin._slider.events.on('indexChanged', this._boundUpdateImageZoom);
         } else {
             window.PluginManager.register('ImageZoom', ImageZoomPlugin, this.options.imageZoomInitSelector);
 

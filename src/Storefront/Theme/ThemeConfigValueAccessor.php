@@ -47,7 +47,7 @@ class ThemeConfigValueAccessor
 
         $themeConfig = [];
 
-        // @deprecated tag:v6.8.0.0 - Obsolete. Remove with next major version.
+        // @deprecated tag:v6.8.0 - Obsolete. Remove with next major version.
         if (!Feature::isActive('v6.8.0.0')) {
             $themeConfig = [
                 'breakpoint' => [

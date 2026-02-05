@@ -1,4 +1,4 @@
-import { BroadcastChannel } from 'worker_threads';
+import { BroadcastChannel } from 'node:worker_threads';
 import broadcastConsentChanges from './broadcast-changes';
 import useConsentStore from './consent.store';
 
@@ -15,11 +15,6 @@ describe('src/core/consent/broadcast-changes', () => {
     });
 
     it('sends broadcast message when store runs update', async () => {
-        const testChannel = new BroadcastChannel('shopware-consents');
-        testChannel.onmessage = jest.fn(({ data }) =>
-            expect(data).toEqual({ type: 'consent-changed', updatedConsent: { name: 'test_consent', status: 'accepted' } }),
-        );
-
         const store = useConsentStore();
         store.consents = {
             test_consent: {
@@ -29,14 +24,18 @@ describe('src/core/consent/broadcast-changes', () => {
         };
 
         const bc = broadcastConsentChanges();
+        const spy = jest.spyOn(bc, 'postMessage');
 
         await store.accept('test_consent');
         await flushPromises();
 
-        expect(testChannel.onmessage).toHaveBeenCalled();
-
-        testChannel.close();
         bc.close();
+
+        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith({
+            type: 'consent-changed',
+            updatedConsent: { name: 'test_consent', status: 'accepted' },
+        });
     });
 
     it('updates the store when a message is received', async () => {
@@ -59,11 +58,11 @@ describe('src/core/consent/broadcast-changes', () => {
 
         await flushPromises();
 
+        bc.close();
+        testChannel.close();
+
         expect(store.consents).toEqual({
             test_consent: { name: 'test_consent', status: 'accepted' },
         });
-
-        bc.close();
-        testChannel.close();
     });
 });

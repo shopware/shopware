@@ -74,7 +74,6 @@ export const useExtensionOrderedArray = <T>() => {
     const items = computed(() => internalArray.value);
 
     const flushEventListener = (event: { src: string }) => {
-        console.log('flushEventListener', event);
         flushByExtension(event.src);
     }
 

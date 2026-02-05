@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -78,16 +79,33 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 
         $event->addSuccess(function () use ($customers, $context, $salesChannelId, $criteria): void {
             foreach ($customers as $customer) {
-                $salesChannelContext = $this->salesChannelContextService->get(
-                    new SalesChannelContextServiceParameters(
-                        $salesChannelId ?? $customer->getSalesChannelId(),
-                        Random::getAlphanumericString(32),
-                        $customer->getLanguageId(),
-                        null,
-                        null,
-                        $context,
-                    )
-                );
+                try {
+                    $salesChannelContext = $this->salesChannelContextService->get(
+                        new SalesChannelContextServiceParameters(
+                            $salesChannelId ?? $customer->getSalesChannelId(),
+                            Random::getAlphanumericString(32),
+                            $customer->getLanguageId(),
+                            null,
+                            null,
+                            $context,
+                        )
+                    );
+                } catch (SalesChannelException $e) {
+                    if ($e->getErrorCode() === SalesChannelException::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION) {
+                        $salesChannelContext = $this->salesChannelContextService->get(
+                            new SalesChannelContextServiceParameters(
+                                $salesChannelId ?? $customer->getSalesChannelId(),
+                                Random::getAlphanumericString(32),
+                                null,
+                                null,
+                                null,
+                                $context,
+                            )
+                        );
+                    } else {
+                        throw $e;
+                    }
+                }
 
                 $this->eventDispatcher->dispatch(new CustomerDeletedEvent(
                     $salesChannelContext,

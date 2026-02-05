@@ -8,7 +8,8 @@
 
 ### Internal product streams
 
-A new boolean field `internal` has been added to product streams with a default value of `false`. This allows you to mark product streams as internal for system or plugin use, preventing them from appearing in merchant-facing selection lists throughout the Administration (e.g., in categories, cross-selling, CMS elements, or sales channels).
+A new boolean field `internal` has been added to product streams with a default value of `false`.
+This allows you to mark product streams as internal for system or plugin use, preventing them from appearing in merchant-facing selection lists throughout the Administration (e.g., in categories, cross-selling, CMS elements, or sales channels).
 
 Use this feature when you need to create product streams programmatically that should not be modified or selected by shop administrators.
 
@@ -26,9 +27,16 @@ As consequence of the introduction of the new table helper class following metho
 
 ### Migration generator improvements
 
-The migration generator previously used a fixed format: `fk.<table-name>.<column>` for foreign key names. Doctrine does not support this format and creates broken migrations; therefore, we changed to the format `fk__<table-name>__<column>` for foreign key names.
+The migration generator previously used a fixed format: `fk.<table-name>.<column>` for foreign key names.
+Doctrine does not support this format and creates broken migrations; therefore, we changed to the format `fk__<table-name>__<column>` for foreign key names.
 
 Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
+
+### Updated `doctrine/dbal` dependency
+
+The `doctrine/dbal` dependency was updated to the new 4.4 minor version.
+They introduced many deprecations, especially in the SchemaManager tool, which also might affect you.
+Read more about it in their [upgrade guide](https://github.com/doctrine/dbal/blob/4.4.x/UPGRADE.md#upgrade-to-44).
 
 ## Administration
 
@@ -56,9 +64,12 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 ```
 
 The component will continue to work with the `items` prop for backward compatibility, but you will see a deprecation warning in the browser console.
+
 ### Notification translations now update when language changes
 
-Notifications now store translation keys directly in their title and message fields instead of translating them immediately. The template checks if the text is a translation key and translates it reactively, allowing notifications to update automatically when the user changes the interface language.
+Notifications now store translation keys directly in their title and message fields instead of translating them immediately.
+The template checks if the text is a translation key and translates it reactively, allowing notifications to update automatically when the user changes the interface language.
+
 ### Help text support for color picker custom fields
 
 The color picker type for custom fields now supports adding a help text. When creating or editing a custom field of type "Colorpicker" in Settings > Content > Custom fields, you can now specify a help text that will be displayed to users in the Administration.
@@ -133,12 +144,13 @@ Removed dependency of the Core bundle to the Elasticsearch bundle, so that the C
 
 ### Symfony 7.4 update
 
-All symfony packages have been updated to version 7.4.
+All Symfony packages have been updated to version 7.4.
 Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
 Especially note that Symfony now requires php-redis extension v6.1 or higher: https://github.com/symfony/symfony/blob/7.4/UPGRADE-7.4.md#cache.
 If you note compatibility issues with the Redis extension please check the installed version php-redis.
 
 ### Changed maintenance mode redirect
+
 After maintenance ends, users are now redirected back to the page they were on before maintenance.
 Previously, users were always redirected to the shop homepage.
 
@@ -341,6 +353,15 @@ The following changes are relevant when HTTP caching policies feature is enabled
 Fixes an issue on iOS Safari where the first tap does not trigger the desired action on the product detail page after scrolling over the image gallery.
 The `touchmove` event listener was removed from `zoom-modal.plugin.js` because it stopped the tap/click event.
 A regular `click` event is used instead to open the Zoom-Modal. The browser itself can determine via the `click` event if the user is still scrolling or clicking/taping.
+
+### Better handling of JS plugin initialization for async content
+When content was loaded asyncronously within offcanvas elements or modals, all JS plugins of the page were initialized again, causing that update methods of all plugins to be called. We added a new method `initializePluginsInParentElement()` to the plugin manager to enable plugin initialization scoped to a parent element. This creates the possibility to initlize plugins only within newly added or async fetched content. The correposnding calls were updated in the following plugins:
+
+*  `ajax-offcanvas.plugin.js`
+*  `offcanvas-cart.plugin.js`
+*  `offcanvas-menu.plugin.js`
+*  `offcanvas-tabs.plugin.js`
+*  `ajax-modal.plugin.js`
 
 ### Google Analytics 4 Integration Update
 

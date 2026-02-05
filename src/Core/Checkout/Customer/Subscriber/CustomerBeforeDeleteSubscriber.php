@@ -123,10 +123,6 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
         $languageIds = $customers->map(fn ($c) => $c->getLanguageId());
         $languageIds = array_filter(array_unique($languageIds));
 
-        if (empty($salesChannelIds)) {
-            return array_fill_keys($customers->getIds(), null);
-        }
-
         $criteria = (new Criteria($salesChannelIds))->addAssociation('languages');
         $criteria->getAssociation('languages')
             ->addFields(['id'])

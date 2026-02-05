@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Util;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Database\TableHelperException;
 use Shopware\Core\Framework\Util\Exception\Base64DecodingException;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
 use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
@@ -23,6 +24,7 @@ class UtilException extends HttpException
     public const LENGTH_MUST_BE_GREATER_THAN_ZERO = 'UTIL__LENGTH_MUST_BE_GREATER_THAN_ZERO';
     public const MIN_MUST_NOT_BE_GREATER_THAN_MAX = 'UTIL__MIN_MUST_NOT_BE_GREATER_THAN_MAX';
     public const BASE64_DECODING_FAILED = 'UTIL__BASE64_DECODING_FAILED';
+    public const DB_TABLE_HELPER_EXCEPTION = 'UTIL__DB_TABLE_HELPER_EXCEPTION';
 
     public static function invalidJson(\JsonException $e): self
     {
@@ -121,5 +123,12 @@ class UtilException extends HttpException
             self::BASE64_DECODING_FAILED,
             'Failed to decode base64url data'
         );
+    }
+
+    public static function databaseTableHelperException(
+        string $executedAction,
+        \Throwable $previousException
+    ): TableHelperException {
+        return new TableHelperException($executedAction, $previousException);
     }
 }

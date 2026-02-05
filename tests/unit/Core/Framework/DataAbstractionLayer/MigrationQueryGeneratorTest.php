@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -32,6 +33,8 @@ class MigrationQueryGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
+        TableHelper::resetSchemaManager();
+
         $platform = new MySQLPlatform();
 
         $this->schemaBuilder = $this->createMock(SchemaBuilder::class);
@@ -58,11 +61,16 @@ class MigrationQueryGeneratorTest extends TestCase
         $this->generator = new MigrationQueryGenerator($connection, $this->schemaBuilder);
     }
 
+    protected function tearDown(): void
+    {
+        TableHelper::resetSchemaManager();
+    }
+
     public function testGenerateQueriesForExistingTable(): void
     {
         $entityDefinition = $this->createMock(EntityDefinition::class);
 
-        $this->schemaManager->method('tablesExist')->willReturn(true);
+        $this->schemaManager->method('tableExists')->willReturn(true);
 
         $this->schemaManager->method('introspectTable')->willReturn($this->getOriginalTable());
 

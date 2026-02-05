@@ -7,6 +7,7 @@ const orderFixture = {
     id: 'order1',
     documents: [
         {
+            id: 'invoice-doc-1000',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -23,6 +24,7 @@ const orderFixture = {
             },
         },
         {
+            id: 'invoice-doc-1001',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -39,6 +41,7 @@ const orderFixture = {
             },
         },
         {
+            id: 'delivery-note-doc-1001',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -370,6 +373,40 @@ describe('sw-order-document-settings-credit-note-modal', () => {
 
         expect(wrapper.vm.documentConfig.custom.creditNoteNumber).toBe('PREVIEW_NUM_002');
         expect(wrapper.emitted()['document-create']).toBeTruthy();
+    });
+
+    it('should reference the selected invoice when creating document', async () => {
+        await wrapper.setData({
+            documentNumberPreview: 'PREVIEW_NUM_001',
+            documentConfig: {
+                documentNumber: 'PREVIEW_NUM_002',
+                custom: {
+                    invoiceNumber: 1000,
+                },
+            },
+        });
+
+        await wrapper.vm.onCreateDocument();
+
+        expect(wrapper.emitted()['document-create']).toBeTruthy();
+        expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1000');
+    });
+
+    it('should reference the second invoice when it is selected', async () => {
+        await wrapper.setData({
+            documentNumberPreview: 'PREVIEW_NUM_001',
+            documentConfig: {
+                documentNumber: 'PREVIEW_NUM_002',
+                custom: {
+                    invoiceNumber: 1001,
+                },
+            },
+        });
+
+        await wrapper.vm.onCreateDocument();
+
+        expect(wrapper.emitted()['document-create']).toBeTruthy();
+        expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1001');
     });
 
     it('should show only invoice numbers in invoice number select field', async () => {

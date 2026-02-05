@@ -21,6 +21,7 @@
                     :default-folder="cmsPageState.pageEntityName"
                     :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
                     :disabled="isInherited"
+                    file-accept="video/*"
                     @media-upload-sidebar-open="onOpenMediaModal"
                     @media-upload-remove-image="onVideoRemove"
                 />
@@ -60,6 +61,7 @@
                 :entity-context="cmsPageState.entityName"
                 :allow-multi-select="false"
                 :initial-folder-id="cmsPageState.defaultMediaFolderId"
+                file-accept="video/*"
                 @media-upload-remove-video="onVideoRemove"
                 @media-modal-selection-change="onSelectionChanges"
                 @modal-close="onCloseModal"
@@ -168,6 +170,7 @@
                 <mt-text-field
                     v-model="element.config.ariaLabel.value"
                     class="sw-cms-el-config-video__aria-label"
+                    :help-text="$tc('sw-cms.elements.video.config.helpText.ariaLabel')"
                     :placeholder="$t('sw-cms.elements.video.config.placeholder.ariaLabel')"
                     :disabled="isInherited"
                 />

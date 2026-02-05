@@ -38,14 +38,14 @@ export default Component.wrapComponentConfig({
         },
 
         previewSource(): Entity<'media'> | string | null {
-            const elementData = this.element.data as unknown as { media?: Entity<'media'> };
-            const mediaConfig = this.element.config.media as { value: string | null };
+            const elementData = this.element.data as unknown as { media?: Entity<'media'> } | undefined;
+            const mediaConfig = this.element.config.media as { value: string | null } | undefined;
 
-            if (elementData.media?.id) {
+            if (elementData?.media?.id) {
                 return elementData.media;
             }
 
-            return mediaConfig.value;
+            return mediaConfig?.value ?? null;
         },
 
         displayModeOptions(): Options {

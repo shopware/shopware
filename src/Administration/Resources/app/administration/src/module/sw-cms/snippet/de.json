@@ -481,14 +481,15 @@
             "playsInline": "Inline auf iOS-Geräten abspielen"
           },
           "helpText": {
+            "ariaLabel": "Wird von Screenreadern vorgelesen und sollte den Inhalt oder Zweck des Videos kurz beschreiben. Wenn leer, wird stattdessen entweder der im Media-Modul konfigurierte Titel oder der Alt-Text verwendet.",
             "minHeight": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
             "autoPlay": "Autoplay wird von vielen Browsern nur erlaubt, wenn das Video stumm ist.<br>Ein Cover ist bei Autoplay nicht sinnvoll, weil die Wiedergabe sofort startet und keine Bestätigung nötig ist.",
             "showCover": "Das in der Medienauswahl konfigurierte Cover wird angezeigt, bis der Nutzer per Klick das Video lädt.",
             "playsInline": "Ohne diese Option öffnet iOS Videos oft im Vollbild. Aktiviere diese Option, um die Wiedergabe inline zu halten."
           },
           "placeholder": {
-            "minHeight": "Mindesthöhe eingeben ...",
-            "ariaLabel": "Titel für Screenreader eingeben ..."
+            "ariaLabel": "Titel für Screenreader eingeben ...",
+            "minHeight": "Mindesthöhe eingeben ..."
           }
         }
       },

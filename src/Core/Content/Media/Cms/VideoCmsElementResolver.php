@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class VideoCmsElementResolver extends AbstractCmsElementResolver
 {
-    final public const CMS_DEFAULT_ASSETS_PATH = '/bundles/storefront/assets/default/cms/';
-
     /**
      * @internal
      */

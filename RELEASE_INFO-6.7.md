@@ -35,8 +35,8 @@ Also, the generator now sets `CASCADE DELETE` on foreign keys for the translatio
 ### Updated `doctrine/dbal` dependency
 
 The `doctrine/dbal` dependency was updated to the new 4.4 minor version.
-They introduced many deprecations to the SchemaManager tool, which also might affect you.
-
+They introduced many deprecations, especially in the SchemaManager tool, which also might affect you.
+Read more about it in their [upgrade guide](https://github.com/doctrine/dbal/blob/4.4.x/UPGRADE.md#upgrade-to-44).
 
 ## Administration
 

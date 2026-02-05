@@ -325,7 +325,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     private function refreshIndices(): void
     {
-        $indexTasks = [];    
+        $indexTasks = [];
         $entities = [];
         foreach ($this->indexer as $indexer) {
             $alias = $this->adminEsHelper->getIndex($indexer->getName());

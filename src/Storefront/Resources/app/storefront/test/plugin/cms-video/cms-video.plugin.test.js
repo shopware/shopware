@@ -58,17 +58,6 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         document.body.innerHTML = '';
     });
 
-    test('primes the first frame when no poster is set and data is available', () => {
-        const video = document.querySelector('video');
-        const setCurrentTime = mockCurrentTime(video);
-        defineReadyState(video, 2);
-
-        const plugin = initPlugin();
-        plugin.init();
-
-        expect(setCurrentTime).toHaveBeenCalledWith(0.001);
-    });
-
     test('applies stored volume when valid value exists', () => {
         const video = document.querySelector('video');
         Object.defineProperty(video, 'volume', { value: 0, writable: true, configurable: true });
@@ -111,33 +100,6 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         plugin._onVolumeChange();
 
         expect(setItemSpy).toHaveBeenCalledWith('sw-cms-video-volume', '0.7');
-    });
-
-    test('does not prime the first frame when a poster is set', () => {
-        const video = document.querySelector('video');
-        const setCurrentTime = mockCurrentTime(video);
-        defineReadyState(video, 2);
-        video.setAttribute('poster', 'https://example.com/poster.jpg');
-
-        const plugin = initPlugin();
-        plugin.init();
-
-        expect(setCurrentTime).not.toHaveBeenCalled();
-    });
-
-    test('primes the first frame once data is loaded', () => {
-        const video = document.querySelector('video');
-        const setCurrentTime = mockCurrentTime(video);
-        defineReadyState(video, 0);
-
-        const plugin = initPlugin();
-        plugin.init();
-
-        expect(setCurrentTime).not.toHaveBeenCalled();
-
-        video.dispatchEvent(new Event('loadeddata'));
-
-        expect(setCurrentTime).toHaveBeenCalledWith(0.001);
     });
 
     test('updates playing state classes with delay', () => {

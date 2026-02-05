@@ -60,7 +60,7 @@
                             {% block element_video_media %}
                                 <video
                                     class="cms-video"
-                                    preload="metadata"
+                                    preload="auto"
                                     {% if ariaLabel is not empty %}aria-label="{{ ariaLabel }}"{% endif %}
                                     {% if mediaTitle is not empty %}title="{{ mediaTitle }}"{% endif %}
                                     {% if config.showCover.value and element.data.media.extensions.videoCoverMedia %}poster="{{ element.data.media.extensions.videoCoverMedia.url }}"{% endif %}

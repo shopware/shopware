@@ -22,7 +22,6 @@ export default class CmsVideoPlugin extends Plugin {
         this._registerVolumeEvents();
         this._registerPlaybackEvents();
         this._updatePlayingState();
-        this._primeFirstFrame();
 
         if (!this._video.hasAttribute('controls')) {
             this._registerToggleEvent();
@@ -74,39 +73,6 @@ export default class CmsVideoPlugin extends Plugin {
         this._video.addEventListener('play', this._onPlay.bind(this));
         this._video.addEventListener('pause', this._updatePlayingState.bind(this, { delay: 0 }));
         this._video.addEventListener('ended', this._updatePlayingState.bind(this, { delay: 0 }));
-    }
-
-    /**
-     * Forces Safari to render the first frame when no poster is set.
-     *
-     * @see https://webkit.org/blog/6784/new-video-policies-for-ios/
-     *
-     * @private
-     * @returns {void}
-     */
-    _primeFirstFrame() {
-        if (this._video.hasAttribute('poster')) {
-            return;
-        }
-
-        const trySeek = () => {
-            if (this._video.currentTime > 0) {
-                return;
-            }
-
-            try {
-                this._video.currentTime = 0.001;
-            } catch (error) {
-                // Ignore seek errors (e.g., insufficient data yet).
-            }
-        };
-
-        if (this._video.readyState >= 2) {
-            trySeek();
-            return;
-        }
-
-        this._video.addEventListener('loadeddata', trySeek, { once: true });
     }
 
     /**

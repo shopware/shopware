@@ -46,8 +46,6 @@ class ExtensionStoreActionsController extends AbstractController
         /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
 
-        dd($file);
-
         if (!$file) {
             throw RoutingException::missingRequestParameter('file');
         }

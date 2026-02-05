@@ -3,9 +3,10 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,9 +21,8 @@ class Migration1767611523UpdateUnitPriceOrderDeliveryPosition extends MigrationS
 
     public function update(Connection $connection): void
     {
-        $type = $connection->createSchemaManager()->introspectTable('order_delivery_position')->getColumn('unit_price')->getType();
-
-        if ($type->getBindingType() === ParameterType::INTEGER) {
+        $columnType = TableHelper::getColumnOfTable($connection, 'order_delivery_position', 'unit_price')->type;
+        if ($columnType === Types::INTEGER) {
             $connection->executeStatement('
                 ALTER TABLE `order_delivery_position`
                 MODIFY `unit_price` DOUBLE

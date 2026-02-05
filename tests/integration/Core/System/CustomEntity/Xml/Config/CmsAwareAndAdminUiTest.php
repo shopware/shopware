@@ -188,7 +188,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'custom_entity_string_field',
                 'custom_entity_int_field',
             ],
-            TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME)->columnNames,
+            array_column(TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME)->columns, 'name'),
             'Exactly these columns should exist for this cms-aware custom entity'
         );
 
@@ -219,7 +219,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'sw_og_title',
                 'sw_og_description',
             ],
-            TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME . '_translation')->columnNames,
+            array_column(TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME . '_translation')->columns, 'name'),
             'The fields translation table of this custom entity should have exactly these fields'
         );
 
@@ -234,7 +234,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'category_id',
                 'category_version_id',
             ],
-            TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories')->columnNames,
+            array_column(TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories')->columns, 'name'),
             'A cms-aware custom entity should be connected to the categories'
         );
 

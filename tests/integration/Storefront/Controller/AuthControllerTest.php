@@ -108,47 +108,57 @@ class AuthControllerTest extends TestCase
         static::assertFalse($oldContextExists);
     }
 
-    public function testLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOn(): void
+    public function testPerChannelTokensWhenCustomerBindingEnabled(): void
     {
         $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
 
+        // Login on the default sales channel
         $browser = $this->login();
-
         $session = $this->getSession();
-        $contextToken = $session->get('sw-context-token');
 
-        $browser->getResponse();
+        // Get the sales channel ID that was used for login
+        $loginSalesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
-        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        // Get the token for the login channel - should be stored in channel-specific key
+        $loginChannelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $loginSalesChannelId;
+        $loginChannelToken = $session->get($loginChannelTokenKey);
 
-        $browser->request('GET', '/account');
+        static::assertNotNull($loginChannelToken, 'Login channel should have a channel-specific token');
 
-        $redirectResponse = $browser->getResponse();
+        // Verify the default token key is synced with the login channel
+        static::assertSame($loginChannelToken, $session->get('sw-context-token'), 'Default token should be synced with channel token');
 
-        static::assertInstanceOf(RedirectResponse::class, $redirectResponse);
-        static::assertStringStartsWith('/account/login', $redirectResponse->getTargetUrl());
-        static::assertNotSame($contextToken, $this->getSession()->get('sw-context-token'));
+        // Make another request on the same channel
+        $browser->request('GET', '/');
+
+        // Verify the channel-specific token is still preserved
+        static::assertSame($loginChannelToken, $session->get($loginChannelTokenKey), 'Channel token should be preserved across requests');
+
+        // Verify default token is still synced
+        static::assertSame($loginChannelToken, $session->get('sw-context-token'), 'Default token should remain synced');
     }
 
-    public function testDoNotLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOff(): void
+    public function testGlobalTokenWhenCustomerBindingDisabled(): void
     {
         $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', false);
 
         $browser = $this->login();
-
         $session = $this->getSession();
 
         $contextToken = $session->get('sw-context-token');
+        $salesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
-        $browser->getResponse();
+        // Make another request on the same channel
+        $browser->request('GET', '/');
 
-        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        // Token should remain the same (global token, not per-channel)
+        static::assertSame($contextToken, $session->get('sw-context-token'), 'Global token should be preserved');
 
-        $browser->request('GET', '/account');
-
-        static::assertSame($contextToken, $this->getSession()->get('sw-context-token'));
+        // No channel-specific tokens should exist when binding is disabled
+        $channelSpecificKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+        static::assertFalse($session->has($channelSpecificKey), 'Channel-specific tokens should not exist when binding is disabled');
     }
 
     public function testSessionIsInvalidatedOnLogoutAndInvalidateSettingFalse(): void

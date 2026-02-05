@@ -229,7 +229,7 @@
           "helpText": {
             "autoplayTimeout": "Die Anzeigezeit eines einzelnen Bildes in Millisekunden.",
             "speed": "Die Dauer der Wechselanimation in Millisekunden.",
-            "displayMode": "<ul><li><strong>Original:</strong> Das Bild wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.</li><li><strong>Skaliert:</strong> Das Bild wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.</li><li><strong>Zugeschnitten:</strong> Das Bild wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten.</li></ul>"
+            "displayMode": "<ul><li><strong>Original:</strong> Der Inhalt wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.</li><li><strong>Skaliert:</strong> Der Inhalt wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.</li><li><strong>Zugeschnitten:</strong> Der Inhalt wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten.</li></ul>"
           },
           "caption": {
             "mediaUpload": "Lade ein Bild hoch"
@@ -257,23 +257,22 @@
         "config": {
           "label": {
             "ariaLabel": "Link-Beschreibung",
-            "ariaLabelHelpText": "Dieser Text wird beim Auslesen des Links von Screenreadern vorgelesen.",
-            "minHeight": "Minimale Höhe",
-            "minHeightHelpText": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
-            "isDecorative": "Bilder als ausschließlich dekorativ kennzeichen",
-            "isDecorativeHelpText": "Wenn diese Option eingeschaltet wird, werden die Bildinformationen nicht von Screenreadern vorgelesen.",
+            "minHeight": "Mindesthöhe",
+            "isDecorative": "Als ausschließlich dekorativ markieren",
             "useFetchPriorityOnFirstItem": "Erstes Bild priorisiert laden",
-            "useFetchPriorityOnFirstItemHelpText": "Wenn diese Option eingeschaltet wird, wird das erste Bild mit einer höheren Priorität geladen. Dies kann die Geschwindigkeit des Aufbaus der Seite im Browser verbessern.",
             "linkNewTab": "Link in neuem Tab öffnen",
             "linkTo": "Linkziel",
             "fetchPriorityHigh": "Hohe Ladepriorität"
           },
           "helpText": {
+            "ariaLabel": "Dieser Text wird beim Auslesen des Links von Screenreadern vorgelesen.",
+            "minHeight": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
             "fetchPriorityHigh": "Setze diese Option, wenn das Bild das erste Bild auf der Seite ist. Diesem Bild wird dann das Attribut 'fetchpriority=\"high\"' hinzugefügt, was dem Browser mitteilt, dass das Bild mit höherer Priorität geladen werden soll, was den Largest Contentful Paint (LCP) verbessern kann.",
+            "useFetchPriorityOnFirstItem": "Wenn diese Option eingeschaltet wird, wird das erste Bild mit einer höheren Priorität geladen. Dies kann die Geschwindigkeit des Aufbaus der Seite im Browser verbessern.",
             "isDecorative": "Wenn diese Option eingeschaltet ist, werden die Bildinformationen nicht von Screenreadern vorgelesen, das heißt der \"alt\"-Tag und \"title\"-Tag bleiben leer."
           },
           "placeholder": {
-            "enterMinHeight": "Minimale Höhe eingeben ...",
+            "enterMinHeight": "Mindesthöhe eingeben ...",
             "enterUrl": "URL eingeben ..."
           }
         }
@@ -292,7 +291,7 @@
             "magnifierOverGalleryHelpText": "Zeige die Lupe über der Galerie, anstatt daneben an."
           },
           "helpText": {
-            "displayMode": "<ul><li><strong>Original:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die Höhe des Sliders verkleinert.</li><li><strong>Feste Höhe:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die konfigurierte Höhe verkleinert.</li><li><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten.</li></ul>"
+            "displayMode": "<ul><li><strong>Original:</strong> Der Inhalt wird in der ursprünglichen Auflösung erhalten oder auf die Höhe des Sliders verkleinert.</li><li><strong>Feste Höhe:</strong> Der Inhalt wird in der ursprünglichen Auflösung erhalten oder auf die konfigurierte Höhe verkleinert.</li><li><strong>Zugeschnitten:</strong> Der Inhalt wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten.</li></ul>"
           }
         }
       },
@@ -308,7 +307,7 @@
             "navigationDots": "Punkt-Navigation"
           },
           "helpText": {
-            "displayMode": "<ul><li><strong>Original:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider passt seine Höhe dynamisch an.</li><li><strong>Feste Höhe:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider behält die Höhe des höchsten Bildes bei.</li><li><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten.</li></ul>"
+            "displayMode": "<ul><li><strong>Original:</strong> Der Inhalt wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider passt seine Höhe dynamisch an.</li><li><strong>Feste Höhe:</strong> Der Inhalt wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider behält die Höhe des höchsten Elements bei.</li><li><strong>Zugeschnitten:</strong> Der Inhalt wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten.</li></ul>"
           }
         }
       },
@@ -417,7 +416,7 @@
           },
           "helpText": {
             "minWidth": "Gib die minimale Breite in der gewünschten Einheit an. Zum Beispiel: 200px",
-            "displayMode": "<ul><li><strong>Original:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder werden nie hochskaliert.</li><li><strong>Feste Höhe:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder können hochskaliert werden.</li><li><strong>Zugeschnitten:</strong> Die Bilder werden auf die Höhe oder Breite der Produktbox skaliert. Jeglicher Überlauf wird entsprechend zugeschnitten.</li></ul>"
+            "displayMode": "<ul><li><strong>Original:</strong> Der Inhalt wird auf Höhe oder Breite der Produktbox skaliert, so dass der Inhalt immer komplett in den für ihn vorgesehenen Bereich passt. Der Inhalt wird nie hochskaliert.</li><li><strong>Feste Höhe:</strong> Der Inhalt wird auf Höhe oder Breite der Produktbox skaliert, so dass der Inhalt immer komplett in den für ihn vorgesehenen Bereich passt. Der Inhalt kann hochskaliert werden.</li><li><strong>Zugeschnitten:</strong> Der Inhalt wird auf die Höhe oder Breite der Produktbox skaliert. Jeglicher Überlauf wird entsprechend zugeschnitten.</li></ul>"
           },
           "productAssignmentTypeOptions": {
             "manual": "Manuelle Zuweisung",
@@ -468,22 +467,48 @@
           }
         }
       },
+      "video": {
+        "label": "Video",
+        "config": {
+          "label": {
+            "ariaLabel": "Titel für Screenreader",
+            "minHeight": "Mindesthöhe",
+            "autoPlay": "Automatisch abspielen",
+            "loop": "In einer Schleife abspielen",
+            "muted": "Stumm abspielen",
+            "showControls": "Steuerelemente anzeigen",
+            "showCover": "Erst nach Bestätigung laden",
+            "playsInline": "Inline auf iOS-Geräten abspielen"
+          },
+          "helpText": {
+            "ariaLabel": "Wird von Screenreadern vorgelesen und sollte den Inhalt oder Zweck des Videos kurz beschreiben. Wenn leer, wird stattdessen entweder der im Media-Modul konfigurierte Titel oder der Alt-Text verwendet.",
+            "minHeight": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
+            "autoPlay": "Autoplay wird von vielen Browsern nur erlaubt, wenn das Video stumm ist.<br>Ein Cover ist bei Autoplay nicht sinnvoll, weil die Wiedergabe sofort startet und keine Bestätigung nötig ist.",
+            "showCover": "Das in der Medienauswahl konfigurierte Cover wird angezeigt, bis der Nutzer per Klick das Video lädt.",
+            "playsInline": "Ohne diese Option öffnet iOS Videos oft im Vollbild. Aktiviere diese Option, um die Wiedergabe inline zu halten."
+          },
+          "placeholder": {
+            "ariaLabel": "Titel für Screenreader eingeben ...",
+            "minHeight": "Mindesthöhe eingeben ..."
+          }
+        }
+      },
       "vimeoVideo": {
         "label": "Vimeo-Video",
         "config": {
           "label": {
             "videoId": "Video-Link",
             "autoPlay": "Automatisch abspielen",
-            "loop": "Video wiederholen",
-            "showControls": "Video-Steuerung anzeigen",
-            "controlsColor": "Farbe der Video-Steuerung ändern",
+            "loop": "In einer Schleife abspielen",
+            "showControls": "Steuerelemente anzeigen",
+            "controlsColor": "Farbe der Steuerelemente ändern",
             "byLine": "Namen des Video-Erstellers anzeigen",
             "showPortrait": "Profilbild des Video-Erstellers anzeigen",
             "showTitle": "Titel des Videos anzeigen",
             "advancedPrivacy": "Erweiterter Datenschutzmodus",
             "start": "Video starten ab",
             "end": "Video abspielen bis",
-            "needsConfirmation": "Video erst nach Bestätigung durch den User laden",
+            "needsConfirmation": "Erst nach Bestätigung laden",
             "previewImage": "Vorschau-Bild",
             "videoTitle" : "Videotitel"
           },
@@ -752,6 +777,9 @@
         }
       },
       "video": {
+        "video": {
+          "label": "Video"
+        },
         "vimeoVideo": {
           "label": "Vimeo-Video"
         },

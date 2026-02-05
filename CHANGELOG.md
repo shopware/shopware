@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.13
+*  [#14738 - fix: `getAddress` in`AddressDetailPageLoader` (backport: 6.6.x) (#14738)](https://github.com/shopware/shopware/pull/14738)
+*  [#14735 - fix: order edit loading (backport: 6.6.x) (#14747)](https://github.com/shopware/shopware/issues/14735)
+
 ## 6.6.10.12
 *  [#14353 - fix: Remove usage of deprecated PDO constants (backport: 6.6.x) (#14353)](https://github.com/shopware/shopware/pull/14353)
 *  [#14451 - Fix IAP decoding with old OpenSSL versions](./changelog/release-6-6-10-12/2025-10-20-fix-iap-decoding-with-old-openssl-versions.md)

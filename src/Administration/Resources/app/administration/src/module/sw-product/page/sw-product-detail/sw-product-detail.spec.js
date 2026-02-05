@@ -179,7 +179,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         Shopware.Store.register({
             id: 'cmsPage',
             actions: {
-                resetCmsPageState: () => { },
+                resetCmsPageState: () => {},
             },
         });
     });
@@ -932,7 +932,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             label: 'sw-product.detailBase.cardTitlePrices',
                             enabled: false,
                             name: 'general',
-                        }
+                        },
                     ],
                 },
             }),

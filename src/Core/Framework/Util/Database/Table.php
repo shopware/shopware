@@ -13,10 +13,12 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class Table
 {
     /**
-     * @param list<string> $columnNames
+     * @param list<Column> $columns
+     * @param list<Index> $indexes
      */
     public function __construct(
-        public array $columnNames
+        public array $columns,
+        public array $indexes,
     ) {
     }
 }

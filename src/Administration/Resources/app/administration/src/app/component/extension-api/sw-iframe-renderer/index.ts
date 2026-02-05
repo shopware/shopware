@@ -88,6 +88,14 @@ export default Shopware.Component.wrapComponentConfig({
         );
     },
 
+    mounted() {
+        this.$refs.iframe.addEventListener('load', () => {
+            Shopware.Utils.EventBus.emit('sw-extension-loaded', {
+                src: this.iFrameSrc,
+            });
+        });
+    },
+
     beforeUnmount() {
         if (this.heightHandler) {
             this.heightHandler();

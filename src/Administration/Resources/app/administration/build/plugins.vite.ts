@@ -26,7 +26,6 @@ import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
-import HmrFlushPlugin from './vite-plugins/hmr-flush-plugin';
 import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
@@ -87,14 +86,8 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
             }),
             ExternalsPlugin(),
 
-            // Dev plugins - HMR flush for automatic cleanup before hot reload
             ...(isDev
-                ? [
-                      HmrFlushPlugin({
-                          extensionName: extension.technicalName,
-                          extensionType: extension.isPlugin ? 'plugin' : 'app',
-                      }),
-                  ]
+                ? [ ]
                 : [
                       symfonyPlugin(),
                   ]),

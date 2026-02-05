@@ -31,12 +31,13 @@ export default {
             data: MessageDataType<MESSAGE_TYPE> & BaseMessageOptions,
             additionalInformation: { _event_: MessageEvent<string> },
         ): ReturnType<HandleMethod<MESSAGE_TYPE>> => {
-            const context = { id: additionalInformation._event_.origin };
+            const extensionContext = { id: additionalInformation._event_.source?.location?.href };
+
             // No privileges to check early return by calling original method
             if (!data.privileges || data.privileges.length === 0) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return wrapWithExtensionContext(
-                    context,
+                    extensionContext,
                     () => method(data, additionalInformation)
                 );
             }
@@ -49,10 +50,9 @@ export default {
                     reject(new MissingPrivilegesError(type, missingPrivileges));
                 } else {
                     const result = wrapWithExtensionContext(
-                        context,
+                        extensionContext,
                         () => method(data, additionalInformation)
                     );
-
 
                     if (isPromise<ShopwareMessageTypes[MESSAGE_TYPE]['responseType']>(result)) {
                         void result.then((rsp) => resolve(rsp)).catch(reject);

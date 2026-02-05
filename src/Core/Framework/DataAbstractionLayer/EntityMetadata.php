@@ -13,6 +13,7 @@ use Symfony\Component\DependencyInjection\Definition;
 final readonly class EntityMetadata
 {
     /**
+     * @param non-empty-string $entityName
      * @param class-string<Entity> $entityClass
      * @param class-string<EntityCollection<Entity>> $collectionClass
      * @param class-string<EntityHydrator> $hydratorClass

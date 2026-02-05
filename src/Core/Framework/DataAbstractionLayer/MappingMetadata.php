@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\Definition;
 final readonly class MappingMetadata
 {
     /**
+     * @param non-empty-string $entityName
      * @param list<FieldMetadata> $fields
      * @param string $source Source entity name
      * @param string $reference Reference entity name

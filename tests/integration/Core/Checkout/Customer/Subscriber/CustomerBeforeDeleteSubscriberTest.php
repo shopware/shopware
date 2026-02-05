@@ -2,9 +2,11 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -17,6 +19,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(CustomerBeforeDeleteSubscriber::class)]
 class CustomerBeforeDeleteSubscriberTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

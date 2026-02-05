@@ -10,12 +10,15 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\Column;
+use Shopware\Core\Framework\Util\Database\Index;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Util\Database\TableHelperException;
 use Shopware\Core\Framework\Util\UtilException;
@@ -71,8 +74,12 @@ class TableHelperTest extends TestCase
     public function testGetTable(): void
     {
         $table = TableHelper::getTable($this->connection, ProductDefinition::ENTITY_NAME);
-        static::assertIsList($table->columnNames);
-        static::assertContainsOnlyString($table->columnNames);
+
+        static::assertIsList($table->columns);
+        static::assertContainsOnlyInstancesOf(Column::class, $table->columns);
+
+        static::assertIsList($table->indexes);
+        static::assertContainsOnlyInstancesOf(Index::class, $table->indexes);
     }
 
     public function testGetTableFromUnknownTableThrowsException(): void
@@ -97,10 +104,9 @@ class TableHelperTest extends TestCase
         static::assertFalse(TableHelper::columnExists($this->connection, ProductDefinition::ENTITY_NAME, self::UNKNOWN_NAME));
     }
 
-    public function testColumnExistsFromUnknownTableThrowsException(): void
+    public function testColumnExistsFromUnknownTableReturnsFalse(): void
     {
-        $this->expectExceptionObject($this->createUtilExceptionForNotExistingTable('columnExists'));
-        TableHelper::columnExists($this->connection, self::UNKNOWN_NAME, 'id');
+        static::assertFalse(TableHelper::columnExists($this->connection, self::UNKNOWN_NAME, 'id'));
     }
 
     public function testColumnExistsThrowsExceptionWhileGettingSchemaManager(): void
@@ -140,16 +146,33 @@ class TableHelperTest extends TestCase
         static::assertFalse(TableHelper::indexExists($this->connection, ProductDefinition::ENTITY_NAME, self::UNKNOWN_NAME));
     }
 
-    public function testIndexExistsFromUnknownTableThrowsException(): void
+    public function testIndexExistsFromUnknownTableReturnsFalse(): void
     {
-        $this->expectExceptionObject($this->createUtilExceptionForNotExistingTable('indexExists'));
-        TableHelper::indexExists($this->connection, self::UNKNOWN_NAME, 'idx.product.type');
+        static::assertFalse(TableHelper::indexExists($this->connection, self::UNKNOWN_NAME, 'idx.product.type'));
     }
 
     public function testIndexExistsThrowsExceptionWhileGettingSchemaManager(): void
     {
         $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
         TableHelper::indexExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, 'idx.product.type');
+    }
+
+    public function testGetIndexOfTable(): void
+    {
+        $index = TableHelper::getIndexOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'idx.product.type');
+        static::assertSame(IndexType::REGULAR->name, $index->type);
+    }
+
+    public function testGetIndexFromUnknownTableThrowsException(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForNotExistingTable('getIndexOfTable'));
+        TableHelper::getIndexOfTable($this->connection, self::UNKNOWN_NAME, 'idx.product.type');
+    }
+
+    public function testGetIndexThrowsExceptionWhileGettingSchemaManager(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
+        TableHelper::getIndexOfTable($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, self::UNKNOWN_NAME);
     }
 
     public function testIndexSpansColumns(): void
@@ -162,10 +185,9 @@ class TableHelperTest extends TestCase
         static::assertFalse(TableHelper::indexSpansColumns($this->connection, ProductDefinition::ENTITY_NAME, 'idx.product.type', [self::UNKNOWN_NAME]));
     }
 
-    public function testIndexSpansColumnsFromUnknownTableThrowsException(): void
+    public function testIndexSpansColumnsFromUnknownTableReturnsFalse(): void
     {
-        $this->expectExceptionObject($this->createUtilExceptionForNotExistingTable('indexSpansColumns'));
-        TableHelper::indexSpansColumns($this->connection, self::UNKNOWN_NAME, 'idx.product.type', ['type']);
+        static::assertFalse(TableHelper::indexSpansColumns($this->connection, self::UNKNOWN_NAME, 'idx.product.type', ['type']));
     }
 
     public function testIndexSpansColumnsThrowsExceptionWhileGettingSchemaManager(): void
@@ -193,6 +215,27 @@ class TableHelperTest extends TestCase
     {
         $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
         TableHelper::getForeignKeyOfTable($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, 'fk.product.parent_id');
+    }
+
+    public function testForeignKeyExists(): void
+    {
+        static::assertTrue(TableHelper::foreignKeyExists($this->connection, ProductDefinition::ENTITY_NAME, 'fk.product.parent_id'));
+    }
+
+    public function testForeignKeyDoesExist(): void
+    {
+        static::assertFalse(TableHelper::foreignKeyExists($this->connection, ProductDefinition::ENTITY_NAME, self::UNKNOWN_NAME));
+    }
+
+    public function testForeignKeyExistsFromUnknownTableReturnsFalse(): void
+    {
+        static::assertFalse(TableHelper::foreignKeyExists($this->connection, self::UNKNOWN_NAME, 'fk.product.parent_id'));
+    }
+
+    public function testForeignKeyExistsThrowsExceptionWhileGettingSchemaManager(): void
+    {
+        $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
+        TableHelper::foreignKeyExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME, 'fk.product.parent_id');
     }
 
     public function testResetSchemaManager(): void

@@ -71,6 +71,7 @@ class DataAbstractionLayerException extends HttpException
     public const UNABLE_TO_FETCH_FOREIGN_KEY = 'FRAMEWORK__UNABLE_TO_FETCH_FOREIGN_KEY';
     public const REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND';
     public const INCONSISTENT_PRIMARY_KEY = 'FRAMEWORK__INCONSISTENT_PRIMARY_KEY';
+    public const VERSION_FIELD_NOT_FOUND = 'FRAMEWORK__VERSION_FIELD_NOT_FOUND';
     public const FIELD_NOT_FOUND = 'FRAMEWORK__FIELD_NOT_FOUND';
     public const FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__FIELD_BY_STORAGE_NAME_NOT_FOUND';
     public const MISSING_PARENT_FOREIGN_KEY = 'FRAMEWORK__MISSING_PARENT_FOREIGN_KEY';
@@ -140,6 +141,8 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_ENTITY_METADATA = 'FRAMEWORK__INVALID_ENTITY_METADATA';
     public const INVALID_MAPPING_METADATA = 'FRAMEWORK__INVALID_MAPPING_METADATA';
     public const UNKNOWN_FIELD_ATTRIBUTE_TYPE = 'FRAMEWORK__UNKNOWN_FIELD_ATTRIBUTE_TYPE';
+    public const FOREIGN_KEY_HAS_NO_ASSOCIATION_FIELD = 'FRAMEWORK__FOREIGN_KEY_HAS_NO_ASSOCIATION_FIELD';
+    public const WRONG_FIELD_TYPE_FOR_EXTENSION = 'FRAMEWORK__WRONG_FIELD_TYPE_FOR_EXTENSION';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -873,8 +876,18 @@ class DataAbstractionLayerException extends HttpException
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::FIELD_NOT_FOUND,
+            self::VERSION_FIELD_NOT_FOUND,
             'Field "{{ field }}" is missing a reference version field',
+            ['field' => $field]
+        );
+    }
+
+    public static function fieldNotFound(string $field): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FIELD_NOT_FOUND,
+            'Field "{{ field }}" not found',
             ['field' => $field]
         );
     }
@@ -1222,6 +1235,25 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_MAPPING_METADATA,
             'Failed to deserialize MappingMetadata: "{{ serialized }}".',
             ['serialized' => substr($serialized, 0, 100)]
+        );
+    }
+
+    public static function foreignKeyHasNoAssociationField(string $foreignKeyName, string $entityDefinitionClassName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FOREIGN_KEY_HAS_NO_ASSOCIATION_FIELD,
+            'FkField {{ foreignKeyName }} has no configured OneToOneAssociationField or ManyToOneAssociationField in entity definition "{{ entityDefinitionClassName }}"',
+            ['foreignKeyName' => $foreignKeyName, 'entityDefinitionClassName' => $entityDefinitionClassName]
+        );
+    }
+
+    public static function wrongFieldTypeForExtension(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::WRONG_FIELD_TYPE_FOR_EXTENSION,
+            'Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.',
         );
     }
 }

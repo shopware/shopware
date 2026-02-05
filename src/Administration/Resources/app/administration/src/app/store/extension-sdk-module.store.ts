@@ -20,6 +20,9 @@ const extensionSdkModules = Shopware.Store.register('extensionSdkModules', () =>
     const modulesOrdered = useExtensionOrderedArray<ExtensionSdkModule>();
     const smartBarButtonsOrdered = useExtensionOrderedArray<Omit<smartBarButtonAdd, 'responseType'>>();
     const hiddenSmartBarsOrdered = useExtensionOrderedArray<string>();
+    const modules = modulesOrdered.items;
+    const smartBarButtons = smartBarButtonsOrdered.items;
+    const hiddenSmartBars = hiddenSmartBarsOrdered.items;
 
     const addModule = ({
         heading,
@@ -71,13 +74,14 @@ const extensionSdkModules = Shopware.Store.register('extensionSdkModules', () =>
     };
 
     return {
-        modules: modulesOrdered.items,
-        smartBarButtons: smartBarButtonsOrdered.items,
-        hiddenSmartBars: hiddenSmartBarsOrdered.items,
+        modules,
+        smartBarButtons,
+        hiddenSmartBars,
         addModule,
         addSmartBarButton,
         addHiddenSmartBar,
         getRegisteredModuleInformation,
+        clear: modulesOrdered.clear,
     };
 });
 

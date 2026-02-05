@@ -80,10 +80,16 @@ export const useExtensionOrderedArray = <T>() => {
 
     Shopware.Utils.EventBus.on('sw-extension-loaded', flushEventListener);
 
+    const clear = () => {
+        internalArray.value = [];
+        order.value = [];
+    };
+
     return {
         items,
         push,
         removeFirstWhere,
+        clear,
     };
 };
 

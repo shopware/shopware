@@ -61,7 +61,7 @@ class ExtensionStoreActionsController extends AbstractController
         try {
             $this->pluginManagementService->uploadPlugin($file, $context);
         } catch (\Exception $e) {
-            unlink($file->getPathname());
+            // unlink($file->getPathname());
 
             throw $e;
         }

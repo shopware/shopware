@@ -28,7 +28,6 @@ const tabsStore = Shopware.Store.register(`tabs`, () => {
     return {
         tabItems,
         addTabItem,
-        flushByCurrentExtension: tabs.flushByCurrentExtension,
     };
 });
 

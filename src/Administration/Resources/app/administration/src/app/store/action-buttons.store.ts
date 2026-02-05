@@ -20,8 +20,7 @@ const actionButtonsStore = Shopware.Store.register('actionButtons', () => {
 
     return {
         buttons,
-        add,
-        flushByCurrentExtension: buttonsOrdered.flushByCurrentExtension,
+        add
     };
 });
 

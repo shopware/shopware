@@ -70,12 +70,6 @@ const extensionSdkModules = Shopware.Store.register('extensionSdkModules', () =>
         return modulesOrdered.items.value.filter((module) => module.baseUrl.startsWith(baseUrl));
     };
 
-    const flushByCurrentExtension = () => {
-        modulesOrdered.flushByCurrentExtension();
-        smartBarButtonsOrdered.flushByCurrentExtension();
-        hiddenSmartBarsOrdered.flushByCurrentExtension();
-    };
-
     return {
         modules: modulesOrdered.items,
         smartBarButtons: smartBarButtonsOrdered.items,
@@ -84,7 +78,6 @@ const extensionSdkModules = Shopware.Store.register('extensionSdkModules', () =>
         addSmartBarButton,
         addHiddenSmartBar,
         getRegisteredModuleInformation,
-        flushByCurrentExtension,
     };
 });
 

@@ -56,7 +56,6 @@ const modalsStore = Shopware.Store.register('modals', () => {
         openModal,
         closeModal,
         closeLastModalWithoutLocationId,
-        flushByCurrentExtension: modalsOrdered.flushByCurrentExtension,
     };
 });
 

@@ -25,7 +25,6 @@ const menuItemStore = Shopware.Store.register('menuItem', () => {
     return {
         menuItems: menuItemsOrdered.items,
         addMenuItem,
-        flushByCurrentExtension: menuItemsOrdered.flushByCurrentExtension,
     };
 });
 

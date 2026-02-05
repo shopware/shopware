@@ -71,7 +71,6 @@ const sidebarsStore = Shopware.Store.register('sidebar', () => {
         closeSidebar,
         removeSidebar,
         setActiveSidebar,
-        flushByCurrentExtension: sidebarsOrdered.flushByCurrentExtension,
     };
 });
 

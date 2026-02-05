@@ -24,7 +24,6 @@ const extensionMainModules = Shopware.Store.register('extensionMainModules', () 
     return {
         mainModules: mainModulesOrdered.items,
         addMainModule,
-        flushByCurrentExtension: mainModulesOrdered.flushByCurrentExtension,
     };
 });
 

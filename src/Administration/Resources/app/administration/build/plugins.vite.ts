@@ -86,8 +86,9 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
             }),
             ExternalsPlugin(),
 
+            // Prod plugins
             ...(isDev
-                ? [ ]
+                ? []
                 : [
                       symfonyPlugin(),
                   ]),
@@ -206,13 +207,6 @@ const main = async () => {
                 server = await createServer({
                     root: extension.path,
                     base: `/_internal_ext/${extension.technicalName}/`,
-                    plugins: [
-                        // HMR flush for automatic cleanup before hot reload
-                        HmrFlushPlugin({
-                            extensionName: extension.technicalName,
-                            extensionType: 'app',
-                        }),
-                    ],
                     server: {
                         host: '127.0.0.1',
                         port: extensionPorts[extension.technicalName],

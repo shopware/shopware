@@ -34,7 +34,6 @@ const ExtensionComponentSectionsStore = Shopware.Store.register('extensionCompon
         identifier,
         addSection,
         clear: sectionsByPosition.clear,
-        flushByCurrentExtension: sectionsByPosition.flushByCurrentExtension,
     };
 });
 

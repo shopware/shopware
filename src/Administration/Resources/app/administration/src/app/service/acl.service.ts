@@ -40,6 +40,7 @@ export default class AclService {
 
     hasActiveSettingModules(): boolean {
         // @ts-expect-error - the inferred type is incorrect
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
         const groups = Object.values(Shopware.Store.get('settingsItems').settingsGroups) as [[{ privilege?: string }]];
 
         let hasActive = false;

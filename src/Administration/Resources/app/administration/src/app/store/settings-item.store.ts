@@ -67,7 +67,6 @@ const settingsItems = Shopware.Store.register('settingsItems', () => {
     return {
         settingsGroups,
         addItem,
-        flushByCurrentExtension: settingsByGroup.flushByCurrentExtension,
     };
 });
 

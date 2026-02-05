@@ -17,7 +17,6 @@ const topBarButtonStore = Shopware.Store.register('topBarButton', () => {
     return {
         buttons,
         addButton,
-        flushByCurrentExtension: buttonsOrdered.flushByCurrentExtension,
     };
 });
 

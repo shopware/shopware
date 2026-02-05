@@ -10,7 +10,6 @@ describe('extensionSdkModules.store', () => {
 
     beforeEach(() => {
         store = Shopware.Store.get('extensionSdkModules');
-        store.flushByCurrentExtension();
     });
 
     it('has initial state', () => {

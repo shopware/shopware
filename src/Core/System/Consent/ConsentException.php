@@ -93,13 +93,19 @@ class ConsentException extends HttpException
         );
     }
 
-    public static function insufficientPermissions(string $permission): self
+    /**
+     * @param array<string> $missingPermissions
+     */
+    public static function insufficientPermissions(string $consent, array $missingPermissions): self
     {
         return new self(
             Response::HTTP_FORBIDDEN,
             self::INSUFFICIENT_PERMISSIONS,
-            'Missing required permission "{{ permission }}" to update consent.',
-            ['permission' => $permission],
+            \sprintf('Missing required permission to update consent "{{ consent }}". Missing permissions: %s', implode(', ', $missingPermissions)),
+            [
+                'consent' => $consent,
+                'permission' => $missingPermissions,
+            ],
         );
     }
 }

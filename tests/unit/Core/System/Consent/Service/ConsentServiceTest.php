@@ -20,6 +20,7 @@ use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
 use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\Test\Stub\EventDispatcher\AssertingEventDispatcher;
+use Shopware\Tests\Unit\Core\System\Consent\TestDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -39,8 +40,8 @@ class ConsentServiceTest extends TestCase
     public function testList(): void
     {
         $service = $this->createService(null, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME],
-            ['name' => 'consent-2', 'scope' => AdminUser::NAME],
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
+            new TestDefinition('consent-2', AdminUser::NAME),
         ]);
 
         $record1 = new ConsentStateRecord('consent-1', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00');
@@ -67,7 +68,7 @@ class ConsentServiceTest extends TestCase
     public function testListCachesConsents(): void
     {
         $service = $this->createService(null, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME],
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
         ]);
 
         $this->consentRepository
@@ -87,7 +88,7 @@ class ConsentServiceTest extends TestCase
         self::expectExceptionObject(ConsentException::cannotResolveScope(AdminUser::NAME));
 
         $service = $this->createService(null, [
-            ['name' => 'consent-1', 'scope' => AdminUser::NAME],
+            new TestDefinition('consent-1', AdminUser::NAME),
         ]);
 
         $context = Context::createDefaultContext();
@@ -98,7 +99,7 @@ class ConsentServiceTest extends TestCase
     public function testGetConsentStatus(): void
     {
         $service = $this->createService(null, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME],
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
         ]);
 
         $record = new ConsentStateRecord('consent-1', ConsentScope\System::NAME, ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00');
@@ -122,7 +123,7 @@ class ConsentServiceTest extends TestCase
     public function testGetConsentStatusReturnsRequestedStateByDefault(): void
     {
         $service = $this->createService(null, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME],
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
         ]);
 
         $this->consentRepository
@@ -153,7 +154,7 @@ class ConsentServiceTest extends TestCase
     public function testAcceptConsentIsNoopWhenConsentAlreadyAccepted(): void
     {
         $service = $this->createService(null, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME],
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
         ]);
 
         $this->consentRepository
@@ -178,7 +179,7 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $service = $this->createService($eventDispatcher, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME],
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
         ]);
 
         $this->consentRepository
@@ -224,7 +225,7 @@ class ConsentServiceTest extends TestCase
     public function testRevokeConsentIsNoopWhenConsentAlreadyRevoked(): void
     {
         $service = $this->createService(null, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME],
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
         ]);
 
         $this->consentRepository
@@ -249,7 +250,7 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $service = $this->createService($eventDispatcher, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME],
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
         ]);
 
         $this->consentRepository
@@ -295,14 +296,14 @@ class ConsentServiceTest extends TestCase
     public function testConsentUpdateThrowsForInsufficientPermissions(): void
     {
         $service = $this->createService(null, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME, 'permissions' => ['permission-1']],
+            new TestDefinition('consent-1', ConsentScope\System::NAME, ['permission-1', 'missing-1', 'missing-2']),
         ]);
 
         $this->expectException(ConsentException::class);
-        $this->expectExceptionMessage('Missing required permission "permission-1" to update consent.');
+        $this->expectExceptionMessage('Missing required permission to update consent "consent-1". Missing permissions: missing-1, missing-2');
 
         $source = new AdminApiSource('user-123');
-        $source->setPermissions(['permission-2']);
+        $source->setPermissions(['permission-1']);
         $context = Context::createDefaultContext($source);
 
         $service->acceptConsent('consent-1', $context);
@@ -315,7 +316,7 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $service = $this->createService($eventDispatcher, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME, 'permissions' => ['permission-1']],
+            new TestDefinition('consent-1', ConsentScope\System::NAME, ['permission-1']),
         ]);
 
         $this->consentRepository
@@ -353,7 +354,7 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $service = $this->createService($eventDispatcher, [
-            ['name' => 'consent-1', 'scope' => ConsentScope\System::NAME, 'permissions' => ['permission-1']],
+            new TestDefinition('consent-1', ConsentScope\System::NAME, ['permission-1']),
         ]);
 
         $this->consentRepository
@@ -385,50 +386,18 @@ class ConsentServiceTest extends TestCase
     }
 
     /**
-     * @param array<array{ name: string, scope: string, permissions?: array<string>}> $consents
+     * @param array<ConsentDefinition> $definitions
      */
-    private function createService(?EventDispatcher $eventDispatcher = null, array $consents = []): ConsentService
+    private function createService(?EventDispatcher $eventDispatcher = null, array $definitions = []): ConsentService
     {
-        $definitions = [];
-        foreach ($consents as $consent) {
-            $definitions[] = new class($consent['name'], $consent['scope'], $consent['permissions'] ?? []) implements ConsentDefinition {
-                /**
-                 * @param array<string> $permissions
-                 */
-                public function __construct(
-                    private readonly string $name,
-                    private readonly string $scope,
-                    private readonly array $permissions
-                ) {
-                }
-
-                public function getName(): string
-                {
-                    return $this->name;
-                }
-
-                public function getSince(): \DateTimeImmutable
-                {
-                    return new \DateTimeImmutable();
-                }
-
-                public function getScopeName(): string
-                {
-                    return $this->scope;
-                }
-
-                public function getRequiredPermissions(): array
-                {
-                    return $this->permissions;
-                }
-            };
-        }
-
-        $scopes = [
-            new ConsentScope\System(),
-            new AdminUser(),
-        ];
-
-        return new ConsentService($scopes, $definitions, $this->consentRepository, $eventDispatcher ?? new EventDispatcher());
+        return new ConsentService(
+            [
+                new ConsentScope\System(),
+                new AdminUser(),
+            ],
+            $definitions,
+            $this->consentRepository,
+            $eventDispatcher ?? new EventDispatcher()
+        );
     }
 }

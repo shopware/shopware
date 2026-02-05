@@ -206,10 +206,15 @@ class ConsentService
             return;
         }
 
+        $missingPermissions = [];
         foreach ($consent->getRequiredPermissions() as $permission) {
             if (!$source->isAllowed($permission)) {
-                throw ConsentException::insufficientPermissions($permission);
+                $missingPermissions[] = $permission;
             }
+        }
+
+        if (!empty($missingPermissions)) {
+            throw ConsentException::insufficientPermissions($consent->getName(), $missingPermissions);
         }
     }
 }

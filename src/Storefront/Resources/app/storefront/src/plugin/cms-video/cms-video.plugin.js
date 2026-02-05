@@ -176,6 +176,7 @@ export default class CmsVideoPlugin extends Plugin {
      */
     _registerToggleEvent() {
         this.el.addEventListener('click', this._onToggleClick.bind(this));
+        this.el.addEventListener('keydown', this._onToggleKeydown.bind(this));
     }
 
     /**
@@ -198,6 +199,26 @@ export default class CmsVideoPlugin extends Plugin {
         }
 
         this._video.pause();
+    }
+
+    /**
+     * Toggle play/pause state on keyboard interaction.
+     *
+     * @private
+     * @param {KeyboardEvent} event
+     * @returns {void}
+     */
+    _onToggleKeydown(event) {
+        if (event.defaultPrevented) {
+            return;
+        }
+
+        if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
+        }
+
+        event.preventDefault();
+        this._onToggleClick();
     }
 
     /**

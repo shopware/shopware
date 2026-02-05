@@ -9,6 +9,14 @@ General styling for cms elements
     position: relative;
     height: 100%;
 
+    &[tabindex]:focus-visible {
+        outline: 0;
+    }
+
+    &[tabindex]:focus-visible .cms-video-container {
+        box-shadow: 0 0 0 $focus-ring-width $focus-ring-color;
+    }
+
     .cms-image,
     .cms-video {
         display: block;

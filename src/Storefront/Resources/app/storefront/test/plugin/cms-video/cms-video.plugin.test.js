@@ -209,6 +209,31 @@ describe('src/plugin/cms-video/cms-video.plugin', () => {
         expect(video.pause).toHaveBeenCalled();
     });
 
+    test('toggles play on keyboard interaction when controls are hidden', () => {
+        const video = document.querySelector('video');
+        defineReadyState(video, 2);
+        video.setAttribute('poster', 'https://example.com/poster.jpg');
+
+        let paused = true;
+        Object.defineProperty(video, 'paused', {
+            get: () => paused,
+            configurable: true,
+        });
+
+        video.play = jest.fn(() => {
+            paused = false;
+            return Promise.resolve();
+        });
+
+        const plugin = initPlugin();
+        plugin.init();
+
+        const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
+        plugin.el.dispatchEvent(event);
+
+        expect(video.play).toHaveBeenCalled();
+    });
+
     test('restarts the tap animation on repeated calls', () => {
         const video = document.querySelector('video');
         defineReadyState(video, 2);

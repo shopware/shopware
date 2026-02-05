@@ -27,11 +27,18 @@
 
     {% set ariaLabel = (config.ariaLabel.value ?? element.data.media.translated.alt)|trim %}
     {% set mediaTitle = (config.ariaLabel.value ?? element.data.media.translated.title)|trim %}
+    {% set playLabel = 'component.cms.video.ariaLabelPlay'|trans %}
 
     {% block element_video_wrapper %}
     <div
         class="{{ wrapperClasses|join(' ') }}"
         data-cms-video-element="true"
+        {% if not config.showControls.value %}
+            tabindex="0"
+            role="button"
+            aria-label="{{ ariaLabel ?? playLabel }}"
+            title="{{ mediaTitle ?? playLabel }}"
+        {% endif %}
     >
         <div class="cms-element-alignment {{ alignmentClass }}">
             {% block element_video_inner %}

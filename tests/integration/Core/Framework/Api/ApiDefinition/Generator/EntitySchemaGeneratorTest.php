@@ -63,10 +63,14 @@ final class EntitySchemaGeneratorTest extends TestCase
 
         foreach ($definitions as $definition) {
             static::assertArrayHasKey('properties', $definition);
+            static::assertIsArray($definition['properties']);
 
             $descriptions = array_filter(
-                array_map(fn ($property) => $property['description'], $definition['properties']),
-                fn ($description) => $description !== null
+                array_map(
+                    static fn ($property) => $property['description'] ?? null,
+                    $definition['properties']
+                ),
+                static fn ($description) => $description !== null
             );
 
             static::assertEquals(

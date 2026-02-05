@@ -106,6 +106,11 @@ class ProductSortingStreamUpdaterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn(['test_field']);
+
+        $connection
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 ['name' => 'test_field', 'type' => 'int'],

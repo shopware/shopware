@@ -77,17 +77,14 @@ class CustomFieldSetGateway
         }
 
         $conditionSql = implode(' OR ', $conditions);
-        // dd($usedFieldNames, $appOwnedSetIds, $conditionSql);
 
         /** @var list<array{id: string, name: string, type: string}> $result */
         $result = $this->connection->fetchAllAssociative(
-            <<<SQL
-                SELECT LOWER(HEX(cf.set_id)) as set_id, LOWER(HEX(cf.id)) AS id, cf.name, cf.type
+            'SELECT LOWER(HEX(cf.set_id)) as set_id, LOWER(HEX(cf.id)) AS id, cf.name, cf.type
                 FROM custom_field cf
                 WHERE cf.set_id IN (:setIds)
                     AND cf.active = 1
-                    AND ({$conditionSql})
-            SQL,
+                    AND (' . $conditionSql . ')',
             $params,
             $types
         );
@@ -104,7 +101,7 @@ class CustomFieldSetGateway
     public function fetchCustomFieldNamesUsedInProductSorting(): array
     {
         return $this->connection->fetchFirstColumn(
-            <<<SQL
+            <<<'SQL'
                 SELECT
                     REPLACE(jt.field_value, 'customFields.', '') as field_name
                 FROM product_sorting
@@ -117,7 +114,7 @@ class CustomFieldSetGateway
                 WHERE active = 1
                     AND locked = 0
                     AND jt.field_value LIKE :fields
-            SQL,
+                SQL,
             ['fields' => 'customFields.%']
         );
     }

@@ -50,10 +50,9 @@ class ElasticsearchIndexingUtils
         $mappingKey = \sprintf('elasticsearch.%s.custom_fields_mapping', $entity);
         $customFieldsMapping = $this->parameterBag->has($mappingKey) ? $this->parameterBag->get($mappingKey) : [];
 
-        // Fetch custom field names used in product_sorting and product_stream
         $usedFieldNames = array_unique(array_merge(
-            $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductSorting(),
-            $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductStream()
+            $b =$this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductSorting(),
+            $a = $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductStream()
         ));
 
         /** @var array<string, string> $mappings */

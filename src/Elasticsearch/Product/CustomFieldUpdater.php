@@ -80,7 +80,6 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 continue;
             }
 
-            // we only want to index custom fields relating to products
             if ($writeResult->getProperty('entityName') !== 'product') {
                 continue;
             }

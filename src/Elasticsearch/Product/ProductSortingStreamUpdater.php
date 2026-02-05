@@ -78,12 +78,12 @@ class ProductSortingStreamUpdater implements EventSubscriberInterface
         }
 
         $customFieldNames = $this->connection->fetchFirstColumn(
-            <<<SQL
+            <<<'SQL'
                 SELECT REPLACE(jt.field_value, 'customFields.', '') as field_name 
                 FROM product_sorting
                 CROSS JOIN JSON_TABLE(fields, '$[*]' COLUMNS (field_value VARCHAR(255) PATH '$.field')) AS jt 
                 WHERE id IN (:ids) AND active = 1 AND jt.field_value LIKE :fields
-            SQL,
+                SQL,
             ['ids' => Uuid::fromHexToBytesList($productSortingIds), 'fields' => 'customFields.%'],
             ['ids' => ArrayParameterType::STRING]
         );

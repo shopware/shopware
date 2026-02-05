@@ -27,6 +27,7 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
+use Shopware\Elasticsearch\Product\CustomFieldSetGateway;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
@@ -128,7 +129,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
 
-        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
+        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag, $this->createMock(CustomFieldSetGateway::class));
         $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
             'en' => 'sw_english_analyzer',
             'de' => 'sw_german_analyzer',
@@ -402,7 +403,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $instanceRegistry = $this->getDefinitionRegistry();
 
-        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
+        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag, $this->createMock(CustomFieldSetGateway::class));
         $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);
         $fieldMapper = new ElasticsearchFieldMapper($utils);
 
@@ -529,7 +530,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $definition = $registry->get(ProductDefinition::class);
         static::assertInstanceOf(ProductDefinition::class, $definition);
 
-        $utils = new ElasticsearchIndexingUtils($this->createMock(Connection::class), new EventDispatcher(), new ParameterBag([]));
+        $utils = new ElasticsearchIndexingUtils($this->createMock(Connection::class), new EventDispatcher(), new ParameterBag([]), $this->createMock(CustomFieldSetGateway::class));
         $fieldBuilder = new ElasticsearchFieldBuilder(new StaticLanguageLoader([]), $utils, []);
         $fieldMapper = new ElasticsearchFieldMapper($utils);
 
@@ -760,7 +761,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $instanceRegistry = $this->getDefinitionRegistry();
 
-        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
+        $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag, $this->createMock(CustomFieldSetGateway::class));
         $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);
         $fieldMapper = new ElasticsearchFieldMapper($utils);
 

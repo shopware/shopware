@@ -2,18 +2,14 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\BadRequest400Exception;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
-use Shopware\Core\System\CustomField\CustomFieldTypes;
-use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -23,10 +19,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CustomFieldUpdater implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly ElasticsearchOutdatedIndexDetector $indexDetector,
-        private readonly Client $client,
         private readonly ElasticsearchHelper $elasticsearchHelper,
-        private readonly CustomFieldSetGateway $customFieldSetGateway
+        private readonly CustomFieldSetGateway $customFieldSetGateway,
+        private readonly ElasticsearchCustomFieldsMappingHelper $mappingHelper
     ) {
     }
 
@@ -61,93 +56,18 @@ class CustomFieldUpdater implements EventSubscriberInterface
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Use ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType instead
+     *
      * @return array{type: string}
      */
     public static function getTypeFromCustomFieldType(string $type): array
     {
-        return match ($type) {
-            CustomFieldTypes::INT => [
-                'type' => 'long',
-            ],
-            CustomFieldTypes::FLOAT => [
-                'type' => 'double',
-            ],
-            CustomFieldTypes::BOOL => [
-                'type' => 'boolean',
-            ],
-            CustomFieldTypes::DATETIME => [
-                'type' => 'date',
-                'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
-                'ignore_malformed' => true,
-            ],
-            CustomFieldTypes::PRICE, CustomFieldTypes::JSON => [
-                'type' => 'object',
-                'dynamic' => true,
-            ],
-            default => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
-        };
-    }
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType instead')
+        );
 
-    /**
-     * A map of field names to their ES types, eg:
-     * ['my_field' => ['type' => 'long']]
-     *
-     * @param array<string, array<mixed>> $newCreatedFields
-     */
-    private function createFieldsInIndices(array $newCreatedFields): void
-    {
-        if ($newCreatedFields === []) {
-            return;
-        }
-
-        $indices = $this->indexDetector->getAllUsedIndices();
-        if ($indices === []) {
-            return;
-        }
-
-        $languageIds = $this->customFieldSetGateway->fetchLanguageIds();
-        if ($languageIds === []) {
-            return;
-        }
-
-        foreach ($indices as $indexName) {
-            $body = [
-                'properties' => [
-                    'customFields' => [
-                        'properties' => [],
-                    ],
-                ],
-            ];
-
-            foreach ($languageIds as $languageId) {
-                $body['properties']['customFields']['properties'][$languageId] = [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => $newCreatedFields,
-                ];
-            }
-
-            // For some reason, we need to include the includes to prevent merge conflicts.
-            // This error can happen for example after updating from version <6.4.
-            $current = $this->client->indices()->get(['index' => $indexName]);
-            $includes = $current[$indexName]['mappings']['_source']['includes'] ?? [];
-            if ($includes !== []) {
-                $body['_source'] = [
-                    'includes' => $includes,
-                ];
-            }
-
-            try {
-                $this->client->indices()->putMapping([
-                    'index' => $indexName,
-                    'body' => $body,
-                ]);
-            } catch (BadRequest400Exception $exception) {
-                if (str_contains($exception->getMessage(), 'cannot be changed from type')) {
-                    throw ElasticsearchProductException::cannotChangeCustomFieldType($exception);
-                }
-            }
-        }
+        return ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType($type);
     }
 
     private function customFieldRelationsUpdated(EntityWrittenEvent $customFieldRelationWrittenEvent): void
@@ -168,27 +88,33 @@ class CustomFieldUpdater implements EventSubscriberInterface
             $updatedCustomFieldSetIds[] = $writeResult->getProperty('customFieldSetId');
         }
 
-        $fields = $this->mapCustomFieldsToEsTypes(
-            array_merge([], ...array_values($this->customFieldSetGateway->fetchCustomFieldsForSets($updatedCustomFieldSetIds)))
+        if ($updatedCustomFieldSetIds === []) {
+            return;
+        }
+
+        $usedFieldNames = $this->fetchUsedCustomFieldNames();
+        $appOwnedSetIds = $this->customFieldSetGateway->fetchAppOwnedFieldSetIds($updatedCustomFieldSetIds);
+
+        $fields = ElasticsearchCustomFieldsMappingHelper::mapCustomFieldsToEsTypes(
+            array_merge([], ...array_values($this->customFieldSetGateway->fetchIndexableCustomFieldsForSets(
+                $updatedCustomFieldSetIds,
+                $usedFieldNames,
+                $appOwnedSetIds
+            )))
         );
 
-        $this->createFieldsInIndices($fields);
+        $this->mappingHelper->createFieldsInIndices($fields);
     }
 
     /**
-     * @param array<array{name: string, type: string}> $customFields
-     *
-     * @return array<string, array{type: string}>
+     * @return array<string>
      */
-    private function mapCustomFieldsToEsTypes(array $customFields): array
+    private function fetchUsedCustomFieldNames(): array
     {
-        $esTypes = [];
-        foreach ($customFields as $customField) {
-            $esType = self::getTypeFromCustomFieldType($customField['type']);
-            $esTypes[$customField['name']] = $esType;
-        }
-
-        return $esTypes;
+        return array_unique(array_merge(
+            $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductSorting(),
+            $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductStream()
+        ));
     }
 
     private function customFieldsCreated(EntityWrittenEvent $customFieldWrittenEvent): void
@@ -207,32 +133,55 @@ class CustomFieldUpdater implements EventSubscriberInterface
             $results[$key] = $writeResult;
         }
 
+        if ($results === []) {
+            return;
+        }
+
         $fieldSetIds = $this->customFieldSetGateway->fetchFieldSetIds(array_keys($results));
         $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings(array_values($fieldSetIds));
 
-        // we only want to index product-related and searchable custom fields
+        $uniqueSetIds = array_unique(array_values($fieldSetIds));
+        $appOwnedSetIds = $this->customFieldSetGateway->fetchAppOwnedFieldSetIds($uniqueSetIds);
+
         $results = array_filter(
             $results,
-            static function (EntityWriteResult $writeResult, string $id) use ($fieldSetEntityMappings, $fieldSetIds): bool {
-                if (!\in_array('product', $fieldSetEntityMappings[$fieldSetIds[$id]] ?? [], true)) {
+            static function (EntityWriteResult $writeResult, string $id) use ($fieldSetEntityMappings, $fieldSetIds, $appOwnedSetIds): bool {
+                $setId = $fieldSetIds[$id] ?? null;
+                if ($setId === null) {
+                    return false;
+                }
+
+                if (!\in_array('product', $fieldSetEntityMappings[$setId] ?? [], true)) {
                     return false;
                 }
 
                 $payload = $writeResult->getPayload();
 
-                return \array_key_exists('includeInSearch', $payload) && (bool) $payload['includeInSearch'];
+                if (\array_key_exists('includeInSearch', $payload) && (bool) $payload['includeInSearch']) {
+                    return true;
+                }
+
+                if (\in_array($setId, $appOwnedSetIds, true)) {
+                    return true;
+                }
+
+                return false;
             },
             \ARRAY_FILTER_USE_BOTH
         );
 
-        $newCreatedFields = $this->mapCustomFieldsToEsTypes(
+        if ($results === []) {
+            return;
+        }
+
+        $newCreatedFields = ElasticsearchCustomFieldsMappingHelper::mapCustomFieldsToEsTypes(
             array_map(static fn (EntityWriteResult $writeResult) => [
                 'name' => $writeResult->getProperty('name'),
                 'type' => $writeResult->getProperty('type'),
             ], $results)
         );
 
-        $this->createFieldsInIndices($newCreatedFields);
+        $this->mappingHelper->createFieldsInIndices($newCreatedFields);
     }
 
     private function customFieldsUpdated(
@@ -251,13 +200,11 @@ class CustomFieldUpdater implements EventSubscriberInterface
         $updatedFieldIds = [];
         foreach ($customFieldWrittenEvent->getWriteResults() as $writeResult) {
             $key = (string) $writeResult->getPrimaryKey();
-
             if (!\in_array($key, $customFieldIds, true)) {
                 continue;
             }
 
             $existence = $writeResult->getExistence();
-            // Skip new fields (handled by customFieldsCreated)
             if (!$existence || !$existence->exists()) {
                 continue;
             }
@@ -281,8 +228,16 @@ class CustomFieldUpdater implements EventSubscriberInterface
         }
 
         $setIds = array_unique(array_values($fieldSetIds));
-        $customFieldsBySet = $this->customFieldSetGateway->fetchCustomFieldsForSets($setIds);
         $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings($setIds);
+
+        $usedFieldNames = $this->fetchUsedCustomFieldNames();
+        $appOwnedSetIds = $this->customFieldSetGateway->fetchAppOwnedFieldSetIds($setIds);
+
+        $customFieldsBySet = $this->customFieldSetGateway->fetchIndexableCustomFieldsForSets(
+            $setIds,
+            $usedFieldNames,
+            $appOwnedSetIds
+        );
 
         $fieldsToAdd = [];
         foreach ($customFieldsBySet as $setCustomFields) {
@@ -292,12 +247,12 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 if (isset($updatedFieldIds[$customFieldId])) {
                     $setId = $fieldSetIds[$customFieldId];
                     if (\in_array('product', $fieldSetEntityMappings[$setId] ?? [], true)) {
-                        $fieldsToAdd[$customField['name']] = self::getTypeFromCustomFieldType($customField['type']);
+                        $fieldsToAdd[$customField['name']] = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType($customField['type']);
                     }
                 }
             }
         }
 
-        $this->createFieldsInIndices($fieldsToAdd);
+        $this->mappingHelper->createFieldsInIndices($fieldsToAdd);
     }
 }

@@ -2,11 +2,13 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
+use Shopware\Elasticsearch\Product\CustomFieldSetGateway;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -30,6 +32,7 @@ class ElasticsearchIndexingUtils
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ParameterBagInterface $parameterBag,
+        private readonly CustomFieldSetGateway $customFieldSetGateway,
     ) {
     }
 
@@ -47,17 +50,25 @@ class ElasticsearchIndexingUtils
         $mappingKey = \sprintf('elasticsearch.%s.custom_fields_mapping', $entity);
         $customFieldsMapping = $this->parameterBag->has($mappingKey) ? $this->parameterBag->get($mappingKey) : [];
 
+        // Fetch custom field names used in product_sorting and product_stream
+        $usedFieldNames = array_unique(array_merge(
+            $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductSorting(),
+            $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductStream()
+        ));
+
         /** @var array<string, string> $mappings */
         $mappings = $this->connection->fetchAllKeyValue('
 SELECT
-    custom_field.`name`,
+    custom_field.name,
     custom_field.type
 FROM custom_field_set_relation
     INNER JOIN custom_field ON(custom_field.set_id = custom_field_set_relation.set_id)
+    INNER JOIN custom_field_set ON(custom_field_set.id = custom_field.set_id)
 WHERE custom_field_set_relation.entity_name = :entity
-    AND custom_field.include_in_search = 1
     AND custom_field.active = 1
-', ['entity' => $entity]) + $customFieldsMapping;
+    AND (custom_field.name IN (:fields) OR custom_field_set.app_id IS NOT NULL OR custom_field.include_in_search = 1)',
+            ['entity' => $entity, 'fields' => $usedFieldNames],
+            ['fields' => ArrayParameterType::STRING]) + $customFieldsMapping;
 
         $event = new ElasticsearchCustomFieldsMappingEvent($entity, $mappings, $context);
 

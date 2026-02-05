@@ -2,12 +2,9 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
-use OpenSearch\Client;
-use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -19,9 +16,11 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFiel
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Product\CustomFieldSetGateway;
 use Shopware\Elasticsearch\Product\CustomFieldUpdater;
+use Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper;
+
+// Covers also ElasticsearchCustomFieldsMappingHelper for mapping tests
 
 /**
  * @internal
@@ -44,10 +43,9 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing');
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $this->createMock(ElasticsearchOutdatedIndexDetector::class),
-            $this->createMock(Client::class),
             $elasticsearchHelper,
-            $this->createMock(CustomFieldSetGateway::class)
+            $this->createMock(CustomFieldSetGateway::class),
+            $this->createMock(ElasticsearchCustomFieldsMappingHelper::class)
         );
 
         $containerEvent = new EntityWrittenContainerEvent(
@@ -66,16 +64,15 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(false);
 
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
-        $indexDetector
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
             ->expects($this->never())
-            ->method('getAllUsedIndices');
+            ->method('createFieldsInIndices');
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $indexDetector,
-            $this->createMock(Client::class),
             $elasticsearchHelper,
-            $this->createMock(CustomFieldSetGateway::class)
+            $this->createMock(CustomFieldSetGateway::class),
+            $mappingHelper
         );
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, [], Context::createDefaultContext());
@@ -96,16 +93,15 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
-        $indexDetector
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
             ->expects($this->never())
-            ->method('getAllUsedIndices');
+            ->method('createFieldsInIndices');
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $indexDetector,
-            $this->createMock(Client::class),
             $elasticsearchHelper,
-            $this->createMock(CustomFieldSetGateway::class)
+            $this->createMock(CustomFieldSetGateway::class),
+            $mappingHelper
         );
 
         $writeResults = [
@@ -130,12 +126,6 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
-        $indexDetector
-            ->method('getAllUsedIndices')
-            ->willReturn(['test']);
-
-        $indices = $this->createMock(IndicesNamespace::class);
         $gateway = $this->createMock(CustomFieldSetGateway::class);
 
         $customFieldId = Uuid::randomHex();
@@ -151,89 +141,24 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
-        $deLang = Uuid::randomHex();
+        // For new fields, only check app-owned sets (not sorting/stream)
         $gateway->expects($this->once())
-            ->method('fetchLanguageIds')
-            ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
+            ->method('fetchAppOwnedFieldSetIds')
+            ->with([$customFieldSetId])
+            ->willReturn([]);
 
-        $customFields = [
-            'properties' => [
-                $deLang => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'test' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 10000,
-                            'normalizer' => 'sw_lowercase_normalizer',
-                            'fields' => [
-                                'search' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'sw_whitespace_analyzer',
-                                ],
-                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                            ],
-                        ],
-                    ],
-                ],
-                Defaults::LANGUAGE_SYSTEM => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'test' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 10000,
-                            'normalizer' => 'sw_lowercase_normalizer',
-                            'fields' => [
-                                'search' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'sw_whitespace_analyzer',
-                                ],
-                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $indices
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
             ->expects($this->once())
-            ->method('putMapping')
-            ->with([
-                'index' => 'test',
-                'body' => [
-                    'properties' => [
-                        'customFields' => $customFields,
-                    ],
-                    '_source' => [
-                        'includes' => [
-                            'id',
-                        ],
-                    ],
-                ],
-            ]);
-
-        $indices
-            ->method('get')
-            ->willReturn([
-                'test' => [
-                    'mappings' => [
-                        '_source' => [
-                            'includes' => ['id'],
-                        ],
-                    ],
-                ],
-            ]);
-
-        $client = $this->createMock(Client::class);
-        $client->method('indices')->willReturn($indices);
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                return isset($fields['test']) && $fields['test']['type'] === 'keyword';
+            }));
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $indexDetector,
-            $client,
             $elasticsearchHelper,
-            $gateway
+            $gateway,
+            $mappingHelper
         );
 
         $writeResults = [
@@ -258,24 +183,18 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
-        $indexDetector
-            ->method('getAllUsedIndices')
-            ->willReturn(['test']);
-
         $gateway = $this->createMock(CustomFieldSetGateway::class);
 
         $customFieldSetRelationId = Uuid::randomHex();
         $customFieldSetId = Uuid::randomHex();
 
-        $client = $this->createMock(Client::class);
-        $client->expects($this->never())->method('indices');
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $indexDetector,
-            $client,
             $elasticsearchHelper,
-            $gateway
+            $gateway,
+            $mappingHelper
         );
 
         $writeResults = [
@@ -305,107 +224,44 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
-        $indexDetector
-            ->method('getAllUsedIndices')
-            ->willReturn(['test']);
-
-        $indices = $this->createMock(IndicesNamespace::class);
         $gateway = $this->createMock(CustomFieldSetGateway::class);
 
         $customFieldSetRelationId = Uuid::randomHex();
         $customFieldSetId = Uuid::randomHex();
 
-        $deLang = Uuid::randomHex();
+        // New methods for extended indexing criteria
         $gateway->expects($this->once())
-            ->method('fetchLanguageIds')
-            ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
+            ->method('fetchCustomFieldNamesUsedInProductSorting')
+            ->willReturn([]);
 
         $gateway->expects($this->once())
-            ->method('fetchCustomFieldsForSets')
+            ->method('fetchCustomFieldNamesUsedInProductStream')
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchAppOwnedFieldSetIds')
             ->with([$customFieldSetId])
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchIndexableCustomFieldsForSets')
+            ->with([$customFieldSetId], [], [])
             ->willReturn([$customFieldSetId => [
                 ['id' => Uuid::randomHex(), 'name' => 'field2', 'type' => 'text'],
             ]]);
 
-        $customFields = [
-            'properties' => [
-                $deLang => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'field2' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 10000,
-                            'normalizer' => 'sw_lowercase_normalizer',
-                            'fields' => [
-                                'search' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'sw_whitespace_analyzer',
-                                ],
-                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                            ],
-                        ],
-                    ],
-                ],
-                Defaults::LANGUAGE_SYSTEM => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'field2' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 10000,
-                            'normalizer' => 'sw_lowercase_normalizer',
-                            'fields' => [
-                                'search' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'sw_whitespace_analyzer',
-                                ],
-                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $indices
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
             ->expects($this->once())
-            ->method('putMapping')
-            ->with([
-                'index' => 'test',
-                'body' => [
-                    'properties' => [
-                        'customFields' => $customFields,
-                    ],
-                    '_source' => [
-                        'includes' => [
-                            'id',
-                        ],
-                    ],
-                ],
-            ]);
-
-        $indices
-            ->method('get')
-            ->willReturn([
-                'test' => [
-                    'mappings' => [
-                        '_source' => [
-                            'includes' => ['id'],
-                        ],
-                    ],
-                ],
-            ]);
-
-        $client = $this->createMock(Client::class);
-        $client->method('indices')->willReturn($indices);
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                return isset($fields['field2']) && $fields['field2']['type'] === 'keyword';
+            }));
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $indexDetector,
-            $client,
             $elasticsearchHelper,
-            $gateway
+            $gateway,
+            $mappingHelper
         );
 
         $writeResults = [
@@ -435,12 +291,6 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
-        $indexDetector
-            ->method('getAllUsedIndices')
-            ->willReturn(['test']);
-
-        $indices = $this->createMock(IndicesNamespace::class);
         $gateway = $this->createMock(CustomFieldSetGateway::class);
 
         $customFieldId1 = Uuid::randomHex();
@@ -461,89 +311,26 @@ class CustomFieldUpdaterTest extends TestCase
                 $customFieldSetId2 => ['product', 'customer'],
             ]);
 
-        $deLang = Uuid::randomHex();
+        // For new fields, only check app-owned sets (not sorting/stream)
         $gateway->expects($this->once())
-            ->method('fetchLanguageIds')
-            ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
+            ->method('fetchAppOwnedFieldSetIds')
+            ->willReturn([]);
 
-        $customFields = [
-            'properties' => [
-                $deLang => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'field2' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 10000,
-                            'normalizer' => 'sw_lowercase_normalizer',
-                            'fields' => [
-                                'search' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'sw_whitespace_analyzer',
-                                ],
-                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                            ],
-                        ],
-                    ],
-                ],
-                Defaults::LANGUAGE_SYSTEM => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'field2' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 10000,
-                            'normalizer' => 'sw_lowercase_normalizer',
-                            'fields' => [
-                                'search' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'sw_whitespace_analyzer',
-                                ],
-                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $indices
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
             ->expects($this->once())
-            ->method('putMapping')
-            ->with([
-                'index' => 'test',
-                'body' => [
-                    'properties' => [
-                        'customFields' => $customFields,
-                    ],
-                    '_source' => [
-                        'includes' => [
-                            'id',
-                        ],
-                    ],
-                ],
-            ]);
-
-        $indices
-            ->method('get')
-            ->willReturn([
-                'test' => [
-                    'mappings' => [
-                        '_source' => [
-                            'includes' => ['id'],
-                        ],
-                    ],
-                ],
-            ]);
-
-        $client = $this->createMock(Client::class);
-        $client->method('indices')->willReturn($indices);
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                // Only field2 should be indexed (product-related)
+                return isset($fields['field2'])
+                    && !isset($fields['field1'])
+                    && $fields['field2']['type'] === 'keyword';
+            }));
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $indexDetector,
-            $client,
             $elasticsearchHelper,
-            $gateway
+            $gateway,
+            $mappingHelper
         );
 
         $writeResults = [
@@ -569,11 +356,6 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
-        $indexDetector
-            ->expects($this->never())
-            ->method('getAllUsedIndices');
-
         $gateway = $this->createMock(CustomFieldSetGateway::class);
 
         $customFieldId = Uuid::randomHex();
@@ -589,14 +371,19 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
-        $client = $this->createMock(Client::class);
-        $client->expects($this->never())->method('indices');
+        // For new fields, only check app-owned sets - field doesn't meet criteria
+        $gateway->expects($this->once())
+            ->method('fetchAppOwnedFieldSetIds')
+            ->with([$customFieldSetId])
+            ->willReturn([]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $indexDetector,
-            $client,
             $elasticsearchHelper,
-            $gateway
+            $gateway,
+            $mappingHelper
         );
 
         $writeResults = [
@@ -621,12 +408,6 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
-        $indexDetector
-            ->method('getAllUsedIndices')
-            ->willReturn(['test']);
-
-        $indices = $this->createMock(IndicesNamespace::class);
         $gateway = $this->createMock(CustomFieldSetGateway::class);
 
         $customFieldId = Uuid::randomHex();
@@ -642,82 +423,24 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
-        $deLang = Uuid::randomHex();
+        // For new fields, only check app-owned sets
         $gateway->expects($this->once())
-            ->method('fetchLanguageIds')
-            ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
+            ->method('fetchAppOwnedFieldSetIds')
+            ->with([$customFieldSetId])
+            ->willReturn([]);
 
-        $customFields = [
-            'properties' => [
-                $deLang => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'searchableField' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 10000,
-                            'normalizer' => 'sw_lowercase_normalizer',
-                            'fields' => [
-                                'search' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'sw_whitespace_analyzer',
-                                ],
-                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                            ],
-                        ],
-                    ],
-                ],
-                Defaults::LANGUAGE_SYSTEM => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'searchableField' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 10000,
-                            'normalizer' => 'sw_lowercase_normalizer',
-                            'fields' => [
-                                'search' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'sw_whitespace_analyzer',
-                                ],
-                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $indices
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
             ->expects($this->once())
-            ->method('putMapping')
-            ->with([
-                'index' => 'test',
-                'body' => [
-                    'properties' => [
-                        'customFields' => $customFields,
-                    ],
-                ],
-            ]);
-
-        $indices
-            ->method('get')
-            ->willReturn([
-                'test' => [
-                    'mappings' => [
-                        '_source' => [],
-                    ],
-                ],
-            ]);
-
-        $client = $this->createMock(Client::class);
-        $client->method('indices')->willReturn($indices);
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                return isset($fields['searchableField']) && $fields['searchableField']['type'] === 'keyword';
+            }));
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $indexDetector,
-            $client,
             $elasticsearchHelper,
-            $gateway
+            $gateway,
+            $mappingHelper
         );
 
         $writeResults = [
@@ -742,37 +465,20 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
-        $indexDetector
-            ->expects($this->never())
-            ->method('getAllUsedIndices');
-
         $gateway = $this->createMock(CustomFieldSetGateway::class);
-        // customFieldsCreated will call fetchFieldSetIds once with empty array
-        // customFieldsUpdated should not call it because the field is not searchable
-        $gateway->expects($this->once())
-            ->method('fetchFieldSetIds')
-            ->with([])
-            ->willReturn([]);
-
-        // customFieldsCreated will also call fetchFieldSetEntityMappings with empty array
-        $gateway->expects($this->once())
-            ->method('fetchFieldSetEntityMappings')
-            ->with([])
-            ->willReturn([]);
 
         $customFieldId = Uuid::randomHex();
 
-        $client = $this->createMock(Client::class);
-        $client->expects($this->never())->method('indices');
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $indexDetector,
-            $client,
             $elasticsearchHelper,
-            $gateway
+            $gateway,
+            $mappingHelper
         );
 
+        // An update with includeInSearch=false and active not set should not trigger indexing
         $writeResults = [
             new EntityWriteResult($customFieldId, ['name' => 'nonSearchableField', 'type' => 'text', 'includeInSearch' => false], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
         ];
@@ -795,131 +501,54 @@ class CustomFieldUpdaterTest extends TestCase
             ->method('allowIndexing')
             ->willReturn(true);
 
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
-        $indexDetector
-            ->method('getAllUsedIndices')
-            ->willReturn(['test']);
-
-        $indices = $this->createMock(IndicesNamespace::class);
         $gateway = $this->createMock(CustomFieldSetGateway::class);
 
         $customFieldId = Uuid::randomHex();
         $customFieldSetId = Uuid::randomHex();
 
-        // customFieldsCreated will be called first and calls fetchFieldSetIds with empty array
-        // customFieldsUpdated will then call it with the actual field IDs
-        $callCount = 0;
-        $gateway->expects($this->atLeastOnce())
-            ->method('fetchFieldSetIds')
-            ->willReturnCallback(function ($ids) use ($customFieldId, $customFieldSetId, &$callCount) {
-                ++$callCount;
-                if (empty($ids)) {
-                    // Called from customFieldsCreated when no new fields
-                    return [];
-                }
-                // Called from customFieldsUpdated with actual field IDs
-                static::assertSame([$customFieldId], $ids, 'Expected fetchFieldSetIds to be called with field ID from customFieldsUpdated');
-
-                return [$customFieldId => $customFieldSetId];
-            });
-
-        $setIds = [$customFieldSetId];
         $gateway->expects($this->once())
-            ->method('fetchCustomFieldsForSets')
-            ->with($setIds)
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId])
+            ->willReturn([$customFieldId => $customFieldSetId]);
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetEntityMappings')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId => ['product']]);
+
+        // New methods for extended indexing criteria
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesUsedInProductSorting')
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesUsedInProductStream')
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchAppOwnedFieldSetIds')
+            ->with([$customFieldSetId])
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchIndexableCustomFieldsForSets')
+            ->with([$customFieldSetId], [], [])
             ->willReturn([$customFieldSetId => [
                 ['id' => $customFieldId, 'name' => 'searchableField', 'type' => 'text'],
             ]]);
 
-        // customFieldsCreated also calls fetchFieldSetEntityMappings with empty array
-        $gateway->expects($this->atLeastOnce())
-            ->method('fetchFieldSetEntityMappings')
-            ->willReturnCallback(function ($setIds) use ($customFieldSetId) {
-                if (empty($setIds)) {
-                    return [];
-                }
-                // Called from customFieldsUpdated with actual set IDs
-                static::assertSame([$customFieldSetId], $setIds);
-
-                return [$customFieldSetId => ['product']];
-            });
-
-        $deLang = Uuid::randomHex();
-        $gateway->expects($this->once())
-            ->method('fetchLanguageIds')
-            ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
-
-        $customFields = [
-            'properties' => [
-                $deLang => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'searchableField' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 10000,
-                            'normalizer' => 'sw_lowercase_normalizer',
-                            'fields' => [
-                                'search' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'sw_whitespace_analyzer',
-                                ],
-                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                            ],
-                        ],
-                    ],
-                ],
-                Defaults::LANGUAGE_SYSTEM => [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'searchableField' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 10000,
-                            'normalizer' => 'sw_lowercase_normalizer',
-                            'fields' => [
-                                'search' => [
-                                    'type' => 'text',
-                                    'analyzer' => 'sw_whitespace_analyzer',
-                                ],
-                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $indices
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
             ->expects($this->once())
-            ->method('putMapping')
-            ->with([
-                'index' => 'test',
-                'body' => [
-                    'properties' => [
-                        'customFields' => $customFields,
-                    ],
-                ],
-            ]);
-
-        $indices
-            ->method('get')
-            ->willReturn([
-                'test' => [
-                    'mappings' => [
-                        '_source' => [],
-                    ],
-                ],
-            ]);
-
-        $client = $this->createMock(Client::class);
-        $client->method('indices')->willReturn($indices);
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                return isset($fields['searchableField']) && $fields['searchableField']['type'] === 'keyword';
+            }));
 
         $customFieldUpdater = new CustomFieldUpdater(
-            $indexDetector,
-            $client,
             $elasticsearchHelper,
-            $gateway
+            $gateway,
+            $mappingHelper
         );
 
         $writeResults = [
@@ -935,9 +564,64 @@ class CustomFieldUpdaterTest extends TestCase
         );
 
         $customFieldUpdater->indexCustomFields($containerEvent);
+    }
 
-        // Verify that fetchFieldSetIds was called at least twice (once from customFieldsCreated with [], once from customFieldsUpdated with IDs)
-        static::assertGreaterThanOrEqual(2, $callCount, 'fetchFieldSetIds should be called at least twice: once from customFieldsCreated and once from customFieldsUpdated');
+    public function testAppOwnedCustomFieldsAreIndexedWhenCreated(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId])
+            ->willReturn([$customFieldId => $customFieldSetId]);
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetEntityMappings')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId => ['product']]);
+
+        // Field belongs to app-owned set
+        $gateway->expects($this->once())
+            ->method('fetchAppOwnedFieldSetIds')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId]); // This set is app-owned
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
+            ->expects($this->once())
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                return isset($fields['appField']) && $fields['appField']['type'] === 'keyword';
+            }));
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        // Field with includeInSearch=false but belongs to app-owned set
+        $writeResults = [
+            new EntityWriteResult($customFieldId, ['name' => 'appField', 'type' => 'text', 'includeInSearch' => false], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
     }
 
     /**
@@ -946,7 +630,8 @@ class CustomFieldUpdaterTest extends TestCase
     #[DataProvider('providerMapping')]
     public function testMapping(string $type, array $mapping): void
     {
-        static::assertSame($mapping, CustomFieldUpdater::getTypeFromCustomFieldType($type));
+        // Test the helper method directly (CustomFieldUpdater::getTypeFromCustomFieldType is deprecated)
+        static::assertSame($mapping, ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType($type));
     }
 
     /**

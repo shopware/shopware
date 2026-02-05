@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Integration\Core\Framework\Rule;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\AppCollection;
@@ -28,20 +28,26 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\ScriptRule;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
+use Shopware\Core\Framework\Script\Execution\Script;
+use Shopware\Core\Framework\Script\Execution\ScriptEnvironmentFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Twig\Cache\FilesystemCache;
+use Twig\Extension\DebugExtension;
 
 /**
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[RunTestsInSeparateProcesses]
 class ScriptRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -93,11 +99,13 @@ class ScriptRuleTest extends TestCase
         $rule = new ScriptRule();
 
         $rule->assign([
+            // add a random id, to prevent twig opcache from interfering with the test
+            'identifier' => Uuid::randomHex(),
             'values' => $values,
             'script' => $script,
-            'debug' => false,
-            'cacheDir' => static::getContainer()->getParameter('kernel.cache_dir'),
         ]);
+
+        $rule->configureDependencies(static::getContainer());
 
         if ($expectedTrue) {
             static::assertTrue($rule->match($scope));
@@ -112,39 +120,38 @@ class ScriptRuleTest extends TestCase
         yield 'simple script return false' => ['/_fixture/scripts/simple.twig', ['test' => 'bar'], false];
     }
 
-    #[Depends('testRuleScriptExecution')]
     public function testRuleScriptIsCached(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $rule = new ScriptRule();
+        $container = new Container(new ParameterBag([
+            'twig.cache' => sys_get_temp_dir(),
+            'kernel.debug' => false, // we need to set debug to false to enable caching
+        ]));
+        $twigFactory = new DebuggableScriptEnvironmentFactory();
+        $container->set(ScriptEnvironmentFactory::class, $twigFactory);
+        $container->set(ScriptTraces::class, new ScriptTraces());
 
+        $rule->configureDependencies($container);
         $rule->assign([
             'script' => '{% return true %}',
             'values' => [],
-            'lastModified' => (new \DateTimeImmutable())->sub(new \DateInterval('P1D')),
-            'debug' => false,
-            'cacheDir' => static::getContainer()->getParameter('kernel.cache_dir'),
-        ]);
-
-        static::assertFalse($rule->match($scope));
-    }
-
-    #[Depends('testRuleScriptIsCached')]
-    public function testCachedRuleScriptIsInvalidated(): void
-    {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $scope = new CheckoutRuleScope($salesChannelContext);
-        $rule = new ScriptRule();
-
-        $rule->assign([
-            'script' => '{% return true %}',
-            'values' => [],
-            'debug' => false,
-            'cacheDir' => static::getContainer()->getParameter('kernel.cache_dir'),
         ]);
 
         static::assertTrue($rule->match($scope));
+
+        $twig = $twigFactory->environment;
+        static::assertInstanceOf(TwigEnvironment::class, $twig);
+        $cache = $twig->getCache();
+        static::assertInstanceOf(FilesystemCache::class, $cache);
+        static::assertTrue($twig->getLoader()->exists('scriptRule'));
+        static::assertGreaterThan(
+            0,
+            $cache->getTimestamp(
+                $cache->generateKey('scriptRule', $twig->getTemplateClass('scriptRule'))
+            )
+        );
     }
 
     public function testRuleIsConsistent(): void
@@ -396,5 +403,27 @@ class ScriptRuleTest extends TestCase
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+    }
+}
+
+/**
+ * @internal
+ */
+class DebuggableScriptEnvironmentFactory extends ScriptEnvironmentFactory
+{
+    public ?TwigEnvironment $environment = null;
+
+    public function __construct()
+    {
+        parent::__construct(new DebugExtension(), [
+            new PhpSyntaxExtension(),
+        ], '6.7.0.0');
+    }
+
+    public function initEnv(Script $script): TwigEnvironment
+    {
+        $this->environment = parent::initEnv($script);
+
+        return $this->environment;
     }
 }

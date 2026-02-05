@@ -1,4 +1,4 @@
-import IMAGE_DEFAULT_CONFIG from '../image/config.constant';
+import { IMAGE_DEFAULT_CONFIG } from '../image/config.constant';
 
 Shopware.Component.extend('sw-cms-el-config-manufacturer-logo', 'sw-cms-el-config-image', () => import('./config'));
 Shopware.Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', () => import('./component'));

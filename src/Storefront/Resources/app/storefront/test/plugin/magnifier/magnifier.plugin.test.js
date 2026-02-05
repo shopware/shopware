@@ -22,6 +22,7 @@ describe('MagnifierPlugin tests', () => {
         window.PluginManager = {
             getPluginInstancesFromElement: jest.fn(() => new Map()),
             getPlugin: jest.fn(() => new Map([["instances", []]])),
+            initializePluginsInParentElement: jest.fn(),
         };
 
         // Ensure deterministic viewport height

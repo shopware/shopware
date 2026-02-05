@@ -28,6 +28,7 @@ class SetupStagingEventSubscriber implements EventSubscriberInterface
     public function removeAllConsents(SetupStagingEvent $event): void
     {
         $this->connection->executeStatement('DELETE FROM `consent_state`');
+        $this->connection->executeStatement('DELETE FROM `consent_log`');
 
         $event->io->info('All consents have been removed for staging setup.');
     }

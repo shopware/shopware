@@ -31,12 +31,21 @@ class SetupStagingEventSubscriberTest extends TestCase
             ['id' => Uuid::randomBytes()]
         );
 
+        $connection->executeStatement(
+            'INSERT INTO `consent_log` (`consent_name`, `timestamp`, `message`)
+                VALUES ("Test Consent", "2026-02-04", "Consent given by admin")
+        '
+        );
+
         $subscriber->removeAllConsents(new SetupStagingEvent(
             Context::createCLIContext(),
             $this->createMock(SymfonyStyle::class),
         ));
 
         $count = $connection->executeQuery('SELECT count(*) FROM `consent_state`')->fetchOne();
+        static::assertSame(0, (int) $count);
+
+        $count = $connection->executeQuery('SELECT count(*) FROM `consent_log`')->fetchOne();
         static::assertSame(0, (int) $count);
     }
 }

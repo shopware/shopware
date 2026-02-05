@@ -28,9 +28,8 @@ class SetupStagingEventSubscriberTest extends TestCase
     public function testRemoveAllConsents(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('executeStatement')
-            ->with('DELETE FROM `consent_state`');
+        $connection->expects($this->exactly(2))
+            ->method('executeStatement');
 
         $ioMock = $this->createMock(SymfonyStyle::class);
         $ioMock->expects($this->once())

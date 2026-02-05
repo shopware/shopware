@@ -179,7 +179,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         Shopware.Store.register({
             id: 'cmsPage',
             actions: {
-                resetCmsPageState: () => {},
+                resetCmsPageState: () => { },
             },
         });
     });
@@ -930,9 +930,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         {
                             key: 'prices',
                             label: 'sw-product.detailBase.cardTitlePrices',
-                            enabled: true,
+                            enabled: false,
                             name: 'general',
-                        },
+                        }
                     ],
                 },
             }),
@@ -941,18 +941,24 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         wrapper = await createWrapper(
             (criteria) => {
-                if (criteria.filters.some((f) => f.field === 'key')) {
+                const isUserConfigSearch = criteria.filters.some(
+                    (f) => f.field === 'key' && f.value === 'mode.setting.advancedModeSettings',
+                );
+                if (isUserConfigSearch) {
                     return Promise.resolve(mockSettings);
                 }
                 return Promise.resolve([]);
             },
             () => Promise.resolve({}),
-            '1234',
+            null,
         );
 
         await flushPromises();
 
-        expect(wrapper.vm.modeSettings).toContain('prices');
-        expect(wrapper.vm.modeSettings.length).toBeGreaterThan(1);
+        await wrapper.setProps({ productId: '1234' });
+        await flushPromises();
+
+        expect(wrapper.vm.modeSettings).not.toContain('prices');
+        expect(wrapper.vm.modeSettings).toContain('general_information');
     });
 });

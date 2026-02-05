@@ -51,8 +51,8 @@ class ElasticsearchIndexingUtils
         $customFieldsMapping = $this->parameterBag->has($mappingKey) ? $this->parameterBag->get($mappingKey) : [];
 
         $usedFieldNames = array_unique(array_merge(
-            $b =$this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductSorting(),
-            $a = $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductStream()
+            $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductSorting(),
+            $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductStream()
         ));
 
         /** @var array<string, string> $mappings */

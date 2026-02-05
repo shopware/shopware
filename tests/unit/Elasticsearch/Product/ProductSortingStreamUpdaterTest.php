@@ -409,4 +409,434 @@ class ProductSortingStreamUpdaterTest extends TestCase
 
         $updater->onEntityWritten($containerEvent);
     }
+
+    public function testMultipleProductSortingsAreProcessed(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn(['field1', 'field2']);
+
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['name' => 'field1', 'type' => 'int'],
+                ['name' => 'field2', 'type' => 'bool'],
+            ]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
+            ->expects($this->once())
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                return isset($fields['field1']) && $fields['field1']['type'] === 'long'
+                    && isset($fields['field2']) && $fields['field2']['type'] === 'boolean';
+            }));
+
+        $updater = new ProductSortingStreamUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $connection
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                [
+                    'urlKey' => 'sorting-1',
+                    'priority' => 1,
+                    'fields' => [
+                        ['field' => 'customFields.field1', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ],
+                ],
+                ProductSortingDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                [
+                    'urlKey' => 'sorting-2',
+                    'priority' => 2,
+                    'fields' => [
+                        ['field' => 'customFields.field2', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => false],
+                    ],
+                ],
+                ProductSortingDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $updater->onEntityWritten($containerEvent);
+    }
+
+    public function testProductSortingUpdateOperationTriggersIndexing(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn(['updated_field']);
+
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['name' => 'updated_field', 'type' => 'float'],
+            ]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
+            ->expects($this->once())
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                return isset($fields['updated_field']) && $fields['updated_field']['type'] === 'double';
+            }));
+
+        $updater = new ProductSortingStreamUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $connection
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                [
+                    'fields' => [
+                        ['field' => 'customFields.updated_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ],
+                ],
+                ProductSortingDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_UPDATE
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $updater->onEntityWritten($containerEvent);
+    }
+
+    public function testCustomFieldNotFoundInDatabaseDoesNotTriggerIndexing(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn(['nonexistent_field']);
+
+        // Returns empty - custom field not found in database
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $updater = new ProductSortingStreamUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $connection
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                [
+                    'urlKey' => 'test-sorting',
+                    'priority' => 1,
+                    'fields' => [
+                        ['field' => 'customFields.nonexistent_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ],
+                ],
+                ProductSortingDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $updater->onEntityWritten($containerEvent);
+    }
+
+    public function testProductStreamFilterUpdateWithFieldChange(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $filterId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn(['new_filter_field']);
+
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['name' => 'new_filter_field', 'type' => 'datetime'],
+            ]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
+            ->expects($this->once())
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                return isset($fields['new_filter_field'])
+                    && $fields['new_filter_field']['type'] === 'date';
+            }));
+
+        $updater = new ProductSortingStreamUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $connection
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                $filterId,
+                [
+                    'field' => 'customFields.new_filter_field',
+                    'type' => 'range',
+                    'value' => '2024-01-01',
+                ],
+                ProductStreamFilterDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_UPDATE
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $updater->onEntityWritten($containerEvent);
+    }
+
+    public function testProductStreamFilterWithoutFieldInPayloadDoesNotQueryDatabase(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $filterId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        // fetchFirstColumn is still called but for filter IDs query
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $updater = new ProductSortingStreamUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $connection
+        );
+
+        // Payload without 'field' - e.g., only updating value
+        $writeResults = [
+            new EntityWriteResult(
+                $filterId,
+                [
+                    'type' => 'equals',
+                    'value' => 'updated_value',
+                ],
+                ProductStreamFilterDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_UPDATE
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $updater->onEntityWritten($containerEvent);
+    }
+
+    public function testBothProductSortingAndStreamFilterInSameEvent(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->exactly(2))
+            ->method('fetchFirstColumn')
+            ->willReturnOnConsecutiveCalls(
+                ['sorting_field'],
+                ['filter_field']
+            );
+
+        $connection
+            ->expects($this->exactly(2))
+            ->method('fetchAllAssociative')
+            ->willReturnOnConsecutiveCalls(
+                [['name' => 'sorting_field', 'type' => 'int']],
+                [['name' => 'filter_field', 'type' => 'text']]
+            );
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->exactly(2))->method('createFieldsInIndices');
+
+        $updater = new ProductSortingStreamUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $connection
+        );
+
+        $sortingWriteResults = [
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                [
+                    'urlKey' => 'test-sorting',
+                    'priority' => 1,
+                    'fields' => [
+                        ['field' => 'customFields.sorting_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                    ],
+                ],
+                ProductSortingDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $filterWriteResults = [
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                [
+                    'field' => 'customFields.filter_field',
+                    'type' => 'equals',
+                    'value' => 'test',
+                ],
+                ProductStreamFilterDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $sortingEvent = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $sortingWriteResults, Context::createDefaultContext());
+        $filterEvent = new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, $filterWriteResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$sortingEvent, $filterEvent]),
+            []
+        );
+
+        $updater->onEntityWritten($containerEvent);
+    }
+
+    public function testDuplicateCustomFieldsAreDeduplicatedInSorting(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn(['same_field', 'same_field']); // DB returns duplicates
+
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['name' => 'same_field', 'type' => 'int'],
+            ]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
+            ->expects($this->once())
+            ->method('createFieldsInIndices')
+            ->with(static::callback(function (array $fields) {
+                return \count($fields) === 1 && isset($fields['same_field']);
+            }));
+
+        $updater = new ProductSortingStreamUpdater(
+            $elasticsearchHelper,
+            $mappingHelper,
+            $connection
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                Uuid::randomHex(),
+                [
+                    'urlKey' => 'test-sorting',
+                    'priority' => 1,
+                    'fields' => [
+                        ['field' => 'customFields.same_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => false],
+                        ['field' => 'customFields.same_field', 'order' => 'desc', 'priority' => 0, 'naturalSorting' => false],
+                    ],
+                ],
+                ProductSortingDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(ProductSortingDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $updater->onEntityWritten($containerEvent);
+    }
 }

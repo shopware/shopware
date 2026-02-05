@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
+use Shopware\Elasticsearch\Product\CustomFieldSetGateway;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -39,10 +40,15 @@ class ElasticsearchIndexingUtilsTest extends TestCase
             'cf_bool' => 'bool',
         ]);
 
+        $customFieldSetGateway = $this->createMock(CustomFieldSetGateway::class);
+        $customFieldSetGateway->method('fetchCustomFieldNamesUsedInProductSorting')->willReturn([]);
+        $customFieldSetGateway->method('fetchCustomFieldNamesUsedInProductStream')->willReturn([]);
+
         $utils = new ElasticsearchIndexingUtils(
             $connection,
             $dispatcher,
             $parameterBag,
+            $customFieldSetGateway,
         );
 
         // run twice to make sure memoize works
@@ -75,16 +81,63 @@ class ElasticsearchIndexingUtilsTest extends TestCase
                 'searchable_field' => 'text',
             ]);
 
+        $customFieldSetGateway = $this->createMock(CustomFieldSetGateway::class);
+        $customFieldSetGateway->method('fetchCustomFieldNamesUsedInProductSorting')->willReturn([]);
+        $customFieldSetGateway->method('fetchCustomFieldNamesUsedInProductStream')->willReturn([]);
+
         $utils = new ElasticsearchIndexingUtils(
             $connection,
             $dispatcher,
             $parameterBag,
+            $customFieldSetGateway,
         );
 
         $result = $utils->getCustomFieldTypes(ProductDefinition::ENTITY_NAME, new Context(new SystemSource()));
 
         static::assertSame([
             'searchable_field' => 'text',
+        ], $result);
+    }
+
+    public function testGetCustomFieldTypesIncludesFieldsUsedInSortingAndStream(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag([]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->with(
+                static::callback(function (string $sql): bool {
+                    return str_contains($sql, 'custom_field.name IN (:fields)');
+                }),
+                static::callback(function (array $params): bool {
+                    return \in_array('sorting_field', $params['fields'], true)
+                        && \in_array('stream_field', $params['fields'], true);
+                }),
+                static::anything()
+            )
+            ->willReturn([
+                'sorting_field' => 'int',
+                'stream_field' => 'text',
+            ]);
+
+        $customFieldSetGateway = $this->createMock(CustomFieldSetGateway::class);
+        $customFieldSetGateway->method('fetchCustomFieldNamesUsedInProductSorting')->willReturn(['sorting_field']);
+        $customFieldSetGateway->method('fetchCustomFieldNamesUsedInProductStream')->willReturn(['stream_field']);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+            $customFieldSetGateway,
+        );
+
+        $result = $utils->getCustomFieldTypes(ProductDefinition::ENTITY_NAME, new Context(new SystemSource()));
+
+        static::assertSame([
+            'sorting_field' => 'int',
+            'stream_field' => 'text',
         ], $result);
     }
 

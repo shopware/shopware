@@ -20,7 +20,7 @@ const actionButtonsStore = Shopware.Store.register('actionButtons', () => {
 
     return {
         buttons,
-        add
+        add,
     };
 });
 

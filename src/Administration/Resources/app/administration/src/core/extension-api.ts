@@ -16,8 +16,6 @@ function isPromise<T = any>(value: any): value is Promise<T> {
     return value !== null && typeof value === 'object' && typeof value.then === 'function';
 }
 
-
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     // Wrap all handle methods in a function which checks the acl privileges
@@ -26,7 +24,7 @@ export default {
         method: HandleMethod<MESSAGE_TYPE>,
     ): ReturnType<typeof sdkHandle> => {
         const { wrapWithExtensionContext } = Shopware.Store.get('extensionContext');
-        
+
         const aclHook = (
             data: MessageDataType<MESSAGE_TYPE> & BaseMessageOptions,
             additionalInformation: { _event_: MessageEvent<string> },
@@ -36,10 +34,7 @@ export default {
             // No privileges to check early return by calling original method
             if (!data.privileges || data.privileges.length === 0) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return wrapWithExtensionContext(
-                    extensionContext,
-                    () => method(data, additionalInformation)
-                );
+                return wrapWithExtensionContext(extensionContext, () => method(data, additionalInformation));
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -49,10 +44,7 @@ export default {
                 if (missingPrivileges.length > 0) {
                     reject(new MissingPrivilegesError(type, missingPrivileges));
                 } else {
-                    const result = wrapWithExtensionContext(
-                        extensionContext,
-                        () => method(data, additionalInformation)
-                    );
+                    const result = wrapWithExtensionContext(extensionContext, () => method(data, additionalInformation));
 
                     if (isPromise<ShopwareMessageTypes[MESSAGE_TYPE]['responseType']>(result)) {
                         void result.then((rsp) => resolve(rsp)).catch(reject);

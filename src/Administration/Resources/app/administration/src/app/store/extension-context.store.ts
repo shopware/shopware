@@ -6,7 +6,7 @@
  * and by composables (e.g. use-extension-ordered-container) to read it.
  */
 
-import { computed, ref } from "vue";
+import { computed, ref } from 'vue';
 
 /**
  * Context for the extension that is currently handling an SDK message.
@@ -29,7 +29,7 @@ const extensionContextStore = Shopware.Store.register('extensionContext', () => 
         } finally {
             currentExtensionContext.value = before;
         }
-    }
+    };
 
     return {
         currentExtensionContext,

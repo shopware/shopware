@@ -1,6 +1,5 @@
-import { computed, Ref, ref } from "vue";
-import { useCurrentExtensionId } from "../store/extension-context.store";
-
+import { computed, Ref, ref } from 'vue';
+import { useCurrentExtensionId } from '../store/extension-context.store';
 
 interface OrderItem {
     /**
@@ -19,7 +18,9 @@ export const useExtensionOrderedArray = <T>() => {
     const order: Ref<OrderItem[]> = ref([]);
 
     // returns index to insert at
-    const getOrderItem = (extensionId: string | null): { startIndex: number, nextInsertIndex: number, orderItem: OrderItem } => {
+    const getOrderItem = (
+        extensionId: string | null,
+    ): { startIndex: number; nextInsertIndex: number; orderItem: OrderItem } => {
         let index = 0;
         for (const item of order.value) {
             if (item.extensionId === extensionId) {
@@ -27,10 +28,10 @@ export const useExtensionOrderedArray = <T>() => {
             }
             index += item.count;
         }
-        const item = { extensionId, count: 0 };    
+        const item = { extensionId, count: 0 };
         order.value.push(item);
         return { startIndex: index, nextInsertIndex: index, orderItem: item };
-    }
+    };
 
     /**
      * pushes a value into the array preserving the order of the extensions (takes current extension from context)
@@ -40,16 +41,16 @@ export const useExtensionOrderedArray = <T>() => {
         const { nextInsertIndex, orderItem } = getOrderItem(extensionId.value);
         orderItem.count++;
         internalArray.value.splice(nextInsertIndex, 0, value);
-    }
+    };
 
     /**
      * removes all entries for the given extension
      */
     const flushByExtension = (extensionId: string | null) => {
-        const {startIndex, orderItem} = getOrderItem(extensionId);
+        const { startIndex, orderItem } = getOrderItem(extensionId);
         internalArray.value.splice(startIndex, orderItem.count);
         orderItem.count = 0;
-    }
+    };
 
     /**
      * removes the first entry that matches the predicate from the array (from any extension).
@@ -75,7 +76,7 @@ export const useExtensionOrderedArray = <T>() => {
 
     const flushEventListener = (event: { src: string }) => {
         flushByExtension(event.src);
-    }
+    };
 
     Shopware.Utils.EventBus.on('sw-extension-loaded', flushEventListener);
 
@@ -84,7 +85,7 @@ export const useExtensionOrderedArray = <T>() => {
         push,
         removeFirstWhere,
     };
-}
+};
 
 export const useExtensionOrdereredArrayMap = <T>() => {
     const internalMap: Ref<Record<string, ReturnType<typeof useExtensionOrderedArray<T>>>> = ref({});
@@ -94,7 +95,7 @@ export const useExtensionOrdereredArrayMap = <T>() => {
             internalMap.value[key] = useExtensionOrderedArray<T>();
         }
         return internalMap.value[key];
-    }
+    };
 
     const clear = () => {
         internalMap.value = {};
@@ -103,14 +104,22 @@ export const useExtensionOrdereredArrayMap = <T>() => {
     const items = computed(() =>
         Object.freeze(
             Object.fromEntries(
-                Object.entries(internalMap.value).map(([key, value]) => [key, value.items]),
-            ) as Readonly<Record<string, ReturnType<typeof useExtensionOrderedArray<T>>["items"]>>,
+                Object.entries(internalMap.value).map(
+                    ([
+                        key,
+                        value,
+                    ]) => [
+                        key,
+                        value.items,
+                    ],
+                ),
+            ) as Readonly<Record<string, ReturnType<typeof useExtensionOrderedArray<T>>['items']>>,
         ),
     );
 
     return {
         items,
         clear,
-        get
+        get,
     };
-}
+};

@@ -13,7 +13,16 @@ const tabsStore = Shopware.Store.register(`tabs`, () => {
     const tabItems = computed(() => {
         const record = unref(tabs.items);
         return Object.fromEntries(
-            Object.entries(record).map(([key, itemRef]) => [key, unref(itemRef) ?? []] as const),
+            Object.entries(record).map(
+                ([
+                    key,
+                    itemRef,
+                ]) =>
+                    [
+                        key,
+                        unref(itemRef) ?? [],
+                    ] as const,
+            ),
         ) as Record<string, TabItemEntry[]>;
     });
 

@@ -59,9 +59,7 @@ const sidebarsStore = Shopware.Store.register('sidebar', () => {
     };
 
     const getActiveSidebar = computed(() => {
-        return (
-            sidebarsOrdered.items.value.find((sidebar) => sidebar.active) ?? null
-        );
+        return sidebarsOrdered.items.value.find((sidebar) => sidebar.active) ?? null;
     });
 
     return {

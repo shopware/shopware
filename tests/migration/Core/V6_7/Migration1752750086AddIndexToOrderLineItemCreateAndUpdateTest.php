@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1752750086AddIndexToOrderLineItemCreateAndUpdate;
 
 /**
@@ -37,16 +38,12 @@ class Migration1752750086AddIndexToOrderLineItemCreateAndUpdateTest extends Test
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $existingIndexes = $this->connection->createSchemaManager()->listTableIndexes('order_line_item');
-
-        static::assertArrayHasKey('idx.order_line_item_created_updated', $existingIndexes);
+        static::assertTrue(TableHelper::indexExists($this->connection, 'order_line_item', 'idx.order_line_item_created_updated'));
     }
 
     private function rollback(): void
     {
-        $existingIndexes = $this->connection->createSchemaManager()->listTableIndexes('order_line_item');
-
-        if (isset($existingIndexes['idx.order_line_item_created_updated'])) {
+        if (TableHelper::indexExists($this->connection, 'order_line_item', 'idx.order_line_item_created_updated')) {
             $this->connection->executeStatement('DROP INDEX `idx.order_line_item_created_updated` ON `order_line_item`');
         }
     }

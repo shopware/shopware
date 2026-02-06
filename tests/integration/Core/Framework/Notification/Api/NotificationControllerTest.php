@@ -107,12 +107,10 @@ class NotificationControllerTest extends TestCase
     public static function saveNotificationProvider(): array
     {
         return [
-            // TODO: fix with shopware/shopware#12950
-            // ['integration', 'success', 'This is a notification', false, ['cache:clear'], true],
+            ['integration', 'success', 'This is a notification', false, ['cache:clear'], true],
             ['integration', '', 'This is a notification', false, ['cache:clear'], false],
             ['integration', 'success', '', false, ['cache:clear'], false],
-            // TODO: fix with shopware/shopware#12950
-            // ['browser', 'success', 'This is a notification', true, [], true],
+            ['browser', 'success', 'This is a notification', true, [], true],
         ];
     }
 

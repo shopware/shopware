@@ -44,7 +44,7 @@
                 v-if="!isLoading && customEntityDefinition && customEntityInstances.length > 0"
                 class="sw-generic-custom-entity-list__content-list"
                 :repository="customEntityRepository"
-                :items="customEntityInstances"
+                :data-source="customEntityInstances"
                 :allow-inline-edit="false"
                 :allow-column-edit="false"
                 :columns="columnConfig"

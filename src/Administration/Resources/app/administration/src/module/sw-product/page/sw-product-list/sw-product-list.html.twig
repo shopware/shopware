@@ -124,7 +124,7 @@
                 v-else-if="entitySearchable"
                 ref="swProductGrid"
                 class="sw-product-list-grid"
-                :items="products"
+                :data-source="products"
                 :columns="productColumns"
                 :repository="productRepository"
                 detail-route="sw.product.detail"

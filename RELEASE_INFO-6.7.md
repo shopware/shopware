@@ -228,6 +228,14 @@ shopware:
 
 **Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
 
+# 6.7.7.2
+
+## Core
+
+### Indexing the product's custom fields
+
+Added the custom fields that are used in the product sorting or product stream when indexing the product with Elasticsearch as well as the ones belong to the app.
+
 # 6.7.7.1
 
 ## Core

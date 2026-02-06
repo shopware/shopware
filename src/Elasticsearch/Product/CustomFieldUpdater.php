@@ -126,7 +126,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
         }
 
         $usedInStream = $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductStream($remainingCandidates);
-        
+
         return array_merge($usedInSorting, $usedInStream);
     }
 

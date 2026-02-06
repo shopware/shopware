@@ -109,7 +109,7 @@ WHERE custom_field_set_relation.entity_name = :entity
         return json_decode($record[$field] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
     }
 
-        /**
+    /**
      * @return array<string>
      */
     private function fetchCustomFieldNamesUsedInProductSorting(): array

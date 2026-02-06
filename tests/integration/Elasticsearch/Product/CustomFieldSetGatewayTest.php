@@ -163,6 +163,15 @@ class CustomFieldSetGatewayTest extends TestCase
         // Create an app-owned custom field set
         $connection = static::getContainer()->get(Connection::class);
         $appId = Uuid::randomHex();
+        $integrationId = Uuid::randomHex();
+
+        // Insert a mock integration (required for app)
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => 'test-access-key-' . $appId,
+            'secret_access_key' => password_hash('test', \PASSWORD_BCRYPT),
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
 
         // Insert a mock app
         $connection->insert('app', [
@@ -172,6 +181,7 @@ class CustomFieldSetGatewayTest extends TestCase
             'version' => '1.0.0',
             'active' => 1,
             'configurable' => 0,
+            'integration_id' => Uuid::fromHexToBytes($integrationId),
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
 
@@ -215,6 +225,7 @@ class CustomFieldSetGatewayTest extends TestCase
             ], Context::createDefaultContext());
 
             $connection->delete('app', ['id' => Uuid::fromHexToBytes($appId)]);
+            $connection->delete('integration', ['id' => Uuid::fromHexToBytes($integrationId)]);
         }
     }
 
@@ -223,6 +234,15 @@ class CustomFieldSetGatewayTest extends TestCase
         // Create an app-owned custom field set
         $connection = static::getContainer()->get(Connection::class);
         $appId = Uuid::randomHex();
+        $integrationId = Uuid::randomHex();
+
+        // Insert a mock integration (required for app)
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => 'test-access-key-' . $appId,
+            'secret_access_key' => password_hash('test', \PASSWORD_BCRYPT),
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
 
         // Insert a mock app
         $connection->insert('app', [
@@ -232,6 +252,7 @@ class CustomFieldSetGatewayTest extends TestCase
             'version' => '1.0.0',
             'active' => 1,
             'configurable' => 0,
+            'integration_id' => Uuid::fromHexToBytes($integrationId),
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
 
@@ -265,6 +286,7 @@ class CustomFieldSetGatewayTest extends TestCase
             ], Context::createDefaultContext());
 
             $connection->delete('app', ['id' => Uuid::fromHexToBytes($appId)]);
+            $connection->delete('integration', ['id' => Uuid::fromHexToBytes($integrationId)]);
         }
     }
 
@@ -273,6 +295,15 @@ class CustomFieldSetGatewayTest extends TestCase
         // Create an app-owned custom field set
         $connection = static::getContainer()->get(Connection::class);
         $appId = Uuid::randomHex();
+        $integrationId = Uuid::randomHex();
+
+        // Insert a mock integration (required for app)
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($integrationId),
+            'access_key' => 'test-access-key-' . $appId,
+            'secret_access_key' => password_hash('test', \PASSWORD_BCRYPT),
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
 
         // Insert a mock app
         $connection->insert('app', [
@@ -282,6 +313,7 @@ class CustomFieldSetGatewayTest extends TestCase
             'version' => '1.0.0',
             'active' => 1,
             'configurable' => 0,
+            'integration_id' => Uuid::fromHexToBytes($integrationId),
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
 
@@ -309,6 +341,7 @@ class CustomFieldSetGatewayTest extends TestCase
             ], Context::createDefaultContext());
 
             $connection->delete('app', ['id' => Uuid::fromHexToBytes($appId)]);
+            $connection->delete('integration', ['id' => Uuid::fromHexToBytes($integrationId)]);
         }
     }
 

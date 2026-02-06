@@ -23,6 +23,7 @@ class MigrationException extends HttpException
     final public const MIGRATION_ERROR = 'FRAMEWORK__MIGRATION_ERROR';
     final public const INVALID_MIGRATION = 'FRAMEWORK__INVALID_MIGRATION';
     final public const MIGRATION_MULTI_COLUMN_PRIMARY_KEY = 'FRAMEWORK__MIGRATION_MULTI_COLUMN_PRIMARY_KEY';
+    final public const MIGRATION_NO_PRIMARY_KEY = 'FRAMEWORK__MIGRATION_NO_COLUMN_PRIMARY_KEY';
     final public const LOGIC_ERROR = 'FRAMEWORK__LOGIC_ERROR';
     final public const MIGRATION_FILE_DOES_NOT_EXIST = 'FRAMEWORK__MIGRATION_FILE_DOES_NOT_EXIST';
 
@@ -141,7 +142,16 @@ class MigrationException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MIGRATION_MULTI_COLUMN_PRIMARY_KEY,
-            'Tables with multi column primary keys not supported. Maybe this migration did already run.'
+            'Tables with multi column primary keys are not supported. Maybe this migration did already run.'
+        );
+    }
+
+    public static function noPrimaryKey(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MIGRATION_NO_PRIMARY_KEY,
+            'Tables with no primary key are not supported.'
         );
     }
 

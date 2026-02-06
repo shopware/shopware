@@ -88,7 +88,7 @@
         "composer/class-map-generator": "^1.7",
         "composer/composer": "^2.9.3",
         "composer/semver": "^3.4.0",
-        "doctrine/dbal": "~4.3.1",
+        "doctrine/dbal": "~4.4.0",
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "3.1.0",
         "dragonmantank/cron-expression": "^3.3",

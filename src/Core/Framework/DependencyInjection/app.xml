@@ -684,6 +684,12 @@
             <argument type="service" id="Shopware\Core\Framework\App\Privileges\Privileges"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\ShopId\Fingerprint\DatabaseServerUid">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="shopware.app_system.shop_id_fingerprint"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\ShopId\Fingerprint\SalesChannelDomainUrls">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 

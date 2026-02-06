@@ -8,6 +8,7 @@
         <!-- Api -->
         <service id="Shopware\Core\System\UsageData\Api\ConsentController" public="true">
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
+            <argument type="service" id="Shopware\Core\System\Consent\Service\ConsentService"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\BannerService"/>
 
             <call method="setContainer">
@@ -25,12 +26,6 @@
 
         <service id="Shopware\Core\System\UsageData\Consent\BannerService">
             <argument type="service" id="user_config.repository"/>
-        </service>
-
-        <service id="Shopware\Core\System\UsageData\Subscriber\UsageDataApprovalSubscriber">
-            <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
-
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber">
@@ -160,6 +155,13 @@
             <argument type="collection">
                 <argument key="base_uri">%shopware.usage_data.gateway.base_uri%</argument>
             </argument>
+        </service>
+
+        <service id="Shopware\Core\System\UsageData\Subscriber\ConsentStateChangedSubscriber">
+            <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

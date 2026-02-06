@@ -14,12 +14,13 @@ use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('data-services')]
-class ConsentService
+class ConsentService implements ResetInterface
 {
     /**
      * @var array<string, ConsentScope>
@@ -113,6 +114,11 @@ class ConsentService
         $this->invalidateState();
 
         return $updatedState;
+    }
+
+    public function reset(): void
+    {
+        $this->invalidateState();
     }
 
     private function getConsentDefinition(string $name): ConsentDefinition

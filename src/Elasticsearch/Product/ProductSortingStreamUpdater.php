@@ -101,10 +101,6 @@ class ProductSortingStreamUpdater implements EventSubscriberInterface
             $filterIds[] = $key;
         }
 
-        if (\count($filterIds) === 0) {
-            return;
-        }
-
         $customFieldNames = $this->fetchCustomFieldNamesFromStreamFilters($filterIds);
 
         $this->createFieldsInIndices($customFieldNames);
@@ -135,15 +131,7 @@ class ProductSortingStreamUpdater implements EventSubscriberInterface
     {
         $customFieldNames = array_unique($customFieldNames);
 
-        if (\count($customFieldNames) === 0) {
-            return;
-        }
-
         $customFields = $this->fetchCustomFieldsByName($customFieldNames);
-
-        if (\count($customFields) === 0) {
-            return;
-        }
 
         $fields = ElasticsearchCustomFieldsMappingHelper::mapCustomFieldsToEsTypes($customFields);
 

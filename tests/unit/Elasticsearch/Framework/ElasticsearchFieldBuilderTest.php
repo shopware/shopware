@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
-use Shopware\Elasticsearch\Product\CustomFieldSetGateway;
 use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -59,7 +58,6 @@ class ElasticsearchFieldBuilderTest extends TestCase
             $connection,
             $dispatcher,
             $parameterBag,
-            $this->createMock(CustomFieldSetGateway::class),
         );
 
         $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
@@ -144,7 +142,6 @@ class ElasticsearchFieldBuilderTest extends TestCase
             $connection,
             $dispatcher,
             $parameterBag,
-            $this->createMock(CustomFieldSetGateway::class),
         );
 
         $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);
@@ -227,7 +224,6 @@ class ElasticsearchFieldBuilderTest extends TestCase
             $connection,
             $dispatcher,
             $parameterBag,
-            $this->createMock(CustomFieldSetGateway::class),
         );
 
         $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);

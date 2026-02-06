@@ -164,16 +164,26 @@ class CustomFieldSetGatewayTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $appId = Uuid::randomHex();
         $integrationId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
 
         // Insert a mock integration (required for app)
         $connection->insert('integration', [
             'id' => Uuid::fromHexToBytes($integrationId),
+            'label' => 'Test Integration',
             'access_key' => 'test-access-key-' . $appId,
             'secret_access_key' => password_hash('test', \PASSWORD_BCRYPT),
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
 
-        // Insert a mock app
+        // Insert a mock acl_role (required for app)
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($aclRoleId),
+            'name' => 'TestAppRole',
+            'privileges' => '[]',
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
+
+        // Insert a mock app with all required fields
         $connection->insert('app', [
             'id' => Uuid::fromHexToBytes($appId),
             'name' => 'TestApp',
@@ -181,7 +191,9 @@ class CustomFieldSetGatewayTest extends TestCase
             'version' => '1.0.0',
             'active' => 1,
             'configurable' => 0,
+            'allow_disable' => 1,
             'integration_id' => Uuid::fromHexToBytes($integrationId),
+            'acl_role_id' => Uuid::fromHexToBytes($aclRoleId),
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
 
@@ -225,6 +237,7 @@ class CustomFieldSetGatewayTest extends TestCase
             ], Context::createDefaultContext());
 
             $connection->delete('app', ['id' => Uuid::fromHexToBytes($appId)]);
+            $connection->delete('acl_role', ['id' => Uuid::fromHexToBytes($aclRoleId)]);
             $connection->delete('integration', ['id' => Uuid::fromHexToBytes($integrationId)]);
         }
     }
@@ -235,16 +248,26 @@ class CustomFieldSetGatewayTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $appId = Uuid::randomHex();
         $integrationId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
 
         // Insert a mock integration (required for app)
         $connection->insert('integration', [
             'id' => Uuid::fromHexToBytes($integrationId),
+            'label' => 'Test Integration',
             'access_key' => 'test-access-key-' . $appId,
             'secret_access_key' => password_hash('test', \PASSWORD_BCRYPT),
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
 
-        // Insert a mock app
+        // Insert a mock acl_role (required for app)
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($aclRoleId),
+            'name' => 'TestAppRole',
+            'privileges' => '[]',
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
+
+        // Insert a mock app with all required fields
         $connection->insert('app', [
             'id' => Uuid::fromHexToBytes($appId),
             'name' => 'TestApp',
@@ -252,7 +275,9 @@ class CustomFieldSetGatewayTest extends TestCase
             'version' => '1.0.0',
             'active' => 1,
             'configurable' => 0,
+            'allow_disable' => 1,
             'integration_id' => Uuid::fromHexToBytes($integrationId),
+            'acl_role_id' => Uuid::fromHexToBytes($aclRoleId),
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
 
@@ -286,6 +311,7 @@ class CustomFieldSetGatewayTest extends TestCase
             ], Context::createDefaultContext());
 
             $connection->delete('app', ['id' => Uuid::fromHexToBytes($appId)]);
+            $connection->delete('acl_role', ['id' => Uuid::fromHexToBytes($aclRoleId)]);
             $connection->delete('integration', ['id' => Uuid::fromHexToBytes($integrationId)]);
         }
     }
@@ -296,16 +322,26 @@ class CustomFieldSetGatewayTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $appId = Uuid::randomHex();
         $integrationId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
 
         // Insert a mock integration (required for app)
         $connection->insert('integration', [
             'id' => Uuid::fromHexToBytes($integrationId),
+            'label' => 'Test Integration',
             'access_key' => 'test-access-key-' . $appId,
             'secret_access_key' => password_hash('test', \PASSWORD_BCRYPT),
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
 
-        // Insert a mock app
+        // Insert a mock acl_role (required for app)
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($aclRoleId),
+            'name' => 'TestAppRole',
+            'privileges' => '[]',
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
+
+        // Insert a mock app with all required fields
         $connection->insert('app', [
             'id' => Uuid::fromHexToBytes($appId),
             'name' => 'TestApp',
@@ -313,7 +349,9 @@ class CustomFieldSetGatewayTest extends TestCase
             'version' => '1.0.0',
             'active' => 1,
             'configurable' => 0,
+            'allow_disable' => 1,
             'integration_id' => Uuid::fromHexToBytes($integrationId),
+            'acl_role_id' => Uuid::fromHexToBytes($aclRoleId),
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
 
@@ -341,6 +379,7 @@ class CustomFieldSetGatewayTest extends TestCase
             ], Context::createDefaultContext());
 
             $connection->delete('app', ['id' => Uuid::fromHexToBytes($appId)]);
+            $connection->delete('acl_role', ['id' => Uuid::fromHexToBytes($aclRoleId)]);
             $connection->delete('integration', ['id' => Uuid::fromHexToBytes($integrationId)]);
         }
     }

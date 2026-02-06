@@ -640,6 +640,637 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldUpdater->indexCustomFields($containerEvent);
     }
 
+    public function testExistingRelationIsSkipped(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        // No gateway methods should be called since existing relations are skipped
+        $gateway->expects($this->never())->method('fetchCustomFieldNamesBySetIds');
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        $customFieldSetRelationId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        // Existing relation (existence->exists() returns true)
+        $writeResults = [
+            new EntityWriteResult(
+                $customFieldSetRelationId,
+                ['entityName' => 'product', 'customFieldSetId' => $customFieldSetId],
+                CustomFieldSetRelationDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_UPDATE,
+                new EntityExistence(null, [], true, false, false, []) // exists = true
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldSetRelationDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldRelationWithNoCandidateNamesReturnsEarly(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldSetRelationId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        // Return empty candidate names
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesBySetIds')
+            ->with([$customFieldSetId])
+            ->willReturn([]);
+
+        // These should not be called since candidateNames is empty
+        $gateway->expects($this->never())->method('fetchCustomFieldNamesUsedInProductSorting');
+        $gateway->expects($this->never())->method('fetchCustomFieldNamesUsedInProductStream');
+
+        // Still need to fetch app-owned sets
+        $gateway->expects($this->once())
+            ->method('fetchAppOwnedFieldSetIds')
+            ->with([$customFieldSetId])
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchIndexableCustomFieldsForSets')
+            ->with([$customFieldSetId], [], [])
+            ->willReturn([]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper
+            ->expects($this->once())
+            ->method('createFieldsInIndices')
+            ->with([]);
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                $customFieldSetRelationId,
+                ['entityName' => 'product', 'customFieldSetId' => $customFieldSetId],
+                CustomFieldSetRelationDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldSetRelationDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testFetchUsedCustomFieldNamesWhenAllFoundInSorting(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldSetRelationId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesBySetIds')
+            ->with([$customFieldSetId])
+            ->willReturn(['field1', 'field2']);
+
+        // All candidates found in sorting, so no need to check stream
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesUsedInProductSorting')
+            ->with(['field1', 'field2'])
+            ->willReturn(['field1', 'field2']);
+
+        // Should NOT be called since all candidates found in sorting
+        $gateway->expects($this->never())->method('fetchCustomFieldNamesUsedInProductStream');
+
+        $gateway->expects($this->once())
+            ->method('fetchAppOwnedFieldSetIds')
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchIndexableCustomFieldsForSets')
+            ->with([$customFieldSetId], ['field1', 'field2'], [])
+            ->willReturn([]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->once())->method('createFieldsInIndices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                $customFieldSetRelationId,
+                ['entityName' => 'product', 'customFieldSetId' => $customFieldSetId],
+                CustomFieldSetRelationDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldSetRelationDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldCreatedWithNoSetIdMapping(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId = Uuid::randomHex();
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId])
+            ->willReturn([]); // No set ID found
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetEntityMappings')
+            ->with([])
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchAppOwnedFieldSetIds')
+            ->with([])
+            ->willReturn([]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        $writeResults = [
+            new EntityWriteResult($customFieldId, ['name' => 'orphanField', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldCreatedWithoutIncludeInSearchKey(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId])
+            ->willReturn([$customFieldId => $customFieldSetId]);
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetEntityMappings')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId => ['product']]);
+
+        $gateway->expects($this->once())
+            ->method('fetchAppOwnedFieldSetIds')
+            ->with([$customFieldSetId])
+            ->willReturn([]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        // Should not be called since includeInSearch is not in payload and not app-owned
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        // No includeInSearch in payload
+        $writeResults = [
+            new EntityWriteResult($customFieldId, ['name' => 'field', 'type' => 'text'], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldsUpdatedWithNoPropertyChange(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId = Uuid::randomHex();
+
+        // No fetchFieldSetIds call expected since customFieldIds is empty (no property change)
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        // Update with 'name' change, not 'includeInSearch'
+        $writeResults = [
+            new EntityWriteResult($customFieldId, ['name' => 'newName', 'type' => 'text'], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        // No 'includeInSearch' in primaryKeysWithPropertyChange
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldsUpdatedWithKeyNotInCustomFieldIds(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId1 = Uuid::randomHex();
+        $customFieldId2 = Uuid::randomHex();
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        // Write result key doesn't match getPrimaryKeysWithPropertyChange
+        $writeResults = [
+            new EntityWriteResult($customFieldId1, ['name' => 'field', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        // Different ID in propertyChange
+        $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
+        $containerEvent->method('getEventByEntityName')
+            ->willReturnCallback(function (string $entityName) use ($event) {
+                if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
+                    return $event;
+                }
+
+                return null;
+            });
+        $containerEvent->method('getPrimaryKeysWithPropertyChange')
+            ->willReturn([$customFieldId2]); // Different ID
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldsUpdatedWithNewRecord(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+        $customFieldId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        // For created records (existence is null or doesn't exist), customFieldsUpdated should skip
+        // and only customFieldsCreated should process
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId])
+            ->willReturn([$customFieldId => $customFieldSetId]);
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetEntityMappings')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId => ['product']]);
+
+        $gateway->expects($this->once())
+            ->method('fetchAppOwnedFieldSetIds')
+            ->with([$customFieldSetId])
+            ->willReturn([]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->once())->method('createFieldsInIndices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        // Existence is null (new record)
+        $writeResults = [
+            new EntityWriteResult($customFieldId, ['name' => 'newField', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
+        $containerEvent->method('getEventByEntityName')
+            ->willReturnCallback(function (string $entityName) use ($event) {
+                if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
+                    return $event;
+                }
+
+                return null;
+            });
+        $containerEvent->method('getPrimaryKeysWithPropertyChange')
+            ->willReturn([$customFieldId]);
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldsUpdatedWithEmptyFieldSetIds(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId = Uuid::randomHex();
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId])
+            ->willReturn([]); // Empty result
+
+        // Should not continue after empty fieldSetIds
+        $gateway->expects($this->never())->method('fetchFieldSetEntityMappings');
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        $mappingHelper->expects($this->never())->method('createFieldsInIndices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        $writeResults = [
+            new EntityWriteResult($customFieldId, ['name' => 'field', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
+        $containerEvent->method('getEventByEntityName')
+            ->willReturnCallback(function (string $entityName) use ($event) {
+                if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
+                    return $event;
+                }
+
+                return null;
+            });
+        $containerEvent->method('getPrimaryKeysWithPropertyChange')
+            ->willReturn([$customFieldId]);
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldsUpdatedNotRelatedToProduct(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId])
+            ->willReturn([$customFieldId => $customFieldSetId]);
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetEntityMappings')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId => ['customer']]); // Not product!
+
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesBySetIds')
+            ->willReturn(['fieldName']);
+
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesUsedInProductSorting')
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesUsedInProductStream')
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchAppOwnedFieldSetIds')
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchIndexableCustomFieldsForSets')
+            ->willReturn([$customFieldSetId => [
+                ['id' => $customFieldId, 'name' => 'fieldName', 'type' => 'text'],
+            ]]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        // Should not index non-product fields
+        $mappingHelper->expects($this->once())
+            ->method('createFieldsInIndices')
+            ->with([]);
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        $writeResults = [
+            new EntityWriteResult($customFieldId, ['name' => 'fieldName', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE, new EntityExistence(null, [], true, false, false, [])),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
+        $containerEvent->method('getEventByEntityName')
+            ->willReturnCallback(function (string $entityName) use ($event) {
+                if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
+                    return $event;
+                }
+
+                return null;
+            });
+        $containerEvent->method('getPrimaryKeysWithPropertyChange')
+            ->willReturn([$customFieldId]);
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testBothCustomFieldAndRelationEventsProcessed(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+        $relationId = Uuid::randomHex();
+        $relationSetId = Uuid::randomHex();
+
+        // For the relation event - fetch candidate names and then used fields
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesBySetIds')
+            ->with([$relationSetId])
+            ->willReturn(['relationField']);
+
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesUsedInProductSorting')
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesUsedInProductStream')
+            ->willReturn([]);
+
+        $gateway->expects($this->once())
+            ->method('fetchIndexableCustomFieldsForSets')
+            ->with([$relationSetId], [], [])
+            ->willReturn([]);
+
+        // For the custom field creation - calls fetchFieldSetIds
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId])
+            ->willReturn([$customFieldId => $customFieldSetId]);
+
+        $gateway->expects($this->once())
+            ->method('fetchFieldSetEntityMappings')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId => ['product']]);
+
+        // Called twice: once for relation, once for custom field
+        $gateway->expects($this->exactly(2))
+            ->method('fetchAppOwnedFieldSetIds')
+            ->willReturn([]);
+
+        $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
+        // Called twice: once for relation, once for custom field
+        $mappingHelper->expects($this->exactly(2))->method('createFieldsInIndices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $elasticsearchHelper,
+            $gateway,
+            $mappingHelper
+        );
+
+        $relationWriteResults = [
+            new EntityWriteResult(
+                $relationId,
+                ['entityName' => 'product', 'customFieldSetId' => $relationSetId],
+                CustomFieldSetRelationDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $customFieldWriteResults = [
+            new EntityWriteResult($customFieldId, ['name' => 'newField', 'type' => 'int', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+        ];
+
+        $relationEvent = new EntityWrittenEvent(CustomFieldSetRelationDefinition::ENTITY_NAME, $relationWriteResults, Context::createDefaultContext());
+        $customFieldEvent = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $customFieldWriteResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$relationEvent, $customFieldEvent]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
     /**
      * @param array<mixed> $mapping
      */
@@ -708,5 +1339,27 @@ class CustomFieldUpdaterTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    // write test suite for getTypeFromCustomFieldType
+    public function testGetTypeFromCustomFieldType(): void
+    {
+        $result = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType(CustomFieldTypes::INT);
+        static::assertEquals(['type' => 'long'], $result);
+
+        $result = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType(CustomFieldTypes::FLOAT);
+        static::assertEquals(['type' => 'double'], $result);
+
+        $result = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType(CustomFieldTypes::BOOL);
+        static::assertEquals(['type' => 'boolean'], $result);
+
+        $result = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType(CustomFieldTypes::DATETIME);
+        static::assertEquals(['type' => 'date', 'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis', 'ignore_malformed' => true], $result);
+
+        $result = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType(CustomFieldTypes::JSON);
+        static::assertEquals(['type' => 'object', 'dynamic' => true], $result);
+
+        $result = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType('unknown');
+        static::assertEquals(['type' => 'keyword', 'ignore_above' => 10000, 'normalizer' => 'sw_lowercase_normalizer', 'fields' => ['search' => ['type' => 'text', 'analyzer' => 'sw_whitespace_analyzer'], 'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer']]], $result);
     }
 }

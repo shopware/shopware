@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
-use Shopware\Elasticsearch\Product\CustomFieldSetGateway;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -85,7 +84,6 @@ class ElasticsearchFieldMapperTest extends TestCase
             $connection,
             $dispatcher,
             $parameterBag,
-            $this->createMock(CustomFieldSetGateway::class),
         );
 
         $mapper = new ElasticsearchFieldMapper($utils);

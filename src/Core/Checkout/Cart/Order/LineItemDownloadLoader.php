@@ -45,10 +45,11 @@ class LineItemDownloadLoader
                 $isLineItemDownloadable = $isLineItemDownloadable || (\is_array($states) && \in_array(State::IS_DOWNLOAD, $states, true));
             }
 
+            $downloads = $lineItem['downloads'] ?? null;
             if (
                 !$productId
                 || !$isLineItemDownloadable
-                || !empty($lineItem['downloads'])
+                || ($downloads !== null && $downloads !== [])
             ) {
                 continue;
             }
@@ -56,7 +57,7 @@ class LineItemDownloadLoader
             $lineItemKeys[(string) $productId] = (int) $key;
         }
 
-        if (empty($lineItemKeys)) {
+        if ($lineItemKeys === []) {
             return [];
         }
 

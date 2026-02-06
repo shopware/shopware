@@ -48,7 +48,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
     public function load(string $documentType, string $salesChannelId, Context $context): DocumentConfiguration
     {
-        if (!empty($this->configs[$documentType][$salesChannelId])) {
+        if (isset($this->configs[$documentType][$salesChannelId])) {
             return $this->configs[$documentType][$salesChannelId];
         }
 

@@ -109,7 +109,7 @@ class CartMigrateCommand extends Command
         $keys = $this->redis->keys(RedisCartPersister::PREFIX . '*');
         \assert(\is_array($keys));
 
-        if (empty($keys)) {
+        if ($keys === []) {
             $this->io->success('No carts found in Redis');
 
             return self::SUCCESS;

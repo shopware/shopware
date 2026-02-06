@@ -422,6 +422,8 @@ class PromotionCalculator
 
     private function isAutomaticDiscount(LineItem $discountItem): bool
     {
-        return empty($discountItem->getPayloadValue('code'));
+        $code = $discountItem->getPayloadValue('code');
+
+        return $code === null || $code === '';
     }
 }

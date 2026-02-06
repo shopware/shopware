@@ -39,7 +39,7 @@ final readonly class PaymentMethodValidator implements EventSubscriberInterface
 
         $ids = \array_column($ids, 'id');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -49,7 +49,7 @@ final readonly class PaymentMethodValidator implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (!empty($pluginIds)) {
+        if ($pluginIds !== false) {
             throw PaymentException::pluginPaymentMethodDeleteRestriction();
         }
     }

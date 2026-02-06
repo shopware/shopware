@@ -109,8 +109,11 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $isGuest = $data->getBoolean('guest');
 
-        if ($data->has('accountType') && empty($data->get('accountType'))) {
-            $data->remove('accountType');
+        if ($data->has('accountType')) {
+            $accountType = $data->get('accountType');
+            if ($accountType === null || $accountType === '') {
+                $data->remove('accountType');
+            }
         }
 
         if (!$data->get('salutationId')) {

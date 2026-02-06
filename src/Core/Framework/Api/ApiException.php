@@ -253,6 +253,26 @@ class ApiException extends HttpException
         );
     }
 
+    public static function noPrimaryKeyDefined(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
+            'No primary key defined for {{ entityName }}',
+            ['entityName' => $entityName]
+        );
+    }
+
+    public static function mappingFieldNotFound(string $storageField): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
+            'Can not find mapping entity field for storage field {{ storageField }}',
+            ['storageField' => $storageField]
+        );
+    }
+
     public static function unsupportedStoreApiSchemaEndpoint(): self
     {
         return new self(

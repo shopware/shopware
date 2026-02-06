@@ -13,6 +13,8 @@ class DependencyInjectionException extends HttpException
     public const BUNDLES_METADATA_IS_NOT_AN_ARRAY = 'FRAMEWORK__BUNDLES_METADATA_IS_NOT_AN_ARRAY';
     public const TAGGED_SERVICE_HAS_WRONG_TYPE = 'FRAMEWORK__TAGGED_SERVICE_HAS_WRONG_TYPE';
     public const PARAMETER_HAS_WRONG_TYPE = 'FRAMEWORK__PARAMETER_HAS_WRONG_TYPE';
+    public const ENTITY_TAG_MISMATCH = 'FRAMEWORK__ENTITY_TAG_MISMATCH';
+    public const ENTITY_TAG_UNRESOLVABLE = 'FRAMEWORK__ENTITY_TAG_UNRESOLVABLE';
 
     public static function projectDirNotInContainer(): self
     {
@@ -47,6 +49,35 @@ class DependencyInjectionException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PARAMETER_HAS_WRONG_TYPE,
             \sprintf('Parameter "%s" should be: "%s". Got: "%s"', $parameter, $expectedType, $actualType)
+        );
+    }
+
+    public static function entityTagUnresolvable(string $serviceId, string $tagName, string $class): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ENTITY_TAG_UNRESOLVABLE,
+            \sprintf(
+                'Service "%s" is tagged as "%s" but has no "entity" attribute and the entity name could not be resolved from class "%s".',
+                $serviceId,
+                $tagName,
+                $class
+            )
+        );
+    }
+
+    public static function entityTagMismatch(string $serviceId, string $tagName, string $tagEntity, string $actualEntity): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ENTITY_TAG_MISMATCH,
+            \sprintf(
+                'Service "%s" has tag "%s" with entity="%s", but getEntityName() returns "%s". They must match.',
+                $serviceId,
+                $tagName,
+                $tagEntity,
+                $actualEntity
+            )
         );
     }
 }

@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,6 +18,15 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * Wires entity definitions into the runtime system.
+ *
+ * For each `shopware.entity.definition` service, this pass adds a `compile()` call,
+ * creates an EntityRepository if none exists, registers autowiring aliases, and
+ * populates the DefinitionInstanceRegistry with entity-name-to-service-ID maps.
+ *
+ * Entity names are read from the tag's 'entity' attribute (written by EntityDefinitionTagCompilerPass).
+ */
 #[Package('framework')]
 class EntityCompilerPass implements CompilerPassInterface
 {
@@ -38,9 +44,7 @@ class EntityCompilerPass implements CompilerPassInterface
         $repositoryNameMap = [];
         $services = $container->findTaggedServiceIds('shopware.entity.definition');
 
-        $ids = array_keys($services);
-
-        foreach ($ids as $serviceId) {
+        foreach ($services as $serviceId => $tags) {
             $service = $container->getDefinition($serviceId);
 
             $service->addMethodCall('compile', [
@@ -55,16 +59,15 @@ class EntityCompilerPass implements CompilerPassInterface
                 throw DependencyInjectionException::taggedServiceHasWrongType($serviceId, 'shopware.entity.definition', EntityDefinition::class);
             }
 
-            if (\in_array($class, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
-                continue;
+            // Entity name is on the tag (written by EntityDefinitionTagCompilerPass)
+            $entity = $tags[0]['entity'] ?? null;
+            if ($entity === null || $entity === '') {
+                throw DependencyInjectionException::taggedServiceHasWrongType($serviceId, 'shopware.entity.definition', EntityDefinition::class);
             }
 
-            $instance = new $class();
+            $entityNameMap[$entity] = $serviceId;
 
-            $entityNameMap[$instance->getEntityName()] = $serviceId;
-            $entity = $instance->getEntityName();
-
-            $repositoryId = $instance->getEntityName() . '.repository';
+            $repositoryId = $entity . '.repository';
 
             try {
                 $repository = $container->getDefinition($repositoryId);

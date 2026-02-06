@@ -9,12 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
+use Shopware\Core\System\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\System\DependencyInjection\CompilerPass\SalesChannelEntityCompilerPass;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -83,7 +83,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
 
         $attributeDefinition = new Definition(AttributeEntityDefinition::class);
         $attributeDefinition->setPublic(true);
-        $attributeDefinition->addTag('shopware.entity.definition');
+        $attributeDefinition->addTag('shopware.entity.definition', ['entity' => 'test_attribute_entity']);
         $attributeDefinition->addArgument([
             'entity_name' => 'test_attribute_entity',
             'fields' => [],
@@ -128,7 +128,8 @@ class SalesChannelEntityCompilerPassTest extends TestCase
         $extension->addTag('shopware.entity.extension');
         $container->setDefinition(AttributeEntityExtension::class, $extension);
 
-        static::expectException(DefinitionNotFoundException::class);
+        static::expectException(DependencyInjectionException::class);
+        static::expectExceptionMessage('missing the required "entity" attribute');
         $container->compile();
     }
 
@@ -143,7 +144,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
 
         $productRegular = new Definition(ProductDefinition::class);
         $productRegular->setPublic(true);
-        $productRegular->addTag('shopware.entity.definition');
+        $productRegular->addTag('shopware.entity.definition', ['entity' => 'product']);
         $container->setDefinition(ProductDefinition::class, $productRegular);
 
         return $container;

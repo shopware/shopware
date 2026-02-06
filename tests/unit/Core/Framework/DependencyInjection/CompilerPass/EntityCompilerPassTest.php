@@ -25,9 +25,9 @@ class EntityCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
 
         $container->register(CustomerAddressDefinition::class, CustomerAddressDefinition::class)
-            ->addTag('shopware.entity.definition');
+            ->addTag('shopware.entity.definition', ['entity' => CustomerAddressDefinition::ENTITY_NAME]);
         $container->register(CustomerDefinition::class, CustomerDefinition::class)
-            ->addTag('shopware.entity.definition');
+            ->addTag('shopware.entity.definition', ['entity' => CustomerDefinition::ENTITY_NAME]);
 
         $container->register(DefinitionInstanceRegistry::class, DefinitionInstanceRegistry::class)
             ->addArgument(new Reference('service_container'))
@@ -53,7 +53,7 @@ class EntityCompilerPassTest extends TestCase
 
         $container
             ->register(ProductDefinition::class, ProductDefinition::class)
-            ->addTag('shopware.entity.definition')
+            ->addTag('shopware.entity.definition', ['entity' => ProductDefinition::ENTITY_NAME])
         ;
 
         $container
@@ -83,21 +83,17 @@ class EntityCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container
             ->register('test_attribute_entity.definition', AttributeEntityDefinition::class)
-            ->addTag('shopware.entity.definition')
+            ->addTag('shopware.entity.definition', ['entity' => 'test_attribute_entity'])
         ;
         $container
             ->register(DefinitionInstanceRegistry::class, DefinitionInstanceRegistry::class)
             ->addArgument(new Reference('service_container'))
-            ->addArgument([
-                'test_attribute_entity' => 'test_attribute_entity.definition',
-            ])
-            ->addArgument([
-                'test_attribute_entity' => 'test_attribute_entity.repository',
-            ]);
+            ->addArgument([])
+            ->addArgument([]);
 
         $entityCompilerPass = new EntityCompilerPass();
         $entityCompilerPass->process($container);
 
-        static::assertCount(0, $container->getAliases());
+        static::assertTrue($container->has('test_attribute_entity.repository'));
     }
 }

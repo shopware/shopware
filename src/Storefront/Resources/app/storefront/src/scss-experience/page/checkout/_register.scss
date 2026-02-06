@@ -1,0 +1,31 @@
+.is-act-checkoutregisterpage, // @deprecated tag:v6.8.0 - Body class `is-act-checkoutregisterpage` will be removed, use active route class `is-active-route-frontend-checkout-register-page` instead.
+.is-active-route-frontend-checkout-register-page {
+    .checkout {
+        padding-top: 70px;
+
+        .checkout-container {
+            @extend .row;
+        }
+
+        .checkout-main {
+            @extend .col-lg-8;
+            margin-bottom: $spacer-lg;
+        }
+
+        .checkout-aside {
+            @extend .col-md-4;
+            @extend .d-lg-block;
+        }
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .is-act-checkoutregisterpage, // @deprecated tag:v6.8.0 - Body class `is-act-checkoutregisterpage` will be removed, use active route class `is-active-route-frontend-checkout-register-page` instead.
+    .is-active-route-frontend-checkout-register-page {
+        .checkout {
+            .checkout-main {
+                margin-bottom: 0;
+            }
+        }
+    }
+}

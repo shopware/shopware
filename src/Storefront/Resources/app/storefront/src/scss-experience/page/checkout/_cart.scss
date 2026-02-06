@@ -1,0 +1,94 @@
+.is-act-cartpage, // @deprecated tag:v6.8.0 - Body class `is-act-cartpage` will be removed, use active route class `is-active-route-frontend-checkout-cart-page` instead.
+.is-active-route-frontend-checkout-cart-page {
+    .checkout {
+        .checkout-container {
+            @extend .row;
+        }
+
+        .checkout-main {
+            @extend .col-lg-8;
+            margin-bottom: $spacer-lg;
+        }
+
+        .checkout-aside {
+            @extend .col-xl-4;
+            @extend .col-lg-4;
+            @extend .col-md-5;
+            @extend .offset-lg-0;
+            @extend .offset-md-7;
+        }
+
+        .checkout-aside-container {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+    }
+}
+
+.cart-main-header {
+    margin-bottom: $spacer-lg;
+}
+
+.cart-table-header {
+    display: none;
+}
+
+.cart-header-unit-price,
+.cart-header-total-price,
+.cart-header-tax-price {
+    text-align: right;
+}
+
+.cart-header-quantity {
+    text-align: center;
+}
+
+$cart-grid-gutter-width: $spacer-sm;
+
+.cart-header-row,
+.line-item-row {
+    margin-right: -$cart-grid-gutter-width / 2;
+    margin-left: -$cart-grid-gutter-width / 2;
+
+    > .col,
+    > [class*='col-'] {
+        padding-right: $cart-grid-gutter-width / 2;
+        padding-left: $cart-grid-gutter-width / 2;
+    }
+}
+
+.cart-add-product-container {
+    margin-bottom: $spacer;
+
+    .add-product-button {
+        .icon-checkmark {
+            color: inherit;
+        }
+    }
+}
+
+.cart-shipping-costs-container {
+    align-self: center;
+}
+
+.cart-shipping-costs-btn {
+    padding-left: 0;
+    margin: 1px 0;
+}
+
+@include media-breakpoint-up(md) {
+    .cart-table-header {
+        display: block;
+    }
+
+    .cart-add-product-container {
+        margin-bottom: 0;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .cart-table-header {
+        display: block;
+    }
+}

@@ -1,0 +1,44 @@
+.account-aside-header {
+    background: none;
+    color: $headings-color;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacer;
+}
+
+.account-aside-item {
+    --#{$prefix}list-group-item-padding-x: 0;
+    --#{$prefix}list-group-action-active-color: #{$primary};
+    --#{$prefix}list-group-action-active-bg: #{$list-group-bg};
+    --#{$prefix}list-group-action-hover-color: #{$primary};
+    --#{$prefix}list-group-action-hover-bg: #{$list-group-bg};
+    --#{$prefix}list-group-border-width: 0;
+
+    &.is-active {
+        color: $primary;
+        font-weight: $font-weight-bold;
+    }
+}
+
+.account-aside-footer {
+    background: none;
+    margin-top: 1px;
+    border-top: 1px solid $border-color;
+}
+
+.account-aside-btn {
+    line-height: normal;
+    padding: 3px 0;
+
+    .icon {
+        vertical-align: middle;
+        margin-right: $spacer-xs;
+
+        svg {
+            top: 0;
+        }
+    }
+}
+
+.account-guest-abort {
+    border-top: 0;
+}

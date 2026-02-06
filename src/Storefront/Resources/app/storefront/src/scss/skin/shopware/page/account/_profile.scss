@@ -1,8 +1,0 @@
-.account-profile-mail-label {
-    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
-}
-
-.account-profile-change {
-    font-weight: if(feature('EXPERIENCE_THEME'), var(--sw-font-weight-bold), $font-weight-bold);
-    font-size: if(feature('EXPERIENCE_THEME'), var(--sw-font-size-base), $font-size-base);
-}

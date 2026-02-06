@@ -1,0 +1,15 @@
+.quickview-minimal-product-name {
+    color: $headings-color;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+.quickview-minimal-product-number {
+    font-size: $font-size-sm;
+}
+
+.quickview-minimal-footer-heading {
+    border-bottom: 1px solid $border-color;
+}

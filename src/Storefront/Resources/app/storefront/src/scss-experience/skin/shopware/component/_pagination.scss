@@ -1,0 +1,14 @@
+.pagination {
+    .page-link {
+        line-height: $form-select-line-height;
+        text-align: center;
+
+        @include media-breakpoint-up(sm) {
+            min-width: 40px;
+        }
+
+        .icon {
+            color: inherit;
+        }
+    }
+}

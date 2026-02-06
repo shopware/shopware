@@ -1,0 +1,69 @@
+/*
+OffCanvas
+==============================================
+Move page content like the navigation menu in a sliding OffCanvas menu.
+The sliding direction can be left or right.
+
+@see https://getbootstrap.com/docs/5.2/components/offcanvas
+*/
+
+.offcanvas {
+    transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
+
+    &.offcanvas-start .offcanvas-close {
+        align-items: center;
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-between;
+    }
+
+    &.offcanvas-bottom {
+        --#{$prefix}offcanvas-height: 90%;
+        border-radius: 8px 8px 0 0;
+    }
+
+    &.is-fullwidth {
+        width: 100%;
+    }
+
+    .offcanvas-header {
+        --#{$prefix}offcanvas-padding-y: 0;
+        --#{$prefix}offcanvas-padding-x: 0;
+        background-color: $white;
+
+        .offcanvas-title {
+            font-size: 24px;
+            font-weight: $font-weight-bold;
+        }
+    }
+
+    .offcanvas-footer {
+        @extend .sticky-top;
+        bottom: 0;
+        top: auto;
+    }
+
+    .offcanvas-close {
+        width: 100%;
+        border-radius: 0;
+        font-weight: $font-weight-normal;
+        padding: $spacer-sm $spacer;
+        text-align: left;
+
+        &:focus-visible {
+            box-shadow: var(--sw-focus-ring-box-shadow-inset);
+        }
+    }
+
+    &,
+    .offcanvas-body {
+        > .loader {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -$spacer;
+            margin-top: -$spacer;
+        }
+    }
+
+}

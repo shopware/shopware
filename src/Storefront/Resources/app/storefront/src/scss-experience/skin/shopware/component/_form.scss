@@ -1,0 +1,17 @@
+/*
+Form
+==============================================
+Custom skin styling for bootstrap forms.
+
+https://getbootstrap.com/docs/5.2/forms/overview
+*/
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-field-feedback {
+    .invalid-feedback {
+        display: block;
+    }
+}

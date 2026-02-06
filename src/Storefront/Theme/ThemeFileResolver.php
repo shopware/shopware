@@ -246,8 +246,12 @@ class ThemeFileResolver
 
             // Handle @StorefrontBootstrap namespace - include base SCSS file
             if ($filepath === '@StorefrontBootstrap') {
+                // Determine which theme directory to use based on the theme being compiled
+                $technicalName = $themeConfig->getTechnicalName();
+                $themeDirectory = str_starts_with($technicalName, 'StorefrontExperience') ? 'scss-experience' : 'scss-default';
+                
                 $resolvedFiles->add(new File(
-                    __DIR__ . '/../Resources/app/storefront/src/scss/base.scss',
+                    __DIR__ . '/../Resources/app/storefront/src/' . $themeDirectory . '/base.scss',
                     ['vendor' => __DIR__ . '/../Resources/app/storefront/vendor']
                 ));
 

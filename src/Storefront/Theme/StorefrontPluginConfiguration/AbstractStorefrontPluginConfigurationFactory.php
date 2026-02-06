@@ -10,7 +10,14 @@ abstract class AbstractStorefrontPluginConfigurationFactory
 {
     abstract public function getDecorated(): AbstractStorefrontPluginConfigurationFactory;
 
-    abstract public function createFromBundle(Bundle $bundle): StorefrontPluginConfiguration;
+    /**
+     * Creates one or more theme configurations from a bundle.
+     * Most bundles return a single configuration.
+     * Special bundles (like Storefront) may return multiple configurations to support multiple themes.
+     *
+     * @return StorefrontPluginConfiguration|array<StorefrontPluginConfiguration>
+     */
+    abstract public function createFromBundle(Bundle $bundle): StorefrontPluginConfiguration|array;
 
     abstract public function createFromApp(string $appName, string $appPath): StorefrontPluginConfiguration;
 

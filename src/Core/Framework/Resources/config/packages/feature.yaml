@@ -66,11 +66,6 @@ shopware:
         major: true
         toggleable: true
         description: "Enable new Storefront component system."
-      - name: EXPERIENCE_THEME
-        default: false
-        major: true
-        toggleable: true
-        description: "Enable new Experience Theme."
       - name: REPEATED_PAYMENT_FINALIZE
         default: false
         major: true

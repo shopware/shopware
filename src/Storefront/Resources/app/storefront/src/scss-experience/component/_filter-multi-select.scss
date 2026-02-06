@@ -1,0 +1,40 @@
+/*
+Filter multi select
+==============================================
+Styling for multi select filter item.
+This filter item should only be used inside a filter panel.
+*/
+.filter-multi-select {
+    .filter-panel-item-toggle.disabled {
+        cursor: default;
+    }
+}
+
+.filter-multi-select-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.filter-multi-select-list-item {
+    padding: 5px 15px;
+}
+
+.filter-multi-select-list-item.disabled {
+    opacity: 0.3;
+
+    .filter-multi-select-item-label {
+        cursor: default;
+    }
+}
+
+.filter-multi-select-item-label {
+    cursor: pointer;
+    margin-bottom: 0;
+    padding: 0 10px;
+    width: 100%;
+}
+
+.filter-multi-select-count {
+    margin-left: 3px;
+}

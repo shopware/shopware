@@ -1,0 +1,122 @@
+/*
+Zoom modal
+==============================================
+Styling for zoom modal component.
+Displays a single image or a gallery slider in a zoom modal with zoom functions.
+*/
+
+.zoom-modal-wrapper {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.modal.zoom-modal {
+    overflow: hidden;
+
+    .zoom-modal-actions,
+    .btn-close {
+        position: absolute;
+        top: 0;
+        opacity: 1;
+        z-index: $zoom-modal-action-zindex;
+        margin: 15px;
+    }
+
+    .zoom-modal-actions {
+        left: 0;
+    }
+
+    .btn-close {
+        right: 0;
+    }
+
+    .modal-dialog {
+        .modal-content,
+        .modal-body {
+            padding: 0;
+            overflow: hidden;
+        }
+    }
+
+    .modal-footer {
+        display: none;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 0 0 $spacer;
+        justify-content: center;
+        background-color: $white;
+        margin: 0 30px;
+    }
+
+    .gallery-slider {
+        top: 0;
+        bottom: 0;
+        position: absolute;
+        height: auto;
+        width: 100%;
+    }
+
+    .gallery-slider-thumbnails {
+        margin: 0 auto;
+    }
+
+    .gallery-slider-controls-next {
+        right: 0;
+    }
+
+    .gallery-slider-controls-prev {
+        left: 0;
+    }
+
+    .gallery-slider-thumbnails-item {
+        width: auto;
+    }
+
+    .gallery-slider-thumbnails-controls-next {
+        right: -30px;
+    }
+
+    .gallery-slider-thumbnails-controls-prev {
+        left: -30px;
+    }
+
+    .image-zoom-container {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-content: center;
+        touch-action: auto !important;
+        -webkit-user-select: auto !important;
+        -webkit-touch-callout: default !important;
+        -webkit-user-drag: auto !important;
+
+        > * {
+            position: relative;
+        }
+    }
+
+    .image-zoom-btn {
+        &.disabled {
+            opacity: 0.3;
+        }
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .modal.zoom-modal {
+        .gallery-slider {
+            bottom: 100px;
+        }
+
+        .modal-footer {
+            display: flex;
+        }
+    }
+}

@@ -1,0 +1,35 @@
+/*
+Card
+==============================================
+Custom styling for bootstrap card component.
+
+https://getbootstrap.com/docs/5.2/components/card
+*/
+
+// unified card title styles for h1-h6
+.card-title {
+    color: $headings-color;
+    font-size: $font-size-lg;
+    font-weight: $headings-font-weight;
+    line-height: $headings-line-height;
+}
+
+// equal height cards
+.card-col {
+    margin-bottom: $spacer-md;
+    display: flex;
+
+    .card {
+        width: 100%;
+    }
+
+    .card-body {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.card-actions {
+    align-items: flex-start;
+    margin-top: auto;
+}

@@ -1,0 +1,18 @@
+/*
+Container
+==============================================
+Additional styling for bootstrap container layout.
+
+https://getbootstrap.com/docs/5.2/layout/containers
+*/
+
+.container-main {
+    padding: 20px 0;
+    min-height: 200px;
+}
+
+@include media-breakpoint-up(xl) {
+    .container-main {
+        min-height: 700px;
+    }
+}

@@ -1,0 +1,78 @@
+/*
+Cookie configuration
+==============================================
+Offcanvas containing a list of cookies which need to be manually selected by the user.
+
+@sw-package framework
+*/
+
+.offcanvas-cookie {
+    &-description,
+    &-list {
+        margin-bottom: 32px;
+        border-bottom: 1px solid $border-color;
+    }
+
+    &-list {
+        padding-bottom: 32px;
+    }
+}
+
+.offcanvas-cookie-group {
+    position: relative;
+    margin: 12px 0;
+
+    input ~ label {
+        user-select: none;
+    }
+
+    input:not([disabled]) ~ label {
+        cursor: pointer;
+    }
+
+    @supports (-webkit-hyphens: none) {
+        .form-check .form-check-input {
+            float: none;
+            display: inline-block;
+        }
+    }
+}
+
+.offcanvas-cookie-entries-toggle {
+    position: absolute;
+    top: -4px;
+    right: 0;
+
+    svg {
+        transform-origin: center center;
+        transition: transform 0.3s ease;
+    }
+
+    &[aria-expanded='true'] {
+        svg {
+            transform: rotate(90deg);
+        }
+    }
+}
+
+.offcanvas-cookie-entries {
+    > p,
+    .offcanvas-cookie-entry {
+        padding: 8px 8px 0 24px;
+        margin: 0;
+
+        > p {
+            margin: 8px 0;
+        }
+    }
+
+    .offcanvas-cookie-entry {
+        margin-left: 24px;
+        overflow: visible;
+
+        &.custom-control,
+        &.form-check {
+            min-height: unset;
+        }
+    }
+}

@@ -1,0 +1,30 @@
+.product-detail-tabs-content {
+    display: none;
+
+    .offcanvas-body {
+        overflow: initial;
+        padding: 0;
+    }
+}
+
+.product-detail-description-text {
+    margin-bottom: $spacer-lg;
+}
+
+@include media-breakpoint-up(sm) {
+    .product-detail-tabs-content {
+        display: block;
+    }
+
+    .product-detail-tabs .offcanvas-close,
+    .product-detail-tab-navigation-icon,
+    .product-detail-tab-preview {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .product-detail-tab-preview {
+        flex-basis: 100%;
+    }
+}

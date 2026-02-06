@@ -1,0 +1,172 @@
+/*
+Loader
+==============================================
+Defines the loader icon
+*/
+
+.loader {
+    @extend .spinner-border;
+    @extend .text-primary;
+    --#{$prefix}spinner-border-width: 3px;
+}
+
+/*
+Element loader
+==============================================
+Element loader can be applied to any element.
+*/
+
+.has-element-loader {
+    z-index: 15;
+    pointer-events: none;
+    position: relative;
+}
+
+.element-loader-backdrop {
+    opacity: 0;
+    transition:
+        opacity 0.45s cubic-bezier(0.3, 0, 0.15, 1),
+        visibility 0.45s linear;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    background-color: $element-backdrop-bg;
+    box-shadow: 0 0 11px 7px $element-backdrop-bg;
+    z-index: 15;
+
+    &.element-loader-backdrop-open {
+        opacity: 1;
+    }
+
+    > .loader {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -$spacer;
+        margin-top: -$spacer;
+    }
+}
+
+/*
+Skeleton screen
+==============================================
+Skeleton screen for reloading product-listing with subtle shimmer effect
+*/
+
+@keyframes skeletonShimmer {
+    0% {
+        background-position: -500px 0;
+    }
+
+    100% {
+        background-position: 500px 0;
+    }
+}
+
+.has-element-loader .cms-element-product-listing {
+    .product-badges,
+    .product-image-link,
+    .product-image,
+    .product-review-rating {
+        display: none;
+    }
+
+    .product-image-wrapper,
+    .product-rating,
+    .product-name,
+    .product-variant-characteristics,
+    .product-description,
+    .product-price-unit,
+    .product-cheapest-price-price,
+    .product-price {
+        border-radius: $border-radius;
+        color: transparent;
+        animation: skeletonShimmer 1.5s linear 0s infinite normal forwards running;
+        background: linear-gradient(to right, $gray-300 8%, $gray-100 18%, $gray-300 28%);
+        background-size: 800px 100px;
+    }
+
+    .product-rating {
+        width: 50%;
+    }
+
+    .product-name {
+        width: 75%;
+    }
+
+    .product-price {
+        width: 35%;
+    }
+
+    // wishlist page
+    .product-wishlist-info {
+        &-item {
+            border-radius: $border-radius;
+            color: transparent;
+            animation: skeletonShimmer 1.5s linear 0s infinite normal forwards running;
+            background: linear-gradient(to right, $gray-300 8%, $gray-100 18%, $gray-300 28%);
+            background-size: 800px 100px;
+        }
+
+        &-status {
+            display: none;
+        }
+    }
+
+    .product-variant-characteristics-text,
+    .product-wishlist-remove {
+        display: none;
+    }
+}
+
+/*
+Button loading indicator
+==============================================
+Can be shown before or after the button text or replace it.
+*/
+
+.btn {
+    > .loader {
+        --#{$prefix}spinner-width: 18px;
+        --#{$prefix}spinner-height: 18px;
+        --#{$prefix}spinner-vertical-align: -0.25em;
+        color: var(--#{$prefix}btn-color);
+    }
+
+    &.is-loading-indicator-before {
+        .loader {
+            margin-right: var(--#{$prefix}btn-padding-x);
+        }
+    }
+
+    &.is-loading-indicator-after {
+        .loader {
+            margin-left: var(--#{$prefix}btn-padding-x);
+        }
+    }
+
+    &.is-loading-indicator-inner {
+        @keyframes slide-in {
+            0% {
+                opacity: 0;
+                margin-bottom: -30px;
+            }
+            100% {
+                opacity: 1;
+                margin-bottom: 0;
+            }
+        }
+
+        .loader {
+            animation:
+                // Slide in effect
+                0.15s ease-out 0s 1 slide-in,
+                // Restore original Bootstrap spinning animation (prettier cannot handle CSS vars in animations)
+                /* stylelint-disable */
+                var(--#{$prefix}spinner-animation-speed) linear infinite var(--#{$prefix}spinner-animation-name);
+                /* stylelint-enable */
+        }
+    }
+}

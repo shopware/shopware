@@ -1,0 +1,16 @@
+/*
+Pagination
+==============================================
+Custom styling for bootstrap pagination component.
+
+https://getbootstrap.com/docs/5.2/components/pagination
+*/
+
+.pagination {
+    margin-bottom: 0;
+
+    .page-link {
+        cursor: pointer;
+        margin-bottom: 0;
+    }
+}

@@ -1,0 +1,37 @@
+/*
+Bootstrap variables
+==================================================
+Contains all overrides of bootstrap default variables.
+
+https://getbootstrap.com/docs/5.2/customize/sass/#variable-defaults
+
+@sw-package framework
+*/
+
+$enable-responsive-font-sizes: true !default;
+$modal-backdrop-bg: rgba(#000, 0.5) !default;
+$modal-transition:
+    opacity 0.45s cubic-bezier(0.3, 0, 0.15, 1),
+    visibility 0.45s linear !default;
+
+// Grid containers
+$container-max-widths: (
+    xs: 1400px,
+) !default;
+
+// Form validation
+$enable-validation-icons: true !default;
+
+// Utility importance (add no !important to utilities like .d-block)
+$enable-important-utilities: false !default;
+
+// Z-Index Level @see https://getbootstrap.com/docs/5.3/utilities/z-index/#sass-maps
+$zindex-levels: (
+    n1: -1,
+    0: 0,
+    1: 1,
+    2: 2,
+    3: 3,
+    4: 4,
+    5: 5,
+);

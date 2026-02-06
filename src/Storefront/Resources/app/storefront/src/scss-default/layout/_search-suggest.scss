@@ -1,0 +1,124 @@
+/*
+Search suggest
+==================================================
+Contains styles for the search suggest popover in the shop header.
+*/
+
+.search-suggest-container {
+    position: absolute;
+    top: 55px;
+    left: 0;
+    list-style: none;
+    touch-action: manipulation;
+    background: $white;
+    padding: $spacer;
+    border: 1px solid $border-color;
+    width: 100%;
+    z-index: $search-suggest-zindex;
+    box-shadow: 0 10px 25px -15px $black;
+
+    &::after {
+        transform: rotate(135deg);
+        width: 12px;
+        height: 12px;
+        top: -7px;
+        content: '';
+        display: block;
+        position: absolute;
+        background: $white;
+        left: 48%;
+        border: 1px solid $border-color;
+        border-top: 0 none;
+        border-right: 0 none;
+    }
+}
+
+.search-suggest-product {
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.search-suggest-product-link,
+.search-suggest-total-link {
+    &:hover {
+        text-decoration: none;
+    }
+
+    &:focus,
+    &:focus-visible {
+        color: $primary;
+        box-shadow: $focus-ring-box-shadow-inset;
+        outline: none;
+    }
+}
+
+.search-suggest-product-link {
+    display: block;
+    padding: $spacer-sm 0;
+    color: $body-color;
+    text-decoration: none;
+
+    &:hover {
+        color: $primary;
+    }
+}
+
+.search-suggest-product-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-suggest-product-variation {
+    font-size: $font-size-sm;
+    color: $gray-600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.search-suggest-product-price {
+    text-align: right;
+    padding-right: 0.25rem;
+}
+
+.search-suggest-product-list-price,
+.search-suggest-product-reference-price {
+    color: $gray-600;
+    text-align: right;
+    display: block;
+}
+
+.search-suggest-product-image-container {
+    width: 35px;
+    height: 35px;
+    margin: 0 $spacer-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-suggest-product-image {
+    max-width: 35px;
+    max-height: 35px;
+    display: block;
+}
+
+.search-suggest-total {
+    padding: $spacer-sm;
+}
+
+.search-suggest-no-result {
+    text-align: center;
+}
+
+@include media-breakpoint-up(md) {
+    .search-suggest-container {
+        width: 500px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}

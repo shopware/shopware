@@ -1,0 +1,72 @@
+.is-act-confirmpage, // @deprecated tag:v6.8.0 - Body class `is-act-confirmpage` will be removed, use active route classes starting with `is-active-route-*` instead.
+.is-ctl-accountorder, // @deprecated tag:v6.8.0 - Body class `is-ctl-accountorder` will be removed, use active route classes starting with `is-active-route-frontend-account-*` instead.
+.is-active-route-frontend-checkout-confirm-page,
+.is-active-route-frontend-account-order-page,
+.is-active-route-frontend-account-order-cancel,
+.is-active-route-frontend-account-order-single-page,
+.is-active-route-widgets-account-order-detail,
+.is-active-route-frontend-account-edit-order-page {
+    .checkout {
+        padding-top: 70px;
+
+        .checkout-container {
+            @extend .row;
+        }
+
+        .checkout-main {
+            @extend .col-lg-8;
+            @extend .offset-lg-2;
+        }
+
+        .checkout-additional {
+            @extend .col-sm-6;
+            @extend .offset-lg-2;
+            @extend .col-lg-4;
+            margin-top: $spacer;
+            margin-bottom: $spacer;
+        }
+
+        .checkout-aside {
+            @extend .col;
+            @extend .col-md-6;
+            @extend .offset-md-6;
+            @extend .col-lg-4;
+        }
+
+        .checkout-aside-no-offset {
+            @include make-col-offset(0);
+        }
+    }
+}
+
+.confirm-main-header,
+.confirm-tos,
+.confirm-address,
+.confirm-payment-shipping,
+.confirm-payment,
+.confirm-product {
+    margin-bottom: $spacer-lg;
+}
+
+.confirm-payment-current,
+.confirm-shipping-current {
+    margin-bottom: $spacer-xl;
+
+    &.is-invalid {
+        color: $danger;
+    }
+}
+
+.confirm-method-tooltip {
+    margin-left: $spacer-xs;
+}
+
+.payment-method-label,
+.shipping-method-label {
+    width: 100%;
+
+    .payment-method-description,
+    .shipping-method-description {
+        width: 66%;
+    }
+}

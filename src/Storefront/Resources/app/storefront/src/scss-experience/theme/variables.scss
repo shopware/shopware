@@ -1,0 +1,163 @@
+:root {
+    // Main color variables
+    // ================================
+
+    // Base
+    --sw-color-base: #fff;
+    --sw-color-base-content: #{$sw-text-color};
+    --sw-color-background: #{$sw-background-color};
+    --sw-color-body-background: #{$sw-background-color};
+
+    // Primary
+    --sw-color-primary: #{$sw-color-brand-primary};
+    --sw-color-primary-content: #fff;
+
+    // Secondary
+    --sw-color-secondary: #{$sw-color-brand-secondary};
+    --sw-color-secondary-content: #fff;
+
+    // Info
+    --sw-color-info: #{$sw-color-info};
+    --sw-color-info-content: #fff;
+
+    // Success
+    --sw-color-success: #{$sw-color-success};
+    --sw-color-success-content: #fff;
+
+    // Warning
+    --sw-color-warning: #{$sw-color-warning};
+    --sw-color-warning-content: #fff;
+
+    // Danger
+    --sw-color-danger: #{$sw-color-danger};
+    --sw-color-danger-content: #fff;
+
+    // Review
+    --sw-color-review: #{$icon-review-color};
+
+    // Appearance variables
+    // ================================
+
+    /**
+     * Sizes
+     *
+     * Spacing delta for controls (fields + buttons).
+     * This is not applied to font sizes.
+     */
+    --sw-size-fields: 0px;
+    /**
+     * Spacing delta for cards.
+     * Used to scale card padding / spacing without affecting typography.
+     */
+    --sw-size-cards: 0px;
+
+    // Border Radius
+    --sw-radius-cards: 0;
+    --sw-radius-buttons: 0;
+    --sw-radius-fields: 0;
+
+    // Box Shadows
+    --sw-shadow-cards: none;
+    --sw-shadow-buttons: none;
+
+    // Borders
+    --sw-border-color: var(--sw-color-base-500);
+    --sw-border-width: 1px;
+    --sw-border-style: solid;
+
+    // Opacity
+    --sw-opacity-disabled: 0.8;
+
+    // Typography variables
+    // ================================
+
+    // Font
+    --sw-font-family-base: 'Inter', sans-serif;
+    --sw-font-family-headline: 'Inter', sans-serif;
+
+    --sw-font-size-base: 1rem;
+    --sw-font-size-lg: 1.125rem;
+    --sw-font-size-sm: 0.875rem;
+
+    --sw-font-weight-normal: 400;
+    --sw-font-weight-bold: 700;
+
+    --sw-line-height-base: 1.5;
+    --sw-line-height-lg: 2;
+    --sw-line-height-sm: 1;
+
+    // Utility variables
+    // ================================
+    --sw-alpha-channel: 1;
+    --sw-lightness-addition: 0.10;
+    --sw-lightness-subtraction: 0.10;
+    --sw-subtle-bg-lightness-addition: 0.50;
+    --sw-subtle-bg-chroma-factor: 0.20;
+    --sw-subtle-border-lightness-addition: 0.10;
+    --sw-subtle-border-chroma-factor: 0.90;
+    --sw-radius-size-addition: 0.125rem;
+
+    // Focus
+    // ================================
+    --sw-focus-ring-width: 0.25rem;
+    --sw-focus-ring-opacity: 1;
+    --sw-focus-ring-color: oklch(from var(--sw-color-primary) l c h / var(--sw-focus-ring-opacity));
+    --sw-focus-ring-blur: 0;
+    --sw-focus-ring-box-shadow: 0 0 0 0.125rem var(--sw-color-base), 0 0 var(--sw-focus-ring-blur) var(--sw-focus-ring-width) var(--sw-focus-ring-color);
+    --sw-focus-ring-box-shadow-inset: inset 0 0 0 0.125rem var(--sw-focus-ring-color), inset 0 0 0 0.25rem var(--sw-color-base);
+
+    // Relative Colors
+    // ================================
+
+    // Base
+    --sw-color-base-100: oklch(from var(--sw-color-base) calc(l - 0.02) c h / var(--sw-alpha-channel));
+    --sw-color-base-200: oklch(from var(--sw-color-base) calc(l - 0.06) c h / var(--sw-alpha-channel));
+    --sw-color-base-300: oklch(from var(--sw-color-base) calc(l - 0.12) c h / var(--sw-alpha-channel));
+    --sw-color-base-400: oklch(from var(--sw-color-base) calc(l - 0.18) c h / var(--sw-alpha-channel));
+    --sw-color-base-500: oklch(from var(--sw-color-base) calc(l - 0.24) c h / var(--sw-alpha-channel));
+    --sw-color-base-600: oklch(from var(--sw-color-base) calc(l - 0.30) c h / var(--sw-alpha-channel));
+    --sw-color-base-800: oklch(from var(--sw-color-base) calc(l - 0.36) c h / var(--sw-alpha-channel));
+    --sw-color-base-900: oklch(from var(--sw-color-base) calc(l - 0.42) c h / var(--sw-alpha-channel));
+
+    // Primary
+    --sw-color-primary-dark: oklch(from var(--sw-color-primary) calc(l - var(--sw-lightness-subtraction)) c h / var(--sw-alpha-channel));
+    --sw-color-primary-light: oklch(from var(--sw-color-primary) calc(l + var(--sw-lightness-addition)) c h / var(--sw-alpha-channel));
+    --sw-color-primary-bg-subtle: oklch(from var(--sw-color-primary) clamp(0, calc(l + var(--sw-subtle-bg-lightness-addition)), 1) calc(c * var(--sw-subtle-bg-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-primary-border-subtle: oklch(from var(--sw-color-primary) clamp(0, calc(l + var(--sw-subtle-border-lightness-addition)), 1) calc(c * var(--sw-subtle-border-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-primary-disabled: oklch(from var(--sw-color-primary-content) calc(l - var(--sw-lightness-subtraction) * 2) c h / var(--sw-alpha-channel));
+
+    // Secondary
+    --sw-color-secondary-dark: oklch(from var(--sw-color-secondary) calc(l - var(--sw-lightness-subtraction)) c h / var(--sw-alpha-channel));
+    --sw-color-secondary-light: oklch(from var(--sw-color-secondary) calc(l + var(--sw-lightness-addition)) c h / var(--sw-alpha-channel));
+    --sw-color-secondary-bg-subtle: oklch(from var(--sw-color-secondary) clamp(0, calc(l + var(--sw-subtle-bg-lightness-addition)), 1) calc(c * var(--sw-subtle-bg-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-secondary-border-subtle: oklch(from var(--sw-color-secondary) clamp(0, calc(l + var(--sw-subtle-border-lightness-addition)), 1) calc(c * var(--sw-subtle-border-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-secondary-disabled: oklch(from var(--sw-color-secondary-content) calc(l - var(--sw-lightness-subtraction) * 2) c h / var(--sw-alpha-channel));
+
+    // Info
+    --sw-color-info-dark: oklch(from var(--sw-color-info) calc(l - var(--sw-lightness-subtraction)) c h / var(--sw-alpha-channel));
+    --sw-color-info-light: oklch(from var(--sw-color-info) calc(l + var(--sw-lightness-addition)) c h / var(--sw-alpha-channel));
+    --sw-color-info-bg-subtle: oklch(from var(--sw-color-info) clamp(0, calc(l + var(--sw-subtle-bg-lightness-addition)), 1) calc(c * var(--sw-subtle-bg-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-info-border-subtle: oklch(from var(--sw-color-info) clamp(0, calc(l + var(--sw-subtle-border-lightness-addition)), 1) calc(c * var(--sw-subtle-border-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-info-disabled: oklch(from var(--sw-color-info-content) calc(l - var(--sw-lightness-subtraction) * 2) c h / var(--sw-alpha-channel));
+
+    // Success
+    --sw-color-success-dark: oklch(from var(--sw-color-success) calc(l - var(--sw-lightness-subtraction)) c h / var(--sw-alpha-channel));
+    --sw-color-success-light: oklch(from var(--sw-color-success) calc(l + var(--sw-lightness-addition)) c h / var(--sw-alpha-channel));
+    --sw-color-success-bg-subtle: oklch(from var(--sw-color-success) clamp(0, calc(l + var(--sw-subtle-bg-lightness-addition)), 1) calc(c * var(--sw-subtle-bg-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-success-border-subtle: oklch(from var(--sw-color-success) clamp(0, calc(l + var(--sw-subtle-border-lightness-addition)), 1) calc(c * var(--sw-subtle-border-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-success-disabled: oklch(from var(--sw-color-success-content) calc(l - var(--sw-lightness-subtraction) * 2) c h / var(--sw-alpha-channel));
+
+    // Warning
+    --sw-color-warning-dark: oklch(from var(--sw-color-warning) calc(l - var(--sw-lightness-subtraction)) c h / var(--sw-alpha-channel));
+    --sw-color-warning-light: oklch(from var(--sw-color-warning) calc(l + var(--sw-lightness-addition)) c h / var(--sw-alpha-channel));
+    --sw-color-warning-bg-subtle: oklch(from var(--sw-color-warning) clamp(0, calc(l + var(--sw-subtle-bg-lightness-addition)), 1) calc(c * var(--sw-subtle-bg-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-warning-border-subtle: oklch(from var(--sw-color-warning) clamp(0, calc(l + var(--sw-subtle-border-lightness-addition)), 1) calc(c * var(--sw-subtle-border-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-warning-disabled: oklch(from var(--sw-color-warning-content) calc(l - var(--sw-lightness-subtraction) * 2) c h / var(--sw-alpha-channel));
+
+    // Danger
+    --sw-color-danger-dark: oklch(from var(--sw-color-danger) calc(l - var(--sw-lightness-subtraction)) c h / var(--sw-alpha-channel));
+    --sw-color-danger-light: oklch(from var(--sw-color-danger) calc(l + var(--sw-lightness-addition)) c h / var(--sw-alpha-channel));
+    --sw-color-danger-bg-subtle: oklch(from var(--sw-color-danger) clamp(0, calc(l + var(--sw-subtle-bg-lightness-addition)), 1) calc(c * var(--sw-subtle-bg-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-danger-border-subtle: oklch(from var(--sw-color-danger) clamp(0, calc(l + var(--sw-subtle-border-lightness-addition)), 1) calc(c * var(--sw-subtle-border-chroma-factor)) h / var(--sw-alpha-channel));
+    --sw-color-danger-disabled: oklch(from var(--sw-color-danger-content) calc(l - var(--sw-lightness-subtraction) * 2) c h / var(--sw-alpha-channel));
+}

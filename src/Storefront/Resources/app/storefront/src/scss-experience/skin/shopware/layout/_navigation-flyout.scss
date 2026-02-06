@@ -1,0 +1,69 @@
+/*
+Navigation flyout
+==============================================
+Custom skin styling for navigation flyout which opens on hover over the main navigation.
+*/
+
+.navigation-flyout-categories {
+    &:not(.is-level-0) {
+        margin-left: 20px;
+    }
+
+    &.is-level-0 {
+        > .navigation-flyout-col {
+            margin-bottom: 30px;
+            position: relative;
+
+            &::before {
+                border-left: 1px solid var(--sw-border-color);
+                content: '';
+                height: 100%;
+                left: 15px;
+                position: absolute;
+                top: 0;
+            }
+
+            &.col-3:nth-child(4n + 1),
+            &.col-4:nth-child(3n + 1) {
+                border-left: 0;
+            }
+        }
+    }
+}
+
+.navigation-flyout-link {
+    @include transition(padding 0.25s cubic-bezier(0, 0.77, 0.33, 1));
+    color: var(--sw-color-base-content);
+    font-size: var(--sw-font-size-base);
+    margin: 0 $spacer;
+    padding: $spacer-xs 0;
+
+    &.is-level-0 {
+        font-weight: var(--sw-font-weight-bold);
+    }
+
+    &.is-level-2 {
+        font-size: var(--sw-font-size-base);
+        padding: $spacer-xs / 2 0;
+    }
+
+    &:hover {
+        color: var(--sw-color-primary);
+        padding-left: 5px;
+    }
+
+    &.active {
+        color: var(--sw-color-primary);
+        font-weight: var(--sw-font-weight-bold);
+    }
+}
+
+.navigation-flyout-bar {
+    align-items: center;
+    padding: 20px 0;
+}
+
+.navigation-flyout-category-link {
+    font-weight: var(--sw-font-weight-bold);
+    font-size: var(--sw-font-size-base);
+}

@@ -36,7 +36,7 @@ class CustomerChangePasswordSubscriber implements EventSubscriberInterface
     {
         foreach ($event->getPayloads() as $payload) {
             $password = $payload['password'] ?? null;
-            if ($password !== null && $password !== '' && $password !== []) {
+            if ($password !== null && $password !== '') {
                 $this->clearLegacyPassword($payload['id']);
             }
         }

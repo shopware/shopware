@@ -42,12 +42,6 @@ jobs:
             ];
 
             const failures = [];
-            const wait = ms => new Promise(r => setTimeout(r, ms));
-
-            // Polling configuration for check-runs
-            const pollIntervalMs = 10000; // 10s
-            const maxAttempts = 30; // ~5 minutes
-            const allowedConclusions = new Set(['success']); // adjust if you want to allow 'skipped' or 'neutral'
 
             for (const r of repos) {
               core.info(`Attempting to merge downstream ${r.owner}/${r.repo} for branch ${branch}`);

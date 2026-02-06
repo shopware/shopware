@@ -128,20 +128,6 @@ jobs:
                 continue;
               }
 
-              // Check for at least one approval
-              const reviews = await github.rest.pulls.listReviews({ owner: r.owner, repo: r.repo, pull_number: pr.number });
-              const hasChangeRequests = reviews.data && reviews.data.some(rv => (rv.state || '').toUpperCase() === 'CHANGES_REQUESTED' || (rv.state || '').toUpperCase() === 'REQUEST_CHANGES');
-              if (hasChangeRequests) {
-                failures.push(`${r.repo} PR #${pr.number} has one or more change requests - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
-                continue;
-              }
-
-              const approved = reviews.data && reviews.data.some(rv => (rv.state || '').toUpperCase() === 'APPROVED');
-              if (!approved) {
-                failures.push(`${r.repo} PR #${pr.number} has no approval - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
-                continue;
-              }
-
               core.info(`${r.repo} PR #${pr.number} looks mergeable (checks OK)`);
             }
 

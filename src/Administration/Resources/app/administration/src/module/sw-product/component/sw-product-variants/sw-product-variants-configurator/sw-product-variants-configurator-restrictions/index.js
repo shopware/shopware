@@ -200,19 +200,15 @@ export default {
         },
 
         saveAddRestriction() {
-            // Filter out values with no options selected
-            const validValues = this.actualRestriction.values.filter((value) => {
+            this.actualRestriction.values = this.actualRestriction.values.filter((value) => {
                 return Array.isArray(value.options) && value.options.length > 0;
             });
 
-            // Don't save if no valid values exist
-            if (validValues.length === 0) {
+            if (this.actualRestriction.values.length === 0) {
                 this.actualRestriction = {};
                 this.restrictionModalIsOpen = false;
                 return;
             }
-
-            this.actualRestriction.values = validValues;
 
             if (!Array.isArray(this.product.variantRestrictions)) {
                 this.product.variantRestrictions = [];

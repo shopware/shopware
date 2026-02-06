@@ -36,12 +36,10 @@ export default class VariantsGenerator extends EventEmitter {
      * @returns {Promise}
      */
     saveConfiguratorSettings(configuratorSettings, createQueue = []) {
-        // If no settings to save, resolve immediately
         if (!configuratorSettings || configuratorSettings.length === 0) {
             return Promise.resolve();
         }
 
-        // Extract all option IDs from new variants in createQueue
         const newOptionIds = new Set();
         createQueue.forEach((variant) => {
             if (variant.options) {
@@ -53,12 +51,10 @@ export default class VariantsGenerator extends EventEmitter {
 
         const payload = configuratorSettings
             .filter((setting) => {
-                // If not marked as new, always include
-                if (!setting._isNew) {
+                if (!setting.isNew()) {
                     return true;
                 }
 
-                // If marked as new, only include if the option is truly new (in createQueue)
                 return newOptionIds.has(setting.optionId);
             })
             .map((setting) => {

@@ -141,7 +141,6 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
-        // For new fields, only check app-owned sets (not sorting/stream)
         $gateway->expects($this->once())
             ->method('fetchAppOwnedFieldSetIds')
             ->with([$customFieldSetId])
@@ -229,31 +228,9 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldSetRelationId = Uuid::randomHex();
         $customFieldSetId = Uuid::randomHex();
 
-        // First fetch candidate names from the set
         $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesBySetIds')
+            ->method('fetchCustomFieldsForSets')
             ->with([$customFieldSetId])
-            ->willReturn(['field2']);
-
-        // Then filter by candidates - first call returns empty, so second call gets remaining candidates
-        $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesUsedInProductSorting')
-            ->with(['field2'])
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesUsedInProductStream')
-            ->with(['field2'])
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchAppOwnedFieldSetIds')
-            ->with([$customFieldSetId])
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchIndexableCustomFieldsForSets')
-            ->with([$customFieldSetId], [], [])
             ->willReturn([$customFieldSetId => [
                 ['id' => Uuid::randomHex(), 'name' => 'field2', 'type' => 'text'],
             ]]);
@@ -319,9 +296,9 @@ class CustomFieldUpdaterTest extends TestCase
                 $customFieldSetId2 => ['product', 'customer'],
             ]);
 
-        // For new fields, only check app-owned sets (not sorting/stream)
         $gateway->expects($this->once())
             ->method('fetchAppOwnedFieldSetIds')
+            ->with([$customFieldSetId1, $customFieldSetId2])
             ->willReturn([]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -329,7 +306,7 @@ class CustomFieldUpdaterTest extends TestCase
             ->expects($this->once())
             ->method('createFieldsInIndices')
             ->with(static::callback(function (array $fields) {
-                // Only field2 should be indexed (product-related)
+                // Only field2 should be indexed (product-related, includeInSearch)
                 return isset($fields['field2'])
                     && !isset($fields['field1'])
                     && $fields['field2']['type'] === 'keyword';
@@ -379,7 +356,6 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
-        // For new fields, only check app-owned sets - field doesn't meet criteria
         $gateway->expects($this->once())
             ->method('fetchAppOwnedFieldSetIds')
             ->with([$customFieldSetId])
@@ -431,7 +407,6 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
-        // For new fields, only check app-owned sets
         $gateway->expects($this->once())
             ->method('fetchAppOwnedFieldSetIds')
             ->with([$customFieldSetId])
@@ -524,31 +499,9 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
-        // First fetch candidate names from the set
         $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesBySetIds')
+            ->method('fetchCustomFieldsForSets')
             ->with([$customFieldSetId])
-            ->willReturn(['searchableField']);
-
-        // Then filter by candidates
-        $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesUsedInProductSorting')
-            ->with(['searchableField'])
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesUsedInProductStream')
-            ->with(['searchableField'])
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchAppOwnedFieldSetIds')
-            ->with([$customFieldSetId])
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchIndexableCustomFieldsForSets')
-            ->with([$customFieldSetId], [], [])
             ->willReturn([$customFieldSetId => [
                 ['id' => $customFieldId, 'name' => 'searchableField', 'type' => 'text'],
             ]]);
@@ -604,11 +557,10 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
-        // Field belongs to app-owned set
         $gateway->expects($this->once())
             ->method('fetchAppOwnedFieldSetIds')
             ->with([$customFieldSetId])
-            ->willReturn([$customFieldSetId]); // This set is app-owned
+            ->willReturn([$customFieldSetId]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper
@@ -624,7 +576,7 @@ class CustomFieldUpdaterTest extends TestCase
             $mappingHelper
         );
 
-        // Field with includeInSearch=false but belongs to app-owned set
+        // App-owned set: include all fields even without includeInSearch (app manifest does not set it)
         $writeResults = [
             new EntityWriteResult($customFieldId, ['name' => 'appField', 'type' => 'text', 'includeInSearch' => false], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
         ];
@@ -648,9 +600,6 @@ class CustomFieldUpdaterTest extends TestCase
             ->willReturn(true);
 
         $gateway = $this->createMock(CustomFieldSetGateway::class);
-
-        // No gateway methods should be called since existing relations are skipped
-        $gateway->expects($this->never())->method('fetchCustomFieldNamesBySetIds');
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
         $mappingHelper->expects($this->never())->method('createFieldsInIndices');
@@ -686,7 +635,7 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldUpdater->indexCustomFields($containerEvent);
     }
 
-    public function testCustomFieldRelationWithNoCandidateNamesReturnsEarly(): void
+    public function testCustomFieldRelationWithNoIncludeInSearchFieldsReturnsEmpty(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
@@ -698,25 +647,9 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldSetRelationId = Uuid::randomHex();
         $customFieldSetId = Uuid::randomHex();
 
-        // Return empty candidate names
         $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesBySetIds')
+            ->method('fetchCustomFieldsForSets')
             ->with([$customFieldSetId])
-            ->willReturn([]);
-
-        // These should not be called since candidateNames is empty
-        $gateway->expects($this->never())->method('fetchCustomFieldNamesUsedInProductSorting');
-        $gateway->expects($this->never())->method('fetchCustomFieldNamesUsedInProductStream');
-
-        // Still need to fetch app-owned sets
-        $gateway->expects($this->once())
-            ->method('fetchAppOwnedFieldSetIds')
-            ->with([$customFieldSetId])
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchIndexableCustomFieldsForSets')
-            ->with([$customFieldSetId], [], [])
             ->willReturn([]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
@@ -751,7 +684,7 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldUpdater->indexCustomFields($containerEvent);
     }
 
-    public function testFetchUsedCustomFieldNamesWhenAllFoundInSorting(): void
+    public function testCustomFieldRelationCallsFetchCustomFieldsForSets(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper
@@ -764,30 +697,12 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldSetId = Uuid::randomHex();
 
         $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesBySetIds')
+            ->method('fetchCustomFieldsForSets')
             ->with([$customFieldSetId])
-            ->willReturn(['field1', 'field2']);
-
-        // All candidates found in sorting, so no need to check stream
-        $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesUsedInProductSorting')
-            ->with(['field1', 'field2'])
-            ->willReturn(['field1', 'field2']);
-
-        // Should NOT be called since all candidates found in sorting
-        $gateway->expects($this->never())->method('fetchCustomFieldNamesUsedInProductStream');
-
-        $gateway->expects($this->once())
-            ->method('fetchAppOwnedFieldSetIds')
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchIndexableCustomFieldsForSets')
-            ->with([$customFieldSetId], ['field1', 'field2'], [])
             ->willReturn([]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
-        $mappingHelper->expects($this->once())->method('createFieldsInIndices');
+        $mappingHelper->expects($this->once())->method('createFieldsInIndices')->with([]);
 
         $customFieldUpdater = new CustomFieldUpdater(
             $elasticsearchHelper,
@@ -893,7 +808,6 @@ class CustomFieldUpdaterTest extends TestCase
             ->willReturn([]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
-        // Should not be called since includeInSearch is not in payload and not app-owned
         $mappingHelper->expects($this->never())->method('createFieldsInIndices');
 
         $customFieldUpdater = new CustomFieldUpdater(
@@ -902,7 +816,6 @@ class CustomFieldUpdaterTest extends TestCase
             $mappingHelper
         );
 
-        // No includeInSearch in payload
         $writeResults = [
             new EntityWriteResult($customFieldId, ['name' => 'field', 'type' => 'text'], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
         ];
@@ -1039,7 +952,6 @@ class CustomFieldUpdaterTest extends TestCase
             $mappingHelper
         );
 
-        // Existence is null (new record)
         $writeResults = [
             new EntityWriteResult($customFieldId, ['name' => 'newField', 'type' => 'text', 'includeInSearch' => true], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
         ];
@@ -1133,29 +1045,13 @@ class CustomFieldUpdaterTest extends TestCase
             ->willReturn([$customFieldSetId => ['customer']]); // Not product!
 
         $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesBySetIds')
-            ->willReturn(['fieldName']);
-
-        $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesUsedInProductSorting')
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesUsedInProductStream')
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchAppOwnedFieldSetIds')
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchIndexableCustomFieldsForSets')
+            ->method('fetchCustomFieldsForSets')
+            ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => [
                 ['id' => $customFieldId, 'name' => 'fieldName', 'type' => 'text'],
             ]]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
-        // Should not index non-product fields
         $mappingHelper->expects($this->once())
             ->method('createFieldsInIndices')
             ->with([]);
@@ -1201,26 +1097,11 @@ class CustomFieldUpdaterTest extends TestCase
         $relationId = Uuid::randomHex();
         $relationSetId = Uuid::randomHex();
 
-        // For the relation event - fetch candidate names and then used fields
         $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesBySetIds')
+            ->method('fetchCustomFieldsForSets')
             ->with([$relationSetId])
-            ->willReturn(['relationField']);
-
-        $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesUsedInProductSorting')
             ->willReturn([]);
 
-        $gateway->expects($this->once())
-            ->method('fetchCustomFieldNamesUsedInProductStream')
-            ->willReturn([]);
-
-        $gateway->expects($this->once())
-            ->method('fetchIndexableCustomFieldsForSets')
-            ->with([$relationSetId], [], [])
-            ->willReturn([]);
-
-        // For the custom field creation - calls fetchFieldSetIds
         $gateway->expects($this->once())
             ->method('fetchFieldSetIds')
             ->with([$customFieldId])
@@ -1231,13 +1112,12 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
-        // Called twice: once for relation, once for custom field
-        $gateway->expects($this->exactly(2))
+        $gateway->expects($this->once())
             ->method('fetchAppOwnedFieldSetIds')
+            ->with([$customFieldSetId])
             ->willReturn([]);
 
         $mappingHelper = $this->createMock(ElasticsearchCustomFieldsMappingHelper::class);
-        // Called twice: once for relation, once for custom field
         $mappingHelper->expects($this->exactly(2))->method('createFieldsInIndices');
 
         $customFieldUpdater = new CustomFieldUpdater(

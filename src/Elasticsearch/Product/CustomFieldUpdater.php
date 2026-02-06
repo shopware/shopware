@@ -91,43 +91,12 @@ class CustomFieldUpdater implements EventSubscriberInterface
             return;
         }
 
-        $usedFieldNames = $this->fetchUsedCustomFieldNames($updatedCustomFieldSetIds);
-        $appOwnedSetIds = $this->customFieldSetGateway->fetchAppOwnedFieldSetIds($updatedCustomFieldSetIds);
-
+        $customFieldsBySet = $this->customFieldSetGateway->fetchCustomFieldsForSets($updatedCustomFieldSetIds);
         $fields = ElasticsearchCustomFieldsMappingHelper::mapCustomFieldsToEsTypes(
-            array_merge([], ...array_values($this->customFieldSetGateway->fetchIndexableCustomFieldsForSets(
-                $updatedCustomFieldSetIds,
-                $usedFieldNames,
-                $appOwnedSetIds
-            )))
+            array_merge([], ...array_values($customFieldsBySet))
         );
 
         $this->mappingHelper->createFieldsInIndices($fields);
-    }
-
-    /**
-     * @param array<string> $setIds
-     *
-     * @return array<string>
-     */
-    private function fetchUsedCustomFieldNames(array $setIds): array
-    {
-        $candidateNames = $this->customFieldSetGateway->fetchCustomFieldNamesBySetIds($setIds);
-
-        if (\count($candidateNames) === 0) {
-            return [];
-        }
-
-        $usedInSorting = $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductSorting($candidateNames);
-
-        $remainingCandidates = array_diff($candidateNames, $usedInSorting);
-        if (\count($remainingCandidates) === 0) {
-            return $usedInSorting;
-        }
-
-        $usedInStream = $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductStream($remainingCandidates);
-
-        return array_merge($usedInSorting, $usedInStream);
     }
 
     private function customFieldsCreated(EntityWrittenEvent $customFieldWrittenEvent): void
@@ -151,9 +120,8 @@ class CustomFieldUpdater implements EventSubscriberInterface
         }
 
         $fieldSetIds = $this->customFieldSetGateway->fetchFieldSetIds(array_keys($results));
-        $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings(array_values($fieldSetIds));
-
         $uniqueSetIds = array_unique(array_values($fieldSetIds));
+        $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings($uniqueSetIds);
         $appOwnedSetIds = $this->customFieldSetGateway->fetchAppOwnedFieldSetIds($uniqueSetIds);
 
         $results = array_filter(
@@ -164,21 +132,17 @@ class CustomFieldUpdater implements EventSubscriberInterface
                     return false;
                 }
 
+                if (\in_array($setId, $appOwnedSetIds, true)) {
+                    return \in_array('product', $fieldSetEntityMappings[$setId] ?? [], true);
+                }
+
                 if (!\in_array('product', $fieldSetEntityMappings[$setId] ?? [], true)) {
                     return false;
                 }
 
                 $payload = $writeResult->getPayload();
 
-                if (\array_key_exists('includeInSearch', $payload) && (bool) $payload['includeInSearch']) {
-                    return true;
-                }
-
-                if (\in_array($setId, $appOwnedSetIds, true)) {
-                    return true;
-                }
-
-                return false;
+                return \array_key_exists('includeInSearch', $payload) && (bool) $payload['includeInSearch'];
             },
             \ARRAY_FILTER_USE_BOTH
         );
@@ -243,14 +207,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
         $setIds = array_unique(array_values($fieldSetIds));
         $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings($setIds);
 
-        $usedFieldNames = $this->fetchUsedCustomFieldNames($setIds);
-        $appOwnedSetIds = $this->customFieldSetGateway->fetchAppOwnedFieldSetIds($setIds);
-
-        $customFieldsBySet = $this->customFieldSetGateway->fetchIndexableCustomFieldsForSets(
-            $setIds,
-            $usedFieldNames,
-            $appOwnedSetIds
-        );
+        $customFieldsBySet = $this->customFieldSetGateway->fetchCustomFieldsForSets($setIds);
 
         $fieldsToAdd = [];
         foreach ($customFieldsBySet as $setCustomFields) {

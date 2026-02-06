@@ -293,7 +293,12 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _updateOffCanvasContent(response) {
         OffCanvas.setContent(response, true, this._registerEvents.bind(this));
-        window.PluginManager.initializePlugins();
+
+        const offcanvasElements = OffCanvas.getOffCanvas();
+        if (offcanvasElements.length > 0) {
+            window.PluginManager.initializePluginsInParentElement(offcanvasElements[0]);
+        }
+
         this._resumeFocusState();
     }
 

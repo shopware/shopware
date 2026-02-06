@@ -226,7 +226,9 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 'addresses.country',
                 'addresses.countryState',
                 'tags',
-            ])->addSorting(new FieldSorting('transactions.createdAt'));
+            ]);
+
+        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
         $this->eventDispatcher->dispatch(new OrderStateChangeCriteriaEvent($orderId, $criteria, $context));
 

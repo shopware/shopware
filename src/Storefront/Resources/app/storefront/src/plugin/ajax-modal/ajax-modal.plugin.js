@@ -126,7 +126,11 @@ export default class AjaxModalPlugin extends Plugin {
     _processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl) {
         loadingIndicatorUtil.remove();
         pseudoModalUtil.updateContent(response, this._renderBackButton.bind(this, pseudoModalUtil));
-        window.PluginManager.initializePlugins();
+        
+        // Initialize plugins only within the modal
+        const modal = pseudoModalUtil.getModal();
+        window.PluginManager.initializePluginsInParentElement(modal);
+        
         modalBodyEl.classList.remove(this.options.centerLoadingIndicatorClass);
     }
 
@@ -174,7 +178,9 @@ export default class AjaxModalPlugin extends Plugin {
     _onModalOpen(pseudoModalUtil, classes) {
         const modal = pseudoModalUtil.getModal();
         modal.classList.add(...classes);
-        window.PluginManager.initializePlugins();
+
+        window.PluginManager.initializePluginsInParentElement(modal);
+
         this.$emitter.publish('ajaxModalOpen', { modal });
     }
 }

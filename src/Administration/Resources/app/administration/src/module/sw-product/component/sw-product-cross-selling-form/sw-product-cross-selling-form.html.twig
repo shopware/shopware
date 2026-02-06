@@ -91,6 +91,7 @@
                     id="sw-field--crossSelling-product-group"
                     v-model:value="crossSelling.productStreamId"
                     entity="product_stream"
+                    :criteria="productStreamCriteria"
                     class="sw-select-cross-selling__select-product-stream"
                     :label="$tc('sw-product.crossselling.inputCrossSellingProductStream')"
                     :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductStreamPlaceholder')"

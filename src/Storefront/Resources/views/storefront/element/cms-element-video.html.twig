@@ -1,0 +1,90 @@
+{% block element_video %}
+    {% set config = element.fieldConfig.elements %}
+    {% set displayMode = element.translated.config.displayMode.value %}
+    {% set isCover = displayMode == 'cover' %}
+    {% set wrapperClasses = ['cms-element-video', 'is-' ~ displayMode] %}
+
+    {% if config.verticalAlign.value and not isCover %}
+        {% set wrapperClasses = wrapperClasses|merge(['d-flex', 'has-vertical-alignment']) %}
+    {% endif %}
+
+    {% if not isCover %}
+        {% if config.horizontalAlign.value == 'center' %}
+            {% set wrapperClasses = wrapperClasses|merge(['justify-content-center']) %}
+        {% elseif config.horizontalAlign.value == 'flex-end' %}
+            {% set wrapperClasses = wrapperClasses|merge(['justify-content-end']) %}
+        {% else %}
+            {% set wrapperClasses = wrapperClasses|merge(['justify-content-start']) %}
+        {% endif %}
+    {% endif %}
+
+    {% set alignmentClass = 'align-self-start' %}
+    {% if config.verticalAlign.value == 'center' %}
+        {% set alignmentClass = 'align-self-center' %}
+    {% elseif config.verticalAlign.value == 'flex-end' %}
+        {% set alignmentClass = 'align-self-end' %}
+    {% endif %}
+
+    {% set ariaLabel = (config.ariaLabel.value ?? element.data.media.translated.alt)|trim %}
+    {% set mediaTitle = (config.ariaLabel.value ?? element.data.media.translated.title)|trim %}
+    {% set playLabel = 'component.cms.video.ariaLabelPlay'|trans %}
+
+    {% block element_video_wrapper %}
+    <div
+        class="{{ wrapperClasses|join(' ') }}"
+        data-cms-video-element="true"
+        {% if not config.showControls.value %}
+            tabindex="0"
+            role="button"
+            aria-label="{{ ariaLabel ?? playLabel }}"
+            title="{{ mediaTitle ?? playLabel }}"
+        {% endif %}
+    >
+        <div class="cms-element-alignment {{ alignmentClass }}">
+            {% block element_video_inner %}
+                {% block element_video_container %}
+                    {% if element.data.media.url %}
+                        <div
+                            class="w-100 cms-video-container is-{{ displayMode }}"
+                            {% if element.translated.config.minHeight.value and isCover %}style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}
+                        >
+                            {% if not config.showControls.value %}
+                                <div class="cms-video-play-icon" aria-hidden="true">
+                                    <img
+                                        src="{{ asset('bundles/storefront/assets/default/cms/video-icon.webp') }}"
+                                        alt=""
+                                    >
+                                </div>
+                            {% endif %}
+
+                            {% block element_video_media %}
+                                <video
+                                    class="cms-video"
+                                    preload="auto"
+                                    {% if ariaLabel is not empty %}aria-label="{{ ariaLabel }}"{% endif %}
+                                    {% if mediaTitle is not empty %}title="{{ mediaTitle }}"{% endif %}
+                                    {% if config.showCover.value and element.data.media.extensions.videoCoverMedia %}poster="{{ element.data.media.extensions.videoCoverMedia.url }}"{% endif %}
+                                    {% if config.autoPlay.value and not config.showCover.value %}autoplay{% endif %}
+                                    {% if config.muted.value or config.autoPlay.value %}muted{% endif %}
+                                    {% if config.loop.value %}loop{% endif %}
+                                    {% if config.playsInline.value %}playsinline{% endif %}
+                                    {% if config.showControls.value %}controls{% endif %}
+                                >
+                                    {% block element_video_media_sources %}
+                                        <source
+                                            src="{{ element.data.media.url|sw_encode_url }}"
+                                            type="{{ element.data.media.mimeType }}"
+                                        >
+                                    {% endblock %}
+
+                                    {{ 'component.cms.video.notSupported'|trans }}
+                                </video>
+                            {% endblock %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+            {% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+{% endblock %}

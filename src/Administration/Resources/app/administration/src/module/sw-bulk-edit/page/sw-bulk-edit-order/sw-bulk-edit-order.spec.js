@@ -790,4 +790,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.vm.statusFormFields).toHaveLength(4);
         expect(wrapper.vm.statusFormFields[1].name).not.toBe('orderDeliveries');
     });
+
+    it('should reset order documents isChanged on component creation', async () => {
+        const store = Shopware.Store.get('swBulkEdit');
+        const resetSpy = jest.spyOn(store, 'resetOrderDocumentsIsChanged');
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(resetSpy).toHaveBeenCalled();
+    });
 });

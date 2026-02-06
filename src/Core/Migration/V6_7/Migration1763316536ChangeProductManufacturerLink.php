@@ -9,6 +9,7 @@ use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -25,8 +26,8 @@ class Migration1763316536ChangeProductManufacturerLink extends MigrationStep
     public function update(Connection $connection): void
     {
         if (
-            $this->columnExists($connection, 'product_manufacturer', 'link')
-            && !$this->columnExists($connection, 'product_manufacturer_translation', 'link')
+            TableHelper::columnExists($connection, 'product_manufacturer', 'link')
+            && !TableHelper::columnExists($connection, 'product_manufacturer_translation', 'link')
         ) {
             $connection->executeStatement(
                 <<<'SQL'

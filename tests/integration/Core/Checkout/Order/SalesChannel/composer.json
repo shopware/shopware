@@ -1,0 +1,14 @@
+{
+    "name": "vendor_name/SalesChannel",
+    "description": "description",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "dennis",
+            "email": "email@example.com"
+        }
+    ],
+    "require": {
+    }
+}

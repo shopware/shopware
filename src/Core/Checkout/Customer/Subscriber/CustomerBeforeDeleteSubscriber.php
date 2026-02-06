@@ -81,17 +81,26 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 
         $customers = $this->customerRepository->search($criteria, $context)->getEntities();
 
-        $effectiveLanguageByCustomerId = $this->resolveEffectiveLanguageIds($customers, $salesChannelId, $context);
+        $salesChannelLanguages = $this->loadSalesChannelLanguages($customers, $salesChannelId, $context);
 
-        $event->addSuccess(function () use ($customers, $context, $salesChannelId, $criteria, $effectiveLanguageByCustomerId): void {
+        $event->addSuccess(function () use ($customers, $context, $salesChannelId, $criteria, $salesChannelLanguages): void {
             foreach ($customers as $customer) {
-                $languageId = $effectiveLanguageByCustomerId[$customer->getId()] ?? null;
+                $languageId = $customer->getLanguageId();
+
+                $effectiveSalesChannelId = $salesChannelId ?? $customer->getSalesChannelId();
+
+                $effectiveLanguageId = $salesChannelLanguages
+                    ->get($effectiveSalesChannelId)
+                    ?->getLanguages()
+                    ?->has($languageId)
+                        ? $languageId
+                        : null;
 
                 $salesChannelContext = $this->salesChannelContextService->get(
                     new SalesChannelContextServiceParameters(
-                        $salesChannelId ?? $customer->getSalesChannelId(),
+                        $effectiveSalesChannelId,
                         Random::getAlphanumericString(32),
-                        $languageId,
+                        $effectiveLanguageId,
                         null,
                         null,
                         $context,
@@ -112,33 +121,16 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
         });
     }
 
-    /**
-     * @return array<string, string|null>
-     */
-    private function resolveEffectiveLanguageIds(CustomerCollection $customers, ?string $salesChannelIdFromSource, Context $context): array
+    private function loadSalesChannelLanguages(CustomerCollection $customers, ?string $salesChannelIdFromSource, Context $context): SalesChannelCollection
     {
         $salesChannelIds = $customers->map(fn ($c) => $salesChannelIdFromSource ?? $c->getSalesChannelId());
-        $salesChannelIds = array_filter(array_unique($salesChannelIds));
-
         $languageIds = $customers->map(fn ($c) => $c->getLanguageId());
-        $languageIds = array_filter(array_unique($languageIds));
 
         $criteria = (new Criteria($salesChannelIds))->addAssociation('languages');
         $criteria->getAssociation('languages')
             ->addFields(['id'])
             ->addFilter(new EqualsAnyFilter('id', $languageIds));
 
-        $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
-
-        $result = [];
-        foreach ($customers as $customer) {
-            $scId = $salesChannelIdFromSource ?? $customer->getSalesChannelId();
-            $langId = $customer->getLanguageId();
-            $salesChannel = $salesChannels->get($scId);
-
-            $result[$customer->getId()] = ($salesChannel?->getLanguages()?->has($langId)) ? $langId : null;
-        }
-
-        return $result;
+        return $this->salesChannelRepository->search($criteria, $context)->getEntities();
     }
 }

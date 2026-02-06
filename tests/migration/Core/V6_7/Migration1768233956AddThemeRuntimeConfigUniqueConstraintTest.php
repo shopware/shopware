@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1768233956AddThemeRuntimeConfigUniqueConstraint;
 
@@ -90,10 +91,10 @@ class Migration1768233956AddThemeRuntimeConfigUniqueConstraintTest extends TestC
         static::assertSame($newThemeId, $remainingThemeId);
 
         // Verify old index is gone and new unique index exists
-        $indexes = $this->connection->createSchemaManager()->listTableIndexes('theme_runtime_config');
-        static::assertArrayNotHasKey('idx.technical_name', $indexes);
-        static::assertArrayHasKey('uidx.technical_name', $indexes);
-        static::assertSame(IndexType::UNIQUE, $indexes['uidx.technical_name']->getType());
+        static::assertFalse(TableHelper::indexExists($this->connection, 'theme_runtime_config', 'idx.technical_name'));
+        static::assertTrue(TableHelper::indexExists($this->connection, 'theme_runtime_config', 'uidx.technical_name'));
+        $index = TableHelper::getIndexOfTable($this->connection, 'theme_runtime_config', 'uidx.technical_name');
+        static::assertSame(IndexType::UNIQUE->name, $index->type);
 
         // Cleanup
         $this->connection->delete('theme_runtime_config', ['theme_id' => $newThemeId]);
@@ -101,16 +102,13 @@ class Migration1768233956AddThemeRuntimeConfigUniqueConstraintTest extends TestC
 
     private function rollback(): void
     {
-        $schemaManager = $this->connection->createSchemaManager();
-        $indexes = $schemaManager->listTableIndexes('theme_runtime_config');
-
         // Drop unique index if exists
-        if (isset($indexes['uidx.technical_name'])) {
-            $schemaManager->dropIndex('`uidx.technical_name`', 'theme_runtime_config');
+        if (TableHelper::indexExists($this->connection, 'theme_runtime_config', 'uidx.technical_name')) {
+            $this->connection->executeStatement('ALTER TABLE `theme_runtime_config` DROP INDEX `uidx.technical_name`');
         }
 
         // Re-add non-unique index if not exists
-        if (!isset($indexes['idx.technical_name'])) {
+        if (!TableHelper::indexExists($this->connection, 'theme_runtime_config', 'idx.technical_name')) {
             $this->connection->executeStatement('CREATE INDEX `idx.technical_name` ON `theme_runtime_config` (`technical_name`)');
         }
     }

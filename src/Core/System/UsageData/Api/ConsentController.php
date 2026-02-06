@@ -4,7 +4,6 @@ namespace Shopware\Core\System\UsageData\Api;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -14,7 +13,6 @@ use Shopware\Core\System\UsageData\Exception\ConsentAlreadyAcceptedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRequestedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRevokedException;
 use Shopware\Core\System\UsageData\UsageDataException;
-use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,8 +21,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
- *
- * @param EntityRepository<UserConfigCollection> $userConfigRepository
  */
 #[Package('data-services')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]

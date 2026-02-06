@@ -7,6 +7,7 @@ describe('plugin/google-analytics/events/view-cart.event', () => {
         window.activeRoute = 'frontend.checkout.cart.page';
         window.PluginManager = {
             getPlugin: jest.fn(),
+            initializePluginsInParentElement: jest.fn(),
         };
     });
 

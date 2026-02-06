@@ -125,7 +125,7 @@
                                 <mt-text-field
                                     v-model="element.config.minHeight.value"
                                     :placeholder="$t('sw-cms.elements.image.config.label.minHeight')"
-                                    :help-text="$t('sw-cms.elements.image.config.label.minHeightHelpText')"
+                                    :help-text="$t('sw-cms.elements.image.config.helpText.minHeight')"
                                     :disabled="isInherited || element.config.displayMode.value !== 'cover'"
                                     @update:model-value="onChangeMinHeight"
                                 />
@@ -286,7 +286,7 @@
                                 class="sw-cms-el-config-image-slider__settings-is-decorative"
                                 :model-value="element.config.isDecorative.value"
                                 :label="$t('sw-cms.elements.image.config.label.isDecorative')"
-                                :help-text="$t('sw-cms.elements.image.config.label.isDecorativeHelpText')"
+                                :help-text="$t('sw-cms.elements.image.config.helpText.isDecorative')"
                                 :disabled="isInherited"
                                 bordered
                                 @update:model-value="onChangeIsDecorative"
@@ -304,7 +304,7 @@
                                 class="sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item"
                                 :model-value="element.config.useFetchPriorityOnFirstItem.value"
                                 :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
-                                :help-text="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItemHelpText')"
+                                :help-text="$t('sw-cms.elements.image.config.helpText.useFetchPriorityOnFirstItem')"
                                 :disabled="isInherited"
                                 bordered
                                 @update:model-value="onChangeUseFetchPriorityOnFirstItem"
@@ -347,8 +347,8 @@
                                 v-model="sliderItem.ariaLabel"
                                 class="sw-cms-el-config-image-slider__settings-link-aria-label"
                                 :name="sliderItem.ariaLabel"
-                                :help-text="$t('sw-cms.elements.image.config.label.ariaLabelHelpText')"
                                 :label="$t('sw-cms.elements.image.config.label.ariaLabel')"
+                                :help-text="$t('sw-cms.elements.image.config.helpText.ariaLabel')"
                             />
                             {% endblock %}
 

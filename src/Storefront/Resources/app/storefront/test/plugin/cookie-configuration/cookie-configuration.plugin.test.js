@@ -87,6 +87,7 @@ describe('CookieConfiguration plugin tests', () => {
 
         window.PluginManager = {
             initializePlugins: jest.fn(),
+            initializePluginsInParentElement: jest.fn(),
             getPluginInstances: jest.fn((pluginName) => {
                 if (pluginName === 'CookiePermission') {
                     return [mockCookiePermissionPlugin];

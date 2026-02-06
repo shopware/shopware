@@ -13,6 +13,8 @@ use Symfony\Component\Lock\LockFactory;
  * @internal
  *
  * @phpstan-import-type CustomEntityField from SchemaUpdater
+ *
+ * @codeCoverageIgnore - Tested with integration test {@see \Shopware\Tests\Integration\Core\System\CustomEntity\CustomEntityTest}
  */
 #[Package('framework')]
 class CustomEntitySchemaUpdater
@@ -91,20 +93,24 @@ class CustomEntitySchemaUpdater
     {
         foreach ($schema->getTables() as $table) {
             if ($table->getComment() === self::COMMENT) {
-                $schema->dropTable($table->getName());
+                $schema->dropTable($table->getObjectName()->getUnqualifiedName()->getValue());
 
                 continue;
             }
 
             foreach ($table->getForeignKeys() as $foreignKey) {
-                if (\str_starts_with($foreignKey->getName(), 'fk_ce_')) {
-                    $table->dropForeignKey($foreignKey->getName());
+                $foreignKeyName = $foreignKey->getObjectName()?->getIdentifier()->getValue();
+                if ($foreignKeyName === null) {
+                    continue;
+                }
+                if (\str_starts_with($foreignKeyName, 'fk_ce_')) {
+                    $table->dropForeignKey($foreignKeyName);
                 }
             }
 
             foreach ($table->getColumns() as $column) {
                 if ($column->getComment() === self::COMMENT) {
-                    $table->dropColumn($column->getName());
+                    $table->dropColumn($column->getObjectName()->getIdentifier()->getValue());
                 }
             }
         }

@@ -99,6 +99,7 @@ PluginManager.register('DatePicker', () => import('src/plugin/date-picker/date-p
 PluginManager.register('FormCmsHandler', () => import('src/plugin/forms/form-cms-handler.plugin'), '.cms-element-form form');
 PluginManager.register('CountryStateSelect', () => import('src/plugin/forms/form-country-state-select.plugin'), '[data-country-state-select]');
 PluginManager.register('ClearInput', () => import('src/plugin/clear-input-button/clear-input.plugin'), '[data-clear-input]'); // Not used in core, but implemented for plugins
+PluginManager.register('CmsVideo', () => import('src/plugin/cms-video/cms-video.plugin'), '[data-cms-video-element]');
 PluginManager.register('BuyBox', () => import('src/plugin/buy-box/buy-box.plugin'), '[data-buy-box]');
 PluginManager.register('BasicCaptcha', () => import('src/plugin/captcha/basic-captcha.plugin'), '[data-basic-captcha]');
 PluginManager.register('QuantitySelector', () => import('src/plugin/quantity-selector/quantity-selector.plugin'), '[data-quantity-selector]');
@@ -221,4 +222,3 @@ run utils
 new TimezoneUtil();
 
 BootstrapUtil.initBootstrapPlugins();
-

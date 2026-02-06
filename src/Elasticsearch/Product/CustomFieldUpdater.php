@@ -132,12 +132,12 @@ class CustomFieldUpdater implements EventSubscriberInterface
                     return false;
                 }
 
-                if (\in_array($setId, $appOwnedSetIds, true)) {
-                    return \in_array('product', $fieldSetEntityMappings[$setId] ?? [], true);
-                }
-
                 if (!\in_array('product', $fieldSetEntityMappings[$setId] ?? [], true)) {
                     return false;
+                }
+
+                if (\in_array($setId, $appOwnedSetIds, true)) {
+                    return true;
                 }
 
                 $payload = $writeResult->getPayload();

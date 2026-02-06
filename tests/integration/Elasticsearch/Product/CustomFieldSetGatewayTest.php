@@ -312,6 +312,32 @@ class CustomFieldSetGatewayTest extends TestCase
         }
     }
 
+    public function testFetchCustomFieldNamesBySetIds(): void
+    {
+        $gateway = static::getContainer()->get(CustomFieldSetGateway::class);
+
+        $result = $gateway->fetchCustomFieldNamesBySetIds([
+            $this->ids->get('custom-field-set-1'),
+            $this->ids->get('custom-field-set-2'),
+        ]);
+
+        // Should return all active custom field names from the sets
+        static::assertCount(4, $result);
+        static::assertContains('test_newly_created_field', $result);
+        static::assertContains('test_newly_created_field_text', $result);
+        static::assertContains('test_non_searchable_field', $result);
+        static::assertContains('test_newly_created_field3', $result);
+    }
+
+    public function testFetchCustomFieldNamesBySetIdsWithEmptyArray(): void
+    {
+        $gateway = static::getContainer()->get(CustomFieldSetGateway::class);
+
+        $result = $gateway->fetchCustomFieldNamesBySetIds([]);
+
+        static::assertEmpty($result);
+    }
+
     public function testFetchCustomFieldNamesUsedInProductSorting(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -336,6 +362,37 @@ class CustomFieldSetGatewayTest extends TestCase
             $result = $gateway->fetchCustomFieldNamesUsedInProductSorting();
 
             static::assertContains('test_sorting_field', $result);
+        } finally {
+            $connection->delete('product_sorting', ['id' => Uuid::fromHexToBytes($sortingId)]);
+        }
+    }
+
+    public function testFetchCustomFieldNamesUsedInProductSortingWithCandidateFilter(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $sortingId = Uuid::randomHex();
+
+        $connection->insert('product_sorting', [
+            'id' => Uuid::fromHexToBytes($sortingId),
+            'url_key' => 'test-sorting-filter',
+            'priority' => 1,
+            'active' => 1,
+            'locked' => 0,
+            'fields' => json_encode([
+                ['field' => 'customFields.candidate_field', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 0],
+                ['field' => 'customFields.other_field', 'order' => 'asc', 'priority' => 0, 'naturalSorting' => 0],
+            ]),
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
+
+        try {
+            $gateway = static::getContainer()->get(CustomFieldSetGateway::class);
+
+            // Only search for 'candidate_field' in the candidates
+            $result = $gateway->fetchCustomFieldNamesUsedInProductSorting(['candidate_field']);
+
+            static::assertContains('candidate_field', $result);
+            static::assertNotContains('other_field', $result);
         } finally {
             $connection->delete('product_sorting', ['id' => Uuid::fromHexToBytes($sortingId)]);
         }
@@ -370,6 +427,52 @@ class CustomFieldSetGatewayTest extends TestCase
             static::assertContains('test_stream_field', $result);
         } finally {
             $connection->delete('product_stream_filter', ['id' => Uuid::fromHexToBytes($filterId)]);
+            $connection->delete('product_stream', ['id' => Uuid::fromHexToBytes($streamId)]);
+        }
+    }
+
+    public function testFetchCustomFieldNamesUsedInProductStreamWithCandidateFilter(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $streamId = Uuid::randomHex();
+        $filterId1 = Uuid::randomHex();
+        $filterId2 = Uuid::randomHex();
+
+        $connection->insert('product_stream', [
+            'id' => Uuid::fromHexToBytes($streamId),
+            'invalid' => 0,
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
+
+        $connection->insert('product_stream_filter', [
+            'id' => Uuid::fromHexToBytes($filterId1),
+            'product_stream_id' => Uuid::fromHexToBytes($streamId),
+            'type' => 'equals',
+            'field' => 'customFields.candidate_stream_field',
+            'value' => '"test"',
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
+
+        $connection->insert('product_stream_filter', [
+            'id' => Uuid::fromHexToBytes($filterId2),
+            'product_stream_id' => Uuid::fromHexToBytes($streamId),
+            'type' => 'equals',
+            'field' => 'customFields.other_stream_field',
+            'value' => '"test"',
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+        ]);
+
+        try {
+            $gateway = static::getContainer()->get(CustomFieldSetGateway::class);
+
+            // Only search for 'candidate_stream_field' in the candidates
+            $result = $gateway->fetchCustomFieldNamesUsedInProductStream(['candidate_stream_field']);
+
+            static::assertContains('candidate_stream_field', $result);
+            static::assertNotContains('other_stream_field', $result);
+        } finally {
+            $connection->delete('product_stream_filter', ['id' => Uuid::fromHexToBytes($filterId1)]);
+            $connection->delete('product_stream_filter', ['id' => Uuid::fromHexToBytes($filterId2)]);
             $connection->delete('product_stream', ['id' => Uuid::fromHexToBytes($streamId)]);
         }
     }

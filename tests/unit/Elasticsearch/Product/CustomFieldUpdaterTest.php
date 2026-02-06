@@ -229,13 +229,21 @@ class CustomFieldUpdaterTest extends TestCase
         $customFieldSetRelationId = Uuid::randomHex();
         $customFieldSetId = Uuid::randomHex();
 
-        // New methods for extended indexing criteria
+        // First fetch candidate names from the set
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesBySetIds')
+            ->with([$customFieldSetId])
+            ->willReturn(['field2']);
+
+        // Then filter by candidates - first call returns empty, so second call gets remaining candidates
         $gateway->expects($this->once())
             ->method('fetchCustomFieldNamesUsedInProductSorting')
+            ->with(['field2'])
             ->willReturn([]);
 
         $gateway->expects($this->once())
             ->method('fetchCustomFieldNamesUsedInProductStream')
+            ->with(['field2'])
             ->willReturn([]);
 
         $gateway->expects($this->once())
@@ -516,13 +524,21 @@ class CustomFieldUpdaterTest extends TestCase
             ->with([$customFieldSetId])
             ->willReturn([$customFieldSetId => ['product']]);
 
-        // New methods for extended indexing criteria
+        // First fetch candidate names from the set
+        $gateway->expects($this->once())
+            ->method('fetchCustomFieldNamesBySetIds')
+            ->with([$customFieldSetId])
+            ->willReturn(['searchableField']);
+
+        // Then filter by candidates
         $gateway->expects($this->once())
             ->method('fetchCustomFieldNamesUsedInProductSorting')
+            ->with(['searchableField'])
             ->willReturn([]);
 
         $gateway->expects($this->once())
             ->method('fetchCustomFieldNamesUsedInProductStream')
+            ->with(['searchableField'])
             ->willReturn([]);
 
         $gateway->expects($this->once())

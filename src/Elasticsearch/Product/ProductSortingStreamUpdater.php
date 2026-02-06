@@ -67,7 +67,7 @@ class ProductSortingStreamUpdater implements EventSubscriberInterface
             if (!\array_key_exists('fields', $payload) && (!\array_key_exists('active', $payload) || $payload['active'] !== true)) {
                 continue;
             }
-            
+
             $key = $writeResult->getPrimaryKey();
             \assert(\is_string($key));
             $productSortingIds[] = $key;

@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
-use Shopware\Elasticsearch\Product\CustomFieldSetGateway;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -32,7 +31,6 @@ class ElasticsearchIndexingUtils
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ParameterBagInterface $parameterBag,
-        private readonly CustomFieldSetGateway $customFieldSetGateway,
     ) {
     }
 
@@ -51,12 +49,13 @@ class ElasticsearchIndexingUtils
         $customFieldsMapping = $this->parameterBag->has($mappingKey) ? $this->parameterBag->get($mappingKey) : [];
 
         $usedFieldNames = array_unique(array_merge(
-            $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductSorting(),
-            $this->customFieldSetGateway->fetchCustomFieldNamesUsedInProductStream()
+            $this->fetchCustomFieldNamesUsedInProductSorting(),
+            $this->fetchCustomFieldNamesUsedInProductStream()
         ));
 
         /** @var array<string, string> $mappings */
-        $mappings = $this->connection->fetchAllKeyValue('
+        $mappings = $this->connection->fetchAllKeyValue(
+            '
 SELECT
     custom_field.name,
     custom_field.type
@@ -67,7 +66,8 @@ WHERE custom_field_set_relation.entity_name = :entity
     AND custom_field.active = 1
     AND (custom_field.name IN (:fields) OR custom_field_set.app_id IS NOT NULL OR custom_field.include_in_search = 1)',
             ['entity' => $entity, 'fields' => $usedFieldNames],
-            ['fields' => ArrayParameterType::STRING]) + $customFieldsMapping;
+            ['fields' => ArrayParameterType::STRING]
+        ) + $customFieldsMapping;
 
         $event = new ElasticsearchCustomFieldsMappingEvent($entity, $mappings, $context);
 
@@ -107,5 +107,40 @@ WHERE custom_field_set_relation.entity_name = :entity
         }
 
         return json_decode($record[$field] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+    }
+
+        /**
+     * @return array<string>
+     */
+    private function fetchCustomFieldNamesUsedInProductSorting(): array
+    {
+        return $this->connection->fetchFirstColumn(
+            <<<'SQL'
+                SELECT
+                    REPLACE(jt.field_value, 'customFields.', '') as field_name
+                FROM product_sorting
+                CROSS JOIN JSON_TABLE(
+                    fields,
+                    '$[*]' COLUMNS (
+                        field_value VARCHAR(255) PATH '$.field'
+                    )
+                ) AS jt
+                WHERE active = 1
+                    AND locked = 0
+                    AND jt.field_value LIKE :fields
+                SQL,
+            ['fields' => 'customFields.%']
+        );
+    }
+
+    /**
+     * @return array<string>
+     */
+    private function fetchCustomFieldNamesUsedInProductStream(): array
+    {
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT REPLACE(field, \'customFields.\', \'\') FROM product_stream_filter WHERE field LIKE :field',
+            ['field' => 'customFields.%']
+        );
     }
 }

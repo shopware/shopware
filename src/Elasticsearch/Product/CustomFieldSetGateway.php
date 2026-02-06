@@ -58,7 +58,7 @@ class CustomFieldSetGateway
         if ($setIds === []) {
             return [];
         }
-        
+
         $params = ['setIds' => Uuid::fromHexToBytesList($setIds)];
         $types = ['setIds' => ArrayParameterType::STRING];
 
@@ -96,10 +96,22 @@ class CustomFieldSetGateway
     }
 
     /**
+     * @param array<string> $candidateNames
+     *
      * @return array<string>
      */
-    public function fetchCustomFieldNamesUsedInProductSorting(): array
+    public function fetchCustomFieldNamesUsedInProductSorting(array $candidateNames = []): array
     {
+        $params = ['fields' => 'customFields.%'];
+        $types = [];
+
+        $candidateCondition = '';
+        if (\count($candidateNames) > 0) {
+            $candidateCondition = 'AND REPLACE(jt.field_value, \'customFields.\', \'\') IN (:candidateNames)';
+            $params['candidateNames'] = $candidateNames;
+            $types['candidateNames'] = ArrayParameterType::STRING;
+        }
+
         return $this->connection->fetchFirstColumn(
             <<<'SQL'
                 SELECT
@@ -114,19 +126,51 @@ class CustomFieldSetGateway
                 WHERE active = 1
                     AND locked = 0
                     AND jt.field_value LIKE :fields
-                SQL,
-            ['fields' => 'customFields.%']
+                SQL . ' ' . $candidateCondition,
+            $params,
+            $types
         );
     }
 
     /**
+     * @param array<string> $candidateNames
+     *
      * @return array<string>
      */
-    public function fetchCustomFieldNamesUsedInProductStream(): array
+    public function fetchCustomFieldNamesUsedInProductStream(array $candidateNames = []): array
     {
+        $params = ['field' => 'customFields.%'];
+        $types = [];
+
+        $candidateCondition = '';
+        if (\count($candidateNames) > 0) {
+            $candidateCondition = 'AND REPLACE(field, \'customFields.\', \'\') IN (:candidateNames)';
+            $params['candidateNames'] = $candidateNames;
+            $types['candidateNames'] = ArrayParameterType::STRING;
+        }
+
         return $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT REPLACE(field, \'customFields.\', \'\') FROM product_stream_filter WHERE field LIKE :field',
-            ['field' => 'customFields.%']
+            'SELECT DISTINCT REPLACE(field, \'customFields.\', \'\') FROM product_stream_filter WHERE field LIKE :field ' . $candidateCondition,
+            $params,
+            $types
+        );
+    }
+
+    /**
+     * @param array<string> $setIds
+     *
+     * @return array<string>
+     */
+    public function fetchCustomFieldNamesBySetIds(array $setIds): array
+    {
+        if (\count($setIds) === 0) {
+            return [];
+        }
+
+        return $this->connection->fetchFirstColumn(
+            'SELECT name FROM custom_field WHERE set_id IN (:setIds) AND active = 1',
+            ['setIds' => Uuid::fromHexToBytesList($setIds)],
+            ['setIds' => ArrayParameterType::STRING]
         );
     }
 

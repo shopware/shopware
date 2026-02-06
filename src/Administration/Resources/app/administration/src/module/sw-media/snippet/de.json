@@ -115,7 +115,8 @@
         "move-ooltip": "Objekt verschieben",
         "rotate-tooltip": "Objekt drehen",
         "scale-tooltip": "Objekt skalieren"
-      }
+      },
+      "saveChanges": "Änderungen speichern"
     }
   },
   "sw-privileges": {

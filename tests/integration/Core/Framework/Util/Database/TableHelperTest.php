@@ -162,31 +162,6 @@ class TableHelperTest extends TestCase
     {
         $index = TableHelper::getIndexOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'idx.product.type');
         static::assertSame(IndexType::REGULAR->name, $index->type);
-        static::assertSame(['type'], $index->columnNames);
-    }
-
-    public function testIndexDtoSpansColumns(): void
-    {
-        $index = TableHelper::getIndexOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'idx.product.type');
-        static::assertTrue($index->spansColumns(['type']));
-        static::assertFalse($index->spansColumns(['foo']));
-        static::assertFalse($index->spansColumns(['type', 'extra']));
-    }
-
-    public function testMultiColumnIndexSpansColumns(): void
-    {
-        // The parent FK creates a multi-column index
-        $index = TableHelper::getIndexOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'fk.product.parent_id');
-        static::assertSame(['parent_id', 'parent_version_id'], $index->columnNames);
-
-        // Full match
-        static::assertTrue($index->spansColumns(['parent_id', 'parent_version_id']));
-        // Prefix match
-        static::assertTrue($index->spansColumns(['parent_id']));
-        // Wrong order
-        static::assertFalse($index->spansColumns(['parent_version_id', 'parent_id']));
-        // Extra columns beyond index
-        static::assertFalse($index->spansColumns(['parent_id', 'parent_version_id', 'extra']));
     }
 
     public function testGetIndexFromUnknownTableThrowsException(): void

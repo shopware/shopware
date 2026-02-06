@@ -123,13 +123,14 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 
     private function loadSalesChannelLanguages(CustomerCollection $customers, ?string $salesChannelIdFromSource, Context $context): SalesChannelCollection
     {
-        $salesChannelIds = $customers->map(fn ($c) => $salesChannelIdFromSource ?? $c->getSalesChannelId());
-        $languageIds = $customers->map(fn ($c) => $c->getLanguageId());
+        $salesChannelIds = $salesChannelIdFromSource ? [$salesChannelIdFromSource] : $customers->getSalesChannelIds();
 
-        $criteria = (new Criteria($salesChannelIds))->addAssociation('languages');
-        $criteria->getAssociation('languages')
+        $criteria = new Criteria($salesChannelIds);
+        $association = $criteria->getAssociation('languages');
+
+        $association
             ->addFields(['id'])
-            ->addFilter(new EqualsAnyFilter('id', $languageIds));
+            ->addFilter(new EqualsAnyFilter('id', $customers->getLanguageIds()));
 
         return $this->salesChannelRepository->search($criteria, $context)->getEntities();
     }

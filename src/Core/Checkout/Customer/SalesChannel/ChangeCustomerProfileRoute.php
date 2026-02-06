@@ -77,11 +77,8 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     {
         $validation = $this->customerProfileValidationFactory->update($context);
 
-        if ($data->has('accountType')) {
-            $accountType = $data->get('accountType');
-            if ($accountType === null || $accountType === '') {
-                $data->remove('accountType');
-            }
+        if ($data->has('accountType') && $data->getString('accountType') === '') {
+            $data->remove('accountType');
         }
 
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {

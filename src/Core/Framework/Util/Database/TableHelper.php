@@ -10,7 +10,6 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column as DbalColumn;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\Index as DbalIndex;
-use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
@@ -163,63 +162,6 @@ class TableHelper
             throw $e;
         } catch (TableDoesNotExist) {
             return false;
-        } catch (\Throwable $e) {
-            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
-        }
-    }
-
-    /**
-     * @param non-empty-string $table
-     *
-     * @throws TableHelperException
-     *
-     * @return list<string>
-     */
-    public static function getIndexNamesOfTable(Connection $connection, string $table): array
-    {
-        try {
-            $indexes = self::getSchemaManager($connection)->introspectTableByUnquotedName($table)->getIndexes();
-
-            return array_values(array_map(
-                static fn (DbalIndex $index): string => $index->getObjectName()->getIdentifier()->getValue(),
-                $indexes
-            ));
-        } catch (TableHelperException $e) {
-            throw $e;
-        } catch (\Throwable $e) {
-            throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
-        }
-    }
-
-    /**
-     * @param non-empty-string $table
-     *
-     * @throws TableHelperException if the table has no primary key
-     *
-     * @return list<string>
-     */
-    public static function getPrimaryKeyColumnNamesOfTable(Connection $connection, string $table): array
-    {
-        try {
-            $schemaManager = self::getSchemaManager($connection);
-
-            // First verify the table exists (throws TableDoesNotExist if not)
-            $schemaManager->introspectTableByUnquotedName($table);
-
-            $primaryKey = $schemaManager->introspectTablePrimaryKeyConstraint(
-                OptionallyQualifiedName::unquoted($table)
-            );
-
-            if ($primaryKey === null) {
-                throw UtilException::databaseTableHelperNoPrimaryKey($table);
-            }
-
-            return array_values(array_map(
-                static fn (UnqualifiedName $column): string => $column->getIdentifier()->getValue(),
-                $primaryKey->getColumnNames()
-            ));
-        } catch (TableHelperException $e) {
-            throw $e;
         } catch (\Throwable $e) {
             throw UtilException::databaseTableHelperException(__FUNCTION__, $e);
         }

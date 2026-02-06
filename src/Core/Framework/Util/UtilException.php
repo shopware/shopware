@@ -25,7 +25,6 @@ class UtilException extends HttpException
     public const MIN_MUST_NOT_BE_GREATER_THAN_MAX = 'UTIL__MIN_MUST_NOT_BE_GREATER_THAN_MAX';
     public const BASE64_DECODING_FAILED = 'UTIL__BASE64_DECODING_FAILED';
     public const DB_TABLE_HELPER_EXCEPTION = 'UTIL__DB_TABLE_HELPER_EXCEPTION';
-    public const DB_TABLE_HELPER_NO_PRIMARY_KEY = 'UTIL__DB_TABLE_HELPER_NO_PRIMARY_KEY';
 
     public static function invalidJson(\JsonException $e): self
     {
@@ -131,15 +130,5 @@ class UtilException extends HttpException
         \Throwable $previousException
     ): TableHelperException {
         return new TableHelperException($executedAction, $previousException);
-    }
-
-    public static function databaseTableHelperNoPrimaryKey(string $table): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DB_TABLE_HELPER_NO_PRIMARY_KEY,
-            'Table "{{ table }}" has no primary key',
-            ['table' => $table]
-        );
     }
 }

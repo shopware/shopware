@@ -275,4 +275,92 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
 
         static::assertSame(1, $dispatchedCount);
     }
+
+    public function testBeforeDeleteWhenSalesChannelDoesNotHaveCustomerLanguageUsesNullLanguageId(): void
+    {
+        $customerId = Uuid::randomBytes();
+        $salesChannelId = Uuid::randomHex();
+        $customerLanguageId = Uuid::randomHex();
+        $otherLanguageId = Uuid::randomHex();
+        $customer = (new CustomerEntity())
+            ->assign([
+                'id' => Uuid::fromBytesToHex($customerId),
+                'salesChannelId' => $salesChannelId,
+                'languageId' => $customerLanguageId,
+                'customerNumber' => 'SW1002',
+                'email' => 'nolang@test.com',
+                'firstName' => 'No',
+                'lastName' => 'Lang',
+            ]);
+
+        $definitionInstanceRegistry = static::createMock(DefinitionInstanceRegistry::class);
+        $customerDefinition = new CustomerDefinition();
+        $customerDefinition->compile($definitionInstanceRegistry);
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository([
+            new EntitySearchResult(
+                CustomerEntity::class,
+                1,
+                new CustomerCollection([$customer]),
+                null,
+                new Criteria([$customerId]),
+                Context::createDefaultContext()
+            ),
+        ], $customerDefinition);
+
+        $salesChannelHasOnlyOtherLanguage = (new LanguageEntity())->assign(['id' => $otherLanguageId]);
+        $salesChannel = (new SalesChannelEntity())->assign([
+            'id' => $salesChannelId,
+            'languages' => new LanguageCollection([$salesChannelHasOnlyOtherLanguage]),
+        ]);
+        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
+        $salesChannelRepository = new StaticEntityRepository([
+            new SalesChannelCollection([$salesChannel]),
+        ]);
+
+        $salesChannelContextService = static::createMock(SalesChannelContextService::class);
+        $salesChannelContextService->method('get')->willReturn(Generator::generateSalesChannelContext());
+        $eventDispatcher = new EventDispatcher();
+        $jsonEntityEncoder = new JsonEntityEncoder(new Serializer([new StructNormalizer()], []));
+
+        $subscriber = new CustomerBeforeDeleteSubscriber(
+            $customerRepository,
+            $salesChannelRepository,
+            $salesChannelContextService,
+            $eventDispatcher,
+            $jsonEntityEncoder
+        );
+        $eventDispatcher->addSubscriber($subscriber);
+
+        $dispatchedCount = 0;
+        $eventDispatcher->addListener(
+            CustomerDeletedEvent::class,
+            function () use (&$dispatchedCount): void {
+                ++$dispatchedCount;
+            }
+        );
+
+        $entityDeleteEvent = EntityDeleteEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new DeleteCommand(
+                    $customerDefinition,
+                    ['id' => $customerId],
+                    new EntityExistence(
+                        'customer',
+                        ['id' => $customerId],
+                        true,
+                        false,
+                        false,
+                        ['exists' => true, 'id' => $customerId]
+                    )
+                ),
+            ]
+        );
+        $eventDispatcher->dispatch($entityDeleteEvent);
+        $entityDeleteEvent->success();
+
+        static::assertSame(1, $dispatchedCount);
+    }
 }

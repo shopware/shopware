@@ -82,6 +82,10 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         }
 
         $order = $this->loadOrder($orderId, $context);
+//
+//        if ($paymentMethodId === $order->getTransactions()?->first()?->getPaymentMethodId()) {
+//            return new SetPaymentOrderRouteResponse();
+//        }
 
         $context = $this->orderConverter->assembleSalesChannelContext(
             $order,
@@ -101,10 +105,6 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     private function setPaymentMethod(string $paymentMethodId, OrderEntity $order, SalesChannelContext $salesChannelContext): void
     {
         $context = $salesChannelContext->getContext();
-
-        if ($this->tryTransition($order, $paymentMethodId, $context)) {
-            return;
-        }
 
         $initialState = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
 
@@ -141,6 +141,10 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $transactions = $changedOrder->getTransactions();
         if ($transactions === null || ($transaction = $transactions->get($transactionId)) === null) {
             throw OrderException::orderTransactionNotFound($transactionId);
+        }
+
+        if ($this->tryTransition($order, $paymentMethodId, $context)) {
+            return;
         }
 
         $event = new OrderPaymentMethodChangedEvent(

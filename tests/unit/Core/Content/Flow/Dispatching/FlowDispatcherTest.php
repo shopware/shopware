@@ -104,7 +104,7 @@ class FlowDispatcherTest extends TestCase
         if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
             $bufferedFlow = new BufferedFlow($event->getName(), $event->getContext(), []);
             $this->flowFactory->expects($this->once())
-                ->method('buffer')
+                ->method('createBuffered')
                 ->with($event)
                 ->willReturn($bufferedFlow);
             $this->bufferedFlowQueue->expects($this->once())
@@ -143,7 +143,7 @@ class FlowDispatcherTest extends TestCase
         if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
             $bufferedFlow = new BufferedFlow($event->getName(), $event->getContext(), []);
             $this->flowFactory->expects($this->once())
-                ->method('buffer')
+                ->method('createBuffered')
                 ->with($event)
                 ->willReturn($bufferedFlow);
             $this->bufferedFlowQueue->expects($this->once())

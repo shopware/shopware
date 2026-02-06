@@ -56,7 +56,7 @@ readonly class FlowDispatcher implements EventDispatcherInterface, ServiceSubscr
         }
 
         if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
-            $bufferedFlow = $this->container->get(FlowFactory::class)->buffer($event);
+            $bufferedFlow = $this->container->get(FlowFactory::class)->createBuffered($event);
             $this->container->get(BufferedFlowQueue::class)->queueFlow($bufferedFlow);
 
             return $event;

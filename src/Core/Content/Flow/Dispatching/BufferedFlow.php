@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * Temporary buffered flow that can be converted into
  * a {@see StorableFlow} by the {@see FlowFactory}.
  *
- * @interal
+ * @internal
  *
  * @final
  *

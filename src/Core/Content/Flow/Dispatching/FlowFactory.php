@@ -33,7 +33,7 @@ readonly class FlowFactory
         return $this->restore($event->getName(), $event->getContext(), $stored);
     }
 
-    public function buffer(FlowEventAware $event): BufferedFlow
+    public function createBuffered(FlowEventAware $event): BufferedFlow
     {
         $stored = $this->getStored($event);
 

@@ -36,7 +36,7 @@ updates:
       prefix: "ci(deps): "
     labels:
       - "domain/quality-ops"
-      - "backport-66x"
+      - "backport-6.6.x"
     allow:
       - dependency-name: "@shopware-ag/acceptance-test-suite"
         dependency-type: "direct"

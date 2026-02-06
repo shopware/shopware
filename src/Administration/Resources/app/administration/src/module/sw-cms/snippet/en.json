@@ -232,7 +232,7 @@
           "helpText": {
             "autoplayTimeout": "The millisecond duration for how long the slide should stay still.",
             "speed": "The millisecond duration of the sliding animation.",
-            "displayMode": "<ul><li><strong>Original:</strong> The image is displayed in its original resolution or shrunk down to current CMS page's width.</li><li><strong>Scaled:</strong> The image is scaled to the CMS page's width without any height restrictions.</li><li><strong>Cropped:</strong> The image is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured maximum height.</li></ul>"
+            "displayMode": "<ul><li><strong>Original:</strong> The content is displayed in its original resolution or shrunk down to current CMS page's width.</li><li><strong>Scaled:</strong> The content is scaled to the CMS page's width without any height restrictions.</li><li><strong>Cropped:</strong> The content is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured maximum height.</li></ul>"
           },
           "tab": {
             "content": "Content",
@@ -257,19 +257,18 @@
         "config": {
           "label": {
             "ariaLabel": "Link description",
-            "ariaLabelHelpText": "This text will be read out by screen readers as link text.",
             "minHeight": "Minimum height",
-            "minHeightHelpText": "Enter the minimum height with your desired unit. For example: 200px",
             "isDecorative": "Mark images as decorative",
-            "isDecorativeHelpText": "When this option is enabled, the image information will not be read out by screen readers.",
             "useFetchPriorityOnFirstItem": "Load first image with higher priority",
-            "useFetchPriorityOnFirstItemHelpText": "When this option is enabled, the first image is loaded with a higher priority. This can improve the speed at which the page is rendered in the browser.",
             "linkNewTab": "Open link in new tab",
             "linkTo": "Link target",
             "fetchPriorityHigh": "Fetch priority high"
           },
           "helpText": {
+            "ariaLabel": "This text will be read out by screen readers as link text.",
+            "minHeight": "Enter the minimum height with your desired unit. For example: 200px",
             "fetchPriorityHigh": "Activate this option if the image is the first one on the page. The image will then be assigned the attribute 'fetchpriority=\"high\"', telling the browser to load it with higher priority. This can help improve the Largest Contentful Paint (LCP).",
+            "useFetchPriorityOnFirstItem": "When this option is enabled, the first image is loaded with a higher priority. This can improve the speed at which the page is rendered in the browser.",
             "isDecorative": "When this option is enabled, the image information will not be read out by screen readers. This means that the \"alt\" and \"title\" tags will remain empty."
           },
           "placeholder": {
@@ -292,7 +291,7 @@
             "magnifierOverGalleryHelpText": "Show the magnifier box on top of the gallery instead of showing it next to the gallery"
           },
           "helpText": {
-            "displayMode": "<ul><li><strong>Original:</strong> The images are displayed in their original resolution or shrunk down to the slider's height.</li><li><strong>Fixed height:</strong> The images are displayed in their original resolution or shrunk down to the configured height.</li><li><strong>Cropped:</strong> The images are scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height.</li></ul>"
+            "displayMode": "<ul><li><strong>Original:</strong> The content is displayed in its original resolution or shrunk down to the slider's height.</li><li><strong>Fixed height:</strong> The content is displayed in its original resolution or shrunk down to the configured height.</li><li><strong>Cropped:</strong> The content is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height.</li></ul>"
           }
         }
       },
@@ -308,7 +307,7 @@
             "navigationDots": "Dots navigation"
           },
           "helpText": {
-            "displayMode": "<ul><li><strong>Original:</strong> The images are scaled to the CMS page's width without any height restrictions. The slider's height is dynamically adjusted.</li><li><strong>Fixed height:</strong> The image is scaled to the CMS page's width without any height restrictions. The slider keeps the height of the tallest image.</li><li><strong>Cropped:</strong> The images are scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height.</li></ul>"
+            "displayMode": "<ul><li><strong>Original:</strong> The content is scaled to the CMS page's width without any height restrictions. The slider's height is dynamically adjusted.</li><li><strong>Fixed height:</strong> The content is scaled to the CMS page's width without any height restrictions. The slider maintains the height of the tallest content element.</li><li><strong>Cropped:</strong> The content is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height.</li></ul>"
           }
         }
       },
@@ -417,7 +416,7 @@
           },
           "helpText": {
             "minWidth": "Enter the minimum width with your desired unit. For example: 200px",
-            "displayMode": "<ul><li><strong>Original:</strong> The images are scaled to the height or width of the product box, so that they always fit into their designated area. The images are never scaled up.</li><li><strong>Fixed height:</strong> The images are scaled to the height or width of the product box, so that they always fit into their designated area. The images can be scaled up.</li><li><strong>Cropped:</strong> The images are scaled to the height or width of the product box. Any overflow is cropped.</li></ul>"
+            "displayMode": "<ul><li><strong>Original:</strong> The content is scaled to the height or width of the product box, so that they always fit into their designated area. The content is never scaled up.</li><li><strong>Fixed height:</strong> The content is scaled to the height or width of the product box, so that they always fit into their designated area. The content can be scaled up.</li><li><strong>Cropped:</strong> The content is scaled to the height or width of the product box. Any overflow is cropped.</li></ul>"
           },
           "productAssignmentTypeOptions": {
             "manual": "Manual assignment",
@@ -468,22 +467,48 @@
           }
         }
       },
+      "video": {
+        "label": "Video",
+        "config": {
+          "label": {
+            "ariaLabel": "Screen reader title",
+            "minHeight": "Minimum height",
+            "autoPlay": "Play automatically",
+            "loop": "Play in a loop",
+            "muted": "Play muted",
+            "showControls": "Show controls",
+            "showCover": "Load only after confirmation",
+            "playsInline": "Play inline on iOS devices"
+          },
+          "helpText": {
+            "ariaLabel": "Read by screen readers and should briefly describe the content or purpose of the video. If left empty, either the title or alt text configured in the media module will be used, instead.",
+            "minHeight": "Enter the minimum height with your desired unit. For example: 200px",
+            "autoPlay": "Autoplay is allowed by many browsers only when the video is muted.<br>With autoplay, a cover is not meaningful because playback starts immediately and no confirmation is needed.",
+            "showCover": "The cover configured in the media selection will be displayed until the user confirms to load the video via click.",
+            "playsInline": "On iOS, videos often open fullscreen. Enable this option to keep playback inline."
+          },
+          "placeholder": {
+            "ariaLabel": "Enter screen reader title...",
+            "minHeight": "Enter minimum height..."
+          }
+        }
+      },
       "vimeoVideo": {
         "label": "Vimeo video",
         "config": {
           "label": {
             "videoId": "Video link",
-            "autoPlay": "Play video automatically",
-            "loop": "Play video in a loop",
-            "showControls": "Show video controls",
-            "controlsColor": "Change video player controls' colour",
+            "autoPlay": "Play automatically",
+            "loop": "Play in a loop",
+            "showControls": "Show controls",
+            "controlsColor": "Change controls color",
             "byLine": "Show video creator",
             "showPortrait": "Show picture of the creator",
             "showTitle": "Show video title",
             "advancedPrivacy": "Advanced privacy mode",
             "start": "Start video at",
             "end": "End video at",
-            "needsConfirmation": "Load video only after confirmation by the user",
+            "needsConfirmation": "Load only after confirmation",
             "previewImage": "Preview image",
             "videoTitle" : "Video title"
           },
@@ -752,6 +777,9 @@
         }
       },
       "video": {
+        "video": {
+          "label": "Video"
+        },
         "vimeoVideo": {
           "label": "Vimeo video"
         },

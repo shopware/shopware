@@ -5,10 +5,11 @@
 
  Overview
  - The consent module enables defining, managing, and querying consents in Shopware. Managing means providing functionality to accept and revoke consents based on the scope of the consent
- - This module *does not* use the consent state consent to perform any other actions; it purely serves as a system to manage the state.
+ - This module *does not* use the consent state to perform any other actions; it purely serves as a system to manage the state.
 
  Key concepts
  - Consent Definition: A consent is a class-based definition representing something which requires consent. It is an implementation of the `ConsentDefinition` interface and consists of a unique name, a scope, and an available since date.
+ - Permissions: A Consent Definition can be associated with permissions, which are required to accept or revoke the consent. If the current user does not have the required permissions, they cannot perform consent actions.
  - Scope: The scope of a consent describes who or what can perform consent actions, eg. accepting or revoking.
  - State: Each consent has a `status` of `unset`, `accepted`, or `revoked` for a given `identifier` within its scope. When there is no state for a consent/scope id combination in the storage, the status is interpreted as `unset`.
  - Actor: The username of the Admin user who made the last change to a consent decision.
@@ -29,9 +30,10 @@
  File: `src/Core/System/Consent/ConsentDefinition.php`
  ```php
  interface ConsentDefinition {
-   public function getName(): string;              // Unique machine name of the consent (e.g. "backend_data")
-   public function getScopeName(): string;         // Name of the scope (see ConsentScope implementations)
-   public function getSince(): \DateTimeImmutable; // Introduction date of the consent
+   public function getName(): string;               // Unique machine name of the consent (e.g. "backend_data")
+   public function getScopeName(): string;          // Name of the scope (see ConsentScope implementations)
+   public function getSince(): \DateTimeImmutable;  // Introduction date of the consent
+   public function getRequiredPermissions(): array; // Array of permission strings required to accept/revoke this consent
  }
  ```
 
@@ -65,10 +67,10 @@ When scope implementations cannot resolve to an ID from the context, they must t
    - Scope: `system`
    - Description: System-wide consent to collect or process backend-related data.
 
- - Tracking
-   - File: `src/Core/System/Consent/Definition/Tracking.php`
+ - ProductAnalytics
+   - File: `src/Core/System/Consent/Definition/ProductAnalytics.php`
    - Scope: `admin_user`
-   - Description: Per-admin-user consent for backend admin usage tracking.
+   - Description: Per-admin-user consent for Admin usage tracking.
 
 ## PHP API's
 

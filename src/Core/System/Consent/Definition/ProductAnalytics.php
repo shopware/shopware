@@ -28,4 +28,9 @@ class ProductAnalytics implements ConsentDefinition
     {
         return new \DateTimeImmutable('2025-12-12');
     }
+
+    public function getRequiredPermissions(): array
+    {
+        return ['user.update_profile'];
+    }
 }

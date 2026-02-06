@@ -40,6 +40,7 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
                     }),
                 };
             }),
+            initializePluginsInParentElement: jest.fn(),
         };
 
         googleReCaptchaBasePlugin = new GoogleReCaptchaBasePlugin(mockElement, {

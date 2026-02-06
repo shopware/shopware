@@ -1,32 +1,172 @@
-# 6.7.7.0 (upcoming)
+# 6.7.8.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+### Internal product streams
+
+A new boolean field `internal` has been added to product streams with a default value of `false`.
+This allows you to mark product streams as internal for system or plugin use, preventing them from appearing in merchant-facing selection lists throughout the Administration (e.g., in categories, cross-selling, CMS elements, or sales channels).
+
+Use this feature when you need to create product streams programmatically that should not be modified or selected by shop administrators.
+
+### Database table helper class
+
+A new helper class `\Shopware\Core\Framework\Util\Database\TableHelper` was introduced,
+which could be used to check the table for existence, columns, indexes, and foreign keys.
+
+#### Deprecation of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
+
+As consequence of the introduction of the new table helper class following methods are deprecated and will be removed with the next major version:
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnExists
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
+- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
+
+### Migration generator improvements
+
+The migration generator previously used a fixed format: `fk.<table-name>.<column>` for foreign key names.
+Doctrine does not support this format and creates broken migrations; therefore, we changed to the format `fk__<table-name>__<column>` for foreign key names.
+
+Also, the generator now sets `CASCADE DELETE` on foreign keys for the translation table references.
+
+### Updated `doctrine/dbal` dependency
+
+The `doctrine/dbal` dependency was updated to the new 4.4 minor version.
+They introduced many deprecations, especially in the SchemaManager tool, which also might affect you.
+Read more about it in their [upgrade guide](https://github.com/doctrine/dbal/blob/4.4.x/UPGRADE.md#upgrade-to-44).
+
+## Administration
+
+### Deprecation of `items` prop in `sw-entity-listing` component
+
+The `items` prop in the `sw-entity-listing` component has been deprecated and will be removed in v6.8.0.
+Please use the `dataSource` prop instead to align with the parent `sw-data-grid` component.
+
+**Before (deprecated):**
+```html
+<sw-entity-listing
+    :items="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
+**After (recommended):**
+```html
+<sw-entity-listing
+    :data-source="entityList"
+    :repository="entityRepository"
+    :columns="columns"
+/>
+```
+
+The component will continue to work with the `items` prop for backward compatibility, but you will see a deprecation warning in the browser console.
+
+### Notification translations now update when language changes
+
+Notifications now store translation keys directly in their title and message fields instead of translating them immediately.
+The template checks if the text is a translation key and translates it reactively, allowing notifications to update automatically when the user changes the interface language.
+
+### Help text support for color picker custom fields
+
+The color picker type for custom fields now supports adding a help text. When creating or editing a custom field of type "Colorpicker" in Settings > Content > Custom fields, you can now specify a help text that will be displayed to users in the Administration.
+
+### `sw-select-base` clearable button default behavior changed
+
+The `showClearableButton` prop in `sw-select-base` now defaults based on the `required` attribute:
+- When `required` is `false` or not set: clearable button is shown by default
+- When `required` is `true`: clearable button is hidden by default
+
+Previously, the clearable button was always hidden by default (`showClearableButton: false`).
+
+**Migration:** If you relied on the previous behavior where the clearable button was hidden by default, explicitly set `:show-clearable-button="false"` on your select components.
+
+## Storefront
+
+### Selling and packaging information in the product detail page
+
+* Display the selling and packaging information with the product that has advanced pricing.
+* Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
+
+## App System
+
+### Fixed custom headers for app flow action webhooks in async mode
+
+Custom headers defined in app flow action configurations are now correctly sent when webhooks are processed asynchronously via message queue (when `admin_worker` is disabled). Previously, these headers were only sent when `admin_worker` was enabled (synchronous processing).
+
+## Hosting & Configuration
+
+## Critical Fixes
+
+### Session deadlock fix for file-based sessions
+
+A new configuration option `shopware.cache.disable_stampede_protection` has been added to prevent deadlocks when using file-based sessions with Symfony's cache stampede protection.
+
+**Problem**: A deadlock (ABBA pattern) can occur when:
+- Process 1: Acquires Session File Lock → Needs Cache → Tries to acquire Cache Lock
+- Process 2: Acquires Cache Lock (stampede protection) → Needs Session → Tries to acquire Session File Lock
+
+**Solution**: Set `shopware.cache.disable_stampede_protection: true` in your configuration to disable file-based cache locking when file-based sessions are in use.
+
+```yaml
+shopware:
+    cache:
+        disable_stampede_protection: true
+```
+
+**Note**: This is an opt-in fix for environments where Redis is not available. Using Redis for both sessions and cache is the recommended solution. Disabling stampede protection may increase database load under high concurrency when cache entries expire.
+
+# 6.7.7.1
+
+## Core
+
+### Dependency on Elasticsearch Bundle
+
+Removed dependency of the Core bundle to the Elasticsearch bundle, so that the Core bundle can be used without Elasticsearch again.
+
+# 6.7.7.0
 
 ## Features
 
 ### Symfony 7.4 update
 
-All symfony packages have been updated to version 7.4. 
+All Symfony packages have been updated to version 7.4.
 Take a look at the [Symfony 7.4 release post](https://symfony.com/blog/symfony-7-4-0-released) for more information.
+Especially note that Symfony now requires php-redis extension v6.1 or higher: https://github.com/symfony/symfony/blob/7.4/UPGRADE-7.4.md#cache.
+If you note compatibility issues with the Redis extension please check the installed version php-redis.
+
+### Changed maintenance mode redirect
+
+After maintenance ends, users are now redirected back to the page they were on before maintenance.
+Previously, users were always redirected to the shop homepage.
 
 ### Support of media paths with up to 2046 characters
-Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the
-database field already supported up to 2046 characters. This limitation has now been lifted and media paths can be up to
-2046 characters long.
+
+Previously the maximum length for media paths was limited to 255 characters (due to default StringField limit) while the database field already supported up to 2046 characters.
+This limitation has now been lifted, and media paths can be up to 2046 characters long.
 
 ### Configurable Custom Field Searchability
 
-Custom fields are now **not searchable by default**. To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields. This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
+Custom fields are now **not searchable by default**.
+To make a custom field searchable, you need to enable the "Include in search" option in the custom field detail modal when creating or updating a custom field in Settings > System > Custom fields.
+This change helps optimize index storage size and improve search performance, especially for stores with many custom fields.
 
 **Important:** When enabling searchability for an existing product custom field, you must rebuild the search index or update the products manually to include the custom field data in search results.
 
 ### Media Model Viewer
 
-From now on you are able to inspect your 3D models directly in the Media module in the Administration. Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right. This new component is called `sw-model-viewer`.
+From now on you are able to inspect your 3D models directly in the Media module in the Administration.
+Simply select a model file and you will find an interactive 3D viewer in the Preview collapsable in the item sidebar on the right.
+This new component is called `sw-model-viewer`.
 
 ## API
 
-### Improved tagged based cache invalidation
+### Improved tagged-based cache invalidation
 
-Next routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
+The following routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
 * `/store-api/breadcrumb/{id}`
 * `/store-api/media`
 * `/store-api/product/{productId}/find-variant`
@@ -53,13 +193,17 @@ Previously, the generated query would `LEFT JOIN` `order_line_item` multiple tim
 
 ### Introduce Immutable DAL flag
 
-A new `Immutable` flag is available for Data Abstraction Layer fields. Fields marked as immutable can be set during entity creation but cannot be updated later. This prevents accidental renames of technical identifiers that other subsystems rely on. Core entities now using the flag include:
+A new `Immutable` flag is available for Data Abstraction Layer fields.
+Fields marked as immutable can be set during entity creation but cannot be updated later.
+This prevents accidental renames of technical identifiers that other subsystems rely on.
+Core entities now using the flag include:
 
 * `custom_field.name`
 * `custom_field.type`
 * `custom_field_set.name`
 
 Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
+If the value is not set in the payload, or the value won't change, no exception is thrown.
 
 ### Performance Improvement for `ProductCategoryDenormalizer`
 
@@ -83,11 +227,11 @@ As part of this change, the following deprecations were made:
 If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
 
-### New `RequestParamHelper` 
+### New `RequestParamHelper`
 
 Symfony deprecated the "magic" `Request::get()` method, which was used to retrieve parameters from the request, by checking the `attribute`, `query` or `request` parameter bags.
 For easier backward compatibilty we backported the old behaviour in the new `RequestParamHelper` class, however, it should only be used in explicit cases, where the parameter could be in any of those parameter bags.
-The best practice is to check the explicit parameter bag, where you expect the parameter to be. 
+The best practice is to check the explicit parameter bag, where you expect the parameter to be.
 However, as we have a lot of API routes that support being called by `GET` and `POST` methods both, the helper is handy in such cases.
 
 Before:
@@ -99,9 +243,9 @@ After:
 $parameter = RequestParameterHelper::get($request, $parameterName, $default);
 ```
 
-To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first. 
+To provide full backward compatibility, the helper currently also checks the `attribute` bag for the parameter first.
 However, it should be possible to strictly differentiate between request attributes (which are generally controlled and set by the application itself) and input parameters (which are provided by the client, and based on how they are passed are either part of the query bag or the request bag) in the future.
-Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release. 
+Therefore the check of the `attribute` bag is deprecated and will be removed in the next major release.
 When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
 In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
 
@@ -142,7 +286,21 @@ A new `doNotStore` property was added to the `HttpCacheCookieEvent` to allow fin
 This new property allows preventing the current response from being stored in the cache.
 This behaviour differs from the existing ìsCacheable` property, which will also prevent the following requests from that session being cached.
 
+### Logging for invalidated cache tags
+
+Added logging for invalidated cache tags at the info level, with the ability to enable or disable the logging via configuration for debugging and transparency.
+
+### Removed `CacheInvalidationSubscriber::getChangedPropertyFilterTags` due to performance issues
+
+The `getChangedPropertyFilterTags` method has been removed from `CacheInvalidationSubscriber` due to performance issues where it could cause invalidation storms by selecting all product IDs for popular property options.
+
+Changing a property group or option will no longer automatically invalidate product and product list caches. It's recommended to rely on TTLs for bigger shops. If you experience issues after changing a property group, a manual cache clear may be required.
+
 ## Administration
+
+### Refactored media modal from `sw-modal` to `mt-modal`
+
+The media modal in Shopping Experiences has been refactored from `sw-modal` to `mt-modal`. This fixes an issue where elements inside the "open media" modal could not be focused when the CMS extension was installed.
 
 ### Deprecations in mail template components
 
@@ -179,6 +337,20 @@ The following changes are relevant when HTTP caching policies feature is enabled
 
 * HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
 * `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
+
+### First tap on iOS Safari did not trigger call-to-action buttons on product detail page
+Fixes an issue on iOS Safari where the first tap does not trigger the desired action on the product detail page after scrolling over the image gallery.
+The `touchmove` event listener was removed from `zoom-modal.plugin.js` because it stopped the tap/click event.
+A regular `click` event is used instead to open the Zoom-Modal. The browser itself can determine via the `click` event if the user is still scrolling or clicking/taping.
+
+### Better handling of JS plugin initialization for async content
+When content was loaded asyncronously within offcanvas elements or modals, all JS plugins of the page were initialized again, causing that update methods of all plugins to be called. We added a new method `initializePluginsInParentElement()` to the plugin manager to enable plugin initialization scoped to a parent element. This creates the possibility to initlize plugins only within newly added or async fetched content. The correposnding calls were updated in the following plugins:
+
+*  `ajax-offcanvas.plugin.js`
+*  `offcanvas-cart.plugin.js`
+*  `offcanvas-menu.plugin.js`
+*  `offcanvas-tabs.plugin.js`
+*  `ajax-modal.plugin.js`
 
 ### Google Analytics 4 Integration Update
 
@@ -470,7 +642,7 @@ curl -X POST "http://localhost:8000/api/_action/sync" \
 
 ### Automatic indexer execution for plugin migrations
 
-The `IndexerQueuer` now runs automatically during plugin install, update and uninstall events.
+The `IndexerQueuer` now runs automatically during plugin install, update, and uninstall events.
 This ensures that registered indexers are executed when plugin migrations have run.
 
 ### Improved Store API OpenAPI documentation with field descriptions

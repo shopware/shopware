@@ -76,7 +76,7 @@
             <sw-entity-listing
                 v-else-if="entitySearchable"
                 ref="swSettingsTaxGrid"
-                :items="shippingMethods"
+                :data-source="shippingMethods"
                 :columns="columns"
                 :repository="shippingRepository"
                 :sort-by="currentSortBy"

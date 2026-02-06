@@ -153,6 +153,10 @@ const createWrapper = async (customOptions, privileges = []) => {
                     </div>
                 `,
                     },
+                    'mt-checkbox': {
+                        template: '<div class="mt-checkbox"><input type="checkbox" /></div>',
+                        props: ['checked', 'label', 'disabled', 'helpText'],
+                    },
                     'sw-entity-multi-id-select': true,
                     'sw-entity-multi-select': true,
                     'sw-select-base': true,
@@ -193,7 +197,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
     });
 
-    // eslint-disable-next-line max-len
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
         const wrapper = await createWrapper({
             props: { documentConfigId: 'documentConfigWithSalesChannels' },
@@ -201,8 +204,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await flushPromises();
 
-        expect(wrapper.vm.documentConfigSalesChannels).toEqual([
-            'associationId1',
+        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual([
+            'salesChannelId1',
         ]);
     });
 
@@ -264,8 +267,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await flushPromises();
 
-        expect(wrapper.vm.documentConfigSalesChannels).toEqual([
-            'associationId1',
+        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual([
+            'salesChannelId1',
         ]);
 
         wrapper.vm.onChangeType({ id: 'documentTypeId2' });
@@ -312,7 +315,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await flushPromises();
 
-        expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBe('true');
+        expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeDefined();
         expect(wrapper.findComponent('#sw-media-field').props().disabled).toBe(true);
         expect(wrapper.findAllComponents('.sw-field').every((field) => field.props().disabled)).toBe(true);
         expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(true);
@@ -321,7 +324,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     it('should create an invoice document with countries note delivery', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         await wrapper.setData({
             isShowDisplayNoteDelivery: true,
             documentConfig: {
@@ -344,10 +348,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     it('should contain field "display divergent delivery address" in invoice form field', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
 
-        await wrapper.vm.$nextTick();
         await wrapper.setData({
             isShowDivergentDeliveryAddress: true,
         });
+        await flushPromises();
 
         const displayDivergentDeliveryAddress = wrapper.findComponent(
             '.sw-settings-document-detail__field_divergent_delivery_address',
@@ -358,11 +362,9 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
     });
 
-    // eslint-disable-next-line max-len
     it('should not exist "display divergent delivery address" in general form field and company form field', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
-
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const companyFormFields = wrapper.vm.companyFormFields;
         const generalFormFields = wrapper.vm.generalFormFields;
@@ -379,8 +381,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
     it('should be have config company phone number', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
-
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const companyFormFields = wrapper.vm.companyFormFields;
 

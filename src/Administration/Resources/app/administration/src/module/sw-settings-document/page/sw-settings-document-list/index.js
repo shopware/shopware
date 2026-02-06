@@ -8,6 +8,8 @@ const {
 
 /**
  * @sw-package after-sales
+ *
+ * @deprecated tag:v6.8.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -22,6 +24,9 @@ export default {
     data() {
         return {
             entityName: 'document_base_config',
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed without replacement
+             */
             sortBy: 'document_base_config.name',
         };
     },
@@ -36,16 +41,7 @@ export default {
         filters() {
             return [];
         },
-        expandButtonClass() {
-            return {
-                'is--hidden': this.expanded,
-            };
-        },
-        collapseButtonClass() {
-            return {
-                'is--hidden': !this.expanded,
-            };
-        },
+
         listingCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
@@ -58,6 +54,24 @@ export default {
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        expandButtonClass() {
+            return {
+                'is--hidden': this.expanded,
+            };
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        collapseButtonClass() {
+            return {
+                'is--hidden': !this.expanded,
+            };
         },
     },
 };

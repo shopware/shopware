@@ -313,9 +313,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                         id: 'invalid2',
                         values: [],
                     },
-                    // Invalid: null restriction
                     null,
-                    // Valid restriction: exclude option1 + option2 combination
                     {
                         id: 'valid1',
                         values: [
@@ -328,7 +326,6 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
             const result = variantsGenerator.filterRestrictions(mockCreateQueue);
 
-            // Should filter out variant with option1 + option2
             expect(result).toEqual([
                 {
                     parentId: 'parent1',
@@ -362,7 +359,6 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
             const result = variantsGenerator.filterRestrictions(mockCreateQueue);
 
-            // Should filter out variant with option1 + option3
             expect(result).toEqual([
                 {
                     parentId: 'parent1',
@@ -408,16 +404,17 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     position: 1,
                     price: { gross: 10, net: 8.4 },
                     customFields: { foo: 'bar' },
+                    isNew: () => false,
                 },
                 {
                     id: 'setting-2',
                     optionId: 'option-2',
+                    isNew: () => false,
                 },
             ];
 
             await variantsGenerator.saveConfiguratorSettings(mockSettings);
 
-            // Verify sync was called with correct structure
             expect(syncSpy).toHaveBeenCalledWith(
                 [
                     {
@@ -456,6 +453,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     id: 'setting-1',
                     optionId: 'option-1',
                     productId: 'old-product-id', // Should be overwritten
+                    isNew: () => false,
                 },
             ];
 
@@ -479,13 +477,44 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     id: 'setting-1',
                     optionId: 'option-1',
                     productId: 'original-product-id',
+                    isNew: () => false,
                 },
             ];
 
             await variantsGenerator.saveConfiguratorSettings(originalSettings);
 
-            // Original data should not be mutated
             expect(originalSettings[0].productId).toBe('original-product-id');
+
+            syncSpy.mockRestore();
+        });
+
+        it('should always include existing settings (isNew returns false) regardless of createQueue', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = {
+                id: 'product-123',
+            };
+
+            const mockSettings = [
+                {
+                    id: 'setting-1',
+                    optionId: 'option-1',
+                    isNew: () => false,
+                },
+                {
+                    id: 'setting-2',
+                    optionId: 'option-2',
+                    isNew: () => false,
+                },
+            ];
+
+            await variantsGenerator.saveConfiguratorSettings(mockSettings, []);
+
+            const calledPayload = syncSpy.mock.calls[0][0][0].payload;
+
+            expect(calledPayload).toHaveLength(2);
+            expect(calledPayload[0].optionId).toBe('option-1');
+            expect(calledPayload[1].optionId).toBe('option-2');
 
             syncSpy.mockRestore();
         });
@@ -497,28 +526,25 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 id: 'product-123',
             };
 
-            // Setting marked as _isNew but option is NOT in createQueue (user deselected and re-selected)
             const mockSettings = [
                 {
                     id: 'setting-1',
                     optionId: 'existing-option',
-                    _isNew: true, // Falsely marked as new
+                    isNew: () => true,
                 },
                 {
                     id: 'setting-2',
                     optionId: 'real-existing-option',
-                    _isNew: false, // Not marked as new, should be included
+                    isNew: () => false,
                 },
             ];
 
-            // createQueue has no variants (no new options)
             const createQueue = [];
 
             await variantsGenerator.saveConfiguratorSettings(mockSettings, createQueue);
 
             const calledPayload = syncSpy.mock.calls[0][0][0].payload;
 
-            // Only setting-2 should be included (not marked as _isNew)
             expect(calledPayload).toHaveLength(1);
             expect(calledPayload[0].optionId).toBe('real-existing-option');
 
@@ -536,21 +562,20 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 {
                     id: 'setting-1',
                     optionId: 'new-option-1',
-                    _isNew: true, // Truly new
+                    isNew: () => true,
                 },
                 {
                     id: 'setting-2',
                     optionId: 'new-option-2',
-                    _isNew: true, // Truly new
+                    isNew: () => true,
                 },
                 {
                     id: 'setting-3',
                     optionId: 'existing-option',
-                    _isNew: false, // Existing
+                    isNew: () => false,
                 },
             ];
 
-            // createQueue has variants with new options
             const createQueue = [
                 {
                     options: [
@@ -564,8 +589,51 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
             const calledPayload = syncSpy.mock.calls[0][0][0].payload;
 
-            // All three should be included
             expect(calledPayload).toHaveLength(3);
+
+            syncSpy.mockRestore();
+        });
+
+        it('should include existing and new-in-queue settings and filter out new-not-in-queue', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = {
+                id: 'product-123',
+            };
+
+            const mockSettings = [
+                {
+                    id: 'setting-existing',
+                    optionId: 'option-existing',
+                    isNew: () => false,
+                },
+                {
+                    id: 'setting-new-in-queue',
+                    optionId: 'option-new-in-queue',
+                    isNew: () => true,
+                },
+                {
+                    id: 'setting-new-not-in-queue',
+                    optionId: 'option-new-not-in-queue',
+                    isNew: () => true,
+                },
+            ];
+
+            const createQueue = [
+                {
+                    options: [{ id: 'option-new-in-queue' }],
+                },
+            ];
+
+            await variantsGenerator.saveConfiguratorSettings(mockSettings, createQueue);
+
+            const calledPayload = syncSpy.mock.calls[0][0][0].payload;
+
+            expect(calledPayload).toHaveLength(2);
+            expect(calledPayload.map((s) => s.optionId).sort()).toEqual([
+                'option-existing',
+                'option-new-in-queue',
+            ]);
 
             syncSpy.mockRestore();
         });
@@ -577,21 +645,18 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 id: 'product-123',
             };
 
-            // All settings are falsely marked as new
             const mockSettings = [
                 {
                     id: 'setting-1',
                     optionId: 'existing-option',
-                    _isNew: true,
+                    isNew: () => true,
                 },
             ];
 
-            // No new variants in createQueue
             const createQueue = [];
 
             const result = await variantsGenerator.saveConfiguratorSettings(mockSettings, createQueue);
 
-            // Should not call sync API
             expect(syncSpy).not.toHaveBeenCalled();
             expect(result).toBeUndefined();
 

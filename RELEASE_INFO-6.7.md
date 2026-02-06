@@ -234,7 +234,7 @@ shopware:
 
 ### Indexing the product's custom fields
 
-Added the custom fields that are used in the product sorting or product stream when indexing the product with Elasticsearch as well as the ones belong to the app.
+Custom fields used in product sorting and product streams, as well as those belonging to apps, are now included when indexing products with Elasticsearch.
 
 # 6.7.7.1
 

@@ -222,7 +222,9 @@ class ConstructorParamDefinition extends EntityDefinition
  */
 class PrivateConstructorDefinition extends EntityDefinition
 {
-    /** @phpstan-ignore symplify.parentMethodVisibilityOverride */
+    /**
+     * @phpstan-ignore symplify.parentMethodVisibilityOverride
+     */
     private function __construct()
     {
         parent::__construct();

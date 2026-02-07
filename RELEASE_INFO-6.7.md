@@ -6,6 +6,12 @@
 
 ## Core
 
+### Entity definition tag validation
+
+Entity name resolution during container compilation has been centralized into a new `EntityDefinitionTagCompilerPass`. This pass writes the `entity` attribute onto all `shopware.entity.definition` and `shopware.sales_channel.entity.definition` service tags, so downstream compiler passes no longer need to instantiate definition classes.
+
+If a tag already has an `entity` attribute, the pass validates it against `getEntityName()`. A mismatch now throws `DependencyInjectionException::entityTagMismatch()` instead of silently registering both values as aliases. Definitions with constructor dependencies that cannot be instantiated during compilation must declare the `entity` attribute explicitly on the service tag.
+
 ### Internal product streams
 
 A new boolean field `internal` has been added to product streams with a default value of `false`.

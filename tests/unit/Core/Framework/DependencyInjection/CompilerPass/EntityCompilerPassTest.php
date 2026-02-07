@@ -78,7 +78,7 @@ class EntityCompilerPassTest extends TestCase
         static::assertTrue($container->hasAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $productRepository'));
     }
 
-    public function testEntityRepositoryAutowiringWithAttributeEntity(): void
+    public function testSkipsAttributeEntityDefinitions(): void
     {
         $container = new ContainerBuilder();
         $container
@@ -94,6 +94,6 @@ class EntityCompilerPassTest extends TestCase
         $entityCompilerPass = new EntityCompilerPass();
         $entityCompilerPass->process($container);
 
-        static::assertTrue($container->has('test_attribute_entity.repository'));
+        static::assertCount(0, $container->getAliases());
     }
 }

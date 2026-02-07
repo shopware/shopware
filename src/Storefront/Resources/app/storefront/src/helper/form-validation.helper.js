@@ -180,7 +180,7 @@ export default class FormValidation {
         let fields = formFields;
 
         if (!formFields) {
-            fields = form.querySelectorAll('[data-validation], [required]');
+            fields = form.querySelectorAll('[data-validation], [required], [pattern]');
         }
 
         fields.forEach((field) => {

@@ -772,8 +772,7 @@ describe('form-validation', () => {
             expect(result).toBe(true); // Should return true to not block form submission
             expect(consoleErrorSpy).toHaveBeenCalledWith(
                 expect.stringContaining('[FormValidation]: Invalid regex pattern'),
-                expect.any(String),
-                expect.any(String),
+                field,
                 expect.anything()
             );
 

@@ -118,6 +118,11 @@ class EntityDefinitionTagCompilerPassTest extends TestCase
             'inputTags' => [['entity' => 'product'], ['custom' => 'value']],
             'expectedTags' => [['entity' => 'product'], ['custom' => 'value']],
         ];
+
+        yield 'treats empty string entity as missing and resolves it' => [
+            'inputTags' => [['entity' => '']],
+            'expectedTags' => [['entity' => 'product']],
+        ];
     }
 
     public function testHandlesSalesChannelDefinitionTag(): void

@@ -114,7 +114,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
         static::assertSame(AttributeEntityExtension::class, (string) $methodCalls[1][1][0]);
     }
 
-    public function testAttributeEntityExtensiondWithoutAgruments(): void
+    public function testAttributeEntityExtensionWithoutArguments(): void
     {
         $container = $this->getContainerBuilder();
 

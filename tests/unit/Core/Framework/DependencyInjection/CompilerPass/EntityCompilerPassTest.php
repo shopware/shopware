@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -76,6 +77,26 @@ class EntityCompilerPassTest extends TestCase
         $entityCompilerPass->process($container);
 
         static::assertTrue($container->hasAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $productRepository'));
+    }
+
+    public function testThrowsOnMissingEntityTagAttribute(): void
+    {
+        $container = new ContainerBuilder();
+        $container
+            ->register(ProductDefinition::class, ProductDefinition::class)
+            ->addTag('shopware.entity.definition');
+
+        $container
+            ->register(DefinitionInstanceRegistry::class, DefinitionInstanceRegistry::class)
+            ->addArgument(new Reference('service_container'))
+            ->addArgument([])
+            ->addArgument([]);
+
+        $this->expectException(DependencyInjectionException::class);
+        $this->expectExceptionMessage('missing the required "entity" attribute');
+
+        $entityCompilerPass = new EntityCompilerPass();
+        $entityCompilerPass->process($container);
     }
 
     public function testSkipsAttributeEntityDefinitions(): void

@@ -36,7 +36,7 @@ $entity = $instance->getEntityName();
 // EntityCompilerPass — after
 $entity = $tags[0]['entity'] ?? null;
 if ($entity === null || $entity === '') {
-    throw DependencyInjectionException::taggedServiceHasWrongType(...);
+    throw DependencyInjectionException::missingEntityTagAttribute(...);
 }
 ```
 
@@ -66,12 +66,17 @@ The `ContainerBuilder` parameter and all `fallBack` alias logic are removed beca
 
 ### Error handling
 
-Two new exception factory methods on `DependencyInjectionException`:
+Three new exception factory methods across two `DependencyInjectionException` classes:
+
+On `Shopware\Core\Framework\DependencyInjection\DependencyInjectionException`:
 
 * `entityTagMismatch()` — tag says one entity name, `getEntityName()` returns another. Catches misconfigured service definitions.
 * `entityTagUnresolvable()` — definition has no `entity` tag attribute and cannot be instantiated to resolve it. Forces developers to declare the entity name explicitly.
+* `missingEntityTagAttribute()` — definition reaches `EntityCompilerPass` without an `entity` tag attribute (should not happen if `EntityDefinitionTagCompilerPass` ran, but guards against misconfiguration).
 
-`SalesChannelEntityCompilerPass` adds `missingEntityTagAttribute()` on its own `DependencyInjectionException` for services that reach it without an entity tag.
+On `Shopware\Core\System\DependencyInjection\DependencyInjectionException`:
+
+* `missingEntityTagAttribute()` — services that reach `SalesChannelEntityCompilerPass` without an entity tag.
 
 ## Extendability
 
@@ -90,7 +95,7 @@ This is not required for standard definitions with parameterless constructors �
 ### For the platform
 
 * Entity name resolution happens exactly once during compilation, in a single pass. Downstream passes no longer instantiate definition classes, removing a class of subtle coupling bugs.
-* Attribute-based definitions are no longer special-cased in `EntityCompilerPass` — the skip-by-class-name check (`in_array($class, [AttributeEntityDefinition::class, ...])`) is removed. All definition types flow through the same tag-based path.
+* Attribute-based definitions retain the skip-by-class-name check in `EntityCompilerPass` (`in_array($class, [AttributeEntityDefinition::class, ...])`) because they are fully wired by `AttributeEntityCompilerPass` (repositories, registry maps). The `compile()` and `setPublic()` calls are still applied to them, but entity name map population, repository creation, and autowiring alias registration are skipped. `SalesChannelEntityCompilerPass` now reads their entity names from tags instead of instantiating them with constructor arguments.
 * The `fallBack` alias system in `SalesChannelEntityCompilerPass` is removed.
 * Mismatch validation catches bugs early: if a service tag declares `entity="foo"` but the class returns `"bar"` from `getEntityName()`, compilation fails with a clear error instead of silently registering under the wrong name.
 

@@ -36,11 +36,13 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $repositoryNameMap = [];
 
         $salesChannelDefinitions = $this->formatData(
-            $container->findTaggedServiceIds('shopware.sales_channel.entity.definition')
+            $container->findTaggedServiceIds('shopware.sales_channel.entity.definition'),
+            'shopware.sales_channel.entity.definition'
         );
 
         $baseDefinitions = $this->formatData(
-            $container->findTaggedServiceIds('shopware.entity.definition')
+            $container->findTaggedServiceIds('shopware.entity.definition'),
+            'shopware.entity.definition'
         );
 
         $sortedData = $this->sortData($salesChannelDefinitions, $baseDefinitions);
@@ -117,13 +119,13 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
      *
      * @return array<string, array{entityName: string}>
      */
-    private function formatData(array $taggedServiceIds): array
+    private function formatData(array $taggedServiceIds, string $tagName): array
     {
         $result = [];
 
         foreach ($taggedServiceIds as $serviceId => $tags) {
             if (!isset($tags[0]['entity']) || $tags[0]['entity'] === '') {
-                throw DependencyInjectionException::missingEntityTagAttribute($serviceId, 'shopware.entity.definition');
+                throw DependencyInjectionException::missingEntityTagAttribute($serviceId, $tagName);
             }
 
             $result[$serviceId]['entityName'] = $tags[0]['entity'];

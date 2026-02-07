@@ -70,7 +70,7 @@ class EntityCompilerPass implements CompilerPassInterface
             // Entity name is on the tag (written by EntityDefinitionTagCompilerPass)
             $entity = $tags[0]['entity'] ?? null;
             if ($entity === null || $entity === '') {
-                throw DependencyInjectionException::taggedServiceHasWrongType($serviceId, 'shopware.entity.definition', EntityDefinition::class);
+                throw DependencyInjectionException::missingEntityTagAttribute($serviceId, 'shopware.entity.definition');
             }
 
             $entityNameMap[$entity] = $serviceId;

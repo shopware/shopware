@@ -13,6 +13,7 @@ class DependencyInjectionException extends HttpException
     public const BUNDLES_METADATA_IS_NOT_AN_ARRAY = 'FRAMEWORK__BUNDLES_METADATA_IS_NOT_AN_ARRAY';
     public const TAGGED_SERVICE_HAS_WRONG_TYPE = 'FRAMEWORK__TAGGED_SERVICE_HAS_WRONG_TYPE';
     public const PARAMETER_HAS_WRONG_TYPE = 'FRAMEWORK__PARAMETER_HAS_WRONG_TYPE';
+    public const MISSING_ENTITY_TAG_ATTRIBUTE = 'FRAMEWORK__MISSING_ENTITY_TAG_ATTRIBUTE';
     public const ENTITY_TAG_MISMATCH = 'FRAMEWORK__ENTITY_TAG_MISMATCH';
     public const ENTITY_TAG_UNRESOLVABLE = 'FRAMEWORK__ENTITY_TAG_UNRESOLVABLE';
 
@@ -49,6 +50,15 @@ class DependencyInjectionException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PARAMETER_HAS_WRONG_TYPE,
             \sprintf('Parameter "%s" should be: "%s". Got: "%s"', $parameter, $expectedType, $actualType)
+        );
+    }
+
+    public static function missingEntityTagAttribute(string $serviceId, string $tagName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_ENTITY_TAG_ATTRIBUTE,
+            \sprintf('Service "%s" is tagged as "%s" but is missing the required "entity" attribute.', $serviceId, $tagName)
         );
     }
 

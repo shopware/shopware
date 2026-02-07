@@ -1,4 +1,4 @@
-import { computed, Ref, ref } from 'vue';
+import { computed, Ref, ref, shallowRef } from 'vue';
 import { useCurrentExtensionId } from '../store/extension-context.store';
 
 interface OrderItem {
@@ -38,7 +38,8 @@ export const useExtensionOrderedArray = <T>() => {
      */
     const push = (value: T) => {
         const extensionId = useCurrentExtensionId();
-        const { nextInsertIndex, orderItem } = getOrderItem(extensionId.value);
+        const id = extensionId.value ?? null;
+        const { nextInsertIndex, orderItem } = getOrderItem(id);
         orderItem.count++;
         internalArray.value.splice(nextInsertIndex, 0, value);
     };
@@ -72,7 +73,7 @@ export const useExtensionOrderedArray = <T>() => {
         }
     };
 
-    const items = computed(() => internalArray.value);
+    const items = computed(() => Object.freeze([...internalArray.value]));
 
     const flushEventListener = (event: { src: string }) => {
         flushByExtension(event.src);
@@ -94,11 +95,11 @@ export const useExtensionOrderedArray = <T>() => {
 };
 
 export const useExtensionOrdereredArrayMap = <T>() => {
-    const internalMap: Ref<Record<string, ReturnType<typeof useExtensionOrderedArray<T>>>> = ref({});
+    const internalMap: Ref<Record<string, ReturnType<typeof useExtensionOrderedArray<T>>>> = shallowRef({});
 
     const get = (key: string) => {
         if (!internalMap.value[key]) {
-            internalMap.value[key] = useExtensionOrderedArray<T>();
+            internalMap.value = { ...internalMap.value, [key]: useExtensionOrderedArray<T>() };
         }
         return internalMap.value[key];
     };

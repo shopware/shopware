@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentL
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
 use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsField;
 use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
@@ -30,6 +31,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 class LandingPageContentLayoutDefinition extends EntityDefinition implements ContentLayoutAssignableDefinitionInterface
 {
     final public const ENTITY_NAME = 'landing_page_content_layout';
+
+    final public const CONTENT_LAYOUT_ENTITY_TYPE = 'landing_page';
 
     /**
      * @internal
@@ -66,7 +69,7 @@ class LandingPageContentLayoutDefinition extends EntityDefinition implements Con
 
     public function getContentLayoutEntityType(): string
     {
-        return 'landing_page';
+        return self::CONTENT_LAYOUT_ENTITY_TYPE;
     }
 
     public function getContentLayoutPathPrefix(): string
@@ -82,7 +85,7 @@ class LandingPageContentLayoutDefinition extends EntityDefinition implements Con
     public function getPageDataRequirements(SalesChannelContext $context): array
     {
         return [
-            new DataRequirement('landing_page', 'entity', new EntityLoaderConfig('landing_page', 'landingPageId', [])),
+            new DataRequirement(self::CONTENT_LAYOUT_ENTITY_TYPE, EntityLoader::SOURCE, new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, 'landingPageId', [])),
         ];
     }
 

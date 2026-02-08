@@ -38,7 +38,7 @@ class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSe
             $rootId = $data['rootId'];
         }
 
-        $depth = 2;
+        $depth = NavigationLoaderConfig::DEFAULT_DEPTH;
         if (\array_key_exists('depth', $data)) {
             if (!\is_int($data['depth']) || $data['depth'] < 1) {
                 throw ContentSystemException::invalidFieldValueType('depth', 'positive int', \gettype($data['depth']));
@@ -72,7 +72,7 @@ class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSe
             $data['rootId'] = $config->rootId;
         }
 
-        if ($config->depth !== 2) {
+        if ($config->depth !== NavigationLoaderConfig::DEFAULT_DEPTH) {
             $data['depth'] = $config->depth;
         }
 

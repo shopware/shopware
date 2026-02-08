@@ -27,6 +27,8 @@ use Symfony\Component\String\UnicodeString;
 #[Package('discovery')]
 class EntityCollectionLoader extends AbstractContentDataLoader
 {
+    public const SOURCE = 'entity_collection';
+
     public function __construct(
         private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
@@ -41,7 +43,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
 
     public static function getRequirementType(): string
     {
-        return 'entity_collection';
+        return self::SOURCE;
     }
 
     public function load(

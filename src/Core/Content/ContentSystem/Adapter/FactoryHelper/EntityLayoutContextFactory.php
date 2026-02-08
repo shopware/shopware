@@ -9,6 +9,7 @@ use Shopware\Core\Content\ContentSystem\Adapter\Entity\LandingPageContentLayout\
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Helper\RequestDataExtractor;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\LayoutType;
@@ -147,7 +148,7 @@ class EntityLayoutContextFactory
 
         $transformed = [];
         foreach ($requirements as $requirement) {
-            if ($requirement->source !== 'entity') {
+            if ($requirement->source !== EntityLoader::SOURCE) {
                 $transformed[] = $requirement;
                 continue;
             }

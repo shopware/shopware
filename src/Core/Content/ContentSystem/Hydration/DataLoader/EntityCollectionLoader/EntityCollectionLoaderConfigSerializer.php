@@ -33,7 +33,7 @@ class EntityCollectionLoaderConfigSerializer extends AbstractContentDataLoaderCo
 
     public static function getSource(): string
     {
-        return 'entity_collection';
+        return EntityCollectionLoader::SOURCE;
     }
 
     public function decode(array $data): AbstractContentDataLoaderConfig

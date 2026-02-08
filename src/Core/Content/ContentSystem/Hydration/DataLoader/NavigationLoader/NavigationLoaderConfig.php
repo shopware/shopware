@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 #[Package('discovery')]
 final class NavigationLoaderConfig extends AbstractContentDataLoaderConfig
 {
+    public const DEFAULT_DEPTH = 2;
+
     /**
      * @param non-empty-string|null $rootId Navigation root ID or alias (main-navigation, service-navigation, footer-navigation)
      * @param positive-int $depth Navigation tree depth
@@ -27,7 +29,7 @@ final class NavigationLoaderConfig extends AbstractContentDataLoaderConfig
      */
     public function __construct(
         public readonly ?string $rootId = null,
-        public readonly int $depth = 2,
+        public readonly int $depth = self::DEFAULT_DEPTH,
         public readonly string $activeProperty = 'activeId',
     ) {
     }

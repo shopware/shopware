@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ContentSystem\Adapter\Entity\ProductContentLayou
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
 use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsField;
 use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
@@ -30,6 +31,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 class ProductContentLayoutDefinition extends EntityDefinition implements ContentLayoutAssignableDefinitionInterface
 {
     final public const ENTITY_NAME = 'product_content_layout';
+
+    final public const CONTENT_LAYOUT_ENTITY_TYPE = 'product';
 
     /**
      * @internal
@@ -66,7 +69,7 @@ class ProductContentLayoutDefinition extends EntityDefinition implements Content
 
     public function getContentLayoutEntityType(): string
     {
-        return 'product';
+        return self::CONTENT_LAYOUT_ENTITY_TYPE;
     }
 
     public function getContentLayoutPathPrefix(): string
@@ -83,9 +86,9 @@ class ProductContentLayoutDefinition extends EntityDefinition implements Content
     {
         return [
             new DataRequirement(
-                'product',
-                'entity',
-                new EntityLoaderConfig('product', 'productId', [
+                self::CONTENT_LAYOUT_ENTITY_TYPE,
+                EntityLoader::SOURCE,
+                new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, 'productId', [
                     'manufacturer.media',
                     'options.group',
                     'properties.group',

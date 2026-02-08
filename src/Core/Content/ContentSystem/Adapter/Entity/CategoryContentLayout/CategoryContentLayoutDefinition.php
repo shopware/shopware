@@ -6,6 +6,7 @@ use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\ContentSystem\Adapter\Entity\ContentLayoutAssignableDefinitionInterface;
 use Shopware\Core\Content\ContentSystem\Adapter\Field\ParameterBindingsField;
 use Shopware\Core\Content\ContentSystem\Helper\ContentLayoutMetadataDeriver;
+use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Content\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Content\ContentSystem\Layout\Entity\ContentLayoutDefinition;
@@ -30,6 +31,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 class CategoryContentLayoutDefinition extends EntityDefinition implements ContentLayoutAssignableDefinitionInterface
 {
     final public const ENTITY_NAME = 'category_content_layout';
+
+    final public const CONTENT_LAYOUT_ENTITY_TYPE = 'category';
 
     /**
      * @internal
@@ -66,7 +69,7 @@ class CategoryContentLayoutDefinition extends EntityDefinition implements Conten
 
     public function getContentLayoutEntityType(): string
     {
-        return 'category';
+        return self::CONTENT_LAYOUT_ENTITY_TYPE;
     }
 
     public function getContentLayoutPathPrefix(): string
@@ -83,9 +86,9 @@ class CategoryContentLayoutDefinition extends EntityDefinition implements Conten
     {
         return [
             new DataRequirement(
-                'category',
-                'entity',
-                new EntityLoaderConfig('category', 'categoryId', ['media', 'translations'])
+                self::CONTENT_LAYOUT_ENTITY_TYPE,
+                EntityLoader::SOURCE,
+                new EntityLoaderConfig(self::CONTENT_LAYOUT_ENTITY_TYPE, 'categoryId', ['media', 'translations'])
             ),
         ];
     }

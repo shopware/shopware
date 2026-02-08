@@ -49,7 +49,7 @@ class ContentFooterSkeletonRoute extends AbstractContentFooterSkeletonRoute
         path: '/store-api/content-footer-skeleton',
         name: 'store-api.content-footer.skeleton',
         defaults: [
-            '_httpCache' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             'excludes' => [
                 'content_element' => [
                     'dataRequirements',

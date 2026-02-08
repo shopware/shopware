@@ -52,7 +52,7 @@ class ContentFooterDataRoute extends AbstractContentFooterDataRoute
         path: '/store-api/content-footer-data',
         name: 'store-api.content-footer.data',
         defaults: [
-            '_httpCache' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
         ],
         methods: ['GET']
     )]

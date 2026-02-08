@@ -49,7 +49,7 @@ class ContentHeaderRoute extends AbstractContentHeaderRoute
         path: '/store-api/content-header',
         name: 'store-api.content-header',
         defaults: [
-            '_httpCache' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             'excludes' => [
                 'content_element' => [
                     'dataRequirements',

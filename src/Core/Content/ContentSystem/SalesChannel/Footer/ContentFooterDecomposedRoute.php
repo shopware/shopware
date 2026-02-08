@@ -46,7 +46,7 @@ class ContentFooterDecomposedRoute extends AbstractContentFooterDecomposedRoute
         path: '/store-api/content-footer-decomposed',
         name: 'store-api.content-footer.decomposed',
         defaults: [
-            '_httpCache' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             'excludes' => [
                 'content_element' => [
                     'dataRequirements',

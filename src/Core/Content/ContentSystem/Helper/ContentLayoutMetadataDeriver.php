@@ -21,7 +21,7 @@ class ContentLayoutMetadataDeriver
      */
     public function deriveEntityIdField(string $entityType): string
     {
-        return $this->snakeToCamel($entityType) . 'Id';
+        return u($entityType)->camel()->toString() . 'Id';
     }
 
     /**
@@ -29,7 +29,7 @@ class ContentLayoutMetadataDeriver
      */
     public function derivePathPrefix(string $entityType): string
     {
-        return '/' . $this->snakeToKebab($entityType) . '/';
+        return '/' . u($entityType)->kebab()->toString() . '/';
     }
 
     /**
@@ -38,15 +38,5 @@ class ContentLayoutMetadataDeriver
     public function deriveRoutePattern(string $entityIdField): string
     {
         return '{' . $entityIdField . '}';
-    }
-
-    private function snakeToCamel(string $value): string
-    {
-        return u($value)->camel()->toString();
-    }
-
-    private function snakeToKebab(string $value): string
-    {
-        return u($value)->replace('_', '-')->toString();
     }
 }

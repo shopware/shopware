@@ -49,7 +49,7 @@ class ContentFooterRoute extends AbstractContentFooterRoute
         path: '/store-api/content-footer',
         name: 'store-api.content-footer',
         defaults: [
-            '_httpCache' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             'excludes' => [
                 'content_element' => [
                     'dataRequirements',

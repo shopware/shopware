@@ -49,7 +49,7 @@ class ContentRoute extends AbstractContentRoute
         name: 'store-api.content.detail',
         requirements: ['path' => '.+'],
         defaults: [
-            '_httpCache' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             'excludes' => [
                 'content_element' => [
                     'dataRequirements',

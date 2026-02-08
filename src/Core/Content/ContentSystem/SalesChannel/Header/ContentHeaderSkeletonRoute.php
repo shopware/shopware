@@ -49,7 +49,7 @@ class ContentHeaderSkeletonRoute extends AbstractContentHeaderSkeletonRoute
         path: '/store-api/content-header-skeleton',
         name: 'store-api.content-header.skeleton',
         defaults: [
-            '_httpCache' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             'excludes' => [
                 'content_element' => [
                     'dataRequirements',

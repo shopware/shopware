@@ -52,7 +52,7 @@ class ContentHeaderDataRoute extends AbstractContentHeaderDataRoute
         path: '/store-api/content-header-data',
         name: 'store-api.content-header.data',
         defaults: [
-            '_httpCache' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
         ],
         methods: ['GET']
     )]

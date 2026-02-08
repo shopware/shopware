@@ -41,8 +41,4 @@ class Migration1758018343CategoryContentLayout extends MigrationStep
 
         $connection->executeStatement($sql);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

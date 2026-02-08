@@ -49,7 +49,6 @@ class PartialRenderer
                 $prunedElements[] = $prunedElement;
             } catch (ContentSystemException) {
                 // Element not found in this root, try next
-                continue;
             }
         }
 

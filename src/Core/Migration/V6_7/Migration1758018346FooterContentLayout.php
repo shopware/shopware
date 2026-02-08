@@ -46,8 +46,4 @@ class Migration1758018346FooterContentLayout extends MigrationStep
 
         $connection->executeStatement($sql);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

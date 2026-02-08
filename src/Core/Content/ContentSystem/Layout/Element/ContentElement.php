@@ -141,9 +141,7 @@ class ContentElement extends Struct
     public function allSlotElements(): \Generator
     {
         foreach ($this->slots as $slotContent) {
-            foreach ($slotContent as $element) {
-                yield $element;
-            }
+            yield from $slotContent;
         }
     }
 

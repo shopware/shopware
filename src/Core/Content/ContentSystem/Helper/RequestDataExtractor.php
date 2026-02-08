@@ -25,23 +25,7 @@ class RequestDataExtractor
      */
     public function extractData(Request $request, ?array $bindings): array
     {
-        return $this->applyParameterBindings($bindings, $request->query->all());
-    }
-
-    /**
-     * Parameters pass through unchanged if no bindings configured
-     * Only scalar values are included (non-scalar values are skipped)
-     *
-     * @param array<string, ParameterBinding>|null $bindings
-     * @param array<string, mixed> $requestParameters
-     *
-     * @return array<string, bool|float|int|string>
-     */
-    private function applyParameterBindings(?array $bindings, array $requestParameters): array
-    {
-        $scalarParameters = array_filter($requestParameters, function ($value) {
-            return \is_scalar($value);
-        });
+        $scalarParameters = array_filter($request->query->all(), '\is_scalar');
 
         if ($bindings === null || $bindings === []) {
             return $scalarParameters;

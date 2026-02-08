@@ -52,7 +52,7 @@ class ContentDataRoute extends AbstractContentDataRoute
         name: 'store-api.content.data',
         requirements: ['path' => '.+'],
         defaults: [
-            '_httpCache' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
         ],
         methods: ['GET']
     )]

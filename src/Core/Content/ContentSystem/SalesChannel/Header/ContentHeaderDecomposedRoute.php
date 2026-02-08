@@ -46,7 +46,7 @@ class ContentHeaderDecomposedRoute extends AbstractContentHeaderDecomposedRoute
         path: '/store-api/content-header-decomposed',
         name: 'store-api.content-header.decomposed',
         defaults: [
-            '_httpCache' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             'excludes' => [
                 'content_element' => [
                     'dataRequirements',

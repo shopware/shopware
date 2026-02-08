@@ -31,8 +31,8 @@ class ContentController extends StorefrontController
         path: '/{path}',
         name: 'frontend.content.page',
         requirements: ['path' => '.+'],
-        defaults: ['_httpCache' => true],
-        methods: ['GET'],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+        methods: [Request::METHOD_GET],
         priority: -100
     )]
     public function index(Request $request, SalesChannelContext $context): Response

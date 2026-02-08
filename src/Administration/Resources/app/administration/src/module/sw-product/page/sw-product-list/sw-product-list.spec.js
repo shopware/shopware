@@ -232,7 +232,7 @@ async function createWrapper() {
                 meta: {
                     $module: {
                         entity: 'product',
-                        icon: 'solid-content',
+                        icon: 'regular-content',
                     },
                 },
             },

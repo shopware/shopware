@@ -20,7 +20,7 @@ describe('topbar-button.store', () => {
     it('can update buttons', () => {
         store.buttons.push({
             label: 'Test action',
-            icon: 'solid-rocket',
+            icon: 'regular-rocket',
             callback: () => {},
         });
 
@@ -28,7 +28,7 @@ describe('topbar-button.store', () => {
             JSON.stringify([
                 {
                     label: 'Test action',
-                    icon: 'solid-rocket',
+                    icon: 'regular-rocket',
                     callback: () => {},
                 },
             ]),

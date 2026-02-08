@@ -10,7 +10,7 @@ describe('src/app/init/topbar-button.init.ts', () => {
 
         await send('__upsellingMenuButton', {
             label: 'Test action',
-            icon: 'solid-rocket',
+            icon: 'regular-rocket',
             callback: () => {},
         });
 

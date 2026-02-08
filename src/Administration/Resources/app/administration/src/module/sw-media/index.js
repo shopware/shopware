@@ -40,7 +40,7 @@ Module.register('sw-media', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#ff68b4',
-    icon: 'solid-image',
+    icon: 'regular-image',
     favicon: 'icon-module-content.png',
     entity: 'media',
 

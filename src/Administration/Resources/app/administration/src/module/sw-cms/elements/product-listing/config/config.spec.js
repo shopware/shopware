@@ -112,7 +112,7 @@ async function createWrapper(activeTab = 'sorting') {
                     $route: {
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },

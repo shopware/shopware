@@ -94,7 +94,7 @@
     {% block sw_customer_detail_order_card_grid_empty_state %}
     <template v-if="(!orders || orders.total === 0) && !isLoading && !term">
         <mt-empty-state
-            icon="solid-shopping-bag"
+            icon="regular-shopping-bag"
             :headline="emptyTitle"
             :description="$tc('sw-customer.detailOrder.emptySubline')"
         >

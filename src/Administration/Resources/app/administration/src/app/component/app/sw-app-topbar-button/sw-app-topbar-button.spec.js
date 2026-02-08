@@ -16,7 +16,7 @@ async function createWrapper() {
 
 const topbarButton = {
     label: 'Upgrade',
-    icon: 'solid-rocket',
+    icon: 'regular-rocket',
     callback: () => {},
 };
 

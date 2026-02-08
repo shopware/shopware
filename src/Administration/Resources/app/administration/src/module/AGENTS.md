@@ -29,7 +29,7 @@ Module.register('sw-product', {
   entity: 'product',
   title: 'sw-product.general.mainMenuItemGeneral',
   color: '#57D9A3',
-  icon: 'solid-products',
+  icon: 'regular-products',
   
   routes: {
     index: {

@@ -77,11 +77,12 @@ async function createWrapper() {
                 'sw-entity-listing': {
                     props: [
                         'items',
+                        'dataSource',
                         'allow-inline-edit',
                     ],
                     template: `
                         <div>
-                            <template v-for="item in items">
+                            <template v-for="item in (dataSource || items)">
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>`,

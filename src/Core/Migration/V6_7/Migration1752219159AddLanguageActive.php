@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -37,7 +38,7 @@ class Migration1752219159AddLanguageActive extends MigrationStep
                 SQL
             );
 
-            if (!$this->isInstallation() && $connection->createSchemaManager()->tableExists('swag_language_pack_language')) {
+            if (!$this->isInstallation() && TableHelper::tableExists($connection, 'swag_language_pack_language')) {
                 $connection->executeStatement(
                     <<<'SQL'
                         UPDATE `language`

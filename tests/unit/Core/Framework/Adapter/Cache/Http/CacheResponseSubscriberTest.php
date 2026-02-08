@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProviderFactory;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\DefaultPolicies;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -778,9 +779,23 @@ class CacheResponseSubscriberTest extends TestCase
             $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $clientHash['cookie']);
         }
 
-        $cacheHeadersService->expects($this->once())
-            ->method('applyCacheHash')
-            ->willReturn($serviceHash);
+        if ($serviceHash !== null) {
+            $eventMock = $this->createMock(HttpCacheCookieEvent::class);
+            $eventMock->method('getHash')->willReturn($serviceHash);
+
+            if ($serviceHash === HttpCacheCookieEvent::NOT_CACHEABLE) {
+                $eventMock->method('shouldResponseBeCached')->willReturn(false);
+            } else {
+                $eventMock->method('shouldResponseBeCached')->willReturn(true);
+            }
+            $cacheHeadersService->expects($this->once())
+                ->method('applyCacheHash')
+                ->willReturn($eventMock);
+        } else {
+            $cacheHeadersService->expects($this->once())
+                ->method('applyCacheHash')
+                ->willReturn(null);
+        }
 
         $response = new Response();
         $subscriber->setResponseCache(new ResponseEvent(

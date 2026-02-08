@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_5;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,7 +20,7 @@ class Migration1666689977AddPluginIdToCustomEntity extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'custom_entity', 'plugin_id')) {
+        if (!TableHelper::columnExists($connection, 'custom_entity', 'plugin_id')) {
             $connection->executeStatement('ALTER TABLE `custom_entity`
                 ADD `plugin_id` BINARY(16) NULL,
                 ADD CONSTRAINT `fk.custom_entity.plugin_id`

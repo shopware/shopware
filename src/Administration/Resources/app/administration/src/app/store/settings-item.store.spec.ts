@@ -4,7 +4,7 @@ describe('settings-item.store', () => {
     const store = Shopware.Store.get('settingsItems');
 
     beforeEach(() => {
-        store.$reset();
+        store.reset();
     });
 
     it('has initial state', () => {

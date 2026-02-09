@@ -181,23 +181,23 @@ describe('use-extension-ordered-container', () => {
             });
         });
 
-        describe('clear', () => {
+        describe('reset', () => {
             it('empties items and order', async () => {
-                const { items, push, clear } = useExtensionOrderedArray<string>();
+                const { items, push, reset } = useExtensionOrderedArray<string>();
                 await setCurrentExtension('ext-a');
                 push('a1');
                 push('a2');
 
-                clear();
+                reset();
 
                 expect(items.value).toEqual([]);
             });
 
-            it('allows pushing again after clear', async () => {
-                const { items, push, clear } = useExtensionOrderedArray<string>();
+            it('allows pushing again after reset', async () => {
+                const { items, push, reset } = useExtensionOrderedArray<string>();
                 await setCurrentExtension('ext-a');
                 push('a1');
-                clear();
+                reset();
 
                 push('a2');
 
@@ -241,7 +241,7 @@ describe('use-extension-ordered-container', () => {
 
         describe('items reactivity', () => {
             it('items is a computed that reflects current array state', async () => {
-                const { items, push, clear } = useExtensionOrderedArray<string>();
+                const { items, push, reset } = useExtensionOrderedArray<string>();
 
                 expect(items.value).toEqual([]);
 
@@ -249,7 +249,7 @@ describe('use-extension-ordered-container', () => {
                 push('x');
                 expect(items.value).toEqual(['x']);
 
-                clear();
+                reset();
                 expect(items.value).toEqual([]);
             });
 
@@ -357,22 +357,22 @@ describe('use-extension-ordered-container', () => {
             });
         });
 
-        describe('clear', () => {
-            it('clears the map so get returns new containers', async () => {
-                const { get, clear } = useExtensionOrdereredArrayMap<string>();
+        describe('reset', () => {
+            it('resets the map so get returns new containers', async () => {
+                const { get, reset } = useExtensionOrdereredArrayMap<string>();
 
                 await setCurrentExtension('ext-a');
                 const before = get('key1');
                 before.push('x');
-                clear();
+                reset();
                 const after = get('key1');
 
                 expect(before).not.toBe(after);
                 expect(after.items.value).toEqual([]);
             });
 
-            it('after clear, items no longer contains previous keys', async () => {
-                const { get, items, clear } = useExtensionOrdereredArrayMap<string>();
+            it('after reset, items no longer contains previous keys', async () => {
+                const { get, items, reset } = useExtensionOrdereredArrayMap<string>();
 
                 await setCurrentExtension('ext-a');
                 get('key1').push('a');
@@ -380,7 +380,7 @@ describe('use-extension-ordered-container', () => {
                 expect(Object.keys(items.value)).toContain('key1');
                 expect(Object.keys(items.value)).toContain('key2');
 
-                clear();
+                reset();
                 expect(Object.keys(items.value)).toEqual([]);
             });
         });

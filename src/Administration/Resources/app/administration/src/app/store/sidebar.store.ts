@@ -62,14 +62,14 @@ const sidebarsStore = Shopware.Store.register('sidebar', () => {
         return sidebarsOrdered.items.value.find((sidebar) => sidebar.active) ?? null;
     });
 
-    return {
+    return reactive({
         sidebars,
         getActiveSidebar,
         addSidebar,
         closeSidebar,
         removeSidebar,
         setActiveSidebar,
-    };
+    });
 });
 
 /**

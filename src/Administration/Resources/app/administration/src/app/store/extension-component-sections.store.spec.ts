@@ -6,7 +6,7 @@ describe('extension-component-sections.store', () => {
 
     beforeEach(() => {
         store = Shopware.Store.get('extensionComponentSections');
-        store.clear();
+        store.reset();
     });
 
     it('has initial state', () => {

@@ -3,6 +3,7 @@
  * @private
  */
 
+import { reactive } from 'vue';
 import { useExtensionOrdereredArrayMap } from '../composables/use-extension-ordered-container';
 
 export interface SettingsItem {
@@ -63,10 +64,11 @@ const settingsItems = Shopware.Store.register('settingsItems', () => {
         plugins: [],
     };
 
-    return {
+    return reactive({
         settingsGroups,
         addItem,
-    };
+        reset: settingsByGroup.reset,
+    });
 });
 
 /**

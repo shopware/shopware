@@ -85,7 +85,7 @@ export const useExtensionOrderedArray = <T>() => {
         Shopware.Utils.EventBus.off('sw-extension-loaded', flushEventListener);
     };
 
-    const clear = () => {
+    const reset = () => {
         internalArray.value = [];
         order.value = [];
     };
@@ -94,7 +94,7 @@ export const useExtensionOrderedArray = <T>() => {
         items,
         push,
         removeFirstWhere,
-        clear,
+        reset,
         dispose,
     };
 };
@@ -112,7 +112,7 @@ export const useExtensionOrdereredArrayMap = <T>() => {
         return entry;
     };
 
-    const clear = () => {
+    const reset = () => {
         for (const entry of internalMap.value.values()) {
             entry.dispose();
         }
@@ -129,12 +129,12 @@ export const useExtensionOrdereredArrayMap = <T>() => {
     );
 
     const dispose = () => {
-        clear();
+        reset();
     };
 
     return {
         items,
-        clear,
+        reset,
         get,
         dispose
     };

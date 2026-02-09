@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import type { actionButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/action-button';
+import { reactive } from 'vue';
 import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
 type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>;
@@ -18,10 +19,10 @@ const actionButtonsStore = Shopware.Store.register('actionButtons', () => {
         buttonsOrdered.push(button);
     };
 
-    return {
+    return reactive({
         buttons,
         add,
-    };
+    });
 });
 
 /**

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import type { uiComponentSectionRenderer } from '@shopware-ag/meteor-admin-sdk/es/ui/component-section';
-import { computed, unref } from 'vue';
+import { reactive } from 'vue';
 import { useExtensionOrdereredArrayMap } from '../composables/use-extension-ordered-container';
 
 // eslint-disable-next-line max-len,sw-deprecation-rules/private-feature-declarations
@@ -30,11 +30,11 @@ const ExtensionComponentSectionsStore = Shopware.Store.register('extensionCompon
         });
     };
 
-    return {
+    return reactive({
         identifier,
         addSection,
-        clear: sectionsByPosition.clear,
-    };
+        reset: sectionsByPosition.reset,
+    });
 });
 
 /**

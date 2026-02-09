@@ -6,7 +6,7 @@ describe('src/app/state/settings.store.js', () => {
     const store = Shopware.Store.get('settingsItems');
 
     beforeEach(() => {
-        store.$reset();
+        store.reset();
     });
 
     it('adds a new item to the specified group', () => {

@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import type { uiTabsAddTabItem } from '@shopware-ag/meteor-admin-sdk/es/ui/tabs';
+import { reactive } from 'vue';
 import { useExtensionOrdereredArrayMap } from '../composables/use-extension-ordered-container';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -19,10 +20,10 @@ const tabsStore = Shopware.Store.register(`tabs`, () => {
         });
     };
 
-    return {
+    return reactive({
         tabItems,
         addTabItem,
-    };
+    });
 });
 
 /**

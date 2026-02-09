@@ -3,6 +3,7 @@
  */
 
 import type { uiModalOpen } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
+import { reactive } from 'vue';
 import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -51,12 +52,12 @@ const modalsStore = Shopware.Store.register('modals', () => {
         }
     };
 
-    return {
+    return reactive({
         modals,
         openModal,
         closeModal,
         closeLastModalWithoutLocationId,
-    };
+    });
 });
 
 /**

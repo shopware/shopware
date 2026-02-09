@@ -2,21 +2,20 @@
  * @sw-package framework
  */
 
-import { ref } from 'vue';
-
-const mockCurrentExtensionIdRef = ref<string | null>(null);
-
-jest.mock('../store/extension-context.store', () => ({
-    useCurrentExtensionId: () => mockCurrentExtensionIdRef,
-}));
+import { nextTick } from 'vue';
 
 import {
     useExtensionOrderedArray,
     useExtensionOrdereredArrayMap,
 } from './use-extension-ordered-container';
 
-function setExtensionContext(extensionId: string | null): void {
-    mockCurrentExtensionIdRef.value = extensionId;
+
+async function setCurrentExtension(extensionId: string | null): Promise<void> {
+    const store = Shopware.Store.get('extensionContext');
+    const value = extensionId === null ? null : { id: extensionId };
+    store._setCurrentExtensionContext(value);
+    await nextTick();
+    await flushPromises();
 }
 
 describe('use-extension-ordered-container', () => {
@@ -41,8 +40,8 @@ describe('use-extension-ordered-container', () => {
         jest.restoreAllMocks();
     });
 
-    beforeEach(() => {
-        setExtensionContext(null);
+    beforeEach(async () => {
+        await setCurrentExtension(null);
         eventBusListeners = [];
     });
 
@@ -63,18 +62,18 @@ describe('use-extension-ordered-container', () => {
         });
 
         describe('push', () => {
-            it('pushes a value when in core context (extensionId null)', () => {
+            it('pushes a value when in core context (extensionId null)', async () => {
                 const { items, push } = useExtensionOrderedArray<string>();
-                setExtensionContext(null);
+                await setCurrentExtension(null);
 
                 push('core-item');
 
                 expect(items.value).toEqual(['core-item']);
             });
 
-            it('pushes multiple values in same extension context and preserves order', () => {
+            it('pushes multiple values in same extension context and preserves order', async () => {
                 const { items, push } = useExtensionOrderedArray<string>();
-                setExtensionContext('https://ext-a.example');
+                await setCurrentExtension('https://ext-a.example');
 
                 push('a1');
                 push('a2');
@@ -83,24 +82,24 @@ describe('use-extension-ordered-container', () => {
                 expect(items.value).toEqual(['a1', 'a2', 'a3']);
             });
 
-            it('preserves extension order: segments in first-push order, new items append to segment', () => {
+            it('preserves extension order: segments in first-push order, new items append to segment', async () => {
                 const { items, push } = useExtensionOrderedArray<string>();
 
-                setExtensionContext(null);
+                await setCurrentExtension(null);
                 push('core-1');
                 push('core-2');
 
-                setExtensionContext('https://ext-a.example');
+                await setCurrentExtension('https://ext-a.example');
                 push('a1');
 
-                setExtensionContext(null);
+                await setCurrentExtension(null);
                 push('core-3');
 
-                setExtensionContext('https://ext-b.example');
+                await setCurrentExtension('https://ext-b.example');
                 push('b1');
                 push('b2');
 
-                setExtensionContext('https://ext-a.example');
+                await setCurrentExtension('https://ext-a.example');
                 push('a2');
 
                 expect(items.value).toEqual([
@@ -116,9 +115,9 @@ describe('use-extension-ordered-container', () => {
         });
 
         describe('removeFirstWhere', () => {
-            it('does nothing when predicate matches no item', () => {
+            it('does nothing when predicate matches no item', async () => {
                 const { items, push, removeFirstWhere } = useExtensionOrderedArray<string>();
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 push('a1');
                 push('a2');
 
@@ -127,12 +126,12 @@ describe('use-extension-ordered-container', () => {
                 expect(items.value).toEqual(['a1', 'a2']);
             });
 
-            it('removes first matching item by predicate and only the first match', () => {
+            it('removes first matching item by predicate and only the first match', async () => {
                 const { items, push, removeFirstWhere } = useExtensionOrderedArray<{
                     id: string;
                     value: string;
                 }>();
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 push({ id: '1', value: 'other' });
                 push({ id: '2', value: 'same' });
                 push({ id: '3', value: 'same' });
@@ -145,45 +144,47 @@ describe('use-extension-ordered-container', () => {
                 ]);
             });
 
-            it('removes from correct extension segment and keeps others intact', () => {
+            it('removes from correct extension segment and keeps others intact', async () => {
                 const { items, push, removeFirstWhere } = useExtensionOrderedArray<string>();
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 push('a1');
                 push('a2');
-                setExtensionContext('ext-b');
+                await setCurrentExtension('ext-b');
                 push('b1');
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 push('a3');
 
                 removeFirstWhere((x) => x === 'a2');
 
-                expect(items.value).toEqual(['a1', 'b1', 'a3']);
+                // a3 is in the same ext-a segment as a1 (append to segment), so order is a1, a3, b1
+                expect(items.value).toEqual(['a1', 'a3', 'b1']);
             });
 
-            it('push after removeFirstWhere does not corrupt order or counts', () => {
+            it('push after removeFirstWhere does not corrupt order or counts', async () => {
                 const { items, push, removeFirstWhere } = useExtensionOrderedArray<string>();
 
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 push('a1');
                 push('a2');
-                setExtensionContext('ext-b');
+                await setCurrentExtension('ext-b');
                 push('b1');
 
                 removeFirstWhere((x) => x === 'a2');
 
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 push('a3');
-                setExtensionContext('ext-b');
+                await setCurrentExtension('ext-b');
                 push('b2');
 
-                expect(items.value).toEqual(['a1', 'b1', 'a3', 'b2']);
+                // Segment order: ext-a (a1, a3) then ext-b (b1, b2)
+                expect(items.value).toEqual(['a1', 'a3', 'b1', 'b2']);
             });
         });
 
         describe('clear', () => {
-            it('empties items and order', () => {
+            it('empties items and order', async () => {
                 const { items, push, clear } = useExtensionOrderedArray<string>();
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 push('a1');
                 push('a2');
 
@@ -192,9 +193,9 @@ describe('use-extension-ordered-container', () => {
                 expect(items.value).toEqual([]);
             });
 
-            it('allows pushing again after clear', () => {
+            it('allows pushing again after clear', async () => {
                 const { items, push, clear } = useExtensionOrderedArray<string>();
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 push('a1');
                 clear();
 
@@ -205,10 +206,10 @@ describe('use-extension-ordered-container', () => {
         });
 
         describe('sw-extension-loaded event', () => {
-            it('registers a listener that can be invoked with event payload { src }', () => {
+            it('registers a listener that can be invoked with event payload { src }', async () => {
                 const { items, push } = useExtensionOrderedArray<string>();
 
-                setExtensionContext('https://ext-a.example');
+                await setCurrentExtension('https://ext-a.example');
                 push('a1');
                 push('a2');
 
@@ -239,12 +240,12 @@ describe('use-extension-ordered-container', () => {
         });
 
         describe('items reactivity', () => {
-            it('items is a computed that reflects current array state', () => {
+            it('items is a computed that reflects current array state', async () => {
                 const { items, push, clear } = useExtensionOrderedArray<string>();
 
                 expect(items.value).toEqual([]);
 
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 push('x');
                 expect(items.value).toEqual(['x']);
 
@@ -252,9 +253,9 @@ describe('use-extension-ordered-container', () => {
                 expect(items.value).toEqual([]);
             });
 
-            it('items is readonly and mutation throws', () => {
+            it('items is readonly and mutation throws', async () => {
                 const { items, push } = useExtensionOrderedArray<string>();
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 push('a');
 
                 expect(() => {
@@ -268,8 +269,8 @@ describe('use-extension-ordered-container', () => {
     });
 
     describe('useExtensionOrdereredArrayMap', () => {
-        beforeEach(() => {
-            setExtensionContext(null);
+        beforeEach(async () => {
+            await setCurrentExtension(null);
         });
 
         describe('get', () => {
@@ -298,10 +299,10 @@ describe('use-extension-ordered-container', () => {
                 expect(container.items.value).toEqual([]);
             });
 
-            it('each key has independent push/remove state', () => {
+            it('each key has independent push/remove state', async () => {
                 const { get } = useExtensionOrdereredArrayMap<string>();
 
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 const pos1 = get('position-1');
                 pos1.push('p1-a');
                 const pos2 = get('position-2');
@@ -313,10 +314,10 @@ describe('use-extension-ordered-container', () => {
         });
 
         describe('items', () => {
-            it('exposes readonly map of key -> items computed per container', () => {
+            it('exposes readonly map of key -> items computed per container', async () => {
                 const { get, items } = useExtensionOrdereredArrayMap<string>();
 
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 get('key1').push('a');
                 get('key1').push('b');
                 get('key2').push('c');
@@ -337,9 +338,9 @@ describe('use-extension-ordered-container', () => {
                 expect(items.value.newKey.value).toEqual([]);
             });
 
-            it('items map is readonly and mutation throws', () => {
+            it('items map is readonly and mutation throws', async () => {
                 const { get, items } = useExtensionOrdereredArrayMap<string>();
-                setExtensionContext('ext-a');
+                await setCurrentExtension('ext-a');
                 get('key1').push('a');
 
                 expect(() => {
@@ -357,9 +358,10 @@ describe('use-extension-ordered-container', () => {
         });
 
         describe('clear', () => {
-            it('clears the map so get returns new containers', () => {
+            it('clears the map so get returns new containers', async () => {
                 const { get, clear } = useExtensionOrdereredArrayMap<string>();
 
+                await setCurrentExtension('ext-a');
                 const before = get('key1');
                 before.push('x');
                 clear();
@@ -369,9 +371,10 @@ describe('use-extension-ordered-container', () => {
                 expect(after.items.value).toEqual([]);
             });
 
-            it('after clear, items no longer contains previous keys', () => {
+            it('after clear, items no longer contains previous keys', async () => {
                 const { get, items, clear } = useExtensionOrdereredArrayMap<string>();
 
+                await setCurrentExtension('ext-a');
                 get('key1').push('a');
                 get('key2').push('b');
                 expect(Object.keys(items.value)).toContain('key1');

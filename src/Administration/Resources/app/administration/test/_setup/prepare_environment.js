@@ -57,6 +57,7 @@ import '../../src/module/sw-cms/store/cms-page.store';
 import '../../src/app/store/teaser-popover.store';
 import '../../src/app/store/topbar-button.store';
 import '../../src/app/store/admin-menu.store';
+import '../../src/app/store/extension-context.store';
 import '../../src/app/store/extension-component-sections.store';
 import '../../src/app/store/extension-entry-routes.store';
 import '../../src/app/store/extension-sdk-module.store';

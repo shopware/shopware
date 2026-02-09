@@ -21,6 +21,11 @@ export interface ExtensionContext {
 
 const extensionContextStore = Shopware.Store.register('extensionContext', () => {
     const currentExtensionContext = ref<ExtensionContext | null>(null);
+
+    const _setCurrentExtensionContext = (context: ExtensionContext | null) => {
+        currentExtensionContext.value = context;
+    };
+
     const wrapWithExtensionContext = (context: ExtensionContext, callback: () => void) => {
         const before = currentExtensionContext.value;
         currentExtensionContext.value = context;
@@ -33,6 +38,7 @@ const extensionContextStore = Shopware.Store.register('extensionContext', () => 
 
     return {
         currentExtensionContext,
+        _setCurrentExtensionContext,
         wrapWithExtensionContext,
     };
 });

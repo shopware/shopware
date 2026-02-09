@@ -27,7 +27,7 @@ describe('src/app/component/utils/sw-notifications', () => {
                 },
                 mocks: {
                     $te: () => true,
-                    $tc: (key) => `Translated: ${key}`,
+                    $t: (key) => `Translated: ${key}`,
                     $sanitize: (value) => value,
                 },
             },

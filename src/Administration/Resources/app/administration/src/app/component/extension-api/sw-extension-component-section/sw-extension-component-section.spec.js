@@ -43,7 +43,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     beforeEach(async () => {
-        Shopware.Store.get('extensionComponentSections').identifier = {};
+        Shopware.Store.get('extensionComponentSections').reset();
     });
 
     it('should not render tabs in card section', async () => {

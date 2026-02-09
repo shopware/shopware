@@ -22,6 +22,7 @@ const tabsStore = Shopware.Store.register(`tabs`, () => {
     return {
         tabItems,
         addTabItem,
+        reset: tabs.reset,
     };
 });
 

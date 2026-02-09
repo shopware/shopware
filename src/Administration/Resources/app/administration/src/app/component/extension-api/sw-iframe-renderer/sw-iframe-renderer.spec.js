@@ -58,15 +58,8 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         delete window.location;
         window.location = new URL('https://www.example.com');
 
-        // Clear extension store
-        Object.keys(Shopware.Store.get('extensions').extensionsState).forEach((key) => {
-            delete Shopware.Store.get('extensions').extensionsState[key];
-        });
-
-        // Clear sdkLocation store
-        Object.keys(Shopware.Store.get('sdkLocation').locations).forEach((key) => {
-            delete Shopware.Store.get('sdkLocation').locations[key];
-        });
+        Shopware.Store.get('extensions').$reset();
+        Shopware.Store.get('sdkLocation').$reset();
 
         // Reset route mock
         $routeMock = {

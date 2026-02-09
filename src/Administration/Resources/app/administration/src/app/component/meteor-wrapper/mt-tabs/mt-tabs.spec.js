@@ -16,7 +16,7 @@ async function createWrapper() {
 describe('src/app/component/meteor-wrapper/mt-tabs', () => {
     beforeEach(() => {
         // reset store
-        Shopware.Store.get('tabs').tabItems = {};
+        Shopware.Store.get('tabs').reset();
     });
 
     it('should pass the items from the props to the final component', async () => {
@@ -40,10 +40,8 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         const wrapper = await createWrapper();
 
         // Set values in the extension store
-        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
-            { label: 'Tab 3', componentSectionId: 'tab3' },
-            { label: 'Tab 4', componentSectionId: 'tab4' },
-        ];
+        Shopware.Store.get('tabs').addTabItem({ label: 'Tab 3', componentSectionId: 'tab3', positionId: 'jest-test-component' });
+        Shopware.Store.get('tabs').addTabItem({ label: 'Tab 4', componentSectionId: 'tab4', positionId: 'jest-test-component' });
 
         await wrapper.setProps({
             items: [

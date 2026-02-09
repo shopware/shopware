@@ -88,14 +88,6 @@ export default Shopware.Component.wrapComponentConfig({
         );
     },
 
-    mounted() {
-        this.$refs.iframe.addEventListener('load', () => {
-            Shopware.Utils.EventBus.emit('sw-extension-loaded', {
-                src: this.iFrameSrc,
-            });
-        });
-    },
-
     beforeUnmount() {
         if (this.heightHandler) {
             this.heightHandler();
@@ -173,6 +165,12 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        onIframeLoad() {
+            Shopware.Utils.EventBus.emit('sw-extension-loaded', {
+                src: this.iFrameSrc,
+            });
+        },
+
         signIframeSrc() {
             if (!this.extension || !this.extensionIsApp) {
                 return;

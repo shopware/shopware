@@ -81,8 +81,7 @@ async function createWrapper({ props = {}, privileges = [] } = {}) {
 
 describe('src/app/component/structure/sw-admin-menu-item', () => {
     beforeEach(async () => {
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [];
-        Shopware.Store.get('settingsItems').settingsGroups.system = [];
+        Shopware.Store.get('settingsItems').reset();
     });
 
     it('should contain all menu entries', async () => {
@@ -466,9 +465,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('should hide settings menu if no item is visible', async () => {
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [
-            { privilege: 'no-set', path: 'it' },
-        ];
+        Shopware.Store.get('settingsItems').addItem({ group: 'shop', name: 'item-no-set', privilege: 'no-set', path: 'it' });
 
         const wrapper = await createWrapper({
             privileges: [],
@@ -490,10 +487,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('settings should be shown if all item is visible', async () => {
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [
-            { privilege: 'priv-1' },
-            { privilege: 'priv-2' },
-        ];
+        Shopware.Store.get('settingsItems').addItem({ group: 'shop', name: 'item-priv-1', privilege: 'priv-1' });
+        Shopware.Store.get('settingsItems').addItem({ group: 'shop', name: 'item-priv-2', privilege: 'priv-2' });
 
         const wrapper = await createWrapper({
             privileges: [
@@ -519,10 +514,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     it('settings should be shown if one item is visible', async () => {
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [
-            { privilege: 'priv-1' },
-            { privilege: 'priv-2' },
-        ];
+        Shopware.Store.get('settingsItems').addItem({ group: 'shop', name: 'item-priv-1', privilege: 'priv-1' });
+        Shopware.Store.get('settingsItems').addItem({ group: 'shop', name: 'item-priv-2', privilege: 'priv-2' });
 
         const wrapper = await createWrapper({
             privileges: ['priv-1'],

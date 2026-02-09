@@ -121,8 +121,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => true);
 
         Shopware.Store.get('session').setCurrentUser(null);
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [];
-        Shopware.Store.get('settingsItems').settingsGroups.system = [];
+        Shopware.Store.get('settingsItems').reset();
 
         Shopware.Store.get('shopwareApps').apps = [];
 

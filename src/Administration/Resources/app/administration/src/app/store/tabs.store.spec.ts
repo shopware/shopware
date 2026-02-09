@@ -2,7 +2,7 @@ describe('tabs.store', () => {
     const store = Shopware.Store.get('tabs');
 
     beforeEach(() => {
-        store.$reset();
+        store.reset();
     });
 
     it('has initial state', () => {

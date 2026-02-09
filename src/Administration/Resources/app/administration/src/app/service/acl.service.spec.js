@@ -10,8 +10,7 @@ describe('src/app/service/acl.service.ts', () => {
         Shopware.Application.view.root = {};
         Shopware.Application.view.root.$router = {};
         Shopware.Application.view.root.$router.resolve = () => ({});
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [];
-        Shopware.Store.get('settingsItems').settingsGroups.system = [];
+        Shopware.Store.get('settingsItems').reset();
     });
 
     it('should be an admin', async () => {
@@ -115,17 +114,15 @@ describe('src/app/service/acl.service.ts', () => {
     });
 
     it('should have access to the settings route when user has any access to settings', async () => {
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [
-            {
-                group: 'shop',
-                icon: 'default-chart-pie',
-                id: 'sw-settings-tax',
-                label: 'sw-settings-tax.general.mainMenuItemGeneral',
-                name: 'settings-tax',
-                privilege: 'tax.viewer',
-                to: 'sw.settings.tax.index',
-            },
-        ];
+        Shopware.Store.get('settingsItems').addItem({
+            group: 'shop',
+            icon: 'default-chart-pie',
+            id: 'sw-settings-tax',
+            label: 'sw-settings-tax.general.mainMenuItemGeneral',
+            name: 'settings-tax',
+            privilege: 'tax.viewer',
+            to: 'sw.settings.tax.index',
+        });
         Shopware.Store.get('session').setCurrentUser({ admin: false, aclRoles: [{ privileges: ['tax.viewer'] }] });
         const aclService = new AclService();
 
@@ -134,18 +131,15 @@ describe('src/app/service/acl.service.ts', () => {
     });
 
     it('should have access to the settings route when user has no access to settings', async () => {
-        Shopware.Store.get('settingsItems').settingsGroups.shop = [
-            {
-                group: 'shop',
-                icon: 'default-chart-pie',
-                id: 'sw-settings-tax',
-                label: 'sw-settings-tax.general.mainMenuItemGeneral',
-                name: 'settings-tax',
-                privilege: 'tax.viewer',
-                to: 'sw.settings.tax.index',
-            },
-        ];
-        Shopware.Store.get('settingsItems').settingsGroups.system = [];
+        Shopware.Store.get('settingsItems').addItem({
+            group: 'shop',
+            icon: 'default-chart-pie',
+            id: 'sw-settings-tax',
+            label: 'sw-settings-tax.general.mainMenuItemGeneral',
+            name: 'settings-tax',
+            privilege: 'tax.viewer',
+            to: 'sw.settings.tax.index',
+        });
         Shopware.Store.get('session').setCurrentUser({ admin: false });
         const aclService = new AclService();
 

@@ -3,7 +3,6 @@
  * @private
  */
 
-import { reactive } from 'vue';
 import { useExtensionOrdereredArrayMap } from '../composables/use-extension-ordered-container';
 
 export interface SettingsItem {
@@ -44,31 +43,29 @@ const settingsItems = Shopware.Store.register('settingsItems', () => {
 
         const groupArray = settingsByGroup.get(group);
 
-        // @ts-expect-error - the inferred type is incorrect
-        if (groupArray.items.some((setting) => setting.name === settingsItem.name)) {
+        if (groupArray.items.value.some((setting) => setting.name === settingsItem.name)) {
             return;
         }
 
         groupArray.push(settingsItem);
     };
 
-    const defaultGroups = {
-        general: [],
-        customer: [],
-        automation: [],
-        localization: [],
-        content: [],
-        commerce: [],
-        system: [],
-        account: [],
-        plugins: [],
+    const defaultGroups = ['general', 'customer', 'automation', 'localization', 'content', 'commerce', 'system', 'account', 'plugins'];
+
+    // Initialize the default groups by accessing them via get, which creates empty entries in the map
+    const initDefaults = () => defaultGroups.forEach((group) => settingsByGroup.get(group));
+    initDefaults();
+
+    const reset = () => {
+        settingsByGroup.reset();
+        initDefaults();
     };
 
-    return reactive({
+    return {
         settingsGroups,
         addItem,
-        reset: settingsByGroup.reset,
-    });
+        reset,
+    };
 });
 
 /**

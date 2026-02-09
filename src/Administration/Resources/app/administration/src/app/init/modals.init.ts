@@ -34,21 +34,17 @@ export default function initializeModal(): void {
         }
 
         // Update the modal with the new configuration
-        const currentModal = Shopware.Store.get('modals').modals.findIndex((modal) => {
-            return modal.locationId === modalConfig.locationId;
-        });
 
-        if (currentModal !== -1) {
-            // Index is used to maintain Vue reactivity
-            Shopware.Store.get('modals').modals[currentModal] = {
-                ...Shopware.Store.get('modals').modals[currentModal],
+        try {
+            Shopware.Store.get('modals').updateModal(modalConfig.locationId, {
                 ...modalConfig,
                 // Buttons explizit überschreiben, falls im modalConfig enthalten
                 ...(modalConfig.buttons ? { buttons: modalConfig.buttons } : {}),
-            };
-        } else {
-            console.error(`Modal with locationId "${modalConfig.locationId}" not found.`);
+            });
+        } catch (error) {
+            console.error(error);
         }
+        
     });
 
     Shopware.ExtensionAPI.handle('uiModalClose', ({ locationId }) => {

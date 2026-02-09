@@ -4,7 +4,6 @@
  * @description Apply for upselling service only, no public usage
  */
 
-import { reactive } from 'vue';
 import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
 const topBarButtonStore = Shopware.Store.register('topBarButton', () => {
@@ -15,10 +14,11 @@ const topBarButtonStore = Shopware.Store.register('topBarButton', () => {
         buttonsOrdered.push(configuration);
     };
 
-    return reactive({
+    return {
         buttons,
         addButton,
-    });
+        reset: buttonsOrdered.reset,
+    };
 });
 
 /**

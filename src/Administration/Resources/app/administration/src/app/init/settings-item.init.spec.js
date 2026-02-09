@@ -10,12 +10,8 @@ describe('src/app/init/settings-item.init.ts', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('extensionSdkModules').modules = [];
-        Shopware.Store.get('settingsItems').settingsGroups = {
-            shop: [],
-            system: [],
-            plugins: [],
-        };
+        Shopware.Store.get('extensionSdkModules').reset();
+        Shopware.Store.get('settingsItems').reset();
 
         Shopware.Store.get('extensions').extensionsState = {};
         Shopware.Store.get('extensions').addExtension({

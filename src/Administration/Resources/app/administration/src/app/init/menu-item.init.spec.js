@@ -10,9 +10,9 @@ describe('src/app/init/menu-item.init.ts', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('extensionSdkModules').modules = [];
+        Shopware.Store.get('extensionSdkModules').reset();
 
-        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').$reset();
         Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
@@ -40,7 +40,7 @@ describe('src/app/init/menu-item.init.ts', () => {
     });
 
     it('should not handle requests when extension is not valid', async () => {
-        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').$reset();
 
         await expect(async () => {
             await ui.menu.addMenuItem({

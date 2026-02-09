@@ -3,7 +3,6 @@
  * @private
  */
 import type { smartBarButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/main-module/';
-import { reactive } from 'vue';
 import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -80,7 +79,7 @@ const extensionSdkModules = Shopware.Store.register('extensionSdkModules', () =>
         hiddenSmartBarsOrdered.reset();
     };
 
-    return reactive({
+    return {
         modules,
         smartBarButtons,
         hiddenSmartBars,
@@ -89,7 +88,7 @@ const extensionSdkModules = Shopware.Store.register('extensionSdkModules', () =>
         addHiddenSmartBar,
         getRegisteredModuleInformation,
         reset,
-    });
+    };
 });
 
 /**

@@ -75,7 +75,7 @@ async function createWrapper(mediaServiceFunctions = {}, props = {}) {
 
 describe('components/media/sw-media-media-item', () => {
     beforeEach(() => {
-        Shopware.Store.get('actionButtons').buttons = [];
+        Shopware.Store.get('actionButtons').reset();
     });
 
     it('should throw error if new file name is too long', async () => {

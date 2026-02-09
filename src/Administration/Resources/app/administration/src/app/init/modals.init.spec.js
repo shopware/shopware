@@ -10,9 +10,9 @@ describe('src/app/init/modals.init.ts', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('modals').modals = [];
+        Shopware.Store.get('modals').reset();
 
-        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').$reset();
         Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
@@ -91,7 +91,7 @@ describe('src/app/init/modals.init.ts', () => {
     });
 
     it('should not handle requests when extension is not valid', async () => {
-        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').$reset();
 
         await expect(async () => {
             await ui.modal.open({

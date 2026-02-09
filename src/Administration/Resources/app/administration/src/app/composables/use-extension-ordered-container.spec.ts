@@ -324,8 +324,8 @@ describe('use-extension-ordered-container', () => {
 
                 expect(items.value.key1).toBeDefined();
                 expect(items.value.key2).toBeDefined();
-                expect(items.value.key1.value).toEqual(['a', 'b']);
-                expect(items.value.key2.value).toEqual(['c']);
+                expect(items.value.key1).toEqual(['a', 'b']);
+                expect(items.value.key2).toEqual(['c']);
             });
 
             it('items map updates when new key is accessed via get', () => {
@@ -335,7 +335,7 @@ describe('use-extension-ordered-container', () => {
 
                 get('newKey');
                 expect(Object.keys(items.value)).toContain('newKey');
-                expect(items.value.newKey.value).toEqual([]);
+                expect(items.value.newKey).toEqual([]);
             });
 
             it('items map is readonly and mutation throws', async () => {
@@ -350,7 +350,7 @@ describe('use-extension-ordered-container', () => {
                     delete (items.value as Record<string, unknown>)['key1'];
                 }).toThrow();
 
-                const key1Array = items.value.key1.value as string[];
+                const key1Array = items.value.key1 as string[];
                 expect(() => {
                     key1Array.push('b');
                 }).toThrow();

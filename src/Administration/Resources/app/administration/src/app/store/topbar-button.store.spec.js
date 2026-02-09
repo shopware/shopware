@@ -6,11 +6,13 @@ describe('topbar-button.store', () => {
     let store;
 
     beforeEach(() => {
+        // Set extension context to null (core context) for testing
+        Shopware.Store.get('extensionContext')._setCurrentExtensionContext(null);
         store = Shopware.Store.get('topBarButton');
     });
 
     afterEach(() => {
-        store.buttons = [];
+        store.reset();
     });
 
     it('has initial state', () => {
@@ -18,7 +20,7 @@ describe('topbar-button.store', () => {
     });
 
     it('can update buttons', () => {
-        store.buttons.push({
+        store.addButton({
             label: 'Test action',
             icon: 'solid-rocket',
             callback: () => {},

@@ -28,7 +28,7 @@ describe('sw-app-topbar-sidebar', () => {
 
     it('should render button correctly', async () => {
         const store = Shopware.Store.get('sidebar');
-        store.sidebars.push(sidebar);
+        store.addSidebar(sidebar);
 
         wrapper = await createWrapper();
 

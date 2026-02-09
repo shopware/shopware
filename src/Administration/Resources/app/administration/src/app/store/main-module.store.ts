@@ -3,7 +3,6 @@
  * @sw-package framework
  */
 
-import { reactive } from 'vue';
 import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -23,10 +22,11 @@ const extensionMainModules = Shopware.Store.register('extensionMainModules', () 
         });
     };
 
-    return reactive({
+    return {
         mainModules,
         addMainModule,
-    });
+        reset: mainModulesOrdered.reset,
+    };
 });
 
 /**

@@ -9,9 +9,9 @@ describe('src/app/init/sidebar.init', () => {
 
     beforeEach(() => {
         // Reset the sidebar store
-        Shopware.Store.get('sidebar').sidebars = [];
+        Shopware.Store.get('sidebar').reset();
 
-        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').$reset();
         Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',

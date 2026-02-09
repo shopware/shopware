@@ -10,7 +10,7 @@ describe('src/app/init/main-module.init.ts', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('extensionSdkModules').modules = [];
+        Shopware.Store.get('extensionSdkModules').reset();
 
         Shopware.Store.get('extensions').extensionsState = {};
         Shopware.Store.get('extensions').addExtension({

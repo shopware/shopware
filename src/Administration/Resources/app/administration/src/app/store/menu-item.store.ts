@@ -3,7 +3,6 @@
  */
 
 import type { menuItemAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/menu';
-import { reactive } from 'vue';
 import { useExtensionOrderedArray } from '../composables/use-extension-ordered-container';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -24,10 +23,10 @@ const menuItemStore = Shopware.Store.register('menuItem', () => {
         });
     };
 
-    return reactive({
+    return {
         menuItems,
         addMenuItem,
-    });
+    };
 });
 
 /**

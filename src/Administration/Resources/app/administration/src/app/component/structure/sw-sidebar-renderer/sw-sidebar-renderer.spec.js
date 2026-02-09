@@ -48,9 +48,9 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('sidebar').sidebars = [];
+        Shopware.Store.get('sidebar').reset();
 
-        Shopware.Store.get('extensions').extensionsState = {};
+        Shopware.Store.get('extensions').$reset();
         Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',

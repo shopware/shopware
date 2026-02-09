@@ -161,7 +161,7 @@ async function createWrapper(
 
 describe('module/sw-settings/page/sw-settings-index', () => {
     beforeEach(async () => {
-        Shopware.Store.get('settingsItems').settingsGroups = {};
+        Shopware.Store.get('settingsItems').reset();
     });
 
     it('should contain any settings items', async () => {

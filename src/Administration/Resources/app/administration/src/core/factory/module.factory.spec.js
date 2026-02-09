@@ -377,7 +377,7 @@ describe('core/factory/module.factory.js', () => {
 
     it('should add settings item if feature flag is active', () => {
         global.activeFeatureFlags = ['testFlag'];
-        Shopware.Store.get('settingsItems').settingsGroups = {};
+        Shopware.Store.get('settingsItems').reset();
 
         register('sw-foo', {
             name: 'fooBar',
@@ -396,24 +396,21 @@ describe('core/factory/module.factory.js', () => {
             },
         });
 
-        const expectedSettingsItem = {
-            fooGroup: [
-                {
-                    group: 'fooGroup',
-                    icon: 'fooIcon',
-                    id: 'sw-foo',
-                    label: 'barFoo',
-                    name: 'fooBar',
-                    to: 'foo.bar',
-                },
-            ],
-        };
-        expect(Shopware.Store.get('settingsItems').settingsGroups).toEqual(expectedSettingsItem);
+        expect(Shopware.Store.get('settingsItems').settingsGroups.fooGroup).toEqual([
+            {
+                group: 'fooGroup',
+                icon: 'fooIcon',
+                id: 'sw-foo',
+                label: 'barFoo',
+                name: 'fooBar',
+                to: 'foo.bar',
+            },
+        ]);
     });
 
     it('should not add settings item if feature flag is deactivated', () => {
         global.activeFeatureFlags = [];
-        Shopware.Store.get('settingsItems').settingsGroups = {};
+        Shopware.Store.get('settingsItems').reset();
 
         register('sw-foo', {
             name: 'fooBar',
@@ -432,7 +429,8 @@ describe('core/factory/module.factory.js', () => {
             },
         });
 
-        expect(Shopware.Store.get('settingsItems').settingsGroups).toEqual({});
+        // fooGroup should not exist because the feature flag is deactivated
+        expect(Shopware.Store.get('settingsItems').settingsGroups.fooGroup).toBeUndefined();
     });
 
     it('should not allow plugin modules to create menu entries on first level', () => {

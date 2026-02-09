@@ -2,7 +2,7 @@ describe('main-module.store', () => {
     const store = Shopware.Store.get('extensionMainModules');
 
     beforeEach(() => {
-        store.$reset();
+        store.reset();
     });
 
     it('has initial state', () => {

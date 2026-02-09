@@ -13,7 +13,7 @@ describe('src/module/sw-settings', () => {
         const modules = ModuleFactory.getModuleRegistry();
         modules.clear();
 
-        Shopware.Store.get('settingsItems').settingsGroups = {};
+        Shopware.Store.get('settingsItems').reset();
 
         settingsIndex = {
             type: 'core',
@@ -34,7 +34,18 @@ describe('src/module/sw-settings', () => {
 
         const settingsGroups = Shopware.Store.get('settingsItems').settingsGroups;
 
-        expect(settingsGroups).toEqual({});
+        // After reset, default groups exist but are empty
+        expect(settingsGroups).toEqual({
+            account: [],
+            automation: [],
+            commerce: [],
+            content: [],
+            customer: [],
+            general: [],
+            localization: [],
+            plugins: [],
+            system: [],
+        });
     });
 
     it('should contain registered settings items group', async () => {

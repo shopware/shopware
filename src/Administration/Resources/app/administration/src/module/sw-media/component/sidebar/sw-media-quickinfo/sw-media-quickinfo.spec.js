@@ -195,7 +195,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     });
 
     afterEach(() => {
-        Shopware.Store.get('actionButtons').buttons = [];
+        Shopware.Store.get('actionButtons').reset();
     });
 
     it('should not be able to delete', async () => {

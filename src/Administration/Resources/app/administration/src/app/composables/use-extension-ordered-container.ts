@@ -123,7 +123,7 @@ export const useExtensionOrdereredArrayMap = <T>() => {
     const items = computed(() =>
         Object.freeze(
             Object.fromEntries(
-                Array.from(internalMap.value.entries()).map(([key, value]) => [key, value.items]),
+                Array.from(internalMap.value.entries()).map(([key, value]) => [key, value.items.value]),
             ),
         ),
     );

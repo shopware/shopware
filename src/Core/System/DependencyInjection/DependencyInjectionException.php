@@ -27,7 +27,8 @@ class DependencyInjectionException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MISSING_ENTITY_TAG_ATTRIBUTE,
-            \sprintf('Service "%s" is tagged as "%s" but is missing the required "entity" attribute.', $serviceId, $tagName)
+            'Service "{{ serviceId }}" is tagged as "{{ tagName }}" but is missing the required "entity" attribute.',
+            ['serviceId' => $serviceId, 'tagName' => $tagName]
         );
     }
 

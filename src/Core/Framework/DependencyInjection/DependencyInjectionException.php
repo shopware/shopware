@@ -40,7 +40,8 @@ class DependencyInjectionException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::TAGGED_SERVICE_HAS_WRONG_TYPE,
-            \sprintf('Service "%s" is tagged as "%s" and must therefore be of type "%s".', $service, $tag, $type)
+            'Service "{{ service }}" is tagged as "{{ tag }}" and must therefore be of type "{{ type }}".',
+            ['service' => $service, 'tag' => $tag, 'type' => $type]
         );
     }
 
@@ -49,7 +50,8 @@ class DependencyInjectionException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PARAMETER_HAS_WRONG_TYPE,
-            \sprintf('Parameter "%s" should be: "%s". Got: "%s"', $parameter, $expectedType, $actualType)
+            'Parameter "{{ parameter }}" should be: "{{ expectedType }}". Got: "{{ actualType }}"',
+            ['parameter' => $parameter, 'expectedType' => $expectedType, 'actualType' => $actualType]
         );
     }
 
@@ -58,7 +60,8 @@ class DependencyInjectionException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MISSING_ENTITY_TAG_ATTRIBUTE,
-            \sprintf('Service "%s" is tagged as "%s" but is missing the required "entity" attribute.', $serviceId, $tagName)
+            'Service "{{ serviceId }}" is tagged as "{{ tagName }}" but is missing the required "entity" attribute.',
+            ['serviceId' => $serviceId, 'tagName' => $tagName]
         );
     }
 
@@ -67,12 +70,8 @@ class DependencyInjectionException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::ENTITY_TAG_UNRESOLVABLE,
-            \sprintf(
-                'Service "%s" is tagged as "%s" but has no "entity" attribute and the entity name could not be resolved from class "%s".',
-                $serviceId,
-                $tagName,
-                $class
-            )
+            'Service "{{ serviceId }}" is tagged as "{{ tagName }}" but has no "entity" attribute and the entity name could not be resolved from class "{{ class }}".',
+            ['serviceId' => $serviceId, 'tagName' => $tagName, 'class' => $class]
         );
     }
 
@@ -81,13 +80,8 @@ class DependencyInjectionException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::ENTITY_TAG_MISMATCH,
-            \sprintf(
-                'Service "%s" has tag "%s" with entity="%s", but getEntityName() returns "%s". They must match.',
-                $serviceId,
-                $tagName,
-                $tagEntity,
-                $actualEntity
-            )
+            'Service "{{ serviceId }}" has tag "{{ tagName }}" with entity="{{ tagEntity }}", but getEntityName() returns "{{ actualEntity }}". They must match.',
+            ['serviceId' => $serviceId, 'tagName' => $tagName, 'tagEntity' => $tagEntity, 'actualEntity' => $actualEntity]
         );
     }
 }

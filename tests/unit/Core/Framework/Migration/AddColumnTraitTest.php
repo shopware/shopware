@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\DriverException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -29,18 +30,18 @@ class AddColumnTraitTest extends TestCase
     }
 
     #[DataProvider('columnDoesNotExistScenarios')]
-    public function testExecutesStatementAndReturnsTrueIfColumnDoesNotExist(
+    public function testUsesInstantAlgorithm(
         string $table,
         string $column,
         string $type,
         bool $nullable,
         string $default,
-        string $expectedSql
+        string $expectedInstantSql
     ): void {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('executeStatement')
-            ->with($expectedSql);
+            ->with($expectedInstantSql);
 
         $migration = new TestAddColumnMigration(columnExists: false);
 
@@ -48,6 +49,35 @@ class AddColumnTraitTest extends TestCase
         \assert($column !== '');
 
         $result = $migration->callAddColumn($connection, $table, $column, $type, $nullable, $default);
+
+        static::assertTrue($result);
+    }
+
+    public function testFallsBackWhenInstantNotSupported(): void
+    {
+        $connection = $this->createMock(Connection::class);
+
+        $instantSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT()), ALGORITHM=INSTANT;';
+        $fallbackSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT());';
+
+        $driverException = $this->createMock(\Doctrine\DBAL\Driver\Exception::class);
+        $exception = new DriverException($driverException, null);
+
+        $connection->expects($this->exactly(2))
+            ->method('executeStatement')
+            ->willReturnCallback(function (string $sql) use ($instantSql, $fallbackSql, $exception): int {
+                if ($sql === $instantSql) {
+                    throw $exception;
+                }
+
+                static::assertSame($fallbackSql, $sql);
+
+                return 0;
+            });
+
+        $migration = new TestAddColumnMigration(columnExists: false);
+
+        $result = $migration->callAddColumn($connection, 'app', 'source_config', 'JSON', false, '(JSON_OBJECT())');
 
         static::assertTrue($result);
     }

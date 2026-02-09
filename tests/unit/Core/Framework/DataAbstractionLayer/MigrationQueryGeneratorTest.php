@@ -72,7 +72,7 @@ class MigrationQueryGeneratorTest extends TestCase
 
         $this->schemaManager->method('tableExists')->willReturn(true);
 
-        $this->schemaManager->method('introspectTable')->willReturn($this->getOriginalTable());
+        $this->schemaManager->method('introspectTableByUnquotedName')->willReturn($this->getOriginalTable());
 
         $this->schemaBuilder->method('buildSchemaOfDefinition')->willReturn($this->getNewTable());
 

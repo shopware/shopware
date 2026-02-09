@@ -2,7 +2,9 @@
     background: var(--bs-body);
     border: 0 none;
     padding: 0.5rem;
-    font-size: 0.85rem;
+    display: flex;
+    gap: 0.4rem;
+    color: var(--bs-body-color);
 
     &:focus {
         outline: 2px solid var(--bs-primary);
@@ -15,6 +17,8 @@
 }
 
 .sw-header-widget__label {
-    margin-top: 0.5rem;
+    color: var(--bs-primary);
+    font-variant-numeric: tabular-nums;
     display: block;
+    font-weight: 600;
 }

@@ -2,26 +2,41 @@
     currencies
 %}
 
-{% set attributeDefaults = {
+{% set attributeDefaultsForm = {
     action: path('frontend.checkout.configure'),
     method: 'post',
     class: 'sw-currency-select',
+    'data-form-add-dynamic-redirect': 'true'
 } %}
 
-<form {{ attributes.defaults(attributeDefaults) }}>
-    <select
-        name="currencyId"
-        class="sw-language-select__options form-select form-select-sm"
-        aria-label="{{ 'header.currencyTrigger'|trans({ '%currency%': context.currency.translated.name })|striptags }}"
+<div class="sw-currency-select dropdown">
+    <button
+        type="button"
+        class="btn btn-link text-body btn-sm dropdown-toggle border-0 p-0 link-underline link-underline-opacity-0 fs-5 fw-normal"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
     >
-        {% for currency in currencies %}
-            {% set isActiveCurrency = currency.id is same as(context.currency.id) %}
-            <option
-                value="{{ currency.id }}"
-                {% if isActiveCurrency %}selected{% endif %}
-            >
-                {{ currency.name }}
-            </option>
-        {% endfor %}
-    </select>
-</form>
+        {{ context.currency.symbol }} {{ context.currency.translated.name|sw_sanitize }}
+    </button>
+    <div class="dropdown-menu dropdown-menu-end">
+        <form {{ attributes.defaults(attributeDefaultsForm) }}>
+            {% for currency in currencies %}
+                {% set isActiveCurrency = currency.id is same as(context.currency.id) %}
+                <button
+                    name="currencyId"
+                    class="dropdown-item"
+                    value="{{ currency.id }}"
+                    {% if isActiveLanguage %}{% endif %}
+                >
+                    <span
+                        class="badge text-bg-secondary"
+                        style="display: inline-block; min-width: 1.8rem; --bs-badge-border-radius: 5px;"
+                    >
+                        {{ currency.symbol }}
+                    </span>
+                    {{ currency.name }}
+                </button>
+            {% endfor %}
+        </form>
+    </div>
+</div>

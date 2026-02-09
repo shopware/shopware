@@ -1,6 +1,22 @@
-<twig:Sw:StoreTemplate:HeaderWidget
-    icon="cart"
-    data-off-canvas-cart="true"
->
-{#    {{ 'checkout.cartTitle'|trans|striptags }}#}
+{# TODO: Legacy cart offcanvas JS #}
+{% props
+    cartInfoRoute = path('frontend.checkout.info'),
+    emptyValue = 0|currency,
+%}
+
+{% set jsOptions = {
+    cartInfoRoute,
+    emptyValue
+} %}
+
+{% set attributeDefaults = {
+    class: 'sw-cart-widget',
+    icon: 'cart',
+    'data-component': 'Sw:StoreTemplate:CartWidget',
+    'data-component-options': jsOptions|json_encode,
+    'data-off-canvas-cart': 'true',
+} %}
+
+<twig:Sw:StoreTemplate:HeaderWidget {{ ...attributes.defaults(attributeDefaults) }}>
+    <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
 </twig:Sw:StoreTemplate:HeaderWidget>

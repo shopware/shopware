@@ -7,15 +7,21 @@
 } %}
 
 <header {{ attributes.defaults(attributeDefaults) }}>
-    <twig:Sw:StoreTemplate:TopBar :header="header" />
+    <twig:Sw:StoreTemplate:TopBar>
+        <twig:Sw:StoreTemplate:LanguageSelect :languages="header.languages" />
+        <twig:Sw:StoreTemplate:CurrencySelect :currencies="header.currencies" />
+    </twig:Sw:StoreTemplate:TopBar>
 
     <twig:Sw:Grid:Container
+        :columnsSm="1"
+        :rowsSm="2"
         :columns="3"
         :centered="true"
         justifyContent="stretch"
         alignContent="center"
         align="center"
         gap="16"
+        style="margin-bottom: 1.2rem;"
     >
         <twig:Sw:Grid:Column>
             <twig:Sw:StoreTemplate:Logo />
@@ -30,8 +36,8 @@
             </div>
         </twig:Sw:Grid:Column>
     </twig:Sw:Grid:Container>
-</header>
 
-<twig:Sw:StoreTemplate:Navbar
-    :navigationTree="header.navigation.tree"
-/>
+    <twig:Sw:StoreTemplate:Navbar
+        :navigationTree="header.navigation.tree"
+    />
+</header>

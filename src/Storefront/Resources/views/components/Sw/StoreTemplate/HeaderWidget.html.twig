@@ -11,10 +11,11 @@
 	<twig:Sw:Icon
 		class="sw-header-widget__icon"
 		:name="icon"
-		color="primary"
+		color="body"
 	/>
-
-	<span class="sw-header-widget__label">
-		{% block content %}{% endblock %}
-	</span>
+	{% if block('content') %}
+		<span class="sw-header-widget__label" style="min-width: 50px;">
+			{% block content %}{% endblock %}
+		</span>
+	{% endif %}
 </button>

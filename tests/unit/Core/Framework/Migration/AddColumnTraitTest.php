@@ -16,24 +16,20 @@ use Shopware\Core\Framework\Migration\AddColumnTrait;
 #[CoversClass(AddColumnTrait::class)]
 class AddColumnTraitTest extends TestCase
 {
-    #[DataProvider('columnExistsScenarios')]
-    public function testReturnsFalseIfColumnExists(bool $useInstant): void
+    public function testReturnsFalseIfColumnExists(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('executeStatement');
 
         $migration = new TestAddColumnMigration(columnExists: true);
 
-        $result = $useInstant
-            ? $migration->callAddColumnInstant($connection, 'product', 'states', 'JSON')
-            : $migration->callAddColumn($connection, 'product', 'states', 'JSON');
+        $result = $migration->callAddColumn($connection, 'product', 'states', 'JSON');
 
         static::assertFalse($result);
     }
 
     #[DataProvider('columnDoesNotExistScenarios')]
     public function testExecutesStatementAndReturnsTrueIfColumnDoesNotExist(
-        bool $useInstant,
         string $table,
         string $column,
         string $type,
@@ -51,49 +47,17 @@ class AddColumnTraitTest extends TestCase
         \assert($table !== '');
         \assert($column !== '');
 
-        $result = $useInstant
-            ? $migration->callAddColumnInstant($connection, $table, $column, $type, $nullable, $default)
-            : $migration->callAddColumn($connection, $table, $column, $type, $nullable, $default);
+        $result = $migration->callAddColumn($connection, $table, $column, $type, $nullable, $default);
 
         static::assertTrue($result);
     }
 
     /**
-     * @return \Generator<string, array{bool}>
-     */
-    public static function columnExistsScenarios(): \Generator
-    {
-        yield 'addColumn' => [false];
-        yield 'addColumnInstant' => [true];
-    }
-
-    /**
-     * @return \Generator<string, array{bool, string, string, string, bool, string, string}>
+     * @return \Generator<string, array{string, string, string, bool, string, string}>
      */
     public static function columnDoesNotExistScenarios(): \Generator
     {
-        yield 'addColumn default nullable' => [
-            false,
-            'product',
-            'states',
-            'JSON',
-            true,
-            'NULL',
-            'ALTER TABLE `product` ADD COLUMN `states` JSON NULL DEFAULT NULL;',
-        ];
-
-        yield 'addColumn not nullable' => [
-            false,
-            'product',
-            'active',
-            'TINYINT(1)',
-            false,
-            '\'1\'',
-            'ALTER TABLE `product` ADD COLUMN `active` TINYINT(1) NOT NULL DEFAULT \'1\';',
-        ];
-
-        yield 'addColumnInstant default nullable' => [
-            true,
+        yield 'nullable with NULL default' => [
             'product',
             'states',
             'JSON',
@@ -102,8 +66,16 @@ class AddColumnTraitTest extends TestCase
             'ALTER TABLE `product` ADD COLUMN `states` JSON NULL DEFAULT NULL, ALGORITHM=INSTANT;',
         ];
 
-        yield 'addColumnInstant not nullable' => [
-            true,
+        yield 'not nullable with explicit default' => [
+            'product',
+            'active',
+            'TINYINT(1)',
+            false,
+            '\'1\'',
+            'ALTER TABLE `product` ADD COLUMN `active` TINYINT(1) NOT NULL DEFAULT \'1\', ALGORITHM=INSTANT;',
+        ];
+
+        yield 'not nullable int column' => [
             'order',
             'priority',
             'INT',
@@ -139,21 +111,6 @@ class TestAddColumnMigration
         string $default = 'NULL'
     ): bool {
         return $this->addColumn($connection, $table, $column, $type, $nullable, $default);
-    }
-
-    /**
-     * @param non-empty-string $table
-     * @param non-empty-string $column
-     */
-    public function callAddColumnInstant(
-        Connection $connection,
-        string $table,
-        string $column,
-        string $type,
-        bool $nullable = true,
-        string $default = 'NULL'
-    ): bool {
-        return $this->addColumnInstant($connection, $table, $column, $type, $nullable, $default);
     }
 
     protected function columnExists(Connection $connection, string $table, string $column): bool

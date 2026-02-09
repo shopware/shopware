@@ -24,7 +24,7 @@ class AddColumnRuleTest extends RuleTestCase
             __DIR__ . '/../data/AddColumnRule/Migration1769435682ValidPattern.php',
         ], [
             [
-                'Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumnInstant() for the column, then ADD CONSTRAINT separately.',
+                'Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumn() for the column, then ADD CONSTRAINT separately.',
                 20,
             ],
         ]);

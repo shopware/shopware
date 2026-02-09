@@ -114,7 +114,7 @@ class AddColumnRule implements Rule
             if ($hasAddColumnWithConstraint === 1) {
                 if ($this->isRecentMigration($scope)) {
                     return [
-                        RuleErrorBuilder::message('Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumnInstant() for the column, then ADD CONSTRAINT separately.')
+                        RuleErrorBuilder::message('Combining ADD COLUMN with ADD CONSTRAINT CHECK in the same ALTER TABLE statement requires ALGORITHM=COPY and causes a full table rebuild. Split into separate statements: use MigrationStep::addColumn() for the column, then ADD CONSTRAINT separately.')
                             ->identifier('shopware.tableCopyOperation')
                             ->build(),
                     ];
@@ -145,7 +145,7 @@ class AddColumnRule implements Rule
         $pattern = '/ALTER TABLE .* ADD .*/m';
         if (preg_match($pattern, $arg->value)) {
             return [
-                RuleErrorBuilder::message('Do not use `ALTER TABLE ... ADD COLUMN` in migration. Use MigrationStep::addColumn() by default, or MigrationStep::addColumnInstant() for large tables to prevent slow table copies.')
+                RuleErrorBuilder::message('Do not use `ALTER TABLE ... ADD COLUMN` in migration. Use MigrationStep::addColumn() instead, which uses ALGORITHM=INSTANT to prevent slow table copies.')
                     ->identifier('shopware.addColumn')
                     ->build(),
             ];

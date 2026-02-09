@@ -9,6 +9,19 @@ trait AddColumnTrait
     use ColumnExistsTrait;
 
     /**
+     * Add a column using ALGORITHM=INSTANT for fast, non-blocking execution.
+     *
+     * ALGORITHM=INSTANT ensures the column is added as a metadata-only change without
+     * rebuilding the table. This is safe because this method only appends columns at the
+     * end of the table (no AFTER/FIRST clause), which is fully INSTANT-compatible.
+     *
+     * If INSTANT is not supported for a specific case (e.g., the table has a hidden
+     * FTS_DOC_ID column from fulltext indexes), the operation will fail fast instead
+     * of silently falling back to a slow COPY algorithm.
+     *
+     * Requirements (already met by Shopware minimum versions):
+     * - MySQL 8.0.12+ or MariaDB 10.3.2+ (Shopware minimum: MySQL 8.0.22, MariaDB 10.11)
+     *
      * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see \Shopware\Core\Framework\Util\UtilException} instead of {@see \Doctrine\DBAL\Exception\TableNotFoundException}
      *
      * @param non-empty-string $table
@@ -27,55 +40,9 @@ trait AddColumnTrait
             return false;
         }
 
-        // don't allow AFTER statements, it causes temporary tables which are extrem slow, because mysql has to copy whole tables
-        $connection->executeStatement(
-            'ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $type . ' ' . ($nullable ? 'NULL' : 'NOT NULL') . ' DEFAULT ' . $default . ';'
-        );
-
-        return true;
-    }
-
-    /**
-     * Add a column using ALGORITHM=INSTANT for fast execution on large tables.
-     *
-     * This method enforces ALGORITHM=INSTANT which will fail fast if the operation
-     * cannot be performed instantly (e.g., if the table has a hidden FTS_DOC_ID column
-     * or if the database version doesn't support INSTANT for this operation).
-     *
-     * Use this method instead of addColumn() when you need to ensure the operation
-     * completes quickly without table rebuilds. The operation will fail with an error
-     * if INSTANT is not supported, preventing silent fallback to slower algorithms.
-     *
-     * Requirements:
-     * - MySQL 8.0.12+ or MariaDB 10.3.2+ (Shopware minimum: MySQL 8.0.22, MariaDB 10.11)
-     * - Column must be added at the end of the table (no AFTER clause, enforced by PHPStan rule)
-     * - Table must not have a hidden FTS_DOC_ID column (from fulltext indexes)
-     *
-     * @param Connection $connection The database connection
-     * @param non-empty-string $table The table name
-     * @param non-empty-string $column The column name
-     * @param string $type The column type (e.g., 'JSON', 'VARCHAR(255)')
-     * @param bool $nullable Whether the column is nullable
-     * @param string $default The default value (e.g., 'NULL', "'default'")
-     *
-     * @throws \Doctrine\DBAL\Exception If ALGORITHM=INSTANT is not supported
-     *
-     * @return bool true if the column was created, false if it already exists
-     */
-    protected function addColumnInstant(
-        Connection $connection,
-        string $table,
-        string $column,
-        string $type,
-        bool $nullable = true,
-        string $default = 'NULL'
-    ): bool {
-        if ($this->columnExists($connection, $table, $column)) {
-            return false;
-        }
-
-        // ALGORITHM=INSTANT will fail fast if operation cannot be performed instantly
-        // This prevents silent fallback to COPY algorithm which would rebuild the entire table
+        // ALGORITHM=INSTANT ensures fast metadata-only column addition.
+        // No AFTER/FIRST clause is used, so the column is always appended – fully INSTANT-compatible.
+        // If INSTANT is not possible, MySQL/MariaDB will raise an error instead of silently falling back to COPY.
         $connection->executeStatement(
             'ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $type . ' ' . ($nullable ? 'NULL' : 'NOT NULL') . ' DEFAULT ' . $default . ', ALGORITHM=INSTANT;'
         );

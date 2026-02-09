@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -18,9 +19,9 @@ use Twig\Source;
 class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface, ResetInterface
 {
     /**
-     * @var array<string, array<string, array{template: string, hash: string, updatedAt: \DateTimeInterface|null}|null>>
+     * @var array<string, array<string, array{template: string, hash: string, updatedAt: \DateTimeInterface|null}|null>>|null
      */
-    private array $databaseTemplateCache = [];
+    private ?array $databaseTemplateCache = null;
 
     /**
      * @internal
@@ -38,7 +39,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
 
     public function reset(): void
     {
-        $this->databaseTemplateCache = [];
+        $this->databaseTemplateCache = null;
     }
 
     public function getSourceContext(string $name): Source
@@ -104,19 +105,24 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         $namespace = $templateName['namespace'];
         $path = $templateName['path'];
 
-        if (empty($this->databaseTemplateCache)) {
-            /** @var list<array{path: string, template: string, updatedAt: string|null, namespace: string, hash: string}> $templates */
-            $templates = $this->connection->fetchAllAssociative('
-                SELECT
-                    `app_template`.`path` AS `path`,
-                    `app_template`.`template` AS `template`,
-                    `app_template`.`hash` AS `hash`,
-                    `app_template`.`updated_at` AS `updatedAt`,
-                    `app`.`name` AS `namespace`
-                FROM `app_template`
-                INNER JOIN `app` ON `app_template`.`app_id` = `app`.`id`
-                WHERE `app_template`.`active` = 1 AND `app`.`active` = 1
-            ');
+        if ($this->databaseTemplateCache === null) {
+            $this->databaseTemplateCache = [];
+            try {
+                /** @var list<array{path: string, template: string, updatedAt: string|null, namespace: string, hash: string}> $templates */
+                $templates = $this->connection->fetchAllAssociative('
+                    SELECT
+                        `app_template`.`path` AS `path`,
+                        `app_template`.`template` AS `template`,
+                        `app_template`.`hash` AS `hash`,
+                        `app_template`.`updated_at` AS `updatedAt`,
+                        `app`.`name` AS `namespace`
+                    FROM `app_template`
+                    INNER JOIN `app` ON `app_template`.`app_id` = `app`.`id`
+                    WHERE `app_template`.`active` = 1 AND `app`.`active` = 1
+                ');
+            } catch (Exception) {
+                return null;
+            }
 
             foreach ($templates as $template) {
                 $this->databaseTemplateCache[$template['path']][$template['namespace']] = [

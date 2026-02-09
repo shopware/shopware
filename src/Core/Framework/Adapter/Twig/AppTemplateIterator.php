@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -46,11 +47,15 @@ class AppTemplateIterator implements \IteratorAggregate
             new TermsAggregation('path-names', 'path')
         );
 
-        /** @var TermsResult $pathNames */
-        $pathNames = $this->templateRepository->aggregate(
-            $criteria,
-            Context::createDefaultContext()
-        )->get('path-names');
+        try {
+            /** @var TermsResult $pathNames */
+            $pathNames = $this->templateRepository->aggregate(
+                $criteria,
+                Context::createDefaultContext()
+            )->get('path-names');
+        } catch (Exception) {
+            return [];
+        }
 
         return $pathNames->getKeys();
     }
